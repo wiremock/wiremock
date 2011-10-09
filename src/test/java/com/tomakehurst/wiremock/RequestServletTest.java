@@ -21,7 +21,7 @@ public class RequestServletTest {
 	private static final int A_STATUS_CODE = 200;
 	
 	private Mockery context;
-	private ResponseDefinitions responses;
+	private Responses responses;
 	private RequestServlet requestServlet;
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
@@ -29,7 +29,7 @@ public class RequestServletTest {
 	@Before
 	public void init() {
 		context = new Mockery();
-		responses = context.mock(ResponseDefinitions.class);
+		responses = context.mock(Responses.class);
 		RequestServlet.setResponseDefinitions(responses);
 		requestServlet = new RequestServlet();
 		
@@ -40,8 +40,8 @@ public class RequestServletTest {
 	@Test
 	public void shouldReturnResponseProvidedByRouterWhenMatchFound() throws Exception {
 		context.checking(new Expectations() {{
-			allowing(responses).get(GET, A_URI);
-			will(returnValue(new ResponseDefinition(A_STATUS_CODE, SOME_TEXT)));
+			allowing(responses).getFor(new Request(GET, A_URI));
+			will(returnValue(new Response(A_STATUS_CODE, SOME_TEXT)));
 		}});
 		
 		request.setRequestURI(A_URI);

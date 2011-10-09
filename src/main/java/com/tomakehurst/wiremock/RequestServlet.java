@@ -12,18 +12,22 @@ public class RequestServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -5994955091275953358L;
 	
-	private static ResponseDefinitions responses;
+	private static Responses responses;
 	
 	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RequestMethod method = RequestMethod.valueOf(request.getMethod().toUpperCase());
-		ResponseDefinition responseDefinition = responses.get(method, request.getRequestURI());
-		response.setStatus(responseDefinition.getStatusCode());
-		response.getWriter().write(responseDefinition.getBodyContent());
+	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+		Request request = createRequestFrom(httpServletRequest);
+		Response response = responses.getFor(request);
+		httpServletResponse.setStatus(response.getStatusCode());
+		httpServletResponse.getWriter().write(response.getBodyContent());
 		
 	}
 
-	public static void setResponseDefinitions(ResponseDefinitions responseDefinitions) {
+	public static void setResponseDefinitions(Responses responseDefinitions) {
 		RequestServlet.responses = responseDefinitions;
+	}
+	
+	private Request createRequestFrom(HttpServletRequest httpServletRequest) {
+		return new Request(RequestMethod.valueOf(httpServletRequest.getMethod()), httpServletRequest.getRequestURI());
 	}
 }

@@ -6,10 +6,10 @@ import org.mortbay.jetty.servlet.Context;
 public class WireMock {
 
 	private Server jettyServer;
-	private ResponseDefinitions responses;
+	private Responses responses;
 	
 	public WireMock() {
-		responses = new InMemoryResponseDefinitions();
+		responses = new InMemoryResponses();
 		RequestServlet.setResponseDefinitions(responses);
 	}
 	
