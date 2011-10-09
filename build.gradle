@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+sourceCompatibility = 1.6
+version = 1.0
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.mortbay.jetty:jetty:6.1.26"
+	compile "javax.servlet:servlet-api:2.4"
+	compile "com.google.guava:guava:10.0"
+	
+	testCompile "junit:junit:4.8"
+	testCompile "org.hamcrest:hamcrest-all:1.1"
+	testCompile "commons-httpclient:commons-httpclient:3.1"
+	testCompile "org.springframework:spring-test:3.0.5.RELEASE", "org.springframework:spring-core:3.0.5.RELEASE"
+	testCompile "org.jmock:jmock:2.5.1", "org.jmock:jmock-junit4:2.5.1" 
+}
+
+task "create-dirs" << {
+   sourceSets.all*.java.srcDirs*.each { it.mkdirs() }
+   sourceSets.all*.resources.srcDirs*.each { it.mkdirs() }
+}
