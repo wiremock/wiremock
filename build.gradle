@@ -11,6 +11,7 @@ dependencies {
 	compile "org.mortbay.jetty:jetty:6.1.26"
 	compile "javax.servlet:servlet-api:2.4"
 	compile "com.google.guava:guava:10.0"
+	compile "org.codehaus.jackson:jackson-core-asl:1.8.5", "org.codehaus.jackson:jackson-mapper-asl:1.8.5" 
 	
 	testCompile "junit:junit:4.8"
 	testCompile "org.hamcrest:hamcrest-all:1.1"

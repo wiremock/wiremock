@@ -1,21 +1,31 @@
-package com.tomakehurst.wiremock;
+package com.tomakehurst.wiremock.mapping;
+
+import com.tomakehurst.wiremock.http.RequestMethod;
 
 
 
-public class Request {
+public class ImmutableRequest implements Request {
 
 	private final String uri;
 	private final RequestMethod method;
 	
-	public Request(RequestMethod method, String uri) {
+	public ImmutableRequest(RequestMethod method, String uri) {
 		this.uri = uri;
 		this.method = method;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.tomakehurst.wiremock.mapping.Request#getUri()
+	 */
+	@Override
 	public String getUri() {
 		return uri;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.tomakehurst.wiremock.mapping.Request#getMethod()
+	 */
+	@Override
 	public RequestMethod getMethod() {
 		return method;
 	}
@@ -37,7 +47,7 @@ public class Request {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Request other = (Request) obj;
+		ImmutableRequest other = (ImmutableRequest) obj;
 		if (method != other.method)
 			return false;
 		if (uri == null) {

@@ -15,11 +15,11 @@ public class Response {
 		this.httpMethod = httpMethod;
 	}
 
-	public int getStatusCode() {
+	public int statusCode() {
 		return httpMethod.getStatusCode();
 	}
 	
-	public String getBodyAsString() {
+	public String content() {
 		try {
 			return httpMethod.getResponseBodyAsString();
 		} catch (IOException ioe) {

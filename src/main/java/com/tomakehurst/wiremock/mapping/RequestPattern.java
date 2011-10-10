@@ -1,4 +1,6 @@
-package com.tomakehurst.wiremock;
+package com.tomakehurst.wiremock.mapping;
+
+import com.tomakehurst.wiremock.http.RequestMethod;
 
 
 public class RequestPattern {

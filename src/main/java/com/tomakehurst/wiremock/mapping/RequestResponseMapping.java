@@ -1,4 +1,4 @@
-package com.tomakehurst.wiremock;
+package com.tomakehurst.wiremock.mapping;
 
 
 public class RequestResponseMapping {

@@ -1,4 +1,8 @@
-package com.tomakehurst.wiremock;
+package com.tomakehurst.wiremock.mapping;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class Response {
 
@@ -20,6 +24,15 @@ public class Response {
 	
 	public String getBodyContent() {
 		return bodyContent;
+	}
+	
+	public void applyTo(HttpServletResponse httpServletResponse) {
+		httpServletResponse.setStatus(statusCode);
+		try {
+			httpServletResponse.getWriter().write(bodyContent);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
 	}
 
 	@Override
