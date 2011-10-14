@@ -29,7 +29,7 @@ public class InMemoryMappingsTest {
 		Request request = new ImmutableRequest(PUT, "/some/resource");
 		Response response = mappings.getFor(request);
 		
-		assertThat(response.getStatusCode(), is(204));
+		assertThat(response.getStatus(), is(204));
 	}
 	
 	@Test
@@ -41,7 +41,7 @@ public class InMemoryMappingsTest {
 		Request request = new ImmutableRequest(POST, "/some/resource");
 		Response response = mappings.getFor(request);
 		
-		assertThat(response.getStatusCode(), is(HTTP_NOT_FOUND));
+		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
 	
 	@Test
@@ -53,14 +53,14 @@ public class InMemoryMappingsTest {
 		Request request = new ImmutableRequest(PUT, "/some/bad/resource");
 		Response response = mappings.getFor(request);
 		
-		assertThat(response.getStatusCode(), is(HTTP_NOT_FOUND));
+		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
 	
 	@Test
 	public void returnsNotFoundResponseForUnmappedRequest() {
 		Request request = new ImmutableRequest(RequestMethod.OPTIONS, "/not/mapped");
 		Response response = mappings.getFor(request);
-		assertThat(response.getStatusCode(), is(HTTP_NOT_FOUND));
+		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
 	
 }

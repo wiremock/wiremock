@@ -57,6 +57,12 @@ public class ImmutableRequest implements Request {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String getBodyAsString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 }

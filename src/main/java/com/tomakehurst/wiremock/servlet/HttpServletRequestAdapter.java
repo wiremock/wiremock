@@ -1,7 +1,10 @@
 package com.tomakehurst.wiremock.servlet;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.io.CharStreams;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.Request;
 
@@ -21,6 +24,15 @@ public class HttpServletRequestAdapter implements Request {
 	@Override
 	public RequestMethod getMethod() {
 		return RequestMethod.valueOf(request.getMethod().toUpperCase());
+	}
+
+	@Override
+	public String getBodyAsString() {
+		try {
+			return CharStreams.toString(request.getReader());
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
 	}
 
 }

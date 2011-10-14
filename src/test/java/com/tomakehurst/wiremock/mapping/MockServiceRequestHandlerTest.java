@@ -36,8 +36,8 @@ public class MockServiceRequestHandlerTest {
 		Request request = new ImmutableRequest(RequestMethod.GET, "/the/required/resource");
 		Response response = requestHandler.handle(request);
 		
-		assertThat(response.getStatusCode(), is(200));
-		assertThat(response.getBodyContent(), is("Body content"));
+		assertThat(response.getStatus(), is(200));
+		assertThat(response.getBody(), is("Body content"));
 	}
 	
 	

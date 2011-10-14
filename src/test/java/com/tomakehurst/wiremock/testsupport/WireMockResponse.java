@@ -7,11 +7,11 @@ import java.util.Map;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 
-public class Response {
+public class WireMockResponse {
 	
 	private HttpMethod httpMethod;
 	
-	public Response(HttpMethod httpMethod) {
+	public WireMockResponse(HttpMethod httpMethod) {
 		this.httpMethod = httpMethod;
 	}
 

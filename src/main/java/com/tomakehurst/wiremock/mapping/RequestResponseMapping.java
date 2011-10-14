@@ -3,28 +3,40 @@ package com.tomakehurst.wiremock.mapping;
 
 public class RequestResponseMapping {
 
-	private final RequestPattern requestPattern;
-	private final Response response;
+	private RequestPattern request;
+	private Response response;
 	
 	public RequestResponseMapping(RequestPattern requestPattern, Response response) {
-		this.requestPattern = requestPattern;
+		this.request = requestPattern;
 		this.response = response;
 	}
 	
+	public RequestResponseMapping() {
+		//Concession to Jackson
+	}
+	
 	public RequestPattern getRequestPattern() {
-		return requestPattern;
+		return request;
 	}
 	
 	public Response getResponse() {
 		return response;
 	}
 	
+	public void setRequest(RequestPattern request) {
+		this.request = request;
+	}
+
+	public void setResponse(Response response) {
+		this.response = response;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((requestPattern == null) ? 0 : requestPattern.hashCode());
+				+ ((request == null) ? 0 : request.hashCode());
 		result = prime * result
 				+ ((response == null) ? 0 : response.hashCode());
 		return result;
@@ -39,10 +51,10 @@ public class RequestResponseMapping {
 		if (getClass() != obj.getClass())
 			return false;
 		RequestResponseMapping other = (RequestResponseMapping) obj;
-		if (requestPattern == null) {
-			if (other.requestPattern != null)
+		if (request == null) {
+			if (other.request != null)
 				return false;
-		} else if (!requestPattern.equals(other.requestPattern))
+		} else if (!request.equals(other.request))
 			return false;
 		if (response == null) {
 			if (other.response != null)

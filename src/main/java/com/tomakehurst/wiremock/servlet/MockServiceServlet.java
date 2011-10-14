@@ -7,8 +7,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tomakehurst.wiremock.http.RequestMethod;
-import com.tomakehurst.wiremock.mapping.ImmutableRequest;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.mapping.Response;
@@ -22,13 +20,9 @@ public class MockServiceServlet extends HttpServlet {
 	
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-		Request request = createRequestFrom(httpServletRequest);
+		Request request = new HttpServletRequestAdapter(httpServletRequest);
 		Response response = mockServiceRequestHandler.handle(request);
 		response.applyTo(httpServletResponse);
-	}
-
-	private Request createRequestFrom(HttpServletRequest httpServletRequest) {
-		return new ImmutableRequest(RequestMethod.valueOf(httpServletRequest.getMethod()), httpServletRequest.getRequestURI());
 	}
 
 	public static void setMockServiceRequestHandler(

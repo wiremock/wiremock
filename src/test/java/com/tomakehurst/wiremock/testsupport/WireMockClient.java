@@ -14,9 +14,9 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 public class WireMockClient {
 
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:8080";
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8070/responses/new";
+	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8070/mappings/new";
 
-	public Response get(String uri, HttpHeader... headers) {
+	public WireMockResponse get(String uri, HttpHeader... headers) {
 		HttpMethod httpMethod = new GetMethod(LOCAL_WIREMOCK_ROOT + uri);
 		return executeMethodAndCovertExceptions(httpMethod);
 	}
@@ -41,7 +41,7 @@ public class WireMockClient {
 		}
 	}
 
-	private Response executeMethodAndCovertExceptions(HttpMethod httpMethod) {
+	private WireMockResponse executeMethodAndCovertExceptions(HttpMethod httpMethod) {
 		HttpClient client = new HttpClient();
 		try {
 			client.executeMethod(httpMethod);
@@ -49,7 +49,7 @@ public class WireMockClient {
 			throw new RuntimeException(ioe);
 		}
 
-		return new Response(httpMethod);
+		return new WireMockResponse(httpMethod);
 	}
 
 }

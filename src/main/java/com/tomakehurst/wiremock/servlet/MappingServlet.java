@@ -7,22 +7,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tomakehurst.wiremock.mapping.Mappings;
+import com.tomakehurst.wiremock.mapping.Request;
+import com.tomakehurst.wiremock.mapping.RequestHandler;
+import com.tomakehurst.wiremock.mapping.Response;
 
 public class MappingServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -6602042274260495538L;
 	
-	private static Mappings mappings;
+	private static RequestHandler mappingRequestHandler;
+	
+	public static void setMappingRequestHandler(RequestHandler mappingRequestHandler) {
+		MappingServlet.mappingRequestHandler = mappingRequestHandler;
+	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.doPost(req, resp);
+	protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+		Request request = new HttpServletRequestAdapter(httpServletRequest);
+		Response response = mappingRequestHandler.handle(request);
+		response.applyTo(httpServletResponse);
 	}
-
-	public static void setMappings(Mappings mappings) {
-		MappingServlet.mappings = mappings;
-	}
-	
 }

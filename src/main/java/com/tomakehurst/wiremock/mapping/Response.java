@@ -1,35 +1,58 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
 public class Response {
 
-	private int statusCode;
-	private String bodyContent;
+	private int status;
+	private String body;
 	
 	public Response(int statusCode, String bodyContent) {
-		this.statusCode = statusCode;
-		this.bodyContent = bodyContent;
+		this.status = statusCode;
+		this.body = bodyContent;
 	}
 	
+	public Response() {
+	}
+
 	public static Response notFound() {
-		return new Response(404, "");
+		return new Response(HTTP_NOT_FOUND, "");
 	}
 	
-	public int getStatusCode() {
-		return statusCode;
+	public static Response ok() {
+		return new Response(HTTP_OK, "");
 	}
 	
-	public String getBodyContent() {
-		return bodyContent;
+	public static Response created() {
+		return new Response(HTTP_CREATED, "");
 	}
 	
+	public int getStatus() {
+		return status;
+	}
+	
+	public String getBody() {
+		return body;
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public void setBody(String body) {
+		this.body = body;
+	}
+
 	public void applyTo(HttpServletResponse httpServletResponse) {
-		httpServletResponse.setStatus(statusCode);
+		httpServletResponse.setStatus(status);
 		try {
-			httpServletResponse.getWriter().write(bodyContent);
+			httpServletResponse.getWriter().write(body);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
@@ -40,8 +63,8 @@ public class Response {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((bodyContent == null) ? 0 : bodyContent.hashCode());
-		result = prime * result + statusCode;
+				+ ((body == null) ? 0 : body.hashCode());
+		result = prime * result + status;
 		return result;
 	}
 
@@ -54,12 +77,12 @@ public class Response {
 		if (getClass() != obj.getClass())
 			return false;
 		Response other = (Response) obj;
-		if (bodyContent == null) {
-			if (other.bodyContent != null)
+		if (body == null) {
+			if (other.body != null)
 				return false;
-		} else if (!bodyContent.equals(other.bodyContent))
+		} else if (!body.equals(other.body))
 			return false;
-		if (statusCode != other.statusCode)
+		if (status != other.status)
 			return false;
 		return true;
 	}
