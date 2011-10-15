@@ -45,7 +45,9 @@ public class MappingRequestHandlerTest {
 					.withMethod(RequestMethod.GET)
 					.withUriExpression("/a/registered/resource")
 					.withResponseStatus(401)
-					.withResponseBody("Not allowed!").build());
+					.withResponseBody("Not allowed!")
+					.withHeader("Content-Type", "text/plain")
+					.build());
 		}});
 		
 		Response response = handler.handle(request);

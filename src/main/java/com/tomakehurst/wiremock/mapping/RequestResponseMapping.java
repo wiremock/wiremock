@@ -63,4 +63,10 @@ public class RequestResponseMapping {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "RequestResponseMapping [request=" + request + ", response="
+				+ response + "]";
+	}
 }

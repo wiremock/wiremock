@@ -1,0 +1,13 @@
+{ 													
+		"request": {									
+		"method": "GET",						
+		"uriPattern": "/my/other/resource"	
+	},												
+		"response": {									
+		"status": 200,							
+		"body": "YES INDEED!",
+		"headers": {
+			"Content-Type": "text/plain"
+		}
+	}												
+}

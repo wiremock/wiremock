@@ -10,6 +10,9 @@ public class MappingJsonSamples {
 		"	},												" +
 		"	\"response\": {									" +
 		"		\"status\": 401,							" +
+		"		\"headers\": {								" +
+		"			\"Content-Type\": \"text/plain\"		" +
+		"		},											" +
 		"		\"body\": \"Not allowed!\"					" +
 		"	}												" +
 		"}													";

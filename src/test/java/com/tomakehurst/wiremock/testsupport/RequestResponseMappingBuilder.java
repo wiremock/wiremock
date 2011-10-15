@@ -2,6 +2,7 @@ package com.tomakehurst.wiremock.testsupport;
 
 import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 
+import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
 import com.tomakehurst.wiremock.mapping.RequestResponseMapping;
@@ -13,6 +14,7 @@ public class RequestResponseMappingBuilder {
 	private RequestMethod method = GET;
 	private int responseStatus = 200;
 	private String responseBody = "";
+	private HttpHeaders headers = new HttpHeaders();
 	
 	public static RequestResponseMappingBuilder aMapping() {
 		return new RequestResponseMappingBuilder();
@@ -38,9 +40,15 @@ public class RequestResponseMappingBuilder {
 		return this;
 	}
 	
+	public RequestResponseMappingBuilder withHeader(String key, String value) {
+		headers.put(key, value);
+		return this;
+	}
+	
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = new RequestPattern(method, uriExpression);
 		Response response = new Response(responseStatus, responseBody);
+		response.setHeaders(headers);
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);
 		return mapping;
 	}

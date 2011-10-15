@@ -57,4 +57,10 @@ public class RequestPattern {
 	public boolean isMatchedBy(Request request) {
 		return (request.getMethod() == method && request.getUri().equals(uriPattern));
 	}
+	
+	@Override
+	public String toString() {
+		return "RequestPattern [uriPattern=" + uriPattern + ", method="
+				+ method + "]";
+	}
 }

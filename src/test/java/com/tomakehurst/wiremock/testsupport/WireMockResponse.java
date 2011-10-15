@@ -27,6 +27,10 @@ public class WireMockResponse {
 		}
 	}
 	
+	public String header(String key) {
+		return getHeaders().get(key);
+	}
+	
 	public Map<String, String> getHeaders() {
 		Header[] headers = httpMethod.getResponseHeaders();
 		Map<String, String> headerMap = new HashMap<String, String>();
