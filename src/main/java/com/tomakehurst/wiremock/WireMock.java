@@ -66,4 +66,9 @@ public class WireMock {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static void main(String... args) {
+		WireMock wireMock = new WireMock();
+		wireMock.start();
+	}
 }

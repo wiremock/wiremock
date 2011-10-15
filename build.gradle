@@ -1,5 +1,15 @@
+buildscript {
+	repositories {
+    	mavenRepo urls:'http://repo.smokejumperit.com'
+	}
+	dependencies {
+    	classpath 'com.smokejumperit:gradle-plugins:0.7.3'
+	}
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: com.smokejumperit.gradle.OneJarPlugin
 sourceCompatibility = 1.6
 version = 1.0
 
@@ -23,4 +33,10 @@ dependencies {
 task "create-dirs" << {
    sourceSets.all*.java.srcDirs*.each { it.mkdirs() }
    sourceSets.all*.resources.srcDirs*.each { it.mkdirs() }
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": "com.tomakehurst.wiremock.WireMock")
+    }
 }
