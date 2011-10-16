@@ -15,7 +15,7 @@ import com.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.tomakehurst.wiremock.testsupport.WireMockClient;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
-public class BasicResponseAcceptanceTest {
+public class MappingsAcceptanceTest {
 	
 	private WireMock wireMock;
 	private WireMockClient wireMockClient;
@@ -65,7 +65,9 @@ public class BasicResponseAcceptanceTest {
 	public void mappingWithExactUriMethodAndHeaderMatchingIsCreatedAndReturned() {
 		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
 		
-		WireMockResponse response = wireMockClient.get("/header/dependent", withHeader("Accept", "text/xml"), withHeader("If-None-Match", "abcd1234"));
+		WireMockResponse response = wireMockClient.get("/header/dependent",
+				withHeader("Accept", "text/xml"),
+				withHeader("If-None-Match", "abcd1234"));
 		
 		assertThat(response.statusCode(), is(304));
 	}
@@ -76,5 +78,31 @@ public class BasicResponseAcceptanceTest {
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 	}
 	
+	@Test
+	public void multipleMappingsSupported() {
+		add200ResponseFor("/resource/1");
+		add200ResponseFor("/resource/2");
+		add200ResponseFor("/resource/3");
+		
+		getResponseAndAssert200Status("/resource/1");
+		getResponseAndAssert200Status("/resource/2");
+		getResponseAndAssert200Status("/resource/3");
+	}
+
+	@Test
+	public void multipleInvocationsSupported() {
+		add200ResponseFor("/resource/100");
+		getResponseAndAssert200Status("/resource/100");
+		getResponseAndAssert200Status("/resource/100");
+		getResponseAndAssert200Status("/resource/100");
+	}
+
+	private void getResponseAndAssert200Status(String uri) {
+		WireMockResponse response = wireMockClient.get(uri);
+		assertThat(response.statusCode(), is(200));
+	}
 	
+	private void add200ResponseFor(String uri) {
+		wireMockClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, uri));
+	}
 }

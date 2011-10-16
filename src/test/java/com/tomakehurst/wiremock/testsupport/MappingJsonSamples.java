@@ -45,4 +45,15 @@ public class MappingJsonSamples {
 		"		\"status\": 204								\n" +
 		"	}												\n" +
 		"}													";
+	
+	public static final String STATUS_ONLY_GET_MAPPING_TEMPLATE =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"uriPattern\": \"%s\"						\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 200								\n" +
+		"	}												\n" +
+		"}													";
 }
