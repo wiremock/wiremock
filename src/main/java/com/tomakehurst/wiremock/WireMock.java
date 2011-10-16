@@ -10,6 +10,7 @@ import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.servlet.MappingServlet;
 import com.tomakehurst.wiremock.servlet.MockServiceServlet;
+import com.tomakehurst.wiremock.standalone.JsonFileMappingLoader;
 
 public class WireMock {
 
@@ -18,6 +19,7 @@ public class WireMock {
 	private Mappings mappings;
 	private RequestHandler mockServiceRequestHandler;
 	private RequestHandler mappingRequestHandler;
+	private String requestsDirectory = "requests";
 	
 	public WireMock() {
 		mappings = new InMemoryMappings();
@@ -28,6 +30,7 @@ public class WireMock {
 	}
 	
 	public void start() {
+		new JsonFileMappingLoader(mappings, requestsDirectory).loadMappings();
 		startMockServiceServer();
 		startAdminServer();
 	}
@@ -56,8 +59,6 @@ public class WireMock {
 		}
 	}
 	
-	
-	
 	public void stop() {
 		try {
 			mockServiceServer.stop();
@@ -65,6 +66,10 @@ public class WireMock {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public void setRequestsDirectory(String requestsDirectory) {
+		this.requestsDirectory = requestsDirectory;
 	}
 	
 	public static void main(String... args) {

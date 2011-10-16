@@ -1,45 +1,35 @@
 package com.tomakehurst.wiremock.mapping;
 
-import static com.tomakehurst.wiremock.mapping.Response.notFound;
-
-import java.io.IOException;
-
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.tomakehurst.wiremock.http.RequestMethod;
 
 public class MappingRequestHandler implements RequestHandler {
 	
 	private Mappings mappings;
+	private JsonMappingCreator jsonMappingCreator;
 	
 	public MappingRequestHandler(Mappings mappings) {
 		this.mappings = mappings;
+		jsonMappingCreator = new JsonMappingCreator(mappings);
 	}
 
 	@Override
 	public Response handle(Request request) {
-		if (request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/new")) {
-			String mappingSpecJson = request.getBodyAsString();
-			RequestResponseMapping mapping = buildMappingFrom(mappingSpecJson);
-			mappings.addMapping(mapping);
+		if (isNewMappingRequest(request)) {
+			jsonMappingCreator.addMappingFrom(request.getBodyAsString());
 			return Response.created();
-		} else if (request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/reset")) {
+		} else if (isResetMappingsRequest(request)) {
 			mappings.reset();
 			return Response.ok();
 		} else {
-			return notFound();
+			return Response.notFound();
 		}
 	}
 
-	private RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			System.out.println("Binding JSON:\n" + mappingSpecJson);
-			return mapper.readValue(mappingSpecJson, RequestResponseMapping.class);
-		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + mappingSpecJson, ioe);
-		}
+	private boolean isResetMappingsRequest(Request request) {
+		return request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/reset");
 	}
 
-	
+	private boolean isNewMappingRequest(Request request) {
+		return request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/new");
+	}
 }

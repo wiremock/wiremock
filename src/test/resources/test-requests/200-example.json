@@ -1,0 +1,9 @@
+{ 													
+	"request": {									
+		"method": "GET",						
+		"uriPattern": "/canned/resource/1"						
+	},												
+	"response": {									
+		"status": 200								
+	}												
+}

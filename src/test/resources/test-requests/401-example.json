@@ -1,0 +1,13 @@
+{ 													
+	"request": {									
+		"method": "GET",						
+		"uriPattern": "/canned/resource/2"	
+	},												
+	"response": {									
+		"status": 401,							
+		"headers": {								
+			"Content-Type": "text/plain"		
+		},											
+		"body": "Not allowed!"					
+	}												
+}

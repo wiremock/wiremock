@@ -7,32 +7,13 @@ import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.tomakehurst.wiremock.testsupport.WireMockClient;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
-public class MappingsAcceptanceTest {
+public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
-	private WireMock wireMock;
-	private WireMockClient wireMockClient;
-	
-	
-	@Before
-	public void init() {
-		wireMock = new WireMock();
-		wireMock.start();
-		wireMockClient = new WireMockClient();
-	}
-	
-	@After
-	public void stopWireMock() {
-		wireMock.stop();
-	}
-
 	@Test
 	public void cannedResponseIsReturnedForPreciseUrl() {
 		WireMockResponse response = wireMockClient.get("/canned/resource");
