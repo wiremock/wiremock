@@ -2,8 +2,10 @@ package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST;
+import static com.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.tomakehurst.wiremock.testsupport.RequestResponseMappingBuilder.aMapping;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,7 +23,6 @@ public class MappingRequestHandlerTest {
 	
 	private Mockery context;
 	private Mappings mappings;
-	private Request request;
 	
 	private MappingRequestHandler handler;
 	
@@ -30,17 +31,19 @@ public class MappingRequestHandlerTest {
 	public void init() {
 		context = new Mockery();
 		mappings = context.mock(Mappings.class);
-		request = context.mock(Request.class);
 		
 		handler = new MappingRequestHandler(mappings);
 	}
 	
 	@Test
 	public void shouldAddNewMappingWhenCalledWithValidRequest() {
+		Request request = aRequest(context)
+			.withUri("/mappings/new")
+			.withMethod(POST)
+			.withBody(BASIC_MAPPING_REQUEST)
+			.build();
+		
 		context.checking(new Expectations() {{
-			allowing(request).getBodyAsString(); will(returnValue(BASIC_MAPPING_REQUEST));
-			allowing(request).getMethod(); will(returnValue(POST));
-			allowing(request).getUri(); will(returnValue("/mappings/new"));
 			one(mappings).addMapping(aMapping()
 					.withMethod(RequestMethod.GET)
 					.withUriExpression("/a/registered/resource")
@@ -53,5 +56,21 @@ public class MappingRequestHandlerTest {
 		Response response = handler.handle(request);
 		
 		assertThat(response.getStatus(), is(HTTP_CREATED));
+	}
+	
+	@Test
+	public void shouldClearMappingsWhenResetCalled() {
+		Request request = aRequest(context)
+			.withUri("/mappings/reset")
+			.withMethod(POST)
+			.build();
+		
+		context.checking(new Expectations() {{
+			one(mappings).reset();
+		}});
+		
+		Response response = handler.handle(request);
+		
+		assertThat(response.getStatus(), is(HTTP_OK));
 	}
 }

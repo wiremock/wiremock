@@ -96,10 +96,28 @@ public class MappingsAcceptanceTest {
 		getResponseAndAssert200Status("/resource/100");
 		getResponseAndAssert200Status("/resource/100");
 	}
+	
+	@Test
+	public void mappingsResetSupported() {
+		add200ResponseFor("/resource/11");
+		add200ResponseFor("/resource/12");
+		add200ResponseFor("/resource/13");
+		
+		wireMockClient.resetMappings();
+		
+		getResponseAndAssert404Status("/resource/11");
+		getResponseAndAssert404Status("/resource/12");
+		getResponseAndAssert404Status("/resource/13");
+	}
 
 	private void getResponseAndAssert200Status(String uri) {
 		WireMockResponse response = wireMockClient.get(uri);
 		assertThat(response.statusCode(), is(200));
+	}
+	
+	private void getResponseAndAssert404Status(String uri) {
+		WireMockResponse response = wireMockClient.get(uri);
+		assertThat(response.statusCode(), is(404));
 	}
 	
 	private void add200ResponseFor(String uri) {

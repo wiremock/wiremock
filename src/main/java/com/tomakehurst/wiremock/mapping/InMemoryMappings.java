@@ -33,4 +33,9 @@ public class InMemoryMappings implements Mappings {
 		requestResponseMappings.add(mapping);
 	}
 
+	@Override
+	public void reset() {
+		requestResponseMappings.clear();
+	}
+
 }

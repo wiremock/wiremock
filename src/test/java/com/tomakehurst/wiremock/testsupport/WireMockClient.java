@@ -2,6 +2,7 @@ package com.tomakehurst.wiremock.testsupport;
 
 import static com.tomakehurst.wiremock.http.MimeType.JSON;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.io.IOException;
 
@@ -16,6 +17,7 @@ public class WireMockClient {
 
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:8080";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8070/mappings/new";
+	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:8070/mappings/reset";
 
 	public WireMockResponse get(String uri, HttpHeader... headers) {
 		HttpMethod httpMethod = new GetMethod(LOCAL_WIREMOCK_ROOT + uri);
@@ -33,11 +35,20 @@ public class WireMockClient {
 			throw new RuntimeException("Returned status code was " + status);
 		}
 	}
+	
+	public void resetMappings() {
+		int status = postEmptyBodyAndReturnStatus(LOCAL_WIREMOCK_RESET_MAPPINGS_URL);
+		if (status != HTTP_OK) {
+			throw new RuntimeException("Returned status code was " + status);
+		}
+	}
 
 	private int postJsonAndReturnStatus(String url, String json) {
-		PostMethod post = new PostMethod(LOCAL_WIREMOCK_NEW_RESPONSE_URL);
+		PostMethod post = new PostMethod(url);
 		try {
-			post.setRequestEntity(new StringRequestEntity(json, JSON.toString(), "utf-8"));
+			if (json != null) {
+				post.setRequestEntity(new StringRequestEntity(json, JSON.toString(), "utf-8"));
+			}
 			new HttpClient().executeMethod(post);
 			return post.getStatusCode();
 		} catch (RuntimeException re) {
@@ -45,6 +56,10 @@ public class WireMockClient {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private int postEmptyBodyAndReturnStatus(String url) {
+		return postJsonAndReturnStatus(url, null);
 	}
 
 	private WireMockResponse executeMethodAndCovertExceptions(HttpMethod httpMethod, HttpHeader... headers) {

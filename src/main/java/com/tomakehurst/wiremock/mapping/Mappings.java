@@ -5,5 +5,5 @@ public interface Mappings {
 
 	Response getFor(Request request);
 	void addMapping(RequestResponseMapping mapping);
-	
+	void reset();
 }

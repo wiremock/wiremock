@@ -23,6 +23,9 @@ public class MappingRequestHandler implements RequestHandler {
 			RequestResponseMapping mapping = buildMappingFrom(mappingSpecJson);
 			mappings.addMapping(mapping);
 			return Response.created();
+		} else if (request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/reset")) {
+			mappings.reset();
+			return Response.ok();
 		} else {
 			return notFound();
 		}

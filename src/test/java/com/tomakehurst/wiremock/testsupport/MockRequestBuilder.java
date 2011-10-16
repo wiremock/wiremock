@@ -17,6 +17,7 @@ public class MockRequestBuilder {
 	private String uri = "/";
 	private RequestMethod method = GET;
 	private HttpHeaders headers = new HttpHeaders();
+	private String body = "";
 	
 	public MockRequestBuilder(Mockery context) {
 		this.context = context;
@@ -24,11 +25,6 @@ public class MockRequestBuilder {
 	
 	public static MockRequestBuilder aRequest(Mockery context) {
 		return new MockRequestBuilder(context);
-	}
-
-	public MockRequestBuilder withContext(Mockery context) {
-		this.context = context;
-		return this;
 	}
 
 	public MockRequestBuilder withUri(String uri) {
@@ -46,6 +42,11 @@ public class MockRequestBuilder {
 		return this;
 	}
 	
+	public MockRequestBuilder withBody(String body) {
+		this.body = body;
+		return this;
+	}
+	
 	public Request build() {
 		final Request request = context.mock(Request.class);
 		context.checking(new Expectations() {{
@@ -56,6 +57,7 @@ public class MockRequestBuilder {
 				allowing(request).getHeader(header.getKey()); will(returnValue(header.getValue()));
 			}
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
+			allowing(request).getBodyAsString(); will(returnValue(body));
 		}});
 		
 		return request;
