@@ -34,7 +34,7 @@ public class MappingRequestHandler implements RequestHandler {
 			System.out.println("Binding JSON:\n" + mappingSpecJson);
 			return mapper.readValue(mappingSpecJson, RequestResponseMapping.class);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to bind JSON to object: " + mappingSpecJson, ioe);
+			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + mappingSpecJson, ioe);
 		}
 	}
 

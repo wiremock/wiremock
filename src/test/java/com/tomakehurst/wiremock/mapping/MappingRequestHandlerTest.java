@@ -1,7 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_JSON;
+import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST;
 import static com.tomakehurst.wiremock.testsupport.RequestResponseMappingBuilder.aMapping;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static org.hamcrest.Matchers.is;
@@ -38,7 +38,7 @@ public class MappingRequestHandlerTest {
 	@Test
 	public void shouldAddNewMappingWhenCalledWithValidRequest() {
 		context.checking(new Expectations() {{
-			allowing(request).getBodyAsString(); will(returnValue(BASIC_MAPPING_REQUEST_JSON));
+			allowing(request).getBodyAsString(); will(returnValue(BASIC_MAPPING_REQUEST));
 			allowing(request).getMethod(); will(returnValue(POST));
 			allowing(request).getUri(); will(returnValue("/mappings/new"));
 			one(mappings).addMapping(aMapping()

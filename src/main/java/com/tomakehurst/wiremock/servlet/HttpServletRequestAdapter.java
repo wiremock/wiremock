@@ -35,4 +35,14 @@ public class HttpServletRequestAdapter implements Request {
 		}
 	}
 
+	@Override
+	public String getHeader(String key) {
+		return request.getHeader(key);
+	}
+
+	@Override
+	public boolean containsHeader(String key) {
+		return request.getHeader(key) != null;
+	}
+
 }

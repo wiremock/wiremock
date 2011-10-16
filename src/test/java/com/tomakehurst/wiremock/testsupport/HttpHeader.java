@@ -5,7 +5,7 @@ public class HttpHeader {
 	private String name;
 	private String value;
 	
-	public HttpHeader withHeader(String name, String value) {
+	public static HttpHeader withHeader(String name, String value) {
 		return new HttpHeader(name, value);
 	}
 	

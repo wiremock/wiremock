@@ -6,6 +6,8 @@ public interface Request {
 
 	String getUri();
 	RequestMethod getMethod();
+	String getHeader(String key);
+	boolean containsHeader(String key);
 	String getBodyAsString();
 
 }

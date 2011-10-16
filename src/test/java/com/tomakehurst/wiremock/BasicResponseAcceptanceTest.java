@@ -1,8 +1,9 @@
 package com.tomakehurst.wiremock;
 
-import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_JSON;
+import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -10,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.tomakehurst.wiremock.testsupport.WireMockClient;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
@@ -39,8 +41,8 @@ public class BasicResponseAcceptanceTest {
 	}
 	
 	@Test
-	public void responseIsCreatedAndReturned() {
-		wireMockClient.addResponse(BASIC_MAPPING_REQUEST_JSON);
+	public void basicMappingWithExactUriAndMethodMatchIsCreatedAndReturned() {
+		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST);
 		
 		WireMockResponse response = wireMockClient.get("/a/registered/resource");
 		
@@ -50,9 +52,29 @@ public class BasicResponseAcceptanceTest {
 	}
 	
 	@Test
+	public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
+		wireMockClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
+		
+		WireMockResponse response = wireMockClient.put("/status/only");
+		
+		assertThat(response.statusCode(), is(204));
+		assertNull(response.content());
+	}
+	
+	@Test
+	public void mappingWithExactUriMethodAndHeaderMatchingIsCreatedAndReturned() {
+		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
+		
+		WireMockResponse response = wireMockClient.get("/header/dependent", withHeader("Accept", "text/xml"), withHeader("If-None-Match", "abcd1234"));
+		
+		assertThat(response.statusCode(), is(304));
+	}
+
+	@Test
 	public void notFoundResponseIsReturnedForUnregisteredUrl() {
 		WireMockResponse response = wireMockClient.get("/non-existent/resource");
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 	}
+	
 	
 }

@@ -1,5 +1,6 @@
 package com.tomakehurst.wiremock.mapping;
 
+import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.http.RequestMethod;
 
 
@@ -8,10 +9,16 @@ public class ImmutableRequest implements Request {
 
 	private final String uri;
 	private final RequestMethod method;
+	private final HttpHeaders headers;
 	
-	public ImmutableRequest(RequestMethod method, String uri) {
+	public ImmutableRequest(RequestMethod method, String uri, HttpHeaders headers) {
 		this.uri = uri;
 		this.method = method;
+		this.headers = headers;
+	}
+	
+	public ImmutableRequest(RequestMethod method, String uri) {
+		this(method, uri, new HttpHeaders());
 	}
 
 	/* (non-Javadoc)
@@ -62,6 +69,18 @@ public class ImmutableRequest implements Request {
 	public String getBodyAsString() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getHeader(String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean containsHeader(String key) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	

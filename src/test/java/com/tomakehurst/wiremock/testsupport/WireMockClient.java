@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 public class WireMockClient {
@@ -18,7 +19,12 @@ public class WireMockClient {
 
 	public WireMockResponse get(String uri, HttpHeader... headers) {
 		HttpMethod httpMethod = new GetMethod(LOCAL_WIREMOCK_ROOT + uri);
-		return executeMethodAndCovertExceptions(httpMethod);
+		return executeMethodAndCovertExceptions(httpMethod, headers);
+	}
+	
+	public WireMockResponse put(String uri, HttpHeader... headers) {
+		HttpMethod httpMethod = new PutMethod(LOCAL_WIREMOCK_ROOT + uri);
+		return executeMethodAndCovertExceptions(httpMethod, headers);
 	}
 
 	public void addResponse(String responseSpecJson) {
@@ -41,9 +47,12 @@ public class WireMockClient {
 		}
 	}
 
-	private WireMockResponse executeMethodAndCovertExceptions(HttpMethod httpMethod) {
+	private WireMockResponse executeMethodAndCovertExceptions(HttpMethod httpMethod, HttpHeader... headers) {
 		HttpClient client = new HttpClient();
 		try {
+			for (HttpHeader header: headers) {
+				httpMethod.addRequestHeader(header.getName(), header.getValue());
+			}
 			client.executeMethod(httpMethod);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
