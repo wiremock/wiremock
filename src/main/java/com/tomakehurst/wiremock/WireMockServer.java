@@ -15,6 +15,7 @@ import com.tomakehurst.wiremock.standalone.MappingsLoader;
 
 public class WireMockServer {
 
+	private static final int PORT_NUMBER = 0;
 	private Server jettyServer;
 	private Mappings mappings;
 	private RequestHandler mockServiceRequestHandler;
@@ -69,7 +70,14 @@ public class WireMockServer {
 	}
 	
 	public static void main(String... args) {
-		WireMockServer wireMockServer = new WireMockServer();
+		WireMockServer wireMockServer;
+		if (args.length > 0) {
+			int port = Integer.parseInt(args[PORT_NUMBER]);
+			wireMockServer = new WireMockServer(port);
+		} else {
+			wireMockServer = new WireMockServer();
+		}
+		
 		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("mappings");
 		wireMockServer.loadMappingsUsing(mappingsLoader);
 		wireMockServer.start();

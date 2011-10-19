@@ -15,29 +15,51 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 
 public class WireMockClient {
 
-	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:8080";
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8080/__admin/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:8080/__admin/mappings/reset";
+	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:%d%s";
+	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:%d/__admin/mappings/new";
+	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:%d/__admin/mappings/reset";
+	
+	private int port;
+	
+	public WireMockClient(int port) {
+		this.port = port;
+	}
+	
+	public WireMockClient() {
+		this(8080);
+	}
+	
+	private String mockServiceUrlFor(String path) {
+		return String.format(LOCAL_WIREMOCK_ROOT, port, path);
+	}
+	
+	private String newMappingUrl() {
+		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, port);
+	}
+	
+	private String resetMappingsUrl() {
+		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, port);
+	}
 
 	public WireMockResponse get(String uri, HttpHeader... headers) {
-		HttpMethod httpMethod = new GetMethod(LOCAL_WIREMOCK_ROOT + uri);
+		HttpMethod httpMethod = new GetMethod(mockServiceUrlFor(uri));
 		return executeMethodAndCovertExceptions(httpMethod, headers);
 	}
 	
 	public WireMockResponse put(String uri, HttpHeader... headers) {
-		HttpMethod httpMethod = new PutMethod(LOCAL_WIREMOCK_ROOT + uri);
+		HttpMethod httpMethod = new PutMethod(mockServiceUrlFor(uri));
 		return executeMethodAndCovertExceptions(httpMethod, headers);
 	}
 
 	public void addResponse(String responseSpecJson) {
-		int status = postJsonAndReturnStatus(LOCAL_WIREMOCK_NEW_RESPONSE_URL, responseSpecJson);
+		int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
 		if (status != HTTP_CREATED) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
 	}
 	
 	public void resetMappings() {
-		int status = postEmptyBodyAndReturnStatus(LOCAL_WIREMOCK_RESET_MAPPINGS_URL);
+		int status = postEmptyBodyAndReturnStatus(resetMappingsUrl());
 		if (status != HTTP_OK) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
