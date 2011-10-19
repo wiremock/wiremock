@@ -5,13 +5,16 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
-public class MappingsFileAcceptanceTest extends AcceptanceTestBase {
+public class MappingsLoaderAcceptanceTest extends AcceptanceTestBase {
 	
 	protected void constructWireMock() {
-		wireMock = new WireMock();
-		wireMock.setRequestsDirectory("src/test/resources/test-requests");
+		wireMockServer = new WireMockServer();
+		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("src/test/resources/test-requests");
+		wireMockServer.loadMappingsUsing(mappingsLoader);
 	}
 	
 	@Test

@@ -7,23 +7,23 @@ import com.tomakehurst.wiremock.testsupport.WireMockClient;
 
 public class AcceptanceTestBase {
 
-	protected WireMock wireMock;
+	protected WireMockServer wireMockServer;
 	protected WireMockClient wireMockClient;
 
 	@Before
 	public void init() {
 		constructWireMock();
-		wireMock.start();
+		wireMockServer.start();
 		wireMockClient = new WireMockClient();
 	}
 
 	@After
 	public void stopWireMock() {
-		wireMock.stop();
+		wireMockServer.stop();
 	}
 	
 	protected void constructWireMock() {
-		wireMock = new WireMock();
+		wireMockServer = new WireMockServer();
 	}
 
 }

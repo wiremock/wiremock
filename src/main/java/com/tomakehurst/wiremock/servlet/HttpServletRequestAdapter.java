@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.servlet;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,10 @@ public class HttpServletRequestAdapter implements Request {
 
 	@Override
 	public String getUri() {
+		if (!isNullOrEmpty(request.getContextPath())) {
+			return request.getRequestURI().replace(request.getContextPath(), "");
+		}
+		
 		return request.getRequestURI();
 	}
 

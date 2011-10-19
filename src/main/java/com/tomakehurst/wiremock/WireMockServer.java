@@ -10,70 +10,68 @@ import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.servlet.MappingServlet;
 import com.tomakehurst.wiremock.servlet.MockServiceServlet;
-import com.tomakehurst.wiremock.standalone.JsonFileMappingLoader;
+import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.tomakehurst.wiremock.standalone.MappingsLoader;
 
-public class WireMock {
+public class WireMockServer {
 
-	private Server mockServiceServer;
-	private Server adminServer;
+	private Server jettyServer;
 	private Mappings mappings;
 	private RequestHandler mockServiceRequestHandler;
 	private RequestHandler mappingRequestHandler;
-	private String requestsDirectory = "requests";
+	private int port;
 	
-	public WireMock() {
+	public WireMockServer(int port) {
 		mappings = new InMemoryMappings();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mappingRequestHandler = new MappingRequestHandler(mappings);
 		MockServiceServlet.setMockServiceRequestHandler(mockServiceRequestHandler);
 		MappingServlet.setMappingRequestHandler(mappingRequestHandler);
+		this.port = port;
+	}
+	
+	public WireMockServer() {
+		this(8080);
 	}
 	
 	public void start() {
-		new JsonFileMappingLoader(mappings, requestsDirectory).loadMappings();
 		startMockServiceServer();
-		startAdminServer();
-	}
-	
-	public void startAdminServer() {
-		adminServer = new Server(8070);
-		Context context = new Context(adminServer, "/");
-		context.addServlet(MappingServlet.class, "/");
-		adminServer.addHandler(context);
-		try {
-			adminServer.start();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public void startMockServiceServer() {
-		mockServiceServer = new Server(8080);
-		Context context = new Context(mockServiceServer, "/");
-		context.addServlet(MockServiceServlet.class, "/");
-		mockServiceServer.addHandler(context);
-		try {
-			mockServiceServer.start();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public void stop() {
 		try {
-			mockServiceServer.stop();
-			adminServer.stop();
+			jettyServer.stop();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public void setRequestsDirectory(String requestsDirectory) {
-		this.requestsDirectory = requestsDirectory;
+	private void startMockServiceServer() {
+		jettyServer = new Server(port);
+		
+		Context adminContext = new Context(jettyServer, "/__admin");
+		adminContext.addServlet(MappingServlet.class, "/");
+		jettyServer.addHandler(adminContext);
+		
+		Context mockServiceContext = new Context(jettyServer, "/");
+		mockServiceContext.addServlet(MockServiceServlet.class, "/");
+		jettyServer.addHandler(mockServiceContext);
+
+		try {
+			jettyServer.start();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void loadMappingsUsing(MappingsLoader mappingsLoader) {
+		mappingsLoader.loadMappingsInto(mappings);
 	}
 	
 	public static void main(String... args) {
-		WireMock wireMock = new WireMock();
-		wireMock.start();
+		WireMockServer wireMockServer = new WireMockServer();
+		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("mappings");
+		wireMockServer.loadMappingsUsing(mappingsLoader);
+		wireMockServer.start();
 	}
 }

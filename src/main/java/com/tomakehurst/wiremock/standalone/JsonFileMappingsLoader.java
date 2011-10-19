@@ -11,17 +11,18 @@ import com.google.common.io.CharStreams;
 import com.tomakehurst.wiremock.mapping.JsonMappingCreator;
 import com.tomakehurst.wiremock.mapping.Mappings;
 
-public class JsonFileMappingLoader {
+public class JsonFileMappingsLoader implements MappingsLoader {
 
-	private JsonMappingCreator jsonMappingCreator;
 	private String mappingJsonDirectory;
 	
-	public JsonFileMappingLoader(Mappings mappings, String mappingJsonDirectory) {
-		this.jsonMappingCreator = new JsonMappingCreator(mappings);
+	public JsonFileMappingsLoader(String mappingJsonDirectory) {
 		this.mappingJsonDirectory = mappingJsonDirectory;
 	}
 
-	public void loadMappings() {
+	@Override
+	public void loadMappingsInto(Mappings mappings) {
+		JsonMappingCreator jsonMappingCreator = new JsonMappingCreator(mappings);
+		
 		File jsonDir = new File(mappingJsonDirectory);
 		if (jsonDir.exists() && !jsonDir.isDirectory()) {
 			throw new RuntimeException(jsonDir + " is not a directory");

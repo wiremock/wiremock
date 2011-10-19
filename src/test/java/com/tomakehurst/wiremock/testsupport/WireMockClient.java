@@ -16,8 +16,8 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 public class WireMockClient {
 
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:8080";
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8070/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:8070/mappings/reset";
+	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:8080/__admin/mappings/new";
+	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:8080/__admin/mappings/reset";
 
 	public WireMockResponse get(String uri, HttpHeader... headers) {
 		HttpMethod httpMethod = new GetMethod(LOCAL_WIREMOCK_ROOT + uri);
