@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
-public class WireMockClient {
+public class WireMockTestClient {
 
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:%d%s";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:%d/__admin/mappings/new";
@@ -21,11 +21,11 @@ public class WireMockClient {
 	
 	private int port;
 	
-	public WireMockClient(int port) {
+	public WireMockTestClient(int port) {
 		this.port = port;
 	}
 	
-	public WireMockClient() {
+	public WireMockTestClient() {
 		this(8080);
 	}
 	

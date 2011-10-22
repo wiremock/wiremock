@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import com.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.tomakehurst.wiremock.testsupport.WireMockClient;
+import com.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class PortNumberTest {
@@ -15,7 +15,7 @@ public class PortNumberTest {
 	public void canRunOnAnotherPortThan8080() {
 		WireMockServer wireMockServer = new WireMockServer(8090);
 		wireMockServer.start();
-		WireMockClient wireMockClient = new WireMockClient(8090);
+		WireMockTestClient wireMockClient = new WireMockTestClient(8090);
 		
 		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST);
 		WireMockResponse response = wireMockClient.get("/a/registered/resource");

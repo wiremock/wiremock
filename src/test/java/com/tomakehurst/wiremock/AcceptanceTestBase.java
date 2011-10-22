@@ -3,18 +3,18 @@ package com.tomakehurst.wiremock;
 import org.junit.After;
 import org.junit.Before;
 
-import com.tomakehurst.wiremock.testsupport.WireMockClient;
+import com.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class AcceptanceTestBase {
 
 	protected WireMockServer wireMockServer;
-	protected WireMockClient wireMockClient;
+	protected WireMockTestClient wireMockClient;
 
 	@Before
 	public void init() {
 		constructWireMock();
 		wireMockServer.start();
-		wireMockClient = new WireMockClient();
+		wireMockClient = new WireMockTestClient();
 	}
 
 	@After

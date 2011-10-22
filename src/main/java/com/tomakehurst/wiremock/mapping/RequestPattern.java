@@ -69,6 +69,10 @@ public class RequestPattern {
 		this.urlPattern = urlPattern;
 		assertIsInValidState();
 	}
+	
+	public RequestMethod getMethod() {
+		return method;
+	}
 
 	public void setMethod(RequestMethod method) {
 		this.method = method;

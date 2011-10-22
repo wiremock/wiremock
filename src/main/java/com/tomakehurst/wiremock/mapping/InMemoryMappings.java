@@ -20,7 +20,7 @@ public class InMemoryMappings implements Mappings {
 	@Override
 	public Response getFor(Request request) {
 		for (RequestResponseMapping mapping: requestResponseMappings) {
-			if (mapping.getRequestPattern().isMatchedBy(request)) {
+			if (mapping.getRequest().isMatchedBy(request)) {
 				return mapping.getResponse();
 			}
 		}

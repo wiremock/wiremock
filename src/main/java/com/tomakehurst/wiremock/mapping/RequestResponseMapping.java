@@ -15,7 +15,7 @@ public class RequestResponseMapping {
 		//Concession to Jackson
 	}
 	
-	public RequestPattern getRequestPattern() {
+	public RequestPattern getRequest() {
 		return request;
 	}
 	
