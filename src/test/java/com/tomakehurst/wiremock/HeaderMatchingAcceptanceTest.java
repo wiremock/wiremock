@@ -1,6 +1,7 @@
 package com.tomakehurst.wiremock;
 
 import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -101,7 +102,7 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 		
 		WireMockResponse response = wireMockClient.get("/header/match/dependent",
 				withHeader("Accept", "text/xml"));
-		assertThat(response.statusCode(), is(404));
+		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 		
 		response = wireMockClient.get("/header/match/dependent",
 				withHeader("Accept", "application/json"));
