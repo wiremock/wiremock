@@ -1,6 +1,8 @@
 package com.tomakehurst.wiremock.mapping;
 
 public class MockServiceRequestHandler implements RequestHandler {
+	
+	public static final String CONTEXT_KEY = "MockServiceRequestHandler";
 
 	private Mappings mappings;
 

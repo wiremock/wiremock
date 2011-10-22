@@ -4,6 +4,8 @@ import com.tomakehurst.wiremock.http.RequestMethod;
 
 public class MappingRequestHandler implements RequestHandler {
 	
+	public static final String CONTEXT_KEY = "MappingRequestHandler";
+	
 	private Mappings mappings;
 	private JsonMappingCreator jsonMappingCreator;
 	

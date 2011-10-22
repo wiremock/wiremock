@@ -7,8 +7,6 @@ import static com.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.net.InetAddress;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +25,7 @@ public class WireMockClientAcceptanceTest {
 	public void init() {
 		wireMockServer = new WireMockServer();
 		wireMockServer.start();
+		WireMock.resetHostAndPort();
 		wireMock = new WireMock();
 		testClient = new WireMockTestClient();
 	}
@@ -56,22 +55,7 @@ public class WireMockClientAcceptanceTest {
 		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
 	}
 	
-	@Test
-	public void useStaticSyntaxOnAlternativeHostAndPort() throws Exception {
-		WireMockServer altServer = new WireMockServer(8081);
-		altServer.start();
-		
-		String thisHostName = InetAddress.getLocalHost().getHostName();
-		WireMock.setStaticHost(thisHostName);
-		WireMock.setStaticPort(8081);
-		
-		givenThat(get(urlEqualTo("/resource/on/other/address"))
-				.willReturn(aResponse()
-					.withStatus(206)));
-		assertThat(testClient.get("/resource/on/other/address").statusCode(), is(206));
-		
-		altServer.stop();
-	}
+	
 	
 	
 }

@@ -15,7 +15,8 @@ import com.tomakehurst.wiremock.standalone.MappingsLoader;
 
 public class WireMockServer {
 
-	private static final int PORT_NUMBER = 0;
+	private static final int PORT_NUMBER_ARG = 0;
+	
 	private Server jettyServer;
 	private Mappings mappings;
 	private RequestHandler mockServiceRequestHandler;
@@ -26,8 +27,6 @@ public class WireMockServer {
 		mappings = new InMemoryMappings();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mappingRequestHandler = new MappingRequestHandler(mappings);
-		MockServiceServlet.setMockServiceRequestHandler(mockServiceRequestHandler);
-		MappingServlet.setMappingRequestHandler(mappingRequestHandler);
 		this.port = port;
 	}
 	
@@ -52,9 +51,11 @@ public class WireMockServer {
 		
 		Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(MappingServlet.class, "/");
+		adminContext.setAttribute(MappingRequestHandler.CONTEXT_KEY, mappingRequestHandler);
 		jettyServer.addHandler(adminContext);
 		
 		Context mockServiceContext = new Context(jettyServer, "/");
+		mockServiceContext.setAttribute(MockServiceRequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
 		mockServiceContext.addServlet(MockServiceServlet.class, "/");
 		jettyServer.addHandler(mockServiceContext);
 
@@ -72,7 +73,7 @@ public class WireMockServer {
 	public static void main(String... args) {
 		WireMockServer wireMockServer;
 		if (args.length > 0) {
-			int port = Integer.parseInt(args[PORT_NUMBER]);
+			int port = Integer.parseInt(args[PORT_NUMBER_ARG]);
 			wireMockServer = new WireMockServer(port);
 		} else {
 			wireMockServer = new WireMockServer();

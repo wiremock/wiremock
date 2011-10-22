@@ -25,7 +25,7 @@ public class WireMock {
 	private String host = DEFAULT_HOST;
 	private int port = DEFAULT_PORT;
 	
-	private static WireMock defaultInstance;
+	private static WireMock defaultInstance = new WireMock();
 	
 	public WireMock(String host, int port) {
 		this.host = host;
@@ -36,16 +36,17 @@ public class WireMock {
 	}
 	
 	public static void givenThat(MappingBuilder mappingBuilder) {
-		initDefaultInstanceIfNull();
 		defaultInstance.register(mappingBuilder);
 	}
 	
-	private static void initDefaultInstanceIfNull() {
-		if (defaultInstance == null) {
-			defaultInstance = new WireMock(staticHost, staticPort);
-		}
+	public static void configureFor(String host, int port) {
+		defaultInstance = new WireMock(host, port);
 	}
-
+	
+	public static void resetHostAndPort() {
+		defaultInstance = new WireMock();
+	}
+	
 	public void register(MappingBuilder mappingBuilder) {
 		RequestResponseMapping mapping = mappingBuilder.build();
 		String json = JsonMappingBinder.buildJsonStringFor(mapping);
@@ -105,13 +106,5 @@ public class WireMock {
 	
 	private String resetMappingsUrl() {
 		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, host, port);
-	}
-
-	public static void setStaticHost(String staticHost) {
-		WireMock.staticHost = staticHost;
-	}
-
-	public static void setStaticPort(int staticPort) {
-		WireMock.staticPort = staticPort;
 	}
 }
