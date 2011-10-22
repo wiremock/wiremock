@@ -41,11 +41,11 @@ public class RequestPattern {
 	
 	public boolean isMatchedBy(Request request) {
 		return (request.getMethod() == method &&
-				urlMatchedBy(request.getUrl()) && 
-				allSpecifiedHeadersArePresentAndWithMatchingValues(request));
+				urlIsMatch(request.getUrl()) && 
+				headersMatch(request));
 	}
 	
-	private boolean urlMatchedBy(String candidateUrl) {
+	private boolean urlIsMatch(String candidateUrl) {
 		if (urlPattern == null) {
 			return url.equals(candidateUrl);
 		}
@@ -53,7 +53,7 @@ public class RequestPattern {
 		return candidateUrl.matches(urlPattern);
 	}
 	
-	private boolean allSpecifiedHeadersArePresentAndWithMatchingValues(Request request) {
+	private boolean headersMatch(Request request) {
 		for (Map.Entry<String, HeaderPattern> header: headers.entrySet()) {
 			HeaderPattern headerPattern = header.getValue();
 			String key = header.getKey();
