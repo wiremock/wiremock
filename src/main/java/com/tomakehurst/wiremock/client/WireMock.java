@@ -14,13 +14,18 @@ import com.tomakehurst.wiremock.mapping.RequestResponseMapping;
 
 public class WireMock {
 	
+	private static final int DEFAULT_PORT = 8080;
+	private static final String DEFAULT_HOST = "localhost";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
 	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://%s:%d/__admin/mappings/reset";
 
-	private String host = "localhost";
-	private int port = 8080;
+	private static String staticHost = DEFAULT_HOST;
+	private static int staticPort = DEFAULT_PORT;
 	
-	private static WireMock defaultInstance = new WireMock();
+	private String host = DEFAULT_HOST;
+	private int port = DEFAULT_PORT;
+	
+	private static WireMock defaultInstance;
 	
 	public WireMock(String host, int port) {
 		this.host = host;
@@ -31,7 +36,14 @@ public class WireMock {
 	}
 	
 	public static void givenThat(MappingBuilder mappingBuilder) {
+		initDefaultInstanceIfNull();
 		defaultInstance.register(mappingBuilder);
+	}
+	
+	private static void initDefaultInstanceIfNull() {
+		if (defaultInstance == null) {
+			defaultInstance = new WireMock(staticHost, staticPort);
+		}
 	}
 
 	public void register(MappingBuilder mappingBuilder) {
@@ -93,5 +105,13 @@ public class WireMock {
 	
 	private String resetMappingsUrl() {
 		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, host, port);
+	}
+
+	public static void setStaticHost(String staticHost) {
+		WireMock.staticHost = staticHost;
+	}
+
+	public static void setStaticPort(int staticPort) {
+		WireMock.staticPort = staticPort;
 	}
 }
