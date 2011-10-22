@@ -1,4 +1,7 @@
 buildscript {
+	def githubBase = 'https://github.com/valkolovos/gradle_cobertura/raw/master/ivy'
+    apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
+    
 	repositories {
     	mavenRepo urls:'http://repo.smokejumperit.com'
 	}
