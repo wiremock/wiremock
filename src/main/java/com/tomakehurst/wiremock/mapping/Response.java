@@ -34,7 +34,7 @@ public class Response {
 	public Response() {
 		this.body = "";
 		this.headers = new HttpHeaders();
-		this.status = HTTP_NOT_FOUND;
+		this.status = HTTP_OK;
 	}
 
 	public static Response notFound() {

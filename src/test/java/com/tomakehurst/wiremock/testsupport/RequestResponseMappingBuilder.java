@@ -10,7 +10,7 @@ import com.tomakehurst.wiremock.mapping.Response;
 
 public class RequestResponseMappingBuilder {
 
-	private String uriExpression = "/";
+	private String url = "/";
 	private RequestMethod method = GET;
 	private int responseStatus = 200;
 	private String responseBody = "";
@@ -20,8 +20,8 @@ public class RequestResponseMappingBuilder {
 		return new RequestResponseMappingBuilder();
 	}
 
-	public RequestResponseMappingBuilder withUriExpression(String uriExpression) {
-		this.uriExpression = uriExpression;
+	public RequestResponseMappingBuilder withUrl(String url) {
+		this.url = url;
 		return this;
 	}
 
@@ -46,7 +46,7 @@ public class RequestResponseMappingBuilder {
 	}
 	
 	public RequestResponseMapping build() {
-		RequestPattern requestPattern = new RequestPattern(method, uriExpression);
+		RequestPattern requestPattern = new RequestPattern(method, url);
 		Response response = new Response(responseStatus, responseBody);
 		response.setHeaders(headers);
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);

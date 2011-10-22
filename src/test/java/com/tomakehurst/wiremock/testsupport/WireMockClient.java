@@ -41,13 +41,13 @@ public class WireMockClient {
 		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, port);
 	}
 
-	public WireMockResponse get(String uri, HttpHeader... headers) {
-		HttpMethod httpMethod = new GetMethod(mockServiceUrlFor(uri));
+	public WireMockResponse get(String url, HttpHeader... headers) {
+		HttpMethod httpMethod = new GetMethod(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpMethod, headers);
 	}
 	
-	public WireMockResponse put(String uri, HttpHeader... headers) {
-		HttpMethod httpMethod = new PutMethod(mockServiceUrlFor(uri));
+	public WireMockResponse put(String url, HttpHeader... headers) {
+		HttpMethod httpMethod = new PutMethod(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpMethod, headers);
 	}
 

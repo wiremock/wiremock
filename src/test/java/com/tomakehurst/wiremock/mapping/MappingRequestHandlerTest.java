@@ -38,7 +38,7 @@ public class MappingRequestHandlerTest {
 	@Test
 	public void shouldAddNewMappingWhenCalledWithValidRequest() {
 		Request request = aRequest(context)
-			.withUri("/mappings/new")
+			.withUrl("/mappings/new")
 			.withMethod(POST)
 			.withBody(BASIC_MAPPING_REQUEST)
 			.build();
@@ -46,7 +46,7 @@ public class MappingRequestHandlerTest {
 		context.checking(new Expectations() {{
 			one(mappings).addMapping(aMapping()
 					.withMethod(RequestMethod.GET)
-					.withUriExpression("/a/registered/resource")
+					.withUrl("/a/registered/resource")
 					.withResponseStatus(401)
 					.withResponseBody("Not allowed!")
 					.withHeader("Content-Type", "text/plain")
@@ -61,7 +61,7 @@ public class MappingRequestHandlerTest {
 	@Test
 	public void shouldClearMappingsWhenResetCalled() {
 		Request request = aRequest(context)
-			.withUri("/mappings/reset")
+			.withUrl("/mappings/reset")
 			.withMethod(POST)
 			.build();
 		

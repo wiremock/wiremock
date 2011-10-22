@@ -26,10 +26,10 @@ public class MappingRequestHandler implements RequestHandler {
 	}
 
 	private boolean isResetMappingsRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/reset");
+		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/mappings/reset");
 	}
 
 	private boolean isNewMappingRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUri().equals("/mappings/new");
+		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/mappings/new");
 	}
 }

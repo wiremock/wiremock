@@ -19,7 +19,7 @@ public class HttpServletRequestAdapter implements Request {
 	}
 
 	@Override
-	public String getUri() {
+	public String getUrl() {
 		if (!isNullOrEmpty(request.getContextPath())) {
 			return request.getRequestURI().replace(request.getContextPath(), "");
 		}

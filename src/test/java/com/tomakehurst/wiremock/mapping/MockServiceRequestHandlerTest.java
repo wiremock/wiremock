@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -9,8 +11,6 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.tomakehurst.wiremock.http.RequestMethod;
 
 @RunWith(JMock.class)
 public class MockServiceRequestHandlerTest {
@@ -33,7 +33,10 @@ public class MockServiceRequestHandlerTest {
 			allowing(mappings).getFor(with(any(Request.class))); will(returnValue(new Response(200, "Body content")));
 		}});
 		
-		Request request = new ImmutableRequest(RequestMethod.GET, "/the/required/resource");
+		Request request = aRequest(context)
+			.withUrl("/the/required/resource")
+			.withMethod(GET)
+			.build();
 		Response response = requestHandler.handle(request);
 		
 		assertThat(response.getStatus(), is(200));

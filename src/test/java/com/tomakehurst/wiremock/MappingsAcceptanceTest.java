@@ -22,7 +22,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	}
 	
 	@Test
-	public void basicMappingWithExactUriAndMethodMatchIsCreatedAndReturned() {
+	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
 		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST);
 		
 		WireMockResponse response = wireMockClient.get("/a/registered/resource");
@@ -43,7 +43,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	}
 	
 	@Test
-	public void mappingWithExactUriMethodAndHeaderMatchingIsCreatedAndReturned() {
+	public void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {
 		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
 		
 		WireMockResponse response = wireMockClient.get("/header/dependent",
@@ -91,17 +91,17 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		getResponseAndAssert404Status("/resource/13");
 	}
 
-	private void getResponseAndAssert200Status(String uri) {
-		WireMockResponse response = wireMockClient.get(uri);
+	private void getResponseAndAssert200Status(String url) {
+		WireMockResponse response = wireMockClient.get(url);
 		assertThat(response.statusCode(), is(200));
 	}
 	
-	private void getResponseAndAssert404Status(String uri) {
-		WireMockResponse response = wireMockClient.get(uri);
+	private void getResponseAndAssert404Status(String url) {
+		WireMockResponse response = wireMockClient.get(url);
 		assertThat(response.statusCode(), is(404));
 	}
 	
-	private void add200ResponseFor(String uri) {
-		wireMockClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, uri));
+	private void add200ResponseFor(String url) {
+		wireMockClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, url));
 	}
 }

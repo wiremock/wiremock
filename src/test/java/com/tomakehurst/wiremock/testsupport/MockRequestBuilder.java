@@ -14,7 +14,7 @@ import com.tomakehurst.wiremock.mapping.Request;
 public class MockRequestBuilder {
 
 	private Mockery context;
-	private String uri = "/";
+	private String url = "/";
 	private RequestMethod method = GET;
 	private HttpHeaders headers = new HttpHeaders();
 	private String body = "";
@@ -27,8 +27,8 @@ public class MockRequestBuilder {
 		return new MockRequestBuilder(context);
 	}
 
-	public MockRequestBuilder withUri(String uri) {
-		this.uri = uri;
+	public MockRequestBuilder withUrl(String url) {
+		this.url = url;
 		return this;
 	}
 
@@ -50,7 +50,7 @@ public class MockRequestBuilder {
 	public Request build() {
 		final Request request = context.mock(Request.class);
 		context.checking(new Expectations() {{
-			allowing(request).getUri(); will(returnValue(uri));
+			allowing(request).getUrl(); will(returnValue(url));
 			allowing(request).getMethod(); will(returnValue(method));
 			for (Map.Entry<String, String> header: headers.entrySet()) {
 				allowing(request).containsHeader(header.getKey()); will(returnValue(true));

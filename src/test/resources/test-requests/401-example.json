@@ -1,7 +1,7 @@
 { 													
 	"request": {									
 		"method": "GET",						
-		"uriPattern": "/canned/resource/2"	
+		"url": "/canned/resource/2"	
 	},												
 	"response": {									
 		"status": 401,							

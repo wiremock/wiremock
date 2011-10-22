@@ -6,7 +6,7 @@ public class MappingJsonSamples {
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
-		"		\"uriPattern\": \"/a/registered/resource\"	\n" +
+		"		\"url\": \"/a/registered/resource\"	\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
 		"		\"status\": 401,							\n" +
@@ -21,7 +21,7 @@ public class MappingJsonSamples {
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
-		"		\"uriPattern\": \"/header/dependent\",		\n" +
+		"		\"url\": \"/header/dependent\",		\n" +
 		"		\"headers\": {								\n" +
 		"			\"Accept\": \"text/xml\",				\n" +
 		"			\"If-None-Match\": \"abcd1234\"			\n" +
@@ -39,7 +39,7 @@ public class MappingJsonSamples {
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"PUT\",						\n" +
-		"		\"uriPattern\": \"/status/only\"			\n" +
+		"		\"url\": \"/status/only\"			\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
 		"		\"status\": 204								\n" +
@@ -50,10 +50,11 @@ public class MappingJsonSamples {
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
-		"		\"uriPattern\": \"%s\"						\n" +
+		"		\"urlPattern\": \"%s\"						\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
 		"		\"status\": 200								\n" +
 		"	}												\n" +
 		"}													";
+	
 }
