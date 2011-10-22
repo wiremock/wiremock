@@ -1,6 +1,5 @@
 package com.tomakehurst.wiremock;
 
-import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.Assert.assertNull;
@@ -42,17 +41,6 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		assertNull(response.content());
 	}
 	
-	@Test
-	public void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {
-		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
-		
-		WireMockResponse response = wireMockClient.get("/header/dependent",
-				withHeader("Accept", "text/xml"),
-				withHeader("If-None-Match", "abcd1234"));
-		
-		assertThat(response.statusCode(), is(304));
-	}
-
 	@Test
 	public void notFoundResponseIsReturnedForUnregisteredUrl() {
 		WireMockResponse response = wireMockClient.get("/non-existent/resource");

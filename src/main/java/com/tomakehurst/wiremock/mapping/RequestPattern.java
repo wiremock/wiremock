@@ -1,8 +1,9 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.Map;
 
-import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.http.RequestMethod;
 
 
@@ -11,25 +12,25 @@ public class RequestPattern {
 	private String urlPattern;
 	private String url;
 	private RequestMethod method;
-	private HttpHeaders headers;
+	private Map<String, HeaderPattern> headers = newHashMap();
 	
 	
-	public RequestPattern(RequestMethod method, String url, HttpHeaders headers) {
+	public RequestPattern(RequestMethod method, String url, Map<String, HeaderPattern> headers) {
 		this.url = url;
 		this.method = method;
 		this.headers = headers;
 	}
 	
 	public RequestPattern(RequestMethod method) {
-		this(method, null, new HttpHeaders());
+		this.method = method;
 	}
 	
 	public RequestPattern(RequestMethod method, String url) {
-		this(method, url, new HttpHeaders());
+		this.url = url;
+		this.method = method;
 	}
 	
 	public RequestPattern() {
-		this(null, null, new HttpHeaders());
 	}
 	
 	private void assertIsInValidState() {
@@ -53,8 +54,10 @@ public class RequestPattern {
 	}
 	
 	private boolean allSpecifiedHeadersArePresentAndWithMatchingValues(Request request) {
-		for (Map.Entry<String, String> header: headers.entrySet()) {
-			if (!request.containsHeader(header.getKey()) || !request.getHeader(header.getKey()).equals(header.getValue())) {
+		for (Map.Entry<String, HeaderPattern> header: headers.entrySet()) {
+			HeaderPattern headerPattern = header.getValue();
+			String key = header.getKey();
+			if (!request.containsHeader(key) || !headerPattern.isMatchFor(request.getHeader(key))) {
 				return false;
 			}
 		}
@@ -71,11 +74,11 @@ public class RequestPattern {
 		this.method = method;
 	}
 
-	public HttpHeaders getHeaders() {
+	public Map<String, HeaderPattern> getHeaders() {
 		return headers;
 	}
 	
-	public void setHeaders(HttpHeaders headers) {
+	public void setHeaders(Map<String, HeaderPattern> headers) {
 		this.headers = headers;
 	}
 

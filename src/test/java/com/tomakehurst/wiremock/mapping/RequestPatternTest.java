@@ -1,10 +1,14 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.tomakehurst.wiremock.mapping.HeaderPattern.equalTo;
 import static com.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Map;
 
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -12,19 +16,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.http.RequestMethod;
 
 @RunWith(JMock.class)
 public class RequestPatternTest {
 	
 	private Mockery context;
-	private HttpHeaders headers;
+	private Map<String, HeaderPattern> headers;
 	
 	@Before
 	public void init() {
 		context = new Mockery();
-		headers = new HttpHeaders();
+		headers = newHashMap();
 	}
 	
 	@Test
@@ -49,8 +52,8 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldMatchWhenSpecifiedHeadersArePresent() {
-		headers.put("Accept", "text/plain");
-		headers.put("Content-Type", "application/json");
+		headers.put("Accept", equalTo("text/plain"));
+		headers.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
 		
 		Request request = aRequest(context)
@@ -65,8 +68,8 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderIsAbsent() {
-		headers.put("Accept", "text/plain");
-		headers.put("Content-Type", "application/json");
+		headers.put("Accept", equalTo("text/plain"));
+		headers.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
 		
 		Request request = aRequest(context)
@@ -80,8 +83,8 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderHasAnIncorrectValue() {
-		headers.put("Accept", "text/plain");
-		headers.put("Content-Type", "application/json");
+		headers.put("Accept", equalTo("text/plain"));
+		headers.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
 		
 		Request request = aRequest(context)
@@ -128,4 +131,5 @@ public class RequestPatternTest {
 		
 		requestPattern.isMatchedBy(aRequest(context).build());
 	}
+	
 }
