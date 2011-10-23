@@ -53,8 +53,38 @@ public class WireMock {
 		return urlStrategy;
 	}
 	
+	public static UrlMatchingStrategy urlMatching(String url) {
+		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
+		urlStrategy.setUrlPattern(url);
+		return urlStrategy;
+	}
+	
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder post(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.POST, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder put(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.PUT, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder delete(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.DELETE, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder head(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.HEAD, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder options(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
+	}
+	
+	public static MappingBuilder trace(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
 	
 	public static ResponseDefinitionBuilder aResponse() {

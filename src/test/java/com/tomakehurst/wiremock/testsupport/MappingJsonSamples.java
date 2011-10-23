@@ -2,7 +2,7 @@ package com.tomakehurst.wiremock.testsupport;
 
 public class MappingJsonSamples {
 
-	public static final String BASIC_MAPPING_REQUEST =
+	public static final String BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER =
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
@@ -39,14 +39,33 @@ public class MappingJsonSamples {
 		"	}												\n" +
 		"}													";
 	
+	public static final String WITH_RESPONSE_BODY =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/with/body\"						\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 200,							\n" +
+		"		\"body\": \"Some content\"					\n" +
+		"	}												\n" +
+		"}													";
+	
 	public static final String BASIC_GET =
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
-		"		\"url\": \"/basic/get\"						\n" +
+		"		\"url\": \"/basic/mapping/resource\"		\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
 		"		\"status\": 304,							\n" +
 		"	}												\n" +
 		"}													";
+	
+	public static final String BASIC_POST = BASIC_GET.replace("GET", "POST");
+	public static final String BASIC_PUT = BASIC_GET.replace("GET", "PUT");
+	public static final String BASIC_DELETE = BASIC_GET.replace("GET", "DELETE");
+	public static final String BASIC_HEAD = BASIC_GET.replace("GET", "HEAD");
+	public static final String BASIC_OPTIONS = BASIC_GET.replace("GET", "OPTIONS");
+	public static final String BASIC_TRACE = BASIC_GET.replace("GET", "TRACE");
 }

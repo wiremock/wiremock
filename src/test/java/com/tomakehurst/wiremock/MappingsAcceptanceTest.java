@@ -22,7 +22,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
-		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST);
+		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
 		
 		WireMockResponse response = wireMockClient.get("/a/registered/resource");
 		

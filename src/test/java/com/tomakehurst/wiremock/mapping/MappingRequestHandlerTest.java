@@ -1,7 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST;
+import static com.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.tomakehurst.wiremock.testsupport.RequestResponseMappingBuilder.aMapping;
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -40,7 +40,7 @@ public class MappingRequestHandlerTest {
 		Request request = aRequest(context)
 			.withUrl("/mappings/new")
 			.withMethod(POST)
-			.withBody(BASIC_MAPPING_REQUEST)
+			.withBody(BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER)
 			.build();
 		
 		context.checking(new Expectations() {{

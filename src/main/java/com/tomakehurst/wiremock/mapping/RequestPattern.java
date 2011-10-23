@@ -69,6 +69,10 @@ public class RequestPattern {
 		
 		return true;
 	}
+	
+	public String getUrlPattern() {
+		return urlPattern;
+	}
 
 	public void setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
