@@ -6,7 +6,7 @@ public class MappingJsonSamples {
 		"{ 													\n" +
 		"	\"request\": {									\n" +
 		"		\"method\": \"GET\",						\n" +
-		"		\"url\": \"/a/registered/resource\"	\n" +
+		"		\"url\": \"/a/registered/resource\"			\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
 		"		\"status\": 401,							\n" +
@@ -39,4 +39,14 @@ public class MappingJsonSamples {
 		"	}												\n" +
 		"}													";
 	
+	public static final String BASIC_GET =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/basic/get\"						\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 304,							\n" +
+		"	}												\n" +
+		"}													";
 }

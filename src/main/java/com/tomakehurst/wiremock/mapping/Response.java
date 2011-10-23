@@ -9,8 +9,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+
 import com.tomakehurst.wiremock.http.HttpHeaders;
 
+@JsonSerialize(include=Inclusion.NON_NULL)
 public class Response {
 
 	private int status;
@@ -28,25 +32,22 @@ public class Response {
 	public Response(int statusCode, String bodyContent) {
 		this.status = statusCode;
 		this.body = bodyContent;
-		this.headers = new HttpHeaders();
 	}
 	
 	public Response() {
-		this.body = "";
-		this.headers = new HttpHeaders();
 		this.status = HTTP_OK;
 	}
 
 	public static Response notFound() {
-		return new Response(HTTP_NOT_FOUND, "");
+		return new Response(HTTP_NOT_FOUND, null);
 	}
 	
 	public static Response ok() {
-		return new Response(HTTP_OK, "");
+		return new Response(HTTP_OK, null);
 	}
 	
 	public static Response created() {
-		return new Response(HTTP_CREATED, "");
+		return new Response(HTTP_CREATED, null);
 	}
 	
 	public int getStatus() {
@@ -66,17 +67,25 @@ public class Response {
 	}
 	
 	public void addHeader(String key, String value) {
+		if (headers == null) {
+			headers = new HttpHeaders();
+		}
+		
 		headers.put(key, value);
 	}
 
 	public void applyTo(HttpServletResponse httpServletResponse) {
 		httpServletResponse.setStatus(status);
 		try {
-			for (Map.Entry<String, String> header: headers.entrySet()) {
-				httpServletResponse.addHeader(header.getKey(), header.getValue());
+			if (headers != null) {
+				for (Map.Entry<String, String> header: headers.entrySet()) {
+					httpServletResponse.addHeader(header.getKey(), header.getValue());
+				}
 			}
 			
-			httpServletResponse.getWriter().write(body);
+			if (body != null) {
+				httpServletResponse.getWriter().write(body);
+			}
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}

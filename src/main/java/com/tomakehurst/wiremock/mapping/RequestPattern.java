@@ -1,18 +1,19 @@
 package com.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.util.Map;
+
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.tomakehurst.wiremock.http.RequestMethod;
 
-
+@JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestPattern {
 
 	private String urlPattern;
 	private String url;
 	private RequestMethod method;
-	private Map<String, HeaderPattern> headers = newHashMap();
+	private Map<String, HeaderPattern> headers;
 	
 	
 	public RequestPattern(RequestMethod method, String url, Map<String, HeaderPattern> headers) {
@@ -54,6 +55,10 @@ public class RequestPattern {
 	}
 	
 	private boolean headersMatch(Request request) {
+		if (headers == null) {
+			return true;
+		}
+
 		for (Map.Entry<String, HeaderPattern> header: headers.entrySet()) {
 			HeaderPattern headerPattern = header.getValue();
 			String key = header.getKey();

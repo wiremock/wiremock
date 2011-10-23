@@ -3,7 +3,7 @@ buildscript {
     apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
     
 	repositories {
-    	mavenRepo urls:'http://repo.smokejumperit.com'
+    	mavenRepo urls:['http://repo.smokejumperit.com', 'https://oss.sonatype.org']
 	}
 	dependencies {
     	classpath 'com.smokejumperit:gradle-plugins:0.7.3'
@@ -25,12 +25,13 @@ dependencies {
 	compile "javax.servlet:servlet-api:2.4"
 	compile "com.google.guava:guava:10.0"
 	compile "org.codehaus.jackson:jackson-core-asl:1.8.5", "org.codehaus.jackson:jackson-mapper-asl:1.8.5"
-	compile "commons-httpclient:commons-httpclient:3.1" 
+	compile "commons-httpclient:commons-httpclient:3.1"
 	
 	testCompile "junit:junit:4.8"
 	testCompile "org.hamcrest:hamcrest-all:1.1"
 	testCompile "org.springframework:spring-test:3.0.5.RELEASE", "org.springframework:spring-core:3.0.5.RELEASE"
-	testCompile "org.jmock:jmock:2.5.1", "org.jmock:jmock-junit4:2.5.1" 
+	testCompile "org.jmock:jmock:2.5.1", "org.jmock:jmock-junit4:2.5.1"
+	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
 }
 
 task "create-dirs" << {
