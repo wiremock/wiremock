@@ -18,7 +18,6 @@ import com.tomakehurst.wiremock.testsupport.WireMockTestClient;
 public class WireMockClientAcceptanceTest {
 	
 	private WireMockServer wireMockServer;
-	private WireMock wireMock;
 	private WireMockTestClient testClient;
 	
 	@Before
@@ -26,7 +25,6 @@ public class WireMockClientAcceptanceTest {
 		wireMockServer = new WireMockServer();
 		wireMockServer.start();
 		WireMock.resetHostAndPort();
-		wireMock = new WireMock();
 		testClient = new WireMockTestClient();
 	}
 	
@@ -37,6 +35,7 @@ public class WireMockClientAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
+		WireMock wireMock = new WireMock();
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(
@@ -54,8 +53,4 @@ public class WireMockClientAcceptanceTest {
 		
 		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
 	}
-	
-	
-	
-	
 }
