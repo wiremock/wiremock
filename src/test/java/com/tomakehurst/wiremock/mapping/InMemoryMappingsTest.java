@@ -1,5 +1,6 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.http.RequestMethod.PUT;
@@ -67,6 +68,22 @@ public class InMemoryMappingsTest {
 		Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
 		Response response = mappings.getFor(request);
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
+	}
+	
+	@Test
+	public void returnsMostRecentlyInsertedResponseIfTwoOrMoreMatch() {
+		mappings.addMapping(new RequestResponseMapping(
+				new RequestPattern(GET, "/duplicated/resource"),
+				new Response(204, "Some content")));
+		
+		mappings.addMapping(new RequestResponseMapping(
+				new RequestPattern(GET, "/duplicated/resource"),
+				new Response(201, "Desired content")));
+		
+		Response response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build());
+		
+		assertThat(response.getStatus(), is(201));
+		assertThat(response.getBody(), is("Desired content"));
 	}
 	
 }

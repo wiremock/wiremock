@@ -2,13 +2,12 @@ package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.mapping.Response.notFound;
 
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class InMemoryMappings implements Mappings {
 	
-	private Set<RequestResponseMapping> requestResponseMappings = new CopyOnWriteArraySet<RequestResponseMapping>();
+	private CopyOnWriteArrayList<RequestResponseMapping> requestResponseMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
 	
 	@Override
 	public Response getFor(Request request) {
@@ -23,7 +22,7 @@ public class InMemoryMappings implements Mappings {
 
 	@Override
 	public void addMapping(RequestResponseMapping mapping) {
-		requestResponseMappings.add(mapping);
+		requestResponseMappings.add(0, mapping);
 	}
 
 	@Override
