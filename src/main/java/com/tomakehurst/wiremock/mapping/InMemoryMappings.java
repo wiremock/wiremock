@@ -1,21 +1,14 @@
 package com.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.tomakehurst.wiremock.mapping.Response.notFound;
 
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 
 public class InMemoryMappings implements Mappings {
 	
-	private Set<RequestResponseMapping> requestResponseMappings = newHashSet();
-	
-	public InMemoryMappings() {
-		requestResponseMappings.add(new RequestResponseMapping(
-				new RequestPattern(GET, "/canned/resource"),
-				new Response(200, "{ \"somekey\": \"My value\" }")));
-	}
+	private Set<RequestResponseMapping> requestResponseMappings = new CopyOnWriteArraySet<RequestResponseMapping>();
 	
 	@Override
 	public Response getFor(Request request) {

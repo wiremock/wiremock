@@ -1,7 +1,6 @@
 package com.tomakehurst.wiremock;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -12,13 +11,6 @@ import com.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
-	
-	@Test
-	public void cannedResponseIsReturnedForPreciseUrl() {
-		WireMockResponse response = wireMockClient.get("/canned/resource");
-		assertThat(response.statusCode(), is(HTTP_OK));
-		assertThat(response.content(), is("{ \"somekey\": \"My value\" }"));
-	}
 	
 	@Test
 	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
