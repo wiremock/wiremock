@@ -68,4 +68,90 @@ public class MappingJsonSamples {
 	public static final String BASIC_HEAD = BASIC_GET.replace("GET", "HEAD");
 	public static final String BASIC_OPTIONS = BASIC_GET.replace("GET", "OPTIONS");
 	public static final String BASIC_TRACE = BASIC_GET.replace("GET", "TRACE");
+	
+	public static final String MAPPING_REQUEST_WITH_EXACT_HEADERS =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/header/dependent\",				\n" +
+		"		\"headers\": {								\n" +
+		"			\"Accept\": {							\n" +
+		"				\"equalTo\": \"text/xml\"			\n" +
+		"			},										\n" +
+		"			\"If-None-Match\": {					\n" +
+		"				\"equalTo\": \"abcd1234\"			\n" +
+		"			}										\n" +
+		"		}											\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 304,							\n" +
+		"		\"headers\": {								\n" +
+		"			\"Content-Type\": \"text/xml\"			\n" +
+		"		}											\n" +
+		"	}												\n" +
+		"}													";
+	
+	public static final String MAPPING_REQUEST_WITH_REGEX_HEADERS =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/header/match/dependent\",		\n" +
+		"		\"headers\": {								\n" +
+		"			\"Accept\": {							\n" +
+		"				\"matches\": \"(.*)xml(.*)\"		\n" +
+		"			},										\n" +
+		"			\"If-None-Match\": {					\n" +
+		"				\"matches\": \"([a-z0-9]*)\"		\n" +
+		"			}										\n" +
+		"		}											\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 304,							\n" +
+		"		\"headers\": {								\n" +
+		"			\"Content-Type\": \"text/xml\"			\n" +
+		"		}											\n" +
+		"	}												\n" +
+		"}													";
+	
+	public static final String MAPPING_REQUEST_WITH_NEGATIVE_REGEX_HEADERS =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/header/match/dependent\",		\n" +
+		"		\"headers\": {								\n" +
+		"			\"Accept\": {							\n" +
+		"				\"doesNotMatch\": \"(.*)xml(.*)\"	\n" +
+		"			}										\n" +
+		"		}											\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 200,							\n" +
+		"		\"headers\": {								\n" +
+		"			\"Content-Type\": \"text/xml\"			\n" +
+		"		}											\n" +
+		"	}												\n" +
+		"}													";
+	
+
+	public static final String WITH_REQUEST_HEADERS =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"PUT\",						\n" +
+		"		\"url\": \"/header/matches/dependent\",		\n" +
+		"		\"headers\": {								\n" +
+		"			\"Content-Type\": {						\n" +
+		"				\"equalTo\": \"text/xml\"			\n" +
+		"			},										\n" +
+		"			\"If-None-Match\": {					\n" +
+		"				\"matches\": \"([a-z0-9]*)\"		\n" +
+		"			},										\n" +
+		"			\"Accept\": {							\n" +
+		"				\"doesNotMatch\": \"(.*)xml(.*)\"	\n" +
+		"			}										\n" +
+		"		}											\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 201								\n" +
+		"	}												\n" +
+		"}													";
 }

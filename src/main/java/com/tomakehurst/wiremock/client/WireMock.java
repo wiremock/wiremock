@@ -59,6 +59,24 @@ public class WireMock {
 		return urlStrategy;
 	}
 	
+	public static HeaderMatchingStrategy equalTo(String value) {
+		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+		headerStrategy.setEqualTo(value);
+		return headerStrategy;
+	}
+	
+	public static HeaderMatchingStrategy matching(String value) {
+		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+		headerStrategy.setMatches(value);
+		return headerStrategy;
+	}
+	
+	public static HeaderMatchingStrategy notMatching(String value) {
+		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+		headerStrategy.setDoesNotMatch(value);
+		return headerStrategy;
+	}
+	
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}

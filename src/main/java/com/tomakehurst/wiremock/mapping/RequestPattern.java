@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.google.common.collect.Maps.newLinkedHashMap;
+
 import java.util.Map;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -89,6 +91,14 @@ public class RequestPattern {
 
 	public Map<String, HeaderPattern> getHeaders() {
 		return headers;
+	}
+	
+	public void addHeader(String key, HeaderPattern pattern) {
+		if (headers == null) {
+			headers = newLinkedHashMap();
+		}
+		
+		headers.put(key, pattern);
 	}
 	
 	public void setHeaders(Map<String, HeaderPattern> headers) {

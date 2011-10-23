@@ -1,5 +1,9 @@
 package com.tomakehurst.wiremock.mapping;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+
+@JsonSerialize(include=Inclusion.NON_NULL)
 public class HeaderPattern {
 
 	private String equalTo;
@@ -19,7 +23,7 @@ public class HeaderPattern {
 	}
 	
 	public boolean isMatchFor(String headerValue) {
-		validate();
+		checkOneMatchTypeSpecified();
 		if (equalTo != null) {
 			return headerValue.equals(equalTo);
 		} else if (matches != null) {
@@ -31,34 +35,54 @@ public class HeaderPattern {
 		return false;
 	}
 	
-	private void validate() {
-		int matchTypeCount = 0;
-		if (equalTo != null) matchTypeCount++;
-		if (matches != null) matchTypeCount++;
-		if (doesNotMatch != null) matchTypeCount++;
-		
-		if (matchTypeCount == 0) {
-			throw new IllegalStateException("One match type must be specified");
-		}
-		
-		if (matchTypeCount > 1) {
+	private void checkNoMoreThanOneMatchTypeSpecified() {
+		if (count(equalTo, matches, doesNotMatch) > 1) {
 			throw new IllegalStateException("Only one type of match may be specified");
 		}
 	}
 	
+	private void checkOneMatchTypeSpecified() {
+		if (count(equalTo, matches, doesNotMatch) == 0) {
+			throw new IllegalStateException("One match type must be specified");
+		}
+	}
+	
+	private int count(Object... objects) {
+		int counter = 0;
+		for (Object obj: objects) {
+			if (obj != null) {
+				counter++;
+			}
+		}
+		
+		return counter;
+	}
+	
 	public void setEqualTo(String equalTo) {
 		this.equalTo = equalTo;
-		validate();
+		checkNoMoreThanOneMatchTypeSpecified();
 	}
 	
 	public void setMatches(String matches) {
 		this.matches = matches;
-		validate();
+		checkNoMoreThanOneMatchTypeSpecified();
 	}
 
 	public void setDoesNotMatch(String doesNotMatch) {
 		this.doesNotMatch = doesNotMatch;
-		validate();
+		checkNoMoreThanOneMatchTypeSpecified();
+	}
+
+	public String getEqualTo() {
+		return equalTo;
+	}
+
+	public String getMatches() {
+		return matches;
+	}
+
+	public String getDoesNotMatch() {
+		return doesNotMatch;
 	}
 	
 }

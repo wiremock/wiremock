@@ -2,8 +2,11 @@ package com.tomakehurst.wiremock.client;
 
 import static com.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.tomakehurst.wiremock.client.WireMock.delete;
+import static com.tomakehurst.wiremock.client.WireMock.notMatching;
+import static com.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.tomakehurst.wiremock.client.WireMock.get;
 import static com.tomakehurst.wiremock.client.WireMock.head;
+import static com.tomakehurst.wiremock.client.WireMock.matching;
 import static com.tomakehurst.wiremock.client.WireMock.options;
 import static com.tomakehurst.wiremock.client.WireMock.post;
 import static com.tomakehurst.wiremock.client.WireMock.put;
@@ -119,6 +122,17 @@ public class WireMockClientTest {
 				get(urlEqualTo("/a/registered/resource"))
 				.willReturn(aResponse().withStatus(401).withBody("Not allowed!")
 						.withHeader("Content-Type", "text/plain")));
+	}
+	
+	@Test
+	public void shouldAddMappingWithAll3TypesOfRequestHeaderMatch() {
+		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.WITH_REQUEST_HEADERS);
+		wireMock.register(
+				put(urlEqualTo("/header/matches/dependent"))
+				.withHeader("Content-Type", equalTo("text/xml"))
+				.withHeader("If-None-Match", matching("([a-z0-9]*)"))
+				.withHeader("Accept", notMatching("(.*)xml(.*)"))
+				.willReturn(aResponse().withStatus(201)));
 	}
 	
 	public void expectExactlyOneAddResponseCallWithJson(final String json) {
