@@ -37,8 +37,16 @@ public class WireMock {
 		defaultInstance = new WireMock(host, port);
 	}
 	
-	public static void resetHostAndPort() {
+	public static void configure() {
 		defaultInstance = new WireMock();
+	}
+	
+	public void resetMappings() {
+		adminClient.resetMappings();
+	}
+	
+	public static void reset() {
+		defaultInstance.resetMappings();
 	}
 	
 	public void register(MappingBuilder mappingBuilder) {

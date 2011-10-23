@@ -24,7 +24,7 @@ public class WireMockClientAcceptanceTest {
 	public void init() {
 		wireMockServer = new WireMockServer();
 		wireMockServer.start();
-		WireMock.resetHostAndPort();
+		WireMock.configure();
 		testClient = new WireMockTestClient();
 	}
 	
