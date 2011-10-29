@@ -10,8 +10,6 @@ import com.tomakehurst.wiremock.verification.VerificationResult;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
 	
-	public static final String CONTEXT_KEY = "MappingRequestHandler";
-	
 	private Mappings mappings;
 	private JsonMappingCreator jsonMappingCreator;
 	private RequestJournal requestJournal;

@@ -8,8 +8,7 @@ import com.tomakehurst.wiremock.mapping.InMemoryMappings;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
-import com.tomakehurst.wiremock.servlet.MappingServlet;
-import com.tomakehurst.wiremock.servlet.MockServiceServlet;
+import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
@@ -54,13 +53,13 @@ public class WireMockServer {
 		jettyServer = new Server(port);
 		
 		Context adminContext = new Context(jettyServer, "/__admin");
-		adminContext.addServlet(MappingServlet.class, "/");
-		adminContext.setAttribute(AdminRequestHandler.CONTEXT_KEY, mappingRequestHandler);
+		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
 		jettyServer.addHandler(adminContext);
 		
 		Context mockServiceContext = new Context(jettyServer, "/");
-		mockServiceContext.setAttribute(MockServiceRequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
-		mockServiceContext.addServlet(MockServiceServlet.class, "/");
+		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
+		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		jettyServer.addHandler(mockServiceContext);
 
 		try {

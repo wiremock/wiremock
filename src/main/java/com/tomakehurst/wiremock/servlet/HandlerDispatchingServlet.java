@@ -9,27 +9,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.mapping.Response;
 
-public class MappingServlet extends HttpServlet {
+public class HandlerDispatchingServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -6602042274260495538L;
 	
-	private RequestHandler mappingRequestHandler;
+	private RequestHandler requestHandler;
 	
 	@Override
 	public void init(ServletConfig config) {
 		ServletContext context = config.getServletContext();
-		mappingRequestHandler = (RequestHandler) context.getAttribute(AdminRequestHandler.CONTEXT_KEY);
+		requestHandler = (RequestHandler) context.getAttribute(RequestHandler.CONTEXT_KEY);
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		Request request = new HttpServletRequestAdapter(httpServletRequest);
-		Response response = mappingRequestHandler.handle(request);
+		Response response = requestHandler.handle(request);
 		response.applyTo(httpServletResponse);
 	}
 }
