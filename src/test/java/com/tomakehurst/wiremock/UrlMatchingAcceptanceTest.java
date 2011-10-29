@@ -22,8 +22,8 @@ public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 			"	}												\n" +
 			"}													  ";
 		
-		wireMockClient.addResponse(REGEX_URL_MAPPING_REQUEST);
-		WireMockResponse response = wireMockClient.get("/one/two/three");
+		testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
+		WireMockResponse response = testClient.get("/one/two/three");
 		
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("Matched!"));

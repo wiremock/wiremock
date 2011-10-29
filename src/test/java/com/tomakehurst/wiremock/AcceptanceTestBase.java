@@ -1,29 +1,32 @@
 package com.tomakehurst.wiremock;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
+import com.tomakehurst.wiremock.client.WireMock;
 import com.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class AcceptanceTestBase {
 
-	protected WireMockServer wireMockServer;
-	protected WireMockTestClient wireMockClient;
-
-	@Before
-	public void init() {
-		constructWireMock();
+	protected static WireMockServer wireMockServer;
+	protected static WireMockTestClient testClient;
+	
+	@BeforeClass
+	public static void setupServer() {
+		wireMockServer = new WireMockServer();
 		wireMockServer.start();
-		wireMockClient = new WireMockTestClient();
+		testClient = new WireMockTestClient();
 	}
-
-	@After
-	public void stopWireMock() {
+	
+	@AfterClass
+	public static void serverShutdown() {
 		wireMockServer.stop();
 	}
 	
-	protected void constructWireMock() {
-		wireMockServer = new WireMockServer();
+	@Before
+	public void init() {
+		WireMock.reset();
 	}
 
 }

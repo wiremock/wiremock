@@ -14,9 +14,9 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithExactUrlMethodAndHeaderMatchingIsCreatedAndReturned() {
-		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
+		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_EXACT_HEADERS);
 		
-		WireMockResponse response = wireMockClient.get("/header/dependent",
+		WireMockResponse response = testClient.get("/header/dependent",
 				withHeader("Accept", "text/xml"),
 				withHeader("If-None-Match", "abcd1234"));
 		
@@ -25,9 +25,9 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 
 	@Test
 	public void mappingMatchedWithRegexHeaders() {
-		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_REGEX_HEADERS);
+		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_REGEX_HEADERS);
 		
-		WireMockResponse response = wireMockClient.get("/header/match/dependent",
+		WireMockResponse response = testClient.get("/header/match/dependent",
 				withHeader("Accept", "text/xml"),
 				withHeader("If-None-Match", "abcd1234"));
 		
@@ -36,13 +36,13 @@ public class HeaderMatchingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingMatchedWithNegativeRegexHeader() {
-		wireMockClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_NEGATIVE_REGEX_HEADERS);
+		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_WITH_NEGATIVE_REGEX_HEADERS);
 		
-		WireMockResponse response = wireMockClient.get("/header/match/dependent",
+		WireMockResponse response = testClient.get("/header/match/dependent",
 				withHeader("Accept", "text/xml"));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 		
-		response = wireMockClient.get("/header/match/dependent",
+		response = testClient.get("/header/match/dependent",
 				withHeader("Accept", "application/json"));
 		assertThat(response.statusCode(), is(200));
 	}

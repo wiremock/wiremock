@@ -14,9 +14,9 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
-		wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
+		testClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
 		
-		WireMockResponse response = wireMockClient.get("/a/registered/resource");
+		WireMockResponse response = testClient.get("/a/registered/resource");
 		
 		assertThat(response.statusCode(), is(401));
 		assertThat(response.content(), is("Not allowed!"));
@@ -25,9 +25,9 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
-		wireMockClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
+		testClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
 		
-		WireMockResponse response = wireMockClient.put("/status/only");
+		WireMockResponse response = testClient.put("/status/only");
 		
 		assertThat(response.statusCode(), is(204));
 		assertNull(response.content());
@@ -35,7 +35,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void notFoundResponseIsReturnedForUnregisteredUrl() {
-		WireMockResponse response = wireMockClient.get("/non-existent/resource");
+		WireMockResponse response = testClient.get("/non-existent/resource");
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 	}
 	
@@ -64,7 +64,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		add200ResponseFor("/resource/12");
 		add200ResponseFor("/resource/13");
 		
-		wireMockClient.resetMappings();
+		testClient.resetMappings();
 		
 		getResponseAndAssert404Status("/resource/11");
 		getResponseAndAssert404Status("/resource/12");
@@ -72,16 +72,16 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	private void getResponseAndAssert200Status(String url) {
-		WireMockResponse response = wireMockClient.get(url);
+		WireMockResponse response = testClient.get(url);
 		assertThat(response.statusCode(), is(200));
 	}
 	
 	private void getResponseAndAssert404Status(String url) {
-		WireMockResponse response = wireMockClient.get(url);
+		WireMockResponse response = testClient.get(url);
 		assertThat(response.statusCode(), is(404));
 	}
 	
 	private void add200ResponseFor(String url) {
-		wireMockClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, url));
+		testClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, url));
 	}
 }

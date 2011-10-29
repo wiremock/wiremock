@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.tomakehurst.wiremock.client.VerificationException;
 import com.tomakehurst.wiremock.client.WireMock;
 
-public class VerificationAcceptanceTest extends FluentAPITestBase {
+public class VerificationAcceptanceTest extends AcceptanceTestBase {
 
 	@Test
 	public void verifiesRequestBasedOnUrlOnly() {

@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
-public class StubbingAcceptanceTest extends FluentAPITestBase {
+public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithExactUrlAndMethodMatch() {

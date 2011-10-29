@@ -38,7 +38,7 @@ public class WireMockServer {
 	}
 	
 	public void start() {
-		startMockServiceServer();
+		startMockServiceAndAdminServers();
 	}
 	
 	public void stop() {
@@ -49,7 +49,7 @@ public class WireMockServer {
 		}
 	}
 	
-	private void startMockServiceServer() {
+	private void startMockServiceAndAdminServers() {
 		jettyServer = new Server(port);
 		
 		Context adminContext = new Context(jettyServer, "/__admin");
