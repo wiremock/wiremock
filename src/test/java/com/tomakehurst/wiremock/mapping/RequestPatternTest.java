@@ -132,4 +132,37 @@ public class RequestPatternTest {
 		requestPattern.isMatchedBy(aRequest(context).build());
 	}
 	
+	private static final String XML_SAMPLE =
+		"<document>							\n" +
+		"	<important>Value</important>	\n" +
+		"</document>		  				";
+	
+	@Test
+	public void shouldMatchOnBodyPattern() {
+		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
+		requestPattern.setBodyPattern(".*<important>Value</important>.*");
+		
+		Request request = aRequest(context)
+			.withUrl("/with/body")
+			.withMethod(GET)
+			.withBody(XML_SAMPLE)
+			.build();
+		
+		assertTrue(requestPattern.isMatchedBy(request));
+	}
+	
+	@Test
+	public void shouldNotMatchWhenBodyDoesNotMatchPattern() {
+		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
+		requestPattern.setBodyPattern(".*<important>Value</important>.*");
+		
+		Request request = aRequest(context)
+			.withUrl("/with/body")
+			.withMethod(GET)
+			.withBody("<important>Wrong value</important>")
+			.build();
+		
+		assertFalse(requestPattern.isMatchedBy(request));
+	}
+	
 }

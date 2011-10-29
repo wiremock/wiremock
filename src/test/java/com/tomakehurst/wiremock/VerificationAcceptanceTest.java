@@ -3,6 +3,7 @@ package com.tomakehurst.wiremock;
 import static com.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.tomakehurst.wiremock.client.WireMock.notMatching;
+import static com.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.tomakehurst.wiremock.client.WireMock.urlMatching;
@@ -44,11 +45,20 @@ public class VerificationAcceptanceTest extends FluentAPITestBase {
 				.withHeader("Encoding", notMatching("LATIN-1")));
 	}
 	
-//	@Test
-//	public void verifiesWithBody() {
-//		testClient.post("/add/this");
-//		verify(postRequestedFor(urlMatching("/[a-z]+/this")));
-//	}
+	
+	private static final String SAMPLE_JSON =
+		"{ 													\n" +
+		"	\"thing\": {									\n" +
+		"		\"importantKey\": \"Important value\",		\n" +
+		"	}												\n" +
+		"}													";
+	
+	@Test
+	public void verifiesWithBody() {
+		testClient.postWithBody("/add/this", SAMPLE_JSON, "application/json", "utf-8");
+		verify(postRequestedFor(urlEqualTo("/add/this"))
+				.withBodyMatching(".*\"importantKey\": \"Important value\".*"));
+	}
 	
 	@Test(expected=VerificationException.class)
 	public void resetErasesCounters() {

@@ -1,8 +1,10 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static java.util.regex.Pattern.DOTALL;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -16,7 +18,7 @@ public class RequestPattern {
 	private String url;
 	private RequestMethod method;
 	private Map<String, HeaderPattern> headers;
-	
+	private String bodyPattern;
 	
 	public RequestPattern(RequestMethod method, String url, Map<String, HeaderPattern> headers) {
 		this.url = url;
@@ -45,7 +47,8 @@ public class RequestPattern {
 	public boolean isMatchedBy(Request request) {
 		return (request.getMethod() == method &&
 				urlIsMatch(request.getUrl()) && 
-				headersMatch(request));
+				headersMatch(request) &&
+				bodyMatches(request));
 	}
 	
 	private boolean urlIsMatch(String candidateUrl) {
@@ -70,6 +73,15 @@ public class RequestPattern {
 		}
 		
 		return true;
+	}
+	
+	private boolean bodyMatches(Request request) {
+		if (bodyPattern == null) {
+			return true;
+		}
+		
+		Pattern pattern = Pattern.compile(bodyPattern, DOTALL);
+		return pattern.matcher(request.getBodyAsString()).matches();
 	}
 	
 	public String getUrlPattern() {
@@ -113,11 +125,30 @@ public class RequestPattern {
 		this.url = url;
 		assertIsInValidState();
 	}
+	
+	public String getBodyPattern() {
+		return bodyPattern;
+	}
+
+	public void setBodyPattern(String bodyPattern) {
+		this.bodyPattern = bodyPattern;
+	}
+
+	
+
+	@Override
+	public String toString() {
+		return "RequestPattern [urlPattern=" + urlPattern + ", url=" + url
+				+ ", method=" + method + ", headers=" + headers
+				+ ", bodyPattern=" + bodyPattern + "]";
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result
+				+ ((bodyPattern == null) ? 0 : bodyPattern.hashCode());
 		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -135,6 +166,11 @@ public class RequestPattern {
 		if (getClass() != obj.getClass())
 			return false;
 		RequestPattern other = (RequestPattern) obj;
+		if (bodyPattern == null) {
+			if (other.bodyPattern != null)
+				return false;
+		} else if (!bodyPattern.equals(other.bodyPattern))
+			return false;
 		if (headers == null) {
 			if (other.headers != null)
 				return false;
@@ -155,9 +191,5 @@ public class RequestPattern {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "RequestPattern [urlPattern=" + urlPattern + ", url=" + url
-				+ ", method=" + method + ", headers=" + headers + "]";
-	}
+	
 }

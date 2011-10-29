@@ -5,6 +5,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -49,6 +50,16 @@ public class WireMockTestClient {
 	public WireMockResponse put(String url, HttpHeader... headers) {
 		HttpMethod httpMethod = new PutMethod(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpMethod, headers);
+	}
+	
+	public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
+		PostMethod httpMethod = new PostMethod(mockServiceUrlFor(url));
+		try {
+			httpMethod.setRequestEntity(new StringRequestEntity(body, bodyMimeType, bodyEncoding));
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		return executeMethodAndCovertExceptions(httpMethod);
 	}
 
 	public void addResponse(String responseSpecJson) {
