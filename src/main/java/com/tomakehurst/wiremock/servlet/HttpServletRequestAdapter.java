@@ -23,11 +23,17 @@ public class HttpServletRequestAdapter implements Request {
 
 	@Override
 	public String getUrl() {
+		String url = request.getRequestURI();
+		
 		if (!isNullOrEmpty(request.getContextPath())) {
-			return request.getRequestURI().replace(request.getContextPath(), "");
+			url = url.replace(request.getContextPath(), "");
 		}
 		
-		return request.getRequestURI();
+		if (!isNullOrEmpty(request.getQueryString())) {
+			url = url + "?" + request.getQueryString();
+		}
+		
+		return url;
 	}
 
 	@Override

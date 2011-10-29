@@ -34,6 +34,17 @@ public class StubbingAcceptanceTest extends FluentAPITestBase {
 	}
 	
 	@Test
+	public void mappingWithUrlContainingQueryParameters() {
+		givenThat(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
+				aResponse()
+				.withStatus(302)));
+		
+		WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
+		
+		assertThat(response.statusCode(), is(302));
+	}
+	
+	@Test
 	public void mappingWithHeaderMatchers() {
 		givenThat(put(urlEqualTo("/some/url"))
 			.withHeader("One", equalTo("abcd1234"))
