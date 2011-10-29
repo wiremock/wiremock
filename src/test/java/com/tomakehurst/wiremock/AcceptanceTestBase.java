@@ -17,6 +17,7 @@ public class AcceptanceTestBase {
 		wireMockServer = new WireMockServer();
 		wireMockServer.start();
 		testClient = new WireMockTestClient();
+		WireMock.configure();
 	}
 	
 	@AfterClass
@@ -25,7 +26,7 @@ public class AcceptanceTestBase {
 	}
 	
 	@Before
-	public void init() {
+	public void init() throws InterruptedException {
 		WireMock.reset();
 	}
 

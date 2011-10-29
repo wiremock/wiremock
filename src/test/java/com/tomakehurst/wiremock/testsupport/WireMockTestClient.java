@@ -101,6 +101,7 @@ public class WireMockTestClient {
 			for (HttpHeader header: headers) {
 				httpMethod.addRequestHeader(header.getName(), header.getValue());
 			}
+			httpMethod.setFollowRedirects(false);
 			client.executeMethod(httpMethod);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);

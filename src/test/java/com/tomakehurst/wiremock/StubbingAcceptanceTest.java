@@ -37,6 +37,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void mappingWithUrlContainingQueryParameters() {
 		givenThat(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
 				aResponse()
+				.withHeader("Location", "/nowhere")
 				.withStatus(302)));
 		
 		WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
