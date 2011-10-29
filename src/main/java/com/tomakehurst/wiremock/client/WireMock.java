@@ -132,4 +132,29 @@ public class WireMock {
 	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}
+	
+	public static RequestPatternBuilder postRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.POST, urlMatchingStrategy);
+	}
+	
+	public static RequestPatternBuilder putRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.PUT, urlMatchingStrategy);
+	}
+	
+	public static RequestPatternBuilder deleteRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.DELETE, urlMatchingStrategy);
+	}
+	
+	public static RequestPatternBuilder headRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.HEAD, urlMatchingStrategy);
+	}
+	
+	public static RequestPatternBuilder optionsRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
+	}
+	
+	public static RequestPatternBuilder traceRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.TRACE, urlMatchingStrategy);
+	}
+	
 }
