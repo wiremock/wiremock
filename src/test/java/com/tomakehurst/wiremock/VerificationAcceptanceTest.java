@@ -70,4 +70,14 @@ public class VerificationAcceptanceTest extends FluentAPITestBase {
 		
 		verify(getRequestedFor(urlEqualTo("/count/this")));
 	}
+	
+	@Test
+	public void verifiesArbitraryRequestCount() {
+		testClient.get("/add/to/count");
+		testClient.get("/add/to/count");
+		testClient.get("/add/to/count");
+		testClient.get("/add/to/count");
+		
+		verify(4, getRequestedFor(urlEqualTo("/add/to/count")));
+	}
 }

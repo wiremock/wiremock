@@ -124,9 +124,17 @@ public class WireMock {
 			throw new VerificationException("Expected: " + requestPattern);
 		}
 	}
+
+	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
+		
+	}
 	
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.verifyThat(requestPatternBuilder);
+	}
+	
+	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
+		defaultInstance.verifyThat(count, requestPatternBuilder);
 	}
 	
 	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
