@@ -3,8 +3,8 @@ package com.tomakehurst.wiremock;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 
+import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.tomakehurst.wiremock.mapping.InMemoryMappings;
-import com.tomakehurst.wiremock.mapping.MappingRequestHandler;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
@@ -12,6 +12,7 @@ import com.tomakehurst.wiremock.servlet.MappingServlet;
 import com.tomakehurst.wiremock.servlet.MockServiceServlet;
 import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 
 public class WireMockServer {
 
@@ -19,14 +20,17 @@ public class WireMockServer {
 	
 	private Server jettyServer;
 	private Mappings mappings;
+	private InMemoryRequestJournal requestJournal;
 	private RequestHandler mockServiceRequestHandler;
 	private RequestHandler mappingRequestHandler;
 	private int port;
 	
 	public WireMockServer(int port) {
 		mappings = new InMemoryMappings();
+		requestJournal = new InMemoryRequestJournal();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
-		mappingRequestHandler = new MappingRequestHandler(mappings);
+		mockServiceRequestHandler.addRequestListener(requestJournal);
+		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal);
 		this.port = port;
 	}
 	
@@ -51,7 +55,7 @@ public class WireMockServer {
 		
 		Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(MappingServlet.class, "/");
-		adminContext.setAttribute(MappingRequestHandler.CONTEXT_KEY, mappingRequestHandler);
+		adminContext.setAttribute(AdminRequestHandler.CONTEXT_KEY, mappingRequestHandler);
 		jettyServer.addHandler(adminContext);
 		
 		Context mockServiceContext = new Context(jettyServer, "/");

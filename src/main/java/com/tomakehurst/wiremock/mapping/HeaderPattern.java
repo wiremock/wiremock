@@ -84,5 +84,44 @@ public class HeaderPattern {
 	public String getDoesNotMatch() {
 		return doesNotMatch;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((doesNotMatch == null) ? 0 : doesNotMatch.hashCode());
+		result = prime * result + ((equalTo == null) ? 0 : equalTo.hashCode());
+		result = prime * result + ((matches == null) ? 0 : matches.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HeaderPattern other = (HeaderPattern) obj;
+		if (doesNotMatch == null) {
+			if (other.doesNotMatch != null)
+				return false;
+		} else if (!doesNotMatch.equals(other.doesNotMatch))
+			return false;
+		if (equalTo == null) {
+			if (other.equalTo != null)
+				return false;
+		} else if (!equalTo.equals(other.equalTo))
+			return false;
+		if (matches == null) {
+			if (other.matches != null)
+				return false;
+		} else if (!matches.equals(other.matches))
+			return false;
+		return true;
+	}
+	
 	
 }

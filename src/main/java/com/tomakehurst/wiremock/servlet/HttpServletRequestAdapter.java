@@ -3,6 +3,9 @@ package com.tomakehurst.wiremock.servlet;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,6 +52,17 @@ public class HttpServletRequestAdapter implements Request {
 	@Override
 	public boolean containsHeader(String key) {
 		return request.getHeader(key) != null;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<String> getAllHeaderKeys() {
+		LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();
+		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+			headerKeys.add(headerNames.nextElement());
+		}
+		
+		return headerKeys;
 	}
 
 }

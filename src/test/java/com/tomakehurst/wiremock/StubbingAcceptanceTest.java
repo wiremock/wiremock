@@ -12,36 +12,11 @@ import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.tomakehurst.wiremock.client.WireMock;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
-public class StubbingAcceptanceTest {
-	
-	private static WireMockServer wireMockServer;
-	private static WireMockTestClient testClient;
-	
-	@BeforeClass
-	public static void setupServer() {
-		wireMockServer = new WireMockServer();
-		wireMockServer.start();
-		testClient = new WireMockTestClient();
-	}
-	
-	@AfterClass
-	public static void serverShutdown() {
-		wireMockServer.stop();
-	}
-	
-	@Before
-	public void init() {
-		WireMock.reset();
-	}
+public class StubbingAcceptanceTest extends FluentAPITestBase {
 	
 	@Test
 	public void mappingWithExactUrlAndMethodMatch() {

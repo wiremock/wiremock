@@ -1,6 +1,6 @@
 package com.tomakehurst.wiremock.mapping;
 
-public class MockServiceRequestHandler implements RequestHandler {
+public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	public static final String CONTEXT_KEY = "MockServiceRequestHandler";
 
@@ -11,8 +11,9 @@ public class MockServiceRequestHandler implements RequestHandler {
 	}
 	
 	@Override
-	public Response handle(Request request) {
+	public Response handleRequest(Request request) {
 		Response response = mappings.getFor(request);
 		return response;
 	}
+
 }

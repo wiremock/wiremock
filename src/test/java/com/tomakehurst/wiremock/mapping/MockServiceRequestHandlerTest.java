@@ -43,5 +43,17 @@ public class MockServiceRequestHandlerTest {
 		assertThat(response.getBody(), is("Body content"));
 	}
 	
-	
+	@Test
+	public void shouldNotifyListenersOnRequest() {
+		final Request request = aRequest(context).build();
+		final RequestListener listener = context.mock(RequestListener.class);
+		requestHandler.addRequestListener(listener);
+		
+		context.checking(new Expectations() {{
+			allowing(mappings).getFor(request);
+			one(listener).requestReceived(request);
+		}});
+		
+		requestHandler.handle(request);
+	}
 }

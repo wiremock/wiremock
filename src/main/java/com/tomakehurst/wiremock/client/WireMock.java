@@ -2,6 +2,7 @@ package com.tomakehurst.wiremock.client;
 
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.JsonMappingBinder;
+import com.tomakehurst.wiremock.mapping.RequestPattern;
 import com.tomakehurst.wiremock.mapping.RequestResponseMapping;
 
 public class WireMock {
@@ -117,5 +118,18 @@ public class WireMock {
 		return new ResponseDefinitionBuilder();
 	}
 	
+	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
+		RequestPattern requestPattern = requestPatternBuilder.build();
+		if (adminClient.getRequestsMatching(requestPattern) < 1) {
+			throw new VerificationException("Expected: " + requestPattern);
+		}
+	}
 	
+	public static void verify(RequestPatternBuilder requestPatternBuilder) {
+		defaultInstance.verifyThat(requestPatternBuilder);
+	}
+	
+	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.GET, urlMatchingStrategy);
+	}
 }
