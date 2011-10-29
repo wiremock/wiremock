@@ -27,8 +27,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		if (isNewMappingRequest(request)) {
 			jsonMappingCreator.addMappingFrom(request.getBodyAsString());
 			return Response.created();
-		} else if (isResetMappingsRequest(request)) {
+		} else if (isResetRequest(request)) {
 			mappings.reset();
+			requestJournal.reset();
 			return Response.ok();
 		} else if (isRequestCountRequest(request)) {
 			return getRequestCount(request);
@@ -45,8 +46,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		return response;
 	}
 
-	private boolean isResetMappingsRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/mappings/reset");
+	private boolean isResetRequest(Request request) {
+		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/reset");
 	}
 
 	private boolean isNewMappingRequest(Request request) {
@@ -56,5 +57,5 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private boolean isRequestCountRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/requests/count");
 	}
-
+	
 }

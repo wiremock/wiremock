@@ -44,6 +44,12 @@ public class VerificationAcceptanceTest extends FluentAPITestBase {
 				.withHeader("Encoding", notMatching("LATIN-1")));
 	}
 	
+//	@Test
+//	public void verifiesWithBody() {
+//		testClient.post("/add/this");
+//		verify(postRequestedFor(urlMatching("/[a-z]+/this")));
+//	}
+	
 	@Test(expected=VerificationException.class)
 	public void resetErasesCounters() {
 		testClient.get("/count/this");

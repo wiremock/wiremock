@@ -16,7 +16,7 @@ import com.tomakehurst.wiremock.verification.VerificationResult;
 public class HttpAdminClient implements AdminClient {
 	
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://%s:%d/__admin/mappings/reset";
+	private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
 	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = "http://%s:%d/__admin/requests/count";
 	
 	private String host;
@@ -37,7 +37,7 @@ public class HttpAdminClient implements AdminClient {
 	
 	@Override
 	public void resetMappings() {
-		int status = postEmptyBodyAndReturnStatus(resetMappingsUrl());
+		int status = postEmptyBodyAndReturnStatus(resetUrl());
 		assertStatusOk(status);
 	}
 
@@ -93,8 +93,8 @@ public class HttpAdminClient implements AdminClient {
 		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, host, port);
 	}
 	
-	private String resetMappingsUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, host, port);
+	private String resetUrl() {
+		return String.format(LOCAL_WIREMOCK_RESET_URL, host, port);
 	}
 	
 	private String requestsCountUrl() {

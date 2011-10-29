@@ -5,4 +5,5 @@ import com.tomakehurst.wiremock.mapping.RequestPattern;
 public interface RequestJournal {
 
 	int countRequestsMatching(RequestPattern requestPattern);
+	void reset();
 }

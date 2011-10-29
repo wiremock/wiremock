@@ -27,4 +27,9 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 		requests.add(LoggedRequest.createFrom(request));
 	}
 
+	@Override
+	public void reset() {
+		requests.clear();
+	}
+
 }

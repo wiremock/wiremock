@@ -64,21 +64,21 @@ public class AdminRequestHandlerTest {
 	}
 	
 	@Test
-	public void shouldClearMappingsWhenResetCalled() {
+	public void shouldClearMappingsAndJournalWhenResetCalled() {
 		Request request = aRequest(context)
-			.withUrl("/mappings/reset")
+			.withUrl("/reset")
 			.withMethod(POST)
 			.build();
 		
 		context.checking(new Expectations() {{
 			one(mappings).reset();
+			one(requestJournal).reset();
 		}});
 		
 		Response response = handler.handle(request);
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 	}
-	
 	
 	private static final String REQUEST_PATTERN_SAMPLE = 
 		"{												\n" +
@@ -102,4 +102,5 @@ public class AdminRequestHandlerTest {
 		assertThat(response.getStatus(), is(HTTP_OK));
 		assertThat(response.getBody(), jsonEqualTo("{ \"count\": 5 }"));
 	}
+	
 }
