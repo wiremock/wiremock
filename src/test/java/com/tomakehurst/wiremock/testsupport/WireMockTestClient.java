@@ -17,7 +17,7 @@ public class WireMockTestClient {
 
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:%d%s";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:%d/__admin/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_MAPPINGS_URL = "http://localhost:%d/__admin/mappings/reset";
+	private static final String LOCAL_WIREMOCK_RESET_URL = "http://localhost:%d/__admin/reset";
 	
 	private int port;
 	
@@ -37,8 +37,8 @@ public class WireMockTestClient {
 		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, port);
 	}
 	
-	private String resetMappingsUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_MAPPINGS_URL, port);
+	private String resetUrl() {
+		return String.format(LOCAL_WIREMOCK_RESET_URL, port);
 	}
 
 	public WireMockResponse get(String url, HttpHeader... headers) {
@@ -59,7 +59,7 @@ public class WireMockTestClient {
 	}
 	
 	public void resetMappings() {
-		int status = postEmptyBodyAndReturnStatus(resetMappingsUrl());
+		int status = postEmptyBodyAndReturnStatus(resetUrl());
 		if (status != HTTP_OK) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
