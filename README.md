@@ -23,13 +23,11 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 </pre>
 	
 ...and this to your dependencies:
-<pre>
 	<dependency>
 		<groupId>com.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
 		<version>1.0</version>
 	</dependency>
-</pre>
 
 
 
