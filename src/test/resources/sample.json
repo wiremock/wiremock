@@ -1,9 +1,20 @@
 { 													
-		"request": {									
+	"request": {									
 		"method": "GET",						
-		"uriPattern": "/my/other/resource"	
-	},												
-		"response": {									
+		"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
+		"headers": {
+			"Content-Type": {
+				"equalTo": "text/xml"
+			},
+			"Accept": {
+				"matches": "(.*)xml(.*)"
+			},
+			"Etag": {
+				"doesNotMatch": "s0912lksjd(.+)"
+			} 
+		}
+	},										
+	"response": {									
 		"status": 200,							
 		"body": "YES INDEED!",
 		"headers": {

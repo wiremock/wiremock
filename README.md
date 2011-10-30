@@ -111,6 +111,11 @@ The request body can also be specified as a regex:
 
 	.withBodyMatching(".*Something.*")
 	
+### Verifiying a precise number of requests
+An alternate form of the <code>verify</code> call is:
+
+	verify(3, postRequestedFor(urlMatching("/my/resource/[a-z0-9]+")) ...
+	
 
 ### Running on a different host/port
 If you'd prefer a different port, you can do something like this:
@@ -124,6 +129,61 @@ Note: the ability to change host in the second call is to support connection to 
 JSON API
 --------
 
+### Registereing mappings
+New mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new</code>:
+
+	{ 													
+		"request": {									
+			"method": "GET",						
+			"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
+			"headers": {
+				"Content-Type": {
+					"equalTo": "text/xml"
+				},
+				"Accept": {
+					"matches": "(.*)xml(.*)"
+				},
+				"Etag": {
+					"doesNotMatch": "s0912lksjd(.+)"
+				} 
+			}
+		},										
+		"response": {									
+			"status": 200,							
+			"body": "YES INDEED!",
+			"headers": {
+				"Content-Type": "text/plain",
+				"Cache-Control": "no-cache"
+			}
+		}												
+	}
+	
+In the request portion only the <code>method</code>, and either the <code>url</code> or <code>urlPattern</code> attributes are mandatory.
+In the response portion only the <code>status</code> attribute is mandatory.
+
+
+### Counting requests matching a pattern
+Getting the number of requests that have been made to the server matching a pattern (since startup or last reset) can be achieved
+by posting JSON to <code>http://localhost:8080/__admin/requests/count</code>:
+
+	{								
+		"method": "POST",						
+		"url": "/resource/to/count",
+		"headers": {
+			"Content-Type": {
+				"matches": "(.*)xml(.*)"
+			}
+		}
+	}
+	
+This will return a response of the form:
+
+	{ "count": 4 }
+
+
+### Resetting the server
+A post to <code>http://localhost:8080/__admin/reset</code> will clear the list of logged requests and all mappings.
+
 
 Running standalone
 ------------------
@@ -136,5 +196,5 @@ Or on an alternate port:
 	java -jar wiremock-1.0.jar 9999
 	
 A directory called <code>mappings</code> will be created under the current directory when you first start WireMock.
-Placing .json files containing mappings in here and restarting will cause them to be loaded on startup.
+Placing .json files containing mappings (in the format described above) in here and restarting will cause them to be loaded on startup.
 
