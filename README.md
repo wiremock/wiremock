@@ -190,11 +190,11 @@ Running standalone
 ------------------
 WireMock can be run in its own process:
 
-	java -jar wiremock-standalone.jar
+	java -jar wiremock-1.0-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-standalone.jar 9999
+	java -jar wiremock-1.0-standalone.jar 9999
 	
 A directory called <code>mappings</code> will be created under the current directory when you first start WireMock.
 Placing .json files containing mappings (in the format described above) in here and restarting will cause them to be loaded on startup.
