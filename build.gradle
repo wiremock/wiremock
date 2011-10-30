@@ -13,7 +13,10 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: com.smokejumperit.gradle.OneJarPlugin
+apply plugin: 'maven'
+
 sourceCompatibility = 1.6
+group = 'com.tomakehurst'
 version = 1.0
 
 repositories {
@@ -42,5 +45,14 @@ task "create-dirs" << {
 jar {
     manifest {
         attributes("Main-Class": "com.tomakehurst.wiremock.WireMockServer")
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file:///Users/tomakehurst/dev/tomakehurst-mvn-repo/releases/")
+            pom.artifactId = 'wiremock'
+        }
     }
 }
