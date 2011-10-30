@@ -7,8 +7,9 @@ It can be run as a standalone process or called from Java, and is configurable v
 What it's good for
 ------------------
 
-* Unit/integration testing - write fluent Java specs for stubbed responses and verifications. JSON API for use with other languages.
-* Functional/load testing - run as a standalone server and substitute for a real service.
+* Unit/integration testing
+* Functional/load testing
+* Prototyping
  
 
 Quick start with JUnit 4.x
