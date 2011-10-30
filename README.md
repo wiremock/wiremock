@@ -130,7 +130,7 @@ JSON API
 --------
 
 ### Registereing mappings
-New mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new</code>:
+New mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
 
 	{ 													
 		"request": {									
@@ -164,7 +164,7 @@ In the response portion only the <code>status</code> attribute is mandatory.
 
 ### Counting requests matching a pattern
 Getting the number of requests that have been made to the server matching a pattern (since startup or last reset) can be achieved
-by posting JSON to <code>http://localhost:8080/__admin/requests/count</code>:
+by posting JSON to <code>http://localhost:8080/__admin/requests/count </code>:
 
 	{								
 		"method": "POST",						
@@ -182,7 +182,7 @@ This will return a response of the form:
 
 
 ### Resetting the server
-A post to <code>http://localhost:8080/__admin/reset</code> will clear the list of logged requests and all mappings.
+A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all mappings.
 
 
 Running standalone
