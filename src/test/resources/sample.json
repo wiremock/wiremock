@@ -7,7 +7,8 @@
 		"status": 200,							
 		"body": "YES INDEED!",
 		"headers": {
-			"Content-Type": "text/plain"
+			"Content-Type": "text/plain",
+			"Cache-Control": "no-cache"
 		}
 	}												
 }
