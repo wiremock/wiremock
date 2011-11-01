@@ -1,15 +1,9 @@
 WireMock - a toolkit for simulating HTTP services
 =================================================
 
-WireMock is an HTTP server that can be configured with pre-canned responses, and that records requests for later verification.
-It can be run as a standalone process or called from Java, and is configurable via JSON and Java APIs.
-
-What it's good for
-------------------
-
-* Unit/integration testing
-* Functional/load testing
-* Prototyping
+WireMock is a mock HTTP server that can serve stub responses, and supports recording and verification of requests.
+It can be run as a standalone process, configurable via a JSON API, or from within any Java unit testing framework.
+A fluent Java client API makes for expressive, concise test cases. 
  
 
 Quick start with JUnit 4.x
@@ -20,7 +14,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<repositories>
 		<repository>
 			<id>tomakehurst-mvn-repo-releases</id>
-			<name>Tom Akehurst's Release Maven Repo</name>
+			<name>Tom Akehurst's Maven Release Repo</name>
 			<url>https://github.com/tomakehurst/tomakehurst-mvn-repo/raw/master/releases</url>
 			<layout>default</layout>
 		</repository>
@@ -197,5 +191,5 @@ Or on an alternate port:
 	java -jar wiremock-1.0-standalone.jar 9999
 	
 A directory called <code>mappings</code> will be created under the current directory when you first start WireMock.
-Placing .json files containing mappings (in the format described above) in here and restarting will cause them to be loaded on startup.
+Placing .json files containing mappings (in the format described above) in here will cause them to be loaded on next startup.
 
