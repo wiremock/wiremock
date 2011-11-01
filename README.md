@@ -48,7 +48,7 @@ In your test class, add this:
 	
 	@Before
 	public void init() {
-		//Erases all request/response mappings and recorded requests
+		//Erases all stub mappings and recorded requests
 		WireMock.reset();
 	}
 	
@@ -82,7 +82,7 @@ All the API calls above are static methods on the com.tomakehurst.wiremock.clien
 	...
 
 ### URL matching
-For both request/response mappings and verifications URLs can be matched exactly
+For both stub mappings and verifications URLs can be matched exactly
 or via a regular expression:
 	
 	.urlEqualTo("/exact/match")
@@ -124,8 +124,8 @@ Note: the ability to change host in the second call is to support connection to 
 JSON API
 --------
 
-### Registereing mappings
-New mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
+### Registering stub mappings
+New stub mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
 
 	{ 													
 		"request": {									
@@ -177,7 +177,7 @@ This will return a response of the form:
 
 
 ### Resetting the server
-A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all mappings.
+A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all stub mappings.
 
 
 Running standalone
