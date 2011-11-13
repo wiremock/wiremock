@@ -3,6 +3,7 @@ package com.tomakehurst.wiremock;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 
+import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.tomakehurst.wiremock.mapping.InMemoryMappings;
@@ -18,6 +19,7 @@ import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 
 public class WireMockServer {
 
+	private static final int DEFAULT_PORT = 8080;
 	private static final int PORT_NUMBER_ARG = 0;
 	
 	private Server jettyServer;
@@ -25,21 +27,25 @@ public class WireMockServer {
 	private InMemoryRequestJournal requestJournal;
 	private RequestHandler mockServiceRequestHandler;
 	private RequestHandler mappingRequestHandler;
-	private ResponseRenderer responseRenderer;
+	private FileBodyLoadingResponseRenderer responseRenderer;
 	private int port;
 	
-	public WireMockServer(int port) {
+	public WireMockServer(int port, FileSource bodyFileSource) {
 		mappings = new InMemoryMappings();
 		requestJournal = new InMemoryRequestJournal();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mockServiceRequestHandler.addRequestListener(requestJournal);
 		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal);
-		responseRenderer = new FileBodyLoadingResponseRenderer(new SingleRootFileSource("src/test/resources"));
+		responseRenderer = new FileBodyLoadingResponseRenderer(bodyFileSource);
 		this.port = port;
 	}
 	
+	public WireMockServer(int port) {
+		this(port, new SingleRootFileSource("src/test/resources"));
+	}
+	
 	public WireMockServer() {
-		this(8080);
+		this(DEFAULT_PORT);
 	}
 	
 	public void start() {
@@ -80,13 +86,19 @@ public class WireMockServer {
 		mappingsLoader.loadMappingsInto(mappings);
 	}
 	
+	public void setBodyFileSource(FileSource fileSource) {
+		
+	}
+	
 	public static void main(String... args) {
+		FileSource bodyFileSource = new SingleRootFileSource("files");
+		
 		WireMockServer wireMockServer;
 		if (args.length > 0) {
 			int port = Integer.parseInt(args[PORT_NUMBER_ARG]);
-			wireMockServer = new WireMockServer(port);
+			wireMockServer = new WireMockServer(port, bodyFileSource);
 		} else {
-			wireMockServer = new WireMockServer();
+			wireMockServer = new WireMockServer(DEFAULT_PORT, bodyFileSource);
 		}
 		
 		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("mappings");
