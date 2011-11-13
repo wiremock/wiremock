@@ -4,11 +4,6 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -19,6 +14,7 @@ public class Response {
 
 	private int status;
 	private String body;
+	private String bodyFileName;
 	private HttpHeaders headers;
 	
 	public HttpHeaders getHeaders() {
@@ -74,21 +70,12 @@ public class Response {
 		headers.put(key, value);
 	}
 
-	public void applyTo(HttpServletResponse httpServletResponse) {
-		httpServletResponse.setStatus(status);
-		try {
-			if (headers != null) {
-				for (Map.Entry<String, String> header: headers.entrySet()) {
-					httpServletResponse.addHeader(header.getKey(), header.getValue());
-				}
-			}
-			
-			if (body != null) {
-				httpServletResponse.getWriter().write(body);
-			}
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
+	public String getBodyFileName() {
+		return bodyFileName;
+	}
+
+	public void setBodyFileName(String bodyFileName) {
+		this.bodyFileName = bodyFileName;
 	}
 
 	@Override
@@ -96,6 +83,8 @@ public class Response {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result
+				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
 		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
 		result = prime * result + status;
 		return result;
@@ -103,32 +92,48 @@ public class Response {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Response other = (Response) obj;
 		if (body == null) {
-			if (other.body != null)
+			if (other.body != null) {
 				return false;
-		} else if (!body.equals(other.body))
+			}
+		} else if (!body.equals(other.body)) {
 			return false;
+		}
+		if (bodyFileName == null) {
+			if (other.bodyFileName != null) {
+				return false;
+			}
+		} else if (!bodyFileName.equals(other.bodyFileName)) {
+			return false;
+		}
 		if (headers == null) {
-			if (other.headers != null)
+			if (other.headers != null) {
 				return false;
-		} else if (!headers.equals(other.headers))
+			}
+		} else if (!headers.equals(other.headers)) {
 			return false;
-		if (status != other.status)
+		}
+		if (status != other.status) {
 			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Response [status=" + status + ", body=" + body + ", headers="
-				+ headers + "]";
+		return "Response [status=" + status + ", body=" + body
+				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
+				+ "]";
 	}
 	
 	

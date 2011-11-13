@@ -7,6 +7,7 @@ public class ResponseDefinitionBuilder {
 
 	private int status;
 	private String bodyContent;
+	private String bodyFileName;
 	private HttpHeaders headers;
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
@@ -23,6 +24,11 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 	
+	public ResponseDefinitionBuilder withBodyFile(String fileName) {
+		this.bodyFileName = fileName;
+		return this;
+	}
+	
 	public ResponseDefinitionBuilder withBody(String body) {
 		this.bodyContent = body;
 		return this;
@@ -31,6 +37,7 @@ public class ResponseDefinitionBuilder {
 	public Response build() {
 		Response response = new Response(status, bodyContent);
 		response.setHeaders(headers);
+		response.setBodyFileName(bodyFileName);
 		return response;
 	}
 }

@@ -3,11 +3,9 @@ package com.tomakehurst.wiremock.standalone;
 import static java.lang.System.out;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 
-import com.google.common.io.CharStreams;
+import com.tomakehurst.wiremock.common.TextFile;
 import com.tomakehurst.wiremock.mapping.JsonMappingCreator;
 import com.tomakehurst.wiremock.mapping.Mappings;
 
@@ -49,11 +47,6 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 	}
 	
 	private String readJsonFrom(File jsonFile) {
-		try {
-			String json = CharStreams.toString(new FileReader(jsonFile));
-			return json;
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
+		return new TextFile(jsonFile).readContents();
 	}
 }

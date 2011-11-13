@@ -3,12 +3,15 @@ package com.tomakehurst.wiremock;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 
+import com.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.tomakehurst.wiremock.mapping.InMemoryMappings;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
+import com.tomakehurst.wiremock.servlet.FileBodyLoadingResponseRenderer;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
+import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
@@ -22,6 +25,7 @@ public class WireMockServer {
 	private InMemoryRequestJournal requestJournal;
 	private RequestHandler mockServiceRequestHandler;
 	private RequestHandler mappingRequestHandler;
+	private ResponseRenderer responseRenderer;
 	private int port;
 	
 	public WireMockServer(int port) {
@@ -30,6 +34,7 @@ public class WireMockServer {
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mockServiceRequestHandler.addRequestListener(requestJournal);
 		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal);
+		responseRenderer = new FileBodyLoadingResponseRenderer(new SingleRootFileSource("src/test/resources"));
 		this.port = port;
 	}
 	
@@ -55,10 +60,12 @@ public class WireMockServer {
 		Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
+		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
 		jettyServer.addHandler(adminContext);
 		
 		Context mockServiceContext = new Context(jettyServer, "/");
 		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
+		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
 		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		jettyServer.addHandler(mockServiceContext);
 

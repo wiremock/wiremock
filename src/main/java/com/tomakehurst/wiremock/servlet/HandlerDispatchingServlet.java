@@ -18,17 +18,19 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	private static final long serialVersionUID = -6602042274260495538L;
 	
 	private RequestHandler requestHandler;
+	private ResponseRenderer responseRenderer;
 	
 	@Override
 	public void init(ServletConfig config) {
 		ServletContext context = config.getServletContext();
 		requestHandler = (RequestHandler) context.getAttribute(RequestHandler.CONTEXT_KEY);
+		responseRenderer = (ResponseRenderer) context.getAttribute(ResponseRenderer.CONTEXT_KEY);
 	}
 
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		Request request = new HttpServletRequestAdapter(httpServletRequest);
 		Response response = requestHandler.handle(request);
-		response.applyTo(httpServletResponse);
+		responseRenderer.render(response, httpServletResponse);
 	}
 }

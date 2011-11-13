@@ -60,4 +60,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(204));
 	}
+	
+	@Test
+	public void responseBodyLoadedFromFile() {
+		givenThat(get(urlEqualTo("/my/file")).willReturn(
+				aResponse()
+				.withStatus(200)
+				.withBodyFile("plain-example.txt")));
+		
+		WireMockResponse response = testClient.get("/my/file");
+		
+		assertThat(response.content(), is("Some example test from a file"));
+	}
 }
