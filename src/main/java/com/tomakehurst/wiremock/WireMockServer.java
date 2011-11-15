@@ -1,7 +1,12 @@
 package com.tomakehurst.wiremock;
 
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.Map;
+
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.DefaultServlet;
 
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
@@ -23,12 +28,12 @@ public class WireMockServer {
 	private static final int PORT_NUMBER_ARG = 0;
 	
 	private Server jettyServer;
-	private Mappings mappings;
-	private InMemoryRequestJournal requestJournal;
-	private RequestHandler mockServiceRequestHandler;
-	private RequestHandler mappingRequestHandler;
-	private FileBodyLoadingResponseRenderer responseRenderer;
-	private int port;
+	private final Mappings mappings;
+	private final InMemoryRequestJournal requestJournal;
+	private final RequestHandler mockServiceRequestHandler;
+	private final RequestHandler mappingRequestHandler;
+	private final FileBodyLoadingResponseRenderer responseRenderer;
+	private final int port;
 	
 	public WireMockServer(int port, FileSource bodyFileSource) {
 		mappings = new InMemoryMappings();
@@ -48,10 +53,6 @@ public class WireMockServer {
 		this(DEFAULT_PORT);
 	}
 	
-	public void start() {
-		startMockServiceAndAdminServers();
-	}
-	
 	public void stop() {
 		try {
 			jettyServer.stop();
@@ -60,20 +61,11 @@ public class WireMockServer {
 		}
 	}
 	
-	private void startMockServiceAndAdminServers() {
+	public void start() {
 		jettyServer = new Server(port);
-		
-		Context adminContext = new Context(jettyServer, "/__admin");
-		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
-		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
-		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
-		jettyServer.addHandler(adminContext);
-		
-		Context mockServiceContext = new Context(jettyServer, "/");
-		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
-		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
-		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
-		jettyServer.addHandler(mockServiceContext);
+		addAdminContext();
+		addSiteContext();
+		addMockServiceContext();
 
 		try {
 			jettyServer.start();
@@ -81,17 +73,43 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
+
+    @SuppressWarnings({"rawtypes", "unchecked" })
+    private void addSiteContext() {
+        Context siteContext = new Context(jettyServer, "/site");
+        Map initParams = newHashMap();
+        initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
+        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", "site");
+        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
+        siteContext.setInitParams(initParams);
+        siteContext.addServlet(DefaultServlet.class, "/");
+		jettyServer.addHandler(siteContext);
+    }
+
+    private void addMockServiceContext() {
+        Context mockServiceContext = new Context(jettyServer, "/");
+		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
+		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
+		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+		jettyServer.addHandler(mockServiceContext);
+    }
+
+    private void addAdminContext() {
+        Context adminContext = new Context(jettyServer, "/__admin");
+		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
+		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
+		jettyServer.addHandler(adminContext);
+    }
 	
-	public void loadMappingsUsing(MappingsLoader mappingsLoader) {
+	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
 		mappingsLoader.loadMappingsInto(mappings);
-	}
-	
-	public void setBodyFileSource(FileSource fileSource) {
-		
 	}
 	
 	public static void main(String... args) {
 		FileSource bodyFileSource = new SingleRootFileSource("files");
+		bodyFileSource.createIfNecessary();
+		new SingleRootFileSource("site").createIfNecessary();
 		
 		WireMockServer wireMockServer;
 		if (args.length > 0) {
