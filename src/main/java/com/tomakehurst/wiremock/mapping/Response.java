@@ -16,6 +16,7 @@ public class Response {
 	private String body;
 	private String bodyFileName;
 	private HttpHeaders headers;
+	private boolean wasConfigured = true;
 	
 	public HttpHeaders getHeaders() {
 		return headers;
@@ -44,6 +45,12 @@ public class Response {
 	
 	public static Response created() {
 		return new Response(HTTP_CREATED, null);
+	}
+	
+	public static Response notConfigured() {
+	    Response response = new Response(HTTP_NOT_FOUND, null);
+	    response.wasConfigured = false;
+	    return response;
 	}
 	
 	public int getStatus() {
@@ -77,6 +84,10 @@ public class Response {
 	public void setBodyFileName(String bodyFileName) {
 		this.bodyFileName = bodyFileName;
 	}
+	
+	public boolean wasConfigured() {
+        return wasConfigured;
+    }
 
 	@Override
 	public int hashCode() {
@@ -135,6 +146,6 @@ public class Response {
 				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
 				+ "]";
 	}
-	
+
 	
 }

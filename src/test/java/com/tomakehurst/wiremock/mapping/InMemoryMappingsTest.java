@@ -64,10 +64,11 @@ public class InMemoryMappingsTest {
 	}
 	
 	@Test
-	public void returnsNotFoundResponseForUnmappedRequest() {
+	public void returnsNotConfiguredResponseForUnmappedRequest() {
 		Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
 		Response response = mappings.getFor(request);
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
+		assertThat(response.wasConfigured(), is(false));
 	}
 	
 	@Test

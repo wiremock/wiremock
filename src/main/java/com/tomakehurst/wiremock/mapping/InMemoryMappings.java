@@ -1,7 +1,5 @@
 package com.tomakehurst.wiremock.mapping;
 
-import static com.tomakehurst.wiremock.mapping.Response.notFound;
-
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -17,7 +15,7 @@ public class InMemoryMappings implements Mappings {
 			}
 		}
 		
-		return notFound();
+		return Response.notConfigured();
 	}
 
 	@Override

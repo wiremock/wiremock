@@ -4,6 +4,8 @@ import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Map;
 
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
@@ -15,6 +17,7 @@ import com.tomakehurst.wiremock.mapping.InMemoryMappings;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
+import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.tomakehurst.wiremock.servlet.FileBodyLoadingResponseRenderer;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
@@ -24,7 +27,9 @@ import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 
 public class WireMockServer {
 
-	private static final int DEFAULT_PORT = 8080;
+	public static final String FILES_ROOT = "__files";
+	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
+    private static final int DEFAULT_PORT = 8080;
 	private static final int PORT_NUMBER_ARG = 0;
 	
 	private Server jettyServer;
@@ -86,11 +91,32 @@ public class WireMockServer {
 		jettyServer.addHandler(siteContext);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked" })
     private void addMockServiceContext() {
         Context mockServiceContext = new Context(jettyServer, "/");
+        
+        Map initParams = newHashMap();
+        initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
+        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", ".");
+        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
+        mockServiceContext.setInitParams(initParams);
+        mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
+        
 		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
 		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
 		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+		
+		MimeTypes mimeTypes = new MimeTypes();
+		mimeTypes.addMimeMapping("json", "application/json");
+		mimeTypes.addMimeMapping("html", "text/html");
+		mimeTypes.addMimeMapping("xml", "application/xml");
+		mimeTypes.addMimeMapping("txt", "text/plain");
+		mockServiceContext.setMimeTypes(mimeTypes);
+		
+		mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
+		
+		mockServiceContext.addFilter(ContentTypeSettingFilter.class, "/__files/*", Handler.ALL);
+		
 		jettyServer.addHandler(mockServiceContext);
     }
 
@@ -107,7 +133,7 @@ public class WireMockServer {
 	}
 	
 	public static void main(String... args) {
-		FileSource bodyFileSource = new SingleRootFileSource("files");
+		FileSource bodyFileSource = new SingleRootFileSource(FILES_ROOT);
 		bodyFileSource.createIfNecessary();
 		new SingleRootFileSource("site").createIfNecessary();
 		
