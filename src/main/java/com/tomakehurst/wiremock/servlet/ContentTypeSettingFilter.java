@@ -28,6 +28,9 @@ public class ContentTypeSettingFilter implements Filter {
         if (response instanceof HttpServletResponse) {
             String filePath = ((HttpServletRequest) request).getRequestURI();
             String contentType = context.getMimeType(filePath);
+            if (contentType == null) {
+                contentType = "application/json";
+            }
             ((HttpServletResponse) response).setContentType(contentType);
         }
         

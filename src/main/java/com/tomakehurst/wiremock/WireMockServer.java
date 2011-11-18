@@ -21,6 +21,7 @@ import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.tomakehurst.wiremock.servlet.FileBodyLoadingResponseRenderer;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
+import com.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
@@ -115,7 +116,8 @@ public class WireMockServer {
 		
 		mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
 		
-		mockServiceContext.addFilter(ContentTypeSettingFilter.class, "/__files/*", Handler.ALL);
+		mockServiceContext.addFilter(ContentTypeSettingFilter.class, "/__files/*", Handler.FORWARD);
+		mockServiceContext.addFilter(TrailingSlashFilter.class, "/__files/*", Handler.REQUEST);
 		
 		jettyServer.addHandler(mockServiceContext);
     }
