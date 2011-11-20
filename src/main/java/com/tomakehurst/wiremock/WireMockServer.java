@@ -70,7 +70,6 @@ public class WireMockServer {
 	public void start() {
 		jettyServer = new Server(port);
 		addAdminContext();
-		addSiteContext();
 		addMockServiceContext();
 
 		try {
@@ -79,18 +78,6 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
-
-    @SuppressWarnings({"rawtypes", "unchecked" })
-    private void addSiteContext() {
-        Context siteContext = new Context(jettyServer, "/site");
-        Map initParams = newHashMap();
-        initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
-        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", "site");
-        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
-        siteContext.setInitParams(initParams);
-        siteContext.addServlet(DefaultServlet.class, "/");
-		jettyServer.addHandler(siteContext);
-    }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     private void addMockServiceContext() {

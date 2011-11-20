@@ -19,7 +19,6 @@ public class WireMockServerRunner {
 	public void run(String fileSourcesRoot, String... args) {
 		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
-		fileSource.child("site").createIfNecessary();
 		fileSource.child(FILES_ROOT).createIfNecessary();
 		
 		if (args.length > 0) {
