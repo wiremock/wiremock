@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.common;
 
+import static java.io.File.separator;
+
 import java.io.File;
 
 public class SingleRootFileSource implements FileSource {
@@ -24,4 +26,16 @@ public class SingleRootFileSource implements FileSource {
             file.mkdirs();
         }
     }
+
+	@Override
+	public FileSource child(String subDirectoryName) {
+		return new SingleRootFileSource(rootPath + separator + subDirectoryName);
+	}
+
+	@Override
+	public String getPath() {
+		return rootPath;
+	}
+    
+    
 }

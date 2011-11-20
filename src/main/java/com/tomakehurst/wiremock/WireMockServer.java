@@ -22,32 +22,32 @@ import com.tomakehurst.wiremock.servlet.FileBodyLoadingResponseRenderer;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 
 public class WireMockServer {
 
 	public static final String FILES_ROOT = "__files";
+	public static final int DEFAULT_PORT = 8080;
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
-    private static final int DEFAULT_PORT = 8080;
-	private static final int PORT_NUMBER_ARG = 0;
 	
 	private Server jettyServer;
 	private final Mappings mappings;
 	private final InMemoryRequestJournal requestJournal;
 	private final RequestHandler mockServiceRequestHandler;
 	private final RequestHandler mappingRequestHandler;
+	private final FileSource fileSource;
 	private final FileBodyLoadingResponseRenderer responseRenderer;
 	private final int port;
 	
-	public WireMockServer(int port, FileSource bodyFileSource) {
+	public WireMockServer(int port, FileSource fileSource) {
 		mappings = new InMemoryMappings();
 		requestJournal = new InMemoryRequestJournal();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mockServiceRequestHandler.addRequestListener(requestJournal);
 		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal);
-		responseRenderer = new FileBodyLoadingResponseRenderer(bodyFileSource);
+		responseRenderer = new FileBodyLoadingResponseRenderer(fileSource.child(FILES_ROOT));
+		this.fileSource = fileSource;
 		this.port = port;
 	}
 	
@@ -98,7 +98,7 @@ public class WireMockServer {
         
         Map initParams = newHashMap();
         initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
-        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", ".");
+        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
         initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
         mockServiceContext.setInitParams(initParams);
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
@@ -116,8 +116,8 @@ public class WireMockServer {
 		
 		mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
 		
-		mockServiceContext.addFilter(ContentTypeSettingFilter.class, "/__files/*", Handler.FORWARD);
-		mockServiceContext.addFilter(TrailingSlashFilter.class, "/__files/*", Handler.REQUEST);
+		mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, Handler.FORWARD);
+		mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, Handler.REQUEST);
 		
 		jettyServer.addHandler(mockServiceContext);
     }
@@ -132,23 +132,5 @@ public class WireMockServer {
 	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
 		mappingsLoader.loadMappingsInto(mappings);
-	}
-	
-	public static void main(String... args) {
-		FileSource bodyFileSource = new SingleRootFileSource(FILES_ROOT);
-		bodyFileSource.createIfNecessary();
-		new SingleRootFileSource("site").createIfNecessary();
-		
-		WireMockServer wireMockServer;
-		if (args.length > 0) {
-			int port = Integer.parseInt(args[PORT_NUMBER_ARG]);
-			wireMockServer = new WireMockServer(port, bodyFileSource);
-		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, bodyFileSource);
-		}
-		
-		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("mappings");
-		wireMockServer.loadMappingsUsing(mappingsLoader);
-		wireMockServer.start();
 	}
 }
