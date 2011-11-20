@@ -116,6 +116,26 @@ public class StandaloneAcceptanceTest {
 		assertThat(response.header("Content-Type"), is("application/xml"));
 	}
 	
+	private static final String BODY_FILE_MAPPING_REQUEST =
+		"{ 													\n" +
+		"	\"request\": {									\n" +
+		"		\"method\": \"GET\",						\n" +
+		"		\"url\": \"/body/file\"						\n" +
+		"	},												\n" +
+		"	\"response\": {									\n" +
+		"		\"status\": 200,							\n" +
+		"		\"bodyFileName\": \"body-test.xml\"			\n" +
+		"	}												\n" +
+		"}													";
+	
+	@Test
+	public void readsBodyFileFromFilesDir() {
+		writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
+		writeFileToFilesDir("body-test.xml", "<body>Content</body>");
+		startRunnerOnDefaultPort();
+		assertThat(testClient.get("/body/file").content(), is("<body>Content</body>"));
+	}
+	
 	private void writeFileToFilesDir(String name, String contents) {
 		writeFileUnderFileSourceRoot(FILES + separator + name, contents);
 	}
