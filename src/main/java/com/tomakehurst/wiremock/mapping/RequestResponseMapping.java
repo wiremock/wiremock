@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
+import com.google.common.base.Predicate;
+
 
 public class RequestResponseMapping {
 
@@ -72,5 +74,20 @@ public class RequestResponseMapping {
 	public String toString() {
 		return "RequestResponseMapping [request=" + request + ", response="
 				+ response + "]";
+	}
+	
+	public static class Matcher implements Predicate<RequestResponseMapping> {
+		
+		private Request request;
+		
+		public static Matcher forRequest(Request request) {
+			Matcher predicate = new Matcher();
+			predicate.request = request;
+			return predicate;
+		}
+		
+		public boolean apply(RequestResponseMapping input) {
+			return input.getRequest().isMatchedBy(request);
+		}
 	}
 }
