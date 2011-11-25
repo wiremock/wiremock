@@ -127,7 +127,10 @@ public class WireMock {
 	}
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
-		
+		RequestPattern requestPattern = requestPatternBuilder.build();
+		if (adminClient.getRequestsMatching(requestPattern) != count) {
+			throw new VerificationException("Expected " + count + " of: " + requestPattern);
+		}
 	}
 	
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
