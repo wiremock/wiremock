@@ -1,6 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static com.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.mapping.HeaderPattern.equalTo;
@@ -163,6 +164,20 @@ public class RequestPatternTest {
 			.build();
 		
 		assertFalse(requestPattern.isMatchedBy(request));
+	}
+	
+	@Test
+	public void shouldMatchAnyMethod() {
+		RequestPattern requestPattern = new RequestPattern(ANY, "/any/method");
+		
+		for (RequestMethod method: RequestMethod.values()) {
+			context = new Mockery();
+			Request request = aRequest(context)
+				.withUrl("/any/method")
+				.withMethod(method)
+				.build();
+			assertTrue("Method in request pattern is ANY so any method should match", requestPattern.isMatchedBy(request));
+		}
 	}
 	
 }

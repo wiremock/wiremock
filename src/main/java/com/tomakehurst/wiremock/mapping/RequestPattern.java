@@ -1,6 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.util.regex.Pattern.DOTALL;
 
 import java.util.Map;
@@ -45,10 +46,14 @@ public class RequestPattern {
 	}
 	
 	public boolean isMatchedBy(Request request) {
-		return (request.getMethod() == method &&
+		return (methodMatches(request) &&
 				urlIsMatch(request.getUrl()) && 
 				headersMatch(request) &&
 				bodyMatches(request));
+	}
+
+	private boolean methodMatches(Request request) {
+		return method == ANY || request.getMethod() == method;
 	}
 	
 	private boolean urlIsMatch(String candidateUrl) {
