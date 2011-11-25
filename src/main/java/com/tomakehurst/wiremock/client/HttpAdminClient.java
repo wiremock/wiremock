@@ -9,15 +9,18 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 
+import com.tomakehurst.wiremock.global.GlobalSettings;
 import com.tomakehurst.wiremock.mapping.JsonMappingBinder;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
 import com.tomakehurst.wiremock.verification.VerificationResult;
 
 public class HttpAdminClient implements AdminClient {
 	
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
-	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = "http://%s:%d/__admin/requests/count";
+	private static final String ADMIN_URL_PREFIX = "http://%s:%d/__admin";
+	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";
+	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
+	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
+	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
 	
 	private String host;
 	private int port;
@@ -53,6 +56,12 @@ public class HttpAdminClient implements AdminClient {
 		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
 		VerificationResult verificationResult = buildVerificationResultFrom(body);
 		return verificationResult.getCount();
+	}
+	
+	@Override
+	public void updateGlobalSettings(GlobalSettings settings) {
+		String json = JsonMappingBinder.write(settings);
+		postJsonAssertOkAndReturnBody(globalSettingsUrl(), json, HTTP_OK);
 	}
 
 	private int postJsonAndReturnStatus(String url, String json) {
@@ -101,4 +110,7 @@ public class HttpAdminClient implements AdminClient {
 		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port);
 	}
 
+	private String globalSettingsUrl() {
+		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port);
+	}
 }

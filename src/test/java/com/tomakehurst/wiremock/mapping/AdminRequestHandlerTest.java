@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.verification.RequestJournal;
 
@@ -27,6 +28,7 @@ public class AdminRequestHandlerTest {
 	private Mockery context;
 	private Mappings mappings;
 	private RequestJournal requestJournal;
+	private GlobalSettingsHolder globalSettingsHolder;
 	
 	private AdminRequestHandler handler;
 	
@@ -36,8 +38,9 @@ public class AdminRequestHandlerTest {
 		context = new Mockery();
 		mappings = context.mock(Mappings.class);
 		requestJournal = context.mock(RequestJournal.class);
+		globalSettingsHolder = new GlobalSettingsHolder();
 		
-		handler = new AdminRequestHandler(mappings, requestJournal);
+		handler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder);
 	}
 	
 	@Test
@@ -101,6 +104,22 @@ public class AdminRequestHandlerTest {
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 		assertThat(response.getBody(), jsonEqualTo("{ \"count\": 5 }"));
+	}
+	
+	private static final String GLOBAL_SETTINGS_JSON =
+		"{												\n" +
+		"	\"fixedDelay\": 2000						\n" +
+		"}												";
+	
+	@Test
+	public void shouldUpdateGlobalSettings() {
+		handler.handle(aRequest(context)
+				.withUrl("/settings")
+				.withMethod(POST)
+				.withBody(GLOBAL_SETTINGS_JSON)
+				.build());
+		
+		assertThat(globalSettingsHolder.get().getFixedDelay(), is(2000));
 	}
 	
 }

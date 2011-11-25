@@ -1,5 +1,6 @@
 package com.tomakehurst.wiremock.client;
 
+import com.tomakehurst.wiremock.global.GlobalSettings;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.JsonMappingBinder;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
@@ -163,6 +164,16 @@ public class WireMock {
 	
 	public static RequestPatternBuilder traceRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.TRACE, urlMatchingStrategy);
+	}
+	
+	public static void setGlobalFixedDelay(int milliseconds) {
+		defaultInstance.setGlobalFixedDelayVariable(milliseconds);
+	}
+	
+	public void setGlobalFixedDelayVariable(int milliseconds) {
+		GlobalSettings settings = new GlobalSettings();
+		settings.setFixedDelay(milliseconds);
+		adminClient.updateGlobalSettings(settings);
 	}
 	
 }

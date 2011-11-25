@@ -24,7 +24,7 @@ public class JsonMappingBinder {
 		return read(json, RequestPattern.class);
 	}
 	
-	private static <T> T read(String json, Class<T> clazz) {
+	public static <T> T read(String json, Class<T> clazz) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.readValue(json, clazz);

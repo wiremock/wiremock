@@ -5,17 +5,21 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Optional;
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.TextFile;
+import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.mapping.Response;
 
-public class FileBodyLoadingResponseRenderer implements ResponseRenderer {
+public class MockServiceResponseRenderer implements ResponseRenderer {
 	
-	private FileSource fileSource;
+	private final FileSource fileSource;
+	private final GlobalSettingsHolder globalSettingsHolder;
 
-	public FileBodyLoadingResponseRenderer(FileSource fileSource) {
+	public MockServiceResponseRenderer(FileSource fileSource, GlobalSettingsHolder globalSettingsHolder) {
 		this.fileSource = fileSource;
+		this.globalSettingsHolder = globalSettingsHolder;
 	}
 
 	@Override
@@ -42,13 +46,22 @@ public class FileBodyLoadingResponseRenderer implements ResponseRenderer {
 		}
 	}
 
-    private static void addDelayIfSpecified(Response response) {
-        if (response.getFixedDelayMilliseconds() != null) {
+    private void addDelayIfSpecified(Response response) {
+    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(response);
+        if (optionalDelay.isPresent()) {
 	        try {
-	            Thread.sleep(response.getFixedDelayMilliseconds());
+	            Thread.sleep(optionalDelay.get());
 	        } catch (InterruptedException e) {
 	            throw new RuntimeException(e);
 	        }
 	    }
+    }
+    
+    private Optional<Integer> getDelayFromResponseOrGlobalSetting(Response response) {
+    	Integer delay = response.getFixedDelayMilliseconds() != null ?
+    			response.getFixedDelayMilliseconds() :
+    			globalSettingsHolder.get().getFixedDelay();
+    	
+    	return Optional.fromNullable(delay);
     }
 }

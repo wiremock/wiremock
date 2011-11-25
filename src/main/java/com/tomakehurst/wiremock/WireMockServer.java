@@ -12,14 +12,16 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.tomakehurst.wiremock.mapping.InMemoryMappings;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
+import com.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.tomakehurst.wiremock.servlet.FileBodyLoadingResponseRenderer;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
+import com.tomakehurst.wiremock.servlet.MockServiceResponseRenderer;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -37,16 +39,16 @@ public class WireMockServer {
 	private final RequestHandler mockServiceRequestHandler;
 	private final RequestHandler mappingRequestHandler;
 	private final FileSource fileSource;
-	private final FileBodyLoadingResponseRenderer responseRenderer;
+	private final GlobalSettingsHolder globalSettingsHolder;
 	private final int port;
 	
 	public WireMockServer(int port, FileSource fileSource) {
+		globalSettingsHolder = new GlobalSettingsHolder();
 		mappings = new InMemoryMappings();
 		requestJournal = new InMemoryRequestJournal();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
 		mockServiceRequestHandler.addRequestListener(requestJournal);
-		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal);
-		responseRenderer = new FileBodyLoadingResponseRenderer(fileSource.child(FILES_ROOT));
+		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder);
 		this.fileSource = fileSource;
 		this.port = port;
 	}
@@ -91,7 +93,8 @@ public class WireMockServer {
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
 		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
-		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
+		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY,
+				new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
 		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		
 		MimeTypes mimeTypes = new MimeTypes();
@@ -113,7 +116,7 @@ public class WireMockServer {
         Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
-		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, responseRenderer);
+		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, new BasicResponseRenderer());
 		jettyServer.addHandler(adminContext);
     }
 	
