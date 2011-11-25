@@ -41,19 +41,6 @@ public class TrailingSlashFilter implements Filter {
             RequestDispatcher dispatcher = request.getRequestDispatcher(location);
             dispatcher.forward(request, response);
         }
-        
-        
-//        if (request instanceof HttpServletRequest) {
-//            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-//            String path = getRequestPathFrom(httpServletRequest);
-//            if (!lastPathNodeIsFile(path) && !path.endsWith("/")) {
-//                RequestDispatcher dispatcher = request.getRequestDispatcher(path + "/");
-//                dispatcher.forward(request, response);
-//            } else {
-//                chain.doFilter(request, response);
-//            }
-//        }
-        
     }
     
     private static class StatusAndRedirectExposingHttpServletResponse extends HttpServletResponseWrapper {
@@ -104,11 +91,6 @@ public class TrailingSlashFilter implements Filter {
         }
     }
     
-    private boolean lastPathNodeIsFile(String url) {
-        String lastPathNode = url.substring(url.lastIndexOf('/'));
-        return lastPathNode.contains(".");
-    }
-
     @Override
     public void destroy() {
     }
