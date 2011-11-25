@@ -9,6 +9,7 @@ import static com.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.tomakehurst.wiremock.client.WireMock.put;
 import static com.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -71,5 +72,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		WireMockResponse response = testClient.get("/my/file");
 		
 		assertThat(response.content(), is("Some example test from a file"));
+	}
+	
+	@Test
+	public void responseWithFixedDelay() {
+	    givenThat(get(urlEqualTo("/delayed/resource")).willReturn(
+                aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withFixedDelay(500)));
+        
+	    long start = System.currentTimeMillis();
+        testClient.get("/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+        
+        assertThat(duration, greaterThanOrEqualTo(500));
 	}
 }

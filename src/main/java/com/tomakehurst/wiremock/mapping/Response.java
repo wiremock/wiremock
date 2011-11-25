@@ -16,7 +16,9 @@ public class Response {
 	private String body;
 	private String bodyFileName;
 	private HttpHeaders headers;
+	private Integer fixedDelayMilliseconds;
 	private boolean wasConfigured = true;
+	
 	
 	public HttpHeaders getHeaders() {
 		return headers;
@@ -75,6 +77,10 @@ public class Response {
 		}
 		
 		headers.put(key, value);
+	}
+	
+	public void setFixedDelayMilliseconds(Integer fixedDelayMilliseconds) {
+	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
 	}
 
 	public String getBodyFileName() {
@@ -140,12 +146,16 @@ public class Response {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "Response [status=" + status + ", body=" + body
-				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
-				+ "]";
-	}
+    public Integer getFixedDelayMilliseconds() {
+        return fixedDelayMilliseconds;
+    }
+
+    @Override
+    public String toString() {
+        return "Response [status=" + status + ", body=" + body + ", bodyFileName=" + bodyFileName + ", headers="
+                + headers + ", fixedDelayMilliseconds=" + fixedDelayMilliseconds + ", wasConfigured="
+                + wasConfigured + "]";
+    }
 
 	
 }

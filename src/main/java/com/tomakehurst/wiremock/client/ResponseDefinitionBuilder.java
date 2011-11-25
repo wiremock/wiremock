@@ -9,6 +9,7 @@ public class ResponseDefinitionBuilder {
 	private String bodyContent;
 	private String bodyFileName;
 	private HttpHeaders headers;
+	private Integer fixedDelayMilliseconds;
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
@@ -34,10 +35,16 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 	
+	public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
+        this.fixedDelayMilliseconds = milliseconds;
+        return this;
+    }
+	
 	public Response build() {
 		Response response = new Response(status, bodyContent);
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
+		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		return response;
 	}
 }

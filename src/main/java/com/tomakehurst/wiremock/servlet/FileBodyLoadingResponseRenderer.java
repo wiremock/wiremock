@@ -20,6 +20,8 @@ public class FileBodyLoadingResponseRenderer implements ResponseRenderer {
 
 	@Override
 	public void render(Response response, HttpServletResponse httpServletResponse) {
+	    addDelayIfSpecified(response);
+	    
 		httpServletResponse.setStatus(response.getStatus());
 		try {
 			HttpHeaders headers = response.getHeaders();
@@ -39,4 +41,14 @@ public class FileBodyLoadingResponseRenderer implements ResponseRenderer {
 			throw new RuntimeException(ioe);
 		}
 	}
+
+    private static void addDelayIfSpecified(Response response) {
+        if (response.getFixedDelayMilliseconds() != null) {
+	        try {
+	            Thread.sleep(response.getFixedDelayMilliseconds());
+	        } catch (InterruptedException e) {
+	            throw new RuntimeException(e);
+	        }
+	    }
+    }
 }
