@@ -1,6 +1,8 @@
 package com.tomakehurst.wiremock.mapping;
 
+import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.find;
+import static com.tomakehurst.wiremock.mapping.Priority.HIGH;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -9,11 +11,15 @@ import com.google.common.base.Predicate;
 
 public class InMemoryMappings implements Mappings {
 	
-	private CopyOnWriteArrayList<RequestResponseMapping> requestResponseMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
+	private CopyOnWriteArrayList<RequestResponseMapping> normalPriorityMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
+	private CopyOnWriteArrayList<RequestResponseMapping> highPriorityMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
 	
 	@Override
 	public Response getFor(Request request) {
-		RequestResponseMapping matchingMapping = find(requestResponseMappings, mappingMatching(request), RequestResponseMapping.notConfigured());
+		RequestResponseMapping matchingMapping = find(
+				concat(highPriorityMappings, normalPriorityMappings),
+				mappingMatching(request),
+				RequestResponseMapping.notConfigured());
 		return matchingMapping.getResponse();
 	}
 	
@@ -27,12 +33,16 @@ public class InMemoryMappings implements Mappings {
 
 	@Override
 	public void addMapping(RequestResponseMapping mapping) {
-		requestResponseMappings.add(0, mapping);
+		if (mapping.priorityIs(HIGH)) {
+			highPriorityMappings.add(0, mapping);
+		} else {
+			normalPriorityMappings.add(0, mapping);
+		}
 	}
 
 	@Override
 	public void reset() {
-		requestResponseMappings.clear();
+		normalPriorityMappings.clear();
 	}
 
 }

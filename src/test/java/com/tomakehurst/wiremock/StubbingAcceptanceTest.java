@@ -8,6 +8,7 @@ import static com.tomakehurst.wiremock.client.WireMock.matching;
 import static com.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.tomakehurst.wiremock.client.WireMock.put;
 import static com.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
@@ -89,8 +90,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
 	
-//	@Test
-//	public void highPriorityMappingMatchedFirst() {
-//		
-//	}
+	@Test
+	public void highPriorityMappingMatchedFirst() {
+		givenThat(get(urlMatching("/priority/.*")).atHighPriority()
+				.willReturn(aResponse()
+                .withStatus(200)));
+		givenThat(get(urlEqualTo("/priority/resource")).willReturn(aResponse().withStatus(500)));
+		
+		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
+	}
 }

@@ -87,4 +87,22 @@ public class InMemoryMappingsTest {
 		assertThat(response.getBody(), is("Desired content"));
 	}
 	
+	@Test
+	public void returnsHighPriorityMappingsBeforeNormal() {
+		RequestResponseMapping highPriorityMapping = new RequestResponseMapping(
+				new RequestPattern(GET, "/whatever"),
+				new Response(200, "High"));
+		highPriorityMapping.setPriority(Priority.HIGH);
+		RequestResponseMapping normalPriorityMapping = new RequestResponseMapping(
+				new RequestPattern(GET, "/whatever"),
+				new Response(200, "Normal"));
+		normalPriorityMapping.setPriority(Priority.NORMAL);
+		mappings.addMapping(highPriorityMapping);
+		mappings.addMapping(normalPriorityMapping);
+		
+		Response response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/whatever").build());
+		
+		assertThat(response.getBody(), is("High"));
+	}
+	
 }
