@@ -1,7 +1,11 @@
 package com.tomakehurst.wiremock.verification;
 
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.google.common.base.Predicate;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.RequestListener;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
@@ -12,14 +16,15 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		int count = 0;
-		for (Request request: requests) {
-			if (requestPattern.isMatchedBy(request)) {
-				count++;
+		return size(filter(requests, matchedBy(requestPattern))); 
+	}
+	
+	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+		return new Predicate<Request>() {
+			public boolean apply(Request input) {
+				return requestPattern.isMatchedBy(input);
 			}
-		}
-		
-		return count;
+		};
 	}
 
 	@Override
