@@ -68,6 +68,7 @@ public class MappingJsonSamples {
 	public static final String BASIC_HEAD = BASIC_GET.replace("GET", "HEAD");
 	public static final String BASIC_OPTIONS = BASIC_GET.replace("GET", "OPTIONS");
 	public static final String BASIC_TRACE = BASIC_GET.replace("GET", "TRACE");
+	public static final String BASIC_ANY_METHOD = BASIC_GET.replace("GET", "ANY");
 	
 	public static final String MAPPING_REQUEST_WITH_EXACT_HEADERS =
 		"{ 													\n" +

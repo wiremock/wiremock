@@ -88,4 +88,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
+	
+//	@Test
+//	public void highPriorityMappingMatchedFirst() {
+//		
+//	}
 }

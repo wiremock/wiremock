@@ -115,6 +115,10 @@ public class WireMock {
 		return new MappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
 	
+	public static MappingBuilder any(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
+	}
+	
 	public static ResponseDefinitionBuilder aResponse() {
 		return new ResponseDefinitionBuilder();
 	}
