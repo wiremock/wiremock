@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -31,7 +32,7 @@ public class MappingsLoaderAcceptanceTest {
 	
 	private void constructWireMock() {
 		wireMockServer = new WireMockServer();
-		MappingsLoader mappingsLoader = new JsonFileMappingsLoader("src/test/resources/test-requests");
+		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests"));
 		wireMockServer.loadMappingsUsing(mappingsLoader);
 	}
 	

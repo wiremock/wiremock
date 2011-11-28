@@ -1,5 +1,7 @@
 package com.tomakehurst.wiremock.common;
 
+import java.util.List;
+
 
 public interface FileSource {
 
@@ -7,4 +9,5 @@ public interface FileSource {
 	void createIfNecessary();
 	FileSource child(String subDirectoryName);
 	String getPath();
+	List<TextFile> list();
 }

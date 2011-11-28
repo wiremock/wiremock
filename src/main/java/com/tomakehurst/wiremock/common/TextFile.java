@@ -26,4 +26,8 @@ public class TextFile {
 			throw new RuntimeException(ioe);
 		}
 	}
+	
+	public String name() {
+		return file.getName();
+	}
 }

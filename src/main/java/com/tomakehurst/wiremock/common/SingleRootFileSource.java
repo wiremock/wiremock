@@ -1,8 +1,14 @@
 package com.tomakehurst.wiremock.common;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.io.File.separator;
+import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.util.List;
+
+import com.google.common.base.Function;
 
 public class SingleRootFileSource implements FileSource {
 
@@ -36,6 +42,21 @@ public class SingleRootFileSource implements FileSource {
 	public String getPath() {
 		return rootPath;
 	}
-    
+
+	@Override
+	public List<TextFile> list() {
+		File jsonDir = new File(rootPath);
+		if (jsonDir.exists() && !jsonDir.isDirectory()) {
+			throw new RuntimeException(jsonDir + " is not a directory");
+		} else if (!jsonDir.exists()) {
+			throw new RuntimeException(jsonDir + " does not exist");
+		}
+		
+		return newArrayList(transform(asList(jsonDir.listFiles()), new Function<File, TextFile>() {
+			public TextFile apply(File input) {
+				return new TextFile(input.getPath());
+			}
+		}));
+	}
     
 }
