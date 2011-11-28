@@ -1,7 +1,7 @@
 {
     "priority": "LOW",
 	"request": {									
-		"method": "GET",						
+		"method": "ANY",						
 		"urlPattern": "/proxy/.*"
     },										
 	"response": {									

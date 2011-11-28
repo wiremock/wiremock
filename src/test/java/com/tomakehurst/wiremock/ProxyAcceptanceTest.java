@@ -36,17 +36,17 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void successfullyGetsResponseFromOtherServiceViaProxy() {
-		otherServiceClient.register(get(urlEqualTo("/proxied/resource"))
+		otherServiceClient.register(get(urlEqualTo("/proxied/resource?param=value"))
 				.willReturn(aResponse()
 				.withStatus(200)
 				.withHeader("Content-Type", "text/plain")
 				.withBody("Proxied content")));
 		
-		givenThat(any(urlEqualTo("/proxied/resource")).atLowPriority()
+		givenThat(any(urlEqualTo("/proxied/resource?param=value")).atLowPriority()
 				.willReturn(aResponse()
 				.proxiedFrom("http://localhost:8087")));
 		
-		WireMockResponse response = testClient.get("/proxied/resource");
+		WireMockResponse response = testClient.get("/proxied/resource?param=value");
 		
 		assertThat(response.content(), is("Proxied content"));
 		assertThat(response.header("Content-Type"), is("text/plain"));
