@@ -1,0 +1,10 @@
+{
+    "priority": "LOW",
+	"request": {									
+		"method": "GET",						
+		"urlPattern": "/proxy/.*"
+    },										
+	"response": {									
+		"proxyBaseUrl": "http://localhost:8087/something"
+	}												
+}

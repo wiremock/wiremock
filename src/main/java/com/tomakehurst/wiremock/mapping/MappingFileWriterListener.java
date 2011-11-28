@@ -55,7 +55,7 @@ public class MappingFileWriterListener implements RequestListener {
 			public Integer apply(TextFile input) {
 				Matcher matcher = pattern.matcher(input.name());
 				matcher.find();
-				return Integer.parseInt(matcher.group());
+				return Integer.parseInt(matcher.group(1));
 			}
 		};
 	}

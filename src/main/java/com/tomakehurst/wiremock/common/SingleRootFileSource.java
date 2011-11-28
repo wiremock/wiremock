@@ -1,14 +1,17 @@
 package com.tomakehurst.wiremock.common;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.io.File.separator;
 import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import com.google.common.base.Function;
+import com.google.common.io.Files;
 
 public class SingleRootFileSource implements FileSource {
 
@@ -61,8 +64,11 @@ public class SingleRootFileSource implements FileSource {
 
 	@Override
 	public void writeTextFile(String name, String contents) {
-		// TODO Auto-generated method stub
-		
+		File toFile = new File(rootPath, name);
+		try {
+			Files.write(contents, toFile, UTF_8);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
 	}
-    
 }
