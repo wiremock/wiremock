@@ -12,11 +12,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.tomakehurst.wiremock.servlet.ResponseRenderer;
+
 @RunWith(JMock.class)
 public class MockServiceRequestHandlerTest {
 
 	private Mockery context;
 	private Mappings mappings;
+	private ResponseRenderer responseRenderer;
 	
 	private MockServiceRequestHandler requestHandler;
 	
@@ -24,13 +27,17 @@ public class MockServiceRequestHandlerTest {
 	public void init() {
 		context = new Mockery();
 		mappings = context.mock(Mappings.class);
-		requestHandler = new MockServiceRequestHandler(mappings);
+		responseRenderer = context.mock(ResponseRenderer.class);
+		requestHandler = new MockServiceRequestHandler(mappings, responseRenderer);
 	}
 	
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
-			allowing(mappings).getFor(with(any(Request.class))); will(returnValue(new Response(200, "Body content")));
+			allowing(mappings).getFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+			Response response = new Response(200);
+			response.setBody("Body content");
+			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
 		}});
 		
 		Request request = aRequest(context)
@@ -40,7 +47,7 @@ public class MockServiceRequestHandlerTest {
 		Response response = requestHandler.handle(request);
 		
 		assertThat(response.getStatus(), is(200));
-		assertThat(response.getBody(), is("Body content"));
+		assertThat(response.getBodyAsString(), is("Body content"));
 	}
 	
 	@Test
@@ -50,8 +57,9 @@ public class MockServiceRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(mappings).getFor(request); will(returnValue(Response.notConfigured()));
+			allowing(mappings).getFor(request); will(returnValue(ResponseDefinition.notConfigured()));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
+			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
 		
 		requestHandler.handle(request);

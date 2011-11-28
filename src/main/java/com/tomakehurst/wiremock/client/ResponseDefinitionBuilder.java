@@ -1,7 +1,7 @@
 package com.tomakehurst.wiremock.client;
 
 import com.tomakehurst.wiremock.http.HttpHeaders;
-import com.tomakehurst.wiremock.mapping.Response;
+import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class ResponseDefinitionBuilder {
 
@@ -46,8 +46,8 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 	
-	public Response build() {
-		Response response = new Response(status, bodyContent);
+	public ResponseDefinition build() {
+		ResponseDefinition response = new ResponseDefinition(status, bodyContent);
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);

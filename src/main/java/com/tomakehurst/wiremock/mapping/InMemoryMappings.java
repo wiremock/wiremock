@@ -15,7 +15,7 @@ public class InMemoryMappings implements Mappings {
 	private CopyOnWriteArrayList<RequestResponseMapping> lowPriorityMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
 	
 	@Override
-	public Response getFor(Request request) {
+	public ResponseDefinition getFor(Request request) {
 		RequestResponseMapping matchingMapping = find(
 				concat(normalPriorityMappings, lowPriorityMappings),
 				mappingMatching(request),

@@ -6,7 +6,7 @@ import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
 import com.tomakehurst.wiremock.mapping.RequestResponseMapping;
-import com.tomakehurst.wiremock.mapping.Response;
+import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class RequestResponseMappingBuilder {
 
@@ -47,7 +47,7 @@ public class RequestResponseMappingBuilder {
 	
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = new RequestPattern(method, url);
-		Response response = new Response(responseStatus, responseBody);
+		ResponseDefinition response = new ResponseDefinition(responseStatus, responseBody);
 		response.setHeaders(headers);
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);
 		return mapping;

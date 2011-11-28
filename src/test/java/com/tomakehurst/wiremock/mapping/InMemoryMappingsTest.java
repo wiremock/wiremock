@@ -31,10 +31,10 @@ public class InMemoryMappingsTest {
 	public void correctlyAcceptsMappingAndReturnsCorrespondingResponse() {
 		mappings.addMapping(new RequestResponseMapping(
 				new RequestPattern(PUT, "/some/resource"),
-				new Response(204, "")));
+				new ResponseDefinition(204, "")));
 		
 		Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
-		Response response = mappings.getFor(request);
+		ResponseDefinition response = mappings.getFor(request);
 		
 		assertThat(response.getStatus(), is(204));
 	}
@@ -43,10 +43,10 @@ public class InMemoryMappingsTest {
 	public void returnsNotFoundWhenMethodIncorrect() {
 		mappings.addMapping(new RequestResponseMapping(
 				new RequestPattern(PUT, "/some/resource"),
-				new Response(204, "")));
+				new ResponseDefinition(204, "")));
 		
 		Request request = aRequest(context).withMethod(POST).withUrl("/some/resource").build();
-		Response response = mappings.getFor(request);
+		ResponseDefinition response = mappings.getFor(request);
 		
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
@@ -55,10 +55,10 @@ public class InMemoryMappingsTest {
 	public void returnsNotFoundWhenUrlIncorrect() {
 		mappings.addMapping(new RequestResponseMapping(
 				new RequestPattern(PUT, "/some/resource"),
-				new Response(204, "")));
+				new ResponseDefinition(204, "")));
 		
 		Request request = aRequest(context).withMethod(PUT).withUrl("/some/bad/resource").build();
-		Response response = mappings.getFor(request);
+		ResponseDefinition response = mappings.getFor(request);
 		
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
@@ -66,7 +66,7 @@ public class InMemoryMappingsTest {
 	@Test
 	public void returnsNotConfiguredResponseForUnmappedRequest() {
 		Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
-		Response response = mappings.getFor(request);
+		ResponseDefinition response = mappings.getFor(request);
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 		assertThat(response.wasConfigured(), is(false));
 	}
@@ -75,13 +75,13 @@ public class InMemoryMappingsTest {
 	public void returnsMostRecentlyInsertedResponseIfTwoOrMoreMatch() {
 		mappings.addMapping(new RequestResponseMapping(
 				new RequestPattern(GET, "/duplicated/resource"),
-				new Response(204, "Some content")));
+				new ResponseDefinition(204, "Some content")));
 		
 		mappings.addMapping(new RequestResponseMapping(
 				new RequestPattern(GET, "/duplicated/resource"),
-				new Response(201, "Desired content")));
+				new ResponseDefinition(201, "Desired content")));
 		
-		Response response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build());
+		ResponseDefinition response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build());
 		
 		assertThat(response.getStatus(), is(201));
 		assertThat(response.getBody(), is("Desired content"));
@@ -91,16 +91,16 @@ public class InMemoryMappingsTest {
 	public void returnsLowPriorityMappingsAfterNormal() {
 		RequestResponseMapping lowPriorityMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/whatever"),
-				new Response(200, "Low"));
+				new ResponseDefinition(200, "Low"));
 		lowPriorityMapping.setPriority(Priority.LOW);
 		RequestResponseMapping normalPriorityMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/whatever"),
-				new Response(200, "Normal"));
+				new ResponseDefinition(200, "Normal"));
 		normalPriorityMapping.setPriority(Priority.NORMAL);
 		mappings.addMapping(normalPriorityMapping);
 		mappings.addMapping(lowPriorityMapping);
 		
-		Response response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/whatever").build());
+		ResponseDefinition response = mappings.getFor(aRequest(context).withMethod(GET).withUrl("/whatever").build());
 		
 		assertThat(response.getBody(), is("Normal"));
 	}

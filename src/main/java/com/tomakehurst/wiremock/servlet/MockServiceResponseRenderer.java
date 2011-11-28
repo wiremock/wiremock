@@ -11,6 +11,7 @@ import com.tomakehurst.wiremock.common.TextFile;
 import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.mapping.Response;
+import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class MockServiceResponseRenderer implements ResponseRenderer {
 	
@@ -26,7 +27,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	}
 
 	@Override
-	public void render(Response response, HttpServletResponse httpServletResponse) {
+	public void render(ResponseDefinition response, HttpServletResponse httpServletResponse) {
 	    addDelayIfSpecifiedIn(response);
 	    
 	    if (response.isProxyResponse()) {
@@ -36,7 +37,35 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	    }
 	}
 	
-	private void renderResponseDirectly(Response response, HttpServletResponse httpServletResponse) {
+	@Override
+	public Response render(ResponseDefinition responseDefinition) {
+		if (!responseDefinition.wasConfigured()) {
+			return Response.notConfigured();
+		}
+		
+		addDelayIfSpecifiedIn(responseDefinition);
+		if (responseDefinition.isProxyResponse()) {
+	    	return proxyResponseRenderer.render(responseDefinition);
+	    } else {
+	    	return renderDirectly(responseDefinition);
+	    }
+	}
+	
+	private Response renderDirectly(ResponseDefinition responseDefinition) {
+		Response response = new Response(responseDefinition.getStatus());
+		response.addHeaders(responseDefinition.getHeaders());
+		
+		if (responseDefinition.specifiesBodyFile()) {
+			TextFile bodyFile = fileSource.getTextFileNamed(responseDefinition.getBodyFileName());
+			response.setBody(bodyFile.readContents());
+		} else if (responseDefinition.specifiesBodyContent()) {
+			response.setBody(responseDefinition.getBody());
+		}
+		
+		return response;
+	}
+	
+	private void renderResponseDirectly(ResponseDefinition response, HttpServletResponse httpServletResponse) {
 		httpServletResponse.setStatus(response.getStatus());
 		addHeaders(response, httpServletResponse);
 			
@@ -56,7 +85,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 		}
 	}
 
-	private void addHeaders(Response response,
+	private void addHeaders(ResponseDefinition response,
 			HttpServletResponse httpServletResponse) {
 		HttpHeaders headers = response.getHeaders();
 		if (headers != null) {
@@ -66,7 +95,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 		}
 	}
 
-    private void addDelayIfSpecifiedIn(Response response) {
+    private void addDelayIfSpecifiedIn(ResponseDefinition response) {
     	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(response);
         if (optionalDelay.isPresent()) {
 	        try {
@@ -77,7 +106,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	    }
     }
     
-    private Optional<Integer> getDelayFromResponseOrGlobalSetting(Response response) {
+    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition response) {
     	Integer delay = response.getFixedDelayMilliseconds() != null ?
     			response.getFixedDelayMilliseconds() :
     			globalSettingsHolder.get().getFixedDelay();

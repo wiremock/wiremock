@@ -31,12 +31,12 @@ public class MappingFileWriterListener implements RequestListener {
 		String bodyFileName = generateNewSequentialFileName(filesFileSource, "recorded-body");
 		
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
-		Response responseToWrite = new Response();
+		ResponseDefinition responseToWrite = new ResponseDefinition();
 		responseToWrite.setStatus(response.getStatus());
 		responseToWrite.setBodyFileName(bodyFileName);
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
 		
-		filesFileSource.writeTextFile(bodyFileName, response.getBody());
+		filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
 		mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
 	}
 	

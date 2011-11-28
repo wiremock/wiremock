@@ -1,221 +1,123 @@
 package com.tomakehurst.wiremock.mapping;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static com.google.common.base.Charsets.UTF_8;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.base.Optional;
+import com.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 
-@JsonSerialize(include=Inclusion.NON_NULL)
 public class Response {
 
 	private int status;
-	private String body;
-	private String bodyFileName;
-	private HttpHeaders headers;
-	private Integer fixedDelayMilliseconds;
-	private String proxyBaseUrl;
-	
-	private boolean wasConfigured = true;
-	private Request originalRequest;
-	
-	public HttpHeaders getHeaders() {
-		return headers;
-	}
-
-	public void setHeaders(HttpHeaders headers) {
-		this.headers = headers;
-	}
-
-	public Response(int statusCode, String bodyContent) {
-		this.status = statusCode;
-		this.body = bodyContent;
-	}
-	
-	public Response() {
-		this.status = HTTP_OK;
-	}
-
-	public static Response notFound() {
-		return new Response(HTTP_NOT_FOUND, null);
-	}
-	
-	public static Response ok() {
-		return new Response(HTTP_OK, null);
-	}
-	
-	public static Response created() {
-		return new Response(HTTP_CREATED, null);
-	}
+	private byte[] body = new byte[0];
+	private HttpHeaders headers = new HttpHeaders();
+	private boolean configured = true;
 	
 	public static Response notConfigured() {
-	    Response response = new Response(HTTP_NOT_FOUND, null);
-	    response.wasConfigured = false;
-	    return response;
+		Response response = new Response(HttpURLConnection.HTTP_NOT_FOUND);
+		response.setWasConfigured(false);
+		return response;
 	}
 	
+	public Response(int status) {
+		this.status = status;
+	}
+
 	public int getStatus() {
 		return status;
 	}
 	
-	public String getBody() {
-		return body;
+	public void setBody(String body) {
+		if (body == null) {
+			return;
+		}
+		
+		Optional<String> encoding = getEncodingFromHeaderIfAvailable();
+		if (encoding.isPresent()) {
+			this.body = body.getBytes(Charset.forName(encoding.get()));
+		} else {
+			this.body = body.getBytes(UTF_8);
+		}
 	}
 	
-	public void setStatus(int status) {
-		this.status = status;
+	public void setBody(String body, String charset) {
+		if (body == null) {
+			return;
+		}
+		
+		this.body = body.getBytes(Charset.forName(charset));
 	}
-
-	public void setBody(String body) {
+	
+	public void setBody(byte[] body) {
 		this.body = body;
 	}
 	
-	public void addHeader(String key, String value) {
-		if (headers == null) {
-			headers = new HttpHeaders();
+	public String getBodyAsString() {
+		Optional<String> encoding = getEncodingFromHeaderIfAvailable();
+		if (encoding.isPresent()) {
+			return new String(body, Charset.forName(encoding.get()));
+		} else {
+			return new String(body, UTF_8);
 		}
-		
+	}
+	
+	public HttpHeaders getHeaders() {
+		return headers;
+	}
+	
+	public void addHeader(String key, String value) {
 		headers.put(key, value);
 	}
 	
-	public void setFixedDelayMilliseconds(Integer fixedDelayMilliseconds) {
-	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
-	}
-
-	public String getBodyFileName() {
-		return bodyFileName;
-	}
-
-	public void setBodyFileName(String bodyFileName) {
-		this.bodyFileName = bodyFileName;
+	public void addHeaders(Map<String, String> newHeaders) {
+		if (newHeaders != null) {
+			headers.putAll(newHeaders);
+		}
 	}
 	
+	public void applyTo(HttpServletResponse httpServletResponse) {
+		httpServletResponse.setStatus(status);
+		for (Map.Entry<String, String> header: headers.entrySet()) {
+			httpServletResponse.addHeader(header.getKey(), header.getValue());
+		}
+		
+		try {
+			httpServletResponse.getOutputStream().write(body);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private Optional<String> getEncodingFromHeaderIfAvailable() {
+		if (!headers.containsKey(ContentTypeHeader.KEY)) {
+			return Optional.absent();
+		}
+		
+		ContentTypeHeader contentTypeHeader = new ContentTypeHeader(headers.get(ContentTypeHeader.KEY));
+		return contentTypeHeader.encodingPart();
+	}
+
 	public boolean wasConfigured() {
-        return wasConfigured;
-    }
-
-    public Integer getFixedDelayMilliseconds() {
-        return fixedDelayMilliseconds;
-    }
-
-	public String getProxyBaseUrl() {
-		return proxyBaseUrl;
+		return configured;
 	}
 
-	public void setProxyBaseUrl(String proxyBaseUrl) {
-		this.proxyBaseUrl = proxyBaseUrl;
-	}
-	
-	@JsonIgnore
-	public boolean specifiesBodyFile() {
-		return bodyFileName != null;
-	}
-	
-	@JsonIgnore
-	public boolean specifiesBodyContent() {
-		return body != null;
-	}
-	
-	@JsonIgnore
-	public boolean isProxyResponse() {
-		return proxyBaseUrl != null;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((body == null) ? 0 : body.hashCode());
-		result = prime * result
-				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
-		result = prime
-				* result
-				+ ((fixedDelayMilliseconds == null) ? 0
-						: fixedDelayMilliseconds.hashCode());
-		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
-		result = prime * result
-				+ ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
-		result = prime * result + status;
-		result = prime * result + (wasConfigured ? 1231 : 1237);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Response other = (Response) obj;
-		if (body == null) {
-			if (other.body != null) {
-				return false;
-			}
-		} else if (!body.equals(other.body)) {
-			return false;
-		}
-		if (bodyFileName == null) {
-			if (other.bodyFileName != null) {
-				return false;
-			}
-		} else if (!bodyFileName.equals(other.bodyFileName)) {
-			return false;
-		}
-		if (fixedDelayMilliseconds == null) {
-			if (other.fixedDelayMilliseconds != null) {
-				return false;
-			}
-		} else if (!fixedDelayMilliseconds.equals(other.fixedDelayMilliseconds)) {
-			return false;
-		}
-		if (headers == null) {
-			if (other.headers != null) {
-				return false;
-			}
-		} else if (!headers.equals(other.headers)) {
-			return false;
-		}
-		if (proxyBaseUrl == null) {
-			if (other.proxyBaseUrl != null) {
-				return false;
-			}
-		} else if (!proxyBaseUrl.equals(other.proxyBaseUrl)) {
-			return false;
-		}
-		if (status != other.status) {
-			return false;
-		}
-		if (wasConfigured != other.wasConfigured) {
-			return false;
-		}
-		return true;
+	public void setWasConfigured(boolean configured) {
+		this.configured = configured;
 	}
 
 	@Override
 	public String toString() {
-		return "Response [status=" + status + ", body=" + body
-				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
-				+ ", fixedDelayMilliseconds=" + fixedDelayMilliseconds
-				+ ", proxyBaseUrl=" + proxyBaseUrl + ", wasConfigured="
-				+ wasConfigured + "]";
+		return "Response [status=" + status + ", body=" + Arrays.toString(body)
+				+ ", headers=" + headers + ", configured=" + configured + "]";
 	}
-
-	public Request getOriginalRequest() {
-		return originalRequest;
-	}
-
-	public void setOriginalRequest(Request originalRequest) {
-		this.originalRequest = originalRequest;
-	}
-
+	
 	
 }

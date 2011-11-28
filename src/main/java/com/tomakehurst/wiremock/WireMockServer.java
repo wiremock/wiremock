@@ -23,7 +23,6 @@ import com.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.tomakehurst.wiremock.servlet.MockServiceResponseRenderer;
-import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
@@ -47,9 +46,11 @@ public class WireMockServer {
 		globalSettingsHolder = new GlobalSettingsHolder();
 		mappings = new InMemoryMappings();
 		requestJournal = new InMemoryRequestJournal();
-		mockServiceRequestHandler = new MockServiceRequestHandler(mappings);
+		mockServiceRequestHandler = new MockServiceRequestHandler(mappings,
+				new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
 		mockServiceRequestHandler.addRequestListener(requestJournal);
-		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder);
+		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
+				new BasicResponseRenderer());
 		this.fileSource = fileSource;
 		this.port = port;
 	}
@@ -102,8 +103,6 @@ public class WireMockServer {
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
 		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
-		mockServiceContext.setAttribute(ResponseRenderer.CONTEXT_KEY,
-				new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
 		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		
 		MimeTypes mimeTypes = new MimeTypes();
@@ -125,7 +124,6 @@ public class WireMockServer {
         Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
-		adminContext.setAttribute(ResponseRenderer.CONTEXT_KEY, new BasicResponseRenderer());
 		jettyServer.addHandler(adminContext);
     }
 	

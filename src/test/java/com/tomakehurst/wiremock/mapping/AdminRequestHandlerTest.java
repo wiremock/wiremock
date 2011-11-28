@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 
 import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.http.RequestMethod;
+import com.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.tomakehurst.wiremock.verification.RequestJournal;
 
 @RunWith(JMock.class)
@@ -40,7 +41,7 @@ public class AdminRequestHandlerTest {
 		requestJournal = context.mock(RequestJournal.class);
 		globalSettingsHolder = new GlobalSettingsHolder();
 		
-		handler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder);
+		handler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer());
 	}
 	
 	@Test
@@ -103,7 +104,7 @@ public class AdminRequestHandlerTest {
 				.build());
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
-		assertThat(response.getBody(), jsonEqualTo("{ \"count\": 5 }"));
+		assertThat(response.getBodyAsString(), jsonEqualTo("{ \"count\": 5 }"));
 	}
 	
 	private static final String GLOBAL_SETTINGS_JSON =

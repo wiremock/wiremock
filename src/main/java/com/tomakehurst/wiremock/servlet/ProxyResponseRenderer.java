@@ -1,5 +1,6 @@
 package com.tomakehurst.wiremock.servlet;
 
+import static com.google.common.io.ByteStreams.toByteArray;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.http.RequestMethod.PUT;
 
@@ -30,10 +31,12 @@ import com.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.Response;
+import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
-	public void render(Response response, HttpServletResponse httpServletResponse) {
+	@Override
+	public void render(ResponseDefinition response, HttpServletResponse httpServletResponse) {
 		HttpClient client = new DefaultHttpClient();
 		HttpUriRequest httpRequest = getHttpRequestFor(response);
 		addRequestHeaders(httpRequest, response);
@@ -55,7 +58,32 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 	
-	private static HttpUriRequest getHttpRequestFor(Response response) {
+	@Override
+	public Response render(ResponseDefinition responseDefinition) {
+		HttpClient client = new DefaultHttpClient();
+		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
+		addRequestHeaders(httpRequest, responseDefinition);
+		
+		try {
+			addBodyIfPostOrPut(httpRequest, responseDefinition);
+			HttpResponse httpResponse = client.execute(httpRequest);
+			Response response = new Response(httpResponse.getStatusLine().getStatusCode());
+			for (Header header: httpResponse.getAllHeaders()) {
+				response.addHeader(header.getName(), header.getValue());
+			}
+			
+			HttpEntity entity = httpResponse.getEntity();
+			if (entity != null) {
+				response.setBody(toByteArray(entity.getContent()));
+			}
+			
+			return response;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		RequestMethod method = response.getOriginalRequest().getMethod();
 		String url = response.getProxyBaseUrl() + response.getOriginalRequest().getUrl();
 		
@@ -79,7 +107,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 	
-	private static void addRequestHeaders(HttpRequest httpRequest, Response response) {
+	private static void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest(); 
 		for (String key: originalRequest.getAllHeaderKeys()) {
 			if (!key.equals("Content-Length")) {
@@ -89,7 +117,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 	
-	private static void addBodyIfPostOrPut(HttpRequest httpRequest, Response response) throws UnsupportedEncodingException {
+	private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
 		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod() == POST || originalRequest.getMethod() == PUT) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;

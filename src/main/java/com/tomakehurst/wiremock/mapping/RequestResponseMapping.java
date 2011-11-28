@@ -7,10 +7,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 public class RequestResponseMapping {
 
 	private RequestPattern request;
-	private Response response;
+	private ResponseDefinition response;
 	private Priority priority;
 	
-	public RequestResponseMapping(RequestPattern requestPattern, Response response) {
+	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
 		this.response = response;
 	}
@@ -20,14 +20,14 @@ public class RequestResponseMapping {
 	}
 	
 	public static RequestResponseMapping notConfigured() {
-		return new RequestResponseMapping(new RequestPattern(), Response.notConfigured());
+		return new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 	}
 	
 	public RequestPattern getRequest() {
 		return request;
 	}
 	
-	public Response getResponse() {
+	public ResponseDefinition getResponse() {
 		return response;
 	}
 	
@@ -35,7 +35,7 @@ public class RequestResponseMapping {
 		this.request = request;
 	}
 
-	public void setResponse(Response response) {
+	public void setResponse(ResponseDefinition response) {
 		this.response = response;
 	}
 

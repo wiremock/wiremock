@@ -58,7 +58,8 @@ public class MappingFileWriterListenerTest {
 			.withUrl("/recorded/content")
 			.build();
 		
-		Response response = new Response(200, "Recorded body content");
+		Response response = new Response(200);
+		response.setBody("Recorded body content");
 		
 		listener.requestReceived(request, response);
 	}
