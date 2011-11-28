@@ -9,6 +9,7 @@ import com.google.common.base.Predicate;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.RequestListener;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
+import com.tomakehurst.wiremock.mapping.Response;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	
@@ -28,7 +29,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	}
 
 	@Override
-	public void requestReceived(Request request) {
+	public void requestReceived(Request request, Response response) {
 		requests.add(LoggedRequest.createFrom(request));
 	}
 

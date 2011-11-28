@@ -10,4 +10,5 @@ public interface FileSource {
 	FileSource child(String subDirectoryName);
 	String getPath();
 	List<TextFile> list();
+	void writeTextFile(String name, String contents);
 }

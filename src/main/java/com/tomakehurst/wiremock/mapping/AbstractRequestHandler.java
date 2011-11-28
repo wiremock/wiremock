@@ -15,11 +15,10 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 
 	@Override
 	public Response handle(Request request) {
-		for (RequestListener listener: listeners) {
-			listener.requestReceived(request);
-		}
-		
 		Response response = handleRequest(request);
+		for (RequestListener listener: listeners) {
+			listener.requestReceived(request, response);
+		}
 		response.setOriginalRequest(request);
 		return response;
 	}

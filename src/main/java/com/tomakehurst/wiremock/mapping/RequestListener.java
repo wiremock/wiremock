@@ -2,5 +2,5 @@ package com.tomakehurst.wiremock.mapping;
 
 public interface RequestListener {
 
-	void requestReceived(Request request);
+	void requestReceived(Request request, Response response);
 }

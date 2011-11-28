@@ -51,7 +51,7 @@ public class MockServiceRequestHandlerTest {
 		
 		context.checking(new Expectations() {{
 			allowing(mappings).getFor(request); will(returnValue(Response.notConfigured()));
-			one(listener).requestReceived(request);
+			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 		}});
 		
 		requestHandler.handle(request);

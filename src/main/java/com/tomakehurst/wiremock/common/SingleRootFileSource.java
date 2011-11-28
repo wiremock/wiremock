@@ -58,5 +58,11 @@ public class SingleRootFileSource implements FileSource {
 			}
 		}));
 	}
+
+	@Override
+	public void writeTextFile(String name, String contents) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

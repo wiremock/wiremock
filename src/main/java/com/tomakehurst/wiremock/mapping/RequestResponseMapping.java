@@ -101,8 +101,7 @@ public class RequestResponseMapping {
 
 	@Override
 	public String toString() {
-		return "RequestResponseMapping [request=" + request + ", response="
-				+ response + ", priority=" + priority + "]";
+		return JsonMappingBinder.write(this);
 	}
 	
 	

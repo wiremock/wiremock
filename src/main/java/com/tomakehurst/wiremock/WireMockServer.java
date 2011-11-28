@@ -18,6 +18,7 @@ import com.tomakehurst.wiremock.mapping.InMemoryMappings;
 import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
+import com.tomakehurst.wiremock.mapping.RequestListener;
 import com.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
@@ -59,6 +60,14 @@ public class WireMockServer {
 	
 	public WireMockServer() {
 		this(DEFAULT_PORT);
+	}
+	
+	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
+		mappingsLoader.loadMappingsInto(mappings);
+	}
+	
+	public void addMockServiceRequestListener(RequestListener listener) {
+		mockServiceRequestHandler.addRequestListener(listener);
 	}
 	
 	public void stop() {
@@ -120,7 +129,5 @@ public class WireMockServer {
 		jettyServer.addHandler(adminContext);
     }
 	
-	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		mappingsLoader.loadMappingsInto(mappings);
-	}
+	
 }
