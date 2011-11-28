@@ -7,12 +7,15 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 public class WireMockTestClient {
 
@@ -43,23 +46,35 @@ public class WireMockTestClient {
 	}
 
 	public WireMockResponse get(String url, HttpHeader... headers) {
-		HttpMethod httpMethod = new GetMethod(mockServiceUrlFor(url));
-		return executeMethodAndCovertExceptions(httpMethod, headers);
+		HttpUriRequest httpRequest = new HttpGet(mockServiceUrlFor(url));
+		return executeMethodAndCovertExceptions(httpRequest, headers);
 	}
 	
 	public WireMockResponse put(String url, HttpHeader... headers) {
-		HttpMethod httpMethod = new PutMethod(mockServiceUrlFor(url));
-		return executeMethodAndCovertExceptions(httpMethod, headers);
+		HttpUriRequest httpRequest = new HttpPut(mockServiceUrlFor(url));
+		return executeMethodAndCovertExceptions(httpRequest, headers);
 	}
 	
-	public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
-		PostMethod httpMethod = new PostMethod(mockServiceUrlFor(url));
+	public WireMockResponse putWithBody(String url, String body, String contentType, HttpHeader... headers) {
+		HttpPut httpPut = new HttpPut(mockServiceUrlFor(url));
 		try {
-			httpMethod.setRequestEntity(new StringRequestEntity(body, bodyMimeType, bodyEncoding));
+			httpPut.setEntity(new StringEntity(body, contentType, "utf-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		return executeMethodAndCovertExceptions(httpMethod);
+		
+		return executeMethodAndCovertExceptions(httpPut, headers);
+	}
+	
+	public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
+		HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+		try {
+			httpPost.setEntity(new StringEntity(body, bodyMimeType, bodyEncoding));
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+		
+		return executeMethodAndCovertExceptions(httpPost);
 	}
 
 	public void addResponse(String responseSpecJson) {
@@ -77,13 +92,13 @@ public class WireMockTestClient {
 	}
 
 	private int postJsonAndReturnStatus(String url, String json) {
-		PostMethod post = new PostMethod(url);
+		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
-				post.setRequestEntity(new StringRequestEntity(json, JSON.toString(), "utf-8"));
+				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
-			new HttpClient().executeMethod(post);
-			return post.getStatusCode();
+			HttpResponse httpResponse = new DefaultHttpClient().execute(post);
+			return httpResponse.getStatusLine().getStatusCode();
 		} catch (RuntimeException re) {
 			throw re;
 		} catch (Exception e) {
@@ -95,19 +110,20 @@ public class WireMockTestClient {
 		return postJsonAndReturnStatus(url, null);
 	}
 
-	private WireMockResponse executeMethodAndCovertExceptions(HttpMethod httpMethod, HttpHeader... headers) {
-		HttpClient client = new HttpClient();
+	private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, HttpHeader... headers) {
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpParams params = new BasicHttpParams();
+		params.setParameter("http.protocol.handle-redirects", false);
+		client.setParams(params);
 		try {
 			for (HttpHeader header: headers) {
-				httpMethod.addRequestHeader(header.getName(), header.getValue());
+				httpRequest.addHeader(header.getName(), header.getValue());
 			}
-			httpMethod.setFollowRedirects(false);
-			client.executeMethod(httpMethod);
+			HttpResponse httpResponse = client.execute(httpRequest);
+			return new WireMockResponse(httpResponse);
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
-
-		return new WireMockResponse(httpMethod);
 	}
 
 }

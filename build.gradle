@@ -28,7 +28,7 @@ dependencies {
 	compile "javax.servlet:servlet-api:2.4"
 	compile "com.google.guava:guava:10.0"
 	compile "org.codehaus.jackson:jackson-core-asl:1.8.5", "org.codehaus.jackson:jackson-mapper-asl:1.8.5"
-	compile "commons-httpclient:commons-httpclient:3.1"
+	compile "org.apache.httpcomponents:httpclient:4.1.2"
 	
 	testCompile "junit:junit:4.8"
 	testCompile "org.hamcrest:hamcrest-all:1.1"

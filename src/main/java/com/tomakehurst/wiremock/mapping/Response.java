@@ -4,6 +4,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -17,8 +18,10 @@ public class Response {
 	private String bodyFileName;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
-	private boolean wasConfigured = true;
+	private String proxyBaseUrl;
 	
+	private boolean wasConfigured = true;
+	private Request originalRequest;
 	
 	public HttpHeaders getHeaders() {
 		return headers;
@@ -95,6 +98,33 @@ public class Response {
         return wasConfigured;
     }
 
+    public Integer getFixedDelayMilliseconds() {
+        return fixedDelayMilliseconds;
+    }
+
+	public String getProxyBaseUrl() {
+		return proxyBaseUrl;
+	}
+
+	public void setProxyBaseUrl(String proxyBaseUrl) {
+		this.proxyBaseUrl = proxyBaseUrl;
+	}
+	
+	@JsonIgnore
+	public boolean specifiesBodyFile() {
+		return bodyFileName != null;
+	}
+	
+	@JsonIgnore
+	public boolean specifiesBodyContent() {
+		return body != null;
+	}
+	
+	@JsonIgnore
+	public boolean isProxyResponse() {
+		return proxyBaseUrl != null;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -102,8 +132,15 @@ public class Response {
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
+		result = prime
+				* result
+				+ ((fixedDelayMilliseconds == null) ? 0
+						: fixedDelayMilliseconds.hashCode());
 		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
+		result = prime * result
+				+ ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
 		result = prime * result + status;
+		result = prime * result + (wasConfigured ? 1231 : 1237);
 		return result;
 	}
 
@@ -133,6 +170,13 @@ public class Response {
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
 			return false;
 		}
+		if (fixedDelayMilliseconds == null) {
+			if (other.fixedDelayMilliseconds != null) {
+				return false;
+			}
+		} else if (!fixedDelayMilliseconds.equals(other.fixedDelayMilliseconds)) {
+			return false;
+		}
 		if (headers == null) {
 			if (other.headers != null) {
 				return false;
@@ -140,22 +184,38 @@ public class Response {
 		} else if (!headers.equals(other.headers)) {
 			return false;
 		}
+		if (proxyBaseUrl == null) {
+			if (other.proxyBaseUrl != null) {
+				return false;
+			}
+		} else if (!proxyBaseUrl.equals(other.proxyBaseUrl)) {
+			return false;
+		}
 		if (status != other.status) {
+			return false;
+		}
+		if (wasConfigured != other.wasConfigured) {
 			return false;
 		}
 		return true;
 	}
 
-    public Integer getFixedDelayMilliseconds() {
-        return fixedDelayMilliseconds;
-    }
+	@Override
+	public String toString() {
+		return "Response [status=" + status + ", body=" + body
+				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
+				+ ", fixedDelayMilliseconds=" + fixedDelayMilliseconds
+				+ ", proxyBaseUrl=" + proxyBaseUrl + ", wasConfigured="
+				+ wasConfigured + "]";
+	}
 
-    @Override
-    public String toString() {
-        return "Response [status=" + status + ", body=" + body + ", bodyFileName=" + bodyFileName + ", headers="
-                + headers + ", fixedDelayMilliseconds=" + fixedDelayMilliseconds + ", wasConfigured="
-                + wasConfigured + "]";
-    }
+	public Request getOriginalRequest() {
+		return originalRequest;
+	}
+
+	public void setOriginalRequest(Request originalRequest) {
+		this.originalRequest = originalRequest;
+	}
 
 	
 }

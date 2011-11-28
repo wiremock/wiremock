@@ -50,7 +50,7 @@ public class MockServiceRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(mappings).getFor(request);
+			allowing(mappings).getFor(request); will(returnValue(Response.notConfigured()));
 			one(listener).requestReceived(request);
 		}});
 		

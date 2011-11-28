@@ -10,6 +10,7 @@ public class ResponseDefinitionBuilder {
 	private String bodyFileName;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
+	private String proxyBaseUrl;
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
@@ -40,11 +41,17 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 	
+	public ResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
+		this.proxyBaseUrl = proxyBaseUrl;
+		return this;
+	}
+	
 	public Response build() {
 		Response response = new Response(status, bodyContent);
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
+		response.setProxyBaseUrl(proxyBaseUrl);
 		return response;
 	}
 }

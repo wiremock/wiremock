@@ -19,7 +19,9 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 			listener.requestReceived(request);
 		}
 		
-		return handleRequest(request);
+		Response response = handleRequest(request);
+		response.setOriginalRequest(request);
+		return response;
 	}
 	
 	protected abstract Response handleRequest(Request request);

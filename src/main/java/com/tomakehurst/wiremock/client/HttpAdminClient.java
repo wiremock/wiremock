@@ -1,13 +1,15 @@
 package com.tomakehurst.wiremock.client;
 
+import static com.google.common.io.ByteStreams.toByteArray;
 import static com.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.buildVerificationResultFrom;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.tomakehurst.wiremock.global.GlobalSettings;
 import com.tomakehurst.wiremock.mapping.JsonMappingBinder;
@@ -65,13 +67,13 @@ public class HttpAdminClient implements AdminClient {
 	}
 
 	private int postJsonAndReturnStatus(String url, String json) {
-		PostMethod post = new PostMethod(url);
+		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
-				post.setRequestEntity(new StringRequestEntity(json, JSON.toString(), "utf-8"));
+				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
-			new HttpClient().executeMethod(post);
-			return post.getStatusCode();
+			HttpResponse response = new DefaultHttpClient().execute(post);
+			return response.getStatusLine().getStatusCode();
 		} catch (RuntimeException re) {
 			throw re;
 		} catch (Exception e) {
@@ -80,13 +82,18 @@ public class HttpAdminClient implements AdminClient {
 	}
 	
 	private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
-		PostMethod post = new PostMethod(url);
+		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
-				post.setRequestEntity(new StringRequestEntity(json, JSON.toString(), "utf-8"));
+				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
-			new HttpClient().executeMethod(post);
-			return post.getResponseBodyAsString();
+			HttpResponse response = new DefaultHttpClient().execute(post);
+			if (response.getStatusLine().getStatusCode() != expectedStatus) {
+				throw new VerificationException("Expected status " + expectedStatus);
+			}
+			
+			String body = new String(toByteArray(response.getEntity().getContent()));
+			return body;
 		} catch (RuntimeException re) {
 			throw re;
 		} catch (Exception e) {

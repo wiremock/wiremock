@@ -16,6 +16,7 @@ import com.tomakehurst.wiremock.mapping.Request;
 public class HttpServletRequestAdapter implements Request {
 	
 	private HttpServletRequest request;
+	private String cachedBody;
 	
 	public HttpServletRequestAdapter(HttpServletRequest request) {
 		this.request = request;
@@ -43,11 +44,15 @@ public class HttpServletRequestAdapter implements Request {
 
 	@Override
 	public String getBodyAsString() {
-		try {
-			return CharStreams.toString(request.getReader());
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
+		if (cachedBody == null) {
+			try {
+				cachedBody = CharStreams.toString(request.getReader());
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
 		}
+		
+		return cachedBody;
 	}
 
 	@Override
