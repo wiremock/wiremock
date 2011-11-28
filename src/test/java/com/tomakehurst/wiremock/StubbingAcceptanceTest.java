@@ -92,10 +92,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void highPriorityMappingMatchedFirst() {
-		givenThat(get(urlMatching("/priority/.*")).atHighPriority()
+		givenThat(get(urlMatching("/priority/.*")).atLowPriority()
 				.willReturn(aResponse()
-                .withStatus(200)));
-		givenThat(get(urlEqualTo("/priority/resource")).willReturn(aResponse().withStatus(500)));
+                .withStatus(500)));
+		givenThat(get(urlEqualTo("/priority/resource")).willReturn(aResponse().withStatus(200)));
 		
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}

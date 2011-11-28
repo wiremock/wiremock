@@ -1,6 +1,6 @@
 package com.tomakehurst.wiremock.client;
 
-import static com.tomakehurst.wiremock.mapping.Priority.HIGH;
+import static com.tomakehurst.wiremock.mapping.Priority.LOW;
 
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.Priority;
@@ -23,8 +23,8 @@ public class MappingBuilder {
 		return this;
 	}
 	
-	public MappingBuilder atHighPriority() {
-		priority = HIGH;
+	public MappingBuilder atLowPriority() {
+		priority = LOW;
 		return this;
 	}
 	
