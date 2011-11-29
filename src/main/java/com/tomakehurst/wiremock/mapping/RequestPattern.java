@@ -1,6 +1,7 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.util.regex.Pattern.DOTALL;
 
@@ -46,22 +47,28 @@ public class RequestPattern {
 	}
 	
 	public boolean isMatchedBy(Request request) {
-		return (methodMatches(request) &&
-				urlIsMatch(request.getUrl()) && 
+		return (urlIsMatch(request) &&
+				methodMatches(request) &&
 				headersMatch(request) &&
 				bodyMatches(request));
 	}
-
-	private boolean methodMatches(Request request) {
-		return method == ANY || request.getMethod() == method;
-	}
 	
-	private boolean urlIsMatch(String candidateUrl) {
+	private boolean urlIsMatch(Request request) {
+		String candidateUrl = request.getUrl();
 		if (urlPattern == null) {
 			return url.equals(candidateUrl);
 		}
 		
 		return candidateUrl.matches(urlPattern);
+	}
+
+	private boolean methodMatches(Request request) {
+		boolean matched = method == ANY || request.getMethod() == method;
+		if (!matched) {
+			notifier().info(String.format("URL %s is match, but method %s is not", request.getUrl(), request.getMethod()));
+		}
+		
+		return matched;
 	}
 	
 	private boolean headersMatch(Request request) {
@@ -73,6 +80,7 @@ public class RequestPattern {
 			HeaderPattern headerPattern = header.getValue();
 			String key = header.getKey();
 			if (!request.containsHeader(key) || !headerPattern.isMatchFor(request.getHeader(key))) {
+				notifier().info(String.format("URL %s is match, but header %s is not", request.getUrl(), key));
 				return false;
 			}
 		}
@@ -86,7 +94,13 @@ public class RequestPattern {
 		}
 		
 		Pattern pattern = Pattern.compile(bodyPattern, DOTALL);
-		return pattern.matcher(request.getBodyAsString()).matches();
+		boolean matches = pattern.matcher(request.getBodyAsString()).matches();
+		
+		if (!matches) {
+			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
+		}
+		
+		return matches;
 	}
 	
 	public String getUrlPattern() {

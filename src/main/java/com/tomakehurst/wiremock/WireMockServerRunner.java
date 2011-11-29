@@ -38,6 +38,7 @@ public class WireMockServerRunner {
 		
 		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(mappingsFileSource);
 		wireMockServer.loadMappingsUsing(mappingsLoader);
+		wireMockServer.setVerboseLogging(false);
 		wireMockServer.start();
 	}
 	

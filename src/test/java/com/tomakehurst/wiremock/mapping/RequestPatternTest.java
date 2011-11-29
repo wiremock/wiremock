@@ -11,12 +11,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.tomakehurst.wiremock.common.LocalNotifier;
+import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.http.RequestMethod;
 
 @RunWith(JMock.class)
@@ -24,11 +27,13 @@ public class RequestPatternTest {
 	
 	private Mockery context;
 	private Map<String, HeaderPattern> headers;
+	private Notifier notifier;
 	
 	@Before
 	public void init() {
 		context = new Mockery();
 		headers = newHashMap();
+		notifier = context.mock(Notifier.class);
 	}
 	
 	@Test
@@ -178,6 +183,63 @@ public class RequestPatternTest {
 				.build();
 			assertTrue("Method in request pattern is ANY so any method should match", requestPattern.isMatchedBy(request));
 		}
+	}
+	
+	@Test
+	public void shouldLogMessageIndicatingFailedMethodMatch() {
+		context.checking(new Expectations() {{
+			one(notifier).info("URL /for/logging is match, but method GET is not");
+		}});
+		
+		LocalNotifier.set(notifier);
+		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
+		
+		Request request = aRequest(context)
+			.withUrl("/for/logging")
+			.withMethod(GET)
+			.build();
+		
+		requestPattern.isMatchedBy(request);
+	}
+	
+	@Test
+	public void shouldLogMessageIndicatingFailedHeaderMatch() {
+		context.checking(new Expectations() {{
+			one(notifier).info("URL /for/logging is match, but header Content-Type is not");
+		}});
+		
+		LocalNotifier.set(notifier);
+		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
+		HeaderPattern headerPattern = new HeaderPattern();
+		headerPattern.setEqualTo("text/xml");
+		requestPattern.addHeader("Content-Type", headerPattern);
+		
+		Request request = aRequest(context)
+			.withUrl("/for/logging")
+			.withMethod(POST)
+			.withHeader("Content-Type", "text/plain")
+			.build();
+		
+		requestPattern.isMatchedBy(request);
+	}
+	
+	@Test
+	public void shouldLogMessageIndicatingFailedBodyMatch() {
+		context.checking(new Expectations() {{
+			one(notifier).info("URL /for/logging is match, but body is not: Actual Content");
+		}});
+		
+		LocalNotifier.set(notifier);
+		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
+		requestPattern.setBodyPattern("Expected content");
+		
+		Request request = aRequest(context)
+			.withUrl("/for/logging")
+			.withMethod(POST)
+			.withBody("Actual Content")
+			.build();
+		
+		requestPattern.isMatchedBy(request);
 	}
 	
 }

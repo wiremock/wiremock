@@ -29,6 +29,7 @@ dependencies {
 	compile "com.google.guava:guava:10.0"
 	compile "org.codehaus.jackson:jackson-core-asl:1.8.5", "org.codehaus.jackson:jackson-mapper-asl:1.8.5"
 	compile "org.apache.httpcomponents:httpclient:4.1.2"
+	compile "log4j:log4j:1.2.16"
 	
 	testCompile "junit:junit:4.8"
 	testCompile "org.hamcrest:hamcrest-all:1.1"

@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.tomakehurst.wiremock.WireMockServer;
+import com.tomakehurst.wiremock.common.LocalNotifier;
+import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.mapping.Response;
@@ -20,15 +22,19 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	private static final long serialVersionUID = -6602042274260495538L;
 	
 	private RequestHandler requestHandler;
+	private Notifier notifier;
 	
 	@Override
 	public void init(ServletConfig config) {
 		ServletContext context = config.getServletContext();
 		requestHandler = (RequestHandler) context.getAttribute(RequestHandler.CONTEXT_KEY);
+		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+		LocalNotifier.set(notifier);
+		
 		Request request = new HttpServletRequestAdapter(httpServletRequest);
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
