@@ -47,7 +47,8 @@ public class MappingFileWriterListener implements RequestListener {
 		if (size(files) > 0) {
 			maxNumber = max(newArrayList(transform(files, toNumberUsingPattern(pattern))));
 		}
-		return prefix + "-" + (maxNumber + 1) + ".json";
+		
+		return String.format("%s-%d.json", prefix, (maxNumber + 1));
 	}
 	
 	private Function<TextFile, Integer> toNumberUsingPattern(final Pattern pattern) {
