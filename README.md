@@ -239,7 +239,8 @@ If WireMock is started with the <code>--record-mappings</code> option all non-ad
 ### Files and mappings directories 
 The following directories will be created when you first start WireMock:
 	
-	mappings - Contains stub mappings to load at startup. Any .json file containing a valid stub mapping (as described in the JSON API) placed under here will be loaded.
-	__files - Contains body content files referenced by mappings with bodyFileName element. Also files under here will be served by the web server directly, even when no mapping refers to them. However, mappings for a given URL will always take precedence. 
+<code>mappings</code> - Contains stub mappings to load at startup. Any .json file containing a valid stub mapping (as described in the JSON API) placed under here will be loaded.
+
+<code>__files</code> - Contains body content files referenced by mappings with bodyFileName element. Also files under here will be served by the web server directly, even when no mapping refers to them. However, mappings for a given URL will always take precedence. 
 		
 
