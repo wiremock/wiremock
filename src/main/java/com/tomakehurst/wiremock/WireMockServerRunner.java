@@ -1,6 +1,7 @@
 package com.tomakehurst.wiremock;
 
 import static com.tomakehurst.wiremock.WireMockServer.DEFAULT_PORT;
+import static java.lang.System.out;
 
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
@@ -12,12 +13,16 @@ public class WireMockServerRunner {
 	
 	public static final String FILES_ROOT = "__files";
 	public static final String MAPPINGS_ROOT = "mappings";
-	private static final int PORT_NUMBER_ARG = 0;
-	private static final int LOG_MAPPINGS_ARG = 1;
 	
 	private WireMockServer wireMockServer;
 	
 	public void run(String fileSourcesRoot, String... args) {
+		CommandLineOptions options = new CommandLineOptions(args);
+		if (options.help()) {
+			out.println(options.helpText());
+			return;
+		}
+		
 		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
 		FileSource filesFileSource = fileSource.child(FILES_ROOT);
@@ -25,20 +30,20 @@ public class WireMockServerRunner {
 		FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
 		mappingsFileSource.createIfNecessary();
 		
-		if (args.length > 0) {
-			int port = Integer.parseInt(args[PORT_NUMBER_ARG]);
-			wireMockServer = new WireMockServer(port, fileSource);
+		if (options.specifiesPortNumber()) {
+			wireMockServer = new WireMockServer(options.portNumber(), fileSource);
 		} else {
 			wireMockServer = new WireMockServer(DEFAULT_PORT, fileSource);
 		}
 		
-		if (args.length > 1 && args[LOG_MAPPINGS_ARG].equals("--log-mappings")) {
+		if (options.recordMappingsEnabled()) {
 			wireMockServer.addMockServiceRequestListener(new MappingFileWriterListener(mappingsFileSource, filesFileSource));
 		}
 		
+		wireMockServer.setVerboseLogging(options.verboseLoggingEnabled());
+		
 		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(mappingsFileSource);
 		wireMockServer.loadMappingsUsing(mappingsLoader);
-		wireMockServer.setVerboseLogging(false);
 		wireMockServer.start();
 	}
 	
