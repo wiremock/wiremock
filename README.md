@@ -1,9 +1,17 @@
-WireMock - a toolkit for simulating HTTP services
-=================================================
+WireMock - a tool for simulating HTTP services
+==============================================
 
-WireMock is a mock HTTP server that can serve stub responses, and supports recording and verification of requests.
-It can be run as a standalone process, configurable via a JSON API, or from within any Java unit testing framework.
-A fluent Java client API makes for expressive, concise test cases. 
+WireMock is a tool for building HTTP mocks/stubs/spies. It can be run as a standalone process or called from other Java/JVM code.
+A fluent Java client API makes for expressive, concise test cases, while a JSON API enables integration with other languges.
+
+
+What it's good for
+------------------
+	
+-	Expressive unit tests for HTTP calling code
+-	Integrated BDD/ATDD
+-	Load testing
+-	Quick REST API prototyping
  
 
 Quick start with JUnit 4.x
@@ -87,7 +95,11 @@ or via a regular expression:
 	
 	.urlEqualTo("/exact/match")
 	.urlMatching("/match/[a-z]{5}")
-	
+
+### Request method matching
+HTTP methods currently supported are:
+
+	ANY, GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS 
 
 ### Request header matching
 WireMock will ignore headers in the actual request made that are not specified explicitly.
@@ -120,6 +132,19 @@ If you'd prefer a different port, you can do something like this:
 	
 Note: the ability to change host in the second call is to support connection to a standalone instance on another host.
 
+### Low priority stub mappings
+A stub mapping can be made low priority in the following way:
+
+	givenThat(get(urlEqualTo("/some/url")).atLowPriority() ...
+	
+This means that WireMock will attempt to match requests to this mapping after trying all that are at normal priority. 
+This is primarily intended for use with the proxy feature described below. 
+
+### Running as a proxy to another service
+Stub mappings can be configured to proxy requests to another host and port. This can be useful if you want to run your app against a real service, but
+intercept and override certain responses. It can also be used in conjunction with the record feature described in the standalone section for capturing mappings
+from a session running against an external service. 
+
 
 JSON API
 --------
@@ -127,7 +152,8 @@ JSON API
 ### Registering stub mappings
 New stub mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
 
-	{ 													
+	{ 
+		"priority": "LOW", // LOW or NORMAL													
 		"request": {									
 			"method": "GET",						
 			"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
@@ -149,7 +175,9 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 			"headers": {
 				"Content-Type": "text/plain",
 				"Cache-Control": "no-cache"
-			}
+			},
+			"proxyBaseUrl": "http://someotherservice.com/root", // If you use this, exclude all other response attributes
+			"fixedDelayMilliseconds": 500
 		}												
 	}
 	
@@ -180,16 +208,38 @@ This will return a response of the form:
 A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all stub mappings.
 
 
+### Global settings
+Global settings can be updated by posting to /__admin/settings. Currently only one property is supported:
+
+	{												
+		"fixedDelay": 2000
+	}
+	
+This will add the specified delay in milliseconds to every response.
+
+
 Running standalone
 ------------------
+
+### Command line
 WireMock can be run in its own process:
 
 	java -jar wiremock-1.0-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.0-standalone.jar 9999
+	java -jar wiremock-1.0-standalone.jar --port 9999
 	
-A directory called <code>mappings</code> will be created under the current directory when you first start WireMock.
-Placing .json files containing mappings (in the format described above) in here will cause them to be loaded on next startup.
+### Logging
+Verbose logging can be enabled with the <code>--verbose</code> option.
+
+### Recording requests
+If WireMock is started with the <code>--record-mappings</code> option all non-admin requests will be captured under the mappings directory, with body content for each mapping captured under __files.  
+
+### Files and mappings directories 
+The following directories will be created when you first start WireMock:
+	
+	mappings - Contains stub mappings to load at startup. Any .json file containing a valid stub mapping (as described in the JSON API) placed under here will be loaded.
+	__files - Contains body content files referenced by mappings with bodyFileName element. Also files under here will be served by the web server directly, even when no mapping refers to them. However, mappings for a given URL will always take precedence. 
+		
 
