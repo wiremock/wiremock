@@ -186,6 +186,23 @@ public class RequestPatternTest {
 	}
 	
 	@Test
+	public void shouldLogMessageIndicatingFailedUrlMatch() {
+		context.checking(new Expectations() {{
+			one(notifier).info("URL /for/logging does not match /not/for/logging");
+		}});
+		
+		LocalNotifier.set(notifier);
+		RequestPattern requestPattern = new RequestPattern(GET, "/not/for/logging");
+		
+		Request request = aRequest(context)
+			.withUrl("/for/logging")
+			.withMethod(GET)
+			.build();
+		
+		requestPattern.isMatchedBy(request);
+	}
+	
+	@Test
 	public void shouldLogMessageIndicatingFailedMethodMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but method GET is not");

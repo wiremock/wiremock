@@ -55,11 +55,22 @@ public class RequestPattern {
 	
 	private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
+		boolean matched;
 		if (urlPattern == null) {
-			return url.equals(candidateUrl);
+			matched = url.equals(candidateUrl);
+		} else {
+			matched = candidateUrl.matches(urlPattern);
 		}
 		
-		return candidateUrl.matches(urlPattern);
+		if (!matched) {
+			notifier().info(String.format("URL %s does not match %s", request.getUrl(), urlOrUrlPattern()));
+		}
+		
+		return matched;
+	}
+	
+	private String urlOrUrlPattern() {
+		return url != null ? url : urlPattern;
 	}
 
 	private boolean methodMatches(Request request) {
