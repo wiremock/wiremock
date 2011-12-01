@@ -234,7 +234,9 @@ Or on an alternate port:
 Verbose logging can be enabled with the <code>--verbose</code> option.
 
 ### Recording requests
-If WireMock is started with the <code>--record-mappings</code> option all non-admin requests will be captured under the mappings directory, with body content for each mapping captured under __files.  
+If WireMock is started with the <code>--record-mappings</code> option all non-admin requests will be captured under the mappings directory, with body content for each mapping captured under __files.
+
+It is recommended that this option is used in tandem with the <code>--proxy-all "http://someotherhost.com/root"</code> parameter, which will create a single stub mapping to proxy all requests to the given URL.  
 
 ### Files and mappings directories 
 The following directories will be created when you first start WireMock:

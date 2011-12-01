@@ -10,6 +10,7 @@ public class CommandLineOptions {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
+	private static final String PROXY_ALL = "proxy-all";
 	private static final String PORT = "port";
 	private static final String VERBOSE = "verbose";
 	
@@ -19,6 +20,7 @@ public class CommandLineOptions {
 	public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
+		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(HELP, "Print this message");
@@ -62,5 +64,13 @@ public class CommandLineOptions {
 	
 	public String helpText() {
 		return helpText;
+	}
+	
+	public boolean specifiesProxyUrl() {
+		return optionSet.has(PROXY_ALL);
+	}
+	
+	public String proxyUrl() {
+		return (String) optionSet.valueOf(PROXY_ALL);
 	}
 }

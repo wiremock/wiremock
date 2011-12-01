@@ -46,12 +46,26 @@ public class CommandLineOptionsTest {
 	}
 	
 	@Test
-	public void setsAllThree() {
-		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088");
+	public void setsProxyAllRootWhenOptionPresent() {
+		CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://someotherhost.com/site");
+		assertThat(options.specifiesProxyUrl(), is(true));
+		assertThat(options.proxyUrl(), is("http://someotherhost.com/site"));
+	}
+	
+	@Test(expected=Exception.class)
+	public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
+		new CommandLineOptions("--proxy-all");
+	}
+	
+	@Test
+	public void setsAll() {
+		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com");
 		assertThat(options.verboseLoggingEnabled(), is(true));
 		assertThat(options.recordMappingsEnabled(), is(true));
 		assertThat(options.specifiesPortNumber(), is(true));
 		assertThat(options.portNumber(), is(8088));
+		assertThat(options.specifiesProxyUrl(), is(true));
+		assertThat(options.proxyUrl(), is("http://somewhere.com"));
 	}
 	
 	@SuppressWarnings("unchecked")
