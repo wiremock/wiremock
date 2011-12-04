@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>WireMock Admin</title>
+		<link type="text/css" href="css/ui-darkness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="js/wiremock-admin.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('#tabs').tabs();
+				
+				$('#addButton').button();
+				$('#addButton').click(function() {
+					var method = $('#requestMethod').val();
+					var urlIsExact = $('urlSpecType').val() === 'Exact';
+					var url;
+					var urlPattern;
+					if (urlIsExact) {
+						url = $('#url').val();
+					} else {
+						urlPattern = $('#url').val(); 
+					}
+					
+					var status = $('#status').val();
+					var body = $('#body').val();
+					
+					var mappingSpec = {
+						request: {
+							method: method,
+							url: url,
+							urlPattern: urlPattern
+						},
+						response: {
+							status: status,
+							body: body
+						}
+					};
+					
+					WireMock.addMapping(mappingSpec, 
+						function() {
+						
+						},
+						function() {
+							
+						});
+				});
+			});
+		</script>
+		
+		<style type="text/css">
+			body { 
+				font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
+			}
+			
+			label {
+				display: block;  /* block float the labels to left column, set a width */
+				float: left; 
+				width: 50px;
+				font-weight: bold; 
+				font-size: 12px;
+				text-align: right;
+				padding-top: 0.4em;
+				margin-right: 10px;
+			}
+			
+			fieldset {
+				margin-top: 5px;
+				margin-bottom: 5px;
+			}
+			
+			button {
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<h1 class="demoHeader">WireMock Admin</h2>
+		<div id="tabs">
+			<ul>
+				<li><a href="#tabs-1">Stub Mappings</a></li>
+			</ul>
+			<div id="tabs-1">
+				<h2>Add new stub mapping</h2>
+				<form name="newStubMappingForm">
+					<fieldset name="request" title="Request Pattern">
+						<legend>Request Pattern</legend>
+						<p><label for="url">Method: </label>
+						<select name="requestMethod" id="requestMethod">
+							<option>GET</option>
+							<option>POST</option>
+							<option>PUT</option>
+							<option>DELETE</option>
+							<option>OPTIONS</option>
+							<option>TRACE</option>
+							<option>HEAD</option>
+						</select>
+						</p>
+					
+						<p>
+						<label for="url">URL: </label>
+						<input name="url" id="url" type="text" size="100" />
+						<select name="urlSpecType">
+							<option>Exact</option>
+							<option>Regex</option>
+						</select>
+						</p>
+					</fieldset>
+					
+					<fieldset name="response" title="Response">
+						<legend>Response</legend>
+						<p>
+						<label for="status">Status: </label>
+						<input name="status" id="status" type="text" size="3" value="200"/>
+						</p>
+						
+						<p>
+						<label for="body">Body: </label>
+						<textarea rows="20" cols="100" name="body" id="body"></textarea>
+						</p>
+					</fieldset>
+					
+					<button id="addButton" name="add" value="Add" title="Add">Add</button>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>
