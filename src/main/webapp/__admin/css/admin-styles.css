@@ -1,5 +1,5 @@
 body { 
-	font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
+	font: 70% "Trebuchet MS", sans-serif; margin: 50px;
 }
 
 label {
@@ -11,6 +11,11 @@ label {
 	text-align: right;
 	padding-top: 0.4em;
 	margin-right: 10px;
+}
+
+label .headerValueLabel {
+	display: inline;
+	float: none;
 }
 
 fieldset {
@@ -25,3 +30,11 @@ button {
 #stubMappingErrorDialog {
 	display: none;
 }
+
+/* .requestHeaderFields {
+	margin-left: 60px;
+}
+
+.responseHeaderFields {
+	margin-left: 60px;
+} */

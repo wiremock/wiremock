@@ -42,3 +42,8 @@ bin
 .classpath
 .settings
 .gradle
+
+
+# Misc #
+########
+copy-admin.sh

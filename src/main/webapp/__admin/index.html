@@ -23,25 +23,31 @@
 				<form name="newStubMappingForm" id="newStubMappingForm">
 					<fieldset name="request" title="Request Pattern">
 						<legend>Request Pattern</legend>
-						<p><label for="url">Method: </label>
-						<select name="requestMethod" id="requestMethod">
-							<option>GET</option>
-							<option>POST</option>
-							<option>PUT</option>
-							<option>DELETE</option>
-							<option>OPTIONS</option>
-							<option>TRACE</option>
-							<option>HEAD</option>
-						</select>
+						<p>
+							<label for="url">Method: </label>
+							<select name="requestMethod" id="requestMethod">
+								<option>GET</option>
+								<option>POST</option>
+								<option>PUT</option>
+								<option>DELETE</option>
+								<option>OPTIONS</option>
+								<option>TRACE</option>
+								<option>HEAD</option>
+							</select>
 						</p>
 					
 						<p>
-						<label for="url">URL: </label>
-						<input name="url" id="url" type="text" size="100" />
-						<select name="urlSpecType">
-							<option>Exact</option>
-							<option>Regex</option>
-						</select>
+							<label for="url">URL: </label>
+							<input name="url" id="url" type="text" size="100" />
+							<select name="urlSpecType">
+								<option>Exact</option>
+								<option>Regex</option>
+							</select>
+						</p>
+						
+						<p id="requestHeaders">
+							<label>Headers: </label>
+							<button id="addRequestHeaderButton" name="addRequestHeaderButton" type="button" title="Add request header">New</button>
 						</p>
 					</fieldset>
 					
@@ -50,6 +56,11 @@
 						<p>
 						<label for="status">Status: </label>
 						<input name="status" id="status" type="text" size="3" value="200"/>
+						</p>
+						
+						<p id="responseHeaders">
+							<label>Headers: </label>
+							<button id="addResponseHeaderButton" name="addResponseHeaderButton" type="button" title="Add response header">New</button>
 						</p>
 						
 						<p>
