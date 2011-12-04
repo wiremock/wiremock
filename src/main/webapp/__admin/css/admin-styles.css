@@ -1,0 +1,23 @@
+body { 
+	font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
+}
+
+label {
+	display: block;  /* block float the labels to left column, set a width */
+	float: left; 
+	width: 50px;
+	font-weight: bold; 
+	font-size: 12px;
+	text-align: right;
+	padding-top: 0.4em;
+	margin-right: 10px;
+}
+
+fieldset {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+button {
+	font-weight: bold;
+}

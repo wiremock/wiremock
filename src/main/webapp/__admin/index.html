@@ -7,73 +7,9 @@
 		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 		<script type="text/javascript" src="js/wiremock-admin.js"></script>
-		<script type="text/javascript">
-			$(document).ready(function(){
-				$('#tabs').tabs();
-				
-				$('#addButton').button();
-				$('#addButton').click(function() {
-					var method = $('#requestMethod').val();
-					var urlIsExact = $('urlSpecType').val() === 'Exact';
-					var url;
-					var urlPattern;
-					if (urlIsExact) {
-						url = $('#url').val();
-					} else {
-						urlPattern = $('#url').val(); 
-					}
-					
-					var status = $('#status').val();
-					var body = $('#body').val();
-					
-					var mappingSpec = {
-						request: {
-							method: method,
-							url: url,
-							urlPattern: urlPattern
-						},
-						response: {
-							status: status,
-							body: body
-						}
-					};
-					
-					WireMock.addMapping(mappingSpec, 
-						function() {
-						
-						},
-						function() {
-							
-						});
-				});
-			});
-		</script>
+		<script type="text/javascript" src="js/admin-page-behaviour.js"></script>
 		
-		<style type="text/css">
-			body { 
-				font: 62.5% "Trebuchet MS", sans-serif; margin: 50px;
-			}
-			
-			label {
-				display: block;  /* block float the labels to left column, set a width */
-				float: left; 
-				width: 50px;
-				font-weight: bold; 
-				font-size: 12px;
-				text-align: right;
-				padding-top: 0.4em;
-				margin-right: 10px;
-			}
-			
-			fieldset {
-				margin-top: 5px;
-				margin-bottom: 5px;
-			}
-			
-			button {
-				font-weight: bold;
-			}
-		</style>
+		<link type="text/css" href="css/admin-styles.css" rel="stylesheet" />
 	</head>
 	
 	<body>
