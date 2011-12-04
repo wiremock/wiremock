@@ -16,11 +16,11 @@
 		<h1 class="demoHeader">WireMock Admin</h2>
 		<div id="tabs">
 			<ul>
-				<li><a href="#tabs-1">Stub Mappings</a></li>
+				<li><a href="#stubMappingTab">Stub Mappings</a></li>
 			</ul>
-			<div id="tabs-1">
+			<div id="stubMappingTab">
 				<h2>Add new stub mapping</h2>
-				<form name="newStubMappingForm">
+				<form name="newStubMappingForm" id="newStubMappingForm">
 					<fieldset name="request" title="Request Pattern">
 						<legend>Request Pattern</legend>
 						<p><label for="url">Method: </label>
@@ -58,9 +58,13 @@
 						</p>
 					</fieldset>
 					
-					<button id="addButton" name="add" value="Add" title="Add">Add</button>
+					<button id="addButton" type="button" name="add" value="Add" title="Add">Add</button>
 				</form>
 			</div>
+		</div>
+		
+		<div id="stubMappingErrorDialog">
+			<p>Failed to create stub mapping</p>
 		</div>
 	</body>
 </html>

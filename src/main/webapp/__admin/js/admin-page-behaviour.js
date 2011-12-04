@@ -1,8 +1,30 @@
+var AdminPage = {};
+AdminPage.StubMappingTab = {};
+
+var ADD_STUB_BUTTON = '#newStubMappingForm #addButton';
+
+AdminPage.StubMappingTab.setFormToPostingState = function() {
+	if ($(ADD_STUB_BUTTON).button('option', 'label') === 'Adding...') {
+		return;
+	}
+	$(ADD_STUB_BUTTON).button('option', 'disabled', true);
+	$(ADD_STUB_BUTTON).button('option', 'label', 'Adding...');
+}
+
+AdminPage.StubMappingTab.setFormToEditingState = function() {
+	if ($(ADD_STUB_BUTTON).button('option', 'label') === 'Add') {
+		return;
+	}
+	$(ADD_STUB_BUTTON).button('option', 'disabled', false);
+	$(ADD_STUB_BUTTON).button('option', 'label', 'Add');
+}
+
+
 $(document).ready(function(){
 	$('#tabs').tabs();
 	
-	$('#addButton').button();
-	$('#addButton').click(function() {
+	$(ADD_STUB_BUTTON).button();
+	$(ADD_STUB_BUTTON).click(function() {
 		var method = $('#requestMethod').val();
 		var urlIsExact = $('urlSpecType').val() === 'Exact';
 		var url;
@@ -28,12 +50,25 @@ $(document).ready(function(){
 			}
 		};
 		
+		AdminPage.StubMappingTab.setFormToPostingState();
 		WireMock.addMapping(mappingSpec, 
 			function() {
-			
+				AdminPage.StubMappingTab.setFormToEditingState();
 			},
 			function() {
-				
+				$( "#stubMappingErrorDialog" ).dialog({
+					modal: true,
+					buttons: {
+						Ok: function() {
+							$( this ).dialog("close");
+						}
+					}
+				});
+				AdminPage.StubMappingTab.setFormToEditingState();
 			});
+	});
+	
+	$('#newStubMappingForm :input').change(function() {
+		AdminPage.StubMappingTab.setFormToEditingState();
 	});
 });
