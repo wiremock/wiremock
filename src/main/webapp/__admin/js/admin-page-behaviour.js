@@ -86,7 +86,7 @@ AdminPage.StubMappingTab.addNewResponseHeaderFields = function() {
 	var content = '<div class="responseHeaderFields">													\
 		<label for="responseHeaderName">Key: </label>													\
 		<input class="responseHeaderName" name="responseHeaderName" type="text" size="20"/> 			\
-		<span>=</span> 													\
+		<span class="midFormRowText">=</span> 															\
 		<input class="responseHeaderValue" name="responseHeaderValue" type="text" size="20"/>			\
 		</div>';
 	
@@ -110,7 +110,5 @@ $(document).ready(function(){
 	$(ADD_STUB_BUTTON).button();
 	$(ADD_STUB_BUTTON).click(AdminPage.StubMappingTab.addMapping);
 	
-	$('#newStubMappingForm :input').change(function() {
-		AdminPage.StubMappingTab.setFormToEditingState();
-	});
+	$('#newStubMappingForm :input').change(AdminPage.StubMappingTab.setFormToEditingState());
 });

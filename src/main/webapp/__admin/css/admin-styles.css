@@ -5,7 +5,7 @@ body {
 label {
 	display: block;  /* block float the labels to left column, set a width */
 	float: left; 
-	width: 50px;
+	width: 80px;
 	font-weight: bold; 
 	font-size: 12px;
 	text-align: right;
@@ -31,10 +31,7 @@ button {
 	display: none;
 }
 
-/* .requestHeaderFields {
-	margin-left: 60px;
+.midFormRowText {
+	margin-left: 0.5em;
+	margin-right: 0.5em;
 }
-
-.responseHeaderFields {
-	margin-left: 60px;
-} */

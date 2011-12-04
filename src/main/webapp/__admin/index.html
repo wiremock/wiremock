@@ -53,9 +53,19 @@
 					
 					<fieldset name="response" title="Response">
 						<legend>Response</legend>
+						
 						<p>
-						<label for="status">Status: </label>
-						<input name="status" id="status" type="text" size="3" value="200"/>
+							<label for="responseType">Type: </label>
+							<select name="responseType">
+								<option>Body</option>
+								<option>Body file</option>
+								<option>Proxy</option>
+							</select>
+						</p>
+						
+						<p>
+							<label for="status">Status: </label>
+							<input name="status" id="status" type="text" size="3" value="200"/>
 						</p>
 						
 						<p id="responseHeaders">
@@ -64,9 +74,23 @@
 						</p>
 						
 						<p>
-						<label for="body">Body: </label>
-						<textarea rows="20" cols="100" name="body" id="body"></textarea>
+							<label for="body">Body: </label>
+							<textarea rows="20" cols="100" name="body" id="body"></textarea>
 						</p>
+						
+						<p>
+							<label>Add delay: </label>
+							<input id="addFixedDelayCheckbox" name="addFixedDelayCheckbox" type="checkbox"/>
+							<span class="midFormRowText">of</span>
+							<input id="fixedDelayMilliseconds" name="fixedDelayMilliseconds" type="text" size="10"/>
+							<span>milliseconds</span> 
+						</p>
+					</fieldset>
+					
+					<fieldset name="priority" title="Priority">
+						<legend>Priority</legend>
+						<label for="lowPriority">Low priority:</label>
+						<input id="lowPriorityCheckBox" name="lowPriority" type="checkbox" />
 					</fieldset>
 					
 					<button id="addButton" type="button" name="add" value="Add" title="Add">Add</button>
