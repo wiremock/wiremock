@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class VeryShortIdGenerator implements IdGenerator {
     
-    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#&+@!()-{}";
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#&+!()-{}";
 
     public String generate() {
         StringBuilder sb = new StringBuilder();

@@ -13,7 +13,7 @@ public class VeryShortIdGeneratorTest {
         
         for (int i = 0; i < 1000; i++) {
             String id = generator.generate();
-            assertThat(id, matches("[A-Za-z0-9$#&+@!()-{}]{5}"));
+            assertThat(id, matches("[A-Za-z0-9$#&+!()-{}]{5}"));
         }
     }
     

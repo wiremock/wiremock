@@ -19,14 +19,9 @@ import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.IdGenerator;
-import com.tomakehurst.wiremock.common.TextFile;
 import com.tomakehurst.wiremock.common.VeryShortIdGenerator;
 
 public class MappingFileWriterListener implements RequestListener {
@@ -78,24 +73,6 @@ public class MappingFileWriterListener implements RequestListener {
         return sb.toString();
 	}
 	
-	private Function<TextFile, Integer> toNumberUsingPattern(final Pattern pattern) {
-		return new Function<TextFile, Integer>() {
-			public Integer apply(TextFile input) {
-				Matcher matcher = pattern.matcher(input.name());
-				matcher.find();
-				return Integer.parseInt(matcher.group(1));
-			}
-		};
-	}
-	
-	private Predicate<TextFile> matching(final Pattern pattern) {
-		return new Predicate<TextFile>() {
-			public boolean apply(TextFile input) {
-				return pattern.matcher(input.name()).matches();
-			}
-		};
-	}
-
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
