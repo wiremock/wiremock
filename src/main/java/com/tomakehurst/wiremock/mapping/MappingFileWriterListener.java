@@ -15,13 +15,9 @@
  */
 package com.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
-import static java.util.Collections.max;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,22 +25,27 @@ import java.util.regex.Pattern;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.tomakehurst.wiremock.common.FileSource;
+import com.tomakehurst.wiremock.common.IdGenerator;
 import com.tomakehurst.wiremock.common.TextFile;
+import com.tomakehurst.wiremock.common.VeryShortIdGenerator;
 
 public class MappingFileWriterListener implements RequestListener {
 	
-	private FileSource mappingsFileSource;
-	private FileSource filesFileSource;
+	private final FileSource mappingsFileSource;
+	private final FileSource filesFileSource;
+	private IdGenerator idGenerator;
 	
 	public MappingFileWriterListener(FileSource mappingsFileSource, FileSource filesFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
+		idGenerator = new VeryShortIdGenerator();
 	}
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		String mappingFileName = generateNewSequentialFileName(mappingsFileSource, "recorded-mapping");
-		String bodyFileName = generateNewSequentialFileName(filesFileSource, "recorded-body");
+	    String fileId = idGenerator.generate();
+		String mappingFileName = generateNewUniqueFileNameFromRequest(request, "mapping", fileId);
+		String bodyFileName = generateNewUniqueFileNameFromRequest(request, "body", fileId);
 		
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
 		ResponseDefinition responseToWrite = new ResponseDefinition();
@@ -61,15 +62,20 @@ public class MappingFileWriterListener implements RequestListener {
 		mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
 	}
 	
-	private String generateNewSequentialFileName(FileSource fileSource, String prefix) {
-		final Pattern pattern = Pattern.compile(prefix + "-(\\d+).json");
-		Iterable<TextFile> files = filter(fileSource.list(), matching(pattern));
-		Integer maxNumber = 0;
-		if (size(files) > 0) {
-			maxNumber = max(newArrayList(transform(files, toNumberUsingPattern(pattern))));
-		}
-		
-		return String.format("%s-%d.json", prefix, (maxNumber + 1));
+	private String generateNewUniqueFileNameFromRequest(Request request, String prefix, String id) {
+	    URI uri = URI.create(request.getUrl());
+	    String[] pathNodes = uri.getPath().split("/");
+	    StringBuilder sb = new StringBuilder(prefix).append("-");
+	    if (pathNodes.length > 1) {
+	        sb.append(pathNodes[pathNodes.length - 2]).append("-");
+	    }
+	        
+        sb.append(pathNodes[pathNodes.length - 1])
+            .append("-")
+	        .append(id)
+	        .append(".json");
+        
+        return sb.toString();
 	}
 	
 	private Function<TextFile, Integer> toNumberUsingPattern(final Pattern pattern) {
@@ -89,5 +95,9 @@ public class MappingFileWriterListener implements RequestListener {
 			}
 		};
 	}
+
+    public void setIdGenerator(IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
 }

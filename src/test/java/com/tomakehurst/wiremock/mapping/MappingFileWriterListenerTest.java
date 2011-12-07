@@ -16,7 +16,6 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.testsupport.WireMatchers.jsonEqualTo;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import org.jmock.Expectations;
@@ -27,13 +26,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.tomakehurst.wiremock.common.FileSource;
-import com.tomakehurst.wiremock.common.TextFile;
+import com.tomakehurst.wiremock.common.IdGenerator;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 
 @RunWith(JMock.class)
 public class MappingFileWriterListenerTest {
-
+    
 	private MappingFileWriterListener listener;
 	private FileSource mappingsFileSource;
 	private FileSource filesFileSource;
@@ -47,56 +46,30 @@ public class MappingFileWriterListenerTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
 		
 		listener = new MappingFileWriterListener(mappingsFileSource, filesFileSource);
+		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
 	}
 	
 	private static final String SAMPLE_REQUEST_MAPPING =
-		"{ 													\n" +
-		"	\"request\": {									\n" +
-		"		\"method\": \"GET\",						\n" +
-		"		\"url\": \"/recorded/content\"				\n" +
-		"	},												\n" +
-		"	\"response\": {									\n" +
-		"		\"status\": 200,							\n" +
-		"		\"bodyFileName\": \"recorded-body-1.json\"	\n" +
-		"	}												\n" +
-		"}													";
+		"{ 													             \n" +
+		"	\"request\": {									             \n" +
+		"		\"method\": \"GET\",						             \n" +
+		"		\"url\": \"/recorded/content\"				             \n" +
+		"	},												             \n" +
+		"	\"response\": {									             \n" +
+		"		\"status\": 200,							             \n" +
+		"		\"bodyFileName\": \"body-recorded-content-1$2!3.json\"   \n" +
+		"	}												             \n" +
+		"}													               ";
 	
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
 			allowing(mappingsFileSource).list(); will(returnValue(emptyList()));
 			allowing(filesFileSource).list(); will(returnValue(emptyList()));
-			one(mappingsFileSource).writeTextFile(with(equal("recorded-mapping-1.json")), with(jsonEqualTo(SAMPLE_REQUEST_MAPPING)));
-			one(filesFileSource).writeTextFile("recorded-body-1.json", "Recorded body content");
-		}});
-		
-		Request request = new MockRequestBuilder(context)
-			.withMethod(RequestMethod.GET)
-			.withUrl("/recorded/content")
-			.build();
-		
-		Response response = new Response(200);
-		response.setBody("Recorded body content");
-		
-		listener.requestReceived(request, response);
-	}
-	
-	@Test
-	public void correctlyIncrementsFileNumbers() {
-		context.checking(new Expectations() {{
-			allowing(mappingsFileSource).list(); will(returnValue(asList(
-					new TextFile("recorded-mapping-1.json"),
-					new TextFile("recorded-mapping-2.json"),
-					new TextFile("recorded-mapping-3.json"),
-					new TextFile("recorded-mapping-4.json"))));
-			allowing(filesFileSource).list(); will(returnValue(asList(
-					new TextFile("recorded-body-1.json"),
-					new TextFile("recorded-body-2.json"),
-					new TextFile("recorded-body-3.json"),
-					new TextFile("recorded-body-4.json"))));
-			one(mappingsFileSource).writeTextFile(with(equal("recorded-mapping-5.json")), 
-					with(jsonEqualTo(SAMPLE_REQUEST_MAPPING.replace("recorded-body-1.json", "recorded-body-5.json"))));
-			one(filesFileSource).writeTextFile("recorded-body-5.json", "Recorded body content");
+			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
+			        with(jsonEqualTo(SAMPLE_REQUEST_MAPPING)));
+			one(filesFileSource).writeTextFile(with(equal("body-recorded-content-1$2!3.json")),
+			        with(equal("Recorded body content")));
 		}});
 		
 		Request request = new MockRequestBuilder(context)
@@ -111,28 +84,29 @@ public class MappingFileWriterListenerTest {
 	}
 	
 	private static final String SAMPLE_REQUEST_MAPPING_WITH_HEADERS =
-        "{                                                  \n" +
-        "   \"request\": {                                  \n" +
-        "       \"method\": \"GET\",                        \n" +
-        "       \"url\": \"/headered/content\"              \n" +
-        "   },                                              \n" +
-        "   \"response\": {                                 \n" +
-        "       \"status\": 200,                            \n" +
-        "       \"bodyFileName\": \"recorded-body-1.json\", \n" +
-        "       \"headers\": {                              \n" +
-        "            \"Content-Type\": \"text/plain\",      \n" +
-        "            \"Cache-Control\": \"no-cache\"        \n" +
-        "       }                                            \n" +
-        "   }                                               \n" +
-        "}                                                  ";
+        "{                                                                  \n" +
+        "   \"request\": {                                                  \n" +
+        "       \"method\": \"GET\",                                        \n" +
+        "       \"url\": \"/headered/content\"                              \n" +
+        "   },                                                              \n" +
+        "   \"response\": {                                                 \n" +
+        "       \"status\": 200,                                            \n" +
+        "       \"bodyFileName\": \"body-headered-content-1$2!3.json\",     \n" +
+        "       \"headers\": {                                              \n" +
+        "            \"Content-Type\": \"text/plain\",                      \n" +
+        "            \"Cache-Control\": \"no-cache\"                        \n" +
+        "       }                                                           \n" +
+        "   }                                                               \n" +
+        "}                                                                  ";
 	
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
             allowing(mappingsFileSource).list(); will(returnValue(emptyList()));
             allowing(filesFileSource).list(); will(returnValue(emptyList()));
-            one(mappingsFileSource).writeTextFile(with(equal("recorded-mapping-1.json")), with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
-            one(filesFileSource).writeTextFile("recorded-body-1.json", "Recorded body content");
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
+                    with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
+            one(filesFileSource).writeTextFile("body-headered-content-1$2!3.json", "Recorded body content");
         }});
         
         Request request = new MockRequestBuilder(context)
@@ -147,5 +121,12 @@ public class MappingFileWriterListenerTest {
         
         listener.requestReceived(request, response);
 	}
-	
+
+	private IdGenerator fixedIdGenerator(final String id) {
+	    return new IdGenerator() {
+            public String generate() {
+                return id;
+            }
+        };
+	}
 }

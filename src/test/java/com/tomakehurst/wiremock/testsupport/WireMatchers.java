@@ -19,7 +19,7 @@ import net.sf.json.test.JSONAssert;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.junit.matchers.TypeSafeMatcher;
 
 public class WireMatchers {
 
@@ -42,4 +42,21 @@ public class WireMatchers {
 			
 		};
 	}
+
+    public static Matcher<String> matches(final String regex) {
+        return new TypeSafeMatcher<String>() {
+    
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Should match " + regex);
+                
+            }
+    
+            @Override
+            public boolean matchesSafely(String actual) {
+                return actual.matches(regex);
+            }
+            
+        };
+    }
 }
