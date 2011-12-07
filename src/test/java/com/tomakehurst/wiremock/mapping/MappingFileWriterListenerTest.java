@@ -110,4 +110,42 @@ public class MappingFileWriterListenerTest {
 		listener.requestReceived(request, response);
 	}
 	
+	private static final String SAMPLE_REQUEST_MAPPING_WITH_HEADERS =
+        "{                                                  \n" +
+        "   \"request\": {                                  \n" +
+        "       \"method\": \"GET\",                        \n" +
+        "       \"url\": \"/headered/content\"              \n" +
+        "   },                                              \n" +
+        "   \"response\": {                                 \n" +
+        "       \"status\": 200,                            \n" +
+        "       \"bodyFileName\": \"recorded-body-1.json\", \n" +
+        "       \"headers\": {                              \n" +
+        "            \"Content-Type\": \"text/plain\",      \n" +
+        "            \"Cache-Control\": \"no-cache\"        \n" +
+        "       }                                            \n" +
+        "   }                                               \n" +
+        "}                                                  ";
+	
+	@Test
+	public void addsResponseHeaders() {
+	    context.checking(new Expectations() {{
+            allowing(mappingsFileSource).list(); will(returnValue(emptyList()));
+            allowing(filesFileSource).list(); will(returnValue(emptyList()));
+            one(mappingsFileSource).writeTextFile(with(equal("recorded-mapping-1.json")), with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
+            one(filesFileSource).writeTextFile("recorded-body-1.json", "Recorded body content");
+        }});
+        
+        Request request = new MockRequestBuilder(context)
+            .withMethod(RequestMethod.GET)
+            .withUrl("/headered/content")
+            .build();
+        
+        Response response = new Response(200);
+        response.setBody("Recorded body content");
+        response.addHeader("Content-Type", "text/plain");
+        response.addHeader("Cache-Control", "no-cache");
+        
+        listener.requestReceived(request, response);
+	}
+	
 }

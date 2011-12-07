@@ -22,6 +22,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
 import static java.util.Collections.max;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,11 @@ public class MappingFileWriterListener implements RequestListener {
 		ResponseDefinition responseToWrite = new ResponseDefinition();
 		responseToWrite.setStatus(response.getStatus());
 		responseToWrite.setBodyFileName(bodyFileName);
+		
+		for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
+		    responseToWrite.addHeader(header.getKey(), header.getValue());
+		}
+		
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
 		
 		filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
