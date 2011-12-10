@@ -15,6 +15,8 @@
  */
 package com.tomakehurst.wiremock.testsupport;
 
+import java.util.Iterator;
+
 import net.sf.json.test.JSONAssert;
 
 import org.hamcrest.Description;
@@ -58,5 +60,28 @@ public class WireMatchers {
             }
             
         };
+    }
+    
+    public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
+    	return new TypeSafeMatcher<Iterable<T>>() {
+
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("Collection must match exactly");
+			}
+
+			@Override
+			public boolean matchesSafely(Iterable<T> actual) {
+				Iterator<T> actualIter = actual.iterator();
+				for (Matcher<T> matcher: items) {
+					if (!matcher.matches(actualIter.next())) {
+						return false;
+					}
+				}
+				
+				return true;
+			}
+    		
+    	};
     }
 }

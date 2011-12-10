@@ -15,10 +15,7 @@
  */
 package com.tomakehurst.wiremock.client;
 
-import static com.tomakehurst.wiremock.mapping.Priority.LOW;
-
 import com.tomakehurst.wiremock.http.RequestMethod;
-import com.tomakehurst.wiremock.mapping.Priority;
 import com.tomakehurst.wiremock.mapping.RequestPattern;
 import com.tomakehurst.wiremock.mapping.RequestResponseMapping;
 import com.tomakehurst.wiremock.mapping.ResponseDefinition;
@@ -27,7 +24,7 @@ public class MappingBuilder {
 	
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
-	private Priority priority;
+	private Integer priority;
 	
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
@@ -38,8 +35,8 @@ public class MappingBuilder {
 		return this;
 	}
 	
-	public MappingBuilder atLowPriority() {
-		priority = LOW;
+	public MappingBuilder atPriority(Integer priority) {
+		this.priority = priority;
 		return this;
 	}
 	

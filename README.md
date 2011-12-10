@@ -34,7 +34,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.3</version>
+		<version>1.4</version>
 	</dependency>
 
 
@@ -132,13 +132,12 @@ If you'd prefer a different port, you can do something like this:
 	
 Note: the ability to change host in the second call is to support connection to a standalone instance on another host.
 
-### Low priority stub mappings
-A stub mapping can be made low priority in the following way:
+### Prioritising stub mappings
+A stub mapping's priority can be set in the following way:
 
-	givenThat(get(urlEqualTo("/some/url")).atLowPriority() ...
+	givenThat(get(urlEqualTo("/some/url")).atPriority(7) ...
 	
-This means that WireMock will attempt to match requests to this mapping after trying all that are at normal priority. 
-This is primarily intended for use with the proxy feature described below. 
+Priority 1 is treated as most important. For stub mappings with the same priority the most recently inserted will be matched first. 
 
 ### Running as a proxy to another service
 Stub mappings can be configured to proxy requests to another host and port. This can be useful if you want to run your app against a real service, but
@@ -153,7 +152,7 @@ JSON API
 New stub mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
 
 	{ 
-		"priority": "LOW", // LOW or NORMAL													
+		"priority": 3, // Defaults to 5 if not specified. 1 is highest.													
 		"request": {									
 			"method": "GET",						
 			"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
@@ -182,7 +181,7 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 	}
 	
 In the request portion only the <code>method</code>, and either the <code>url</code> or <code>urlPattern</code> attributes are mandatory.
-In the response portion only the <code>status</code> attribute is mandatory.
+In the response portion only the <code>status</code> attribute is mandatory unless proxyBaseUrl is specified, in which case all attributes except fixedDelayMilliseconds will be ignored.
 
 
 ### Counting requests matching a pattern
@@ -224,11 +223,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.3-standalone.jar
+	java -jar wiremock-1.4-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.3-standalone.jar --port 9999
+	java -jar wiremock-1.4-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.

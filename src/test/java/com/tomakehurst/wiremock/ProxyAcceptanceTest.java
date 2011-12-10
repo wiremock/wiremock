@@ -57,7 +57,7 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 				.withHeader("Content-Type", "text/plain")
 				.withBody("Proxied content")));
 		
-		givenThat(any(urlEqualTo("/proxied/resource?param=value")).atLowPriority()
+		givenThat(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom("http://localhost:8087")));
 		
@@ -73,7 +73,7 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 				.willReturn(aResponse()
 				.withStatus(204)));
 		
-		givenThat(any(urlEqualTo("/proxied/resource")).atLowPriority()
+		givenThat(any(urlEqualTo("/proxied/resource")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom("http://localhost:8087")));
 		

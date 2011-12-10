@@ -15,15 +15,20 @@
  */
 package com.tomakehurst.wiremock.mapping;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestResponseMapping {
+	
+	public static final int DEFAULT_PRIORITY = 5; 
 
 	private RequestPattern request;
 	private ResponseDefinition response;
-	private Priority priority;
+	private Integer priority;
+	
+	private long insertionIndex;
 	
 	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
@@ -54,20 +59,33 @@ public class RequestResponseMapping {
 		this.response = response;
 	}
 
-	public boolean priorityIs(Priority expectedPriority) {
-		if (priority == null) {
-			return expectedPriority == Priority.NORMAL;
-		}
-		
-		return priority == expectedPriority;
+	@Override
+	public String toString() {
+		return JsonMappingBinder.write(this);
 	}
-	
-	public Priority getPriority() {
+
+	@JsonIgnore
+	public long getInsertionIndex() {
+		return insertionIndex;
+	}
+
+	@JsonIgnore
+	public void setInsertionIndex(long insertionIndex) {
+		this.insertionIndex = insertionIndex;
+	}
+
+	public Integer getPriority() {
 		return priority;
 	}
 
-	public void setPriority(Priority priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+	
+	public int comparePriorityWith(RequestResponseMapping otherMapping) {
+		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
+		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
+		return thisPriority - otherPriority;
 	}
 
 	@Override
@@ -75,7 +93,8 @@ public class RequestResponseMapping {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((priority == null) ? 0 : priority.hashCode());
+				+ (int) (insertionIndex ^ (insertionIndex >>> 32));
+		result = prime * result + priority;
 		result = prime * result + ((request == null) ? 0 : request.hashCode());
 		result = prime * result
 				+ ((response == null) ? 0 : response.hashCode());
@@ -94,6 +113,9 @@ public class RequestResponseMapping {
 			return false;
 		}
 		RequestResponseMapping other = (RequestResponseMapping) obj;
+		if (insertionIndex != other.insertionIndex) {
+			return false;
+		}
 		if (priority != other.priority) {
 			return false;
 		}
@@ -112,11 +134,6 @@ public class RequestResponseMapping {
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return JsonMappingBinder.write(this);
 	}
 	
 	

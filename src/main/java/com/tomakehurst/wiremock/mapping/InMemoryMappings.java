@@ -15,24 +15,19 @@
  */
 package com.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Iterables.find;
-import static com.tomakehurst.wiremock.mapping.Priority.LOW;
-
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.base.Predicate;
 
 
 public class InMemoryMappings implements Mappings {
 	
-	private CopyOnWriteArrayList<RequestResponseMapping> normalPriorityMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
-	private CopyOnWriteArrayList<RequestResponseMapping> lowPriorityMappings = new CopyOnWriteArrayList<RequestResponseMapping>();
+	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	
 	@Override
 	public ResponseDefinition getFor(Request request) {
 		RequestResponseMapping matchingMapping = find(
-				concat(normalPriorityMappings, lowPriorityMappings),
+				mappings,
 				mappingMatching(request),
 				RequestResponseMapping.notConfigured());
 		return matchingMapping.getResponse();
@@ -48,16 +43,12 @@ public class InMemoryMappings implements Mappings {
 
 	@Override
 	public void addMapping(RequestResponseMapping mapping) {
-		if (mapping.priorityIs(LOW)) {
-			lowPriorityMappings.add(0, mapping);
-		} else {
-			normalPriorityMappings.add(0, mapping);
-		}
+		mappings.add(mapping);
 	}
 
 	@Override
 	public void reset() {
-		normalPriorityMappings.clear();
+		mappings.clear();
 	}
 
 }
