@@ -22,8 +22,6 @@ import static com.tomakehurst.wiremock.http.RequestMethod.PUT;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -40,6 +38,8 @@ import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import com.google.common.base.Optional;
 import com.tomakehurst.wiremock.http.ContentTypeHeader;
@@ -49,33 +49,15 @@ import com.tomakehurst.wiremock.mapping.Response;
 import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
-
-	@Override
-	public void render(ResponseDefinition response, HttpServletResponse httpServletResponse) {
-		HttpClient client = new DefaultHttpClient();
-		HttpUriRequest httpRequest = getHttpRequestFor(response);
-		addRequestHeaders(httpRequest, response);
-		
-		try {
-			addBodyIfPostOrPut(httpRequest, response);
-			HttpResponse httpResponse = client.execute(httpRequest);
-			httpServletResponse.setStatus(httpResponse.getStatusLine().getStatusCode());
-			for (Header header: httpResponse.getAllHeaders()) {
-				httpServletResponse.addHeader(header.getName(), header.getValue());
-			}
-			
-			HttpEntity entity = httpResponse.getEntity();
-			if (entity != null) {
-				entity.writeTo(httpServletResponse.getOutputStream());
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
+	private static final int MINUTES = 1000 * 60;
+
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
 		HttpClient client = new DefaultHttpClient();
+		HttpParams params = client.getParams();
+		HttpConnectionParams.setConnectionTimeout(params, 5 * MINUTES);
+		HttpConnectionParams.setSoTimeout(params, 5 * MINUTES);
 		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
 		addRequestHeaders(httpRequest, responseDefinition);
 		
