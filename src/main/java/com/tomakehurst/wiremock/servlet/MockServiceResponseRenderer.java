@@ -41,7 +41,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 			return Response.notConfigured();
 		}
 		
-		addDelayIfSpecifiedIn(responseDefinition);
+		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
 		if (responseDefinition.isProxyResponse()) {
 	    	return proxyResponseRenderer.render(responseDefinition);
 	    } else {
@@ -63,7 +63,7 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 		return response;
 	}
 	
-    private void addDelayIfSpecifiedIn(ResponseDefinition response) {
+    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
     	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(response);
         if (optionalDelay.isPresent()) {
 	        try {

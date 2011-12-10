@@ -16,9 +16,9 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class Response {
 	private boolean configured = true;
 	
 	public static Response notConfigured() {
-		Response response = new Response(HttpURLConnection.HTTP_NOT_FOUND);
+		Response response = new Response(HTTP_NOT_FOUND);
 		response.setWasConfigured(false);
 		return response;
 	}
