@@ -16,9 +16,12 @@
 package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static com.tomakehurst.wiremock.http.HttpServletResponseUtils.getUnderlyingSocketFrom;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.util.Arrays.copyOfRange;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -35,6 +38,7 @@ public class Response {
 	private byte[] body = new byte[0];
 	private HttpHeaders headers = new HttpHeaders();
 	private boolean configured = true;
+	private boolean causeSocketFailure = false;
 	
 	public static Response notConfigured() {
 		Response response = new Response(HTTP_NOT_FOUND);
@@ -104,8 +108,23 @@ public class Response {
 			httpServletResponse.addHeader(header.getKey(), header.getValue());
 		}
 		
-		try {
-			httpServletResponse.getOutputStream().write(body);
+		if (causeSocketFailure) {
+			byte[] halfBody = copyOfRange(body, 0, body.length / 2);
+			writeAndTranslateExceptions(httpServletResponse, halfBody);
+			Socket socket = getUnderlyingSocketFrom(httpServletResponse);
+			try {
+				socket.close();
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		} else {
+			writeAndTranslateExceptions(httpServletResponse, body);
+		}
+	}
+	
+	private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
+		try {	
+			httpServletResponse.getOutputStream().write(content);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -132,6 +151,10 @@ public class Response {
 	public String toString() {
 		return "Response [status=" + status + ", body=" + Arrays.toString(body)
 				+ ", headers=" + headers + ", configured=" + configured + "]";
+	}
+
+	public void setCauseSocketFailure(boolean causeSocketFailure) {
+		this.causeSocketFailure = causeSocketFailure;
 	}
 	
 	

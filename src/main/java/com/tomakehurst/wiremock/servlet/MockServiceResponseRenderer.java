@@ -60,6 +60,10 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 			response.setBody(responseDefinition.getBody());
 		}
 		
+		if (responseDefinition.getCauseSocketFailure() != null) {
+			response.setCauseSocketFailure(responseDefinition.getCauseSocketFailure());
+		}
+		
 		return response;
 	}
 	

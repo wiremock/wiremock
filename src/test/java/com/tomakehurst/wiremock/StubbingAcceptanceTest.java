@@ -114,4 +114,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
+	
+	@Test(expected=RuntimeException.class)
+	public void socketFailureDuringResponse() {
+		givenThat(get(urlEqualTo("/socket/broken")).willReturn(
+                aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withSocketFailureMidResponse()));
+		
+		testClient.get("/socket/broken");
+	}
 }

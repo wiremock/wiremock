@@ -34,6 +34,7 @@ public class ResponseDefinition {
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
+	private Boolean causeSocketFailure;
 	
 	private boolean wasConfigured = true;
 	private Request originalRequest;
@@ -140,6 +141,22 @@ public class ResponseDefinition {
 		return proxyBaseUrl != null;
 	}
 
+	public Request getOriginalRequest() {
+		return originalRequest;
+	}
+
+	public void setOriginalRequest(Request originalRequest) {
+		this.originalRequest = originalRequest;
+	}
+
+	public Boolean getCauseSocketFailure() {
+		return causeSocketFailure;
+	}
+
+	public void setCauseSocketFailure(Boolean causeSocketFailure) {
+		this.causeSocketFailure = causeSocketFailure;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -149,9 +166,15 @@ public class ResponseDefinition {
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
 		result = prime
 				* result
+				+ ((causeSocketFailure == null) ? 0 : causeSocketFailure
+						.hashCode());
+		result = prime
+				* result
 				+ ((fixedDelayMilliseconds == null) ? 0
 						: fixedDelayMilliseconds.hashCode());
 		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
+		result = prime * result
+				+ ((originalRequest == null) ? 0 : originalRequest.hashCode());
 		result = prime * result
 				+ ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
 		result = prime * result + status;
@@ -185,6 +208,13 @@ public class ResponseDefinition {
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
 			return false;
 		}
+		if (causeSocketFailure == null) {
+			if (other.causeSocketFailure != null) {
+				return false;
+			}
+		} else if (!causeSocketFailure.equals(other.causeSocketFailure)) {
+			return false;
+		}
 		if (fixedDelayMilliseconds == null) {
 			if (other.fixedDelayMilliseconds != null) {
 				return false;
@@ -197,6 +227,13 @@ public class ResponseDefinition {
 				return false;
 			}
 		} else if (!headers.equals(other.headers)) {
+			return false;
+		}
+		if (originalRequest == null) {
+			if (other.originalRequest != null) {
+				return false;
+			}
+		} else if (!originalRequest.equals(other.originalRequest)) {
 			return false;
 		}
 		if (proxyBaseUrl == null) {
@@ -217,19 +254,12 @@ public class ResponseDefinition {
 
 	@Override
 	public String toString() {
-		return "Response [status=" + status + ", body=" + body
+		return "ResponseDefinition [status=" + status + ", body=" + body
 				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
 				+ ", fixedDelayMilliseconds=" + fixedDelayMilliseconds
-				+ ", proxyBaseUrl=" + proxyBaseUrl + ", wasConfigured="
-				+ wasConfigured + "]";
-	}
-
-	public Request getOriginalRequest() {
-		return originalRequest;
-	}
-
-	public void setOriginalRequest(Request originalRequest) {
-		this.originalRequest = originalRequest;
+				+ ", proxyBaseUrl=" + proxyBaseUrl + ", causeSocketFailure="
+				+ causeSocketFailure + ", wasConfigured=" + wasConfigured
+				+ ", originalRequest=" + originalRequest + "]";
 	}
 
 	

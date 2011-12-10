@@ -26,6 +26,7 @@ public class ResponseDefinitionBuilder {
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
+	private Boolean causeSocketFailure;
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
@@ -61,12 +62,18 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 	
+	public ResponseDefinitionBuilder withSocketFailureMidResponse() {
+		this.causeSocketFailure = true;
+		return this;
+	}
+	
 	public ResponseDefinition build() {
 		ResponseDefinition response = new ResponseDefinition(status, bodyContent);
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
+		response.setCauseSocketFailure(causeSocketFailure);
 		return response;
 	}
 }
