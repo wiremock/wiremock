@@ -25,12 +25,18 @@ import static com.tomakehurst.wiremock.client.WireMock.put;
 import static com.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
+import com.tomakehurst.wiremock.http.Fault;
 import com.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
@@ -115,14 +121,49 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
 	
-	@Test(expected=RuntimeException.class)
-	public void socketFailureDuringResponse() {
-		givenThat(get(urlEqualTo("/socket/broken")).willReturn(
+	@Test
+	public void emptyResponseFault() {
+		givenThat(get(urlEqualTo("/empty/response")).willReturn(
                 aResponse()
                 .withStatus(200)
                 .withBody("Content")
-                .withSocketFailureMidResponse()));
+                .withFault(Fault.EMPTY_RESPONSE)));
 		
-		testClient.get("/socket/broken");
+		getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
+	}
+	
+	@Test
+	public void malformedResponseChunkFault() {
+		givenThat(get(urlEqualTo("/malformed/response")).willReturn(
+                aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+		
+		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
+	}
+	
+	@Test
+	public void randomDataOnSocketFault() {
+		givenThat(get(urlEqualTo("/random/data")).willReturn(
+                aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
+		
+		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
+	}
+	
+	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
+		boolean thrown = false;
+		try {
+			WireMockResponse response = testClient.get(url);
+			response.content();
+		} catch (Exception e) {
+			assertThat(e.getCause(), instanceOf(expectedClass));
+			thrown = true;
+		}
+		
+		assertTrue("No exception was thrown", thrown);
 	}
 }

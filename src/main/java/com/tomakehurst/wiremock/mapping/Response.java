@@ -18,10 +18,8 @@ package com.tomakehurst.wiremock.mapping;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.tomakehurst.wiremock.http.HttpServletResponseUtils.getUnderlyingSocketFrom;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.util.Arrays.copyOfRange;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Optional;
 import com.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.tomakehurst.wiremock.http.Fault;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 
 public class Response {
@@ -38,7 +37,7 @@ public class Response {
 	private byte[] body = new byte[0];
 	private HttpHeaders headers = new HttpHeaders();
 	private boolean configured = true;
-	private boolean causeSocketFailure = false;
+	private Fault fault;
 	
 	public static Response notConfigured() {
 		Response response = new Response(HTTP_NOT_FOUND);
@@ -103,23 +102,17 @@ public class Response {
 	}
 	
 	public void applyTo(HttpServletResponse httpServletResponse) {
+		if (fault != null) {
+			fault.apply(httpServletResponse, getUnderlyingSocketFrom(httpServletResponse));
+			return;
+		}
+		
 		httpServletResponse.setStatus(status);
 		for (Map.Entry<String, String> header: headers.entrySet()) {
 			httpServletResponse.addHeader(header.getKey(), header.getValue());
 		}
 		
-		if (causeSocketFailure) {
-			byte[] halfBody = copyOfRange(body, 0, body.length / 2);
-			writeAndTranslateExceptions(httpServletResponse, halfBody);
-			Socket socket = getUnderlyingSocketFrom(httpServletResponse);
-			try {
-				socket.close();
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		} else {
-			writeAndTranslateExceptions(httpServletResponse, body);
-		}
+		writeAndTranslateExceptions(httpServletResponse, body);
 	}
 	
 	private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
@@ -147,15 +140,17 @@ public class Response {
 		this.configured = configured;
 	}
 
+	public void setFault(Fault fault) {
+		this.fault = fault;
+	}
+
 	@Override
 	public String toString() {
 		return "Response [status=" + status + ", body=" + Arrays.toString(body)
-				+ ", headers=" + headers + ", configured=" + configured + "]";
+				+ ", headers=" + headers + ", configured=" + configured
+				+ ", fault=" + fault + "]";
 	}
 
-	public void setCauseSocketFailure(boolean causeSocketFailure) {
-		this.causeSocketFailure = causeSocketFailure;
-	}
 	
 	
 }

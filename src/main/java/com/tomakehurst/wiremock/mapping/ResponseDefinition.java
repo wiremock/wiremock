@@ -23,6 +23,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
+import com.tomakehurst.wiremock.http.Fault;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
@@ -34,7 +35,7 @@ public class ResponseDefinition {
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
-	private Boolean causeSocketFailure;
+	private Fault fault;
 	
 	private boolean wasConfigured = true;
 	private Request originalRequest;
@@ -149,12 +150,12 @@ public class ResponseDefinition {
 		this.originalRequest = originalRequest;
 	}
 
-	public Boolean getCauseSocketFailure() {
-		return causeSocketFailure;
+	public Fault getFault() {
+		return fault;
 	}
 
-	public void setCauseSocketFailure(Boolean causeSocketFailure) {
-		this.causeSocketFailure = causeSocketFailure;
+	public void setFault(Fault fault) {
+		this.fault = fault;
 	}
 
 	@Override
@@ -164,10 +165,7 @@ public class ResponseDefinition {
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
-		result = prime
-				* result
-				+ ((causeSocketFailure == null) ? 0 : causeSocketFailure
-						.hashCode());
+		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
 		result = prime
 				* result
 				+ ((fixedDelayMilliseconds == null) ? 0
@@ -208,11 +206,7 @@ public class ResponseDefinition {
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
 			return false;
 		}
-		if (causeSocketFailure == null) {
-			if (other.causeSocketFailure != null) {
-				return false;
-			}
-		} else if (!causeSocketFailure.equals(other.causeSocketFailure)) {
+		if (fault != other.fault) {
 			return false;
 		}
 		if (fixedDelayMilliseconds == null) {
@@ -254,13 +248,7 @@ public class ResponseDefinition {
 
 	@Override
 	public String toString() {
-		return "ResponseDefinition [status=" + status + ", body=" + body
-				+ ", bodyFileName=" + bodyFileName + ", headers=" + headers
-				+ ", fixedDelayMilliseconds=" + fixedDelayMilliseconds
-				+ ", proxyBaseUrl=" + proxyBaseUrl + ", causeSocketFailure="
-				+ causeSocketFailure + ", wasConfigured=" + wasConfigured
-				+ ", originalRequest=" + originalRequest + "]";
+		return JsonMappingBinder.write(this);
 	}
-
 	
 }

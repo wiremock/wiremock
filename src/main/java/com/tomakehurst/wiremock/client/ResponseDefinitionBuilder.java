@@ -15,6 +15,7 @@
  */
 package com.tomakehurst.wiremock.client;
 
+import com.tomakehurst.wiremock.http.Fault;
 import com.tomakehurst.wiremock.http.HttpHeaders;
 import com.tomakehurst.wiremock.mapping.ResponseDefinition;
 
@@ -26,7 +27,7 @@ public class ResponseDefinitionBuilder {
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
-	private Boolean causeSocketFailure;
+	private Fault fault;
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
@@ -62,8 +63,8 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 	
-	public ResponseDefinitionBuilder withSocketFailureMidResponse() {
-		this.causeSocketFailure = true;
+	public ResponseDefinitionBuilder withFault(Fault fault) {
+		this.fault = fault;
 		return this;
 	}
 	
@@ -73,7 +74,7 @@ public class ResponseDefinitionBuilder {
 		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
-		response.setCauseSocketFailure(causeSocketFailure);
+		response.setFault(fault);
 		return response;
 	}
 }
