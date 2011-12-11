@@ -11,6 +11,7 @@ What it's good for
 -	Expressive unit tests for HTTP calling code
 -	Integrated BDD/ATDD
 -	Load testing
+-	Fault injection
 -	Quick REST API prototyping
  
 
@@ -34,7 +35,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.4</version>
+		<version>1.5</version>
 	</dependency>
 
 
@@ -144,6 +145,14 @@ Stub mappings can be configured to proxy requests to another host and port. This
 intercept and override certain responses. It can also be used in conjunction with the record feature described in the standalone section for capturing mappings
 from a session running against an external service. 
 
+### Fault injection
+WireMock stubs can generate various kinds of failure.
+
+	givenThat(get(urlEqualTo("/malformed/response")).willReturn(
+                aResponse()
+                .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
+                
+The <code>com.tomakehurst.wiremock.http.Fault</code> enum implements a number of different fault types. 
 
 JSON API
 --------
@@ -175,13 +184,14 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 				"Content-Type": "text/plain",
 				"Cache-Control": "no-cache"
 			},
+			"fixedDelayMilliseconds": 500,
 			"proxyBaseUrl": "http://someotherservice.com/root", // If you use this, exclude all other response attributes
-			"fixedDelayMilliseconds": 500
+			"fault": "EMPTY_RESPONSE" // If you use this, exclude all other response attributes
 		}												
 	}
 	
 In the request portion only the <code>method</code>, and either the <code>url</code> or <code>urlPattern</code> attributes are mandatory.
-In the response portion only the <code>status</code> attribute is mandatory unless proxyBaseUrl is specified, in which case all attributes except fixedDelayMilliseconds will be ignored.
+In the response portion only the <code>status</code> attribute is mandatory unless proxyBaseUrl or fault is specified, in which case all attributes except fixedDelayMilliseconds will be ignored.
 
 
 ### Counting requests matching a pattern
@@ -223,11 +233,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.4-standalone.jar
+	java -jar wiremock-1.5-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.4-standalone.jar --port 9999
+	java -jar wiremock-1.5-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.

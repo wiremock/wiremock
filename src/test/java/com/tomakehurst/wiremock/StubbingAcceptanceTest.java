@@ -125,8 +125,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void emptyResponseFault() {
 		givenThat(get(urlEqualTo("/empty/response")).willReturn(
                 aResponse()
-                .withStatus(200)
-                .withBody("Content")
                 .withFault(Fault.EMPTY_RESPONSE)));
 		
 		getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
@@ -136,8 +134,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void malformedResponseChunkFault() {
 		givenThat(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
-                .withStatus(200)
-                .withBody("Content")
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 		
 		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
@@ -147,8 +143,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void randomDataOnSocketFault() {
 		givenThat(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
-                .withStatus(200)
-                .withBody("Content")
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 		
 		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
