@@ -15,6 +15,9 @@
  */
 package com.tomakehurst.wiremock.testsupport;
 
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.size;
+
 import java.util.Iterator;
 
 import net.sf.json.test.JSONAssert;
@@ -22,6 +25,8 @@ import net.sf.json.test.JSONAssert;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.matchers.TypeSafeMatcher;
+
+import com.google.common.base.Predicate;
 
 public class WireMatchers {
 
@@ -79,9 +84,42 @@ public class WireMatchers {
 					}
 				}
 				
-				return true;
+				return !actualIter.hasNext();
 			}
     		
     	};
+    }
+    
+    public static <T> Matcher<Iterable<T>> hasExactlyIgnoringOrder(final Matcher<T>... items) {
+    	return new TypeSafeMatcher<Iterable<T>>() {
+
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("Collection elements must match, but don't have to be in the same order.");
+			}
+
+			@Override
+			public boolean matchesSafely(Iterable<T> actual) {
+				if (size(actual) != items.length) {
+					return false;
+				}
+				
+				for (final Matcher<T> matcher: items) {
+					if (find(actual, isMatchFor(matcher), null) == null) {
+						return false;
+					}
+				}
+				
+				return true;
+			}
+    	};
+    }
+    
+    private static <T> Predicate<T> isMatchFor(final Matcher<T> matcher) {
+    	return new Predicate<T>() {
+			public boolean apply(T input) {
+				return matcher.matches(input);
+			}
+		};
     }
 }

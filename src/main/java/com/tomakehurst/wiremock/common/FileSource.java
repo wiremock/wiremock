@@ -24,6 +24,7 @@ public interface FileSource {
 	void createIfNecessary();
 	FileSource child(String subDirectoryName);
 	String getPath();
-	List<TextFile> list();
+	List<TextFile> listFiles();
+	List<TextFile> listFilesRecursively();
 	void writeTextFile(String name, String contents);
 }

@@ -22,6 +22,7 @@ import static java.io.File.separator;
 import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class SingleRootFileSource implements FileSource {
 
 	public SingleRootFileSource(final String rootPath) {
 		this.rootPath = rootPath;
+		assertExistsAndIsDirectory();
 	}
 
 	@Override
@@ -62,21 +64,49 @@ public class SingleRootFileSource implements FileSource {
 	}
 
 	@Override
-	public List<TextFile> list() {
+	public List<TextFile> listFiles() {
 		File jsonDir = new File(rootPath);
-		if (jsonDir.exists() && !jsonDir.isDirectory()) {
-			throw new RuntimeException(jsonDir + " is not a directory");
-		} else if (!jsonDir.exists()) {
-			throw new RuntimeException(jsonDir + " does not exist");
+		List<File> fileList = asList(jsonDir.listFiles(filesOnly()));
+		return toTextFileList(fileList);
+	}
+
+	
+	@Override
+	public List<TextFile> listFilesRecursively() {
+		File jsonDir = new File(rootPath);
+		List<File> fileList = newArrayList();
+		recursivelyAddFilesToList(jsonDir, fileList);
+		return toTextFileList(fileList);
+	}
+	
+	private void recursivelyAddFilesToList(File root, List<File> fileList) {
+		File[] files = root.listFiles();
+		for (File file: files) {
+			if (file.isDirectory()) {
+				recursivelyAddFilesToList(file, fileList);
+			} else {
+				fileList.add(file);
+			}
 		}
-		
-		return newArrayList(transform(asList(jsonDir.listFiles()), new Function<File, TextFile>() {
+	}
+	
+	private List<TextFile> toTextFileList(List<File> fileList) {
+		return newArrayList(transform(fileList, new Function<File, TextFile>() {
 			public TextFile apply(File input) {
 				return new TextFile(input.getPath());
 			}
 		}));
 	}
 
+	private void assertExistsAndIsDirectory() {
+		File jsonDir = new File(rootPath);
+		if (jsonDir.exists() && !jsonDir.isDirectory()) {
+			throw new RuntimeException(jsonDir + " is not a directory");
+		} else if (!jsonDir.exists()) {
+			throw new RuntimeException(jsonDir + " does not exist");
+		}
+	}
+	
 	@Override
 	public void writeTextFile(String name, String contents) {
 		File toFile = new File(rootPath, name);
@@ -85,5 +115,13 @@ public class SingleRootFileSource implements FileSource {
 		} catch (IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
+	}
+	
+	private FileFilter filesOnly() {
+		return new FileFilter() {
+			public boolean accept(File file) {
+				return file.isFile();
+			}
+		};
 	}
 }

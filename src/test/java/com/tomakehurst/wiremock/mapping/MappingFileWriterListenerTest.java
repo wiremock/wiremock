@@ -64,8 +64,8 @@ public class MappingFileWriterListenerTest {
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
-			allowing(mappingsFileSource).list(); will(returnValue(emptyList()));
-			allowing(filesFileSource).list(); will(returnValue(emptyList()));
+			allowing(mappingsFileSource).listFiles(); will(returnValue(emptyList()));
+			allowing(filesFileSource).listFiles(); will(returnValue(emptyList()));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 			        with(jsonEqualTo(SAMPLE_REQUEST_MAPPING)));
 			one(filesFileSource).writeTextFile(with(equal("body-recorded-content-1$2!3.json")),
@@ -102,8 +102,8 @@ public class MappingFileWriterListenerTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-            allowing(mappingsFileSource).list(); will(returnValue(emptyList()));
-            allowing(filesFileSource).list(); will(returnValue(emptyList()));
+            allowing(mappingsFileSource).listFiles(); will(returnValue(emptyList()));
+            allowing(filesFileSource).listFiles(); will(returnValue(emptyList()));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
             one(filesFileSource).writeTextFile("body-headered-content-1$2!3.json", "Recorded body content");

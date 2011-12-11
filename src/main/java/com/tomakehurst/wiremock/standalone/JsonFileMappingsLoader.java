@@ -34,7 +34,7 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 	@Override
 	public void loadMappingsInto(Mappings mappings) {
 		JsonMappingCreator jsonMappingCreator = new JsonMappingCreator(mappings);
-		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.list(), byFileExtension("json"));
+		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
 			jsonMappingCreator.addMappingFrom(mappingFile.readContents());
 		}

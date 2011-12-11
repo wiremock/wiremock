@@ -45,4 +45,9 @@ public class TextFile {
 	public String name() {
 		return file.getName();
 	}
+	
+	@Override
+	public String toString() {
+		return file.getName();
+	}
 }
