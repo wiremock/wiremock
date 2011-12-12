@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: com.smokejumperit.gradle.OneJarPlugin
 apply plugin: 'maven'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.6
 group = 'com.tomakehurst'
 version = 1.7
 
