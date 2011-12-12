@@ -15,22 +15,22 @@
  */
 package com.tomakehurst.wiremock.testsupport;
 
-import static com.google.common.io.ByteStreams.toByteArray;
+import static com.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 
 public class WireMockResponse {
 	
 	private HttpResponse httpResponse;
+	private String content;
 	
 	public WireMockResponse(HttpResponse httpResponse) {
 		this.httpResponse = httpResponse;
+		content = getEntityAsStringAndCloseStream(httpResponse);
 	}
 
 	public int statusCode() {
@@ -38,13 +38,7 @@ public class WireMockResponse {
 	}
 	
 	public String content() {
-		try {
-			HttpEntity entity = httpResponse.getEntity();
-			return entity != null ? new String(toByteArray(entity.getContent())) : null; 
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
-		
+		return content;
 	}
 	
 	public String header(String key) {

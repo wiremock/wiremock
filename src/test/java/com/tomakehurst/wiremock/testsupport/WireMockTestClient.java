@@ -23,14 +23,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+
+import com.tomakehurst.wiremock.http.HttpClientFactory;
 
 public class WireMockTestClient {
 
@@ -126,10 +128,10 @@ public class WireMockTestClient {
 	}
 
 	private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, HttpHeader... headers) {
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpParams params = new BasicHttpParams();
+		HttpClient client = HttpClientFactory.createClient();
+		HttpParams params = client.getParams();
 		params.setParameter("http.protocol.handle-redirects", false);
-		client.setParams(params);
+		
 		try {
 			for (HttpHeader header: headers) {
 				httpRequest.addHeader(header.getName(), header.getValue());

@@ -15,7 +15,7 @@
  */
 package com.tomakehurst.wiremock.servlet;
 
-import static com.google.common.io.ByteStreams.toByteArray;
+import static com.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.http.RequestMethod.PUT;
 
@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
@@ -36,13 +36,10 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import com.google.common.base.Optional;
 import com.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.tomakehurst.wiremock.http.HttpClientFactory;
 import com.tomakehurst.wiremock.http.RequestMethod;
 import com.tomakehurst.wiremock.mapping.Request;
 import com.tomakehurst.wiremock.mapping.Response;
@@ -52,44 +49,35 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	
 	private static final int MINUTES = 1000 * 60;
 	
-	private final DefaultHttpClient client;
+	private final HttpClient client;
 	
 	public ProxyResponseRenderer() {
-	    final ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager();
-	    cm.setMaxTotal(100);
-	    client = new DefaultHttpClient(cm);
-        final HttpParams params = client.getParams();
-        HttpConnectionParams.setConnectionTimeout(params, 5 * MINUTES);
-        HttpConnectionParams.setSoTimeout(params, 5 * MINUTES);
+		client = HttpClientFactory.createClient(1000, 5 * MINUTES);
 	}
 
 	@Override
-	public Response render(final ResponseDefinition responseDefinition) {
-		final HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
+	public Response render(ResponseDefinition responseDefinition) {
+		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
 		addRequestHeaders(httpRequest, responseDefinition);
 		
 		try {
 			addBodyIfPostOrPut(httpRequest, responseDefinition);
-			final HttpResponse httpResponse = client.execute(httpRequest);
-			final Response response = new Response(httpResponse.getStatusLine().getStatusCode());
-			for (final Header header: httpResponse.getAllHeaders()) {
+			HttpResponse httpResponse = client.execute(httpRequest);
+			Response response = new Response(httpResponse.getStatusLine().getStatusCode());
+			for (Header header: httpResponse.getAllHeaders()) {
 				response.addHeader(header.getName(), header.getValue());
 			}
 			
-			final HttpEntity entity = httpResponse.getEntity();
-			if (entity != null) {
-				response.setBody(toByteArray(entity.getContent()));
-			}
-			
+			response.setBody(getEntityAsByteArrayAndCloseStream(httpResponse));
 			return response;
-		} catch (final IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	private static HttpUriRequest getHttpRequestFor(final ResponseDefinition response) {
-		final RequestMethod method = response.getOriginalRequest().getMethod();
-		final String url = response.getProxyBaseUrl() + response.getOriginalRequest().getUrl();
+	private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
+		RequestMethod method = response.getOriginalRequest().getMethod();
+		String url = response.getProxyBaseUrl() + response.getOriginalRequest().getUrl();
 		
 		switch (method) {
 		case GET:
@@ -111,25 +99,25 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 	
-	private static void addRequestHeaders(final HttpRequest httpRequest, final ResponseDefinition response) {
-		final Request originalRequest = response.getOriginalRequest(); 
-		for (final String key: originalRequest.getAllHeaderKeys()) {
+	private static void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
+		Request originalRequest = response.getOriginalRequest(); 
+		for (String key: originalRequest.getAllHeaderKeys()) {
 			if (!key.equals("Content-Length")) {
-				final String value = originalRequest.getHeader(key);
+				String value = originalRequest.getHeader(key);
 				httpRequest.addHeader(key, value);
 			}
 		}
 	}
 	
-	private static void addBodyIfPostOrPut(final HttpRequest httpRequest, final ResponseDefinition response) throws UnsupportedEncodingException {
-		final Request originalRequest = response.getOriginalRequest();
+	private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
+		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod() == POST || originalRequest.getMethod() == PUT) {
-			final HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
-			final Optional<ContentTypeHeader> optionalContentType = ContentTypeHeader.getFrom(originalRequest);
-			final String body = originalRequest.getBodyAsString();
+			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
+			Optional<ContentTypeHeader> optionalContentType = ContentTypeHeader.getFrom(originalRequest);
+			String body = originalRequest.getBodyAsString();
 			
 			if (optionalContentType.isPresent()) {
-				final ContentTypeHeader header = optionalContentType.get();
+				ContentTypeHeader header = optionalContentType.get();
 				requestWithEntity.setEntity(new StringEntity(body,
 						header.mimeTypePart(),
 						header.encodingPart().isPresent() ? header.encodingPart().get() : "utf-8"));

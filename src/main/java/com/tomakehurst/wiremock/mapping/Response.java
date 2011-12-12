@@ -75,6 +75,10 @@ public class Response {
 	}
 	
 	public void setBody(byte[] body) {
+		if (body == null) {
+			return;
+		}
+		
 		this.body = body;
 	}
 	
