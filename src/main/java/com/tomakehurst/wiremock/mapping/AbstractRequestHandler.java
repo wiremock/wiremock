@@ -19,38 +19,28 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
-import com.tomakehurst.wiremock.common.DoNothingExceptionHandler;
-import com.tomakehurst.wiremock.common.ExceptionHandler;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 
 public abstract class AbstractRequestHandler implements RequestHandler {
 
 	protected List<RequestListener> listeners = newArrayList();
-	protected ExceptionHandler exceptionHandler;
 	protected final ResponseRenderer responseRenderer;
 	
-	public AbstractRequestHandler(final ResponseRenderer responseRenderer) {
+	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
 		this.responseRenderer = responseRenderer;
-		this.exceptionHandler = new DoNothingExceptionHandler();
 	}
 
 	@Override
-	public void addRequestListener(final RequestListener requestListener) {
+	public void addRequestListener(RequestListener requestListener) {
 		listeners.add(requestListener);
 	}
 
 	@Override
-	public Response handle(final Request request) {
-		final ResponseDefinition responseDefinition;
-		try {
-		    responseDefinition = handleRequest(request);
-		} catch (final RuntimeException e) {
-		    return exceptionHandler.handle(e);
-		}
-		
+	public Response handle(Request request) {
+		ResponseDefinition responseDefinition = handleRequest(request);
 		responseDefinition.setOriginalRequest(request);
-		final Response response = responseRenderer.render(responseDefinition);
-		for (final RequestListener listener: listeners) {
+		Response response = responseRenderer.render(responseDefinition);
+		for (RequestListener listener: listeners) {
 			listener.requestReceived(request, response);
 		}
 		
@@ -58,8 +48,4 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 	}
 	
 	protected abstract ResponseDefinition handleRequest(Request request);
-
-    public void setExceptionHandler(final ExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-    }
 }

@@ -27,7 +27,6 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.Log4jNotifier;
-import com.tomakehurst.wiremock.common.LoggingExceptionHandler;
 import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -54,29 +53,28 @@ public class WireMockServer {
 	private Server jettyServer;
 	private final Mappings mappings;
 	private final InMemoryRequestJournal requestJournal;
-	private final MockServiceRequestHandler mockServiceRequestHandler;
-	private final AdminRequestHandler mappingRequestHandler;
+	private final RequestHandler mockServiceRequestHandler;
+	private final RequestHandler mappingRequestHandler;
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final Log4jNotifier notifier;
 	private final int port;
 	
-	public WireMockServer(final int port, final FileSource fileSource) {
+	public WireMockServer(int port, FileSource fileSource) {
 		globalSettingsHolder = new GlobalSettingsHolder();
 		mappings = new InMemoryMappings();
 		requestJournal = new InMemoryRequestJournal();
-		notifier = new Log4jNotifier();
 		mockServiceRequestHandler = new MockServiceRequestHandler(mappings,
 				new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
-		mockServiceRequestHandler.setExceptionHandler(new LoggingExceptionHandler(notifier));
 		mockServiceRequestHandler.addRequestListener(requestJournal);
 		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
 				new BasicResponseRenderer());
+		notifier = new Log4jNotifier();
 		this.fileSource = fileSource;
 		this.port = port;
 	}
 	
-	public WireMockServer(final int port) {
+	public WireMockServer(int port) {
 		this(port, new SingleRootFileSource("src/test/resources"));
 	}
 	
@@ -88,18 +86,18 @@ public class WireMockServer {
 		mappingsLoader.loadMappingsInto(mappings);
 	}
 	
-	public void addMockServiceRequestListener(final RequestListener listener) {
+	public void addMockServiceRequestListener(RequestListener listener) {
 		mockServiceRequestHandler.addRequestListener(listener);
 	}
 	
-	public void setVerboseLogging(final boolean verbose) {
+	public void setVerboseLogging(boolean verbose) {
 		notifier.setVerbose(verbose);
 	}
 	
 	public void stop() {
 		try {
 			jettyServer.stop();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -111,16 +109,16 @@ public class WireMockServer {
 
 		try {
 			jettyServer.start();
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     private void addMockServiceContext() {
-        final Context mockServiceContext = new Context(jettyServer, "/");
+        Context mockServiceContext = new Context(jettyServer, "/");
         
-        final Map initParams = newHashMap();
+        Map initParams = newHashMap();
         initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
         initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
         initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
@@ -131,7 +129,7 @@ public class WireMockServer {
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
 		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		
-		final MimeTypes mimeTypes = new MimeTypes();
+		MimeTypes mimeTypes = new MimeTypes();
 		mimeTypes.addMimeMapping("json", "application/json");
 		mimeTypes.addMimeMapping("html", "text/html");
 		mimeTypes.addMimeMapping("xml", "application/xml");
@@ -147,7 +145,7 @@ public class WireMockServer {
     }
 
     private void addAdminContext() {
-        final Context adminContext = new Context(jettyServer, "/__admin");
+        Context adminContext = new Context(jettyServer, "/__admin");
 		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
 		adminContext.setAttribute(Notifier.KEY, notifier);
