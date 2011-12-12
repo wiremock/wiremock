@@ -28,23 +28,27 @@ public class LocalNotifier {
 		return notifier;
 	}
 	
-	public static void set(Notifier notifier) {
+	public static void set(final Notifier notifier) {
 		notifierHolder.set(notifier);
 	}
 	
 	private static class NullNotifier implements Notifier {
 
 		@Override
-		public void info(String message) {
+		public void info(final String message) {
 		}
 
 		@Override
-		public void error(String message) {
+		public void error(final String message) {
 		}
 
 		@Override
-		public void error(String message, Throwable t) {
+		public void error(final String message, final Throwable t) {
 		}
+
+        @Override
+        public void error(final Throwable t) {
+        }
 		
 	}
 }

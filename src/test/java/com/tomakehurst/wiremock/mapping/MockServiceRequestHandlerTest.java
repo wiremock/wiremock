@@ -17,6 +17,7 @@ package com.tomakehurst.wiremock.mapping;
 
 import static com.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -27,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.tomakehurst.wiremock.common.ExceptionHandler;
+import com.tomakehurst.wiremock.common.LoggingExceptionHandler;
+import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.servlet.ResponseRenderer;
 
 @RunWith(JMock.class)
@@ -35,6 +39,9 @@ public class MockServiceRequestHandlerTest {
 	private Mockery context;
 	private Mappings mappings;
 	private ResponseRenderer responseRenderer;
+	private Notifier notifier;
+	private ExceptionHandler exceptionHandler;
+	
 	
 	private MockServiceRequestHandler requestHandler;
 	
@@ -43,6 +50,8 @@ public class MockServiceRequestHandlerTest {
 		context = new Mockery();
 		mappings = context.mock(Mappings.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
+		notifier = context.mock(Notifier.class);
+		exceptionHandler = new LoggingExceptionHandler(notifier);
 		requestHandler = new MockServiceRequestHandler(mappings, responseRenderer);
 	}
 	
@@ -50,16 +59,16 @@ public class MockServiceRequestHandlerTest {
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
 			allowing(mappings).getFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
-			Response response = new Response(200);
+			final Response response = new Response(200);
 			response.setBody("Body content");
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
 		}});
 		
-		Request request = aRequest(context)
+		final Request request = aRequest(context)
 			.withUrl("/the/required/resource")
 			.withMethod(GET)
 			.build();
-		Response response = requestHandler.handle(request);
+		final Response response = requestHandler.handle(request);
 		
 		assertThat(response.getStatus(), is(200));
 		assertThat(response.getBodyAsString(), is("Body content"));
@@ -78,5 +87,18 @@ public class MockServiceRequestHandlerTest {
 		}});
 		
 		requestHandler.handle(request);
+	}
+	
+	@Test
+	public void delegatesToExceptionHandlerWhenRuntimeExceptionThrown() {
+	    requestHandler.setExceptionHandler(exceptionHandler);
+	    context.checking(new Expectations() {{
+	        allowing(mappings).getFor(with(any(Request.class))); will(throwException(new RuntimeException()));
+	        one(notifier).error(with(any(RuntimeException.class)));
+        }});
+	    
+	    final Response response = requestHandler.handle(aRequest(context).build());
+	    assertThat(response.getBodyAsString(), containsString("java.lang.RuntimeException"));
+	    
 	}
 }

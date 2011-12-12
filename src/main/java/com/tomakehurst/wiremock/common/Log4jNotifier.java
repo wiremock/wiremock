@@ -28,7 +28,7 @@ public class Log4jNotifier implements Notifier {
 		setVerbose(false);
 	}
 	
-	public void setVerbose(boolean verbose) {
+	public void setVerbose(final boolean verbose) {
 		if (verbose) {
 			PropertyConfigurator.configure(classPathFile("log4j-verbose.properties"));
 		} else {
@@ -36,24 +36,29 @@ public class Log4jNotifier implements Notifier {
 		}
 	}
 	
-	private URL classPathFile(String path) {
+	private URL classPathFile(final String path) {
 		return Thread.currentThread().getContextClassLoader().getResource(path);
 	}
 
 	@Override
-	public void info(String message) {
+	public void info(final String message) {
 		log.info(message);
 		
 	}
 
 	@Override
-	public void error(String message) {
+	public void error(final String message) {
 		log.error(message);
 		
 	}
 
 	@Override
-	public void error(String message, Throwable t) {
+	public void error(final String message, final Throwable t) {
 		log.error(message, t);
 	}
+
+    @Override
+    public void error(final Throwable t) {
+        log.error(t);
+    }
 }

@@ -17,9 +17,12 @@ package com.tomakehurst.wiremock.mapping;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.tomakehurst.wiremock.http.HttpServletResponseUtils.getUnderlyingSocketFrom;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -33,19 +36,28 @@ import com.tomakehurst.wiremock.http.HttpHeaders;
 
 public class Response {
 
-	private int status;
+	private final int status;
 	private byte[] body = new byte[0];
-	private HttpHeaders headers = new HttpHeaders();
+	private final HttpHeaders headers = new HttpHeaders();
 	private boolean configured = true;
 	private Fault fault;
 	
 	public static Response notConfigured() {
-		Response response = new Response(HTTP_NOT_FOUND);
+		final Response response = new Response(HTTP_NOT_FOUND);
 		response.setWasConfigured(false);
 		return response;
 	}
 	
-	public Response(int status) {
+	public static Response error(final Throwable ex) {
+	    final Response response = new Response(HTTP_INTERNAL_ERROR);
+	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    ex.printStackTrace(new PrintStream(out));
+	    response.body = out.toByteArray();
+        response.setWasConfigured(false);
+        return response;
+	}
+	
+	public Response(final int status) {
 		this.status = status;
 	}
 
@@ -53,12 +65,12 @@ public class Response {
 		return status;
 	}
 	
-	public void setBody(String body) {
+	public void setBody(final String body) {
 		if (body == null) {
 			return;
 		}
 		
-		Optional<String> encoding = getEncodingFromHeaderIfAvailable();
+		final Optional<String> encoding = getEncodingFromHeaderIfAvailable();
 		if (encoding.isPresent()) {
 			this.body = body.getBytes(Charset.forName(encoding.get()));
 		} else {
@@ -66,7 +78,7 @@ public class Response {
 		}
 	}
 	
-	public void setBody(String body, String charset) {
+	public void setBody(final String body, final String charset) {
 		if (body == null) {
 			return;
 		}
@@ -74,12 +86,12 @@ public class Response {
 		this.body = body.getBytes(Charset.forName(charset));
 	}
 	
-	public void setBody(byte[] body) {
+	public void setBody(final byte[] body) {
 		this.body = body;
 	}
 	
 	public String getBodyAsString() {
-		Optional<String> encoding = getEncodingFromHeaderIfAvailable();
+		final Optional<String> encoding = getEncodingFromHeaderIfAvailable();
 		if (encoding.isPresent()) {
 			return new String(body, Charset.forName(encoding.get()));
 		} else {
@@ -91,34 +103,34 @@ public class Response {
 		return headers;
 	}
 	
-	public void addHeader(String key, String value) {
+	public void addHeader(final String key, final String value) {
 		headers.put(key, value);
 	}
 	
-	public void addHeaders(Map<String, String> newHeaders) {
+	public void addHeaders(final Map<String, String> newHeaders) {
 		if (newHeaders != null) {
 			headers.putAll(newHeaders);
 		}
 	}
 	
-	public void applyTo(HttpServletResponse httpServletResponse) {
+	public void applyTo(final HttpServletResponse httpServletResponse) {
 		if (fault != null) {
 			fault.apply(httpServletResponse, getUnderlyingSocketFrom(httpServletResponse));
 			return;
 		}
 		
 		httpServletResponse.setStatus(status);
-		for (Map.Entry<String, String> header: headers.entrySet()) {
+		for (final Map.Entry<String, String> header: headers.entrySet()) {
 			httpServletResponse.addHeader(header.getKey(), header.getValue());
 		}
 		
 		writeAndTranslateExceptions(httpServletResponse, body);
 	}
 	
-	private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
+	private static void writeAndTranslateExceptions(final HttpServletResponse httpServletResponse, final byte[] content) {
 		try {	
 			httpServletResponse.getOutputStream().write(content);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -128,7 +140,7 @@ public class Response {
 			return Optional.absent();
 		}
 		
-		ContentTypeHeader contentTypeHeader = new ContentTypeHeader(headers.get(ContentTypeHeader.KEY));
+		final ContentTypeHeader contentTypeHeader = new ContentTypeHeader(headers.get(ContentTypeHeader.KEY));
 		return contentTypeHeader.encodingPart();
 	}
 
@@ -136,11 +148,11 @@ public class Response {
 		return configured;
 	}
 
-	public void setWasConfigured(boolean configured) {
+	public void setWasConfigured(final boolean configured) {
 		this.configured = configured;
 	}
 
-	public void setFault(Fault fault) {
+	public void setFault(final Fault fault) {
 		this.fault = fault;
 	}
 

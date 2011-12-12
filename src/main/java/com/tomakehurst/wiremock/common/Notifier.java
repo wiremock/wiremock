@@ -22,4 +22,5 @@ public interface Notifier {
 	void info(String message);
 	void error(String message);
 	void error(String message, Throwable t);
+	void error(Throwable t);
 }
