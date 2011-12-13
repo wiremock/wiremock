@@ -15,29 +15,30 @@
  */
 package com.tomakehurst.wiremock.common;
 
+import static com.google.common.base.Charsets.UTF_8;
+
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
-import com.google.common.io.CharStreams;
+import com.google.common.io.Files;
 
 public class TextFile {
 
-	private File file;
+	private final File file;
 	
-	public TextFile(String filePath) {
+	public TextFile(final String filePath) {
 		file = new File(filePath);
 	}
 	
-	public TextFile(File file) {
+	public TextFile(final File file) {
 		this.file = file;
 	}
 	
 	public String readContents() {
 		try {
-			String json = CharStreams.toString(new FileReader(file));
+			final String json = Files.toString(file, UTF_8);
 			return json;
-		} catch (IOException ioe) {
+		} catch (final IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
 	}
