@@ -121,7 +121,7 @@ The request body can also be specified as a regex:
 	
 or like this:
 
-	.withBodyContaining("Something");
+	.withBodyContaining("Something")
 	
 ### Verifiying a precise number of requests
 An alternate form of the <code>verify</code> call is:
