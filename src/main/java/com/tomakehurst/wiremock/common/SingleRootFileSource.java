@@ -35,7 +35,6 @@ public class SingleRootFileSource implements FileSource {
 
 	public SingleRootFileSource(final String rootPath) {
 		this.rootPath = rootPath;
-		assertExistsAndIsDirectory();
 	}
 
 	@Override
@@ -65,6 +64,7 @@ public class SingleRootFileSource implements FileSource {
 
 	@Override
 	public List<TextFile> listFiles() {
+		assertExistsAndIsDirectory();
 		File jsonDir = new File(rootPath);
 		List<File> fileList = asList(jsonDir.listFiles(filesOnly()));
 		return toTextFileList(fileList);
@@ -73,6 +73,7 @@ public class SingleRootFileSource implements FileSource {
 	
 	@Override
 	public List<TextFile> listFilesRecursively() {
+		assertExistsAndIsDirectory();
 		File jsonDir = new File(rootPath);
 		List<File> fileList = newArrayList();
 		recursivelyAddFilesToList(jsonDir, fileList);
@@ -109,6 +110,7 @@ public class SingleRootFileSource implements FileSource {
 	
 	@Override
 	public void writeTextFile(String name, String contents) {
+		assertExistsAndIsDirectory();
 		File toFile = new File(rootPath, name);
 		try {
 			Files.write(contents, toFile, UTF_8);

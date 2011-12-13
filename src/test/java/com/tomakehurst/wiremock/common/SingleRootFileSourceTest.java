@@ -52,8 +52,21 @@ public class SingleRootFileSourceTest {
 	}
 	
 	@Test(expected=RuntimeException.class)
-	public void throwsExceptionWhenRootIsNotDir() {
-		new SingleRootFileSource("src/test/resources/filesource/one");
+	public void listFilesThrowsExceptionWhenRootIsNotDir() {
+		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
+		fileSource.listFiles();
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
+		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
+		fileSource.listFilesRecursively();
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void writehrowsExceptionWhenRootIsNotDir() {
+		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
+		fileSource.writeTextFile("thing", "stuff");
 	}
 	
 	private Matcher<TextFile> fileNamed(final String name) {

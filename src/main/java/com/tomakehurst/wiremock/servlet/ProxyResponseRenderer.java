@@ -16,6 +16,7 @@
 package com.tomakehurst.wiremock.servlet;
 
 import static com.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
+import static com.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.tomakehurst.wiremock.http.RequestMethod.PUT;
 
@@ -78,6 +79,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		RequestMethod method = response.getOriginalRequest().getMethod();
 		String url = response.getProxyBaseUrl() + response.getOriginalRequest().getUrl();
+		notifier().info("Proxying: " + method + " " + url);
 		
 		switch (method) {
 		case GET:
