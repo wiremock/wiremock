@@ -75,6 +75,13 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
 				.withBodyMatching(".*\"importantKey\": \"Important value\".*"));
 	}
 	
+	@Test
+	public void verifiesWithBodyContaining() {
+		testClient.postWithBody("/body/contains", SAMPLE_JSON, "application/json", "utf-8");
+		verify(postRequestedFor(urlEqualTo("/body/contains"))
+				.withBodyContaining("Important value"));
+	}
+	
 	@Test(expected=VerificationException.class)
 	public void resetErasesCounters() {
 		testClient.get("/count/this");

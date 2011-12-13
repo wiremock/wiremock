@@ -44,6 +44,11 @@ public class RequestPatternBuilder {
 		this.bodyPattern = bodyPattern;
 		return this;
 	}
+	
+	public RequestPatternBuilder withBodyContaining(String part) {
+		this.bodyPattern = ".*" + part + ".*";
+		return this;
+	}
 
 	public RequestPattern build() {
 		RequestPattern requestPattern = new RequestPattern();
