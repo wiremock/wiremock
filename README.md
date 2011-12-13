@@ -119,6 +119,10 @@ The request body can also be specified as a regex:
 
 	.withBodyMatching(".*Something.*")
 	
+or like this:
+
+	.withBodyContaining("Something");
+	
 ### Verifiying a precise number of requests
 An alternate form of the <code>verify</code> call is:
 
