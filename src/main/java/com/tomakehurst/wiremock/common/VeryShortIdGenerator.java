@@ -19,10 +19,10 @@ import java.util.Random;
 
 public class VeryShortIdGenerator implements IdGenerator {
     
-    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#&+!()-{}";
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     public String generate() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 5; i++) {
             sb.append(randomChar());
         }
@@ -31,8 +31,8 @@ public class VeryShortIdGenerator implements IdGenerator {
     }
     
     private static char randomChar() {
-        Random random = new Random();
-        int index = random.nextInt(CHARS.length());
+        final Random random = new Random();
+        final int index = random.nextInt(CHARS.length());
         return CHARS.charAt(index);
     }
 }
