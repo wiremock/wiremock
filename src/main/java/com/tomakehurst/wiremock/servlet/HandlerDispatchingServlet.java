@@ -42,7 +42,8 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) {
 		ServletContext context = config.getServletContext();
-		requestHandler = (RequestHandler) context.getAttribute(RequestHandler.CONTEXT_KEY);
+		String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 

@@ -27,6 +27,7 @@ import org.hamcrest.Matcher;
 import org.junit.matchers.TypeSafeMatcher;
 
 import com.google.common.base.Predicate;
+import com.tomakehurst.wiremock.common.TextFile;
 
 public class WireMatchers {
 
@@ -121,5 +122,20 @@ public class WireMatchers {
 				return matcher.matches(input);
 			}
 		};
+    }
+    
+    public static Matcher<TextFile> fileNamed(final String name) {
+        return new TypeSafeMatcher<TextFile>() {
+
+            @Override
+            public void describeTo(Description desc) {
+            }
+
+            @Override
+            public boolean matchesSafely(TextFile textFile) {
+                return textFile.name().equals(name);
+            }
+            
+        };
     }
 }

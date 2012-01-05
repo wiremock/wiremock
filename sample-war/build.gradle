@@ -1,0 +1,18 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'war'
+apply plugin: 'maven'
+
+sourceCompatibility = 1.6
+group = 'com.github.tomakehurst'
+version = 1
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "javax.servlet:servlet-api:2.4"
+	compile "log4j:log4j:1.2.16"
+	compile "com.tomakehurst:wiremock:1.7"
+}

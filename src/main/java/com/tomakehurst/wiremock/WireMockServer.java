@@ -24,25 +24,20 @@ import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
+import org.mortbay.jetty.servlet.ServletHolder;
 
 import com.tomakehurst.wiremock.common.FileSource;
 import com.tomakehurst.wiremock.common.Log4jNotifier;
 import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.tomakehurst.wiremock.mapping.AdminRequestHandler;
-import com.tomakehurst.wiremock.mapping.InMemoryMappings;
-import com.tomakehurst.wiremock.mapping.Mappings;
 import com.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestHandler;
 import com.tomakehurst.wiremock.mapping.RequestListener;
-import com.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
-import com.tomakehurst.wiremock.servlet.MockServiceResponseRenderer;
 import com.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 
 public class WireMockServer {
 
@@ -50,28 +45,19 @@ public class WireMockServer {
 	public static final int DEFAULT_PORT = 8080;
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
+	private WireMockApp wireMockApp;
+	
 	private Server jettyServer;
-	private final Mappings mappings;
-	private final InMemoryRequestJournal requestJournal;
-	private final RequestHandler mockServiceRequestHandler;
-	private final RequestHandler mappingRequestHandler;
 	private final FileSource fileSource;
-	private final GlobalSettingsHolder globalSettingsHolder;
 	private final Log4jNotifier notifier;
 	private final int port;
 	
 	public WireMockServer(int port, FileSource fileSource) {
-		globalSettingsHolder = new GlobalSettingsHolder();
-		mappings = new InMemoryMappings();
-		requestJournal = new InMemoryRequestJournal();
-		mockServiceRequestHandler = new MockServiceRequestHandler(mappings,
-				new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
-		mockServiceRequestHandler.addRequestListener(requestJournal);
-		mappingRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
-				new BasicResponseRenderer());
 		notifier = new Log4jNotifier();
 		this.fileSource = fileSource;
 		this.port = port;
+		
+		wireMockApp = new WireMockApp(fileSource, notifier);
 	}
 	
 	public WireMockServer(int port) {
@@ -83,11 +69,11 @@ public class WireMockServer {
 	}
 	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		mappingsLoader.loadMappingsInto(mappings);
+		wireMockApp.loadMappingsUsing(mappingsLoader);
 	}
 	
 	public void addMockServiceRequestListener(RequestListener listener) {
-		mockServiceRequestHandler.addRequestListener(listener);
+		wireMockApp.addMockServiceRequestListener(listener);
 	}
 	
 	public void setVerboseLogging(boolean verbose) {
@@ -123,11 +109,13 @@ public class WireMockServer {
         initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
         initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
         mockServiceContext.setInitParams(initParams);
+        
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
-		mockServiceContext.setAttribute(RequestHandler.CONTEXT_KEY, mockServiceRequestHandler);
+		mockServiceContext.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
-		mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+		ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, MockServiceRequestHandler.class.getName());
 		
 		MimeTypes mimeTypes = new MimeTypes();
 		mimeTypes.addMimeMapping("json", "application/json");
@@ -146,11 +134,12 @@ public class WireMockServer {
 
     private void addAdminContext() {
         Context adminContext = new Context(jettyServer, "/__admin");
-		adminContext.addServlet(HandlerDispatchingServlet.class, "/");
-		adminContext.setAttribute(RequestHandler.CONTEXT_KEY, mappingRequestHandler);
+		ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
+		adminContext.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
 		adminContext.setAttribute(Notifier.KEY, notifier);
 		jettyServer.addHandler(adminContext);
     }
-	
-	
+    
+    
 }

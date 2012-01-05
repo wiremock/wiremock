@@ -17,7 +17,7 @@ package com.tomakehurst.wiremock.mapping;
 
 public interface RequestHandler {
 	
-	public static final String CONTEXT_KEY = "RequestHandler";
+	public static final String HANDLER_CLASS_KEY = "RequestHandlerClass";
 
 	Response handle(Request request);
 	void addRequestListener(RequestListener requestListener);
