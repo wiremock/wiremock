@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tomakehurst.wiremock.WireMockServer;
+import com.tomakehurst.wiremock.WireMockApp;
 import com.tomakehurst.wiremock.common.LocalNotifier;
 import com.tomakehurst.wiremock.common.Notifier;
 import com.tomakehurst.wiremock.mapping.Request;
@@ -38,11 +38,18 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	
 	private RequestHandler requestHandler;
 	private Notifier notifier;
+	private String wiremockFileSourceRoot = "/";
 	
 	@Override
 	public void init(ServletConfig config) {
-		ServletContext context = config.getServletContext();
+	    ServletContext context = config.getServletContext();
+	    
+	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
+	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
+	    }
+		
 		String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName);
 		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
@@ -62,7 +69,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {
-        String forwardUrl = "/" + WireMockServer.FILES_ROOT + request.getUrl();
+        String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getUrl();
         RequestDispatcher dispatcher = httpServletRequest.getRequestDispatcher(forwardUrl);
         dispatcher.forward(httpServletRequest, httpServletResponse);
     }

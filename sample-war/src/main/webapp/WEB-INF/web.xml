@@ -10,12 +10,17 @@
   	<description>Loads WireMock and populates the servlet context with its services</description>
   </listener>
   
+  <context-param>
+  	<param-name>WireMockFileSourceRoot</param-name>
+  	<param-value>/WEB-INF/wiremock</param-value>
+  </context-param>
+  
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
   	<servlet-class>com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.tomakehurst.wiremock.MockServiceRequestHandler</param-value>
+  		<param-value>com.tomakehurst.wiremock.mapping.MockServiceRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>
@@ -28,7 +33,7 @@
   	<servlet-class>com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.tomakehurst.wiremock.AdminRequestHandler</param-value>
+  		<param-value>com.tomakehurst.wiremock.mapping.AdminRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>
