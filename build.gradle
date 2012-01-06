@@ -1,6 +1,6 @@
 buildscript {
-	def githubBase = 'https://github.com/valkolovos/gradle_cobertura/raw/master/ivy'
-    apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
+	//def githubBase = 'https://github.com/valkolovos/gradle_cobertura/raw/master/ivy'
+    //apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
     
 	repositories {
     	mavenRepo urls:['http://repo.smokejumperit.com', 'https://oss.sonatype.org']
@@ -49,10 +49,12 @@ jar {
     }
 }
 
+def releaseDirUrl
+
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "file:///Users/tomakehurst/dev/tomakehurst-mvn-repo/releases/")
+            repository(url: 'file:///Users/tomakehurst/dev/tomakehurst-mvn-repo/releases/')
             pom.artifactId = 'wiremock'
         }
     }
@@ -60,4 +62,27 @@ uploadArchives {
 
 task release {
 	dependsOn clean, oneJar, uploadArchives
+}
+
+task 'set-release-dir' << {
+	def console = System.console()
+	if (console) {
+		println ''
+		def releaseDir = console.readLine('> Please enter the full path to the release dir: ')
+		println ''
+		releaseDirUrl = 'file://' + releaseDir
+		if (!releaseDirUrl.endsWith('/')) {
+			releaseDirUrl = releaseDirUrl + '/';
+		}
+		
+		tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
+		
+		println 'Release dir set to: ' + releaseDirUrl
+	} else {
+		logger.error "Cannot get console."
+	}
+}
+
+task 'release-to' {
+	dependsOn 'set-release-dir', clean, oneJar, uploadArchives
 }
