@@ -237,11 +237,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.7-standalone.jar
+	java -jar wiremock-1.8-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.7-standalone.jar --port 9999
+	java -jar wiremock-1.8-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
