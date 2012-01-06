@@ -35,7 +35,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.7</version>
+		<version>1.8</version>
 	</dependency>
 
 
