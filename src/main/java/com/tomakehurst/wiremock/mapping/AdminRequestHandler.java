@@ -15,6 +15,7 @@
  */
 package com.tomakehurst.wiremock.mapping;
 
+import static com.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.buildRequestPatternFrom;
 import static com.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -27,8 +28,8 @@ import com.tomakehurst.wiremock.verification.RequestJournal;
 import com.tomakehurst.wiremock.verification.VerificationResult;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
-	
-	private final Mappings mappings;
+    
+    private final Mappings mappings;
 	private final JsonMappingCreator jsonMappingCreator;
 	private final RequestJournal requestJournal;
 	private final GlobalSettingsHolder globalSettingsHolder;
@@ -63,7 +64,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	}
 
 	private boolean isGlobalSettingsUpdateRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/settings");
+		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/settings");
 	}
 
 	private ResponseDefinition getRequestCount(Request request) {
@@ -75,15 +76,19 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	}
 
 	private boolean isResetRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/reset");
+		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/reset");
 	}
 
 	private boolean isNewMappingRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/mappings/new");
+		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/new");
 	}
 	
 	private boolean isRequestCountRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && request.getUrl().equals("/requests/count");
+		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/count");
+	}
+	
+	private static String withoutAdminRoot(String url) {
+	    return url.replace(ADMIN_CONTEXT_ROOT, "");
 	}
 	
 }

@@ -24,6 +24,8 @@ public class WireMockApp {
     private final RequestHandler adminRequestHandler;
     private final GlobalSettingsHolder globalSettingsHolder;
 
+    public static final String ADMIN_CONTEXT_ROOT = "/__admin";
+
     public WireMockApp(FileSource fileSource, Notifier notifier) {
         globalSettingsHolder = new GlobalSettingsHolder();
         mappings = new InMemoryMappings();

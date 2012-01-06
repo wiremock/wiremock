@@ -34,7 +34,6 @@ dependencies {
 	
 	testCompile "junit:junit:4.8"
 	testCompile "org.hamcrest:hamcrest-all:1.1"
-	testCompile "org.springframework:spring-test:3.0.5.RELEASE", "org.springframework:spring-core:3.0.5.RELEASE"
 	testCompile "org.jmock:jmock:2.5.1", "org.jmock:jmock-junit4:2.5.1"
 	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
 }

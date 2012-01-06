@@ -16,6 +16,7 @@
 package com.tomakehurst.wiremock;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static com.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
 
 import java.util.Map;
 
@@ -133,7 +134,7 @@ public class WireMockServer {
     }
 
     private void addAdminContext() {
-        Context adminContext = new Context(jettyServer, "/__admin");
+        Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
 		ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
 		adminContext.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
