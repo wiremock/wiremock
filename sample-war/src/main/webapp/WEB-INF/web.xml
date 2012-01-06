@@ -6,7 +6,7 @@
   
   <listener>
   	<display-name>wiremock-startup-listener</display-name>
-  	<listener-class>com.tomakehurst.wiremock.servlet.WireMockWebContextListener</listener-class>
+  	<listener-class>com.github.tomakehurst.wiremock.servlet.WireMockWebContextListener</listener-class>
   	<description>Loads WireMock and populates the servlet context with its services</description>
   </listener>
   
@@ -17,10 +17,10 @@
   
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
-  	<servlet-class>com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.tomakehurst.wiremock.mapping.MockServiceRequestHandler</param-value>
+  		<param-value>com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>
@@ -30,10 +30,10 @@
   
   <servlet>
   	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
-  	<servlet-class>com.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.tomakehurst.wiremock.mapping.AdminRequestHandler</param-value>
+  		<param-value>com.github.tomakehurst.wiremock.mapping.AdminRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>

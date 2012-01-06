@@ -33,7 +33,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 ...and this to your dependencies:
 
 	<dependency>
-		<groupId>com.tomakehurst</groupId>
+		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
 		<version>1.7</version>
 	</dependency>
@@ -84,10 +84,10 @@ You can then write a test case like this:
 				.withHeader("Content-Type", notMatching("application/json")));
 	}
 	
-All the API calls above are static methods on the com.tomakehurst.wiremock.client.WireMock class, so you'll need to add:
+All the API calls above are static methods on the com.github.tomakehurst.wiremock.client.WireMock class, so you'll need to add:
 
-	import static com.tomakehurst.wiremock.client.WireMock.aResponse;
-	import static com.tomakehurst.wiremock.client.WireMock.equalTo;
+	import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+	import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 	...
 
 ### URL matching
@@ -156,7 +156,7 @@ WireMock stubs can generate various kinds of failure.
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
                 
-The <code>com.tomakehurst.wiremock.http.Fault</code> enum implements a number of different fault types. 
+The <code>com.github.tomakehurst.wiremock.http.Fault</code> enum implements a number of different fault types. 
 
 JSON API
 --------
