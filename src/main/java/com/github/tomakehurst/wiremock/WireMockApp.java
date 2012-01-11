@@ -13,6 +13,7 @@ import com.github.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.servlet.MockServiceResponseRenderer;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 public class WireMockApp {
     
@@ -47,6 +48,10 @@ public class WireMockApp {
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
         return globalSettingsHolder;
+    }
+    
+    public RequestJournal getRequestJournal() {
+        return requestJournal;
     }
     
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {

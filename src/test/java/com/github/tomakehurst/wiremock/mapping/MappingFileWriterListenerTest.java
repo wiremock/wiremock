@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.mapping;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.jsonEqualTo;
-import static java.util.Collections.emptyList;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -29,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 @RunWith(JMock.class)
 public class MappingFileWriterListenerTest {
@@ -36,6 +36,7 @@ public class MappingFileWriterListenerTest {
 	private MappingFileWriterListener listener;
 	private FileSource mappingsFileSource;
 	private FileSource filesFileSource;
+	private RequestJournal requestJournal;
 	
 	private Mockery context;
 	
@@ -44,8 +45,9 @@ public class MappingFileWriterListenerTest {
 		context = new Mockery();
 		mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
+		requestJournal = context.mock(RequestJournal.class);
 		
-		listener = new MappingFileWriterListener(mappingsFileSource, filesFileSource);
+		listener = new MappingFileWriterListener(mappingsFileSource, filesFileSource, requestJournal);
 		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
 	}
 	
@@ -64,8 +66,7 @@ public class MappingFileWriterListenerTest {
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
-			allowing(mappingsFileSource).listFiles(); will(returnValue(emptyList()));
-			allowing(filesFileSource).listFiles(); will(returnValue(emptyList()));
+		    allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 			        with(jsonEqualTo(SAMPLE_REQUEST_MAPPING)));
 			one(filesFileSource).writeTextFile(with(equal("body-recorded-content-1$2!3.json")),
@@ -102,8 +103,7 @@ public class MappingFileWriterListenerTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-            allowing(mappingsFileSource).listFiles(); will(returnValue(emptyList()));
-            allowing(filesFileSource).listFiles(); will(returnValue(emptyList()));
+	        allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(1));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
             one(filesFileSource).writeTextFile("body-headered-content-1$2!3.json", "Recorded body content");
@@ -120,6 +120,21 @@ public class MappingFileWriterListenerTest {
         response.addHeader("Cache-Control", "no-cache");
         
         listener.requestReceived(request, response);
+	}
+	
+	@Test
+	public void doesNotWriteFileIfRequestAlreadyReceived() {
+	    context.checking(new Expectations() {{
+            atLeast(1).of(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(2));
+            never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
+            never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
+        }});
+	    
+	    listener.requestReceived(new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/headered/content")
+                .build(),
+            new Response(200));
 	}
 
 	private IdGenerator fixedIdGenerator(final String id) {

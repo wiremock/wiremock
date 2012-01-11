@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Map;
 
@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.mapping.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.mapping.MappingFileWriterListener;
 import com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.github.tomakehurst.wiremock.mapping.RequestHandler;
 import com.github.tomakehurst.wiremock.mapping.RequestListener;
@@ -79,6 +80,15 @@ public class WireMockServer {
 	
 	public void setVerboseLogging(boolean verbose) {
 		notifier.setVerbose(verbose);
+		if (verbose) {
+		    notifier.info("Verbose logging enabled");
+		}
+	}
+	
+	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
+	    addMockServiceRequestListener(
+                new MappingFileWriterListener(mappingsFileSource, filesFileSource, wireMockApp.getRequestJournal()));
+	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 	
 	public void stop() {

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
 
 import java.net.URI;
@@ -23,16 +24,19 @@ import java.util.Map;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 public class MappingFileWriterListener implements RequestListener {
 	
 	private final FileSource mappingsFileSource;
 	private final FileSource filesFileSource;
+	private final RequestJournal requestJournal;
 	private IdGenerator idGenerator;
 	
-	public MappingFileWriterListener(FileSource mappingsFileSource, FileSource filesFileSource) {
+	public MappingFileWriterListener(FileSource mappingsFileSource, FileSource filesFileSource, RequestJournal requestJournal) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
+		this.requestJournal = requestJournal;
 		idGenerator = new VeryShortIdGenerator();
 	}
 
@@ -43,19 +47,29 @@ public class MappingFileWriterListener implements RequestListener {
 		String bodyFileName = generateNewUniqueFileNameFromRequest(request, "body", fileId);
 		
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
-		ResponseDefinition responseToWrite = new ResponseDefinition();
-		responseToWrite.setStatus(response.getStatus());
-		responseToWrite.setBodyFileName(bodyFileName);
 		
-		for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
-		    responseToWrite.addHeader(header.getKey(), header.getValue());
+		if (requestNotAlreadyReceived(requestPattern)) {
+		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
+		    ResponseDefinition responseToWrite = new ResponseDefinition();
+	        responseToWrite.setStatus(response.getStatus());
+	        responseToWrite.setBodyFileName(bodyFileName);
+	        
+	        for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
+	            responseToWrite.addHeader(header.getKey(), header.getValue());
+	        }
+	        
+	        RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
+	        
+	        filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
+	        mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+		} else {
+		    notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
 		}
-		
-		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
-		
-		filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
-		mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
 	}
+
+    private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
+        return requestJournal.countRequestsMatching(requestPattern) <= 1;
+    }
 	
 	private String generateNewUniqueFileNameFromRequest(Request request, String prefix, String id) {
 	    URI uri = URI.create(request.getUrl());

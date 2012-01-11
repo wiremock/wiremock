@@ -21,7 +21,6 @@ import static java.lang.System.out;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.mapping.MappingFileWriterListener;
 import com.github.tomakehurst.wiremock.mapping.Mappings;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
@@ -57,13 +56,12 @@ public class WireMockServerRunner {
 		}
 		
 		if (options.recordMappingsEnabled()) {
-			wireMockServer.addMockServiceRequestListener(new MappingFileWriterListener(mappingsFileSource, filesFileSource));
+		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}
 		
 		wireMockServer.setVerboseLogging(options.verboseLoggingEnabled());
 		
-		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(mappingsFileSource);
-		wireMockServer.loadMappingsUsing(mappingsLoader);
+		wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
 		
 		if (options.specifiesProxyUrl()) {
 			addProxyMapping(options.proxyUrl());
