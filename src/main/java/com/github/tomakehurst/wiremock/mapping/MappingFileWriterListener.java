@@ -42,30 +42,33 @@ public class MappingFileWriterListener implements RequestListener {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-	    String fileId = idGenerator.generate();
-		String mappingFileName = generateNewUniqueFileNameFromRequest(request, "mapping", fileId);
-		String bodyFileName = generateNewUniqueFileNameFromRequest(request, "body", fileId);
-		
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
 		
 		if (requestNotAlreadyReceived(requestPattern)) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
-		    ResponseDefinition responseToWrite = new ResponseDefinition();
-	        responseToWrite.setStatus(response.getStatus());
-	        responseToWrite.setBodyFileName(bodyFileName);
-	        
-	        for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
-	            responseToWrite.addHeader(header.getKey(), header.getValue());
-	        }
-	        
-	        RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
-	        
-	        filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
-	        mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+		    writeToMappingAndBodyFile(request, response, requestPattern);
 		} else {
 		    notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
 		}
 	}
+
+    private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
+        String fileId = idGenerator.generate();
+        String mappingFileName = generateNewUniqueFileNameFromRequest(request, "mapping", fileId);
+        String bodyFileName = generateNewUniqueFileNameFromRequest(request, "body", fileId);
+        ResponseDefinition responseToWrite = new ResponseDefinition();
+        responseToWrite.setStatus(response.getStatus());
+        responseToWrite.setBodyFileName(bodyFileName);
+        
+        for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
+            responseToWrite.addHeader(header.getKey(), header.getValue());
+        }
+        
+        RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
+        
+        filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
+        mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+    }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
         return requestJournal.countRequestsMatching(requestPattern) <= 1;
