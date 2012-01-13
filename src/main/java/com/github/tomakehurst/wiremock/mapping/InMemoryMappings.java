@@ -30,7 +30,10 @@ public class InMemoryMappings implements Mappings {
 				mappings,
 				mappingMatching(request),
 				RequestResponseMapping.notConfigured());
-		return matchingMapping.getResponse();
+//		ResponseDefinition responseDef = ResponseDefinition.copyOf(matchingMapping.getResponse());
+		ResponseDefinition responseDef = matchingMapping.getResponse();
+		return responseDef;
+//		return matchingMapping.getResponse();
 	}
 	
 	private Predicate<RequestResponseMapping> mappingMatching(final Request request) {

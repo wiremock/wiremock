@@ -40,15 +40,28 @@ public class ResponseDefinition {
 	private boolean wasConfigured = true;
 	private Request originalRequest;
 	
+	public static ResponseDefinition copyOf(ResponseDefinition original) {
+	    ResponseDefinition newResponseDef = new ResponseDefinition();
+	    newResponseDef.status = original.status;
+	    newResponseDef.body = original.body;
+	    newResponseDef.bodyFileName = original.bodyFileName;
+	    newResponseDef.headers = original.headers;
+	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
+	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
+	    newResponseDef.fault = original.fault;
+	    newResponseDef.wasConfigured = original.wasConfigured;
+	    return newResponseDef;
+	}
+	
 	public HttpHeaders getHeaders() {
 		return headers;
 	}
 
-	public void setHeaders(HttpHeaders headers) {
+	public void setHeaders(final HttpHeaders headers) {
 		this.headers = headers;
 	}
 
-	public ResponseDefinition(int statusCode, String bodyContent) {
+	public ResponseDefinition(final int statusCode, final String bodyContent) {
 		this.status = statusCode;
 		this.body = bodyContent;
 	}
@@ -70,7 +83,7 @@ public class ResponseDefinition {
 	}
 	
 	public static ResponseDefinition notConfigured() {
-	    ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, null);
+	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, null);
 	    response.wasConfigured = false;
 	    return response;
 	}
@@ -83,15 +96,15 @@ public class ResponseDefinition {
 		return body;
 	}
 	
-	public void setStatus(int status) {
+	public void setStatus(final int status) {
 		this.status = status;
 	}
 
-	public void setBody(String body) {
+	public void setBody(final String body) {
 		this.body = body;
 	}
 	
-	public void addHeader(String key, String value) {
+	public void addHeader(final String key, final String value) {
 		if (headers == null) {
 			headers = new HttpHeaders();
 		}
@@ -99,7 +112,7 @@ public class ResponseDefinition {
 		headers.put(key, value);
 	}
 	
-	public void setFixedDelayMilliseconds(Integer fixedDelayMilliseconds) {
+	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
 	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
 	}
 
@@ -107,7 +120,7 @@ public class ResponseDefinition {
 		return bodyFileName;
 	}
 
-	public void setBodyFileName(String bodyFileName) {
+	public void setBodyFileName(final String bodyFileName) {
 		this.bodyFileName = bodyFileName;
 	}
 	
@@ -123,7 +136,7 @@ public class ResponseDefinition {
 		return proxyBaseUrl;
 	}
 
-	public void setProxyBaseUrl(String proxyBaseUrl) {
+	public void setProxyBaseUrl(final String proxyBaseUrl) {
 		this.proxyBaseUrl = proxyBaseUrl;
 	}
 	
@@ -146,7 +159,7 @@ public class ResponseDefinition {
 		return originalRequest;
 	}
 
-	public void setOriginalRequest(Request originalRequest) {
+	public void setOriginalRequest(final Request originalRequest) {
 		this.originalRequest = originalRequest;
 	}
 
@@ -154,7 +167,7 @@ public class ResponseDefinition {
 		return fault;
 	}
 
-	public void setFault(Fault fault) {
+	public void setFault(final Fault fault) {
 		this.fault = fault;
 	}
 
@@ -181,7 +194,7 @@ public class ResponseDefinition {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -191,7 +204,7 @@ public class ResponseDefinition {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		ResponseDefinition other = (ResponseDefinition) obj;
+		final ResponseDefinition other = (ResponseDefinition) obj;
 		if (body == null) {
 			if (other.body != null) {
 				return false;
@@ -221,13 +234,6 @@ public class ResponseDefinition {
 				return false;
 			}
 		} else if (!headers.equals(other.headers)) {
-			return false;
-		}
-		if (originalRequest == null) {
-			if (other.originalRequest != null) {
-				return false;
-			}
-		} else if (!originalRequest.equals(other.originalRequest)) {
 			return false;
 		}
 		if (proxyBaseUrl == null) {
