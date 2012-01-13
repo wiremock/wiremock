@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.github.tomakehurst.wiremock.mapping.ResponseDefinition.copyOf;
 import static com.google.common.collect.Iterables.find;
 
 import com.google.common.base.Predicate;
@@ -30,10 +31,7 @@ public class InMemoryMappings implements Mappings {
 				mappings,
 				mappingMatching(request),
 				RequestResponseMapping.notConfigured());
-//		ResponseDefinition responseDef = ResponseDefinition.copyOf(matchingMapping.getResponse());
-		ResponseDefinition responseDef = matchingMapping.getResponse();
-		return responseDef;
-//		return matchingMapping.getResponse();
+		return copyOf(matchingMapping.getResponse());
 	}
 	
 	private Predicate<RequestResponseMapping> mappingMatching(final Request request) {
