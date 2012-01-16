@@ -24,7 +24,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 		<repository>
 			<id>tomakehurst-mvn-repo-releases</id>
 			<name>Tom Akehurst's Maven Release Repo</name>
-			<url>https://github.com/tomakehurst/tomakehurst-mvn-repo/raw/master/releases</url>
+			<url>http://tomakehurst.github.com/tomakehurst-mvn-repo/releases</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
@@ -35,7 +35,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.8</version>
+		<version>1.9</version>
 	</dependency>
 
 
@@ -239,11 +239,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.8-standalone.jar
+	java -jar wiremock-1.9-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.8-standalone.jar --port 9999
+	java -jar wiremock-1.9-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
