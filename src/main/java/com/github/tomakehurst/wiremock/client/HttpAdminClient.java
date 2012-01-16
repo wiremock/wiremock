@@ -34,22 +34,28 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public class HttpAdminClient implements AdminClient {
 	
-	private static final String ADMIN_URL_PREFIX = "http://%s:%d/__admin";
+	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";
 	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
 	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
 	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
 	
-	private String host;
-	private int port;
+	private final String host;
+	private final int port;
+	private final String urlPathPrefix;
 	
 	private final HttpClient httpClient;
 	
-	public HttpAdminClient(String host, int port) {
+	public HttpAdminClient(String host, int port, String urlPathPrefix) {
 		this.host = host;
 		this.port = port;
+		this.urlPathPrefix = urlPathPrefix;
 		
 		httpClient = HttpClientFactory.createClient();
+	}
+	
+	public HttpAdminClient(String host, int port) {
+		this(host, port, "");
 	}
 
 	@Override
@@ -129,18 +135,18 @@ public class HttpAdminClient implements AdminClient {
 	}
 
 	private String newMappingUrl() {
-		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, host, port);
+		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, host, port, urlPathPrefix);
 	}
 	
 	private String resetUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_URL, host, port);
+		return String.format(LOCAL_WIREMOCK_RESET_URL, host, port, urlPathPrefix);
 	}
 	
 	private String requestsCountUrl() {
-		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port);
+		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port, urlPathPrefix);
 	}
 
 	private String globalSettingsUrl() {
-		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port);
+		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port, urlPathPrefix);
 	}
 }

@@ -26,20 +26,20 @@ public class WireMock {
 	private static final int DEFAULT_PORT = 8080;
 	private static final String DEFAULT_HOST = "localhost";
 
-	private String host = DEFAULT_HOST;
-	private int port = DEFAULT_PORT;
 	private AdminClient adminClient;
 	
 	private static WireMock defaultInstance = new WireMock();
 	
 	public WireMock(String host, int port) {
-		this.host = host;
-		this.port = port;
 		adminClient = new HttpAdminClient(host, port);
 	}
 	
+	public WireMock(String host, int port, String urlPathPrefix) {
+		adminClient = new HttpAdminClient(host, port, urlPathPrefix);
+	}
+	
 	public WireMock() {
-		adminClient = new HttpAdminClient(host, port);
+		adminClient = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
 	
 	void setAdminClient(AdminClient adminClient) {
@@ -52,6 +52,10 @@ public class WireMock {
 	
 	public static void configureFor(String host, int port) {
 		defaultInstance = new WireMock(host, port);
+	}
+	
+	public static void configureFor(String host, int port, String urlPathPrefix) {
+		defaultInstance = new WireMock(host, port, urlPathPrefix);
 	}
 	
 	public static void configure() {

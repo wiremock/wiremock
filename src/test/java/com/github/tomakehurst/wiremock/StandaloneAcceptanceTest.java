@@ -187,7 +187,7 @@ public class StandaloneAcceptanceTest {
 	public void startsOnPortSpecifiedOnCommandLine() {
 		startRunner("--port", "8086");
 		WireMock client = new WireMock("localhost", 8086);
-		client.verifyThat(0, getRequestedFor(urlEqualTo("/bling/blang/blong")));
+		client.verifyThat(0, getRequestedFor(urlEqualTo("/bling/blang/blong"))); //Would throw an exception if couldn't connect
 	}
 	
 	@Test
