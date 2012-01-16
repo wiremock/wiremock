@@ -62,11 +62,6 @@ public class ServletContextFileSourceTest {
     private static class MockServletContext implements ServletContext {
 
         @Override
-        public String getContextPath() {
-            return null;
-        }
-
-        @Override
         public ServletContext getContext(String uripath) {
             return null;
         }
