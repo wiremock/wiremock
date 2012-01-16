@@ -8,7 +8,7 @@ A fluent Java client API makes for expressive, concise test cases, while a JSON 
 What it's good for
 ------------------
 	
--	Expressive unit tests for HTTP calling code
+-	Expressive unit tests
 -	Integrated BDD/ATDD
 -	Load testing
 -	Fault injection
@@ -134,8 +134,10 @@ If you'd prefer a different port, you can do something like this:
 
 	wireMockServer = new WireMockServer(80);
 	WireMock.configureFor("localhost", 80);
-	
-Note: the ability to change host in the second call is to support connection to a standalone instance on another host.
+
+If you've deployed WireMock as a WAR somewhere and it's not at app server's root context:
+
+	WireMock.configureFor("somehost", 8086, "/wiremock"); 
 
 ### Prioritising stub mappings
 A stub mapping's priority can be set in the following way:
@@ -258,4 +260,12 @@ The following directories will be created when you first start WireMock:
 
 <code>__files</code> - Contains body content files referenced by mappings with bodyFileName element. Also files under here will be served by the web server directly, even when no mapping refers to them. However, mappings for a given URL will always take precedence. 
 		
+
+Deploying as a WAR
+------------------
+
+WireMock can be built into a WAR file and deployed to other servlet containers. See the <code>sample-war</code> sub-project under WireMock's source for an example of how to do this.
+
+Note: currently the default serving of files from <code>__files</code> when there is no mapping present won't work in this mode, so you'll need to make your own provisions if you still need this.
+Also fault responses won't work as they depend specifically on framework classes in Jetty.
 
