@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.mapping.HeaderPattern.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static com.google.common.collect.Maps.newHashMap;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -29,6 +29,7 @@ import java.util.Map;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,12 @@ public class RequestPatternTest {
 		context = new Mockery();
 		headers = newHashMap();
 		notifier = context.mock(Notifier.class);
+		LocalNotifier.set(notifier);
+	}
+	
+	@After
+	public void cleanUp() {
+	    LocalNotifier.set(null);
 	}
 	
 	@Test
@@ -89,6 +96,10 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderIsAbsent() {
+	    context.checking(new Expectations() {{
+            ignoring(notifier);
+        }});
+	    
 		headers.put("Accept", equalTo("text/plain"));
 		headers.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
@@ -104,6 +115,10 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderHasAnIncorrectValue() {
+	    context.checking(new Expectations() {{
+            ignoring(notifier);
+        }});
+	    
 		headers.put("Accept", equalTo("text/plain"));
 		headers.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
@@ -174,6 +189,10 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenBodyDoesNotMatchPattern() {
+	    context.checking(new Expectations() {{
+            ignoring(notifier);
+        }});
+	    
 		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
 		requestPattern.setBodyPattern(".*<important>Value</important>.*");
 		
@@ -201,29 +220,11 @@ public class RequestPatternTest {
 	}
 	
 	@Test
-	public void shouldLogMessageIndicatingFailedUrlMatch() {
-		context.checking(new Expectations() {{
-			one(notifier).info("URL /for/logging does not match /not/for/logging");
-		}});
-		
-		LocalNotifier.set(notifier);
-		RequestPattern requestPattern = new RequestPattern(GET, "/not/for/logging");
-		
-		Request request = aRequest(context)
-			.withUrl("/for/logging")
-			.withMethod(GET)
-			.build();
-		
-		requestPattern.isMatchedBy(request);
-	}
-	
-	@Test
 	public void shouldLogMessageIndicatingFailedMethodMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but method GET is not");
 		}});
 		
-		LocalNotifier.set(notifier);
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
 		
 		Request request = aRequest(context)
@@ -240,7 +241,6 @@ public class RequestPatternTest {
 			one(notifier).info("URL /for/logging is match, but header Content-Type is not");
 		}});
 		
-		LocalNotifier.set(notifier);
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
 		HeaderPattern headerPattern = new HeaderPattern();
 		headerPattern.setEqualTo("text/xml");
@@ -261,7 +261,6 @@ public class RequestPatternTest {
 			one(notifier).info("URL /for/logging is match, but body is not: Actual Content");
 		}});
 		
-		LocalNotifier.set(notifier);
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
 		requestPattern.setBodyPattern("Expected content");
 		

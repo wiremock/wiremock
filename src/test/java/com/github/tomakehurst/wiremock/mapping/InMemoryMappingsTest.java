@@ -24,23 +24,36 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
 
 @RunWith(JMock.class)
 public class InMemoryMappingsTest {
 
 	private InMemoryMappings mappings;
 	private Mockery context;
+	private Notifier notifier;
 	
 	@Before
 	public void init() {
 		mappings = new InMemoryMappings();
 		context = new Mockery();
+		
+		notifier = context.mock(Notifier.class);
 	}
+	
+	@After
+    public void cleanUp() {
+        LocalNotifier.set(null);
+    }
 	
 	@Test
 	public void correctlyAcceptsMappingAndReturnsCorrespondingResponse() {
@@ -100,5 +113,16 @@ public class InMemoryMappingsTest {
 		
 		assertThat(response.getStatus(), is(201));
 		assertThat(response.getBody(), is("Desired content"));
+	}
+	
+	@Test
+	public void notifiesWhenNoMappingFound() {
+	    context.checking(new Expectations() {{
+            one(notifier).info("No mapping found matching URL /match/not/found");
+        }});
+	    
+	    LocalNotifier.set(notifier);
+        
+        mappings.getFor(aRequest(context).withMethod(GET).withUrl("/match/not/found").build());
 	}
 }

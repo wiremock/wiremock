@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.mapping.RequestResponseMapping.NOT_CONFIGURED;
 import static com.github.tomakehurst.wiremock.mapping.ResponseDefinition.copyOf;
 import static com.google.common.collect.Iterables.find;
 
@@ -30,7 +32,12 @@ public class InMemoryMappings implements Mappings {
 		RequestResponseMapping matchingMapping = find(
 				mappings,
 				mappingMatching(request),
-				RequestResponseMapping.notConfigured());
+				RequestResponseMapping.NOT_CONFIGURED);
+		
+		if (matchingMapping == NOT_CONFIGURED) {
+		    notifier().info("No mapping found matching URL " + request.getUrl());
+		}
+		
 		return copyOf(matchingMapping.getResponse());
 	}
 	

@@ -39,9 +39,8 @@ public class RequestResponseMapping {
 		//Concession to Jackson
 	}
 	
-	public static RequestResponseMapping notConfigured() {
-		return new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
-	}
+	public static final RequestResponseMapping NOT_CONFIGURED =
+	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 	
 	public RequestPattern getRequest() {
 		return request;

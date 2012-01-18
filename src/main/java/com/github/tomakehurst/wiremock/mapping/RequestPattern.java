@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.google.common.collect.Maps.newLinkedHashMap;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.regex.Pattern.DOTALL;
 
 import java.util.Map;
@@ -77,17 +77,9 @@ public class RequestPattern {
 			matched = candidateUrl.matches(urlPattern);
 		}
 		
-		if (!matched) {
-			notifier().info(String.format("URL %s does not match %s", request.getUrl(), urlOrUrlPattern()));
-		}
-		
 		return matched;
 	}
 	
-	private String urlOrUrlPattern() {
-		return url != null ? url : urlPattern;
-	}
-
 	private boolean methodMatches(Request request) {
 		boolean matched = method == ANY || request.getMethod() == method;
 		if (!matched) {
