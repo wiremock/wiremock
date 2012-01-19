@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static java.net.URLDecoder.decode;
+
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
@@ -70,7 +73,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {
         String forwardUrl = wiremockFileSourceRoot + WireMockApp.FILES_ROOT + request.getUrl();
-        RequestDispatcher dispatcher = httpServletRequest.getRequestDispatcher(forwardUrl);
+        RequestDispatcher dispatcher = httpServletRequest.getRequestDispatcher(decode(forwardUrl, UTF_8.name()));
         dispatcher.forward(httpServletRequest, httpServletResponse);
     }
 }
