@@ -29,12 +29,14 @@ import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 public class WireMockWebContextListener implements ServletContextListener {
     
     private static final String APP_CONTEXT_KEY = "WireMockApp";
+    private static final String FILE_SOURCE_ROOT_KEY = "WireMockFileSourceRoot";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
+        String fileSourceRoot = context.getInitParameter(FILE_SOURCE_ROOT_KEY);
         
-        ServletContextFileSource fileSource = new ServletContextFileSource(context, "/WEB-INF/wiremock");
+        ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
         Log4jNotifier notifier = new Log4jNotifier();
         notifier.setVerbose(true);
         

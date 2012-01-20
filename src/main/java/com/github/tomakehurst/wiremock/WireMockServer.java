@@ -118,7 +118,7 @@ public class WireMockServer {
         Map initParams = newHashMap();
         initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
         initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
-        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "true");
+        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
         mockServiceContext.setInitParams(initParams);
         
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);

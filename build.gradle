@@ -17,7 +17,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.10
+version = 1.11
 
 repositories {
 	mavenCentral()
