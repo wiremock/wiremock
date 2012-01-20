@@ -45,6 +45,16 @@ public class MappingBuilder {
 		return this;
 	}
 	
+	public MappingBuilder withBodyMatching(String bodyPattern) {
+	    requestPatternBuilder.withBodyMatching(bodyPattern);
+        return this;
+    }
+	
+	public MappingBuilder withBodyContaining(String bodyPattern) {
+        requestPatternBuilder.withBodyContaining(bodyPattern);
+        return this;
+    }
+	
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();

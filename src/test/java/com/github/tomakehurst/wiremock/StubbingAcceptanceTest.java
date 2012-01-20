@@ -25,6 +25,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static java.net.HttpURLConnection.HTTP_BAD_METHOD;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -95,6 +97,36 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.content(), is("Some example test from a file"));
 	}
+	
+	@Test
+	public void matchingOnRequestBody() {
+	    givenThat(put(urlEqualTo("/match/this/body"))
+	            .withBodyMatching(".*Blah.*")
+	            .willReturn(aResponse()
+                .withStatus(HTTP_OK)
+                .withBodyFile("plain-example.txt")));
+        
+        WireMockResponse response = testClient.putWithBody("/match/this/body", "Not what we asked for", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        
+        response = testClient.putWithBody("/match/this/body", "BlahBlahBlah", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_OK));
+	}
+	
+	@Test
+    public void matchingOnRequestBodyContains() {
+        givenThat(put(urlEqualTo("/match/this/body/too"))
+                .withBodyContaining("Blah")
+                .willReturn(aResponse()
+                .withStatus(HTTP_OK)
+                .withBodyFile("plain-example.txt")));
+        
+        WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Not what we asked for", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        
+        response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_OK));
+    }
 	
 	@Test
 	public void responseWithFixedDelay() {
