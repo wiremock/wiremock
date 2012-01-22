@@ -18,9 +18,10 @@ package com.github.tomakehurst.wiremock.mapping;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.mapping.HeaderPattern.equalTo;
+import static com.github.tomakehurst.wiremock.mapping.ValuePattern.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -42,7 +43,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 public class RequestPatternTest {
 	
 	private Mockery context;
-	private Map<String, HeaderPattern> headers;
+	private Map<String, ValuePattern> headers;
 	private Notifier notifier;
 	
 	@Before
@@ -176,7 +177,7 @@ public class RequestPatternTest {
 	@Test
 	public void shouldMatchOnBodyPattern() {
 		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
-		requestPattern.setBodyPattern(".*<important>Value</important>.*");
+		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
 		
 		Request request = aRequest(context)
 			.withUrl("/with/body")
@@ -194,7 +195,7 @@ public class RequestPatternTest {
         }});
 	    
 		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
-		requestPattern.setBodyPattern(".*<important>Value</important>.*");
+		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
 		
 		Request request = aRequest(context)
 			.withUrl("/with/body")
@@ -242,7 +243,7 @@ public class RequestPatternTest {
 		}});
 		
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
-		HeaderPattern headerPattern = new HeaderPattern();
+		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setEqualTo("text/xml");
 		requestPattern.addHeader("Content-Type", headerPattern);
 		
@@ -262,7 +263,7 @@ public class RequestPatternTest {
 		}});
 		
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
-		requestPattern.setBodyPattern("Expected content");
+		requestPattern.setBodyPatterns(asList(ValuePattern.matches("Expected content")));
 		
 		Request request = aRequest(context)
 			.withUrl("/for/logging")

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.mapping.HeaderPattern;
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
 
 public class MappingBuilderTest {
@@ -94,20 +94,20 @@ public class MappingBuilderTest {
 		assertThat(mapping.getResponse().getHeaders(), hasEntry("Encoding", "UTF-8"));
 	}
 	
-	private HeaderPattern headerEqualTo(String value) {
-		HeaderPattern headerPattern = new HeaderPattern();
+	private ValuePattern headerEqualTo(String value) {
+		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setEqualTo(value);
 		return headerPattern;
 	}
 	
-	private HeaderPattern headerMatches(String value) {
-		HeaderPattern headerPattern = new HeaderPattern();
+	private ValuePattern headerMatches(String value) {
+		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setMatches(value);
 		return headerPattern;
 	}
 	
-	private HeaderPattern headerDoesNotMatch(String value) {
-		HeaderPattern headerPattern = new HeaderPattern();
+	private ValuePattern headerDoesNotMatch(String value) {
+		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setDoesNotMatch(value);
 		return headerPattern;
 	}

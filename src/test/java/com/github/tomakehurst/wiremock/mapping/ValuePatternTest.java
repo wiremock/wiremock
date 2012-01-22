@@ -21,55 +21,62 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-public class HeaderPatternTest {
+public class ValuePatternTest {
 	
-	private HeaderPattern headerPattern;
+	private ValuePattern valuePattern;
 	
 	@Before
 	public void init() {
-		headerPattern = new HeaderPattern();
+		valuePattern = new ValuePattern();
 	}
 
 	@Test
 	public void matchesOnEqualTo() {
-		headerPattern.setEqualTo("text/plain");
-		assertTrue(headerPattern.isMatchFor("text/plain"));
+		valuePattern.setEqualTo("text/plain");
+		assertTrue(valuePattern.isMatchFor("text/plain"));
 	}
 	
 	@Test
 	public void matchesOnRegex() {
-		headerPattern.setMatches("[0-9]{6}");
-		assertTrue(headerPattern.isMatchFor("938475"));
-		assertFalse(headerPattern.isMatchFor("abcde"));
+		valuePattern.setMatches("[0-9]{6}");
+		assertTrue(valuePattern.isMatchFor("938475"));
+		assertFalse(valuePattern.isMatchFor("abcde"));
 	}
 	
 	@Test
 	public void matchesOnNegativeRegex() {
-		headerPattern.setDoesNotMatch("[0-9]{6}");
-		assertFalse(headerPattern.isMatchFor("938475"));
-		assertTrue(headerPattern.isMatchFor("abcde"));
+		valuePattern.setDoesNotMatch("[0-9]{6}");
+		assertFalse(valuePattern.isMatchFor("938475"));
+		assertTrue(valuePattern.isMatchFor("abcde"));
+	}
+	
+	@Test
+	public void matchesOnContains() {
+		valuePattern.setContains("some text");
+		assertFalse(valuePattern.isMatchFor("Nothing to see here"));
+		assertTrue(valuePattern.isMatchFor("There's some text here"));
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatch() {
-		headerPattern.setEqualTo("my-value");
-		headerPattern.setMatches("[0-9]{6}");
+		valuePattern.setEqualTo("my-value");
+		valuePattern.setMatches("[0-9]{6}");
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherOrdering() {
-		headerPattern.setMatches("[0-9]{6}");
-		headerPattern.setEqualTo("my-value");
+		valuePattern.setMatches("[0-9]{6}");
+		valuePattern.setEqualTo("my-value");
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherDoesNotMatch() {
-		headerPattern.setEqualTo("my-value");
-		headerPattern.setDoesNotMatch("[0-9]{6}");
+		valuePattern.setEqualTo("my-value");
+		valuePattern.setDoesNotMatch("[0-9]{6}");
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitZeroMatchTypes() {
-		headerPattern.isMatchFor("blah");
+		valuePattern.isMatchFor("blah");
 	}
 }

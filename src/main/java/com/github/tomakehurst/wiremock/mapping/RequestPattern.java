@@ -17,11 +17,12 @@ package com.github.tomakehurst.wiremock.mapping;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matching;
+import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import static java.util.regex.Pattern.DOTALL;
 
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -34,10 +35,10 @@ public class RequestPattern {
 	private String urlPattern;
 	private String url;
 	private RequestMethod method;
-	private Map<String, HeaderPattern> headers;
-	private String bodyPattern;
+	private Map<String, ValuePattern> headers;
+	private List<ValuePattern> bodyPatterns;
 	
-	public RequestPattern(RequestMethod method, String url, Map<String, HeaderPattern> headers) {
+	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headers) {
 		this.url = url;
 		this.method = method;
 		this.headers = headers;
@@ -94,8 +95,8 @@ public class RequestPattern {
 			return true;
 		}
 
-		for (Map.Entry<String, HeaderPattern> header: headers.entrySet()) {
-			HeaderPattern headerPattern = header.getValue();
+		for (Map.Entry<String, ValuePattern> header: headers.entrySet()) {
+			ValuePattern headerPattern = header.getValue();
 			String key = header.getKey();
 			if (!request.containsHeader(key) || !headerPattern.isMatchFor(request.getHeader(key))) {
 				notifier().info(String.format(
@@ -109,12 +110,11 @@ public class RequestPattern {
 	}
 	
 	private boolean bodyMatches(Request request) {
-		if (bodyPattern == null) {
+		if (bodyPatterns == null) {
 			return true;
 		}
 		
-		Pattern pattern = Pattern.compile(bodyPattern, DOTALL);
-		boolean matches = pattern.matcher(request.getBodyAsString()).matches();
+		boolean matches = any(bodyPatterns, matching(request.getBodyAsString()));
 		
 		if (!matches) {
 			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
@@ -140,11 +140,11 @@ public class RequestPattern {
 		this.method = method;
 	}
 
-	public Map<String, HeaderPattern> getHeaders() {
+	public Map<String, ValuePattern> getHeaders() {
 		return headers;
 	}
 	
-	public void addHeader(String key, HeaderPattern pattern) {
+	public void addHeader(String key, ValuePattern pattern) {
 		if (headers == null) {
 			headers = newLinkedHashMap();
 		}
@@ -152,7 +152,7 @@ public class RequestPattern {
 		headers.put(key, pattern);
 	}
 	
-	public void setHeaders(Map<String, HeaderPattern> headers) {
+	public void setHeaders(Map<String, ValuePattern> headers) {
 		this.headers = headers;
 	}
 
@@ -165,21 +165,12 @@ public class RequestPattern {
 		assertIsInValidState();
 	}
 	
-	public String getBodyPattern() {
-		return bodyPattern;
+	public List<ValuePattern> getBodyPatterns() {
+		return bodyPatterns;
 	}
 
-	public void setBodyPattern(String bodyPattern) {
-		this.bodyPattern = bodyPattern;
-	}
-
-	
-
-	@Override
-	public String toString() {
-		return "RequestPattern [urlPattern=" + urlPattern + ", url=" + url
-				+ ", method=" + method + ", headers=" + headers
-				+ ", bodyPattern=" + bodyPattern + "]";
+	public void setBodyPatterns(List<ValuePattern> bodyPatterns) {
+		this.bodyPatterns = bodyPatterns;
 	}
 
 	@Override
@@ -187,7 +178,7 @@ public class RequestPattern {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((bodyPattern == null) ? 0 : bodyPattern.hashCode());
+				+ ((bodyPatterns == null) ? 0 : bodyPatterns.hashCode());
 		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -198,37 +189,52 @@ public class RequestPattern {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		RequestPattern other = (RequestPattern) obj;
-		if (bodyPattern == null) {
-			if (other.bodyPattern != null)
+		if (bodyPatterns == null) {
+			if (other.bodyPatterns != null) {
 				return false;
-		} else if (!bodyPattern.equals(other.bodyPattern))
+			}
+		} else if (!bodyPatterns.equals(other.bodyPatterns)) {
 			return false;
+		}
 		if (headers == null) {
-			if (other.headers != null)
+			if (other.headers != null) {
 				return false;
-		} else if (!headers.equals(other.headers))
+			}
+		} else if (!headers.equals(other.headers)) {
 			return false;
-		if (method != other.method)
+		}
+		if (method != other.method) {
 			return false;
+		}
 		if (url == null) {
-			if (other.url != null)
+			if (other.url != null) {
 				return false;
-		} else if (!url.equals(other.url))
+			}
+		} else if (!url.equals(other.url)) {
 			return false;
+		}
 		if (urlPattern == null) {
-			if (other.urlPattern != null)
+			if (other.urlPattern != null) {
 				return false;
-		} else if (!urlPattern.equals(other.urlPattern))
+			}
+		} else if (!urlPattern.equals(other.urlPattern)) {
 			return false;
+		}
 		return true;
 	}
 
-	
+	@Override
+	public String toString() {
+		return JsonMappingBinder.write(this);
+	}
 }

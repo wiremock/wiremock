@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.mapping.HeaderPattern;
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 
 public class HeaderMatchingStrategy {
@@ -25,7 +25,7 @@ public class HeaderMatchingStrategy {
 	private String doesNotMatch;
 	
 	public void contributeTo(RequestPattern requestPattern, String key) {
-		HeaderPattern pattern = new HeaderPattern();
+		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);

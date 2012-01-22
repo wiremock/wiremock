@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matches;
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static java.util.Arrays.asList;
 
 import java.util.Map;
 
@@ -57,7 +59,10 @@ public class RequestPatternBuilder {
 		for (Map.Entry<String, HeaderMatchingStrategy> header: headers.entrySet()) {
 			header.getValue().contributeTo(requestPattern, header.getKey());
 		}
-		requestPattern.setBodyPattern(bodyPattern);
+		
+		if (bodyPattern != null) {
+			requestPattern.setBodyPatterns(asList(matches(bodyPattern)));
+		}
 		
 		return requestPattern;
 	}
