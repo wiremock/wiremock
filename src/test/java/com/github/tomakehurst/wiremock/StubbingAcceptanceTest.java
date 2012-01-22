@@ -196,6 +196,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
 	}
 	
+	@Test
+	public void matchingUrlsWithEscapeCharacters() {
+		//&&The Lord of the Rings&&
+		givenThat(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+		assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
+	}
+	
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {

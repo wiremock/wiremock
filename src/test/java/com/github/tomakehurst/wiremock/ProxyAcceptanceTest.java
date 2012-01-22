@@ -83,4 +83,19 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 		otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/proxied/resource")).withBodyMatching("Post content"));
 	}
 	
+	@Test
+	public void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
+		otherServiceClient.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
+				.willReturn(aResponse()
+				.withStatus(200)));
+		
+		givenThat(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
+				.willReturn(aResponse()
+				.proxiedFrom("http://localhost:8087")));
+		
+		WireMockResponse response = testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26");
+		
+		assertThat(response.statusCode(), is(200));
+	}
+	
 }
