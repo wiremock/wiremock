@@ -32,41 +32,40 @@ public class HeaderPatternTest {
 
 	@Test
 	public void matchesOnEqualTo() {
-		headerPattern.setEqualTo("/my/url");
-		assertTrue(headerPattern.isMatchFor("/my/url"));
+		headerPattern.setEqualTo("text/plain");
+		assertTrue(headerPattern.isMatchFor("text/plain"));
 	}
 	
 	@Test
 	public void matchesOnRegex() {
-		headerPattern.setMatches("/match/[0-9]{6}/this");
-		assertTrue(headerPattern.isMatchFor("/match/938475/this"));
-		assertFalse(headerPattern.isMatchFor("/match/abcde/this"));
+		headerPattern.setMatches("[0-9]{6}");
+		assertTrue(headerPattern.isMatchFor("938475"));
+		assertFalse(headerPattern.isMatchFor("abcde"));
 	}
 	
 	@Test
 	public void matchesOnNegativeRegex() {
-		headerPattern.setDoesNotMatch("/match/[0-9]{6}/this");
-		assertFalse(headerPattern.isMatchFor("/match/938475/this"));
-		assertTrue(headerPattern.isMatchFor("/match/abcde/this"));
+		headerPattern.setDoesNotMatch("[0-9]{6}");
+		assertFalse(headerPattern.isMatchFor("938475"));
+		assertTrue(headerPattern.isMatchFor("abcde"));
 	}
-	
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatch() {
-		headerPattern.setEqualTo("/my/url");
-		headerPattern.setMatches("/match/[0-9]{6}/this");
+		headerPattern.setEqualTo("my-value");
+		headerPattern.setMatches("[0-9]{6}");
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherOrdering() {
-		headerPattern.setMatches("/match/[0-9]{6}/this");
-		headerPattern.setEqualTo("/my/url");
+		headerPattern.setMatches("[0-9]{6}");
+		headerPattern.setEqualTo("my-value");
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherDoesNotMatch() {
-		headerPattern.setEqualTo("/my/url");
-		headerPattern.setDoesNotMatch("/match/[0-9]{6}/this");
+		headerPattern.setEqualTo("my-value");
+		headerPattern.setDoesNotMatch("[0-9]{6}");
 	}
 	
 	@Test(expected=IllegalStateException.class)
