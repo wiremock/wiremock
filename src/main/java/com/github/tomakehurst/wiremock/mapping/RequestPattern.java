@@ -98,7 +98,9 @@ public class RequestPattern {
 			HeaderPattern headerPattern = header.getValue();
 			String key = header.getKey();
 			if (!request.containsHeader(key) || !headerPattern.isMatchFor(request.getHeader(key))) {
-				notifier().info(String.format("URL %s is match, but header %s is not", request.getUrl(), key));
+				notifier().info(String.format(
+						"URL %s is match, but header %s is not. For a match, value should %s",
+						request.getUrl(), key, headerPattern.toString()));
 				return false;
 			}
 		}

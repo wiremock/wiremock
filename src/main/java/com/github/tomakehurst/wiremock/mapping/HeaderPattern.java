@@ -138,5 +138,14 @@ public class HeaderPattern {
 		return true;
 	}
 	
-	
+	@Override
+	public String toString() {
+		if (equalTo != null) {
+			return "equal " + equalTo;
+		} else if (matches != null) {
+			return "matche " + matches;
+		} else {
+			return "not match " + doesNotMatch; 
+		}
+	}
 }

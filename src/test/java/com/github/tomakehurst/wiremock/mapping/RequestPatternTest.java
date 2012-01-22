@@ -238,7 +238,7 @@ public class RequestPatternTest {
 	@Test
 	public void shouldLogMessageIndicatingFailedHeaderMatch() {
 		context.checking(new Expectations() {{
-			one(notifier).info("URL /for/logging is match, but header Content-Type is not");
+			one(notifier).info("URL /for/logging is match, but header Content-Type is not. For a match, value should equal text/xml");
 		}});
 		
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
