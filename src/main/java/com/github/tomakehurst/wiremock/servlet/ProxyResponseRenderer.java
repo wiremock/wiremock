@@ -38,13 +38,13 @@ import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 
-import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.mapping.Response;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.google.common.base.Optional;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 	
@@ -60,6 +60,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	public Response render(ResponseDefinition responseDefinition) {
 		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
 		addRequestHeaders(httpRequest, responseDefinition);
+		httpRequest.removeHeaders("Host");
 		
 		try {
 			addBodyIfPostOrPut(httpRequest, responseDefinition);
