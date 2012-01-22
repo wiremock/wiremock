@@ -87,6 +87,22 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 	
 	@Test
+	public void mappingWithCaseInsensitiveHeaderMatchers() {
+		givenThat(put(urlEqualTo("/case/insensitive"))
+			.withHeader("ONE", equalTo("abcd1234"))
+			.withHeader("two", matching("[a-z]{5}"))
+			.withHeader("Three", notMatching("[A-Z]+"))
+			.willReturn(aResponse().withStatus(204)));
+		
+		WireMockResponse response = testClient.put("/case/insensitive",
+				withHeader("one", "abcd1234"),
+				withHeader("TWO", "thing"),
+				withHeader("tHrEe", "something"));
+		
+		assertThat(response.statusCode(), is(204));
+	}
+	
+	@Test
 	public void responseBodyLoadedFromFile() {
 		givenThat(get(urlEqualTo("/my/file")).willReturn(
 				aResponse()

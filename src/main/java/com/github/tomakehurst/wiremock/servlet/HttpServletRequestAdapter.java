@@ -18,15 +18,16 @@ package com.github.tomakehurst.wiremock.servlet;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.io.CharStreams;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
+import com.google.common.io.CharStreams;
 
 public class HttpServletRequestAdapter implements Request {
 	
@@ -70,14 +71,21 @@ public class HttpServletRequestAdapter implements Request {
 		return cachedBody;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String getHeader(String key) {
-		return request.getHeader(key);
+		for (String currentKey: Collections.<String>list(request.getHeaderNames())) {
+			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+				return request.getHeader(currentKey);
+			}
+		}
+		
+		return null;
 	}
 
 	@Override
 	public boolean containsHeader(String key) {
-		return request.getHeader(key) != null;
+		return getHeader(key) != null;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Map;
 
@@ -71,6 +72,7 @@ public class MockRequestBuilder {
 				allowing(request).containsHeader(header.getKey()); will(returnValue(true));
 				allowing(request).getHeader(header.getKey()); will(returnValue(header.getValue()));
 			}
+			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keySet())));
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
 			allowing(request).getBodyAsString(); will(returnValue(body));
 		}});

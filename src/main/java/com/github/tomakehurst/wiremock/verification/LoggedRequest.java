@@ -52,12 +52,18 @@ public class LoggedRequest implements Request {
 
 	@Override
 	public String getHeader(String key) {
-		return headers.get(key);
+		for (String currentKey: headers.keySet()) {
+			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+				return headers.get(currentKey);
+			}
+		}
+		
+		return null;
 	}
 
 	@Override
 	public boolean containsHeader(String key) {
-		return headers.containsKey(key);
+		return getHeader(key) != null;
 	}
 
 	@Override
