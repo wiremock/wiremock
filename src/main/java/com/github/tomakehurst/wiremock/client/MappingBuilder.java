@@ -40,7 +40,7 @@ public class MappingBuilder {
 		return this;
 	}
 	
-	public MappingBuilder withHeader(String key, HeaderMatchingStrategy headerMatchingStrategy) {
+	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
 		return this;
 	}

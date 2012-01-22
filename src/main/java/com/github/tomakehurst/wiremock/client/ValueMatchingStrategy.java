@@ -16,20 +16,19 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.mapping.ValuePattern;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 
-public class HeaderMatchingStrategy {
+public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String matches;
 	private String doesNotMatch;
 	
-	public void contributeTo(RequestPattern requestPattern, String key) {
+	public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
-		requestPattern.addHeader(key, pattern);
+		return pattern;
 	}
 	
 	public String getEqualTo() {

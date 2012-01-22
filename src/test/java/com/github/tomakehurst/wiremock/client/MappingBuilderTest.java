@@ -112,20 +112,20 @@ public class MappingBuilderTest {
 		return headerPattern;
 	}
 	
-	private HeaderMatchingStrategy headerStrategyEqualTo(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	private ValueMatchingStrategy headerStrategyEqualTo(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setEqualTo(value);
 		return headerStrategy;
 	}
 	
-	private HeaderMatchingStrategy headerStrategyMatches(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	private ValueMatchingStrategy headerStrategyMatches(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setMatches(value);
 		return headerStrategy;
 	}
 	
-	private HeaderMatchingStrategy headerStrategyDoesNotMatch(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	private ValueMatchingStrategy headerStrategyDoesNotMatch(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setDoesNotMatch(value);
 		return headerStrategy;
 	}

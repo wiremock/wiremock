@@ -88,20 +88,20 @@ public class WireMock {
 		return urlStrategy;
 	}
 	
-	public static HeaderMatchingStrategy equalTo(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	public static ValueMatchingStrategy equalTo(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setEqualTo(value);
 		return headerStrategy;
 	}
 	
-	public static HeaderMatchingStrategy matching(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	public static ValueMatchingStrategy matching(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setMatches(value);
 		return headerStrategy;
 	}
 	
-	public static HeaderMatchingStrategy notMatching(String value) {
-		HeaderMatchingStrategy headerStrategy = new HeaderMatchingStrategy();
+	public static ValueMatchingStrategy notMatching(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setDoesNotMatch(value);
 		return headerStrategy;
 	}

@@ -28,7 +28,7 @@ public class RequestPatternBuilder {
 
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
-	private Map<String, HeaderMatchingStrategy> headers = newLinkedHashMap();
+	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
 	private String bodyPattern;
 	
 	public RequestPatternBuilder(RequestMethod method,
@@ -37,7 +37,7 @@ public class RequestPatternBuilder {
 		this.urlMatchingStrategy = urlMatchingStrategy;
 	}
 	
-	public RequestPatternBuilder withHeader(String key, HeaderMatchingStrategy headerMatchingStrategy) {
+	public RequestPatternBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		headers.put(key, headerMatchingStrategy);
 		return this;
 	}
@@ -56,8 +56,8 @@ public class RequestPatternBuilder {
 		RequestPattern requestPattern = new RequestPattern();
 		requestPattern.setMethod(method);
 		urlMatchingStrategy.contributeTo(requestPattern);
-		for (Map.Entry<String, HeaderMatchingStrategy> header: headers.entrySet()) {
-			header.getValue().contributeTo(requestPattern, header.getKey());
+		for (Map.Entry<String, ValueMatchingStrategy> header: headers.entrySet()) {
+			requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
 		}
 		
 		if (bodyPattern != null) {
