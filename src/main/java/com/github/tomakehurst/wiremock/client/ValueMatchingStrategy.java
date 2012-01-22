@@ -16,20 +16,37 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.mapping.ValuePattern;
+import com.google.common.base.Function;
 
 public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String matches;
 	private String doesNotMatch;
+	private String contains;
 	
 	public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
+		pattern.setContains(contains);
 		return pattern;
 	}
+	
+	public String getContains() {
+		return contains;
+	}
+
+	public void setContains(String contains) {
+		this.contains = contains;
+	}
+
+	public static Function<ValueMatchingStrategy, ValuePattern> toValuePattern = new Function<ValueMatchingStrategy, ValuePattern>() {
+		public ValuePattern apply(ValueMatchingStrategy input) {
+			return input.asValuePattern();
+		}
+	};
 	
 	public String getEqualTo() {
 		return equalTo;

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
@@ -115,29 +116,48 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 	
 	@Test
-	public void matchingOnRequestBody() {
+	public void matchingOnRequestBodyWithTwoRegexes() {
 	    givenThat(put(urlEqualTo("/match/this/body"))
-	            .withBodyMatching(".*Blah.*")
+	            .withRequestBody(matching(".*Blah.*"))
+	            .withRequestBody(matching(".*@[0-9]{5}@.*"))
 	            .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
         
-        WireMockResponse response = testClient.putWithBody("/match/this/body", "Not what we asked for", "text/plain");
+        WireMockResponse response = testClient.putWithBody("/match/this/body", "Blah...but not the rest", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        response = testClient.putWithBody("/match/this/body", "@12345@...but not the rest", "text/plain");
         assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
         
-        response = testClient.putWithBody("/match/this/body", "BlahBlahBlah", "text/plain");
+        response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
 	}
 	
 	@Test
-    public void matchingOnRequestBodyContains() {
+    public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
         givenThat(put(urlEqualTo("/match/this/body/too"))
-                .withBodyContaining("Blah")
+                .withRequestBody(containing("Blah"))
+                .withRequestBody(notMatching(".*[0-9]+.*"))
                 .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
         
-        WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Not what we asked for", "text/plain");
+        WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        
+        response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_OK));
+    }
+	
+	@Test
+    public void matchingOnRequestBodyWithEqualTo() {
+        givenThat(put(urlEqualTo("/match/this/body/too"))
+                .withRequestBody(equalTo("BlahBlahBlah"))
+                .willReturn(aResponse()
+                .withStatus(HTTP_OK)
+                .withBodyFile("plain-example.txt")));
+        
+        WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
         assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
         
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
@@ -198,7 +218,6 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void matchingUrlsWithEscapeCharacters() {
-		//&&The Lord of the Rings&&
 		givenThat(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
 		assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
 	}

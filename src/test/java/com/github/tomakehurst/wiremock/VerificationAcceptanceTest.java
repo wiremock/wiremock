@@ -15,8 +15,10 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
@@ -72,14 +74,14 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
 	public void verifiesWithBody() {
 		testClient.postWithBody("/add/this", SAMPLE_JSON, "application/json", "utf-8");
 		verify(postRequestedFor(urlEqualTo("/add/this"))
-				.withBodyMatching(".*\"importantKey\": \"Important value\".*"));
+				.withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
 	}
 	
 	@Test
 	public void verifiesWithBodyContaining() {
 		testClient.postWithBody("/body/contains", SAMPLE_JSON, "application/json", "utf-8");
 		verify(postRequestedFor(urlEqualTo("/body/contains"))
-				.withBodyContaining("Important value"));
+				.withRequestBody(containing("Important value")));
 	}
 	
 	@Test(expected=VerificationException.class)

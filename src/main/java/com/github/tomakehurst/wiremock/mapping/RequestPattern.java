@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.mapping;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matching;
-import static com.google.common.collect.Iterables.any;
+import static com.google.common.collect.Iterables.all;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 import java.util.List;
@@ -114,7 +114,7 @@ public class RequestPattern {
 			return true;
 		}
 		
-		boolean matches = any(bodyPatterns, matching(request.getBodyAsString()));
+		boolean matches = all(bodyPatterns, matching(request.getBodyAsString()));
 		
 		if (!matches) {
 			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));

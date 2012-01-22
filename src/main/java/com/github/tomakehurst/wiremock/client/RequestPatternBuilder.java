@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matches;
+import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toValuePattern;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import static java.util.Arrays.asList;
 
+import java.util.List;
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -29,7 +31,7 @@ public class RequestPatternBuilder {
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
-	private String bodyPattern;
+	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 	
 	public RequestPatternBuilder(RequestMethod method,
 			UrlMatchingStrategy urlMatchingStrategy) {
@@ -42,16 +44,11 @@ public class RequestPatternBuilder {
 		return this;
 	}
 	
-	public RequestPatternBuilder withBodyMatching(String bodyPattern) {
-		this.bodyPattern = bodyPattern;
+	public RequestPatternBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
+		bodyPatterns.add(bodyMatchingStrategy);
 		return this;
 	}
 	
-	public RequestPatternBuilder withBodyContaining(String part) {
-		this.bodyPattern = ".*" + part + ".*";
-		return this;
-	}
-
 	public RequestPattern build() {
 		RequestPattern requestPattern = new RequestPattern();
 		requestPattern.setMethod(method);
@@ -60,8 +57,8 @@ public class RequestPatternBuilder {
 			requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
 		}
 		
-		if (bodyPattern != null) {
-			requestPattern.setBodyPatterns(asList(matches(bodyPattern)));
+		if (!bodyPatterns.isEmpty()) {
+			requestPattern.setBodyPatterns(newArrayList(transform(bodyPatterns, toValuePattern)));
 		}
 		
 		return requestPattern;

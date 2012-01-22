@@ -94,6 +94,12 @@ public class WireMock {
 		return headerStrategy;
 	}
 	
+	public static ValueMatchingStrategy containing(String value) {
+		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
+		headerStrategy.setContains(value);
+		return headerStrategy;
+	}
+	
 	public static ValueMatchingStrategy matching(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setMatches(value);

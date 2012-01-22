@@ -158,6 +158,9 @@ public class MappingJsonSamples {
 		"			\"Content-Type\": {						\n" +
 		"				\"equalTo\": \"text/xml\"			\n" +
 		"			},										\n" +
+		"			\"Cache-Control\": {					\n" +
+		"				\"contains\": \"private\"			\n" +
+		"			},										\n" +
 		"			\"If-None-Match\": {					\n" +
 		"				\"matches\": \"([a-z0-9]*)\"		\n" +
 		"			},										\n" +
@@ -170,4 +173,21 @@ public class MappingJsonSamples {
 		"		\"status\": 201								\n" +
 		"	}												\n" +
 		"}													";
+	
+	public static final String WITH_BODY_PATTERNS =
+		"{ 														\n" +
+		"	\"request\": {										\n" +
+		"		\"method\": \"PUT\",							\n" +
+		"		\"url\": \"/body/patterns/dependent\",			\n" +
+		"		\"bodyPatterns\": [								\n" +
+		"			{ \"equalTo\": \"the number is 1234\" },	\n" +
+		"			{ \"contains\": \"number\" },				\n" +
+		"			{ \"matches\": \".*[0-9]{4}\" },			\n" +
+		"			{ \"doesNotMatch\": \".*5678.*\"}			\n" +
+		"		]												\n" +
+		"	},													\n" +
+		"	\"response\": {										\n" +
+		"		\"status\": 201									\n" +
+		"	}													\n" +
+		"}														";
 }

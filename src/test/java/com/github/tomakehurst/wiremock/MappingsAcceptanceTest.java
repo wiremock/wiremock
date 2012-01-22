@@ -85,7 +85,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		getResponseAndAssert404Status("/resource/12");
 		getResponseAndAssert404Status("/resource/13");
 	}
-
+	
 	private void getResponseAndAssert200Status(String url) {
 		WireMockResponse response = testClient.get(url);
 		assertThat(response.statusCode(), is(200));

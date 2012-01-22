@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -152,8 +153,21 @@ public class WireMockClientTest {
 		wireMock.register(
 				put(urlEqualTo("/header/matches/dependent"))
 				.withHeader("Content-Type", equalTo("text/xml"))
+				.withHeader("Cache-Control", containing("private"))
 				.withHeader("If-None-Match", matching("([a-z0-9]*)"))
 				.withHeader("Accept", notMatching("(.*)xml(.*)"))
+				.willReturn(aResponse().withStatus(201)));
+	}
+	
+	@Test
+	public void shouldAddMappingWithAll4BodyPatternTypes() {
+		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.WITH_BODY_PATTERNS);
+		wireMock.register(
+				put(urlEqualTo("/body/patterns/dependent"))
+				.withRequestBody(equalTo("the number is 1234"))
+				.withRequestBody(containing("number"))
+				.withRequestBody(matching(".*[0-9]{4}"))
+				.withRequestBody(notMatching(".*5678.*"))
 				.willReturn(aResponse().withStatus(201)));
 	}
 	
