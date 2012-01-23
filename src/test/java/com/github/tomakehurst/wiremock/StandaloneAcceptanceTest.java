@@ -20,6 +20,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
@@ -28,11 +30,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -45,6 +50,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
+import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
 public class StandaloneAcceptanceTest {
@@ -62,6 +68,8 @@ public class StandaloneAcceptanceTest {
 	private PrintStream stdOut = System.out;
 	private ByteArrayOutputStream out;
 	
+	private File mappingsDirectory;
+	
 	@Before
 	public void init() {
 		if (FILE_SOURCE_ROOT.exists()) {
@@ -69,6 +77,8 @@ public class StandaloneAcceptanceTest {
 		}
 		
 		FILE_SOURCE_ROOT.mkdirs();
+		
+		mappingsDirectory = new File(FILE_SOURCE_ROOT, MAPPINGS);
 		
 		runner = new WireMockServerRunner();
 		testClient = new WireMockTestClient();
@@ -192,22 +202,65 @@ public class StandaloneAcceptanceTest {
 	
 	@Test
 	public void proxiesToHostSpecifiedOnCommandLine() {
-		otherServer = new WireMockServer(8084);
-		otherServer.start();
-		WireMock otherServerClient = new WireMock("localhost", 8084);
+		WireMock otherServerClient = start8084ServerAndCreateClient();
 		otherServerClient.register(get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
 		startRunner("--proxy-all", "http://localhost:8084");
 		
 		WireMockResponse response = testClient.get("/proxy/ok?working=yes");
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
+
+	@Test
+	public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
+	    WireMock otherServerClient = start8084ServerAndCreateClient();
+		startRunner("--record-mappings");
+		givenThat(get(urlEqualTo("/please/record-this"))
+		        .willReturn(aResponse().proxiedFrom("http://localhost:8084")));
+		otherServerClient.register(
+		        get(urlEqualTo("/please/record-this"))
+		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+
+		testClient.get("/please/record-this");
+		
+		assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
+		assertThat(contentsOfFirstFileNamedLike("please-record-this"),
+		        containsString("bodyFileName\":\"body-please-record-this"));
+	}
 	
 	@Test
-	public void recordsRequestsWhenSpecifiedOnCommandLine() {
-		startRunner("--record-mappings");
-		testClient.get("/please/record-this");
-		assertThat(new File(FILE_SOURCE_ROOT, MAPPINGS), containsAFileContaining("/please/record-this"));
+	public void doesNotRecordRequestWhenNotProxied() {
+	    startRunner("--record-mappings");
+	    testClient.get("/try-to/record-this");
+	    assertThat(mappingsDirectory, doesNotContainAFileWithNameContaining("try-to-record"));
 	}
+
+    private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
+        return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
+    }
+	
+	private File firstFileWithNameLike(File directory, String namePart) {
+	    for (File file: directory.listFiles(namedLike(namePart))) {
+	        return file;
+	    }
+	    
+	    fail(String.format("Couldn't find a file under %s named like %s", directory.getPath(), namePart));
+	    return null;
+	}
+	
+	private FilenameFilter namedLike(final String namePart) {
+	    return new FilenameFilter() {
+            public boolean accept(File file, String name) {
+                return name.contains(namePart);
+            }
+        };
+	}
+	
+	private WireMock start8084ServerAndCreateClient() {
+        otherServer = new WireMockServer(8084);
+        otherServer.start();
+        WireMock otherServerClient = new WireMock("localhost", 8084);
+        return otherServerClient;
+    }
 	
 	private void writeFileToFilesDir(String name, String contents) {
 		writeFileUnderFileSourceRoot(FILES + separator + name, contents);
@@ -246,7 +299,7 @@ public class StandaloneAcceptanceTest {
 
 			@Override
 			public void describeTo(Description desc) {
-				desc.appendText("Expected a file containing " + expectedContents);
+				desc.appendText("a file containing " + expectedContents);
 				
 			}
 
@@ -267,4 +320,25 @@ public class StandaloneAcceptanceTest {
 			
 		};
 	}
+	
+	private Matcher<File> doesNotContainAFileWithNameContaining(final String namePart) {
+        return new TypeSafeMatcher<File>() {
+
+            @Override
+            public void describeTo(Description desc) {
+                desc.appendText("no file named like " + namePart);
+                
+            }
+
+            @Override
+            public boolean matchesSafely(File dir) {
+                return !any(Arrays.<String>asList(dir.list()), new Predicate<String>() {
+                    public boolean apply(String input) {
+                        return input.contains(namePart);
+                    }
+                });
+            }
+            
+        };
+    }
 }

@@ -44,7 +44,7 @@ public class MappingFileWriterListener implements RequestListener {
 	public void requestReceived(Request request, Response response) {
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
 		
-		if (requestNotAlreadyReceived(requestPattern)) {
+		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
 		    writeToMappingAndBodyFile(request, response, requestPattern);
 		} else {

@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.google.common.base.Charsets.UTF_8;
 import static com.github.tomakehurst.wiremock.http.HttpServletResponseUtils.getUnderlyingSocketFrom;
+import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.io.IOException;
@@ -26,10 +26,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.google.common.base.Optional;
 
 public class Response {
 
@@ -38,6 +38,7 @@ public class Response {
 	private HttpHeaders headers = new HttpHeaders();
 	private boolean configured = true;
 	private Fault fault;
+	private boolean fromProxy = false;
 	
 	public static Response notConfigured() {
 		Response response = new Response(HTTP_NOT_FOUND);
@@ -148,13 +149,18 @@ public class Response {
 		this.fault = fault;
 	}
 
-	@Override
-	public String toString() {
-		return "Response [status=" + status + ", body=" + Arrays.toString(body)
-				+ ", headers=" + headers + ", configured=" + configured
-				+ ", fault=" + fault + "]";
-	}
+    public boolean isFromProxy() {
+        return fromProxy;
+    }
 
-	
-	
+    public void setFromProxy(boolean fromProxy) {
+        this.fromProxy = fromProxy;
+    }
+
+    @Override
+    public String toString() {
+        return "Response [status=" + status + ", body=" + Arrays.toString(body) + ", headers=" + headers
+                + ", configured=" + configured + ", fault=" + fault + ", fromProxy=" + fromProxy + "]";
+    }
+
 }

@@ -66,6 +66,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 			addBodyIfPostOrPut(httpRequest, responseDefinition);
 			HttpResponse httpResponse = client.execute(httpRequest);
 			Response response = new Response(httpResponse.getStatusLine().getStatusCode());
+			response.setFromProxy(true);
 			for (Header header: httpResponse.getAllHeaders()) {
 				response.addHeader(header.getName(), header.getValue());
 			}

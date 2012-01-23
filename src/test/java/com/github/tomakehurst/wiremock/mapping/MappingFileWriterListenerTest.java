@@ -79,6 +79,7 @@ public class MappingFileWriterListenerTest {
 			.build();
 		
 		Response response = new Response(200);
+		response.setFromProxy(true);
 		response.setBody("Recorded body content");
 		
 		listener.requestReceived(request, response);
@@ -115,6 +116,7 @@ public class MappingFileWriterListenerTest {
             .build();
         
         Response response = new Response(200);
+        response.setFromProxy(true);
         response.setBody("Recorded body content");
         response.addHeader("Content-Type", "text/plain");
         response.addHeader("Cache-Control", "no-cache");
@@ -135,6 +137,24 @@ public class MappingFileWriterListenerTest {
                 .withUrl("/headered/content")
                 .build(),
             new Response(200));
+	}
+	
+	@Test
+	public void doesNotWriteFileIfResponseNotFromProxy() {
+	    context.checking(new Expectations() {{
+            allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+            never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
+            never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
+        }});
+	    
+	    Response response = new Response(200);
+        response.setFromProxy(false);
+        
+        listener.requestReceived(new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/headered/content")
+                .build(),
+            response);
 	}
 
 	private IdGenerator fixedIdGenerator(final String id) {
