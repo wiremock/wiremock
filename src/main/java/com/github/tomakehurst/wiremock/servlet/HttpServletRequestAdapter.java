@@ -16,11 +16,12 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.list;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -74,7 +75,8 @@ public class HttpServletRequestAdapter implements Request {
 	@SuppressWarnings("unchecked")
 	@Override
 	public String getHeader(String key) {
-		for (String currentKey: Collections.<String>list(request.getHeaderNames())) {
+	    List<String> headerNames = list(request.getHeaderNames());
+		for (String currentKey: headerNames) {
 			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
 				return request.getHeader(currentKey);
 			}
