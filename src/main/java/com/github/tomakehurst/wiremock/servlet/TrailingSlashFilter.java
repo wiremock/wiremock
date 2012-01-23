@@ -15,12 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
@@ -48,49 +47,37 @@ public class TrailingSlashFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String path = getRequestPathFrom(httpServletRequest);
         
-        StatusAndRedirectExposingHttpServletResponse wrappedResponse = new StatusAndRedirectExposingHttpServletResponse((HttpServletResponse) response);
+        StatusAndRedirectExposingHttpServletResponse wrappedResponse =
+            new StatusAndRedirectExposingHttpServletResponse((HttpServletResponse) response, path, httpServletRequest);
         chain.doFilter(request, wrappedResponse);
-        
-        String location = wrappedResponse.getLocation();
-        if (wrappedResponse.getStatus() == HTTP_MOVED_TEMP && location.contains(path)) {
-            RequestDispatcher dispatcher = request.getRequestDispatcher(location);
-            dispatcher.forward(request, response);
-        }
     }
     
     private static class StatusAndRedirectExposingHttpServletResponse extends HttpServletResponseWrapper {
         
-        private int status;
-        private String location;
+        private String path;
+        private HttpServletRequest request;
         
-        public StatusAndRedirectExposingHttpServletResponse(HttpServletResponse response) {
+        public StatusAndRedirectExposingHttpServletResponse(HttpServletResponse response, String path, HttpServletRequest request) {
             super(response);
+            this.path = path;
+            this.request = request;
         }
-
+        
         @Override
         public void sendRedirect(String location) throws IOException {
-            this.location = location;
-            super.sendRedirect(location);
+            if (location.contains(path)) {
+                RequestDispatcher dispatcher = request.getRequestDispatcher(getPathPartFromLocation(location));
+                try {
+                    dispatcher.forward(request, this);
+                } catch (ServletException se) {
+                    throw new IOException(se);
+                }
+            }
         }
-
-        @Override
-        public void setStatus(int sc) {
-            status = sc;
-            super.setStatus(sc);
-        }
-
-        @Override
-        public void setStatus(int sc, String sm) {
-            status = sc;
-            super.setStatus(sc, sm);
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getLocation() {
-            return location;
+        
+        private String getPathPartFromLocation(String location) throws IOException {
+            URL url = new URL(location);
+            return url.getPath();
         }
     }
     

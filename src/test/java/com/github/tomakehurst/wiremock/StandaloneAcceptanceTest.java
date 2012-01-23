@@ -140,6 +140,15 @@ public class StandaloneAcceptanceTest {
 	}
 	
 	@Test
+	public void shouldNotSend302WhenPathIsDirAndTrailingSlashNotPresent() {
+	    writeFileToFilesDir("json/wire & mock directory/index.json", "{ \"key\": \"index page value\" }");
+	    startRunner();
+        WireMockResponse response = testClient.get("/json/wire%20&%20mock%20directory");
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), is("{ \"key\": \"index page value\" }"));
+	}
+	
+	@Test
 	public void servesJsonIndexFileWhenTrailingSlashPresent() {
 		writeFileToFilesDir("json/23456/index.json", "{ \"key\": \"new value\" }");
 		startRunner();
