@@ -35,7 +35,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.11</version>
+		<version>1.12</version>
 	</dependency>
 
 
@@ -80,7 +80,7 @@ You can then write a test case like this:
 		assertTrue(result.wasSuccessFul());
 		
 		verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
-				.withBodyMatching(".*<message>1234</message>.*")
+				.withRequestBody(matching(".*<message>1234</message>.*"))
 				.withHeader("Content-Type", notMatching("application/json")));
 	}
 	
@@ -115,13 +115,14 @@ Request headers can be matched exactly, with a regex or a negative regex:
 	
 	
 ### Request body matching
-The request body can also be specified as a regex:
+Multiple match conditions can be specified for a request's body contents, in a similar fashion to headers: 
 
-	.withBodyMatching(".*Something.*")
+	.withRequestBody(equalTo("Something"))
+	.withRequestBody(matching(".*Something.*"))
+	.withRequestBody(notMatching(".*Another thing.*"))
+	.withRequestBody(containing("Some text"))
 	
-or like this:
-
-	.withBodyContaining("Something")
+Every condition specified must be satisfied for the mapping to be selected (i.e. they're used with an AND operator)
 	
 ### Verifiying a precise number of requests
 An alternate form of the <code>verify</code> call is:
@@ -181,11 +182,18 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 				"Etag": {
 					"doesNotMatch": "s0912lksjd(.+)"
 				} 
-			}
+			},
+			"bodyPatterns": [
+				{ "equalTo": "<content>blah</content>" },
+				{ "contains": "blah" },
+				{ "matches": "<content>[a-z]+</content>" },
+				{ "doesNotMatch": ".*blab.*" }
+			]
 		},										
 		"response": {									
-			"status": 200,							
-			"body": "YES INDEED!",
+			"status": 200,	// Required						
+			"body": "YES INDEED!", // Specify this OR bodyFileName
+			"bodyFileName": "path/to/mybodyfile.json", // Relative to __files
 			"headers": {
 				"Content-Type": "text/plain",
 				"Cache-Control": "no-cache"
@@ -239,19 +247,21 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.11-standalone.jar
+	java -jar wiremock-1.12-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.11-standalone.jar --port 9999
+	java -jar wiremock-1.12-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
 
 ### Recording requests
-If WireMock is started with the <code>--record-mappings</code> option all non-admin requests will be captured under the mappings directory, with body content for each mapping captured under __files.
+If WireMock is started with the <code>--record-mappings</code> option non-admin requests will be captured under the mappings directory, with body content for each mapping captured under __files.
+A stub for a particular request will only be captured once within the current session (to avoid duplicates) and only for requests whose response was proxied. In practice this means that you can run wiremock as a proxy
+to your client application with recording turned on, and it will only record mappings for requests it doesn't already recognise.  
 
-It is recommended that this option is used in tandem with the <code>--proxy-all "http://someotherhost.com/root"</code> parameter, which will create a single stub mapping to proxy all requests to the given URL.  
+You can use this option with the <code>--proxy-all="http://someotherhost.com/root"</code> parameter, which will proxy all requests to the given URL.  
 
 ### Files and mappings directories 
 The following directories will be created when you first start WireMock:
