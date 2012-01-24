@@ -112,6 +112,7 @@ Request headers can be matched exactly, with a regex or a negative regex:
 	.withHeader("Content-Type", equalTo("text/xml"))
 	.withHeader("Accept", matching("text/.*"))
 	.withHeader("etag", notMatching("abcd2134"))
+	.withHeader("etag", containing("abcd2134"))
 	
 	
 ### Request body matching
