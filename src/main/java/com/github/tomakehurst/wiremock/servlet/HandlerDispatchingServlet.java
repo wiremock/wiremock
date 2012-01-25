@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 
 import java.io.IOException;
@@ -65,8 +67,10 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
 		    response.applyTo(httpServletResponse);
-		} else {
+		} else if (request.getMethod() == GET) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
+		} else {
+			httpServletResponse.sendError(HTTP_NOT_FOUND);
 		}
 	}
 

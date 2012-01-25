@@ -26,7 +26,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
-import static java.net.HttpURLConnection.HTTP_BAD_METHOD;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -125,9 +125,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .withBodyFile("plain-example.txt")));
         
         WireMockResponse response = testClient.putWithBody("/match/this/body", "Blah...but not the rest", "text/plain");
-        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
         response = testClient.putWithBody("/match/this/body", "@12345@...but not the rest", "text/plain");
-        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
         
         response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
@@ -143,7 +143,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .withBodyFile("plain-example.txt")));
         
         WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
-        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
         
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
@@ -158,7 +158,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .withBodyFile("plain-example.txt")));
         
         WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
-        assertThat(response.statusCode(), is(HTTP_BAD_METHOD));
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
         
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));

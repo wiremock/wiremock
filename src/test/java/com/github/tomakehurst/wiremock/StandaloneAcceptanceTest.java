@@ -168,6 +168,14 @@ public class StandaloneAcceptanceTest {
 		assertThat(response.header("Content-Type"), is("application/xml"));
 	}
 	
+	@Test
+	public void doesNotServeFileFromFilesDirWhenNotGET() {
+		writeFileToFilesDir("json/should-not-see-this.json", "{}");
+		startRunner();
+		WireMockResponse response = testClient.put("/json/should-not-see-this.json");
+		assertThat(response.statusCode(), is(404)); //Default servlet returns 405 if PUT is forwarded to it
+	}
+	
 	private static final String BODY_FILE_MAPPING_REQUEST =
 		"{ 													\n" +
 		"	\"request\": {									\n" +
