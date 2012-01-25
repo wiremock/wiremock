@@ -97,7 +97,11 @@ public class ResponseDefinition {
 	}
 	
 	public void setStatus(final int status) {
-		this.status = status;
+		if (status == 0) {
+			this.status = HTTP_OK;
+		} else {
+			this.status = status;
+		}
 	}
 
 	public void setBody(final String body) {
