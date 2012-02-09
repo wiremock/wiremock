@@ -5,14 +5,17 @@ WireMock is a tool for building HTTP mocks/stubs/spies. It can be run as a stand
 A fluent Java client API makes for expressive, concise test cases, while a JSON API enables integration with other languges.
 
 
-What it's good for
-------------------
+Key Features
+------------
 	
--	Expressive unit tests
--	Integrated BDD/ATDD
--	Load testing
+-	HTTP response stubbing, matchable on URL, header and body content patterns
+-	Request verification
+-	Runs in unit tests, as a standalone process or as a WAR app
+-	Configurable via a fluent Java API, JSON files and JSON over HTTP
+-	Record/playback of stubs
 -	Fault injection
--	Quick REST API prototyping
+-	Per-request conditional proxying
+-	Configurable response delays
  
 
 Quick start with JUnit 4.x
