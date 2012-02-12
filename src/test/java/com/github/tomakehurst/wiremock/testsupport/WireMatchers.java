@@ -24,10 +24,10 @@ import net.sf.json.test.JSONAssert;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.matchers.TypeSafeMatcher;
+import org.hamcrest.TypeSafeMatcher;
 
-import com.google.common.base.Predicate;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.google.common.base.Predicate;
 
 public class WireMatchers {
 

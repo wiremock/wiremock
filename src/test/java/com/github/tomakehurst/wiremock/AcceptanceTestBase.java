@@ -15,34 +15,22 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class AcceptanceTestBase {
 
-	protected static WireMockServer wireMockServer;
 	protected static WireMockTestClient testClient;
+	
+	@Rule
+	public WireMockRule wireMockRule = new WireMockRule();
 	
 	@BeforeClass
 	public static void setupServer() {
-		wireMockServer = new WireMockServer();
-		wireMockServer.start();
 		testClient = new WireMockTestClient();
-		WireMock.configure();
 	}
 	
-	@AfterClass
-	public static void serverShutdown() {
-		wireMockServer.stop();
-	}
-	
-	@Before
-	public void init() throws InterruptedException {
-		WireMock.reset();
-	}
-
 }

@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class ValuePatternTest {
 	

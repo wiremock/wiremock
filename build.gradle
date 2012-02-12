@@ -23,6 +23,10 @@ repositories {
 	mavenCentral()
 }
 
+configurations {
+	provided
+}
+
 dependencies {
 	compile "org.mortbay.jetty:jetty:6.1.26"
 	compile "com.google.guava:guava:10.0"
@@ -31,10 +35,25 @@ dependencies {
 	compile "log4j:log4j:1.2.16"
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
 	
-	testCompile "junit:junit:4.8"
+	provided "junit:junit:4.8.2"
+	
 	testCompile "org.hamcrest:hamcrest-all:1.1"
-	testCompile "org.jmock:jmock:2.5.1", "org.jmock:jmock-junit4:2.5.1"
+	testCompile "org.jmock:jmock:2.5.1"
+	testCompile ("org.jmock:jmock-junit4:2.5.1") {
+		exclude group: "junit", module: "junit-dep"
+	}
 	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
+}
+
+
+sourceSets {
+	main { compileClasspath += configurations.provided }
+}
+
+eclipse {
+	classpath {
+		plusConfigurations += configurations.provided
+	}
 }
 
 task "create-dirs" << {
