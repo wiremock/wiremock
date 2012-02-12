@@ -1,9 +1,6 @@
 WireMock - a tool for simulating HTTP services
 ==============================================
 
-WireMock is a tool for building HTTP mocks/stubs/spies. It can be run as a standalone process or called from other Java/JVM code.
-A fluent Java client API makes for expressive, concise test cases, while a JSON API enables integration with other languges.
-
 
 Key Features
 ------------
@@ -38,7 +35,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.13</version>
+		<version>1.14</version>
 	</dependency>
 
 
@@ -255,11 +252,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.13-standalone.jar
+	java -jar wiremock-1.14-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.13-standalone.jar --port 9999
+	java -jar wiremock-1.14-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
