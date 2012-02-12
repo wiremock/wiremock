@@ -35,12 +35,23 @@ public class MockRequestBuilder {
 	private HttpHeaders headers = new HttpHeaders();
 	private String body = "";
 	
+	private String mockName;
+	
 	public MockRequestBuilder(Mockery context) {
+		this.context = context;
+	}
+	
+	public MockRequestBuilder(Mockery context, String mockName) {
+		this.mockName = mockName;
 		this.context = context;
 	}
 	
 	public static MockRequestBuilder aRequest(Mockery context) {
 		return new MockRequestBuilder(context);
+	}
+	
+	public static MockRequestBuilder aRequest(Mockery context, String mockName) {
+		return new MockRequestBuilder(context, mockName);
 	}
 
 	public MockRequestBuilder withUrl(String url) {
@@ -64,7 +75,7 @@ public class MockRequestBuilder {
 	}
 	
 	public Request build() {
-		final Request request = context.mock(Request.class);
+		final Request request = mockName == null ? context.mock(Request.class) : context.mock(Request.class, mockName);
 		context.checking(new Expectations() {{
 			allowing(request).getUrl(); will(returnValue(url));
 			allowing(request).getMethod(); will(returnValue(method));

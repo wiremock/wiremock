@@ -25,6 +25,9 @@ public class MappingBuilder {
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
+	private String scenarioName;
+	private String requiredScenarioState;
+	private String newScenarioState;
 	
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
@@ -50,11 +53,29 @@ public class MappingBuilder {
 		return this;
 	}
 	
+	public MappingBuilder inScenario(String scenarioName) {
+		this.scenarioName = scenarioName;
+		return this;
+	}
+	
+	public MappingBuilder whenScenarioStateIs(String stateName) {
+		this.requiredScenarioState = stateName;
+		return this;
+	}
+	
+	public MappingBuilder willSetStateTo(String stateName) {
+		this.newScenarioState = stateName;
+		return this;
+	}
+	
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);
 		mapping.setPriority(priority);
+		mapping.setScenarioName(scenarioName);
+		mapping.setRequiredScenarioState(requiredScenarioState);
+		mapping.setNewScenarioState(newScenarioState);
 		return mapping;
 	}
 }

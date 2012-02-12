@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.mapping.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
@@ -113,6 +114,40 @@ public class InMemoryMappingsTest {
 		
 		assertThat(response.getStatus(), is(201));
 		assertThat(response.getBody(), is("Desired content"));
+	}
+	
+	@Test
+	public void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
+		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+				new RequestPattern(GET, "/scenario/resource"),
+				new ResponseDefinition(200, "Initial content"));
+		firstGetMapping.setScenarioName("TestScenario");
+		firstGetMapping.setRequiredScenarioState(STARTED);
+		mappings.addMapping(firstGetMapping);
+		
+		RequestResponseMapping putMapping = new RequestResponseMapping(
+				new RequestPattern(PUT, "/scenario/resource"),
+				new ResponseDefinition(204, ""));
+		putMapping.setScenarioName("TestScenario");
+		putMapping.setRequiredScenarioState(STARTED);
+		putMapping.setNewScenarioState("Modified");
+		mappings.addMapping(putMapping);
+		
+		RequestResponseMapping secondGetMapping = new RequestResponseMapping(
+				new RequestPattern(GET, "/scenario/resource"),
+				new ResponseDefinition(204, "Modified content"));
+		secondGetMapping.setScenarioName("TestScenario");
+		secondGetMapping.setRequiredScenarioState("Modified");
+		mappings.addMapping(secondGetMapping);
+		
+		
+		Request firstGet = aRequest(context, "firstGet").withMethod(GET).withUrl("/scenario/resource").build();
+		Request put = aRequest(context, "put").withMethod(PUT).withUrl("/scenario/resource").build();
+		Request secondGet = aRequest(context, "secondGet").withMethod(GET).withUrl("/scenario/resource").build();
+		
+		assertThat(mappings.getFor(firstGet).getBody(), is("Initial content"));
+		mappings.getFor(put);
+		assertThat(mappings.getFor(secondGet).getBody(), is("Modified content"));
 	}
 	
 	@Test

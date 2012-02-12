@@ -27,6 +27,9 @@ public class RequestResponseMapping {
 	private RequestPattern request;
 	private ResponseDefinition response;
 	private Integer priority;
+	private String scenarioName;
+	private String requiredScenarioState;
+	private String newScenarioState;
 	
 	private long insertionIndex;
 	
@@ -81,6 +84,45 @@ public class RequestResponseMapping {
 		this.priority = priority;
 	}
 	
+	public String getScenarioName() {
+		return scenarioName;
+	}
+
+	public void setScenarioName(String scenarioName) {
+		this.scenarioName = scenarioName;
+	}
+
+	public String getRequiredScenarioState() {
+		return requiredScenarioState;
+	}
+
+	public void setRequiredScenarioState(String requiredScenarioState) {
+		this.requiredScenarioState = requiredScenarioState;
+	}
+
+	public String getNewScenarioState() {
+		return newScenarioState;
+	}
+
+	public void setNewScenarioState(String newScenarioState) {
+		this.newScenarioState = newScenarioState;
+	}
+	
+	@JsonIgnore
+	public boolean isInScenario() {
+		return scenarioName != null;
+	}
+	
+	@JsonIgnore
+	public boolean modifiesScenarioState() {
+		return newScenarioState != null;
+	}
+	
+	@JsonIgnore
+	public boolean dependsOnScenarioState() {
+		return requiredScenarioState != null;
+	}
+
 	public int comparePriorityWith(RequestResponseMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
@@ -93,10 +135,20 @@ public class RequestResponseMapping {
 		int result = 1;
 		result = prime * result
 				+ (int) (insertionIndex ^ (insertionIndex >>> 32));
-		result = prime * result + priority;
+		result = prime
+				* result
+				+ ((newScenarioState == null) ? 0 : newScenarioState.hashCode());
+		result = prime * result
+				+ ((priority == null) ? 0 : priority.hashCode());
 		result = prime * result + ((request == null) ? 0 : request.hashCode());
+		result = prime
+				* result
+				+ ((requiredScenarioState == null) ? 0 : requiredScenarioState
+						.hashCode());
 		result = prime * result
 				+ ((response == null) ? 0 : response.hashCode());
+		result = prime * result
+				+ ((scenarioName == null) ? 0 : scenarioName.hashCode());
 		return result;
 	}
 
@@ -115,7 +167,18 @@ public class RequestResponseMapping {
 		if (insertionIndex != other.insertionIndex) {
 			return false;
 		}
-		if (priority != other.priority) {
+		if (newScenarioState == null) {
+			if (other.newScenarioState != null) {
+				return false;
+			}
+		} else if (!newScenarioState.equals(other.newScenarioState)) {
+			return false;
+		}
+		if (priority == null) {
+			if (other.priority != null) {
+				return false;
+			}
+		} else if (!priority.equals(other.priority)) {
 			return false;
 		}
 		if (request == null) {
@@ -125,6 +188,13 @@ public class RequestResponseMapping {
 		} else if (!request.equals(other.request)) {
 			return false;
 		}
+		if (requiredScenarioState == null) {
+			if (other.requiredScenarioState != null) {
+				return false;
+			}
+		} else if (!requiredScenarioState.equals(other.requiredScenarioState)) {
+			return false;
+		}
 		if (response == null) {
 			if (other.response != null) {
 				return false;
@@ -132,8 +202,16 @@ public class RequestResponseMapping {
 		} else if (!response.equals(other.response)) {
 			return false;
 		}
+		if (scenarioName == null) {
+			if (other.scenarioName != null) {
+				return false;
+			}
+		} else if (!scenarioName.equals(other.scenarioName)) {
+			return false;
+		}
 		return true;
 	}
+
 	
 	
 }
