@@ -43,29 +43,10 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 
 
 In your test class, add this:
+
+	@Rule
+	public WireMockRule wireMockRule = new WireMockRule(8089); // No-args constructor defaults to port 8080
 	
-	
-	private static WireMockServer wireMockServer;
-	
-	@BeforeClass
-	public static void setupServer() {
-		wireMockServer = new WireMockServer();
-		wireMockServer.start();
-	}
-	
-	@AfterClass
-	public static void serverShutdown() {
-		wireMockServer.stop();
-	}
-	
-	@Before
-	public void init() {
-		//Erases all stub mappings and recorded requests
-		WireMock.reset();
-	}
-	
-	
-This will start the server on localhost:8080.
 
 You can then write a test case like this:
 	
@@ -85,6 +66,29 @@ You can then write a test case like this:
 		verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
 				.withRequestBody(matching(".*<message>1234</message>.*"))
 				.withHeader("Content-Type", notMatching("application/json")));
+	}
+	
+	
+The above @Rule will restart the WireMock server before each test method.
+If you want your tests to run slightly faster the following code will keep WireMock running for the entire test class:  
+	
+	private static WireMockServer wireMockServer;
+	
+	@BeforeClass
+	public static void setupServer() {
+		wireMockServer = new WireMockServer();
+		wireMockServer.start();
+	}
+	
+	@AfterClass
+	public static void serverShutdown() {
+		wireMockServer.stop();
+	}
+	
+	@Before
+	public void init() {
+		//Erases all stub mappings and recorded requests
+		WireMock.reset();
 	}
 	
 All the API calls above are static methods on the com.github.tomakehurst.wiremock.client.WireMock class, so you'll need to add:
