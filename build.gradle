@@ -37,6 +37,7 @@ dependencies {
 	
 	provided "junit:junit:4.8.2"
 	
+	testCompile "junit:junit:4.8.2"
 	testCompile "org.hamcrest:hamcrest-all:1.1"
 	testCompile "org.jmock:jmock:2.5.1"
 	testCompile ("org.jmock:jmock-junit4:2.5.1") {
