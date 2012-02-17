@@ -73,7 +73,7 @@ public class InMemoryMappings implements Mappings {
 	
 	private boolean scenarioIsInMatchingStateFor(RequestResponseMapping mapping) {
 		Scenario scenario = scenarioMap.get(mapping.getScenarioName());
-		return scenario.currentStateIs(mapping.getRequiredScenarioState());
+		return !mapping.dependsOnScenarioState() || scenario.currentStateIs(mapping.getRequiredScenarioState());
 	}
 
 }

@@ -12,6 +12,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
 	@Test
@@ -35,5 +37,27 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/some/resource").content(), is("Initial"));
 		testClient.put("/some/resource");
 		assertThat(testClient.get("/some/resource").content(), is("Modified"));
+	}
+	
+	@Test
+	public void mappingInScenarioIndependentOfCurrentState() {
+		givenThat(get(urlEqualTo("/state/independent/resource"))
+				.willReturn(aResponse().withBody("Some content"))
+				.inScenario("StateIndependent"));
+		
+		givenThat(put(urlEqualTo("/state/modifying/resource"))
+				.willReturn(aResponse().withStatus(HTTP_OK))
+				.inScenario("StateIndependent")
+				.willSetStateTo("BodyModified"));
+		
+		WireMockResponse response = testClient.get("/state/independent/resource");
+		assertThat(response.statusCode(), is(HTTP_OK));
+		assertThat(response.content(), is("Some content"));
+		
+		testClient.put("/state/modifying/resource");
+		
+		response = testClient.get("/state/independent/resource");
+		assertThat(response.statusCode(), is(HTTP_OK));
+		assertThat(response.content(), is("Some content"));
 	}
 }
