@@ -31,27 +31,30 @@ public class InMemoryMappings implements Mappings {
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
 	
 	@Override
-	public ResponseDefinition getFor(Request request) {
+	public ResponseDefinition serveFor(Request request) {
 		RequestResponseMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
 				RequestResponseMapping.NOT_CONFIGURED);
 		
+		notifyIfResponseNotConfigured(request, matchingMapping);
+		matchingMapping.updateScenarioStateIfRequired();
+		return copyOf(matchingMapping.getResponse());
+	}
+
+	private void notifyIfResponseNotConfigured(Request request,
+			RequestResponseMapping matchingMapping) {
 		if (matchingMapping == NOT_CONFIGURED) {
 		    notifier().info("No mapping found matching URL " + request.getUrl());
 		}
-		
-		if (matchingMapping.isInScenario() && matchingMapping.modifiesScenarioState()) {
-			scenarioMap.put(matchingMapping.getScenarioName(), new Scenario(matchingMapping.getNewScenarioState()));
-		}
-		
-		return copyOf(matchingMapping.getResponse());
 	}
-	
+
 	@Override
 	public void addMapping(RequestResponseMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
+			Scenario scenario = scenarioMap.get(mapping.getScenarioName());
+			mapping.setScenario(scenario);
 		}
 		
 		mappings.add(mapping);
@@ -66,14 +69,8 @@ public class InMemoryMappings implements Mappings {
 		return new Predicate<RequestResponseMapping>() {
 			public boolean apply(RequestResponseMapping mapping) {
 				return mapping.getRequest().isMatchedBy(request) &&
-				(!mapping.isInScenario() || scenarioIsInMatchingStateFor(mapping));
+				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};
 	}
-	
-	private boolean scenarioIsInMatchingStateFor(RequestResponseMapping mapping) {
-		Scenario scenario = scenarioMap.get(mapping.getScenarioName());
-		return !mapping.dependsOnScenarioState() || scenario.currentStateIs(mapping.getRequiredScenarioState());
-	}
-
 }

@@ -28,7 +28,7 @@ public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
-		ResponseDefinition response = mappings.getFor(request);
+		ResponseDefinition response = mappings.serveFor(request);
 		return response;
 	}
 

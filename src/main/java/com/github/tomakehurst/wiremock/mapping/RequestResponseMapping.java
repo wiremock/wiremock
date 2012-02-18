@@ -30,6 +30,7 @@ public class RequestResponseMapping {
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
+	private Scenario scenario;
 	
 	private long insertionIndex;
 	
@@ -108,6 +109,22 @@ public class RequestResponseMapping {
 		this.newScenarioState = newScenarioState;
 	}
 	
+	public void updateScenarioStateIfRequired() {
+		if (isInScenario() && modifiesScenarioState()) {
+			scenario.setState(newScenarioState);
+		}
+	}
+	
+	@JsonIgnore
+	public Scenario getScenario() {
+		return scenario;
+	}
+
+	@JsonIgnore
+	public void setScenario(Scenario scenario) {
+		this.scenario = scenario;
+	}
+
 	@JsonIgnore
 	public boolean isInScenario() {
 		return scenarioName != null;
@@ -119,10 +136,15 @@ public class RequestResponseMapping {
 	}
 	
 	@JsonIgnore
-	public boolean dependsOnScenarioState() {
-		return requiredScenarioState != null;
+	public boolean isIndependentOfScenarioState() {
+		return !isInScenario() || requiredScenarioState == null;
 	}
-
+	
+	@JsonIgnore
+	public boolean requiresCurrentScenarioState() {
+		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
+	}
+	
 	public int comparePriorityWith(RequestResponseMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;

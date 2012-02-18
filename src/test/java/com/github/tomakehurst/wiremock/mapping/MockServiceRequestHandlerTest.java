@@ -49,7 +49,7 @@ public class MockServiceRequestHandlerTest {
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
-			allowing(mappings).getFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+			allowing(mappings).serveFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
 			Response response = new Response(200);
 			response.setBody("Body content");
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
@@ -72,7 +72,7 @@ public class MockServiceRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(mappings).getFor(request); will(returnValue(ResponseDefinition.notConfigured()));
+			allowing(mappings).serveFor(request); will(returnValue(ResponseDefinition.notConfigured()));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
