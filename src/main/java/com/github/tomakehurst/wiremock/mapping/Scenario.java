@@ -24,6 +24,10 @@ public class Scenario {
 		state.set(newState);
 	}
 	
+	public void reset() {
+		state.set(STARTED);
+	}
+	
 	public boolean stateIs(String state) {
 		return getState().equals(state);
 	}

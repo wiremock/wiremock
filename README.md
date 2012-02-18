@@ -173,7 +173,8 @@ JSON API
 New stub mappings can be registered on the fly by posting JSON to <code>http://localhost:8080/__admin/mappings/new </code>:
 
 	{ 
-		"priority": 3, // Defaults to 5 if not specified. 1 is highest.													
+		"priority": 3, // Defaults to 5 if not specified. 1 is highest.		
+		"											
 		"request": {									
 			"method": "GET",						
 			"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
