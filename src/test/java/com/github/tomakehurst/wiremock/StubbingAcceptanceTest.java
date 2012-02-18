@@ -19,10 +19,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
@@ -46,7 +46,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithExactUrlAndMethodMatch() {
-		givenThat(get(urlEqualTo("/a/registered/resource")).willReturn(
+		stubFor(get(urlEqualTo("/a/registered/resource")).willReturn(
 				aResponse()
 				.withStatus(401)
 				.withHeader("Content-Type", "text/plain")
@@ -61,7 +61,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithUrlContainingQueryParameters() {
-		givenThat(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
+		stubFor(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
 				aResponse()
 				.withHeader("Location", "/nowhere")
 				.withStatus(302)));
@@ -73,7 +73,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithHeaderMatchers() {
-		givenThat(put(urlEqualTo("/some/url"))
+		stubFor(put(urlEqualTo("/some/url"))
 			.withHeader("One", equalTo("abcd1234"))
 			.withHeader("Two", matching("[a-z]{5}"))
 			.withHeader("Three", notMatching("[A-Z]+"))
@@ -89,7 +89,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void mappingWithCaseInsensitiveHeaderMatchers() {
-		givenThat(put(urlEqualTo("/case/insensitive"))
+		stubFor(put(urlEqualTo("/case/insensitive"))
 			.withHeader("ONE", equalTo("abcd1234"))
 			.withHeader("two", matching("[a-z]{5}"))
 			.withHeader("Three", notMatching("[A-Z]+"))
@@ -105,7 +105,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void responseBodyLoadedFromFile() {
-		givenThat(get(urlEqualTo("/my/file")).willReturn(
+		stubFor(get(urlEqualTo("/my/file")).willReturn(
 				aResponse()
 				.withStatus(200)
 				.withBodyFile("plain-example.txt")));
@@ -117,7 +117,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void matchingOnRequestBodyWithTwoRegexes() {
-	    givenThat(put(urlEqualTo("/match/this/body"))
+		stubFor(put(urlEqualTo("/match/this/body"))
 	            .withRequestBody(matching(".*Blah.*"))
 	            .withRequestBody(matching(".*@[0-9]{5}@.*"))
 	            .willReturn(aResponse()
@@ -135,7 +135,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
     public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
-        givenThat(put(urlEqualTo("/match/this/body/too"))
+		stubFor(put(urlEqualTo("/match/this/body/too"))
                 .withRequestBody(containing("Blah"))
                 .withRequestBody(notMatching(".*[0-9]+.*"))
                 .willReturn(aResponse()
@@ -151,7 +151,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
     public void matchingOnRequestBodyWithEqualTo() {
-        givenThat(put(urlEqualTo("/match/this/body/too"))
+        stubFor(put(urlEqualTo("/match/this/body/too"))
                 .withRequestBody(equalTo("BlahBlahBlah"))
                 .willReturn(aResponse()
                 .withStatus(HTTP_OK)
@@ -166,7 +166,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void responseWithFixedDelay() {
-	    givenThat(get(urlEqualTo("/delayed/resource")).willReturn(
+	    stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
                 aResponse()
                 .withStatus(200)
                 .withBody("Content")
@@ -181,17 +181,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void highPriorityMappingMatchedFirst() {
-		givenThat(get(urlMatching("/priority/.*")).atPriority(10)
+		stubFor(get(urlMatching("/priority/.*")).atPriority(10)
 				.willReturn(aResponse()
                 .withStatus(500)));
-		givenThat(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
+		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
 		
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
 	
 	@Test
 	public void emptyResponseFault() {
-		givenThat(get(urlEqualTo("/empty/response")).willReturn(
+		stubFor(get(urlEqualTo("/empty/response")).willReturn(
                 aResponse()
                 .withFault(Fault.EMPTY_RESPONSE)));
 		
@@ -200,7 +200,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void malformedResponseChunkFault() {
-		givenThat(get(urlEqualTo("/malformed/response")).willReturn(
+		stubFor(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 		
@@ -209,7 +209,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void randomDataOnSocketFault() {
-		givenThat(get(urlEqualTo("/random/data")).willReturn(
+		stubFor(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 		
@@ -218,13 +218,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void matchingUrlsWithEscapeCharacters() {
-		givenThat(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+		stubFor(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
 		assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
 	}
 	
 	@Test
 	public void default200ResponseWhenStatusCodeNotSpecified() {
-		givenThat(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
+		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
 		assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
 	}
 	

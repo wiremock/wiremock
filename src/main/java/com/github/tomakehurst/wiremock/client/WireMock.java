@@ -50,6 +50,10 @@ public class WireMock {
 		defaultInstance.register(mappingBuilder);
 	}
 	
+	public static void stubFor(MappingBuilder mappingBuilder) {
+		givenThat(mappingBuilder);
+	}
+	
 	public static void configureFor(String host, int port) {
 		defaultInstance = new WireMock(host, port);
 	}
