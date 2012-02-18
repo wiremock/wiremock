@@ -52,6 +52,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 			mappings.reset();
 			requestJournal.reset();
 			return ResponseDefinition.ok();
+		} else if (isResetScenariosRequest(request)) {
+			mappings.resetScenarios();
+			return ResponseDefinition.ok();
 		} else if (isRequestCountRequest(request)) {
 			return getRequestCount(request);
 		} else if (isGlobalSettingsUpdateRequest(request)) {
@@ -77,6 +80,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
 	private boolean isResetRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/reset");
+	}
+	
+	private boolean isResetScenariosRequest(Request request) {
+		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/scenarios/reset");
 	}
 
 	private boolean isNewMappingRequest(Request request) {

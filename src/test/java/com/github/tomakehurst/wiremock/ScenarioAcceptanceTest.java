@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
@@ -59,5 +60,23 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		response = testClient.get("/state/independent/resource");
 		assertThat(response.statusCode(), is(HTTP_OK));
 		assertThat(response.content(), is("Some content"));
+	}
+	
+	@Test
+	public void resetAllScenariosState() {
+		givenThat(get(urlEqualTo("/stateful/resource"))
+				.willReturn(aResponse().withBody("Expected content"))
+				.inScenario("ResetScenario")
+				.whenScenarioStateIs(STARTED));
+		
+		givenThat(put(urlEqualTo("/stateful/resource"))
+				.willReturn(aResponse().withStatus(HTTP_OK))
+				.inScenario("ResetScenario")
+				.willSetStateTo("Changed"));
+		
+		testClient.put("/stateful/resource");
+		WireMock.resetAllScenarios();
+		
+		assertThat(testClient.get("/stateful/resource").content(), is("Expected content"));
 	}
 }

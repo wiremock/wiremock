@@ -22,6 +22,7 @@ public interface AdminClient {
 
 	void addResponse(String responseSpecJson);
 	void resetMappings();
+	void resetScenarios();
 	int getRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
 }

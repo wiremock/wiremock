@@ -120,7 +120,7 @@ public class InMemoryMappingsTest {
 	public void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
 		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/scenario/resource"),
-				new ResponseDefinition(200, "Initial content"));
+				new ResponseDefinition(204, "Initial content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		firstGetMapping.setRequiredScenarioState(STARTED);
 		mappings.addMapping(firstGetMapping);
@@ -158,9 +158,44 @@ public class InMemoryMappingsTest {
 		firstGetMapping.setScenarioName("TestScenario");
 		mappings.addMapping(firstGetMapping);
 		
-		Request firstGet = aRequest(context, "firstGet").withMethod(GET).withUrl("/scenario/resource").build();
+		Request request = aRequest(context).withMethod(GET).withUrl("/scenario/resource").build();
 		
-		assertThat(mappings.serveFor(firstGet).getBody(), is("Expected content"));
+		assertThat(mappings.serveFor(request).getBody(), is("Expected content"));
+	}
+	
+	@Test
+	public void supportsResetOfAllScenariosState() {
+		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+				new RequestPattern(GET, "/scenario/resource"),
+				new ResponseDefinition(204, "Desired content"));
+		firstGetMapping.setScenarioName("TestScenario");
+		firstGetMapping.setRequiredScenarioState(STARTED);
+		mappings.addMapping(firstGetMapping);
+		
+		RequestResponseMapping putMapping = new RequestResponseMapping(
+				new RequestPattern(PUT, "/scenario/resource"),
+				new ResponseDefinition(204, ""));
+		putMapping.setScenarioName("TestScenario");
+		putMapping.setRequiredScenarioState(STARTED);
+		putMapping.setNewScenarioState("Modified");
+		mappings.addMapping(putMapping);
+		
+		mappings.serveFor(
+				aRequest(context, "put /scenario/resource")
+				.withMethod(PUT).withUrl("/scenario/resource").build());
+		ResponseDefinition response =
+			mappings.serveFor(
+					aRequest(context, "1st get /scenario/resource")
+					.withMethod(GET).withUrl("/scenario/resource").build());
+		
+		assertThat(response.wasConfigured(), is(false));
+		
+		mappings.resetScenarios();
+		response =
+			mappings.serveFor(
+					aRequest(context, "2nd get /scenario/resource")
+					.withMethod(GET).withUrl("/scenario/resource").build());
+		assertThat(response.getBody(), is("Desired content"));
 	}
 	
 	@Test

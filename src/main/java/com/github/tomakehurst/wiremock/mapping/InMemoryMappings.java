@@ -42,8 +42,7 @@ public class InMemoryMappings implements Mappings {
 		return copyOf(matchingMapping.getResponse());
 	}
 
-	private void notifyIfResponseNotConfigured(Request request,
-			RequestResponseMapping matchingMapping) {
+	private void notifyIfResponseNotConfigured(Request request, RequestResponseMapping matchingMapping) {
 		if (matchingMapping == NOT_CONFIGURED) {
 		    notifier().info("No mapping found matching URL " + request.getUrl());
 		}
@@ -63,6 +62,13 @@ public class InMemoryMappings implements Mappings {
 	@Override
 	public void reset() {
 		mappings.clear();
+	}
+	
+	@Override
+	public void resetScenarios() {
+		for (Scenario scenario: scenarioMap.values()) {
+			scenario.reset();
+		}
 	}
 	
 	private Predicate<RequestResponseMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {

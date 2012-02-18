@@ -70,6 +70,14 @@ public class WireMock {
 		defaultInstance.resetMappings();
 	}
 	
+	public void resetScenarios() {
+		adminClient.resetScenarios();
+	}
+	
+	public static void resetAllScenarios() {
+		defaultInstance.resetScenarios();
+	}
+	
 	public void register(MappingBuilder mappingBuilder) {
 		RequestResponseMapping mapping = mappingBuilder.build();
 		String json = JsonMappingBinder.buildJsonStringFor(mapping);

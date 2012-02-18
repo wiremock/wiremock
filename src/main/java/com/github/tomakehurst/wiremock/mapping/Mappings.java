@@ -21,4 +21,5 @@ public interface Mappings {
 	ResponseDefinition serveFor(Request request);
 	void addMapping(RequestResponseMapping mapping);
 	void reset();
+	void resetScenarios();
 }

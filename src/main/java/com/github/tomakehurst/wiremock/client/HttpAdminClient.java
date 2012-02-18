@@ -37,6 +37,7 @@ public class HttpAdminClient implements AdminClient {
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";
 	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
+	private static final String LOCAL_WIREMOCK_RESET_SCENARIOS_URL = ADMIN_URL_PREFIX + "/scenarios/reset";
 	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
 	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
 	
@@ -69,6 +70,12 @@ public class HttpAdminClient implements AdminClient {
 	@Override
 	public void resetMappings() {
 		int status = postEmptyBodyAndReturnStatus(resetUrl());
+		assertStatusOk(status);
+	}
+	
+	@Override
+	public void resetScenarios() {
+		int status = postEmptyBodyAndReturnStatus(resetScenariosUrl());
 		assertStatusOk(status);
 	}
 
@@ -140,6 +147,10 @@ public class HttpAdminClient implements AdminClient {
 	
 	private String resetUrl() {
 		return String.format(LOCAL_WIREMOCK_RESET_URL, host, port, urlPathPrefix);
+	}
+	
+	private String resetScenariosUrl() {
+		return String.format(LOCAL_WIREMOCK_RESET_SCENARIOS_URL, host, port, urlPathPrefix);
 	}
 	
 	private String requestsCountUrl() {
