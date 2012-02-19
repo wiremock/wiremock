@@ -12,6 +12,7 @@ Key Features
 -	Record/playback of stubs
 -	Fault injection
 -	Per-request conditional proxying
+-	Stateful behaviour simulation
 -	Configurable response delays
  
 
