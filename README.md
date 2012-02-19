@@ -15,8 +15,8 @@ Key Features
 -	Configurable response delays
  
 
-Quick start with JUnit 4.x
---------------------------
+Using with JUnit 4.x
+--------------------
 
 First, add WireMock as a dependency to your project. If you're using Maven, you can do this by adding this to your POM:
 
@@ -49,7 +49,7 @@ You can then write a test case like this:
 	
 	@Test
 	public void exampleTest() {
-		givenThat(get(urlEqualTo("/my/resource"))
+		stubFor(get(urlEqualTo("/my/resource"))
 				.withHeader("Accept", equalTo("text/xml"))
 				.willReturn(aResponse()
 					.withStatus(200)
@@ -65,6 +65,9 @@ You can then write a test case like this:
 				.withHeader("Content-Type", notMatching("application/json")));
 	}
 	
+You can also declare mappings in a more BDDish manner if you prefer:
+	
+	givenThat(get(....
 	
 The above @Rule will restart the WireMock server before each test method.
 If you want your tests to run slightly faster the following code will keep WireMock running for the entire test class:  
@@ -148,7 +151,7 @@ If you've deployed WireMock as a WAR somewhere and it's not at app server's root
 ### Prioritising stub mappings
 A stub mapping's priority can be set in the following way:
 
-	givenThat(get(urlEqualTo("/some/url")).atPriority(7) ...
+	stubFor(get(urlEqualTo("/some/url")).atPriority(7) ...
 	
 Priority 1 is treated as most important. For stub mappings with the same priority the most recently inserted will be matched first. 
 
@@ -160,11 +163,47 @@ from a session running against an external service.
 ### Fault injection
 WireMock stubs can generate various kinds of failure.
 
-	givenThat(get(urlEqualTo("/malformed/response")).willReturn(
+	stubFor(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
                 
 The <code>com.github.tomakehurst.wiremock.http.Fault</code> enum implements a number of different fault types. 
+
+
+Scenarios - Simulating Stateful Behaviour
+-----------------------------------------
+Sometimes it is desirable to have different responses returned for the same request at different points in time. For instance given a to-do list resource,
+I might wish to simulate adding an item to an existing list and seeing the list updated e.g.
+	
+	GET /organiser/todo-items (returns 1 item)
+	POST /organiser/todo-items (with 1 new item)
+	GET /organiser/todo-items (now returns 2 items)
+
+A scenario is essentially a simple state machine, with a name and a state represented as a string (similar in concept to JMock's states feature). A stub mapping
+can be associated with a scenario, can depend on a particular state in order to be served, and can modify the scenario's state when served.
+
+The behaviour described in the example above could be implemented like this:
+
+	stubFor(get(urlEqualTo("/organiser/todo"))
+			.inScenario("ToDoList")
+			.whenScenarioStateIs(Scenario.STARTED)
+			.willReturn(aResponse().withBody("<item>Buy milk</item>")));
+		
+	stubFor(put(urlEqualTo("/organiser/todo"))
+			.inScenario("ToDoList")
+			.whenScenarioStateIs(Scenario.STARTED)
+			.willSetStateTo("First Item Added")
+			.willReturn(aResponse().withStatus(204)));
+	
+	stubFor(get(urlEqualTo("/organiser/todo"))
+			.inScenario("ToDoList")
+			.whenScenarioStateIs("First Item Added")
+			.willReturn(aResponse().withBody("<item>Buy milk</item><item>Pay newspaper bill</item>")));
+			
+To return all registered scenarios back to the initial state you can call
+
+	WireMock.resetAllScenarios();
+
 
 JSON API
 --------
@@ -174,10 +213,13 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 
 	{ 
 		"priority": 3, // Defaults to 5 if not specified. 1 is highest.		
-		"											
+		"scenarioName": "ToDoList", // See scenario section above for details of this and the two following fields
+		"requiredScenarioState": "Started",
+		"newScenarioState": "First Item Added",											
 		"request": {									
 			"method": "GET",						
-			"url": "/my/other/resource", // "url" for exact match, or "urlPattern" for regex
+			"url": "/my/other/resource", // use one of url or urlPattern
+			"urlPattern": "/my/resource?startDate=.*&endDate=.*",
 			"headers": {
 				"Content-Type": {
 					"equalTo": "text/xml"
@@ -235,6 +277,10 @@ This will return a response of the form:
 
 ### Resetting the server
 A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all stub mappings.
+
+
+### Resetting the state of all scenarios
+A post to <code>http://localhost:8080/__admin/scenarios/reset </code> will return all scenarios' state to Started.
 
 
 ### Global settings
