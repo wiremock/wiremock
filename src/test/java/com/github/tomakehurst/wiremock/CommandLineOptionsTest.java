@@ -73,6 +73,12 @@ public class CommandLineOptionsTest {
 	}
 	
 	@Test
+	public void returnsBrowserProxyingEnabledWhenOptionSet() {
+		CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
+		assertThat(options.browserProxyingEnabled(), is(true));
+	}
+	
+	@Test
 	public void setsAll() {
 		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com");
 		assertThat(options.verboseLoggingEnabled(), is(true));

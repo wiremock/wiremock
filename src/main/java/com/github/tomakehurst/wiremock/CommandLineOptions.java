@@ -28,8 +28,9 @@ public class CommandLineOptions {
 	private static final String PROXY_ALL = "proxy-all";
 	private static final String PORT = "port";
 	private static final String VERBOSE = "verbose";
+	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
 	
-	private OptionSet optionSet;
+	private final OptionSet optionSet;
 	private String helpText;
 
 	public CommandLineOptions(String... args) {
@@ -38,6 +39,7 @@ public class CommandLineOptions {
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
+		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -87,5 +89,9 @@ public class CommandLineOptions {
 	
 	public String proxyUrl() {
 		return (String) optionSet.valueOf(PROXY_ALL);
+	}
+	
+	public boolean browserProxyingEnabled() {
+		return optionSet.has(ENABLE_BROWSER_PROXYING);
 	}
 }

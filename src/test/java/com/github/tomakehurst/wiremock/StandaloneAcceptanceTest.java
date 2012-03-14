@@ -65,7 +65,7 @@ public class StandaloneAcceptanceTest {
 	
 	private WireMockServer otherServer;
 	
-	private PrintStream stdOut = System.out;
+	private final PrintStream stdOut = System.out;
 	private ByteArrayOutputStream out;
 	
 	private File mappingsDirectory;
@@ -245,6 +245,17 @@ public class StandaloneAcceptanceTest {
 	}
 	
 	@Test
+	public void performsBrowserProxyingWhenEnabled() {
+		WireMock otherServerClient = start8084ServerAndCreateClient();
+		startRunner("--enable-browser-proxying");
+		otherServerClient.register(
+		        get(urlEqualTo("/from/browser/proxy"))
+		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+
+		assertThat(testClient.getViaProxy("http://localhost:8084/from/browser/proxy").content(), is("Proxied body"));
+	}
+	
+	@Test
 	public void doesNotRecordRequestWhenNotProxied() {
 	    startRunner("--record-mappings");
 	    testClient.get("/try-to/record-this");
@@ -266,7 +277,8 @@ public class StandaloneAcceptanceTest {
 	
 	private FilenameFilter namedLike(final String namePart) {
 	    return new FilenameFilter() {
-            public boolean accept(File file, String name) {
+            @Override
+			public boolean accept(File file, String name) {
                 return name.contains(namePart);
             }
         };
@@ -350,7 +362,8 @@ public class StandaloneAcceptanceTest {
             @Override
             public boolean matchesSafely(File dir) {
                 return !any(Arrays.<String>asList(dir.list()), new Predicate<String>() {
-                    public boolean apply(String input) {
+                    @Override
+					public boolean apply(String input) {
                         return input.contains(namePart);
                     }
                 });

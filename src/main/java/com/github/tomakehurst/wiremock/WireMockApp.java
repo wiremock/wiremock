@@ -42,12 +42,12 @@ public class WireMockApp {
 
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
-    public WireMockApp(FileSource fileSource, Notifier notifier) {
+    public WireMockApp(FileSource fileSource, Notifier notifier, boolean enableBrowserProxying) {
         globalSettingsHolder = new GlobalSettingsHolder();
         mappings = new InMemoryMappings();
         requestJournal = new InMemoryRequestJournal();
         mockServiceRequestHandler = new MockServiceRequestHandler(mappings,
-                new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder));
+                new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
         adminRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
                 new BasicResponseRenderer());

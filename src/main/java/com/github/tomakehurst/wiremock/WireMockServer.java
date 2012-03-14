@@ -47,23 +47,23 @@ public class WireMockServer {
 	public static final int DEFAULT_PORT = 8080;
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
-	private WireMockApp wireMockApp;
+	private final WireMockApp wireMockApp;
 	
 	private Server jettyServer;
 	private final FileSource fileSource;
 	private final Log4jNotifier notifier;
 	private final int port;
 	
-	public WireMockServer(int port, FileSource fileSource) {
+	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
 		notifier = new Log4jNotifier();
 		this.fileSource = fileSource;
 		this.port = port;
 		
-		wireMockApp = new WireMockApp(fileSource, notifier);
+		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying);
 	}
 	
 	public WireMockServer(int port) {
-		this(port, new SingleRootFileSource("src/test/resources"));
+		this(port, new SingleRootFileSource("src/test/resources"), false);
 	}
 	
 	public WireMockServer() {

@@ -20,16 +20,18 @@ import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	private final Mappings mappings;
+	private final boolean browserProxyingEnabled;
 
-	public MockServiceRequestHandler(Mappings mappings, ResponseRenderer responseRenderer) {
+	public MockServiceRequestHandler(Mappings mappings, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
 		super(responseRenderer);
 		this.mappings = mappings;
+		this.browserProxyingEnabled = browserProxyingEnabled;
 	}
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
 		ResponseDefinition responseDef = mappings.serveFor(request);
-		if (!responseDef.wasConfigured() && request.isBrowserProxyRequest()) {
+		if (!responseDef.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
 			return ResponseDefinition.browserProxy(request);
 		}
 		

@@ -40,7 +40,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         Log4jNotifier notifier = new Log4jNotifier();
         notifier.setVerbose(true);
         
-        WireMockApp wireMockApp = new WireMockApp(fileSource, notifier);
+        WireMockApp wireMockApp = new WireMockApp(fileSource, notifier, false);
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
         context.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());

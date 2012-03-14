@@ -43,7 +43,7 @@ public class MockServiceRequestHandlerTest {
 		context = new Mockery();
 		mappings = context.mock(Mappings.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
-		requestHandler = new MockServiceRequestHandler(mappings, responseRenderer);
+		requestHandler = new MockServiceRequestHandler(mappings, responseRenderer, false); //TODO: don't hard code this
 	}
 	
 	@Test
