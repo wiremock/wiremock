@@ -80,7 +80,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	
 	private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		RequestMethod method = response.getOriginalRequest().getMethod();
-		String url = response.getProxyBaseUrl() + response.getOriginalRequest().getUrl();
+		String url = response.getProxyUrl();
 		notifier().info("Proxying: " + method + " " + url);
 		
 		switch (method) {

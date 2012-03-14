@@ -22,10 +22,12 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 public interface Request {
 
 	String getUrl();
+	String getAbsoluteUrl();
 	RequestMethod getMethod();
 	String getHeader(String key);
 	boolean containsHeader(String key);
 	Set<String> getAllHeaderKeys();
 	String getBodyAsString();
-
+	boolean isBrowserProxyRequest();
+	
 }

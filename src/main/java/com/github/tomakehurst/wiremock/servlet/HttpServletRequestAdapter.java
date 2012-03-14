@@ -27,12 +27,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.ServletContainerUtils;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.google.common.io.CharStreams;
 
 public class HttpServletRequestAdapter implements Request {
 	
-	private HttpServletRequest request;
+	private final HttpServletRequest request;
 	private String cachedBody;
 	
 	public HttpServletRequestAdapter(HttpServletRequest request) {
@@ -52,6 +53,11 @@ public class HttpServletRequestAdapter implements Request {
 		}
 		
 		return url;
+	}
+	
+	@Override
+	public String getAbsoluteUrl() {
+		return request.getRequestURL().toString();
 	}
 
 	@Override
@@ -101,4 +107,8 @@ public class HttpServletRequestAdapter implements Request {
 		return headerKeys;
 	}
 
+	@Override
+	public boolean isBrowserProxyRequest() {
+		return ServletContainerUtils.isBrowserProxyRequest(request);
+	}
 }

@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 
 public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
-	private Mappings mappings;
+	private final Mappings mappings;
 
 	public MockServiceRequestHandler(Mappings mappings, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
@@ -28,8 +28,12 @@ public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
-		ResponseDefinition response = mappings.serveFor(request);
-		return response;
+		ResponseDefinition responseDef = mappings.serveFor(request);
+		if (!responseDef.wasConfigured() && request.isBrowserProxyRequest()) {
+			return ResponseDefinition.browserProxy(request);
+		}
+		
+		return responseDef;
 	}
 
 }

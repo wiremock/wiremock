@@ -24,18 +24,23 @@ import com.github.tomakehurst.wiremock.mapping.Request;
 public class LoggedRequest implements Request {
 	
 	private String url;
+	private String absoluteUrl;
 	private RequestMethod method;
-	private HttpHeaders headers = new HttpHeaders();
+	private final HttpHeaders headers = new HttpHeaders();
 	private String body;
+	private boolean isBrowserProxyRequest;
 	
 	public static LoggedRequest createFrom(Request request) {
 		LoggedRequest loggedRequest = new LoggedRequest();
 		loggedRequest.url = request.getUrl();
+		loggedRequest.absoluteUrl = request.getAbsoluteUrl();
 		loggedRequest.method = request.getMethod();
 		loggedRequest.body = request.getBodyAsString();
 		for (String key: request.getAllHeaderKeys()) {
 			loggedRequest.headers.put(key, request.getHeader(key));
 		}
+		
+		loggedRequest.isBrowserProxyRequest = request.isBrowserProxyRequest();
 		
 		return loggedRequest;
 	}
@@ -43,6 +48,11 @@ public class LoggedRequest implements Request {
 	@Override
 	public String getUrl() {
 		return url;
+	}
+	
+	@Override
+	public String getAbsoluteUrl() {
+		return absoluteUrl;
 	}
 
 	@Override
@@ -75,5 +85,9 @@ public class LoggedRequest implements Request {
 	public Set<String> getAllHeaderKeys() {
 		return headers.keySet();
 	}
-
+	
+	@Override
+	public boolean isBrowserProxyRequest() {
+		return isBrowserProxyRequest;
+	}
 }

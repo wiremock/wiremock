@@ -21,13 +21,16 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
@@ -65,6 +68,26 @@ public class WireMockTestClient {
 	public WireMockResponse get(String url, HttpHeader... headers) {
 		HttpUriRequest httpRequest = new HttpGet(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpRequest, headers);
+	}
+	
+	public WireMockResponse getViaProxy(String url) {
+		URI targetUri = URI.create(url);
+		
+		HttpHost proxy = new HttpHost("localhost", 8080, "http");
+
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        try {
+            httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+
+            HttpHost target = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
+            HttpGet req = new HttpGet(targetUri.getPath());
+
+            System.out.println("executing request to " + target + " via " + proxy);
+            HttpResponse httpResponse = httpclient.execute(target, req);
+            return new WireMockResponse(httpResponse);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		} 
 	}
 	
 	public WireMockResponse put(String url, HttpHeader... headers) {

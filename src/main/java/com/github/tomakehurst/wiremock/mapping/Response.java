@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.http.HttpServletResponseUtils.getUnderlyingSocketFrom;
+import static com.github.tomakehurst.wiremock.http.ServletContainerUtils.getUnderlyingSocketFrom;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 

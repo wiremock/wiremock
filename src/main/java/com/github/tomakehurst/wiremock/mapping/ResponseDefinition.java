@@ -35,6 +35,7 @@ public class ResponseDefinition {
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
+	private String browserProxyUrl;
 	private Fault fault;
 	
 	private boolean wasConfigured = true;
@@ -88,6 +89,12 @@ public class ResponseDefinition {
 	    return response;
 	}
 	
+	public static ResponseDefinition browserProxy(Request originalRequest) {
+		final ResponseDefinition response = new ResponseDefinition();
+	    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
+	    return response;
+	}
+	
 	public int getStatus() {
 		return status;
 	}
@@ -135,6 +142,15 @@ public class ResponseDefinition {
     public Integer getFixedDelayMilliseconds() {
         return fixedDelayMilliseconds;
     }
+    
+    @JsonIgnore
+    public String getProxyUrl() {
+    	if (browserProxyUrl != null) {
+    		return browserProxyUrl;
+    	}
+    	
+    	return proxyBaseUrl + originalRequest.getUrl();
+    }
 
 	public String getProxyBaseUrl() {
 		return proxyBaseUrl;
@@ -156,7 +172,7 @@ public class ResponseDefinition {
 	
 	@JsonIgnore
 	public boolean isProxyResponse() {
-		return proxyBaseUrl != null;
+		return browserProxyUrl != null || proxyBaseUrl != null;
 	}
 
 	public Request getOriginalRequest() {

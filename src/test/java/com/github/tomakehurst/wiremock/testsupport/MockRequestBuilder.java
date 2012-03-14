@@ -29,11 +29,12 @@ import com.github.tomakehurst.wiremock.mapping.Request;
 
 public class MockRequestBuilder {
 
-	private Mockery context;
+	private final Mockery context;
 	private String url = "/";
 	private RequestMethod method = GET;
-	private HttpHeaders headers = new HttpHeaders();
+	private final HttpHeaders headers = new HttpHeaders();
 	private String body = "";
+	private boolean browserProxyRequest = false;
 	
 	private String mockName;
 	
@@ -74,6 +75,11 @@ public class MockRequestBuilder {
 		return this;
 	}
 	
+	public MockRequestBuilder asBrowserProxyRequest() {
+		this.browserProxyRequest = true;
+		return this;
+	}
+	
 	public Request build() {
 		final Request request = mockName == null ? context.mock(Request.class) : context.mock(Request.class, mockName);
 		context.checking(new Expectations() {{
@@ -86,6 +92,8 @@ public class MockRequestBuilder {
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keySet())));
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
 			allowing(request).getBodyAsString(); will(returnValue(body));
+			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
+			allowing(request).isBrowserProxyRequest(); will(returnValue(browserProxyRequest));
 		}});
 		
 		return request;

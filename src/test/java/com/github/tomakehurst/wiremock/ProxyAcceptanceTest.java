@@ -99,4 +99,15 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 		assertThat(response.statusCode(), is(200));
 	}
 	
+	@Test
+	public void proxiesWhenNoMappingPresentAndRequestsUrlIsAbsolute() {
+		otherServiceClient.register(get(urlEqualTo("/browser/proxying"))
+				.willReturn(aResponse()
+				.withStatus(200)));
+		
+		WireMockResponse response = testClient.getViaProxy("http://localhost:8087/browser/proxying");
+		
+		assertThat(response.statusCode(), is(200));
+	}
+	
 }
