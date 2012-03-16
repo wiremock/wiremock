@@ -17,7 +17,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.17
+version = 1.18
 
 repositories {
 	mavenCentral()
@@ -75,6 +75,18 @@ uploadArchives {
         mavenDeployer {
             repository(url: 'file:///Users/tomakehurst/dev/tomakehurst-mvn-repo/releases/')
             pom.artifactId = 'wiremock'
+            pom.project {
+            	name = 'WireMock'
+            	description = 'A tool for simulating HTTP services'
+            	url = 'https://github.com/tomakehurst/wiremock'
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+            }
         }
     }
 }
