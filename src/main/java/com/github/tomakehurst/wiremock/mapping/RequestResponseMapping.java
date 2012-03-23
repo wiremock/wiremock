@@ -22,7 +22,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestResponseMapping {
 	
-	public static int DEFAULT_PRIORITY = 5; 
+	public static final int DEFAULT_PRIORITY = 5; 
 
 	private RequestPattern request;
 	private ResponseDefinition response;
