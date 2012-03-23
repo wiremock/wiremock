@@ -22,7 +22,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestResponseMapping {
 	
-	public static final int DEFAULT_PRIORITY = 5; 
+	public static int DEFAULT_PRIORITY = 5; 
 
 	private RequestPattern request;
 	private ResponseDefinition response;
@@ -35,12 +35,12 @@ public class RequestResponseMapping {
 	
 	private long insertionIndex;
     
-    public RequestResponseMapping(final RequestPattern requestPattern, final ResponseDefinition response) {
+    public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
         this.request = requestPattern;
         this.response = response;
     }
     
-    public RequestResponseMapping(final RequestPattern requestPattern, final ResponseDefinition response, final boolean global) {
+    public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response, boolean global) {
         this.request = requestPattern;
         if(global) {
             this.globalDefaults = response;
@@ -54,7 +54,7 @@ public class RequestResponseMapping {
 		//Concession to Jackson
 	}
 	
-	public static final RequestResponseMapping NOT_CONFIGURED =
+	public static RequestResponseMapping NOT_CONFIGURED =
 	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 	
 	public RequestPattern getRequest() {
@@ -65,11 +65,11 @@ public class RequestResponseMapping {
 		return response;
 	}
 	
-	public void setRequest(final RequestPattern request) {
+	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
 
-	public void setResponse(final ResponseDefinition response) {
+	public void setResponse(ResponseDefinition response) {
 		this.response = response;
 	}
 
@@ -84,7 +84,7 @@ public class RequestResponseMapping {
 	}
 
 	@JsonIgnore
-	public void setInsertionIndex(final long insertionIndex) {
+	public void setInsertionIndex(long insertionIndex) {
 		this.insertionIndex = insertionIndex;
 	}
 
@@ -92,7 +92,7 @@ public class RequestResponseMapping {
 		return priority;
 	}
 
-	public void setPriority(final Integer priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
 	
@@ -100,7 +100,7 @@ public class RequestResponseMapping {
 		return scenarioName;
 	}
 
-	public void setScenarioName(final String scenarioName) {
+	public void setScenarioName(String scenarioName) {
 		this.scenarioName = scenarioName;
 	}
 
@@ -108,7 +108,7 @@ public class RequestResponseMapping {
 		return requiredScenarioState;
 	}
 
-	public void setRequiredScenarioState(final String requiredScenarioState) {
+	public void setRequiredScenarioState(String requiredScenarioState) {
 		this.requiredScenarioState = requiredScenarioState;
 	}
 
@@ -116,7 +116,7 @@ public class RequestResponseMapping {
 		return newScenarioState;
 	}
 
-	public void setNewScenarioState(final String newScenarioState) {
+	public void setNewScenarioState(String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
 	
@@ -130,7 +130,7 @@ public class RequestResponseMapping {
         return globalDefaults;
     }
 
-    public void setGlobalDefaults(final ResponseDefinition globalDefaults) {
+    public void setGlobalDefaults(ResponseDefinition globalDefaults) {
         this.globalDefaults = globalDefaults;
     }
 
@@ -140,7 +140,7 @@ public class RequestResponseMapping {
 	}
 
 	@JsonIgnore
-	public void setScenario(final Scenario scenario) {
+	public void setScenario(Scenario scenario) {
 		this.scenario = scenario;
 	}
 
@@ -164,15 +164,15 @@ public class RequestResponseMapping {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
 	
-	public int comparePriorityWith(final RequestResponseMapping otherMapping) {
-		final int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
-		final int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
+	public int comparePriorityWith(RequestResponseMapping otherMapping) {
+		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
+		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ (int) (insertionIndex ^ (insertionIndex >>> 32));
@@ -186,15 +186,17 @@ public class RequestResponseMapping {
 				* result
 				+ ((requiredScenarioState == null) ? 0 : requiredScenarioState
 						.hashCode());
-		result = prime * result
-				+ ((response == null) ? 0 : response.hashCode());
+        result = prime * result
+                + ((response == null) ? 0 : response.hashCode());
+        result = prime * result
+                + ((globalDefaults == null) ? 0 : globalDefaults.hashCode());
 		result = prime * result
 				+ ((scenarioName == null) ? 0 : scenarioName.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -204,7 +206,7 @@ public class RequestResponseMapping {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final RequestResponseMapping other = (RequestResponseMapping) obj;
+		RequestResponseMapping other = (RequestResponseMapping) obj;
 		if (insertionIndex != other.insertionIndex) {
 			return false;
 		}
@@ -236,13 +238,20 @@ public class RequestResponseMapping {
 		} else if (!requiredScenarioState.equals(other.requiredScenarioState)) {
 			return false;
 		}
-		if (response == null) {
-			if (other.response != null) {
-				return false;
-			}
-		} else if (!response.equals(other.response)) {
-			return false;
-		}
+        if (response == null) {
+            if (other.response != null) {
+                return false;
+            }
+        } else if (!response.equals(other.response)) {
+            return false;
+        }
+        if (globalDefaults == null) {
+            if (other.globalDefaults != null) {
+                return false;
+            }
+        } else if (!globalDefaults.equals(other.globalDefaults)) {
+            return false;
+        }
 		if (scenarioName == null) {
 			if (other.scenarioName != null) {
 				return false;
