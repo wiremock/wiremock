@@ -54,7 +54,7 @@ public class RequestResponseMapping {
 		//Concession to Jackson
 	}
 	
-	public static RequestResponseMapping NOT_CONFIGURED =
+	public static final RequestResponseMapping NOT_CONFIGURED =
 	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 	
 	public RequestPattern getRequest() {
@@ -172,7 +172,7 @@ public class RequestResponseMapping {
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
+		final int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ (int) (insertionIndex ^ (insertionIndex >>> 32));

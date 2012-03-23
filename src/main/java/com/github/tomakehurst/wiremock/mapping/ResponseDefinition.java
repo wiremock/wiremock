@@ -43,8 +43,8 @@ public class ResponseDefinition {
 	private boolean wasConfigured = true;
 	private Request originalRequest;
 	
-	public static ResponseDefinition copyOf(final ResponseDefinition original) {
-	    final ResponseDefinition newResponseDef = new ResponseDefinition();
+	public static ResponseDefinition copyOf(ResponseDefinition original) {
+	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
 	    newResponseDef.bodyFileName = original.bodyFileName;
@@ -91,7 +91,7 @@ public class ResponseDefinition {
 	    return response;
 	}
 	
-	public static ResponseDefinition browserProxy(final Request originalRequest) {
+	public static ResponseDefinition browserProxy(Request originalRequest) {
 		final ResponseDefinition response = new ResponseDefinition();
 	    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
 	    return response;
@@ -284,7 +284,7 @@ public class ResponseDefinition {
      *
      * @param globalDefaults the global defaults
      */
-    public void mergeGlobalDefaults(final ResponseDefinition globalDefaults) {
+    public void mergeGlobalDefaults(ResponseDefinition globalDefaults) {
         mergeHeaders(globalDefaults);
     }
 
