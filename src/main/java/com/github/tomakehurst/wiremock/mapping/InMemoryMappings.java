@@ -28,6 +28,7 @@ import com.google.common.base.Predicate;
 public class InMemoryMappings implements Mappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
+	private final SortedConcurrentMappingSet globalDefaultMappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
 	
 	@Override
@@ -37,12 +38,21 @@ public class InMemoryMappings implements Mappings {
 				mappingMatchingAndInCorrectScenarioState(request),
 				RequestResponseMapping.NOT_CONFIGURED);
 		
+		RequestResponseMapping matchingGlobalDefaults = find(
+		        globalDefaultMappings,
+                globalDefaultMappingMatching(request),
+                RequestResponseMapping.NOT_CONFIGURED);
+		
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
-		return copyOf(matchingMapping.getResponse());
+		
+		ResponseDefinition mergedResponse = matchingMapping.getResponse();
+		mergedResponse.mergeGlobalDefaults(matchingGlobalDefaults.getGlobalDefaults());
+		
+		return copyOf(mergedResponse);
 	}
 
-	private void notifyIfResponseNotConfigured(Request request, RequestResponseMapping matchingMapping) {
+    private void notifyIfResponseNotConfigured(Request request, RequestResponseMapping matchingMapping) {
 		if (matchingMapping == NOT_CONFIGURED) {
 		    notifier().info("No mapping found matching URL " + request.getUrl());
 		}
@@ -56,7 +66,12 @@ public class InMemoryMappings implements Mappings {
 			mapping.setScenario(scenario);
 		}
 		
-		mappings.add(mapping);
+		if(mapping.isGlobalDefaultMapping()) {
+		    globalDefaultMappings.add(mapping);
+		}
+		else {
+		    mappings.add(mapping);
+		}
 	}
 
 	@Override
@@ -70,13 +85,23 @@ public class InMemoryMappings implements Mappings {
 			scenario.reset();
 		}
 	}
-	
-	private Predicate<RequestResponseMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
-		return new Predicate<RequestResponseMapping>() {
-			public boolean apply(RequestResponseMapping mapping) {
-				return mapping.getRequest().isMatchedBy(request) &&
-				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
-			}
-		};
-	}
+    
+    private Predicate<RequestResponseMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+        return new Predicate<RequestResponseMapping>() {
+            @Override
+            public boolean apply(RequestResponseMapping mapping) {
+                return mapping.getRequest().isMatchedBy(request) &&
+                (mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
+            }
+        };
+    }
+    
+    private Predicate<RequestResponseMapping> globalDefaultMappingMatching(final Request request) {
+        return new Predicate<RequestResponseMapping>() {
+            @Override
+            public boolean apply(RequestResponseMapping mapping) {
+                return mapping.getRequest().isMatchedBy(request) && mapping.getGlobalDefaults() != null;
+            }
+        };
+    }
 }

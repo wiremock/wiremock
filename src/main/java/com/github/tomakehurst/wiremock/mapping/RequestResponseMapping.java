@@ -26,6 +26,7 @@ public class RequestResponseMapping {
 
 	private RequestPattern request;
 	private ResponseDefinition response;
+	private ResponseDefinition globalDefaults;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
@@ -33,11 +34,21 @@ public class RequestResponseMapping {
 	private Scenario scenario;
 	
 	private long insertionIndex;
-	
-	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
-		this.request = requestPattern;
-		this.response = response;
-	}
+    
+    public RequestResponseMapping(final RequestPattern requestPattern, final ResponseDefinition response) {
+        this.request = requestPattern;
+        this.response = response;
+    }
+    
+    public RequestResponseMapping(final RequestPattern requestPattern, final ResponseDefinition response, final boolean global) {
+        this.request = requestPattern;
+        if(global) {
+            this.globalDefaults = response;
+        }
+        else {
+            this.response = response;
+        }
+    }
 	
 	public RequestResponseMapping() {
 		//Concession to Jackson
@@ -54,11 +65,11 @@ public class RequestResponseMapping {
 		return response;
 	}
 	
-	public void setRequest(RequestPattern request) {
+	public void setRequest(final RequestPattern request) {
 		this.request = request;
 	}
 
-	public void setResponse(ResponseDefinition response) {
+	public void setResponse(final ResponseDefinition response) {
 		this.response = response;
 	}
 
@@ -73,7 +84,7 @@ public class RequestResponseMapping {
 	}
 
 	@JsonIgnore
-	public void setInsertionIndex(long insertionIndex) {
+	public void setInsertionIndex(final long insertionIndex) {
 		this.insertionIndex = insertionIndex;
 	}
 
@@ -81,7 +92,7 @@ public class RequestResponseMapping {
 		return priority;
 	}
 
-	public void setPriority(Integer priority) {
+	public void setPriority(final Integer priority) {
 		this.priority = priority;
 	}
 	
@@ -89,7 +100,7 @@ public class RequestResponseMapping {
 		return scenarioName;
 	}
 
-	public void setScenarioName(String scenarioName) {
+	public void setScenarioName(final String scenarioName) {
 		this.scenarioName = scenarioName;
 	}
 
@@ -97,7 +108,7 @@ public class RequestResponseMapping {
 		return requiredScenarioState;
 	}
 
-	public void setRequiredScenarioState(String requiredScenarioState) {
+	public void setRequiredScenarioState(final String requiredScenarioState) {
 		this.requiredScenarioState = requiredScenarioState;
 	}
 
@@ -105,7 +116,7 @@ public class RequestResponseMapping {
 		return newScenarioState;
 	}
 
-	public void setNewScenarioState(String newScenarioState) {
+	public void setNewScenarioState(final String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
 	
@@ -115,13 +126,21 @@ public class RequestResponseMapping {
 		}
 	}
 	
-	@JsonIgnore
+	public ResponseDefinition getGlobalDefaults() {
+        return globalDefaults;
+    }
+
+    public void setGlobalDefaults(final ResponseDefinition globalDefaults) {
+        this.globalDefaults = globalDefaults;
+    }
+
+    @JsonIgnore
 	public Scenario getScenario() {
 		return scenario;
 	}
 
 	@JsonIgnore
-	public void setScenario(Scenario scenario) {
+	public void setScenario(final Scenario scenario) {
 		this.scenario = scenario;
 	}
 
@@ -145,9 +164,9 @@ public class RequestResponseMapping {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
 	
-	public int comparePriorityWith(RequestResponseMapping otherMapping) {
-		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
-		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
+	public int comparePriorityWith(final RequestResponseMapping otherMapping) {
+		final int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
+		final int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
 	}
 
@@ -175,7 +194,7 @@ public class RequestResponseMapping {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -185,7 +204,7 @@ public class RequestResponseMapping {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		RequestResponseMapping other = (RequestResponseMapping) obj;
+		final RequestResponseMapping other = (RequestResponseMapping) obj;
 		if (insertionIndex != other.insertionIndex) {
 			return false;
 		}
@@ -233,6 +252,10 @@ public class RequestResponseMapping {
 		}
 		return true;
 	}
+
+    public boolean isGlobalDefaultMapping() {
+        return globalDefaults != null ? true : false;
+    }
 
 	
 	

@@ -19,6 +19,8 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
+import java.util.Map.Entry;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -41,8 +43,8 @@ public class ResponseDefinition {
 	private boolean wasConfigured = true;
 	private Request originalRequest;
 	
-	public static ResponseDefinition copyOf(ResponseDefinition original) {
-	    ResponseDefinition newResponseDef = new ResponseDefinition();
+	public static ResponseDefinition copyOf(final ResponseDefinition original) {
+	    final ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
 	    newResponseDef.bodyFileName = original.bodyFileName;
@@ -89,7 +91,7 @@ public class ResponseDefinition {
 	    return response;
 	}
 	
-	public static ResponseDefinition browserProxy(Request originalRequest) {
+	public static ResponseDefinition browserProxy(final Request originalRequest) {
 		final ResponseDefinition response = new ResponseDefinition();
 	    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
 	    return response;
@@ -276,5 +278,27 @@ public class ResponseDefinition {
 	public String toString() {
 		return JsonMappingBinder.write(this);
 	}
+
+    /**
+     * Merge global defaults - Currently only supports merging response headers.
+     *
+     * @param globalDefaults the global defaults
+     */
+    public void mergeGlobalDefaults(final ResponseDefinition globalDefaults) {
+        mergeHeaders(globalDefaults);
+    }
+
+    private void mergeHeaders(ResponseDefinition globalDefaults) {
+        if(headers == null && globalDefaults != null) {
+            headers = globalDefaults.getHeaders();
+        }
+        else if(headers != null && globalDefaults != null) {
+            for(Entry<String, String> globalHeader : globalDefaults.getHeaders().entrySet()) {
+                if(!headers.containsKey(globalHeader.getKey())) {
+                    headers.put(globalHeader.getKey(), globalHeader.getValue());
+                }
+            }
+        }
+    }
 	
 }
