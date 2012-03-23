@@ -65,8 +65,8 @@ public class InMemoryMappingsTest {
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
-		final Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
-		final ResponseDefinition response = mappings.serveFor(request);
+		Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
+		ResponseDefinition response = mappings.serveFor(request);
 		
 		assertThat(response.getStatus(), is(204));
 	}
@@ -77,8 +77,8 @@ public class InMemoryMappingsTest {
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
-		final Request request = aRequest(context).withMethod(POST).withUrl("/some/resource").build();
-		final ResponseDefinition response = mappings.serveFor(request);
+		Request request = aRequest(context).withMethod(POST).withUrl("/some/resource").build();
+		ResponseDefinition response = mappings.serveFor(request);
 		
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
@@ -89,16 +89,16 @@ public class InMemoryMappingsTest {
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
-		final Request request = aRequest(context).withMethod(PUT).withUrl("/some/bad/resource").build();
-		final ResponseDefinition response = mappings.serveFor(request);
+		Request request = aRequest(context).withMethod(PUT).withUrl("/some/bad/resource").build();
+		ResponseDefinition response = mappings.serveFor(request);
 		
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 	}
 	
 	@Test
 	public void returnsNotConfiguredResponseForUnmappedRequest() {
-		final Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
-		final ResponseDefinition response = mappings.serveFor(request);
+		Request request = aRequest(context).withMethod(OPTIONS).withUrl("/not/mapped").build();
+		ResponseDefinition response = mappings.serveFor(request);
 		assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
 		assertThat(response.wasConfigured(), is(false));
 	}
@@ -113,7 +113,7 @@ public class InMemoryMappingsTest {
 				new RequestPattern(GET, "/duplicated/resource"),
 				new ResponseDefinition(201, "Desired content")));
 		
-		final ResponseDefinition response = mappings.serveFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build());
+		ResponseDefinition response = mappings.serveFor(aRequest(context).withMethod(GET).withUrl("/duplicated/resource").build());
 		
 		assertThat(response.getStatus(), is(201));
 		assertThat(response.getBody(), is("Desired content"));
@@ -121,14 +121,14 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
-		final RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Initial content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		firstGetMapping.setRequiredScenarioState(STARTED);
 		mappings.addMapping(firstGetMapping);
 		
-		final RequestResponseMapping putMapping = new RequestResponseMapping(
+		RequestResponseMapping putMapping = new RequestResponseMapping(
 				new RequestPattern(PUT, "/scenario/resource"),
 				new ResponseDefinition(204, ""));
 		putMapping.setScenarioName("TestScenario");
@@ -136,7 +136,7 @@ public class InMemoryMappingsTest {
 		putMapping.setNewScenarioState("Modified");
 		mappings.addMapping(putMapping);
 		
-		final RequestResponseMapping secondGetMapping = new RequestResponseMapping(
+		RequestResponseMapping secondGetMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Modified content"));
 		secondGetMapping.setScenarioName("TestScenario");
@@ -144,9 +144,9 @@ public class InMemoryMappingsTest {
 		mappings.addMapping(secondGetMapping);
 		
 		
-		final Request firstGet = aRequest(context, "firstGet").withMethod(GET).withUrl("/scenario/resource").build();
-		final Request put = aRequest(context, "put").withMethod(PUT).withUrl("/scenario/resource").build();
-		final Request secondGet = aRequest(context, "secondGet").withMethod(GET).withUrl("/scenario/resource").build();
+		Request firstGet = aRequest(context, "firstGet").withMethod(GET).withUrl("/scenario/resource").build();
+		Request put = aRequest(context, "put").withMethod(PUT).withUrl("/scenario/resource").build();
+		Request secondGet = aRequest(context, "secondGet").withMethod(GET).withUrl("/scenario/resource").build();
 		
 		assertThat(mappings.serveFor(firstGet).getBody(), is("Initial content"));
 		mappings.serveFor(put);
@@ -155,27 +155,27 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsMappingInScenarioWithNoRequiredState() {
-		final RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(200, "Expected content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		mappings.addMapping(firstGetMapping);
 		
-		final Request request = aRequest(context).withMethod(GET).withUrl("/scenario/resource").build();
+		Request request = aRequest(context).withMethod(GET).withUrl("/scenario/resource").build();
 		
 		assertThat(mappings.serveFor(request).getBody(), is("Expected content"));
 	}
 	
 	@Test
 	public void supportsResetOfAllScenariosState() {
-		final RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Desired content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		firstGetMapping.setRequiredScenarioState(STARTED);
 		mappings.addMapping(firstGetMapping);
 		
-		final RequestResponseMapping putMapping = new RequestResponseMapping(
+		RequestResponseMapping putMapping = new RequestResponseMapping(
 				new RequestPattern(PUT, "/scenario/resource"),
 				new ResponseDefinition(204, ""));
 		putMapping.setScenarioName("TestScenario");
@@ -222,8 +222,8 @@ public class InMemoryMappingsTest {
                 new RequestPattern(PUT, "/some/resource"),
                 aResponse().withStatus(201).build()));
         
-        final Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
-        final ResponseDefinition response = mappings.serveFor(request);
+        Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
+        ResponseDefinition response = mappings.serveFor(request);
         
         assertThat(response.getStatus(), is(201));
         assertThat(response.getHeaders(), hasEntry("Cache-Control", "max-age=86400"));
@@ -239,8 +239,8 @@ public class InMemoryMappingsTest {
                 new RequestPattern(PUT, "/some/resource"),
                 aResponse().withStatus(201).withHeader("Cache-Control", "max-age=100").build()));
         
-        final Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
-        final ResponseDefinition response = mappings.serveFor(request);
+        Request request = aRequest(context).withMethod(PUT).withUrl("/some/resource").build();
+        ResponseDefinition response = mappings.serveFor(request);
         
         assertThat(response.getStatus(), is(201));
         assertThat(response.getHeaders(), hasEntry("Cache-Control", "max-age=100"));
@@ -256,8 +256,8 @@ public class InMemoryMappingsTest {
                 new RequestPattern(PUT, "/some/other/resource"),
                 aResponse().withStatus(201).build()));
         
-        final Request request = aRequest(context).withMethod(PUT).withUrl("/some/other/resource").build();
-        final ResponseDefinition response = mappings.serveFor(request);
+        Request request = aRequest(context).withMethod(PUT).withUrl("/some/other/resource").build();
+        ResponseDefinition response = mappings.serveFor(request);
         
         assertThat(response.getStatus(), is(201));
         assertThat(response.getHeaders(), is(nullValue()));
