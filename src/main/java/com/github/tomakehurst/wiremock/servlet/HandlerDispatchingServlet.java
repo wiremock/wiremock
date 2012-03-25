@@ -39,15 +39,19 @@ import com.github.tomakehurst.wiremock.mapping.Response;
 
 public class HandlerDispatchingServlet extends HttpServlet {
 
+	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
+
 	private static final long serialVersionUID = -6602042274260495538L;
 	
 	private RequestHandler requestHandler;
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
+	private boolean shouldForwardToFilesContext;
 	
 	@Override
 	public void init(ServletConfig config) {
 	    ServletContext context = config.getServletContext();
+	    shouldForwardToFilesContext = getGetFileContextForwardingFlagFrom(config);
 	    
 	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
@@ -58,6 +62,15 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
+	
+	private boolean getGetFileContextForwardingFlagFrom(ServletConfig config) {
+		String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
+		if (flagValue != null) {
+			return Boolean.valueOf(flagValue);
+		}
+		
+		return false;
+	}
 
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
@@ -67,7 +80,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
 		    response.applyTo(httpServletResponse);
-		} else if (request.getMethod() == GET) {
+		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);

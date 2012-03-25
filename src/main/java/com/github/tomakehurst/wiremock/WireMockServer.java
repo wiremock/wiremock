@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Map;
@@ -127,6 +128,7 @@ public class WireMockServer {
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
 		ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, MockServiceRequestHandler.class.getName());
+		servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 		
 		MimeTypes mimeTypes = new MimeTypes();
 		mimeTypes.addMimeMapping("json", "application/json");

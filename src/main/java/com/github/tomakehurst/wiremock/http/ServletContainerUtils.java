@@ -33,6 +33,10 @@ public class ServletContainerUtils {
 	}
 	
 	public static boolean isBrowserProxyRequest(HttpServletRequest request) {
+		if (!hasField(request, "_uri")) {
+			return false;
+		}
+		
 		String uriString = getPrivateField(request, "_uri").toString();
 		URI uri = URI.create(uriString);
 		return uri.isAbsolute();
@@ -51,5 +55,15 @@ public class ServletContainerUtils {
 		}
 	}
 	
+	private static boolean hasField(Object obj, String name) {
+		try {
+			Field field = obj.getClass().getDeclaredField(name);
+			return field != null;
+		} catch (RuntimeException re) {
+			return false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 	
 }
