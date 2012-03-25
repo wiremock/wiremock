@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: com.smokejumperit.gradle.OneJarPlugin
 apply plugin: 'maven'
-apply plugin: 'signing'
+//apply plugin: 'signing'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
@@ -78,14 +78,8 @@ task sourcesJar(type: Jar, dependsOn:classes) {
      from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn:javadoc) {
-     classifier = 'javadoc'
-     from javadoc.destinationDir
-}
-
 artifacts {
      archives sourcesJar
-     archives javadocJar
 }
 
 uploadArchives {
