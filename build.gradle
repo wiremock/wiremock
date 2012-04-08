@@ -14,6 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: com.smokejumperit.gradle.OneJarPlugin
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
@@ -34,6 +35,7 @@ dependencies {
 	compile "org.apache.httpcomponents:httpclient:4.1.2"
 	compile "log4j:log4j:1.2.16"
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
+	compile "junit:junit:4.8.2"
 	
 	provided "junit:junit:4.8.2"
 	
@@ -69,16 +71,43 @@ jar {
 }
 
 def releaseDirUrl
+def user
+def password
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+     classifier = 'sources'
+     from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+     classifier = 'javadoc'
+     from javadoc.destinationDir
+}
+
+artifacts {
+     archives sourcesJar
+     archives javadocJar
+}
+
+signing {
+    sign configurations.archives
+}
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'file:///Users/tomakehurst/dev/tomakehurst-mvn-repo/releases/')
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+            	authentication(userName: sonatypeUser , password: sonatypePassword)
+        	};
+        	beforeDeployment { deployment -> signPom(deployment) };
             pom.artifactId = 'wiremock'
             pom.project {
-            	name = 'WireMock'
-            	description = 'A tool for simulating HTTP services'
-            	url = 'https://github.com/tomakehurst/wiremock'
+            	packaging 'jar'
+            	name 'WireMock'
+            	description 'A tool for simulating HTTP services'
+            	
+            	url 'https://github.com/tomakehurst/wiremock'
+            	
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -86,7 +115,25 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
+                
+                scm {
+					connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+					developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+					url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+				}
+				
+				developers {
+					developer {
+						id 'tomakehurst'
+						name 'Tom Akehurst'
+					}
+				}
             }
+            
+            pom.whenConfigured { thepom ->
+            	println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
+            	thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
+			}
         }
     }
 }
