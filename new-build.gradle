@@ -14,7 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: com.smokejumperit.gradle.OneJarPlugin
 apply plugin: 'maven'
-//apply plugin: 'signing'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
@@ -78,22 +78,34 @@ task sourcesJar(type: Jar, dependsOn:classes) {
      from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar, dependsOn:javadoc) {
+     classifier = 'javadoc'
+     from javadoc.destinationDir
+}
+
 artifacts {
      archives sourcesJar
+     archives javadocJar
+}
+
+signing {
+    sign configurations.archives
 }
 
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-            	authentication(userName: 'TODO' , password: 'TODO')
-        	}
+            	authentication(userName: sonatypeUser , password: sonatypePassword)
+        	};
+        	beforeDeployment { deployment -> signPom(deployment) };
             pom.artifactId = 'wiremock'
             pom.project {
-            	name = 'WireMock'
-            	description = 'A tool for simulating HTTP services'
+            	packaging 'jar'
+            	name 'WireMock'
+            	description 'A tool for simulating HTTP services'
             	
-            	url = 'https://github.com/tomakehurst/wiremock'
+            	url 'https://github.com/tomakehurst/wiremock'
             	
                 licenses {
                     license {
@@ -122,19 +134,6 @@ uploadArchives {
 
 task release {
 	dependsOn clean, oneJar, uploadArchives
-}
-
-task 'capture-credentials' << {
-	def console = System.console()
-	if (console) {
-		println ''
-		user = console.readLine('> OSS username: ')
-		println ''
-		password = console.readLine('> OSS password: ')
-		println ''
-	} else {
-		logger.error "Cannot get console."
-	}
 }
 
 task 'set-release-dir' << {
