@@ -19,19 +19,7 @@ Key Features
 Using with JUnit 4.x
 --------------------
 
-First, add WireMock as a dependency to your project. If you're using Maven, you can do this by adding this to your POM:
-
-	<repositories>
-		<repository>
-			<id>tomakehurst-mvn-repo-releases</id>
-			<name>Tom Akehurst's Maven Release Repo</name>
-			<url>http://tomakehurst.github.com/tomakehurst-mvn-repo/releases</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
-	
-		
-...and this to your dependencies:
+First, add WireMock as a dependency to your project:
 
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
@@ -39,6 +27,7 @@ First, add WireMock as a dependency to your project. If you're using Maven, you 
 		<version>1.18</version>
 	</dependency>
 
+Note to anyone who's used previous versions: WireMock is in Maven Central now, so it's no longer necessary to add my repo to your POM.
 
 In your test class, add this:
 
