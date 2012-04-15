@@ -262,6 +262,7 @@ public class RequestResponseMapping {
 		return true;
 	}
 
+	@JsonIgnore
     public boolean isGlobalDefaultMapping() {
         return globalDefaults != null ? true : false;
     }
