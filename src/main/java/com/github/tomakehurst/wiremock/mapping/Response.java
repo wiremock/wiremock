@@ -20,6 +20,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
@@ -30,6 +31,8 @@ import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.google.common.base.Optional;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
 
 public class Response {
 
@@ -118,6 +121,28 @@ public class Response {
 		}
 		
 		writeAndTranslateExceptions(httpServletResponse, body);
+	}
+	
+	public void applyTo(HttpExchange httpExchange) {
+		if (fault != null) {
+			throw new RuntimeException("Can't apply faults when not using Jetty");
+		}
+		
+		try {
+			Headers httpHeaders = httpExchange.getResponseHeaders();
+			for (Map.Entry<String, String> header: headers.entrySet()) {
+				httpHeaders.add(header.getKey(), header.getValue());
+			}
+			
+			httpExchange.sendResponseHeaders(status, body.length);
+			
+			OutputStream out = httpExchange.getResponseBody(); 
+			out.write(body);
+			httpExchange.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {

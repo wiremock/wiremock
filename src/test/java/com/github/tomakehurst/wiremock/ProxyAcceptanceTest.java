@@ -35,13 +35,13 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class ProxyAcceptanceTest extends AcceptanceTestBase {
 
-	private WireMockServer otherService;
+	private AbstractWireMockServer otherService;
 	private WireMock otherServiceClient;
 	
 	@Override
 	@Before
 	public void init() {
-		otherService = new WireMockServer(8087);
+		otherService = new JettyWireMockServer(8087);
 		otherService.start();
 		otherServiceClient = new WireMock("localhost", 8087);
 	}

@@ -26,18 +26,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.AbstractWireMockServer;
+import com.github.tomakehurst.wiremock.JettyWireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 
 public class WireMockClientAcceptanceTest {
 	
-	private WireMockServer wireMockServer;
+	private AbstractWireMockServer wireMockServer;
 	private WireMockTestClient testClient;
 	
 	@Before
 	public void init() {
-		wireMockServer = new WireMockServer();
+		wireMockServer = new JettyWireMockServer();
 		wireMockServer.start();
 		WireMock.configure();
 		testClient = new WireMockTestClient();

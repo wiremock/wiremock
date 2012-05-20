@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.WireMockServer.DEFAULT_PORT;
+import static com.github.tomakehurst.wiremock.AbstractWireMockServer.DEFAULT_PORT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.lang.System.out;
 
@@ -33,7 +33,7 @@ public class WireMockServerRunner {
 	public static final String FILES_ROOT = "__files";
 	public static final String MAPPINGS_ROOT = "mappings";
 	
-	private WireMockServer wireMockServer;
+	private AbstractWireMockServer wireMockServer;
 	
 	public void run(String fileSourcesRoot, String... args) {
 		CommandLineOptions options = new CommandLineOptions(args);
@@ -50,9 +50,9 @@ public class WireMockServerRunner {
 		mappingsFileSource.createIfNecessary();
 		
 		if (options.specifiesPortNumber()) {
-			wireMockServer = new WireMockServer(options.portNumber(), fileSource, options.browserProxyingEnabled());
+			wireMockServer = new JettyWireMockServer(options.portNumber(), fileSource, options.browserProxyingEnabled());
 		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, fileSource, options.browserProxyingEnabled());
+			wireMockServer = new JettyWireMockServer(DEFAULT_PORT, fileSource, options.browserProxyingEnabled());
 		}
 		
 		if (options.recordMappingsEnabled()) {

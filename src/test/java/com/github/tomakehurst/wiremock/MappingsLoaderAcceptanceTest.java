@@ -30,7 +30,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class MappingsLoaderAcceptanceTest {
 	
-	private WireMockServer wireMockServer;
+	private AbstractWireMockServer wireMockServer;
 	private WireMockTestClient testClient;
 
 	@Before
@@ -46,7 +46,7 @@ public class MappingsLoaderAcceptanceTest {
 	}
 	
 	private void constructWireMock() {
-		wireMockServer = new WireMockServer();
+		wireMockServer = new JettyWireMockServer();
 		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests"));
 		wireMockServer.loadMappingsUsing(mappingsLoader);
 	}

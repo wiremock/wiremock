@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2011 Thomas Akehurst
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -29,69 +14,30 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.mapping.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.mapping.MappingFileWriterListener;
 import com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.github.tomakehurst.wiremock.mapping.RequestHandler;
-import com.github.tomakehurst.wiremock.mapping.RequestListener;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 
-public class WireMockServer {
-
-	public static final String FILES_ROOT = "__files";
-	public static final int DEFAULT_PORT = 8080;
-	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
-	
-	private final WireMockApp wireMockApp;
+public class JettyWireMockServer extends AbstractWireMockServer {
 	
 	private Server jettyServer;
-	private final FileSource fileSource;
-	private final Log4jNotifier notifier;
-	private final int port;
 	
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
-		notifier = new Log4jNotifier();
-		this.fileSource = fileSource;
-		this.port = port;
-		
-		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying);
+	public JettyWireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
+		super(port, fileSource, enableBrowserProxying);
 	}
 	
-	public WireMockServer(int port) {
-		this(port, new SingleRootFileSource("src/test/resources"), false);
+	public JettyWireMockServer(int port) {
+		super(port);
 	}
 	
-	public WireMockServer() {
-		this(DEFAULT_PORT);
+	public JettyWireMockServer() {
+		super();
 	}
-	
-	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		wireMockApp.loadMappingsUsing(mappingsLoader);
-	}
-	
-	public void addMockServiceRequestListener(RequestListener listener) {
-		wireMockApp.addMockServiceRequestListener(listener);
-	}
-	
-	public void setVerboseLogging(boolean verbose) {
-		notifier.setVerbose(verbose);
-		if (verbose) {
-		    notifier.info("Verbose logging enabled");
-		}
-	}
-	
-	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
-	    addMockServiceRequestListener(
-                new MappingFileWriterListener(mappingsFileSource, filesFileSource, wireMockApp.getRequestJournal()));
-	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
-	}
-	
+
 	public void stop() {
 		try {
 			jettyServer.stop();
@@ -153,6 +99,4 @@ public class WireMockServer {
 		adminContext.setAttribute(Notifier.KEY, notifier);
 		jettyServer.addHandler(adminContext);
     }
-    
-    
 }

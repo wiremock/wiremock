@@ -28,7 +28,7 @@ public class PortNumberTest {
 
 	@Test
 	public void canRunOnAnotherPortThan8080() {
-		WireMockServer wireMockServer = new WireMockServer(8090);
+		AbstractWireMockServer wireMockServer = new JettyWireMockServer(8090);
 		wireMockServer.start();
 		WireMockTestClient wireMockClient = new WireMockTestClient(8090);
 		

@@ -16,12 +16,17 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.google.common.collect.ImmutableList.copyOf;
+import static com.google.common.collect.Iterables.find;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicHeader;
+
+import com.google.common.base.Predicate;
 
 public class WireMockResponse {
 	
@@ -41,8 +46,24 @@ public class WireMockResponse {
 		return content;
 	}
 	
-	public String header(String key) {
-		return headers().get(key);
+	public String header(final String key) {
+		return find(
+				copyOf(httpResponse.getAllHeaders()),
+				caseInsensitiveKeyMatching(key),
+				defaultToHeaderWithNullValue(key))
+				.getValue();
+	}
+
+	private BasicHeader defaultToHeaderWithNullValue(final String key) {
+		return new BasicHeader(key, null);
+	}
+
+	private Predicate<Header> caseInsensitiveKeyMatching(final String key) {
+		return new Predicate<Header>() {
+			public boolean apply(Header header) {
+				return header.getName().equalsIgnoreCase(key);
+			}
+		};
 	}
 	
 	public Map<String, String> headers() {

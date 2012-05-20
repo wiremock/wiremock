@@ -63,7 +63,7 @@ public class StandaloneAcceptanceTest {
 	private WireMockServerRunner runner;
 	private WireMockTestClient testClient;
 	
-	private WireMockServer otherServer;
+	private AbstractWireMockServer otherServer;
 	
 	private final PrintStream stdOut = System.out;
 	private ByteArrayOutputStream out;
@@ -285,7 +285,7 @@ public class StandaloneAcceptanceTest {
 	}
 	
 	private WireMock start8084ServerAndCreateClient() {
-        otherServer = new WireMockServer(8084);
+        otherServer = new JettyWireMockServer(8084);
         otherServer.start();
         WireMock otherServerClient = new WireMock("localhost", 8084);
         return otherServerClient;

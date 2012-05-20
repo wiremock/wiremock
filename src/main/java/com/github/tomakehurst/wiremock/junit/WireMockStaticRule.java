@@ -19,21 +19,22 @@ import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.AbstractWireMockServer;
+import com.github.tomakehurst.wiremock.JettyWireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 public class WireMockStaticRule implements MethodRule {
 
-	private final WireMockServer wireMockServer;
+	private final AbstractWireMockServer wireMockServer;
 	
 	public WireMockStaticRule(int port) {
-		wireMockServer = new WireMockServer(port);
+		wireMockServer = new JettyWireMockServer(port);
 		wireMockServer.start();
 		WireMock.configureFor("localhost", port);
 	}
 	
 	public WireMockStaticRule() {
-		this(WireMockServer.DEFAULT_PORT);
+		this(AbstractWireMockServer.DEFAULT_PORT);
 	}
 	
 	public void stopServer() {

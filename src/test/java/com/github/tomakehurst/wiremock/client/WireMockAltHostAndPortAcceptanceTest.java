@@ -28,19 +28,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.AbstractWireMockServer;
+import com.github.tomakehurst.wiremock.JettyWireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class WireMockAltHostAndPortAcceptanceTest {
 	
-	private WireMockServer defaultServer;
-	private WireMockServer altServer;
+	private AbstractWireMockServer defaultServer;
+	private AbstractWireMockServer altServer;
 	
 	@Before
 	public void init() {
-		defaultServer = new WireMockServer();
+		defaultServer = new JettyWireMockServer();
 		defaultServer.start();
-		altServer = new WireMockServer(8081);
+		altServer = new JettyWireMockServer(8081);
 		altServer.start();
 	}
 	

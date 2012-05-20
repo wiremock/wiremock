@@ -20,16 +20,17 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.httpserver.HttpWireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class AcceptanceTestBase {
 
-	protected static WireMockServer wireMockServer;
+	protected static AbstractWireMockServer wireMockServer;
 	protected static WireMockTestClient testClient;
 
 	@BeforeClass
 	public static void setupServer() {
-		wireMockServer = new WireMockServer();
+		wireMockServer = new HttpWireMockServer();
 		wireMockServer.start();
 		testClient = new WireMockTestClient();
 		WireMock.configure();
