@@ -74,6 +74,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 			response.setBody(getEntityAsByteArrayAndCloseStream(httpResponse));
 			return response;
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
@@ -106,7 +107,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	private static void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest(); 
 		for (String key: originalRequest.getAllHeaderKeys()) {
-			if (!key.equals("Content-Length")) {
+			if (!key.equalsIgnoreCase("Content-Length")) {
 				String value = originalRequest.getHeader(key);
 				httpRequest.addHeader(key, value);
 			}

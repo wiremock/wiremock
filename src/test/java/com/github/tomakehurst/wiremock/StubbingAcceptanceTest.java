@@ -40,6 +40,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.httpserver.HttpWireMockServer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
@@ -200,15 +201,23 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void malformedResponseChunkFault() {
+		if (isJavaHttpServerBased()) {
+			return;
+		}
+		
 		stubFor(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 		
 		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
 	}
-	
+
 	@Test
 	public void randomDataOnSocketFault() {
+		if (isJavaHttpServerBased()) {
+			return;
+		}
+		
 		stubFor(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
@@ -239,5 +248,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		}
 		
 		assertTrue("No exception was thrown", thrown);
+	}
+	
+	private boolean isJavaHttpServerBased() {
+		return wireMockServer instanceof HttpWireMockServer;
 	}
 }

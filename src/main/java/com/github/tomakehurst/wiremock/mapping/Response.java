@@ -139,8 +139,7 @@ public class Response {
 			OutputStream out = httpExchange.getResponseBody(); 
 			out.write(body);
 			httpExchange.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
