@@ -82,6 +82,8 @@ public class StandaloneAcceptanceTest {
 		
 		runner = new WireMockServerRunner();
 		testClient = new WireMockTestClient();
+		
+		WireMock.configure();
 	}
 	
 	@After
@@ -94,7 +96,7 @@ public class StandaloneAcceptanceTest {
 	}
 
 	@Test
-	public void acceptsMappingRequestOnDefaultPort() {
+	public void acceptsMappingRequestOnDefaultPort() throws Exception {
 		startRunner();
 		givenThat(get(urlEqualTo("/standalone/test/resource")).willReturn(aResponse().withStatus(200).withBody("Content")));
 		assertThat(testClient.get("/standalone/test/resource").content(), is("Content"));
