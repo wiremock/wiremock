@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.github.tomakehurst.wiremock.common.Timer;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -36,9 +37,9 @@ import com.sun.net.httpserver.HttpExchange;
 
 public class Response {
 
-	private int status;
+	private final int status;
 	private byte[] body = new byte[0];
-	private HttpHeaders headers = new HttpHeaders();
+	private final HttpHeaders headers = new HttpHeaders();
 	private boolean configured = true;
 	private Fault fault;
 	private boolean fromProxy = false;
@@ -110,6 +111,7 @@ public class Response {
 	}
 	
 	public void applyTo(HttpServletResponse httpServletResponse) {
+		long start = System.nanoTime();
 		if (fault != null) {
 			fault.apply(httpServletResponse, getUnderlyingSocketFrom(httpServletResponse));
 			return;
@@ -121,9 +123,11 @@ public class Response {
 		}
 		
 		writeAndTranslateExceptions(httpServletResponse, body);
+		System.out.println(String.format("Response.applyTo(Jetty): %sms", Timer.millisecondsFrom(start)));
 	}
 	
 	public void applyTo(HttpExchange httpExchange) {
+		long start = System.nanoTime();
 		if (fault != null) {
 			throw new RuntimeException("Can't apply faults when not using Jetty");
 		}
@@ -139,6 +143,7 @@ public class Response {
 			OutputStream out = httpExchange.getResponseBody(); 
 			out.write(body);
 			httpExchange.close();
+			System.out.println(String.format("Response.applyTo(HttpExchange): %sms", Timer.millisecondsFrom(start)));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

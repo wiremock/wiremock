@@ -15,6 +15,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.Timer;
 import com.github.tomakehurst.wiremock.mapping.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
 import com.github.tomakehurst.wiremock.mapping.RequestHandler;
@@ -38,6 +39,7 @@ public class JettyWireMockServer extends AbstractWireMockServer {
 		super();
 	}
 
+	@Override
 	public void stop() {
 		try {
 			jettyServer.stop();
@@ -46,7 +48,9 @@ public class JettyWireMockServer extends AbstractWireMockServer {
 		}
 	}
 	
+	@Override
 	public void start() {
+		long start = System.nanoTime();
 		jettyServer = new Server(port);
 		addAdminContext();
 		addMockServiceContext();
@@ -56,6 +60,8 @@ public class JettyWireMockServer extends AbstractWireMockServer {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		
+		System.out.println(String.format("JettyWireMockServer.start(): %sms", Timer.millisecondsFrom(start)));
 	}
 
     @SuppressWarnings({"rawtypes", "unchecked" })

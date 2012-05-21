@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.tomakehurst.wiremock.WireMockApp;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.Timer;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.mapping.RequestHandler;
 import com.github.tomakehurst.wiremock.mapping.Response;
@@ -74,6 +75,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
 
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+		long start = System.nanoTime();
 		LocalNotifier.set(notifier);
 		
 		Request request = new HttpServletRequestAdapter(httpServletRequest);
@@ -85,6 +87,8 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);
 		}
+		
+		System.out.println(String.format("HandlerDispatchingServlet.service(): %sms", Timer.millisecondsFrom(start)));
 	}
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
