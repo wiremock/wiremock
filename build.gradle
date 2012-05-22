@@ -3,18 +3,14 @@ buildscript {
     //apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
     
 	repositories {
-    	mavenRepo urls:['http://repo.smokejumperit.com', 'https://oss.sonatype.org']
-	}
-	dependencies {
-    	classpath 'com.smokejumperit:gradle-plugins:0.8.2'
+    	mavenRepo urls:['https://oss.sonatype.org']
 	}
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: com.smokejumperit.gradle.OneJarPlugin
 apply plugin: 'maven'
-//apply plugin: 'signing'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
@@ -131,9 +127,9 @@ artifacts {
      archives javadocJar
 }
 
-//signing {
-//    sign configurations.archives
-//}
+signing {
+    sign configurations.archives
+}
 
 if (!this.hasProperty('sonatypeUser')) sonatypeUser = 'default';
 if (!this.hasProperty('sonatypePassword')) sonatypePassword = 'default';
