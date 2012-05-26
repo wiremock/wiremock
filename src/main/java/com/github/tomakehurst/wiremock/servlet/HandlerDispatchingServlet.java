@@ -51,7 +51,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) {
 	    ServletContext context = config.getServletContext();
-	    shouldForwardToFilesContext = getGetFileContextForwardingFlagFrom(config);
+	    shouldForwardToFilesContext = getFileContextForwardingFlagFrom(config);
 	    
 	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
@@ -63,13 +63,9 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 	
-	private boolean getGetFileContextForwardingFlagFrom(ServletConfig config) {
+	private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
 		String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
-		if (flagValue != null) {
-			return Boolean.valueOf(flagValue);
-		}
-		
-		return false;
+		return Boolean.valueOf(flagValue);
 	}
 
 	@Override
