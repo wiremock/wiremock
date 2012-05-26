@@ -43,6 +43,14 @@ bin
 .settings
 .gradle
 
+# IDEA #
+#################
+out
+wiremock.iml
+wiremock.ipr
+wiremock.iws
+
+
 
 # Misc #
 ########

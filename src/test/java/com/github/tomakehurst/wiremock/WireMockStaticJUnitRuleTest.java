@@ -21,10 +21,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import com.github.tomakehurst.wiremock.junit.WireMockStaticRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -33,6 +32,13 @@ public class WireMockStaticJUnitRuleTest {
 
 	@Rule
 	public static WireMockStaticRule wireMockRule = new WireMockStaticRule(8089);
+
+    private WireMockTestClient testClient;
+
+    @Before
+    public void init() {
+        testClient = new WireMockTestClient(8089);
+    }
 	
 	@AfterClass
 	public static void stopWireMock() {
@@ -42,9 +48,18 @@ public class WireMockStaticJUnitRuleTest {
 	@Test
 	public void canRegisterStubAndFetchOnCorrectPort() {
 		givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
-		
-		WireMockTestClient testClient = new WireMockTestClient(8089);
-		
 		assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
 	}
+
+    @Ignore("Generates a failure to illustrate a Rule bug whereby a failed test would cause WireMock not to be reset between test cases")
+    @Test
+    public void fail() {
+        givenThat(get(urlEqualTo("/should/never/see/this")).willReturn(aResponse().withStatus(200)));
+        assertTrue(false);
+    }
+
+    @Test
+    public void succeedIfWireMockHasBeenReset() {
+        assertThat(testClient.get("/should/never/see/this").statusCode(), is(404));
+    }
 }

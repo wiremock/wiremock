@@ -41,13 +41,16 @@ public class WireMockStaticRule implements MethodRule {
 	}
 
 	@Override
-	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+	public Statement apply(final Statement base, final FrameworkMethod method, Object target) {
 		return new Statement() {
 
 			@Override
 			public void evaluate() throws Throwable {
-				base.evaluate();
-				WireMock.reset();
+				try {
+                    base.evaluate();
+                } finally {
+                    WireMock.reset();
+                }
 			}
 			
 		};

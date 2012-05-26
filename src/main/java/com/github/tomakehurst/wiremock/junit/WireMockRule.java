@@ -43,8 +43,11 @@ public class WireMockRule implements MethodRule {
 				WireMockServer wireMockServer = new WireMockServer(port);
 				wireMockServer.start();
 				WireMock.configureFor("localhost", port);
-				base.evaluate();
-				wireMockServer.stop();
+				try {
+                    base.evaluate();
+                } finally {
+                    wireMockServer.stop();
+                }
 			}
 			
 		};

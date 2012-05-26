@@ -21,7 +21,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -41,4 +43,15 @@ public class WireMockJUnitRuleTest {
 		
 		assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
 	}
+
+    @Ignore("Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions on subsequent (otherwise passing) tests")
+    @Test
+    public void fail() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void succeed() {
+        assertTrue(true);
+    }
 }

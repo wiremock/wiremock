@@ -11,6 +11,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
