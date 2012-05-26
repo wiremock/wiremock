@@ -24,7 +24,7 @@ First, add WireMock as a dependency to your project:
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.19</version>
+		<version>1.20</version>
 		
 		<!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
 		<classifier>standalone</classifier>
@@ -65,23 +65,12 @@ You can also declare mappings in a more BDDish manner if you prefer:
 The above @Rule will restart the WireMock server before each test method.
 If you want your tests to run slightly faster the following code will keep WireMock running for the entire test class:  
 	
-	private static WireMockServer wireMockServer;
-	
-	@BeforeClass
-	public static void setupServer() {
-		wireMockServer = new WireMockServer();
-		wireMockServer.start();
-	}
+	@Rule
+    public static WireMockStaticRule wireMockRule = new WireMockStaticRule();
 	
 	@AfterClass
 	public static void serverShutdown() {
-		wireMockServer.stop();
-	}
-	
-	@Before
-	public void init() {
-		//Erases all stub mappings and recorded requests
-		WireMock.reset();
+		wireMockRule.stopServer();
 	}
 	
 All the API calls above are static methods on the com.github.tomakehurst.wiremock.client.WireMock class, so you'll need to add:
@@ -292,11 +281,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.19-standalone.jar
+	java -jar wiremock-1.20-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.19-standalone.jar --port 9999
+	java -jar wiremock-1.20-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
