@@ -20,6 +20,10 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.JsonMappingBinder;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+
+import java.util.List;
 
 public class WireMock {
 	
@@ -162,14 +166,14 @@ public class WireMock {
 	
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		if (adminClient.getRequestsMatching(requestPattern) < 1) {
+		if (adminClient.countRequestsMatching(requestPattern) < 1) {
 			throw new VerificationException("Expected: " + requestPattern);
 		}
 	}
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		if (adminClient.getRequestsMatching(requestPattern) != count) {
+		if (adminClient.countRequestsMatching(requestPattern) != count) {
 			throw new VerificationException("Expected " + count + " of: " + requestPattern);
 		}
 	}
@@ -181,6 +185,15 @@ public class WireMock {
 	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.verifyThat(count, requestPatternBuilder);
 	}
+
+    public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
+        FindRequestsResult result = adminClient.findRequestsMatching(requestPatternBuilder.build());
+        return result.getRequests();
+    }
+
+    public static List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
+        return defaultInstance.find(requestPatternBuilder);
+    }
 	
 	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlMatchingStrategy);

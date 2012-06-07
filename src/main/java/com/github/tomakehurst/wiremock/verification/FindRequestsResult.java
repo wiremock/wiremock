@@ -15,13 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 
-public interface RequestJournal {
+public class FindRequestsResult {
 
-	int countRequestsMatching(RequestPattern requestPattern);
-    List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
-	void reset();
+    private List<LoggedRequest> requests;
+
+    @JsonCreator
+    public FindRequestsResult(@JsonProperty("requests") List<LoggedRequest> requests) {
+        this.requests = requests;
+    }
+
+    public List<LoggedRequest> getRequests() {
+        return requests;
+    }
 }

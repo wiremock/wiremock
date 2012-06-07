@@ -15,22 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
-import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildVerificationResultFrom;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_OK;
-
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.mapping.JsonMappingBinder;
+import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 
-import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.mapping.JsonMappingBinder;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
+import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildVerificationResultFrom;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class HttpAdminClient implements AdminClient {
 	
@@ -39,6 +39,7 @@ public class HttpAdminClient implements AdminClient {
 	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
 	private static final String LOCAL_WIREMOCK_RESET_SCENARIOS_URL = ADMIN_URL_PREFIX + "/scenarios/reset";
 	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
+    private static final String LOCAL_WIREMOCK_FIND_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/find";
 	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
 	
 	private final String host;
@@ -86,14 +87,21 @@ public class HttpAdminClient implements AdminClient {
 	}
 	
 	@Override
-	public int getRequestsMatching(RequestPattern requestPattern) {
+	public int countRequestsMatching(RequestPattern requestPattern) {
 		String json = JsonMappingBinder.write(requestPattern);
 		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
 		VerificationResult verificationResult = buildVerificationResultFrom(body);
 		return verificationResult.getCount();
 	}
-	
-	@Override
+
+    @Override
+    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
+        String json = JsonMappingBinder.write(requestPattern);
+        String body = postJsonAssertOkAndReturnBody(findRequestsUrl(), json, HTTP_OK);
+        return JsonMappingBinder.read(body, FindRequestsResult.class);
+    }
+
+    @Override
 	public void updateGlobalSettings(GlobalSettings settings) {
 		String json = JsonMappingBinder.write(settings);
 		postJsonAssertOkAndReturnBody(globalSettingsUrl(), json, HTTP_OK);
@@ -156,6 +164,10 @@ public class HttpAdminClient implements AdminClient {
 	private String requestsCountUrl() {
 		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port, urlPathPrefix);
 	}
+
+    private String findRequestsUrl() {
+        return String.format(LOCAL_WIREMOCK_FIND_REQUESTS_URL, host, port, urlPathPrefix);
+    }
 
 	private String globalSettingsUrl() {
 		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port, urlPathPrefix);

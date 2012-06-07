@@ -15,17 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildRequestPatternFrom;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
-import static java.net.HttpURLConnection.HTTP_OK;
-
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildRequestPatternFrom;
+import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
     
@@ -57,6 +61,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 			return ResponseDefinition.ok();
 		} else if (isRequestCountRequest(request)) {
 			return getRequestCount(request);
+        } else if (isFindRequestsRequest(request)) {
+            return findRequests(request);
 		} else if (isGlobalSettingsUpdateRequest(request)) {
 			GlobalSettings newSettings = JsonMappingBinder.read(request.getBodyAsString(), GlobalSettings.class);
 			globalSettingsHolder.replaceWith(newSettings);
@@ -78,6 +84,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		return response;
 	}
 
+    private ResponseDefinition findRequests(Request request) {
+        RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
+        List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
+        ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new FindRequestsResult(requests)));
+        response.addHeader("Content-Type", "application/json");
+        return response;
+    }
+
 	private boolean isResetRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/reset");
 	}
@@ -93,6 +107,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private boolean isRequestCountRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/count");
 	}
+
+    private boolean isFindRequestsRequest(Request request) {
+        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/find");
+    }
 	
 	private static String withoutAdminRoot(String url) {
 	    return url.replace(ADMIN_CONTEXT_ROOT, "");

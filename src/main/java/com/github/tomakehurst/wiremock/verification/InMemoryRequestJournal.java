@@ -15,27 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.google.common.base.Predicate;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.mapping.RequestListener;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.Response;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	
-	private ConcurrentLinkedQueue<Request> requests = new ConcurrentLinkedQueue<Request>();
+	private ConcurrentLinkedQueue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
 		return size(filter(requests, matchedBy(requestPattern))); 
 	}
-	
-	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+
+    @Override
+    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+        return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+    }
+
+    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
 				return requestPattern.isMatchedBy(input);

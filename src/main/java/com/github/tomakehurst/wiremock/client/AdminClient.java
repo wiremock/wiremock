@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 
 public interface AdminClient {
 
 	void addResponse(String responseSpecJson);
 	void resetMappings();
 	void resetScenarios();
-	int getRequestsMatching(RequestPattern requestPattern);
+	int countRequestsMatching(RequestPattern requestPattern);
+    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
 }

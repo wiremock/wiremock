@@ -174,8 +174,8 @@ public class WireMockClientTest {
 	@Test
 	public void shouldVerifyRequestMadeWhenCountMoreThan0() {
 		context.checking(new Expectations() {{
-			allowing(adminClient).getRequestsMatching(
-					new RequestPattern(RequestMethod.DELETE, "/to/delete")); will(returnValue(3));
+			allowing(adminClient).countRequestsMatching(
+                    new RequestPattern(RequestMethod.DELETE, "/to/delete")); will(returnValue(3));
 		}});
 		
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
@@ -186,7 +186,7 @@ public class WireMockClientTest {
 	@Test(expected=VerificationException.class)
 	public void shouldThrowVerificationExceptionWhenVerifyingRequestNotMatching() {
 		context.checking(new Expectations() {{
-			allowing(adminClient).getRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+			allowing(adminClient).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
 		}});
 		
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();

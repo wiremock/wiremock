@@ -15,18 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import java.util.Set;
-
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.util.Set;
 
 public class LoggedRequest implements Request {
 	
 	private String url;
 	private String absoluteUrl;
 	private RequestMethod method;
-	private final HttpHeaders headers = new HttpHeaders();
+	private HttpHeaders headers = new HttpHeaders();
 	private String body;
 	private boolean isBrowserProxyRequest;
 	
@@ -45,6 +48,25 @@ public class LoggedRequest implements Request {
 		return loggedRequest;
 	}
 
+    private LoggedRequest() {
+    }
+
+    @JsonCreator
+    private LoggedRequest(@JsonProperty("url") String url,
+                         @JsonProperty("absoluteUrl") String absoluteUrl,
+                         @JsonProperty("method") RequestMethod method,
+                         @JsonProperty("headers") HttpHeaders headers,
+                         @JsonProperty("body") String body,
+                         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest) {
+
+        this.url = url;
+        this.absoluteUrl = absoluteUrl;
+        this.method = method;
+        this.body = body;
+        this.headers = headers;
+        this.isBrowserProxyRequest = isBrowserProxyRequest;
+    }
+
 	@Override
 	public String getUrl() {
 		return url;
@@ -61,6 +83,7 @@ public class LoggedRequest implements Request {
 	}
 
 	@Override
+    @JsonIgnore
 	public String getHeader(String key) {
 		for (String currentKey: headers.keySet()) {
 			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
@@ -77,14 +100,20 @@ public class LoggedRequest implements Request {
 	}
 
 	@Override
+    @JsonProperty("body")
 	public String getBodyAsString() {
 		return body;
 	}
 
 	@Override
+    @JsonIgnore
 	public Set<String> getAllHeaderKeys() {
 		return headers.keySet();
 	}
+
+    public HttpHeaders getHeaders() {
+        return headers;
+    }
 	
 	@Override
 	public boolean isBrowserProxyRequest() {

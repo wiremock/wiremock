@@ -15,6 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonValue;
+
 public enum RequestMethod {
 	GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE, ANY;
+
+    @JsonCreator
+    public static RequestMethod fromString(String value) {
+        return RequestMethod.valueOf(value);
+    }
+
+    @JsonValue
+    public String value() {
+        return super.toString();
+    }
 }
