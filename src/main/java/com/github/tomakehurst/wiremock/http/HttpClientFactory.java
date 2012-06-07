@@ -21,6 +21,8 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
+
 public class HttpClientFactory {
 	
 	public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
@@ -29,6 +31,7 @@ public class HttpClientFactory {
 		connectionManager.setDefaultMaxPerRoute(maxConnections);
 		HttpClient client = new DefaultHttpClient(connectionManager);
         HttpParams params = client.getParams();
+        params.setParameter(HANDLE_REDIRECTS, false);
         HttpConnectionParams.setConnectionTimeout(params, timeoutMilliseconds);
         HttpConnectionParams.setSoTimeout(params, timeoutMilliseconds);
         return client;

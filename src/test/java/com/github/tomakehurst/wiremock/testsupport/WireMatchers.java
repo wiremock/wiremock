@@ -15,19 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Iterables.size;
-
-import java.util.Iterator;
-
+import com.github.tomakehurst.wiremock.common.TextFile;
+import com.google.common.base.Predicate;
 import net.sf.json.test.JSONAssert;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-import com.github.tomakehurst.wiremock.common.TextFile;
-import com.google.common.base.Predicate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.size;
 
 public class WireMatchers {
 
@@ -136,6 +137,42 @@ public class WireMatchers {
                 return textFile.name().equals(name);
             }
             
+        };
+    }
+
+    public static Matcher<Date> isAfter(final String dateString) {
+        return new TypeSafeMatcher<Date>() {
+            @Override
+            public boolean matchesSafely(Date date) {
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    Date compareDate = df.parse(dateString);
+                    return date.after(compareDate);
+                } catch (ParseException pe) {
+                    throw new RuntimeException(pe);
+                }
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("A date after " + dateString);
+            }
+        };
+    }
+
+    public static Matcher<Date> isToday() {
+        return new TypeSafeMatcher<Date>() {
+            @Override
+            public boolean matchesSafely(Date date) {
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                String today = df.format(new Date());
+                return today.equals(df.format(date));
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Today's date");
+            }
         };
     }
 }

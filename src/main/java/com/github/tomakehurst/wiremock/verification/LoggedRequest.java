@@ -22,6 +22,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Date;
 import java.util.Set;
 
 public class LoggedRequest implements Request {
@@ -32,6 +33,7 @@ public class LoggedRequest implements Request {
 	private HttpHeaders headers = new HttpHeaders();
 	private String body;
 	private boolean isBrowserProxyRequest;
+    private Date loggedDate;
 	
 	public static LoggedRequest createFrom(Request request) {
 		LoggedRequest loggedRequest = new LoggedRequest();
@@ -44,6 +46,7 @@ public class LoggedRequest implements Request {
 		}
 		
 		loggedRequest.isBrowserProxyRequest = request.isBrowserProxyRequest();
+        loggedRequest.loggedDate = new Date();
 		
 		return loggedRequest;
 	}
@@ -57,7 +60,8 @@ public class LoggedRequest implements Request {
                          @JsonProperty("method") RequestMethod method,
                          @JsonProperty("headers") HttpHeaders headers,
                          @JsonProperty("body") String body,
-                         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest) {
+                         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+                         @JsonProperty("loggedDate") Date loggedDate) {
 
         this.url = url;
         this.absoluteUrl = absoluteUrl;
@@ -65,6 +69,7 @@ public class LoggedRequest implements Request {
         this.body = body;
         this.headers = headers;
         this.isBrowserProxyRequest = isBrowserProxyRequest;
+        this.loggedDate = loggedDate;
     }
 
 	@Override
@@ -119,4 +124,8 @@ public class LoggedRequest implements Request {
 	public boolean isBrowserProxyRequest() {
 		return isBrowserProxyRequest;
 	}
+
+    public Date getLoggedDate() {
+        return loggedDate;
+    }
 }

@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -27,6 +26,8 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isToday;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -44,10 +45,10 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/return/this")));
 
         assertThat(requests.size(), is(3));
-
-        Request firstRequest = requests.get(0);
+        LoggedRequest firstRequest = requests.get(0);
         assertThat(firstRequest.getUrl(), is("/return/this"));
         assertThat(firstRequest.getMethod(), is(RequestMethod.GET));
+        assertThat(firstRequest.getLoggedDate(), isToday());
     }
 
     @Test
@@ -64,6 +65,34 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         assertThat(requests, hasItems(withUrl("/should/return/this/request"), withUrl("/also/return/this")));
     }
 
+    @Test
+    public void returnsNoResultsAfterReset() {
+        testClient.get("/blah");
+        testClient.get("/blah");
+        testClient.get("/blah");
+
+        WireMock.reset();
+        List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/blah")));
+
+        assertThat(requests.size(), is(0));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void resultsAreInOrderRequestsWereReceived() {
+        testClient.get("/use/1");
+        testClient.get("/ignore/1");
+        testClient.get("/ignore/2");
+        testClient.get("/use/2");
+        testClient.get("/use/3");
+        testClient.get("/ignore/3");
+        testClient.get("/use/4");
+
+        List<LoggedRequest> requests = findAll(getRequestedFor(urlMatching("/use/.*")));
+
+        assertThat(requests, hasExactly(withUrl("/use/1"), withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
+    }
+
     private Matcher<LoggedRequest> withUrl(final String url) {
         return new TypeSafeMatcher<LoggedRequest>() {
             @Override
@@ -76,17 +105,5 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
                 description.appendText("A logged request with url: " + url);
             }
         };
-    }
-
-    @Test
-    public void returnsNoResultsAfterReset() {
-        testClient.get("/blah");
-        testClient.get("/blah");
-        testClient.get("/blah");
-
-        WireMock.reset();
-        List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/blah")));
-
-        assertThat(requests.size(), is(0));
     }
 }

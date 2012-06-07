@@ -15,7 +15,7 @@ apply plugin: 'idea'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.21
+version = 1.22
 
 repositories {
 	mavenCentral()
