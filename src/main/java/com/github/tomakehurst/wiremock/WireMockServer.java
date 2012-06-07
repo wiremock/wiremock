@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Map;
-
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Log4jNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.mapping.*;
+import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
+import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
+import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -28,19 +31,11 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.mapping.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.mapping.MappingFileWriterListener;
-import com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
-import com.github.tomakehurst.wiremock.mapping.RequestHandler;
-import com.github.tomakehurst.wiremock.mapping.RequestListener;
-import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
-import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class WireMockServer {
 
@@ -102,6 +97,7 @@ public class WireMockServer {
 	
 	public void start() {
 		jettyServer = new Server(port);
+        jettyServer.getConnectors()[0].setHeaderBufferSize(8192);
 		addAdminContext();
 		addMockServiceContext();
 

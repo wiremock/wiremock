@@ -23,6 +23,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -35,7 +38,7 @@ import static org.junit.Assert.assertThat;
 public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
 
     @Test
-    public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() {
+    public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
         testClient.get("/return/this");
         testClient.get("/but/not/this");
         testClient.get("/return/this");
@@ -49,6 +52,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         assertThat(firstRequest.getUrl(), is("/return/this"));
         assertThat(firstRequest.getMethod(), is(RequestMethod.GET));
         assertThat(firstRequest.getLoggedDate(), isToday());
+        assertThat(parse(firstRequest.getLoggedDateString()), isToday());
     }
 
     @Test
@@ -105,5 +109,9 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
                 description.appendText("A logged request with url: " + url);
             }
         };
+    }
+
+    private static Date parse(String dateString) throws ParseException {
+        return new SimpleDateFormat(LoggedRequest.DATE_FORMAT).parse(dateString);
     }
 }

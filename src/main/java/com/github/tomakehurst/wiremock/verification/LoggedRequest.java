@@ -22,10 +22,13 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
 public class LoggedRequest implements Request {
+
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
 	private String url;
 	private String absoluteUrl;
@@ -61,7 +64,8 @@ public class LoggedRequest implements Request {
                          @JsonProperty("headers") HttpHeaders headers,
                          @JsonProperty("body") String body,
                          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-                         @JsonProperty("loggedDate") Date loggedDate) {
+                         @JsonProperty("loggedDate") Date loggedDate,
+                         @JsonProperty("loggedDateString") String loggedDateString) {
 
         this.url = url;
         this.absoluteUrl = absoluteUrl;
@@ -127,5 +131,13 @@ public class LoggedRequest implements Request {
 
     public Date getLoggedDate() {
         return loggedDate;
+    }
+
+    public String getLoggedDateString() {
+        return format(loggedDate);
+    }
+
+    private String format(Date date) {
+        return new SimpleDateFormat(DATE_FORMAT).format(date);
     }
 }
