@@ -12,6 +12,7 @@ Key Features
 -	Record/playback of stubs
 -	Fault injection
 -	Per-request conditional proxying
+-   Browser proxying for request inspection and replacement
 -	Stateful behaviour simulation
 -	Configurable response delays
  
@@ -24,7 +25,7 @@ First, add WireMock as a dependency to your project:
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.20</version>
+		<version>1.22</version>
 		
 		<!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
 		<classifier>standalone</classifier>
@@ -118,7 +119,10 @@ Every condition specified must be satisfied for the mapping to be selected (i.e.
 An alternate form of the <code>verify</code> call is:
 
 	verify(3, postRequestedFor(urlMatching("/my/resource/[a-z0-9]+")) ...
-	
+
+### Fetching requests matching a pattern
+
+    findAll(putRequestedFor(urlMatching("/find/these/.*"))) ...
 
 ### Running on a different host/port
 If you'd prefer a different port, you can do something like this:
@@ -257,6 +261,44 @@ This will return a response of the form:
 	{ "count": 4 }
 
 
+### Getting details of requests made to WireMock
+Details of requests recorded by WireMock since the last reset (or startup) can be retrieved by POSTing a JSON document of the same
+form used for counting to <code>http://localhost:8080/__admin/requests/find</code>.
+
+The response is of the form:
+
+    {
+      "requests": [
+        {
+          "url": "/my/url",
+          "absoluteUrl": "http://mydomain.com/my/url",
+          "method": "GET",
+          "headers": {
+            "Accept-Language": "en-us,en;q=0.5",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0) Gecko/20100101 Firefox/9.0",
+            "Accept": "image/png,image/*;q=0.8,*/*;q=0.5"
+          },
+          "body": "",
+          "browserProxyRequest": true,
+          "loggedDate": 1339083581823,
+          "loggedDateString": "2012-06-07 16:39:41"
+        },
+        {
+          "url": "/my/other/url",
+          "absoluteUrl": "http://my.other.domain.com/my/other/url",
+          "method": "POST",
+          "headers": {
+            "Accept": "text/plain",
+            "Content-Type": "text/plain"
+          },
+          "body": "My text",
+          "browserProxyRequest": false,
+          "loggedDate": 1339083581823,
+          "loggedDateString": "2012-06-07 16:39:41"
+        }
+      ]
+    }
+
 ### Resetting the server
 A post to <code>http://localhost:8080/__admin/reset </code> will clear the list of logged requests and all stub mappings.
 
@@ -281,11 +323,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.20-standalone.jar
+	java -jar wiremock-1.22-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.20-standalone.jar --port 9999
+	java -jar wiremock-1.22-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
@@ -303,7 +345,13 @@ The following directories will be created when you first start WireMock:
 <code>mappings</code> - Contains stub mappings to load at startup. Any .json file containing a valid stub mapping (as described in the JSON API) placed under here will be loaded.
 
 <code>__files</code> - Contains body content files referenced by mappings with bodyFileName element. Also files under here will be served by the web server directly, even when no mapping refers to them. However, mappings for a given URL will always take precedence. 
-		
+
+### Configuring as a browser proxy
+Starting WireMock with the --enable-browser-proxying parameter will cause it to detect when a proxy request is being made from a web browser,
+and forward it as a standard proxy would unless a matching stub mapping is found. This is useful in two ways: intercepting and modifying specific
+request/responses, and examining/verifying requests made during an interaction with a website.
+
+The port number to use in your browser proxy settings is the one used when starting WireMock.
 
 Deploying as a WAR
 ------------------
