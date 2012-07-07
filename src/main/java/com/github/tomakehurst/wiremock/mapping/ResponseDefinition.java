@@ -26,12 +26,15 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 
+import java.lang.reflect.Array;
+
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
 	private int status;
 	private String body;
 	private String bodyFileName;
+    private byte[] byteBodyContent;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
@@ -46,6 +49,7 @@ public class ResponseDefinition {
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
 	    newResponseDef.bodyFileName = original.bodyFileName;
+        newResponseDef.byteBodyContent = original.byteBodyContent;
 	    newResponseDef.headers = original.headers;
 	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
@@ -102,6 +106,11 @@ public class ResponseDefinition {
 	public String getBody() {
 		return body;
 	}
+
+    public byte[] getByteBody() {
+        return byteBodyContent;
+
+    }
 	
 	public void setStatus(final int status) {
 		if (status == 0) {
@@ -114,6 +123,10 @@ public class ResponseDefinition {
 	public void setBody(final String body) {
 		this.body = body;
 	}
+
+    public void setByteBody(byte[] byteBodyContent) {
+        this.byteBodyContent = byteBodyContent;
+    }
 	
 	public void addHeader(final String key, final String value) {
 		if (headers == null) {
@@ -169,6 +182,11 @@ public class ResponseDefinition {
 	public boolean specifiesBodyContent() {
 		return body != null;
 	}
+
+    @JsonIgnore
+    public boolean specifiesByteBody()  {
+        return byteBodyContent!=null;
+    }
 	
 	@JsonIgnore
 	public boolean isProxyResponse() {
@@ -198,6 +216,8 @@ public class ResponseDefinition {
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
+        result = prime * result
+                + ((byteBodyContent == null) ? 0 : byteBodyContent.hashCode());
 		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
 		result = prime
 				* result
@@ -239,6 +259,13 @@ public class ResponseDefinition {
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
 			return false;
 		}
+        if (byteBodyContent == null) {
+            if(other.byteBodyContent !=null) {
+                return false;
+            }
+        } else if(!byteBodyEquals(byteBodyContent,other.byteBodyContent)) {
+            return false;
+        }
 		if (fault != other.fault) {
 			return false;
 		}
@@ -272,9 +299,30 @@ public class ResponseDefinition {
 		return true;
 	}
 
-	@Override
+    private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
+    {
+        if (expecteds == actuals) return true;
+        if (expecteds == null) return false;
+        if (actuals == null) return false;
+
+        int actualsLength= Array.getLength(actuals);
+        int expectedsLength= Array.getLength(expecteds);
+        if (actualsLength != expectedsLength)
+            return false;
+
+        for (int i= 0; i < expectedsLength; i++) {
+            byte  expected= expecteds[i];
+            byte  actual= actuals[i];
+            if(expected!=actual) return false;
+        }
+        return true;
+    }
+
+
+
+    @Override
 	public String toString() {
 		return JsonMappingBinder.write(this);
 	}
-	
+
 }

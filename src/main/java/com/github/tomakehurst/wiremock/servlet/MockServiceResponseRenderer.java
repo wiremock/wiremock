@@ -28,12 +28,12 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
 
-	public MockServiceResponseRenderer(FileSource fileSource,
-			GlobalSettingsHolder globalSettingsHolder) {
-		this.fileSource = fileSource;
-		this.globalSettingsHolder = globalSettingsHolder;
-		this.proxyResponseRenderer = new ProxyResponseRenderer();
-	}
+    public MockServiceResponseRenderer(FileSource fileSource,
+                                       GlobalSettingsHolder globalSettingsHolder) {
+        this.fileSource = fileSource;
+        this.globalSettingsHolder = globalSettingsHolder;
+        this.proxyResponseRenderer = new ProxyResponseRenderer();
+    }
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
@@ -58,7 +58,9 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 			response.setBody(bodyFile.readContents());
 		} else if (responseDefinition.specifiesBodyContent()) {
 			response.setBody(responseDefinition.getBody());
-		}
+		} else if (responseDefinition.specifiesByteBody()) {
+            response.setBody(responseDefinition.getByteBody());
+        }
 		
 		if (responseDefinition.getFault() != null) {
 			response.setFault(responseDefinition.getFault());

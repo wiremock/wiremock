@@ -24,6 +24,7 @@ public class ResponseDefinitionBuilder {
 	private int status;
 	private String bodyContent;
 	private String bodyFileName;
+    private byte[] byteBodyContent;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
@@ -52,8 +53,13 @@ public class ResponseDefinitionBuilder {
 		this.bodyContent = body;
 		return this;
 	}
-	
-	public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
+
+    public ResponseDefinitionBuilder withByteBody(byte[] body) {
+        this.byteBodyContent = body;
+        return this;
+    }
+
+    public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
         this.fixedDelayMilliseconds = milliseconds;
         return this;
     }
@@ -72,6 +78,7 @@ public class ResponseDefinitionBuilder {
 		ResponseDefinition response = new ResponseDefinition(status, bodyContent);
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
+        response.setByteBody(byteBodyContent);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);

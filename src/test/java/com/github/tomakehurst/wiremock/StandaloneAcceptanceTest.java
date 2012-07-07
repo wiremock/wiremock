@@ -101,6 +101,25 @@ public class StandaloneAcceptanceTest {
 		givenThat(get(urlEqualTo("/standalone/test/resource")).willReturn(aResponse().withStatus(200).withBody("Content")));
 		assertThat(testClient.get("/standalone/test/resource").content(), is("Content"));
 	}
+
+    private static final String MAPPING_REQUEST_FOR_BYTE_BODY =
+            "{ 													\n" +
+                    "	\"request\": {									\n" +
+                    "		\"method\": \"GET\",						\n" +
+                    "		\"url\": \"/byte/resource/from/file\"			\n" +
+                    "	},												\n" +
+                    "	\"response\": {									\n" +
+                    "		\"status\": 200,							\n" +
+                    "		\"byteBody\": [65,66,67]		\n" +
+                    "	}												\n" +
+                    "}													";
+
+    @Test
+    public void readsMapppingForByteBody() {
+        writeMappingFile("test-mapping-bytearray-1.json", MAPPING_REQUEST_FOR_BYTE_BODY);
+        startRunner();
+        assertThat(testClient.get("/byte/resource/from/file").content(), is("ABC"));
+    }
 	
 	private static final String MAPPING_REQUEST =
 		"{ 													\n" +
@@ -197,7 +216,7 @@ public class StandaloneAcceptanceTest {
 		startRunner();
 		assertThat(testClient.get("/body/file").content(), is("<body>Content</body>"));
 	}
-	
+
 	@Test
 	public void logsVerboselyWhenVerboseSetInCommandLine() {
 		startRecordingSystemOut();
