@@ -26,8 +26,6 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 
-import java.lang.reflect.Array;
-
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
@@ -305,8 +303,8 @@ public class ResponseDefinition {
         if (expecteds == null) return false;
         if (actuals == null) return false;
 
-        int actualsLength= Array.getLength(actuals);
-        int expectedsLength= Array.getLength(expecteds);
+        int actualsLength= actuals.length;
+        int expectedsLength= expecteds.length;
         if (actualsLength != expectedsLength)
             return false;
 
