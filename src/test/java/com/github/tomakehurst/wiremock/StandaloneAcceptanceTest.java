@@ -32,12 +32,10 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -58,7 +56,11 @@ public class StandaloneAcceptanceTest {
 	private static final String FILES = "__files";
 	private static final String MAPPINGS = "mappings";
 
-	private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
+    private static final byte[] binaryCompressedContent = new byte []{31, -117, 8, 8, 72, -53, -8, 79, 0, 3, 103, 122, 105, 112, 100, 97, 116, 97, 45, 111, 117, 116, 0, -77, 41, 74, 45, 46, -56, -49, 43, 78, -75, -53, 72, -51, -55, -55, -73, -47, -121, -13, 1, 9, 69, -3, 52, 26, 0, 0, 0};
+    private static final String binaryCompressedJsonString = "[31, -117, 8, 8, 72, -53, -8, 79, 0, 3, 103, 122, 105, 112, 100, 97, 116, 97, 45, 111, 117, 116, 0, -77, 41, 74, 45, 46, -56, -49, 43, 78, -75, -53, 72, -51, -55, -55, -73, -47, -121, -13, 1, 9, 69, -3, 52, 26, 0, 0, 0]";
+    private static final String binaryCompressedContentAsString = "<response>hello</response>";
+
+    private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
 	
 	private WireMockServerRunner runner;
 	private WireMockTestClient testClient;
@@ -119,6 +121,26 @@ public class StandaloneAcceptanceTest {
         writeMappingFile("test-mapping-bytearray-1.json", MAPPING_REQUEST_FOR_BYTE_BODY);
         startRunner();
         assertThat(testClient.get("/byte/resource/from/file").content(), is("ABC"));
+    }
+
+    private static final String MAPPING_REQUEST_FOR_BINARY_BYTE_BODY =
+            "{ 													\n" +
+                    "	\"request\": {									\n" +
+                    "		\"method\": \"GET\",						\n" +
+                    "		\"url\": \"/bytecompressed/resource/from/file\"			\n" +
+                    "	},												\n" +
+                    "	\"response\": {									\n" +
+                    "		\"status\": 200,							\n" +
+                    "		\"body\": "+binaryCompressedJsonString+"		\n" +
+                    "	}												\n" +
+                    "}													";
+
+
+    @Test
+    public void readsMapppingForByteBodyReturnsByteArray() {
+        writeMappingFile("test-mapping-bytearray-2.json", MAPPING_REQUEST_FOR_BINARY_BYTE_BODY);
+        startRunner();
+        assertThat(testClient.get("/bytecompressed/resource/from/file").binaryContent(), is(binaryCompressedContent));
     }
 	
 	private static final String MAPPING_REQUEST =
@@ -216,6 +238,42 @@ public class StandaloneAcceptanceTest {
 		startRunner();
 		assertThat(testClient.get("/body/file").content(), is("<body>Content</body>"));
 	}
+
+    @Test
+    public void readsBinaryBodyFileFromFilesDir() {
+        writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
+        writeFileToFilesDir("body-test.xml", binaryCompressedContent);
+        startRunner();
+        byte[] returnedContent = testClient.get("/body/file").binaryContent();
+        assertThat(returnedContent, is(binaryCompressedContent));
+        assertThat(decompress(returnedContent), is(binaryCompressedContentAsString));
+    }
+
+    public String decompress(byte[] content) {
+        GZIPInputStream gin = null;
+        try {
+            gin = new GZIPInputStream(new ByteArrayInputStream(content));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            byte[] buf = new byte[8192];
+
+            int read = -1;
+            while((read = gin.read(buf))!=-1) {
+                baos.write(buf,0,read);
+            }
+
+            return new String(baos.toByteArray(), Charset.forName(UTF_8.name()));
+
+        } catch (IOException e) {
+            return null;
+        } finally {
+            if(gin!=null) try {
+                gin.close();
+            } catch (IOException e) {
+
+            }
+        }
+    }
 
 	@Test
 	public void logsVerboselyWhenVerboseSetInCommandLine() {
@@ -315,6 +373,10 @@ public class StandaloneAcceptanceTest {
 	private void writeFileToFilesDir(String name, String contents) {
 		writeFileUnderFileSourceRoot(FILES + separator + name, contents);
 	}
+
+    private void writeFileToFilesDir(String name, byte[] contents) {
+        writeFileUnderFileSourceRoot(FILES + separator + name, contents);
+    }
 	
 	private void writeMappingFile(String name, String contents) {
 		writeFileUnderFileSourceRoot(MAPPINGS + separator + name, contents);
@@ -330,6 +392,17 @@ public class StandaloneAcceptanceTest {
 			throw new RuntimeException(e);
 		}
 	}
+
+    private void writeFileUnderFileSourceRoot(String relativePath, byte[] contents) {
+        try {
+            String filePath = FILE_SOURCE_ROOT + separator + relativePath;
+            File file = new File(filePath);
+            createParentDirs(file);
+            write(contents, file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private void startRunner(String... args) {
 		runner.run(FILE_SOURCE_ROOT.getPath(), args);
