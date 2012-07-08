@@ -110,7 +110,7 @@ public class StandaloneAcceptanceTest {
                     "	},												\n" +
                     "	\"response\": {									\n" +
                     "		\"status\": 200,							\n" +
-                    "		\"byteBody\": [65,66,67]		\n" +
+                    "		\"body\": [65,66,67]		\n" +
                     "	}												\n" +
                     "}													";
 

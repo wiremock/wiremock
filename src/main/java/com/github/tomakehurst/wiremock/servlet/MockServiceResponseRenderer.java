@@ -57,10 +57,12 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 			TextFile bodyFile = fileSource.getTextFileNamed(responseDefinition.getBodyFileName());
 			response.setBody(bodyFile.readContents());
 		} else if (responseDefinition.specifiesBodyContent()) {
-			response.setBody(responseDefinition.getBody());
-		} else if (responseDefinition.specifiesByteBody()) {
-            response.setBody(responseDefinition.getByteBody());
-        }
+            if(responseDefinition.specifiesBinaryBodyContent()) {
+			    response.setBody(responseDefinition.getByteBody());
+            } else {
+                response.setBody(responseDefinition.getBody());
+            }
+		}
 		
 		if (responseDefinition.getFault() != null) {
 			response.setFault(responseDefinition.getFault());

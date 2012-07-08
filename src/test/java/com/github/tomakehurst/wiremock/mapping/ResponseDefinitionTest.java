@@ -30,7 +30,6 @@ public class ResponseDefinitionTest {
         ResponseDefinition response = new ResponseDefinition();
         response.setBody("blah");
         response.setBodyFileName("name.json");
-        response.setByteBody(new byte[]{1,2});
         response.setFault(Fault.EMPTY_RESPONSE);
         response.addHeader("thing", "thingvalue");
         response.setFixedDelayMilliseconds(1112);

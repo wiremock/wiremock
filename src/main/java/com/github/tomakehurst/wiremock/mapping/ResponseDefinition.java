@@ -15,24 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
 	private int status;
-	private String body;
+	private byte[] body;
+    private boolean isBinaryBody = false;
 	private String bodyFileName;
-    private byte[] byteBodyContent;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
@@ -46,8 +52,8 @@ public class ResponseDefinition {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
+        newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
-        newResponseDef.byteBodyContent = original.byteBodyContent;
 	    newResponseDef.headers = original.headers;
 	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
@@ -66,27 +72,33 @@ public class ResponseDefinition {
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
 		this.status = statusCode;
-		this.body = bodyContent;
+		this.body = (bodyContent==null) ? null : bodyContent.getBytes(Charset.forName(UTF_8.name()));
 	}
+
+    public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
+        this.status = statusCode;
+        this.body = bodyContent;
+        isBinaryBody = true;
+    }
 	
 	public ResponseDefinition() {
 		this.status = HTTP_OK;
 	}
 
 	public static ResponseDefinition notFound() {
-		return new ResponseDefinition(HTTP_NOT_FOUND, null);
+		return new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	}
 	
 	public static ResponseDefinition ok() {
-		return new ResponseDefinition(HTTP_OK, null);
+		return new ResponseDefinition(HTTP_OK, (byte[])null);
 	}
 	
 	public static ResponseDefinition created() {
-		return new ResponseDefinition(HTTP_CREATED, null);
+		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
 	
 	public static ResponseDefinition notConfigured() {
-	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, null);
+	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	    response.wasConfigured = false;
 	    return response;
 	}
@@ -100,17 +112,18 @@ public class ResponseDefinition {
 	public int getStatus() {
 		return status;
 	}
-	
+
+    @JsonIgnore
 	public String getBody() {
-		return body;
+		return (body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
 	}
 
+    @JsonIgnore
     public byte[] getByteBody() {
-        return byteBodyContent;
-
+        return body;
     }
-	
-	public void setStatus(final int status) {
+
+        public void setStatus(final int status) {
 		if (status == 0) {
 			this.status = HTTP_OK;
 		} else {
@@ -118,15 +131,64 @@ public class ResponseDefinition {
 		}
 	}
 
+    @JsonIgnore
 	public void setBody(final String body) {
-		this.body = body;
+		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
+        isBinaryBody = false;
 	}
 
-    public void setByteBody(byte[] byteBodyContent) {
-        this.byteBodyContent = byteBodyContent;
+    @JsonIgnore
+    public void setBody(final byte[] body) {
+        this.body = body;
+        isBinaryBody = true;
     }
-	
-	public void addHeader(final String key, final String value) {
+
+    @JsonProperty("body")
+    public Object getBodyContent() {
+        if(isBinaryBody) {
+            if(this.body!=null) {
+                List<Byte> data = new ArrayList<Byte>();
+                for(int i = 0;i<this.body.length;i++) {
+                    data.add(body[i]);
+                }
+                return data;
+            } else return null;
+        } else {
+            return getBody();
+        }
+    }
+
+    @JsonProperty("body")
+    public void setBodyContent(Object content) {
+        if(content!=null) {
+            if(content.getClass().isArray()) {
+                if(content instanceof byte[]) {
+                    setBody((byte[])content);
+                }
+            } else if (content instanceof String) {
+                setBody((String)content);
+            } else if (content instanceof List) {
+                List body = (List)content;
+                int listSize = body.size();
+                byte[] bodyArray = new byte[listSize];
+                boolean marshalled = true;
+                for(int i = 0;i<listSize;i++) {
+                    Object b = body.get(i);
+                    if(b instanceof Number) {
+                        bodyArray[i] = ((Number)b).byteValue();
+                    } else {
+                      marshalled = false;
+                      break;
+                    }
+                }
+                if(marshalled) {
+                    setBody(bodyArray);
+                }
+            }
+        }
+    }
+
+    public void addHeader(final String key, final String value) {
 		if (headers == null) {
 			headers = new HttpHeaders();
 		}
@@ -182,10 +244,10 @@ public class ResponseDefinition {
 	}
 
     @JsonIgnore
-    public boolean specifiesByteBody()  {
-        return byteBodyContent!=null;
+    public boolean specifiesBinaryBodyContent() {
+        return (body!=null && isBinaryBody);
     }
-	
+
 	@JsonIgnore
 	public boolean isProxyResponse() {
 		return browserProxyUrl != null || proxyBaseUrl != null;
@@ -214,8 +276,6 @@ public class ResponseDefinition {
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
-        result = prime * result
-                + ((byteBodyContent == null) ? 0 : byteBodyContent.hashCode());
 		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
 		result = prime
 				* result
@@ -247,7 +307,7 @@ public class ResponseDefinition {
 			if (other.body != null) {
 				return false;
 			}
-		} else if (!body.equals(other.body)) {
+		} else if (!byteBodyEquals(body, other.body)) {
 			return false;
 		}
 		if (bodyFileName == null) {
@@ -257,13 +317,6 @@ public class ResponseDefinition {
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
 			return false;
 		}
-        if (byteBodyContent == null) {
-            if(other.byteBodyContent !=null) {
-                return false;
-            }
-        } else if(!byteBodyEquals(byteBodyContent,other.byteBodyContent)) {
-            return false;
-        }
 		if (fault != other.fault) {
 			return false;
 		}

@@ -85,7 +85,7 @@ public class MappingBuilderTest {
     public void shouldBuildMappingWithResponseByteBody() {
         RequestResponseMapping mapping =
                 new MappingBuilder(POST, new UrlMatchingStrategy())
-                        .willReturn(new ResponseDefinitionBuilder().withByteBody("Some content".getBytes()))
+                        .willReturn(new ResponseDefinitionBuilder().withBody("Some content".getBytes()))
                         .build();
 
         assertThat(mapping.getResponse().getByteBody(), is("Some content".getBytes()));
