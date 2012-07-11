@@ -16,9 +16,20 @@
 package com.github.tomakehurst.wiremock.http;
 
 import java.util.HashMap;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class HttpHeaders extends HashMap<String, String> {
 
-	private static final long serialVersionUID = -6135309685474556686L;
+    private Map<String, HttpHeader> headers = newHashMap();
+
+    public HttpHeader getHeader(String key) {
+        if (!headers.containsKey(key)) {
+            return HttpHeader.absent(key);
+        }
+
+        return headers.get(key);
+    }
 
 }
