@@ -42,4 +42,8 @@ public class HttpHeader {
         return values;
     }
 
+    public boolean containsValue(String expectedValue) {
+        return values.contains(expectedValue);
+    }
+
 }

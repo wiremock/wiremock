@@ -22,7 +22,23 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class HttpHeaders extends HashMap<String, String> {
 
-    private Map<String, HttpHeader> headers = newHashMap();
+    private final Map<String, HttpHeader> headers;
+
+    public HttpHeaders() {
+        headers = newHashMap();
+    }
+
+    public HttpHeaders(Map<? extends String, ? extends String> m) {
+        super(m);
+        headers = newHashMap();
+    }
+
+    public HttpHeaders(HttpHeader... headers) {
+        this();
+        for (HttpHeader header: headers) {
+            this.headers.put(header.key(), header);
+        }
+    }
 
     public HttpHeader getHeader(String key) {
         if (!headers.containsKey(key)) {
@@ -31,5 +47,7 @@ public class HttpHeaders extends HashMap<String, String> {
 
         return headers.get(key);
     }
+
+    
 
 }

@@ -32,6 +32,13 @@ public class HttpHeaderTest {
         assertThat(header.values(), hasItems("value1", "value2", "value3"));
     }
 
+    @Test
+    public void correctlyIndicatesWhenHeaderContainsValue() {
+        HttpHeader header = new HttpHeader("Test-Header", "value1", "value2", "value3");
+        assertThat(header.containsValue("value2"), is(true));
+        assertThat(header.containsValue("value72727"), is(false));
+    }
+
     @Test(expected=IllegalStateException.class)
     public void throwsExceptionWhenAttemptingToAccessFirstValueWhenAbsent() {
         HttpHeader.absent("Something").firstValue();
