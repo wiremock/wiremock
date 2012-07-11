@@ -146,51 +146,6 @@ public class ResponseDefinition {
         isBinaryBody = true;
     }
 
-//    @JsonProperty("body")
-//    public Object getBodyContent() {
-//        if(isBinaryBody) {
-//            if(this.body!=null) {
-//                List<Byte> data = new ArrayList<Byte>();
-//                for(int i = 0;i<this.body.length;i++) {
-//                    data.add(body[i]);
-//                }
-//                return data;
-//            } else return null;
-//        } else {
-//            return getBody();
-//        }
-//    }
-//
-//    @JsonProperty("body")
-//    public void setBodyContent(Object content) {
-//        if(content!=null) {
-//            if(content.getClass().isArray()) {
-//                if(content instanceof byte[]) {
-//                    setBody((byte[])content);
-//                }
-//            } else if (content instanceof String) {
-//                setBody((String)content);
-//            } else if (content instanceof List) {
-//                List body = (List)content;
-//                int listSize = body.size();
-//                byte[] bodyArray = new byte[listSize];
-//                boolean marshalled = true;
-//                for(int i = 0;i<listSize;i++) {
-//                    Object b = body.get(i);
-//                    if(b instanceof Number) {
-//                        bodyArray[i] = ((Number)b).byteValue();
-//                    } else {
-//                      marshalled = false;
-//                      break;
-//                    }
-//                }
-//                if(marshalled) {
-//                    setBody(bodyArray);
-//                }
-//            }
-//        }
-//    }
-
     public void setStatus(final int status) {
         if (status == 0) {
             this.status = HTTP_OK;
