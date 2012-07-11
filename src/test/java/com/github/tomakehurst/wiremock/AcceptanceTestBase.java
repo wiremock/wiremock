@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.httpserver.HttpWireMockServer;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class AcceptanceTestBase {
 
@@ -29,8 +29,8 @@ public class AcceptanceTestBase {
 
 	@BeforeClass
 	public static void setupServer() {
-//		wireMockServer = new HttpWireMockServer();
-		wireMockServer = new JettyWireMockServer();
+		wireMockServer = new HttpWireMockServer();
+//		wireMockServer = new JettyWireMockServer();
 		wireMockServer.start();
 		testClient = new WireMockTestClient();
 		WireMock.configure();

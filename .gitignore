@@ -43,6 +43,10 @@ bin
 .settings
 .gradle
 
+*.iml
+*.ipr
+*.iws
+out
 
 # Misc #
 ########
