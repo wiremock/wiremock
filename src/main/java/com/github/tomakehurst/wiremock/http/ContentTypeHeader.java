@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.mapping.Request;
 
-public class ContentTypeHeader {
+public class ContentTypeHeader extends HttpHeader {
 
 	public static final String KEY = "Content-Type";
 	
@@ -34,8 +34,17 @@ public class ContentTypeHeader {
 	}
 	
 	public ContentTypeHeader(String stringValue) {
+        super(KEY, stringValue);
 		parts = stringValue.split(";");
 	}
+
+    public static ContentTypeHeader absent() {
+        return new ContentTypeHeader();
+    }
+
+    private ContentTypeHeader() {
+        super(KEY, (String[]) null);
+    }
 	
 	public String mimeTypePart() {
 		return parts[0];

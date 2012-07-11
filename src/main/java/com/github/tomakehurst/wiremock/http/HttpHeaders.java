@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.http;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class HttpHeaders extends HashMap<String, String> {
@@ -25,11 +27,6 @@ public class HttpHeaders extends HashMap<String, String> {
     private final Map<String, HttpHeader> headers;
 
     public HttpHeaders() {
-        headers = newHashMap();
-    }
-
-    public HttpHeaders(Map<? extends String, ? extends String> m) {
-        super(m);
         headers = newHashMap();
     }
 
@@ -48,6 +45,42 @@ public class HttpHeaders extends HashMap<String, String> {
         return headers.get(key);
     }
 
-    
+    public boolean hasContentTypeHeader() {
+        return headers.containsKey(ContentTypeHeader.KEY);
+    }
 
+    @Override
+    public String get(Object key) {
+        return super.get(key);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return super.containsKey(key);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String put(String key, String value) {
+        headers.put(key, httpHeader(key, value));
+        return super.put(key, value);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends String> m) {
+        for (Map.Entry<? extends String, ? extends String> entry: m.entrySet()) {
+            headers.put(entry.getKey(), httpHeader(entry.getKey(), entry.getValue()));
+        }
+
+        super.putAll(m);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Set<Map.Entry<String, String>> entrySet() {
+        return super.entrySet();    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return super.keySet();    //To change body of overridden methods use File | Settings | File Templates.
+    }
 }

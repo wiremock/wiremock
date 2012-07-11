@@ -46,4 +46,14 @@ public class HttpHeader {
         return values.contains(expectedValue);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String value: values) {
+            sb.append(key).append(": ").append(value).append("\n");
+        }
+
+        return sb.toString();
+    }
+
 }

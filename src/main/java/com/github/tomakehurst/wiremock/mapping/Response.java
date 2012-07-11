@@ -15,21 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.http.ServletContainerUtils.getUnderlyingSocketFrom;
-import static com.google.common.base.Charsets.UTF_8;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.google.common.base.Optional;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.google.common.base.Optional;
+import static com.github.tomakehurst.wiremock.http.ServletContainerUtils.getUnderlyingSocketFrom;
+import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class Response {
 
@@ -129,7 +128,7 @@ public class Response {
 	}
 	
 	private Optional<String> getEncodingFromHeaderIfAvailable() {
-		if (!headers.containsKey(ContentTypeHeader.KEY)) {
+		if (!headers.hasContentTypeHeader()) {
 			return Optional.absent();
 		}
 		
