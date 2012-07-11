@@ -26,6 +26,7 @@ public class RequestResponseMapping {
 
 	private RequestPattern request;
 	private ResponseDefinition response;
+	private ResponseDefinition globalDefaults;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
@@ -33,11 +34,21 @@ public class RequestResponseMapping {
 	private Scenario scenario;
 	
 	private long insertionIndex;
-	
-	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
-		this.request = requestPattern;
-		this.response = response;
-	}
+    
+    public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
+        this.request = requestPattern;
+        this.response = response;
+    }
+    
+    public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response, boolean global) {
+        this.request = requestPattern;
+        if(global) {
+            this.globalDefaults = response;
+        }
+        else {
+            this.response = response;
+        }
+    }
 	
 	public RequestResponseMapping() {
 		//Concession to Jackson
@@ -115,7 +126,15 @@ public class RequestResponseMapping {
 		}
 	}
 	
-	@JsonIgnore
+	public ResponseDefinition getGlobalDefaults() {
+        return globalDefaults;
+    }
+
+    public void setGlobalDefaults(ResponseDefinition globalDefaults) {
+        this.globalDefaults = globalDefaults;
+    }
+
+    @JsonIgnore
 	public Scenario getScenario() {
 		return scenario;
 	}
@@ -167,8 +186,10 @@ public class RequestResponseMapping {
 				* result
 				+ ((requiredScenarioState == null) ? 0 : requiredScenarioState
 						.hashCode());
-		result = prime * result
-				+ ((response == null) ? 0 : response.hashCode());
+        result = prime * result
+                + ((response == null) ? 0 : response.hashCode());
+        result = prime * result
+                + ((globalDefaults == null) ? 0 : globalDefaults.hashCode());
 		result = prime * result
 				+ ((scenarioName == null) ? 0 : scenarioName.hashCode());
 		return result;
@@ -217,13 +238,20 @@ public class RequestResponseMapping {
 		} else if (!requiredScenarioState.equals(other.requiredScenarioState)) {
 			return false;
 		}
-		if (response == null) {
-			if (other.response != null) {
-				return false;
-			}
-		} else if (!response.equals(other.response)) {
-			return false;
-		}
+        if (response == null) {
+            if (other.response != null) {
+                return false;
+            }
+        } else if (!response.equals(other.response)) {
+            return false;
+        }
+        if (globalDefaults == null) {
+            if (other.globalDefaults != null) {
+                return false;
+            }
+        } else if (!globalDefaults.equals(other.globalDefaults)) {
+            return false;
+        }
 		if (scenarioName == null) {
 			if (other.scenarioName != null) {
 				return false;
@@ -233,6 +261,11 @@ public class RequestResponseMapping {
 		}
 		return true;
 	}
+
+	@JsonIgnore
+    public boolean isGlobalDefaultMapping() {
+        return globalDefaults != null ? true : false;
+    }
 
 	
 	
