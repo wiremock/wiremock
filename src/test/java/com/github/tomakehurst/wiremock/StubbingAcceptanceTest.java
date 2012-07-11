@@ -15,32 +15,21 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
@@ -227,6 +216,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
 		assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
 	}
+
+    @Test
+    public void returningBinaryBody() {
+        byte[] bytes = new byte[] { 65, 66, 67 };
+        stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
+
+        assertThat(testClient.get("/binary/content").contentAsBytes(), is(bytes));
+    }
 	
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;

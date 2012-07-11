@@ -15,16 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
-import static com.google.common.base.Charsets.UTF_8;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
+import static com.google.common.base.Charsets.UTF_8;
 
 public class WireMockResponse {
 	
@@ -41,11 +40,16 @@ public class WireMockResponse {
 	}
 	
 	public String content() {
-        if(content==null) {
+        if (content == null) {
             return null;
         }
+
 		return new String(content, Charset.forName(UTF_8.name()));
 	}
+
+    public byte[] contentAsBytes() {
+        return content;
+    }
 
     public byte[] binaryContent() {
         return content;
