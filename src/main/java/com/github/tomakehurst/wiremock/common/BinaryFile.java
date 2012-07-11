@@ -15,17 +15,40 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.util.List;
+import com.google.common.io.Files;
 
+import java.io.File;
+import java.io.IOException;
 
-public interface FileSource {
+import static com.google.common.base.Charsets.UTF_8;
 
-    BinaryFile getBinaryFileNamed(String name);
-	TextFile getTextFileNamed(String name);
-	void createIfNecessary();
-	FileSource child(String subDirectoryName);
-	String getPath();
-	List<TextFile> listFiles();
-	List<TextFile> listFilesRecursively();
-	void writeTextFile(String name, String contents);
+public class BinaryFile {
+
+	private final File file;
+
+	public BinaryFile(final String filePath) {
+		file = new File(filePath);
+	}
+
+	public BinaryFile(final File file) {
+		this.file = file;
+	}
+	
+	public byte[] readContents() {
+		try {
+			final byte[] contents = Files.toByteArray(file);
+			return contents;
+		} catch (final IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
+	
+	public String name() {
+		return file.getName();
+	}
+	
+	@Override
+	public String toString() {
+		return file.getName();
+	}
 }

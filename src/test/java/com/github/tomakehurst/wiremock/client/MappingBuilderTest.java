@@ -80,7 +80,17 @@ public class MappingBuilderTest {
 		
 		assertThat(mapping.getResponse().getBody(), is("Some content"));
 	}
-	
+
+    @Test
+    public void shouldBuildMappingWithResponseByteBody() {
+        RequestResponseMapping mapping =
+                new MappingBuilder(POST, new UrlMatchingStrategy())
+                        .willReturn(new ResponseDefinitionBuilder().withBody("Some content".getBytes()))
+                        .build();
+
+        assertThat(mapping.getResponse().getByteBody(), is("Some content".getBytes()));
+    }
+
 	@Test
 	public void shouldBuildMappingWithResponseHeaders() {
 		RequestResponseMapping mapping =

@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.mapping.Response;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
@@ -28,12 +28,12 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
 
-	public MockServiceResponseRenderer(FileSource fileSource,
-			GlobalSettingsHolder globalSettingsHolder) {
-		this.fileSource = fileSource;
-		this.globalSettingsHolder = globalSettingsHolder;
-		this.proxyResponseRenderer = new ProxyResponseRenderer();
-	}
+    public MockServiceResponseRenderer(FileSource fileSource,
+                                       GlobalSettingsHolder globalSettingsHolder) {
+        this.fileSource = fileSource;
+        this.globalSettingsHolder = globalSettingsHolder;
+        this.proxyResponseRenderer = new ProxyResponseRenderer();
+    }
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
@@ -54,10 +54,14 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 		response.addHeaders(responseDefinition.getHeaders());
 		
 		if (responseDefinition.specifiesBodyFile()) {
-			TextFile bodyFile = fileSource.getTextFileNamed(responseDefinition.getBodyFileName());
+			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
 			response.setBody(bodyFile.readContents());
 		} else if (responseDefinition.specifiesBodyContent()) {
-			response.setBody(responseDefinition.getBody());
+            if(responseDefinition.specifiesBinaryBodyContent()) {
+			    response.setBody(responseDefinition.getByteBody());
+            } else {
+                response.setBody(responseDefinition.getBody());
+            }
 		}
 		
 		if (responseDefinition.getFault() != null) {

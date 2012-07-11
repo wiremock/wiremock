@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -26,11 +27,17 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 
+import java.nio.charset.Charset;
+
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
 	private int status;
-	private String body;
+	private byte[] body;
+    private boolean isBinaryBody = false;
 	private String bodyFileName;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
@@ -45,6 +52,7 @@ public class ResponseDefinition {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
+        newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
 	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
@@ -64,27 +72,33 @@ public class ResponseDefinition {
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
 		this.status = statusCode;
-		this.body = bodyContent;
+		this.body = (bodyContent==null) ? null : bodyContent.getBytes(Charset.forName(UTF_8.name()));
 	}
+
+    public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
+        this.status = statusCode;
+        this.body = bodyContent;
+        isBinaryBody = true;
+    }
 	
 	public ResponseDefinition() {
 		this.status = HTTP_OK;
 	}
 
 	public static ResponseDefinition notFound() {
-		return new ResponseDefinition(HTTP_NOT_FOUND, null);
+		return new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	}
 	
 	public static ResponseDefinition ok() {
-		return new ResponseDefinition(HTTP_OK, null);
+		return new ResponseDefinition(HTTP_OK, (byte[])null);
 	}
 	
 	public static ResponseDefinition created() {
-		return new ResponseDefinition(HTTP_CREATED, null);
+		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
 	
 	public static ResponseDefinition notConfigured() {
-	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, null);
+	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	    response.wasConfigured = false;
 	    return response;
 	}
@@ -98,24 +112,49 @@ public class ResponseDefinition {
 	public int getStatus() {
 		return status;
 	}
-	
+
 	public String getBody() {
-		return body;
-	}
-	
-	public void setStatus(final int status) {
-		if (status == 0) {
-			this.status = HTTP_OK;
-		} else {
-			this.status = status;
-		}
+		return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
 	}
 
+    @JsonIgnore
+    public byte[] getByteBody() {
+        return body;
+    }
+
+    public String getBase64Body() {
+        if (isBinaryBody && body != null) {
+            return printBase64Binary(body);
+        }
+
+        return null;
+    }
+
+    public void setBase64Body(String base64Body) {
+        isBinaryBody = true;
+        body = parseBase64Binary(base64Body);
+    }
+
 	public void setBody(final String body) {
-		this.body = body;
+		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
+        isBinaryBody = false;
 	}
-	
-	public void addHeader(final String key, final String value) {
+
+    @JsonIgnore
+    public void setBody(final byte[] body) {
+        this.body = body;
+        isBinaryBody = true;
+    }
+
+    public void setStatus(final int status) {
+        if (status == 0) {
+            this.status = HTTP_OK;
+        } else {
+            this.status = status;
+        }
+    }
+
+    public void addHeader(final String key, final String value) {
 		if (headers == null) {
 			headers = new HttpHeaders();
 		}
@@ -169,7 +208,12 @@ public class ResponseDefinition {
 	public boolean specifiesBodyContent() {
 		return body != null;
 	}
-	
+
+    @JsonIgnore
+    public boolean specifiesBinaryBodyContent() {
+        return (body!=null && isBinaryBody);
+    }
+
 	@JsonIgnore
 	public boolean isProxyResponse() {
 		return browserProxyUrl != null || proxyBaseUrl != null;
@@ -229,7 +273,7 @@ public class ResponseDefinition {
 			if (other.body != null) {
 				return false;
 			}
-		} else if (!body.equals(other.body)) {
+		} else if (!byteBodyEquals(body, other.body)) {
 			return false;
 		}
 		if (bodyFileName == null) {
@@ -272,9 +316,30 @@ public class ResponseDefinition {
 		return true;
 	}
 
-	@Override
+    private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
+    {
+        if (expecteds == actuals) return true;
+        if (expecteds == null) return false;
+        if (actuals == null) return false;
+
+        int actualsLength= actuals.length;
+        int expectedsLength= expecteds.length;
+        if (actualsLength != expectedsLength)
+            return false;
+
+        for (int i= 0; i < expectedsLength; i++) {
+            byte  expected= expecteds[i];
+            byte  actual= actuals[i];
+            if(expected!=actual) return false;
+        }
+        return true;
+    }
+
+
+
+    @Override
 	public String toString() {
 		return JsonMappingBinder.write(this);
 	}
-	
+
 }
