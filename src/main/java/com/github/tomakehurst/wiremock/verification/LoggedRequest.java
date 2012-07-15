@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
@@ -25,6 +26,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+
+import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
 public class LoggedRequest implements Request {
 
@@ -44,9 +47,7 @@ public class LoggedRequest implements Request {
 		loggedRequest.absoluteUrl = request.getAbsoluteUrl();
 		loggedRequest.method = request.getMethod();
 		loggedRequest.body = request.getBodyAsString();
-		for (String key: request.getAllHeaderKeys()) {
-			loggedRequest.headers.put(key, request.getHeader(key));
-		}
+		loggedRequest.headers = copyOf(request.getHeaders());
 		
 		loggedRequest.isBrowserProxyRequest = request.isBrowserProxyRequest();
         loggedRequest.loggedDate = new Date();
@@ -103,7 +104,19 @@ public class LoggedRequest implements Request {
 		return null;
 	}
 
-	@Override
+    @Override
+    public HttpHeader header(String key) {
+        for (String currentKey: headers.keySet()) {
+            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+                String value = headers.get(currentKey);
+                return new HttpHeader(currentKey, value);
+            }
+        }
+
+        return HttpHeader.absent(key);
+    }
+
+    @Override
 	public boolean containsHeader(String key) {
 		return getHeader(key) != null;
 	}

@@ -15,14 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_OK;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -35,7 +28,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+
+import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class WireMockTestClient {
 
@@ -65,7 +64,7 @@ public class WireMockTestClient {
 		return String.format(LOCAL_WIREMOCK_RESET_URL, port);
 	}
 
-	public WireMockResponse get(String url, HttpHeader... headers) {
+	public WireMockResponse get(String url, TestHttpHeader... headers) {
 		HttpUriRequest httpRequest = new HttpGet(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpRequest, headers);
 	}
@@ -90,12 +89,12 @@ public class WireMockTestClient {
 		} 
 	}
 	
-	public WireMockResponse put(String url, HttpHeader... headers) {
+	public WireMockResponse put(String url, TestHttpHeader... headers) {
 		HttpUriRequest httpRequest = new HttpPut(mockServiceUrlFor(url));
 		return executeMethodAndCovertExceptions(httpRequest, headers);
 	}
 	
-	public WireMockResponse putWithBody(String url, String body, String contentType, HttpHeader... headers) {
+	public WireMockResponse putWithBody(String url, String body, String contentType, TestHttpHeader... headers) {
 		HttpPut httpPut = new HttpPut(mockServiceUrlFor(url));
 		try {
 			httpPut.setEntity(new StringEntity(body, contentType, "utf-8"));
@@ -150,13 +149,13 @@ public class WireMockTestClient {
 		return postJsonAndReturnStatus(url, null);
 	}
 
-	private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, HttpHeader... headers) {
+	private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, TestHttpHeader... headers) {
 		HttpClient client = HttpClientFactory.createClient();
 		HttpParams params = client.getParams();
 		params.setParameter("http.protocol.handle-redirects", false);
 		
 		try {
-			for (HttpHeader header: headers) {
+			for (TestHttpHeader header: headers) {
 				httpRequest.addHeader(header.getName(), header.getValue());
 			}
 			HttpResponse httpResponse = client.execute(httpRequest);

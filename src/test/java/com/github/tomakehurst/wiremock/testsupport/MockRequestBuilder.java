@@ -15,17 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Sets.newLinkedHashSet;
-
-import java.util.Map;
-
+import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.mapping.Request;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.Request;
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class MockRequestBuilder {
 
@@ -89,6 +88,10 @@ public class MockRequestBuilder {
 				allowing(request).containsHeader(header.getKey()); will(returnValue(true));
 				allowing(request).getHeader(header.getKey()); will(returnValue(header.getValue()));
 			}
+            for (HttpHeader header: headers.all()) {
+                allowing(request).header(header.key()); will(returnValue(header));
+            }
+            allowing(request).getHeaders(); will(returnValue(headers));
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keySet())));
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
 			allowing(request).getBodyAsString(); will(returnValue(body));

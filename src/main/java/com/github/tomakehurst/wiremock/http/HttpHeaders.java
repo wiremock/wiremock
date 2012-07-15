@@ -15,26 +15,39 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 
-import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.google.common.collect.Maps.newHashMap;
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class HttpHeaders extends HashMap<String, String> {
 
-    private final Map<String, HttpHeader> headers;
+    private final Multimap<String, String> headers;
 
     public HttpHeaders() {
-        headers = newHashMap();
+        headers = LinkedHashMultimap.create();
     }
 
     public HttpHeaders(HttpHeader... headers) {
         this();
         for (HttpHeader header: headers) {
-            this.headers.put(header.key(), header);
+            put(header.key(), header.firstValue());
+            this.headers.putAll(header.key(), header.values());
         }
+    }
+
+    public HttpHeaders(Iterable<HttpHeader> headers) {
+        this();
+        for (HttpHeader header: headers) {
+            put(header.key(), header.firstValue());
+            this.headers.putAll(header.key(), header.values());
+        }
+    }
+
+    public HttpHeaders(HttpHeaders headers) {
+        this(headers.all());
     }
 
     public HttpHeader getHeader(String key) {
@@ -42,11 +55,21 @@ public class HttpHeaders extends HashMap<String, String> {
             return HttpHeader.absent(key);
         }
 
-        return headers.get(key);
+        Collection<String> values = headers.get(key);
+        return new HttpHeader(key, values);
     }
 
     public boolean hasContentTypeHeader() {
         return headers.containsKey(ContentTypeHeader.KEY);
+    }
+
+    public Collection<HttpHeader> all() {
+        List<HttpHeader> httpHeaderList = newArrayList();
+        for (String key: headers.keySet()) {
+            httpHeaderList.add(new HttpHeader(key, headers.get(key)));
+        }
+
+        return httpHeaderList;
     }
 
     @Override
@@ -61,17 +84,17 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public String put(String key, String value) {
-        headers.put(key, httpHeader(key, value));
-        return super.put(key, value);    //To change body of overridden methods use File | Settings | File Templates.
+        headers.put(key, value);
+        return super.put(key, value);
     }
 
     @Override
     public void putAll(Map<? extends String, ? extends String> m) {
         for (Map.Entry<? extends String, ? extends String> entry: m.entrySet()) {
-            headers.put(entry.getKey(), httpHeader(entry.getKey(), entry.getValue()));
+            headers.put(entry.getKey(), entry.getValue());
         }
 
-        super.putAll(m);    //To change body of overridden methods use File | Settings | File Templates.
+        super.putAll(m);
     }
 
     @Override
@@ -82,5 +105,9 @@ public class HttpHeaders extends HashMap<String, String> {
     @Override
     public Set<String> keySet() {
         return super.keySet();    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    public static HttpHeaders copyOf(HttpHeaders source) {
+        return new HttpHeaders(source);
     }
 }

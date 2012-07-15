@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

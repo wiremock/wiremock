@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItems;
@@ -47,5 +48,22 @@ public class HttpHeaderTest {
     @Test(expected=IllegalStateException.class)
     public void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
         HttpHeader.absent("Something").values();
+    }
+
+    @Test
+    public void shouldMatchSingleValueToValuePattern() {
+        HttpHeader header = new HttpHeader("My-Header", "my-value");
+
+        assertThat(header.hasValueMatching(ValuePattern.equalTo("my-value")), is(true));
+        assertThat(header.hasValueMatching(ValuePattern.equalTo("other-value")), is(false));
+    }
+
+    @Test
+    public void shouldMatchMultiValueToValuePattern() {
+        HttpHeader header = new HttpHeader("My-Header", "value1", "value2", "value3");
+
+        assertThat(header.hasValueMatching(ValuePattern.matches("value.*")), is(true));
+        assertThat(header.hasValueMatching(ValuePattern.equalTo("value2")), is(true));
+        assertThat(header.hasValueMatching(ValuePattern.equalTo("value4")), is(false));
     }
 }

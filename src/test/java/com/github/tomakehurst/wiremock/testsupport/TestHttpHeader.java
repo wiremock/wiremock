@@ -15,16 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-public class HttpHeader {
+public class TestHttpHeader {
 
 	private String name;
 	private String value;
 	
-	public static HttpHeader withHeader(String name, String value) {
-		return new HttpHeader(name, value);
+	public static TestHttpHeader withHeader(String name, String value) {
+		return new TestHttpHeader(name, value);
 	}
 	
-	public HttpHeader(String name, String value) {
+	public TestHttpHeader(String name, String value) {
 		this.name = name;
 		this.value = value;
 	}

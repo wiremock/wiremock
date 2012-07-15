@@ -15,21 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Collections.list;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.ServletContainerUtils;
+import com.github.tomakehurst.wiremock.mapping.Request;
+import com.google.common.io.CharStreams;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.http.ServletContainerUtils;
-import com.github.tomakehurst.wiremock.mapping.Request;
-import com.google.common.io.CharStreams;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.list;
 
 public class HttpServletRequestAdapter implements Request {
 	
@@ -91,12 +93,37 @@ public class HttpServletRequestAdapter implements Request {
 		return null;
 	}
 
-	@Override
+    @Override
+    @SuppressWarnings("unchecked")
+    public HttpHeader header(String key) {
+        List<String> headerNames = list(request.getHeaderNames());
+        for (String currentKey: headerNames) {
+            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+                List<String> valueList = list(request.getHeaders(currentKey));
+                String[] values = valueList.toArray(new String[valueList.size()]);
+                return new HttpHeader(key, values);
+            }
+        }
+
+        return HttpHeader.absent(key);
+    }
+
+    @Override
 	public boolean containsHeader(String key) {
-		return getHeader(key) != null;
+		return header(key).isPresent();
 	}
 
-	@SuppressWarnings("unchecked")
+    @Override
+    public HttpHeaders getHeaders() {
+        List<HttpHeader> headerList = newArrayList();
+        for (String key: getAllHeaderKeys()) {
+            headerList.add(header(key));
+        }
+
+        return new HttpHeaders(headerList);
+    }
+
+    @SuppressWarnings("unchecked")
 	@Override
 	public Set<String> getAllHeaderKeys() {
 		LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();

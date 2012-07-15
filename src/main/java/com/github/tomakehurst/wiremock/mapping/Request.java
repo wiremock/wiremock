@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import java.util.Set;
-
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+
+import java.util.Set;
 
 public interface Request {
 
@@ -25,6 +27,8 @@ public interface Request {
 	String getAbsoluteUrl();
 	RequestMethod getMethod();
 	String getHeader(String key);
+    HttpHeader header(String key);
+    HttpHeaders getHeaders();
 	boolean containsHeader(String key);
 	Set<String> getAllHeaderKeys();
 	String getBodyAsString();

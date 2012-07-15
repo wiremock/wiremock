@@ -15,18 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.mapping.ValuePattern.equalTo;
-import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Map;
-
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.google.common.collect.ImmutableMap;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -35,21 +27,27 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.mapping.ValuePattern.equalTo;
+import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
+import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
 public class RequestPatternTest {
 	
 	private Mockery context;
-	private Map<String, ValuePattern> headers;
+	private Map<String, ValuePattern> headerPatterns;
 	private Notifier notifier;
 	
 	@Before
 	public void init() {
 		context = new Mockery();
-		headers = newHashMap();
+		headerPatterns = newHashMap();
 		notifier = context.mock(Notifier.class);
 		LocalNotifier.set(notifier);
 	}
@@ -81,9 +79,9 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldMatchWhenSpecifiedHeadersArePresent() {
-		headers.put("Accept", equalTo("text/plain"));
-		headers.put("Content-Type", equalTo("application/json"));
-		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
+		headerPatterns.put("Accept", equalTo("text/plain"));
+		headerPatterns.put("Content-Type", equalTo("application/json"));
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
 		
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
@@ -97,13 +95,11 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderIsAbsent() {
-	    context.checking(new Expectations() {{
-            ignoring(notifier);
-        }});
+	    ignoringNotifier();
 	    
-		headers.put("Accept", equalTo("text/plain"));
-		headers.put("Content-Type", equalTo("application/json"));
-		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
+		headerPatterns.put("Accept", equalTo("text/plain"));
+		headerPatterns.put("Content-Type", equalTo("application/json"));
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
 		
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
@@ -116,13 +112,11 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderHasAnIncorrectValue() {
-	    context.checking(new Expectations() {{
-            ignoring(notifier);
-        }});
+	    ignoringNotifier();
 	    
-		headers.put("Accept", equalTo("text/plain"));
-		headers.put("Content-Type", equalTo("application/json"));
-		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headers);
+		headerPatterns.put("Accept", equalTo("text/plain"));
+		headerPatterns.put("Content-Type", equalTo("application/json"));
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
 		
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
@@ -133,7 +127,29 @@ public class RequestPatternTest {
 		
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
-	
+
+    @Test
+    public void shouldMatchHeaderWithMultipleValues() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern1 = new RequestPattern(RequestMethod.GET,
+                "/multi/header",
+                ImmutableMap.of("X-Multi", equalTo("one")));
+        RequestPattern requestPattern2 = new RequestPattern(RequestMethod.GET,
+                "/multi/header",
+                ImmutableMap.of("X-Multi", equalTo("two")));
+
+        Request request = aRequest(context)
+                .withUrl("/multi/header")
+                .withMethod(GET)
+                .withHeader("X-Multi", "one")
+                .withHeader("X-Multi", "two")
+                .build();
+
+        assertTrue("Request should match request pattern with header X-Multi:one", requestPattern1.isMatchedBy(request));
+        assertTrue("Request should match request pattern with header X-Multi:two", requestPattern2.isMatchedBy(request));
+    }
+
 	@Test
 	public void shouldMatchUrlPatternWithRegexes() {
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
@@ -190,11 +206,9 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldNotMatchWhenBodyDoesNotMatchPattern() {
-	    context.checking(new Expectations() {{
-            ignoring(notifier);
-        }});
-	    
-		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
 		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
 		
 		Request request = aRequest(context)
@@ -205,8 +219,8 @@ public class RequestPatternTest {
 		
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
-	
-	@Test
+
+    @Test
 	public void shouldMatchAnyMethod() {
 		RequestPattern requestPattern = new RequestPattern(ANY, "/any/method");
 		
@@ -273,5 +287,11 @@ public class RequestPatternTest {
 		
 		requestPattern.isMatchedBy(request);
 	}
+
+    private void ignoringNotifier() {
+        context.checking(new Expectations() {{
+            ignoring(notifier);
+        }});
+    }
 	
 }

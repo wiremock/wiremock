@@ -15,22 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static com.github.tomakehurst.wiremock.testsupport.HttpHeader.withHeader;
-
-import org.junit.Test;
-
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 
 public class VerificationAcceptanceTest extends AcceptanceTestBase {
 
@@ -53,6 +44,19 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
 				.withHeader("Content-Type", equalTo("application/json"))
 				.withHeader("Encoding", notMatching("LATIN-1")));
 	}
+
+    @Ignore
+    @Test
+    public void verifiesWithMultiValueHeaders() {
+        testClient.get("/multi/value/header",
+                withHeader("X-Thing", "One"),
+                withHeader("X-Thing", "Two"),
+                withHeader("X-Thing", "Three"));
+
+        verify(getRequestedFor(urlEqualTo("/multi/value/header"))
+            .withHeader("X-Thing", equalTo("Two"))
+            .withHeader("X-Thing", matching("Thr.*")));
+    }
 	
 	@Test(expected=VerificationException.class)
 	public void throwsVerificationExceptionWhenHeadersDoNotMatch() {

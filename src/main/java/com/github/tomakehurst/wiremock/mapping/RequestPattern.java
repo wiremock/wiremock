@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+
+import java.util.List;
+import java.util.Map;
+
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matching;
 import static com.google.common.collect.Iterables.all;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-
-import java.util.List;
-import java.util.Map;
-
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestPattern {
@@ -35,13 +34,13 @@ public class RequestPattern {
 	private String urlPattern;
 	private String url;
 	private RequestMethod method;
-	private Map<String, ValuePattern> headers;
+	private Map<String, ValuePattern> headerPatterns;
 	private List<ValuePattern> bodyPatterns;
 	
-	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headers) {
+	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns) {
 		this.url = url;
 		this.method = method;
-		this.headers = headers;
+		this.headerPatterns = headerPatterns;
 	}
 	
 	public RequestPattern(RequestMethod method) {
@@ -91,17 +90,19 @@ public class RequestPattern {
 	}
 	
 	private boolean headersMatch(Request request) {
-		if (headers == null) {
+		if (headerPatterns == null) {
 			return true;
 		}
 
-		for (Map.Entry<String, ValuePattern> header: headers.entrySet()) {
-			ValuePattern headerPattern = header.getValue();
-			String key = header.getKey();
-			if (!request.containsHeader(key) || !headerPattern.isMatchFor(request.getHeader(key))) {
+		for (Map.Entry<String, ValuePattern> headerPattern: headerPatterns.entrySet()) {
+			ValuePattern headerValuePattern = headerPattern.getValue();
+			String key = headerPattern.getKey();
+			if (!request.containsHeader(key) || !request.header(key).hasValueMatching(headerValuePattern)) {
 				notifier().info(String.format(
-						"URL %s is match, but header %s is not. For a match, value should %s",
-						request.getUrl(), key, headerPattern.toString()));
+                        "URL %s is match, but header %s is not. For a match, value should %s",
+                        request.getUrl(),
+                        key,
+                        headerValuePattern.toString()));
 				return false;
 			}
 		}
@@ -141,19 +142,19 @@ public class RequestPattern {
 	}
 
 	public Map<String, ValuePattern> getHeaders() {
-		return headers;
+		return headerPatterns;
 	}
 	
 	public void addHeader(String key, ValuePattern pattern) {
-		if (headers == null) {
-			headers = newLinkedHashMap();
+		if (headerPatterns == null) {
+			headerPatterns = newLinkedHashMap();
 		}
 		
-		headers.put(key, pattern);
+		headerPatterns.put(key, pattern);
 	}
 	
 	public void setHeaders(Map<String, ValuePattern> headers) {
-		this.headers = headers;
+		this.headerPatterns = headers;
 	}
 
 	public String getUrl() {
@@ -179,7 +180,7 @@ public class RequestPattern {
 		int result = 1;
 		result = prime * result
 				+ ((bodyPatterns == null) ? 0 : bodyPatterns.hashCode());
-		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
+		result = prime * result + ((headerPatterns == null) ? 0 : headerPatterns.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		result = prime * result
@@ -206,11 +207,11 @@ public class RequestPattern {
 		} else if (!bodyPatterns.equals(other.bodyPatterns)) {
 			return false;
 		}
-		if (headers == null) {
-			if (other.headers != null) {
+		if (headerPatterns == null) {
+			if (other.headerPatterns != null) {
 				return false;
 			}
-		} else if (!headers.equals(other.headers)) {
+		} else if (!headerPatterns.equals(other.headerPatterns)) {
 			return false;
 		}
 		if (method != other.method) {
