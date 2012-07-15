@@ -3,7 +3,7 @@ buildscript {
     //apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
     
 	repositories {
-    	mavenRepo urls:['https://oss.sonatype.org']
+    	mavenRepo url:['https://oss.sonatype.org']
 	}
 }
 
