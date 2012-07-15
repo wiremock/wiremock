@@ -95,7 +95,7 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public Set<Map.Entry<String, String>> entrySet() {
-        return super.entrySet();
+        throw new UnsupportedOperationException();
     }
 
     @Override
