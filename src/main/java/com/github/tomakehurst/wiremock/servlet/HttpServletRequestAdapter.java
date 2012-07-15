@@ -100,8 +100,7 @@ public class HttpServletRequestAdapter implements Request {
         for (String currentKey: headerNames) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
                 List<String> valueList = list(request.getHeaders(currentKey));
-                String[] values = valueList.toArray(new String[valueList.size()]);
-                return new HttpHeader(key, values);
+                return new HttpHeader(key, valueList);
             }
         }
 

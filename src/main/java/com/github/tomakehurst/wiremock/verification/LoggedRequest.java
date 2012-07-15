@@ -108,8 +108,7 @@ public class LoggedRequest implements Request {
     public HttpHeader header(String key) {
         for (String currentKey: headers.keySet()) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
-                String value = headers.get(currentKey);
-                return new HttpHeader(currentKey, value);
+                return headers.getHeader(currentKey);
             }
         }
 

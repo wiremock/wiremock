@@ -61,7 +61,7 @@ public class HttpHeader {
     }
 
     public boolean hasValueMatching(final ValuePattern valuePattern) {
-        return any(values(), new Predicate<String>() {
+        return any(values, new Predicate<String>() {
             public boolean apply(String headerValue) {
                 return valuePattern.isMatchFor(headerValue);
             }

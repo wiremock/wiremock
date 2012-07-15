@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -45,7 +44,6 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
 				.withHeader("Encoding", notMatching("LATIN-1")));
 	}
 
-    @Ignore
     @Test
     public void verifiesWithMultiValueHeaders() {
         testClient.get("/multi/value/header",
