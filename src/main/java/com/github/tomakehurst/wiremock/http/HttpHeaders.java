@@ -74,7 +74,7 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public String get(Object key) {
-        return super.get(key);    //To change body of overridden methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -109,5 +109,24 @@ public class HttpHeaders extends HashMap<String, String> {
 
     public static HttpHeaders copyOf(HttpHeaders source) {
         return new HttpHeaders(source);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HttpHeaders that = (HttpHeaders) o;
+
+        if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (headers != null ? headers.hashCode() : 0);
+        return result;
     }
 }

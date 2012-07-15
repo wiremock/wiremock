@@ -132,7 +132,8 @@ public class Response {
 			return Optional.absent();
 		}
 		
-		ContentTypeHeader contentTypeHeader = new ContentTypeHeader(headers.get(ContentTypeHeader.KEY));
+		ContentTypeHeader contentTypeHeader =
+                new ContentTypeHeader(headers.getHeader(ContentTypeHeader.KEY).firstValue());
 		return contentTypeHeader.encodingPart();
 	}
 

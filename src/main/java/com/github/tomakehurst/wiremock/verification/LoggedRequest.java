@@ -95,11 +95,10 @@ public class LoggedRequest implements Request {
 	@Override
     @JsonIgnore
 	public String getHeader(String key) {
-		for (String currentKey: headers.keySet()) {
-			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
-				return headers.get(currentKey);
-			}
-		}
+		HttpHeader header = header(key);
+        if (header.isPresent()) {
+            return header.firstValue();
+        }
 		
 		return null;
 	}
