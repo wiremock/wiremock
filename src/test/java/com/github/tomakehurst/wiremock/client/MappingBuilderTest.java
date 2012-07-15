@@ -79,7 +79,8 @@ public class MappingBuilderTest {
 		
 		assertThat(mapping.getResponse().getBody(), is("Some content"));
 	}
-	
+
+    @SuppressWarnings("unchecked")
 	@Test
 	public void shouldBuildMappingWithResponseHeaders() {
 		RequestResponseMapping mapping =
