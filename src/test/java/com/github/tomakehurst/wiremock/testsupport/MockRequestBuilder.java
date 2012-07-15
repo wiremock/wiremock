@@ -15,13 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.collect.Sets.newLinkedHashSet;
@@ -84,9 +83,9 @@ public class MockRequestBuilder {
 		context.checking(new Expectations() {{
 			allowing(request).getUrl(); will(returnValue(url));
 			allowing(request).getMethod(); will(returnValue(method));
-			for (Map.Entry<String, String> header: headers.entrySet()) {
-				allowing(request).containsHeader(header.getKey()); will(returnValue(true));
-				allowing(request).getHeader(header.getKey()); will(returnValue(header.getValue()));
+			for (HttpHeader header: headers.all()) {
+				allowing(request).containsHeader(header.key()); will(returnValue(true));
+				allowing(request).getHeader(header.key()); will(returnValue(header.firstValue()));
 			}
             for (HttpHeader header: headers.all()) {
                 allowing(request).header(header.key()); will(returnValue(header));

@@ -15,16 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
-
+import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import static java.net.HttpURLConnection.*;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
@@ -122,7 +120,13 @@ public class ResponseDefinition {
 		
 		headers.put(key, value);
 	}
-	
+
+    public void addHeader(HttpHeader header) {
+        for (String value: header.values()) {
+            addHeader(header.key(), value);
+        }
+    }
+
 	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
 	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
 	}

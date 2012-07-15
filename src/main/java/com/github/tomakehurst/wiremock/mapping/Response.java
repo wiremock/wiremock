@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.mapping;
 
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.google.common.base.Optional;
 
@@ -24,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.ServletContainerUtils.getUnderlyingSocketFrom;
 import static com.google.common.base.Charsets.UTF_8;
@@ -98,11 +98,21 @@ public class Response {
 	public void addHeader(String key, String value) {
 		headers.put(key, value);
 	}
+
+    public void addHeader(HttpHeader header) {
+        for (String value: header.values()) {
+            headers.put(header.key(), value);
+        }
+    }
 	
-	public void addHeaders(Map<String, String> newHeaders) {
-		if (newHeaders != null) {
-			headers.putAll(newHeaders);
-		}
+	public void addHeaders(HttpHeaders newHeaders) {
+        if (newHeaders != null) {
+            for (HttpHeader header: newHeaders.all()) {
+                for (String value: header.values()) {
+                    headers.put(header.key(), value);
+                }
+            }
+        }
 	}
 	
 	public void applyTo(HttpServletResponse httpServletResponse) {
@@ -112,8 +122,10 @@ public class Response {
 		}
 		
 		httpServletResponse.setStatus(status);
-		for (Map.Entry<String, String> header: headers.entrySet()) {
-			httpServletResponse.addHeader(header.getKey(), header.getValue());
+		for (HttpHeader header: headers.all()) {
+            for (String value: header.values()) {
+                httpServletResponse.addHeader(header.key(), value);
+            }
 		}
 		
 		writeAndTranslateExceptions(httpServletResponse, body);

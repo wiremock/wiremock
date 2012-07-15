@@ -15,16 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
-
-import java.net.URI;
-import java.util.Map;
-
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+
+import java.net.URI;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
 
 public class MappingFileWriterListener implements RequestListener {
 	
@@ -60,8 +60,8 @@ public class MappingFileWriterListener implements RequestListener {
         responseToWrite.setStatus(response.getStatus());
         responseToWrite.setBodyFileName(bodyFileName);
         
-        for (Map.Entry<String, String> header: response.getHeaders().entrySet()) {
-            responseToWrite.addHeader(header.getKey(), header.getValue());
+        for (HttpHeader header: response.getHeaders().all()) {
+            responseToWrite.addHeader(header);
         }
         
         RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);

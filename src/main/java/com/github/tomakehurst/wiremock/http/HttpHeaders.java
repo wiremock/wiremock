@@ -90,16 +90,12 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public void putAll(Map<? extends String, ? extends String> m) {
-        for (Map.Entry<? extends String, ? extends String> entry: m.entrySet()) {
-            headers.put(entry.getKey(), entry.getValue());
-        }
-
-        super.putAll(m);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Set<Map.Entry<String, String>> entrySet() {
-        return super.entrySet();    //To change body of overridden methods use File | Settings | File Templates.
+        return super.entrySet();
     }
 
     @Override
