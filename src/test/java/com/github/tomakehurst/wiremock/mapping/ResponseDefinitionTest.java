@@ -15,70 +15,36 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import org.junit.Test;
-
 import static com.github.tomakehurst.wiremock.mapping.ResponseDefinition.copyOf;
 import static junit.framework.Assert.assertFalse;
-import static net.sf.json.test.JSONAssert.assertJsonEquals;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static junit.framework.Assert.assertTrue;
+
+import org.junit.Test;
+
+import com.github.tomakehurst.wiremock.http.Fault;
 
 public class ResponseDefinitionTest {
 
-    private static final String STRING_BODY =
-            "{	        								\n" +
-            "		\"status\": 200,    				\n" +
-            "		\"body\": \"String content\" 		\n" +
-            "}											";
-
     @Test
-    public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
-        ResponseDefinition responseDef = JsonMappingBinder.read(STRING_BODY, ResponseDefinition.class);
-        assertThat(responseDef.getBase64Body(), is(nullValue()));
-        assertThat(responseDef.getBody(), is("String content"));
+    public void copyProducesEqualObject() {
+        ResponseDefinition response = new ResponseDefinition();
+        response.setBody("blah");
+        response.setBodyFileName("name.json");
+        response.setFault(Fault.EMPTY_RESPONSE);
+        response.addHeader("thing", "thingvalue");
+        response.setFixedDelayMilliseconds(1112);
+        response.setProxyBaseUrl("http://base.com");
+        response.setStatus(222);
+        
+        ResponseDefinition copiedResponse = copyOf(response);
+        
+        assertTrue(response.equals(copiedResponse));
     }
-
-    @Test
-    public void correctlyMarshalsToJsonWhenBodyIsAString() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBody("String content");
-
-        assertJsonEquals(STRING_BODY, JsonMappingBinder.write(responseDef));
-    }
-
-    private static final byte[] BODY = new byte[] {1, 2, 3};
-    private static final String BASE64_BODY = "AQID";
-    private static final String BINARY_BODY =
-            "{	        								        \n" +
-            "		\"status\": 200,    				        \n" +
-            "		\"base64Body\": \"" + BASE64_BODY + "\"     \n" +
-            "}											        ";
-
-    @Test
-    public void correctlyUnmarshalsFromJsonWhenBodyIsBinary() {
-        ResponseDefinition responseDef = JsonMappingBinder.read(BINARY_BODY, ResponseDefinition.class);
-        assertThat(responseDef.getBody(), is(nullValue()));
-        assertThat(responseDef.getByteBody(), is(BODY));
-    }
-
-    @Test
-    public void correctlyMarshalsToJsonWhenBodyIsBinary() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBase64Body(BASE64_BODY);
-
-        String actualJson = JsonMappingBinder.write(responseDef);
-        assertJsonEquals("Expected: " + BINARY_BODY + "\nActual: " + actualJson,
-                BINARY_BODY, actualJson);
-    }
-
+    
     @Test
     public void copyPreservesConfiguredFlag() {
         ResponseDefinition response = ResponseDefinition.notConfigured();
         ResponseDefinition copiedResponse = copyOf(response);
         assertFalse("Should be not configured", copiedResponse.wasConfigured());
     }
-
 }
