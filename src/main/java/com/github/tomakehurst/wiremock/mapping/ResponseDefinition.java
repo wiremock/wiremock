@@ -21,7 +21,6 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -29,8 +28,9 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
@@ -113,9 +113,8 @@ public class ResponseDefinition {
 		return status;
 	}
 
-    @JsonIgnore
 	public String getBody() {
-		return (body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
+		return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
 	}
 
     @JsonIgnore
@@ -123,15 +122,19 @@ public class ResponseDefinition {
         return body;
     }
 
-        public void setStatus(final int status) {
-		if (status == 0) {
-			this.status = HTTP_OK;
-		} else {
-			this.status = status;
-		}
-	}
+    public String getBase64Body() {
+        if (isBinaryBody && body != null) {
+            return printBase64Binary(body);
+        }
 
-    @JsonIgnore
+        return null;
+    }
+
+    public void setBase64Body(String base64Body) {
+        isBinaryBody = true;
+        body = parseBase64Binary(base64Body);
+    }
+
 	public void setBody(final String body) {
 		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
         isBinaryBody = false;
@@ -143,48 +146,11 @@ public class ResponseDefinition {
         isBinaryBody = true;
     }
 
-    @JsonProperty("body")
-    public Object getBodyContent() {
-        if(isBinaryBody) {
-            if(this.body!=null) {
-                List<Byte> data = new ArrayList<Byte>();
-                for(int i = 0;i<this.body.length;i++) {
-                    data.add(body[i]);
-                }
-                return data;
-            } else return null;
+    public void setStatus(final int status) {
+        if (status == 0) {
+            this.status = HTTP_OK;
         } else {
-            return getBody();
-        }
-    }
-
-    @JsonProperty("body")
-    public void setBodyContent(Object content) {
-        if(content!=null) {
-            if(content.getClass().isArray()) {
-                if(content instanceof byte[]) {
-                    setBody((byte[])content);
-                }
-            } else if (content instanceof String) {
-                setBody((String)content);
-            } else if (content instanceof List) {
-                List body = (List)content;
-                int listSize = body.size();
-                byte[] bodyArray = new byte[listSize];
-                boolean marshalled = true;
-                for(int i = 0;i<listSize;i++) {
-                    Object b = body.get(i);
-                    if(b instanceof Number) {
-                        bodyArray[i] = ((Number)b).byteValue();
-                    } else {
-                      marshalled = false;
-                      break;
-                    }
-                }
-                if(marshalled) {
-                    setBody(bodyArray);
-                }
-            }
+            this.status = status;
         }
     }
 

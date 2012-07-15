@@ -51,13 +51,15 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+
 public class StandaloneAcceptanceTest {
 	
 	private static final String FILES = "__files";
 	private static final String MAPPINGS = "mappings";
 
     private static final byte[] binaryCompressedContent = new byte []{31, -117, 8, 8, 72, -53, -8, 79, 0, 3, 103, 122, 105, 112, 100, 97, 116, 97, 45, 111, 117, 116, 0, -77, 41, 74, 45, 46, -56, -49, 43, 78, -75, -53, 72, -51, -55, -55, -73, -47, -121, -13, 1, 9, 69, -3, 52, 26, 0, 0, 0};
-    private static final String binaryCompressedJsonString = "[31, -117, 8, 8, 72, -53, -8, 79, 0, 3, 103, 122, 105, 112, 100, 97, 116, 97, 45, 111, 117, 116, 0, -77, 41, 74, 45, 46, -56, -49, 43, 78, -75, -53, 72, -51, -55, -55, -73, -47, -121, -13, 1, 9, 69, -3, 52, 26, 0, 0, 0]";
+    private static final String binaryCompressedJsonString = printBase64Binary(binaryCompressedContent);
     private static final String binaryCompressedContentAsString = "<response>hello</response>";
 
     private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
@@ -112,7 +114,7 @@ public class StandaloneAcceptanceTest {
                     "	},												\n" +
                     "	\"response\": {									\n" +
                     "		\"status\": 200,							\n" +
-                    "		\"body\": [65,66,67]		\n" +
+                    "		\"base64Body\": \""+printBase64Binary(new byte[]{65,66,67}) +"\"		\n" +
                     "	}												\n" +
                     "}													";
 
@@ -131,7 +133,7 @@ public class StandaloneAcceptanceTest {
                     "	},												\n" +
                     "	\"response\": {									\n" +
                     "		\"status\": 200,							\n" +
-                    "		\"body\": "+binaryCompressedJsonString+"		\n" +
+                    "		\"base64Body\": \""+binaryCompressedJsonString+"\"		\n" +
                     "	}												\n" +
                     "}													";
 
@@ -249,6 +251,12 @@ public class StandaloneAcceptanceTest {
         assertThat(decompress(returnedContent), is(binaryCompressedContentAsString));
     }
 
+    /**
+     * Decompress the binary gzipped content into a String.
+     *
+     * @param content the gzipped content to decompress
+     * @return decompressed String.
+     */
     public String decompress(byte[] content) {
         GZIPInputStream gin = null;
         try {
