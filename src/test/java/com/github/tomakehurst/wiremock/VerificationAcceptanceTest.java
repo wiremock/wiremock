@@ -54,6 +54,9 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
         verify(getRequestedFor(urlEqualTo("/multi/value/header"))
             .withHeader("X-Thing", equalTo("Two"))
             .withHeader("X-Thing", matching("Thr.*")));
+
+        verify(getRequestedFor(urlEqualTo("/multi/value/header"))
+                .withHeader("X-Thing", equalTo("Three")));
     }
 	
 	@Test(expected=VerificationException.class)
