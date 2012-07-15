@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+
 public class MappingJsonSamples {
 
 	public static final String BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER =
@@ -190,4 +192,32 @@ public class MappingJsonSamples {
 		"		\"status\": 201									\n" +
 		"	}													\n" +
 		"}														";
+
+    public static final byte[] BINARY_COMPRESSED_CONTENT = new byte []{31, -117, 8, 8, 72, -53, -8, 79, 0, 3, 103, 122, 105, 112, 100, 97, 116, 97, 45, 111, 117, 116, 0, -77, 41, 74, 45, 46, -56, -49, 43, 78, -75, -53, 72, -51, -55, -55, -73, -47, -121, -13, 1, 9, 69, -3, 52, 26, 0, 0, 0};
+    public static final String BINARY_COMPRESSED_JSON_STRING = printBase64Binary(BINARY_COMPRESSED_CONTENT);
+    public static final String BINARY_COMPRESSED_CONTENT_AS_STRING = "<response>hello</response>";
+
+    public static final String MAPPING_REQUEST_FOR_BYTE_BODY =
+            "{ 													                            \n" +
+            "	\"request\": {									                            \n" +
+            "		\"method\": \"GET\",						                            \n" +
+            "		\"url\": \"/byte/resource/from/file\"			                        \n" +
+            "	},												                            \n" +
+            "	\"response\": {									                            \n" +
+            "		\"status\": 200,							                            \n" +
+            "		\"base64Body\": \"" + printBase64Binary(new byte[]{65,66,67}) + "\"		\n" +
+            "	}												                            \n" +
+            "}													                            ";
+
+    public static final String MAPPING_REQUEST_FOR_BINARY_BYTE_BODY =
+            "{ 													                    \n" +
+            "	\"request\": {									                    \n" +
+            "		\"method\": \"GET\",						                    \n" +
+            "		\"url\": \"/bytecompressed/resource/from/file\"			        \n" +
+            "	},												                    \n" +
+            "	\"response\": {									                    \n" +
+            "		\"status\": 200,							                    \n" +
+            "		\"base64Body\": \""+ BINARY_COMPRESSED_JSON_STRING + "\"	    \n" +
+            "	}												                    \n" +
+            "}													                    ";
 }
