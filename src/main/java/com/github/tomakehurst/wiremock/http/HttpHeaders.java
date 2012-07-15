@@ -79,7 +79,7 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public boolean containsKey(Object key) {
-        return super.containsKey(key);    //To change body of overridden methods use File | Settings | File Templates.
+        throw new UnsupportedOperationException();
     }
 
     @Override
