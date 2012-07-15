@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.google.common.base.Predicate;
 import net.sf.json.test.JSONAssert;
 import org.hamcrest.Description;
@@ -172,6 +173,20 @@ public class WireMatchers {
             @Override
             public void describeTo(Description description) {
                 description.appendText("Today's date");
+            }
+        };
+    }
+
+    public static Matcher<HttpHeader> header(final String key, final String value) {
+        return new TypeSafeMatcher<HttpHeader>() {
+            @Override
+            public boolean matchesSafely(HttpHeader httpHeader) {
+                return httpHeader.key().equals(key) && httpHeader.containsValue(value);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format("Header %s: %s", key, value));
             }
         };
     }

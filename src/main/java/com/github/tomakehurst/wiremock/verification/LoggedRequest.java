@@ -105,7 +105,7 @@ public class LoggedRequest implements Request {
 
     @Override
     public HttpHeader header(String key) {
-        for (String currentKey: headers.keySet()) {
+        for (String currentKey: headers.keys()) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
                 return headers.getHeader(currentKey);
             }
@@ -128,7 +128,7 @@ public class LoggedRequest implements Request {
 	@Override
     @JsonIgnore
 	public Set<String> getAllHeaderKeys() {
-		return headers.keySet();
+		return headers.keys();
 	}
 
     public HttpHeaders getHeaders() {

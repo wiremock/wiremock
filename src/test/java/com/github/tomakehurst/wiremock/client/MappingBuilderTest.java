@@ -15,15 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.mapping.ValuePattern;
-import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.header;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class MappingBuilderTest {
 
@@ -90,10 +89,11 @@ public class MappingBuilderTest {
 				.withHeader("Encoding", "UTF-8"))
 			.build();
 		
-		assertThat(mapping.getResponse().getHeaders(), hasEntry("Content-Type", "text/xml"));
-		assertThat(mapping.getResponse().getHeaders(), hasEntry("Encoding", "UTF-8"));
+		assertThat(mapping.getResponse().getHeaders().all(), hasItems(
+                header("Content-Type", "text/xml"),
+                header("Encoding", "UTF-8")));
 	}
-	
+
 	private ValuePattern headerEqualTo(String value) {
 		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setEqualTo(value);

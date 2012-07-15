@@ -1,11 +1,9 @@
 package com.github.tomakehurst.wiremock.http;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.header;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,17 +44,4 @@ public class HttpHeadersTest {
                 header("Header-2", "h2v2")));
     }
 
-    private Matcher<HttpHeader> header(final String key, final String value) {
-        return new TypeSafeMatcher<HttpHeader>() {
-            @Override
-            public boolean matchesSafely(HttpHeader httpHeader) {
-                return httpHeader.key().equals(key) && httpHeader.containsValue(value);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(String.format("Header %s: %s", key, value));
-            }
-        };
-    }
 }

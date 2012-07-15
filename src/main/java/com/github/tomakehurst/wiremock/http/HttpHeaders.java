@@ -95,12 +95,16 @@ public class HttpHeaders extends HashMap<String, String> {
 
     @Override
     public Set<Map.Entry<String, String>> entrySet() {
-        throw new UnsupportedOperationException();
+        return super.entrySet();
     }
 
     @Override
     public Set<String> keySet() {
-        return super.keySet();    //To change body of overridden methods use File | Settings | File Templates.
+        return keys();
+    }
+
+    public Set<String> keys() {
+        return headers.keySet();
     }
 
     public static HttpHeaders copyOf(HttpHeaders source) {
