@@ -38,6 +38,7 @@ public class WireMatchers {
 
 			@Override
 			public void describeTo(Description desc) {
+                desc.appendText("Expected:\n" + expectedJson);
 			}
 
 			@Override
@@ -69,7 +70,7 @@ public class WireMatchers {
             
         };
     }
-    
+
     public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
     	return new TypeSafeMatcher<Iterable<T>>() {
 

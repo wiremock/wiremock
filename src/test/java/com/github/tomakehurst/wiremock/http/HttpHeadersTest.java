@@ -1,11 +1,11 @@
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.mapping.Json;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.header;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class HttpHeadersTest {
@@ -43,5 +43,63 @@ public class HttpHeadersTest {
                 header("Header-2", "h2v1"),
                 header("Header-2", "h2v2")));
     }
+
+    private static final String SINGLE_VALUE_HEADER =
+            "{                	    	    		        \n" +
+            "	\"Header-1\": \"only-value\"                \n" +
+            "}                                               ";
+
+    @Test
+    public void correctlyDeserializesWithSingleValueHeader() {
+        HttpHeaders headers = Json.read(SINGLE_VALUE_HEADER, HttpHeaders.class);
+        HttpHeader header = headers.getHeader("Header-1");
+
+        assertThat(header.key(), is("Header-1"));
+        assertThat(header.firstValue(), is("only-value"));
+        assertThat(header.values().size(), is(1));
+    }
+
+    @Test
+    public void correctlySerializesSingleValueHeader() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.put("Header-1", "only-value");
+
+        String json = Json.write(headers);
+        assertThat("Actual: " + json,
+                json, equalToJson(SINGLE_VALUE_HEADER));
+    }
+
+    private static final String MULTI_VALUE_HEADER =
+            "{    	                         	    		        \n" +
+            "		    \"Header-1\": [                             \n" +
+            "		        \"value-1\",                            \n" +
+            "               \"value-2\"                             \n" +
+            "           ],                                          \n" +
+            "		    \"Header-2\": [                             \n" +
+            "		        \"value-3\",                            \n" +
+            "               \"value-4\"                             \n" +
+            "           ]                                           \n" +
+            "}                                                        ";
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void correctlyDeserializesWithMultiValueHeader() {
+        HttpHeaders headers = Json.read(MULTI_VALUE_HEADER, HttpHeaders.class);
+
+        HttpHeader header = headers.getHeader("Header-1");
+        assertThat(header.key(), is("Header-1"));
+        assertThat(header.values(), hasExactly(equalTo("value-1"), equalTo("value-2")));
+        assertThat(header.values().size(), is(2));
+
+        header = headers.getHeader("Header-2");
+        assertThat(header.key(), is("Header-2"));
+        assertThat(header.values(), hasExactly(equalTo("value-3"), equalTo("value-4")));
+        assertThat(header.values().size(), is(2));
+
+
+        assertThat(headers.size(), is(2));
+    }
+
+
 
 }

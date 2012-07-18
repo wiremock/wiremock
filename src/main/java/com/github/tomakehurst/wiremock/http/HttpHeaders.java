@@ -17,11 +17,13 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders extends HashMap<String, String> {
 
     private final Multimap<String, String> headers;

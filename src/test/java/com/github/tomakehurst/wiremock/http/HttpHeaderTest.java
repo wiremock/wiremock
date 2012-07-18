@@ -66,4 +66,9 @@ public class HttpHeaderTest {
         assertThat(header.hasValueMatching(ValuePattern.equalTo("value2")), is(true));
         assertThat(header.hasValueMatching(ValuePattern.equalTo("value4")), is(false));
     }
+
+    @Test
+    public void shouldDeserializeFromJsonWithSingleValue() {
+
+    }
 }

@@ -16,16 +16,11 @@
 package com.github.tomakehurst.wiremock.mapping;
 
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.mapping.ResponseDefinition.copyOf;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static com.google.common.collect.Iterables.getFirst;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class ResponseDefinitionTest {
 
@@ -51,33 +46,4 @@ public class ResponseDefinitionTest {
         ResponseDefinition copiedResponse = copyOf(response);
         assertFalse("Should be not configured", copiedResponse.wasConfigured());
     }
-
-    private static final String SINGLE_VALUE_HEADER =
-            "{	        					    			        \n" +
-            "		\"status\": 200,  	    	    		        \n" +
-            "		\"headers\": {    	    	    		        \n" +
-            "		    \"Header-1\": \"only-value\"                \n" +
-            "       }                                               \n" +
-            "}										    	        ";
-
-    @Test
-    public void correctlyDeserializesWithSingleValueHeader() {
-        ResponseDefinition responseDef = Json.read(SINGLE_VALUE_HEADER, ResponseDefinition.class);
-        HttpHeader header = getFirst(responseDef.getHeaders().all(), null);
-
-        assertThat(header.key(), is("Header-1"));
-        assertThat(header.firstValue(), is("only-value"));
-        assertThat(header.values().size(), is(1));
-    }
-
-    @Test
-    public void correctlySerializesSingleValueHeader() {
-        ResponseDefinition responseDefinition = new ResponseDefinition();
-        responseDefinition.addHeader("Header-1", "only-value");
-
-        String json = Json.write(responseDefinition);
-        assertThat("Expected: " + SINGLE_VALUE_HEADER + "\nActual: " + json,
-                json, equalToJson(SINGLE_VALUE_HEADER));
-    }
-
 }
