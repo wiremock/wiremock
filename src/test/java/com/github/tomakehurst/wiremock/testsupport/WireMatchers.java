@@ -33,7 +33,7 @@ import static com.google.common.collect.Iterables.size;
 
 public class WireMatchers {
 
-	public static Matcher<String> jsonEqualTo(final String expectedJson) {
+	public static Matcher<String> equalToJson(final String expectedJson) {
 		return new TypeSafeMatcher<String>() {
 
 			@Override
@@ -45,7 +45,7 @@ public class WireMatchers {
 				try {
 					JSONAssert.assertJsonEquals(expectedJson, actualJson);
 					return true;
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					return false;
 				}
 			}

@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.jsonEqualTo;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -68,7 +68,7 @@ public class MappingFileWriterListenerTest {
 		context.checking(new Expectations() {{
 		    allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
-			        with(jsonEqualTo(SAMPLE_REQUEST_MAPPING)));
+			        with(equalToJson(SAMPLE_REQUEST_MAPPING)));
 			one(filesFileSource).writeTextFile(with(equal("body-recorded-content-1$2!3.json")),
 			        with(equal("Recorded body content")));
 		}});
@@ -106,7 +106,7 @@ public class MappingFileWriterListenerTest {
 	    context.checking(new Expectations() {{
 	        allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(1));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
-                    with(jsonEqualTo(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
             one(filesFileSource).writeTextFile("body-headered-content-1$2!3.json", "Recorded body content");
         }});
         

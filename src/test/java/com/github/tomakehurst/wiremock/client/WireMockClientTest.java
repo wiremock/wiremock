@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.trace;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.jsonEqualTo;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -196,7 +196,7 @@ public class WireMockClientTest {
 	
 	public void expectExactlyOneAddResponseCallWithJson(final String json) {
 		context.checking(new Expectations() {{
-			one(adminClient).addResponse(with(jsonEqualTo(json)));
+			one(adminClient).addResponse(with(equalToJson(json)));
 		}});
 	}
 	

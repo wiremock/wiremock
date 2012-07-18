@@ -20,7 +20,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.RequestResponseMappingBuilder.aMapping;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.jsonEqualTo;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
@@ -119,7 +119,7 @@ public class AdminRequestHandlerTest {
 				.build());
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
-		assertThat(response.getBodyAsString(), jsonEqualTo("{ \"count\": 5 }"));
+		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5 }"));
 	}
 	
 	private static final String GLOBAL_SETTINGS_JSON =
