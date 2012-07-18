@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.JsonMappingBinder;
+import com.github.tomakehurst.wiremock.mapping.Json;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -88,7 +88,7 @@ public class WireMock {
 	
 	public void register(MappingBuilder mappingBuilder) {
 		RequestResponseMapping mapping = mappingBuilder.build();
-		String json = JsonMappingBinder.buildJsonStringFor(mapping);
+		String json = Json.buildJsonStringFor(mapping);
 		adminClient.addResponse(json);
 	}
 	

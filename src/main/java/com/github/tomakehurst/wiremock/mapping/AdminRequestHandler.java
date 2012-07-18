@@ -27,8 +27,8 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildRequestPatternFrom;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
+import static com.github.tomakehurst.wiremock.mapping.Json.buildRequestPatternFrom;
+import static com.github.tomakehurst.wiremock.mapping.Json.write;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
@@ -64,7 +64,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         } else if (isFindRequestsRequest(request)) {
             return findRequests(request);
 		} else if (isGlobalSettingsUpdateRequest(request)) {
-			GlobalSettings newSettings = JsonMappingBinder.read(request.getBodyAsString(), GlobalSettings.class);
+			GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
 			globalSettingsHolder.replaceWith(newSettings);
 			return ResponseDefinition.ok();
 		} else {

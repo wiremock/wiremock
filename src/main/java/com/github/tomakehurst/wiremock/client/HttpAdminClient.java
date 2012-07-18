@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.mapping.JsonMappingBinder;
+import com.github.tomakehurst.wiremock.mapping.Json;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
@@ -28,7 +28,7 @@ import org.apache.http.entity.StringEntity;
 
 import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.buildVerificationResultFrom;
+import static com.github.tomakehurst.wiremock.mapping.Json.buildVerificationResultFrom;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -88,7 +88,7 @@ public class HttpAdminClient implements AdminClient {
 	
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		String json = JsonMappingBinder.write(requestPattern);
+		String json = Json.write(requestPattern);
 		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
 		VerificationResult verificationResult = buildVerificationResultFrom(body);
 		return verificationResult.getCount();
@@ -96,14 +96,14 @@ public class HttpAdminClient implements AdminClient {
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
-        String json = JsonMappingBinder.write(requestPattern);
+        String json = Json.write(requestPattern);
         String body = postJsonAssertOkAndReturnBody(findRequestsUrl(), json, HTTP_OK);
-        return JsonMappingBinder.read(body, FindRequestsResult.class);
+        return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
 	public void updateGlobalSettings(GlobalSettings settings) {
-		String json = JsonMappingBinder.write(settings);
+		String json = Json.write(settings);
 		postJsonAssertOkAndReturnBody(globalSettingsUrl(), json, HTTP_OK);
 	}
 

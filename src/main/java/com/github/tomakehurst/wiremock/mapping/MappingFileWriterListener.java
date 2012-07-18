@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.mapping.JsonMappingBinder.write;
+import static com.github.tomakehurst.wiremock.mapping.Json.write;
 
 public class MappingFileWriterListener implements RequestListener {
 	

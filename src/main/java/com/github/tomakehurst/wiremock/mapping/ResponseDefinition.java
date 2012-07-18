@@ -278,7 +278,7 @@ public class ResponseDefinition {
 
 	@Override
 	public String toString() {
-		return JsonMappingBinder.write(this);
+		return Json.write(this);
 	}
 	
 }

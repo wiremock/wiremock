@@ -21,7 +21,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
-public class JsonMappingBinder {
+public class Json {
 
 	public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
 		return read(mappingSpecJson, RequestResponseMapping.class);

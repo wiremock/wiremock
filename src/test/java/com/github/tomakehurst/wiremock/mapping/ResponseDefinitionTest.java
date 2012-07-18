@@ -62,7 +62,7 @@ public class ResponseDefinitionTest {
 
     @Test
     public void correctlyDeserializesWithSingleValueHeader() {
-        ResponseDefinition responseDef = JsonMappingBinder.read(SINGLE_VALUE_HEADER, ResponseDefinition.class);
+        ResponseDefinition responseDef = Json.read(SINGLE_VALUE_HEADER, ResponseDefinition.class);
         HttpHeader header = getFirst(responseDef.getHeaders().all(), null);
 
         assertThat(header.key(), is("Header-1"));
@@ -75,7 +75,7 @@ public class ResponseDefinitionTest {
         ResponseDefinition responseDefinition = new ResponseDefinition();
         responseDefinition.addHeader("Header-1", "only-value");
 
-        String json = JsonMappingBinder.write(responseDefinition);
+        String json = Json.write(responseDefinition);
         assertThat("Expected: " + SINGLE_VALUE_HEADER + "\nActual: " + json,
                 json, equalToJson(SINGLE_VALUE_HEADER));
     }

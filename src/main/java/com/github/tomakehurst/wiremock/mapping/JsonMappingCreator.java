@@ -25,7 +25,7 @@ public class JsonMappingCreator {
 	}
 	
 	public void addMappingFrom(String mappingSpecJson) {
-		RequestResponseMapping mapping = JsonMappingBinder.buildMappingFrom(mappingSpecJson);
+		RequestResponseMapping mapping = Json.buildMappingFrom(mappingSpecJson);
 		mappings.addMapping(mapping);
 	}
 }
