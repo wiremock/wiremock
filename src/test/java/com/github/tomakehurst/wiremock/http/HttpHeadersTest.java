@@ -96,7 +96,6 @@ public class HttpHeadersTest {
         assertThat(header.values(), hasExactly(equalTo("value-3"), equalTo("value-4")));
         assertThat(header.values().size(), is(2));
 
-
         assertThat(headers.size(), is(2));
     }
 

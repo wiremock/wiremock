@@ -26,7 +26,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
-public class HttpHeaders extends HashMap<String, String> {
+public class HttpHeaders {
 
     private final Multimap<String, String> headers;
 
@@ -76,35 +76,13 @@ public class HttpHeaders extends HashMap<String, String> {
         return httpHeaderList;
     }
 
-    @Override
     public String get(Object key) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public boolean containsKey(Object key) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String put(String key, String value) {
         headers.put(key, value);
-        return super.put(key, value);
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends String> m) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Set<Map.Entry<String, String>> entrySet() {
-        return super.entrySet();
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return keys();
+        return value;
     }
 
     public Set<String> keys() {
@@ -113,6 +91,10 @@ public class HttpHeaders extends HashMap<String, String> {
 
     public static HttpHeaders copyOf(HttpHeaders source) {
         return new HttpHeaders(source);
+    }
+
+    public int size() {
+        return headers.asMap().size();
     }
 
     @Override
