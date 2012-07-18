@@ -76,10 +76,6 @@ public class HttpHeaders {
         return httpHeaderList;
     }
 
-    public String get(Object key) {
-        throw new UnsupportedOperationException();
-    }
-
     public String put(String key, String value) {
         headers.put(key, value);
         return value;
