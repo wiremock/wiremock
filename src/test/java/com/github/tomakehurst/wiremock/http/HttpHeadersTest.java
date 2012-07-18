@@ -61,8 +61,8 @@ public class HttpHeadersTest {
 
     @Test
     public void correctlySerializesSingleValueHeader() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.put("Header-1", "only-value");
+        HttpHeaders headers = new HttpHeaders(
+                new HttpHeader("Header-1", "only-value"));
 
         String json = Json.write(headers);
         assertThat("Actual: " + json,
@@ -100,6 +100,16 @@ public class HttpHeadersTest {
         assertThat(headers.size(), is(2));
     }
 
+    @Test
+    public void correctlySerializesMultiValueHeader() {
+        HttpHeaders headers = new HttpHeaders(
+                new HttpHeader("Header-1", "value-1", "value-2"),
+                new HttpHeader("Header-2", "value-3", "value-4")
+        );
 
+        String json = Json.write(headers);
+        assertThat("Actual: " + json,
+                json, equalToJson(MULTI_VALUE_HEADER));
+    }
 
 }

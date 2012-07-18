@@ -8,7 +8,6 @@ import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.JsonDeserializer;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -28,9 +27,8 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
             public HttpHeader apply(Map.Entry<String, JsonNode> field) {
                 String key = field.getKey();
                 if (field.getValue().isArray()) {
-                    Collection<String> values =
-                            ImmutableList.copyOf(transform(all(field.getValue().getElements()), toStringValues()));
-                    return new HttpHeader(key, values);
+                    return new HttpHeader(key,
+                            ImmutableList.copyOf(transform(all(field.getValue().getElements()), toStringValues())));
                 } else {
                     return new HttpHeader(key, field.getValue().getTextValue());
                 }
@@ -46,19 +44,11 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
         };
     }
 
-    public static <T> IteratorWrapper<T> all(Iterator<T> underlyingIterator) {
-        IteratorWrapper<T> wrapper = new IteratorWrapper<T>();
-        wrapper.underlyingIterator = underlyingIterator;
-        return wrapper;
-    }
-
-    private static class IteratorWrapper<T> implements Iterable<T> {
-
-        private Iterator<T> underlyingIterator;
-
-        @Override
-        public Iterator<T> iterator() {
-            return underlyingIterator;
-        }
+    public static <T> Iterable<T> all(final Iterator<T> underlyingIterator) {
+        return new Iterable<T>() {
+            public Iterator<T> iterator() {
+                return underlyingIterator;
+            }
+        };
     }
 }

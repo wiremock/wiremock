@@ -8,7 +8,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.getFirst;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class HttpHeader {
@@ -48,12 +47,16 @@ public class HttpHeader {
 
     public String firstValue() {
         checkState(isPresent());
-        return getFirst(values, null);
+        return values.get(0);
     }
 
     public List<String> values() {
         checkState(isPresent());
         return values;
+    }
+
+    public boolean isSingleValued() {
+        return values.size() == 1;
     }
 
     public boolean containsValue(String expectedValue) {
