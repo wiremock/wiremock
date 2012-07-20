@@ -95,7 +95,9 @@ HTTP methods currently supported are:
 ### Request header matching
 WireMock will ignore headers in the actual request made that are not specified explicitly.
 So a mapping or verification with only one header specified will still match a request with three headers
-provided they contain the one specified and it matches. 
+provided they contain the one specified and it matches.
+
+Headers with multiple values are now supported.
 
 Request headers can be matched exactly, with a regex or a negative regex:
 
@@ -230,7 +232,8 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 			"bodyFileName": "path/to/mybodyfile.json", // Relative to __files
 			"headers": {
 				"Content-Type": "text/plain",
-				"Cache-Control": "no-cache"
+				"Cache-Control": "no-cache",
+				"X-My-Header": [ "value-1", "value-2" ]
 			},
 			"fixedDelayMilliseconds": 500,
 			"proxyBaseUrl": "http://someotherservice.com/root", // If you use this, exclude all other response attributes
