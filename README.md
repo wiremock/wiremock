@@ -25,7 +25,7 @@ First, add WireMock as a dependency to your project:
 	<dependency>
 		<groupId>com.github.tomakehurst</groupId>
 		<artifactId>wiremock</artifactId>
-		<version>1.22</version>
+		<version>1.23</version>
 		
 		<!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
 		<classifier>standalone</classifier>
@@ -323,11 +323,11 @@ Running standalone
 ### Command line
 WireMock can be run in its own process:
 
-	java -jar wiremock-1.22-standalone.jar
+	java -jar wiremock-1.23-standalone.jar
 	
 Or on an alternate port:
 	
-	java -jar wiremock-1.22-standalone.jar --port 9999
+	java -jar wiremock-1.23-standalone.jar --port 9999
 	
 ### Logging
 Verbose logging can be enabled with the <code>--verbose</code> option.
