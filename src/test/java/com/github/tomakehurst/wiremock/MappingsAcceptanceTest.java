@@ -15,15 +15,17 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.junit.Test;
+
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BINARY_BYTE_BODY;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BYTE_BODY;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BINARY_COMPRESSED_CONTENT;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
-import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	
@@ -85,6 +87,18 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		getResponseAndAssert404Status("/resource/12");
 		getResponseAndAssert404Status("/resource/13");
 	}
+
+    @Test
+    public void readsMapppingForByteBody() {
+        testClient.addResponse(MAPPING_REQUEST_FOR_BYTE_BODY);
+        assertThat(testClient.get("/byte/resource/from/file").content(), is("ABC"));
+    }
+
+    @Test
+    public void readsMapppingForByteBodyReturnsByteArray() {
+        testClient.addResponse(MAPPING_REQUEST_FOR_BINARY_BYTE_BODY);
+        assertThat(testClient.get("/bytecompressed/resource/from/file").binaryContent(), is(BINARY_COMPRESSED_CONTENT));
+    }
 	
 	private void getResponseAndAssert200Status(String url) {
 		WireMockResponse response = testClient.get(url);

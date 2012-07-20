@@ -24,6 +24,11 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.header;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Test;
+
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
+import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
+
 public class MappingBuilderTest {
 
 	@Test
@@ -79,6 +84,16 @@ public class MappingBuilderTest {
 		
 		assertThat(mapping.getResponse().getBody(), is("Some content"));
 	}
+
+    @Test
+    public void shouldBuildMappingWithResponseByteBody() {
+        RequestResponseMapping mapping =
+                new MappingBuilder(POST, new UrlMatchingStrategy())
+                        .willReturn(new ResponseDefinitionBuilder().withBody("Some content".getBytes()))
+                        .build();
+
+        assertThat(mapping.getResponse().getByteBody(), is("Some content".getBytes()));
+    }
 
     @SuppressWarnings("unchecked")
 	@Test

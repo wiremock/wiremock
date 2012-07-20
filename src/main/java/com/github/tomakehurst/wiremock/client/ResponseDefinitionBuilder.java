@@ -19,11 +19,16 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 
+import java.nio.charset.Charset;
+
+import static com.google.common.base.Charsets.UTF_8;
+
 public class ResponseDefinitionBuilder {
 
 	private int status;
-	private String bodyContent;
-	private String bodyFileName;
+	private byte[] bodyContent;
+    private boolean isBinaryBody = false;
+    private String bodyFileName;
 	private HttpHeaders headers;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
@@ -49,11 +54,18 @@ public class ResponseDefinitionBuilder {
 	}
 	
 	public ResponseDefinitionBuilder withBody(String body) {
-		this.bodyContent = body;
+		this.bodyContent = body.getBytes(Charset.forName(UTF_8.name()));
+        isBinaryBody = false;
 		return this;
 	}
-	
-	public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
+
+    public ResponseDefinitionBuilder withBody(byte[] body) {
+        this.bodyContent = body;
+        isBinaryBody = true;
+        return this;
+    }
+
+    public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
         this.fixedDelayMilliseconds = milliseconds;
         return this;
     }
@@ -69,7 +81,17 @@ public class ResponseDefinitionBuilder {
 	}
 	
 	public ResponseDefinition build() {
-		ResponseDefinition response = new ResponseDefinition(status, bodyContent);
+        ResponseDefinition response;
+
+        if(isBinaryBody) {
+	        response = new ResponseDefinition(status, bodyContent);
+        } else {
+            if(bodyContent==null) {
+                response = new ResponseDefinition(status, (String)null);
+            } else {
+                response = new ResponseDefinition(status, new String(bodyContent,Charset.forName(UTF_8.name())));
+            }
+        }
 		response.setHeaders(headers);
 		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);

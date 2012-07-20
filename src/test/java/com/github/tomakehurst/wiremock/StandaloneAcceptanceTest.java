@@ -15,30 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.any;
-import static com.google.common.io.Files.createParentDirs;
-import static com.google.common.io.Files.write;
-import static java.io.File.separator;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Arrays;
-
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.google.common.base.Charsets;
+import com.google.common.base.Predicate;
+import com.google.common.io.Files;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -46,19 +29,28 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Charsets;
-import com.google.common.base.Predicate;
-import com.google.common.io.Files;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Iterables.any;
+import static com.google.common.io.Files.createParentDirs;
+import static com.google.common.io.Files.write;
+import static java.io.File.separator;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class StandaloneAcceptanceTest {
 	
 	private static final String FILES = "__files";
 	private static final String MAPPINGS = "mappings";
 
-	private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
+    private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
 	
 	private WireMockServerRunner runner;
 	private WireMockTestClient testClient;
@@ -101,7 +93,7 @@ public class StandaloneAcceptanceTest {
 		givenThat(get(urlEqualTo("/standalone/test/resource")).willReturn(aResponse().withStatus(200).withBody("Content")));
 		assertThat(testClient.get("/standalone/test/resource").content(), is("Content"));
 	}
-	
+
 	private static final String MAPPING_REQUEST =
 		"{ 													\n" +
 		"	\"request\": {									\n" +
@@ -197,7 +189,17 @@ public class StandaloneAcceptanceTest {
 		startRunner();
 		assertThat(testClient.get("/body/file").content(), is("<body>Content</body>"));
 	}
-	
+
+    @Test
+    public void readsBinaryBodyFileFromFilesDir() {
+        writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
+        writeFileToFilesDir("body-test.xml", MappingJsonSamples.BINARY_COMPRESSED_CONTENT);
+        startRunner();
+        byte[] returnedContent = testClient.get("/body/file").binaryContent();
+        assertThat(returnedContent, is(MappingJsonSamples.BINARY_COMPRESSED_CONTENT));
+        assertThat(decompress(returnedContent), is(MappingJsonSamples.BINARY_COMPRESSED_CONTENT_AS_STRING));
+    }
+
 	@Test
 	public void logsVerboselyWhenVerboseSetInCommandLine() {
 		startRecordingSystemOut();
@@ -289,13 +291,16 @@ public class StandaloneAcceptanceTest {
 	private WireMock start8084ServerAndCreateClient() {
         otherServer = new WireMockServer(8084);
         otherServer.start();
-        WireMock otherServerClient = new WireMock("localhost", 8084);
-        return otherServerClient;
+        return new WireMock("localhost", 8084);
     }
 	
 	private void writeFileToFilesDir(String name, String contents) {
 		writeFileUnderFileSourceRoot(FILES + separator + name, contents);
 	}
+
+    private void writeFileToFilesDir(String name, byte[] contents) {
+        writeFileUnderFileSourceRoot(FILES + separator + name, contents);
+    }
 	
 	private void writeMappingFile(String name, String contents) {
 		writeFileUnderFileSourceRoot(MAPPINGS + separator + name, contents);
@@ -311,6 +316,17 @@ public class StandaloneAcceptanceTest {
 			throw new RuntimeException(e);
 		}
 	}
+
+    private void writeFileUnderFileSourceRoot(String relativePath, byte[] contents) {
+        try {
+            String filePath = FILE_SOURCE_ROOT + separator + relativePath;
+            File file = new File(filePath);
+            createParentDirs(file);
+            write(contents, file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private void startRunner(String... args) {
 		runner.run(FILE_SOURCE_ROOT.getPath(), args);
@@ -372,5 +388,37 @@ public class StandaloneAcceptanceTest {
             }
             
         };
+    }
+
+    /**
+     * Decompress the binary gzipped content into a String.
+     *
+     * @param content the gzipped content to decompress
+     * @return decompressed String.
+     */
+    private String decompress(byte[] content) {
+        GZIPInputStream gin = null;
+        try {
+            gin = new GZIPInputStream(new ByteArrayInputStream(content));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            byte[] buf = new byte[8192];
+
+            int read = -1;
+            while((read = gin.read(buf))!=-1) {
+                baos.write(buf,0,read);
+            }
+
+            return new String(baos.toByteArray(), Charset.forName(UTF_8.name()));
+
+        } catch (IOException e) {
+            return null;
+        } finally {
+            if(gin!=null) try {
+                gin.close();
+            } catch (IOException e) {
+
+            }
+        }
     }
 }

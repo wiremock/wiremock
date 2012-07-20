@@ -23,11 +23,11 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class WireMockJUnitRuleTest {

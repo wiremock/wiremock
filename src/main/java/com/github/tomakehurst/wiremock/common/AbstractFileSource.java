@@ -37,7 +37,12 @@ public abstract class AbstractFileSource implements FileSource {
     }
     
     protected abstract boolean readOnly();
-    
+
+    @Override
+    public BinaryFile getBinaryFileNamed(final String name) {
+        return new BinaryFile(new File(rootDirectory, name));
+    }
+
     @Override
     public TextFile getTextFileNamed(final String name) {
     	return new TextFile(new File(rootDirectory, name));
