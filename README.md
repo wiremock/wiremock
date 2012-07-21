@@ -158,8 +158,8 @@ The <code>com.github.tomakehurst.wiremock.http.Fault</code> enum implements a nu
 
 ### Binary Content
 
-In some scenarios you may require the mocked stub to return binary content.  This can be done by passing a byte[] array
-to the withBody method:
+In some scenarios you may require the WireMock stub to return binary content.  This can be done by passing a byte[] array
+to the **withBody(byte[] ..)** method:
 
     byte[] binaryContent = new byte[]{65,66,67}
     stubFor(get(urlEqualTo("/my/resource"))
@@ -169,8 +169,8 @@ to the withBody method:
     					.withHeader("Content-Type", "text/xml")
     					.withBody(binaryContent)));
 
-The withBodyFile method is also capable of handling binary files, i.e for instance you may wish for your mocked endpoint
-to return a jpg.
+The **withBodyFile(String file)** method is also capable of handling binary files.  For instance, you may wish for your
+mocked endpoint to return a jpg or some other binary content.
 
 Scenarios - Simulating Stateful Behaviour
 -----------------------------------------
@@ -243,7 +243,7 @@ New stub mappings can be registered on the fly by posting JSON to <code>http://l
 		"response": {									
 			"status": 200,	// Required						
 			"body": "YES INDEED!", // Specify this OR bodyFileName OR base64Body (for binary content)
-			"base64Body" : "WUVTIElOREVFRCE=" // binary content.  see: javax.xml.bind.DatatypeConverter.printBase64Binary(byte[] bin)
+			"base64Body" : "WUVTIElOREVFRCE=", // binary content.  see: javax.xml.bind.DatatypeConverter.printBase64Binary(byte[] bin)
 			"bodyFileName": "path/to/mybodyfile.json", // Relative to __files
 			"headers": {
 				"Content-Type": "text/plain",
