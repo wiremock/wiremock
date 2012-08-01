@@ -90,6 +90,7 @@ public class WireMockServer {
 	public void stop() {
 		try {
 			jettyServer.stop();
+            jettyServer.join();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
