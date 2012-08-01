@@ -25,6 +25,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -208,4 +209,36 @@ public class InMemoryMappingsTest {
         
         mappings.serveFor(aRequest(context).withMethod(GET).withUrl("/match/not/found").build());
 	}
+
+    @Test
+    public void scenariosShouldBeResetWhenMappingsAreReset() {
+        RequestResponseMapping firstMapping = aBasicMappingInScenario("Starting content");
+        firstMapping.setRequiredScenarioState(Scenario.STARTED);
+        firstMapping.setNewScenarioState("modified");
+        mappings.addMapping(firstMapping);
+
+        RequestResponseMapping secondMapping = aBasicMappingInScenario("Modified content");
+        secondMapping.setRequiredScenarioState("modified");
+        mappings.addMapping(secondMapping);
+
+        Request request = aRequest(context).withMethod(POST).withUrl("/scenario/resource").build();
+        mappings.serveFor(request);
+        assertThat(mappings.serveFor(request).getBody(), is("Modified content"));
+
+        mappings.reset();
+
+        RequestResponseMapping thirdMapping = aBasicMappingInScenario("Starting content");
+        thirdMapping.setRequiredScenarioState(Scenario.STARTED);
+        mappings.addMapping(thirdMapping);
+
+        assertThat(mappings.serveFor(request).getBody(), is("Starting content"));
+    }
+
+    private RequestResponseMapping aBasicMappingInScenario(String body) {
+        RequestResponseMapping mapping = new RequestResponseMapping(
+                new RequestPattern(POST, "/scenario/resource"),
+                new ResponseDefinition(200, body));
+        mapping.setScenarioName("TestScenario");
+        return mapping;
+    }
 }

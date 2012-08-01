@@ -62,6 +62,7 @@ public class InMemoryMappings implements Mappings {
 	@Override
 	public void reset() {
 		mappings.clear();
+        scenarioMap.clear();
 	}
 	
 	@Override
