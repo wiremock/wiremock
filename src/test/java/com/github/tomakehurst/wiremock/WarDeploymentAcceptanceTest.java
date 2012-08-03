@@ -24,11 +24,11 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -43,8 +43,9 @@ public class WarDeploymentAcceptanceTest {
 	@Before
 	public void init() throws Exception {
 		jetty = new Server(8085);
+
 		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
-		jetty.addHandler(context);
+		jetty.addBean(context);
 		jetty.start();
 		
 		WireMock.configureFor("localhost", 8085, "/wiremock");

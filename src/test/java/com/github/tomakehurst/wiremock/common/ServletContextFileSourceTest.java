@@ -22,14 +22,11 @@ import static org.junit.Assert.assertThat;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
+import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.descriptor.JspConfigDescriptor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -89,6 +86,16 @@ public class ServletContextFileSourceTest {
         @Override
         public int getMinorVersion() {
             return 0;
+        }
+
+        @Override
+        public int getEffectiveMajorVersion() {
+            return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public int getEffectiveMinorVersion() {
+            return 0;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override
@@ -174,6 +181,11 @@ public class ServletContextFileSourceTest {
         }
 
         @Override
+        public boolean setInitParameter(String name, String value) {
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
         public Object getAttribute(String name) {
             return null;
         }
@@ -195,6 +207,121 @@ public class ServletContextFileSourceTest {
         @Override
         public String getServletContextName() {
             return null;
+        }
+
+        @Override
+        public Dynamic addServlet(String servletName, String className) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Dynamic addServlet(String servletName, Servlet servlet) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public ServletRegistration getServletRegistration(String servletName) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, String className) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public FilterRegistration getFilterRegistration(String filterName) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public SessionCookieConfig getSessionCookieConfig() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void addListener(String className) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public <T extends EventListener> void addListener(T t) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void addListener(Class<? extends EventListener> listenerClass) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public JspConfigDescriptor getJspConfigDescriptor() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void declareRoles(String... roleNames) {
+            //To change body of implemented methods use File | Settings | File Templates.
         }
 
         @Override

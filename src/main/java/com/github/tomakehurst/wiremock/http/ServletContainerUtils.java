@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+
+import org.apache.http.HttpConnection;
+
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.net.URI;
@@ -22,13 +25,12 @@ import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.HttpConnection;
 
 public class ServletContainerUtils {
 
 	public static Socket getUnderlyingSocketFrom(HttpServletResponse httpServletResponse) {
 		HttpConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
-		Object channelEndPoint = httpConnection.getEndPoint();
+		Object channelEndPoint = httpConnection; //TODO: fix this!
 		return getPrivateField(channelEndPoint, "_socket");
 	}
 	
