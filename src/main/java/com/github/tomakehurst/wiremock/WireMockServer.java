@@ -25,8 +25,10 @@ import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -46,6 +48,8 @@ public class WireMockServer {
 	private final WireMockApp wireMockApp;
 	
 	private Server jettyServer;
+    private HandlerCollection handlerCollection;
+
 	private final FileSource fileSource;
 	private final Log4jNotifier notifier;
 	private final int port;
@@ -100,8 +104,12 @@ public class WireMockServer {
 		jettyServer = new Server(port);
         jettyServer.getConnectors()[0].setRequestHeaderSize(8192);
         jettyServer.getConnectors()[0].setResponseHeaderSize(8192);
-		addAdminContext();
-		addMockServiceContext();
+
+        handlerCollection = new HandlerCollection();
+		handlerCollection.addHandler(createAdminContext());
+		handlerCollection.addHandler(createMockServiceContext());
+
+        jettyServer.setHandler(handlerCollection);
 
 		try {
 			jettyServer.start();
@@ -111,7 +119,7 @@ public class WireMockServer {
 	}
 
     @SuppressWarnings({"rawtypes", "unchecked" })
-    private void addMockServiceContext() {
+    private Handler createMockServiceContext() {
         ContextHandler mockServiceContext = new ContextHandler(jettyServer, "/");
         
         mockServiceContext.setInitParameter("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
@@ -143,11 +151,13 @@ public class WireMockServer {
                            DispatcherType.INCLUDE,
                            DispatcherType.REQUEST,
                            DispatcherType.ERROR));
+
+        handler.setConnectorNames(new String[]{"main"});
 		
-		jettyServer.addBean(handler);
+		return mockServiceContext;
     }
 
-    private void addAdminContext() {
+    private Handler createAdminContext() {
         ContextHandler adminContext = new ContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
 
         ServletContextHandler handler = new ServletContextHandler();
@@ -155,7 +165,8 @@ public class WireMockServer {
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
 		adminContext.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
 		adminContext.setAttribute(Notifier.KEY, notifier);
-		jettyServer.addBean(handler);
+
+		return adminContext;
     }
     
     
