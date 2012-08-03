@@ -28,7 +28,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
 public class HttpHeaders {
 
-    private final Multimap<String, String> headers;
+    private final Multimap<CaseInsensitiveKey, String> headers;
 
     public HttpHeaders() {
         headers = LinkedHashMultimap.create();
@@ -69,19 +69,19 @@ public class HttpHeaders {
 
     public Collection<HttpHeader> all() {
         List<HttpHeader> httpHeaderList = newArrayList();
-        for (String key: headers.keySet()) {
+        for (CaseInsensitiveKey key: headers.keySet()) {
             httpHeaderList.add(new HttpHeader(key, headers.get(key)));
         }
 
         return httpHeaderList;
     }
 
-    public String put(String key, String value) {
+    public String put(CaseInsensitiveKey key, String value) {
         headers.put(key, value);
         return value;
     }
 
-    public Set<String> keys() {
+    public Set<CaseInsensitiveKey> keys() {
         return headers.keySet();
     }
 
@@ -111,4 +111,5 @@ public class HttpHeaders {
         result = 31 * result + (headers != null ? headers.hashCode() : 0);
         return result;
     }
+
 }

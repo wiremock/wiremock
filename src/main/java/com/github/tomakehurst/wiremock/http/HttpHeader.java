@@ -12,16 +12,21 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class HttpHeader {
 
-    private final String key;
+    private final CaseInsensitiveKey key;
     private final List<String> values;
 
     public HttpHeader(String key, String... values) {
+        this.key = new CaseInsensitiveKey(key);
+        this.values = newArrayList(values);
+    }
+
+    public HttpHeader(CaseInsensitiveKey key, String... values) {
         this.key = key;
         this.values = newArrayList(values);
     }
 
     public HttpHeader(String key, Collection<String> values) {
-        this.key = key;
+        this.key = new CaseInsensitiveKey(key);
         this.values = newArrayList(values);
     }
 
@@ -41,17 +46,17 @@ public class HttpHeader {
         return values.size() > 0;
     }
 
-    public String key() {
+    public CaseInsensitiveKey key() {
         return key;
     }
 
     public String firstValue() {
-        checkState(isPresent());
+        checkPresent();
         return values.get(0);
     }
 
     public List<String> values() {
-        checkState(isPresent());
+        checkPresent();
         return values;
     }
 
@@ -69,6 +74,10 @@ public class HttpHeader {
                 return valuePattern.isMatchFor(headerValue);
             }
         });
+    }
+
+    private void checkPresent() {
+        checkState(isPresent(), "No values are present for this header");
     }
 
     @Override

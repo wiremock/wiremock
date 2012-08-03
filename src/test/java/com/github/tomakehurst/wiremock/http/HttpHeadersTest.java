@@ -111,4 +111,11 @@ public class HttpHeadersTest {
                 json, equalToJson(MULTI_VALUE_HEADER));
     }
 
+    @Test
+    public void keysAreCaseInsensitive() {
+        HttpHeaders headers = new HttpHeaders(new HttpHeader("Some-Key", "Value"));
+
+        assertThat(headers.getHeader("some-key").firstValue(), is("Value"));
+    }
+
 }
