@@ -45,7 +45,7 @@ public class WarDeploymentAcceptanceTest {
 		jetty = new Server(8085);
 
 		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
-		jetty.addBean(context);
+		jetty.setHandler(context);
 		jetty.start();
 		
 		WireMock.configureFor("localhost", 8085, "/wiremock");

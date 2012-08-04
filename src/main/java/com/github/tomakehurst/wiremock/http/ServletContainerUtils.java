@@ -16,22 +16,24 @@
 package com.github.tomakehurst.wiremock.http;
 
 
-import org.apache.http.HttpConnection;
+import org.eclipse.jetty.io.nio.ChannelEndPoint;
+import org.eclipse.jetty.server.AsyncHttpConnection;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
 import java.net.Socket;
 import java.net.URI;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 
 public class ServletContainerUtils {
 
 	public static Socket getUnderlyingSocketFrom(HttpServletResponse httpServletResponse) {
-		HttpConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
-		Object channelEndPoint = httpConnection; //TODO: fix this!
-		return getPrivateField(channelEndPoint, "_socket");
+		AsyncHttpConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
+		Object channelEndPoint = httpConnection.getEndPoint();
+		return getPrivateField(ChannelEndPoint.class, channelEndPoint, "_socket");
 	}
 	
 	public static boolean isBrowserProxyRequest(HttpServletRequest request) {
@@ -46,16 +48,19 @@ public class ServletContainerUtils {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> T getPrivateField(Object obj, String name) {
-		try {
-			Field field = obj.getClass().getDeclaredField(name);
-			field.setAccessible(true);
-			return (T) field.get(obj);
-		} catch (RuntimeException re) {
-			throw re;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return getPrivateField(obj.getClass(), obj, name);
 	}
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getPrivateField(Class<?> clazz, Object obj, String name) {
+        try {
+            Field field = clazz.getDeclaredField(name);
+            field.setAccessible(true);
+            return (T) field.get(obj);
+        } catch (Exception e) {
+            throw throwUnchecked(e);
+        }
+    }
 	
 	private static boolean hasField(Object obj, String name) {
 		try {

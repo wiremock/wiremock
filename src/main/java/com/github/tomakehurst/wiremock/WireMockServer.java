@@ -48,7 +48,6 @@ public class WireMockServer {
 	private final WireMockApp wireMockApp;
 	
 	private Server jettyServer;
-    private HandlerCollection handlerCollection;
 
 	private final FileSource fileSource;
 	private final Log4jNotifier notifier;
@@ -105,7 +104,7 @@ public class WireMockServer {
         jettyServer.getConnectors()[0].setRequestHeaderSize(8192);
         jettyServer.getConnectors()[0].setResponseHeaderSize(8192);
 
-        handlerCollection = new HandlerCollection();
+        HandlerCollection handlerCollection = new HandlerCollection();
 		handlerCollection.addHandler(createAdminContext());
 		handlerCollection.addHandler(createMockServiceContext());
 
@@ -120,19 +119,18 @@ public class WireMockServer {
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     private Handler createMockServiceContext() {
-        ContextHandler mockServiceContext = new ContextHandler(jettyServer, "/");
+        ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
         
-        mockServiceContext.setInitParameter("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
-        mockServiceContext.setInitParameter("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
-        mockServiceContext.setInitParameter("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", fileSource.getPath());
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
-        ServletContextHandler handler = new ServletContextHandler();
-        handler.addServlet(DefaultServlet.class, FILES_URL_MATCH);
+        mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
 		mockServiceContext.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
 
-        ServletHolder servletHolder = handler.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/*");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, MockServiceRequestHandler.class.getName());
 		servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 		
@@ -145,23 +143,19 @@ public class WireMockServer {
 		
 		mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
 
-        handler.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
-        handler.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH,
+        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
+        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH,
                 EnumSet.of(DispatcherType.FORWARD,
                            DispatcherType.INCLUDE,
                            DispatcherType.REQUEST,
                            DispatcherType.ERROR));
 
-        handler.setConnectorNames(new String[]{"main"});
-		
 		return mockServiceContext;
     }
 
     private Handler createAdminContext() {
-        ContextHandler adminContext = new ContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
-
-        ServletContextHandler handler = new ServletContextHandler();
-		ServletHolder servletHolder = handler.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
+		ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/*");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
 		adminContext.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
 		adminContext.setAttribute(Notifier.KEY, notifier);
