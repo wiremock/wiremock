@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -101,8 +102,14 @@ public class WireMockServer {
 	
 	public void start() {
 		jettyServer = new Server(port);
-        jettyServer.getConnectors()[0].setRequestHeaderSize(8192);
-        jettyServer.getConnectors()[0].setResponseHeaderSize(8192);
+
+        SocketConnector connector = new SocketConnector();
+        connector.setServer(jettyServer);
+        connector.setPort(port);
+        connector.setRequestHeaderSize(8192);
+        connector.setResponseHeaderSize(8192);
+
+        jettyServer.getConnectors()[0] = connector;
 
         HandlerCollection handlerCollection = new HandlerCollection();
 		handlerCollection.addHandler(createAdminContext());

@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.http;
 
 
+import org.eclipse.jetty.io.AbstractConnection;
 import org.eclipse.jetty.io.nio.ChannelEndPoint;
 import org.eclipse.jetty.server.AsyncHttpConnection;
+import org.eclipse.jetty.server.bio.SocketConnector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,9 +33,9 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 public class ServletContainerUtils {
 
 	public static Socket getUnderlyingSocketFrom(HttpServletResponse httpServletResponse) {
-		AsyncHttpConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
+		AbstractConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
 		Object channelEndPoint = httpConnection.getEndPoint();
-		return getPrivateField(ChannelEndPoint.class, channelEndPoint, "_socket");
+		return getPrivateField(channelEndPoint.getClass(), channelEndPoint, "_socket");
 	}
 	
 	public static boolean isBrowserProxyRequest(HttpServletRequest request) {
