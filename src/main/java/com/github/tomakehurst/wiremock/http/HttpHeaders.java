@@ -37,7 +37,6 @@ public class HttpHeaders {
     public HttpHeaders(HttpHeader... headers) {
         this();
         for (HttpHeader header: headers) {
-            put(header.key(), header.firstValue());
             this.headers.putAll(header.key(), header.values());
         }
     }
@@ -45,7 +44,6 @@ public class HttpHeaders {
     public HttpHeaders(Iterable<HttpHeader> headers) {
         this();
         for (HttpHeader header: headers) {
-            put(header.key(), header.firstValue());
             this.headers.putAll(header.key(), header.values());
         }
     }
