@@ -46,13 +46,17 @@ public class HttpHeader {
     }
 
     public String firstValue() {
-        checkState(isPresent());
+        checkPresent();
         return values.get(0);
     }
 
     public List<String> values() {
-        checkState(isPresent());
+        checkPresent();
         return values;
+    }
+
+    private void checkPresent() {
+        checkState(isPresent(), "No value for header " + key);
     }
 
     public boolean isSingleValued() {
