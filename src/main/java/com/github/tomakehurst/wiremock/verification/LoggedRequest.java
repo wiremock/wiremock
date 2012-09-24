@@ -105,13 +105,7 @@ public class LoggedRequest implements Request {
 
     @Override
     public HttpHeader header(String key) {
-        for (String currentKey: headers.keys()) {
-            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
-                return headers.getHeader(currentKey);
-            }
-        }
-
-        return HttpHeader.absent(key);
+        return headers.getHeader(key);
     }
 
     @Override
