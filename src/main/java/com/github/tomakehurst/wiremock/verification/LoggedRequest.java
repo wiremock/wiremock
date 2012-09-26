@@ -42,21 +42,14 @@ public class LoggedRequest implements Request {
     private Date loggedDate;
 	
 	public static LoggedRequest createFrom(Request request) {
-		LoggedRequest loggedRequest = new LoggedRequest();
-		loggedRequest.url = request.getUrl();
-		loggedRequest.absoluteUrl = request.getAbsoluteUrl();
-		loggedRequest.method = request.getMethod();
-		loggedRequest.body = request.getBodyAsString();
-		loggedRequest.headers = copyOf(request.getHeaders());
-		
-		loggedRequest.isBrowserProxyRequest = request.isBrowserProxyRequest();
-        loggedRequest.loggedDate = new Date();
-		
-		return loggedRequest;
+        return new LoggedRequest(request.getUrl(),
+                request.getAbsoluteUrl(),
+                request.getMethod(),
+                copyOf(request.getHeaders()),
+                request.getBodyAsString(),
+                request.isBrowserProxyRequest(),
+                new Date());
 	}
-
-    private LoggedRequest() {
-    }
 
     @JsonCreator
     private LoggedRequest(@JsonProperty("url") String url,
@@ -65,8 +58,7 @@ public class LoggedRequest implements Request {
                          @JsonProperty("headers") HttpHeaders headers,
                          @JsonProperty("body") String body,
                          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-                         @JsonProperty("loggedDate") Date loggedDate,
-                         @JsonProperty("loggedDateString") String loggedDateString) {
+                         @JsonProperty("loggedDate") Date loggedDate) {
 
         this.url = url;
         this.absoluteUrl = absoluteUrl;
@@ -138,6 +130,7 @@ public class LoggedRequest implements Request {
         return loggedDate;
     }
 
+    @JsonIgnore
     public String getLoggedDateString() {
         return format(loggedDate);
     }
