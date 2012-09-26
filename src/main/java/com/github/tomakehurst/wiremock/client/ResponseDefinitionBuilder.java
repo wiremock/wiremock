@@ -16,12 +16,16 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.google.common.collect.Lists;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class ResponseDefinitionBuilder {
 
@@ -29,7 +33,7 @@ public class ResponseDefinitionBuilder {
 	private byte[] bodyContent;
     private boolean isBinaryBody = false;
     private String bodyFileName;
-	private HttpHeaders headers;
+    private List<HttpHeader> headers = newArrayList();
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private Fault fault;
@@ -40,11 +44,7 @@ public class ResponseDefinitionBuilder {
 	}
 	
 	public ResponseDefinitionBuilder withHeader(String key, String value) {
-		if (headers == null) {
-			headers = new HttpHeaders();
-		}
-		
-		headers.put(key, value);
+		headers.add(new HttpHeader(key, value));
 		return this;
 	}
 	
@@ -92,8 +92,12 @@ public class ResponseDefinitionBuilder {
                 response = new ResponseDefinition(status, new String(bodyContent,Charset.forName(UTF_8.name())));
             }
         }
-		response.setHeaders(headers);
-		response.setBodyFileName(bodyFileName);
+
+        if (!headers.isEmpty()) {
+            response.setHeaders(new HttpHeaders(headers));
+        }
+		
+        response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);
