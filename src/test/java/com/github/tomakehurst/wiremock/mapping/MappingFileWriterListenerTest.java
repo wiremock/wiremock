@@ -15,8 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.mapping.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -77,11 +81,13 @@ public class MappingFileWriterListenerTest {
 			.withMethod(RequestMethod.GET)
 			.withUrl("/recorded/content")
 			.build();
-		
-		Response response = new Response(200);
-		response.setFromProxy(true);
-		response.setBody("Recorded body content");
-		
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body("Recorded body content")
+                .build();
+
 		listener.requestReceived(request, response);
 	}
 	
@@ -114,13 +120,16 @@ public class MappingFileWriterListenerTest {
             .withMethod(RequestMethod.GET)
             .withUrl("/headered/content")
             .build();
-        
-        Response response = new Response(200);
-        response.setFromProxy(true);
-        response.setBody("Recorded body content");
-        response.addHeader("Content-Type", "text/plain");
-        response.addHeader("Cache-Control", "no-cache");
-        
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body("Recorded body content")
+                .headers(new HttpHeaders(
+                        httpHeader("Content-Type", "text/plain"),
+                        httpHeader("Cache-Control", "no-cache")))
+                .build();
+
         listener.requestReceived(request, response);
 	}
 	
@@ -136,7 +145,7 @@ public class MappingFileWriterListenerTest {
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")
                 .build(),
-            new Response(200));
+            response().status(200).build());
 	}
 	
 	@Test
@@ -146,10 +155,12 @@ public class MappingFileWriterListenerTest {
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
+
+        Response response = response()
+                .status(200)
+                .fromProxy(false)
+                .build();
 	    
-	    Response response = new Response(200);
-        response.setFromProxy(false);
-        
         listener.requestReceived(new MockRequestBuilder(context)
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")

@@ -38,14 +38,14 @@ public class ContentTypeHeader extends HttpHeader {
 		parts = stringValue.split(";");
 	}
 
+    private ContentTypeHeader() {
+        super(KEY);
+    }
+
     public static ContentTypeHeader absent() {
         return new ContentTypeHeader();
     }
 
-    private ContentTypeHeader() {
-        super(KEY, (String[]) null);
-    }
-	
 	public String mimeTypePart() {
 		return parts[0];
 	}

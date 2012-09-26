@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;

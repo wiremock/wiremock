@@ -57,6 +57,10 @@ public class HttpHeaders {
         this(headers.all());
     }
 
+    public static HttpHeaders noHeaders() {
+        return new HttpHeaders();
+    }
+
     public HttpHeader getHeader(String key) {
         if (!headers.containsKey(caseInsensitive(key))) {
             return HttpHeader.absent(key);
@@ -64,6 +68,15 @@ public class HttpHeaders {
 
         Collection<String> values = headers.get(caseInsensitive(key));
         return new HttpHeader(key, values);
+    }
+
+    public ContentTypeHeader getContentTypeHeader() {
+        HttpHeader header = getHeader(ContentTypeHeader.KEY);
+        if (header.isPresent()) {
+            return new ContentTypeHeader(getHeader(ContentTypeHeader.KEY).firstValue());
+        }
+
+        return ContentTypeHeader.absent();
     }
 
     public boolean hasContentTypeHeader() {

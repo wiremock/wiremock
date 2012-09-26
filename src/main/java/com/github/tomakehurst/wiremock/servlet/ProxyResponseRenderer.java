@@ -19,10 +19,15 @@ import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.mapping.Response.response;
+import static com.google.common.collect.Iterables.transform;
+import static java.util.Arrays.asList;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Function;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -38,13 +43,12 @@ import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.mapping.Response;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 import com.google.common.base.Optional;
+
+import javax.annotation.Nullable;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 	
@@ -65,20 +69,27 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		try {
 			addBodyIfPostOrPut(httpRequest, responseDefinition);
 			HttpResponse httpResponse = client.execute(httpRequest);
-			Response response = new Response(httpResponse.getStatusLine().getStatusCode());
-			response.setFromProxy(true);
-			for (Header header: httpResponse.getAllHeaders()) {
-				response.addHeader(header.getName(), header.getValue());
-			}
-			
-			response.setBody(getEntityAsByteArrayAndCloseStream(httpResponse));
-			return response;
+
+            return response()
+                    .status(httpResponse.getStatusLine().getStatusCode())
+                    .headers(headersFrom(httpResponse))
+                    .body(getEntityAsByteArrayAndCloseStream(httpResponse))
+                    .fromProxy(true)
+                    .build();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
+
+    private HttpHeaders headersFrom(HttpResponse httpResponse) {
+        return new HttpHeaders(transform(asList(httpResponse.getAllHeaders()), new Function<Header, HttpHeader>() {
+            public HttpHeader apply(Header header) {
+                return new HttpHeader(header.getName(), header.getValue());
+            }
+        }));
+    }
+
+    private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		RequestMethod method = response.getOriginalRequest().getMethod();
 		String url = response.getProxyUrl();
 		notifier().info("Proxying: " + method + " " + url);

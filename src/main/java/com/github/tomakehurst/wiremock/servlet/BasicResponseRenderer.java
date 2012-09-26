@@ -18,13 +18,16 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.mapping.Response;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 
+import static com.github.tomakehurst.wiremock.mapping.Response.response;
+
 public class BasicResponseRenderer implements ResponseRenderer {
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
-		Response response = new Response(responseDefinition.getStatus());
-		response.addHeaders(responseDefinition.getHeaders());
-		response.setBody(responseDefinition.getBody());
-		return response;
+        return response()
+                .status(responseDefinition.getStatus())
+                .headers(responseDefinition.getHeaders())
+                .body(responseDefinition.getBody())
+                .build();
 	}
 }

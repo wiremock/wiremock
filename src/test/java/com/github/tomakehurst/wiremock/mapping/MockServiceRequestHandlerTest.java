@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.mapping;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.mapping.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -50,8 +51,8 @@ public class MockServiceRequestHandlerTest {
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
 			allowing(mappings).serveFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
-			Response response = new Response(200);
-			response.setBody("Body content");
+
+            Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
 		}});
 		

@@ -22,6 +22,8 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.mapping.Response;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 
+import static com.github.tomakehurst.wiremock.mapping.Response.response;
+
 public class MockServiceResponseRenderer implements ResponseRenderer {
 	
 	private final FileSource fileSource;
@@ -50,25 +52,23 @@ public class MockServiceResponseRenderer implements ResponseRenderer {
 	}
 	
 	private Response renderDirectly(ResponseDefinition responseDefinition) {
-		Response response = new Response(responseDefinition.getStatus());
-		response.addHeaders(responseDefinition.getHeaders());
-		
+        Response.Builder responseBuilder = response()
+                .status(responseDefinition.getStatus())
+                .headers(responseDefinition.getHeaders())
+                .fault(responseDefinition.getFault());
+
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-			response.setBody(bodyFile.readContents());
+            responseBuilder.body(bodyFile.readContents());
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
-			    response.setBody(responseDefinition.getByteBody());
+                responseBuilder.body(responseDefinition.getByteBody());
             } else {
-                response.setBody(responseDefinition.getBody());
+                responseBuilder.body(responseDefinition.getBody());
             }
 		}
-		
-		if (responseDefinition.getFault() != null) {
-			response.setFault(responseDefinition.getFault());
-		}
-		
-		return response;
+
+        return responseBuilder.build();
 	}
 	
     private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
