@@ -27,7 +27,7 @@ configurations {
 
 dependencies {
 	compile "org.mortbay.jetty:jetty:6.1.26"
-	compile "com.google.guava:guava:10.0"
+	compile "com.google.guava:guava:13.0.1"
 	compile "org.codehaus.jackson:jackson-core-asl:1.8.5", "org.codehaus.jackson:jackson-mapper-asl:1.8.5"
 	compile "org.apache.httpcomponents:httpclient:4.1.2"
 	compile "log4j:log4j:1.2.16"

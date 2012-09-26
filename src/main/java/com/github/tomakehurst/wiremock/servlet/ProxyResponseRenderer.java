@@ -15,6 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.mapping.Request;
+import com.github.tomakehurst.wiremock.mapping.Response;
+import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import org.apache.http.Header;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.StringEntity;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import static com.github.tomakehurst.wiremock.client.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -22,33 +39,6 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.mapping.Response.response;
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Function;
-import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpTrace;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.StringEntity;
-
-import com.github.tomakehurst.wiremock.mapping.Request;
-import com.github.tomakehurst.wiremock.mapping.Response;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
-import com.google.common.base.Optional;
-
-import javax.annotation.Nullable;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 	
