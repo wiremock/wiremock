@@ -33,13 +33,13 @@ public class LoggedRequest implements Request {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	
-	private String url;
-	private String absoluteUrl;
-	private RequestMethod method;
-	private HttpHeaders headers = new HttpHeaders();
-	private String body;
-	private boolean isBrowserProxyRequest;
-    private Date loggedDate;
+	private final String url;
+	private final String absoluteUrl;
+	private final RequestMethod method;
+	private final HttpHeaders headers;
+	private final String body;
+	private final boolean isBrowserProxyRequest;
+    private final Date loggedDate;
 	
 	public static LoggedRequest createFrom(Request request) {
         return new LoggedRequest(request.getUrl(),
