@@ -75,6 +75,10 @@ public class Response {
 	public int getStatus() {
 		return status;
 	}
+
+    public byte[] getBody() {
+        return body;
+    }
 	
 	public String getBodyAsString() {
         return new String(body, encodingFromContentTypeHeaderOrUtf8());

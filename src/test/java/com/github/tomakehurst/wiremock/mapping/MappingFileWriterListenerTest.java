@@ -18,9 +18,11 @@ package com.github.tomakehurst.wiremock.mapping;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.mapping.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static com.google.common.base.Charsets.UTF_8;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.google.common.base.Charsets;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -33,6 +35,7 @@ import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import sun.awt.CharsetString;
 
 @RunWith(JMock.class)
 public class MappingFileWriterListenerTest {
@@ -73,8 +76,8 @@ public class MappingFileWriterListenerTest {
 		    allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 			        with(equalToJson(SAMPLE_REQUEST_MAPPING)));
-			one(filesFileSource).writeTextFile(with(equal("body-recorded-content-1$2!3.json")),
-			        with(equal("Recorded body content")));
+			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
+                    with(equal("Recorded body content".getBytes(UTF_8))));
 		}});
 		
 		Request request = new MockRequestBuilder(context)
@@ -113,7 +116,7 @@ public class MappingFileWriterListenerTest {
 	        allowing(requestJournal).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(1));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
-            one(filesFileSource).writeTextFile("body-headered-content-1$2!3.json", "Recorded body content");
+            one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.json", "Recorded body content".getBytes(UTF_8));
         }});
         
         Request request = new MockRequestBuilder(context)

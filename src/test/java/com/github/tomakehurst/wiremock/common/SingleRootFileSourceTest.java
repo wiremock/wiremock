@@ -68,7 +68,7 @@ public class SingleRootFileSourceTest {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
 		fileSource.writeTextFile("thing", "stuff");
 	}
-	
+
 	private Matcher<TextFile> fileNamed(final String name) {
 		return new TypeSafeMatcher<TextFile>() {
 

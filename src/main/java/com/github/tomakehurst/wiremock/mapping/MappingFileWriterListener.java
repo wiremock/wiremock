@@ -66,7 +66,7 @@ public class MappingFileWriterListener implements RequestListener {
         
         RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
         
-        filesFileSource.writeTextFile(bodyFileName, response.getBodyAsString());
+        filesFileSource.writeBinaryFile(bodyFileName, response.getBody());
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }
 

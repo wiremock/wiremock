@@ -97,29 +97,49 @@ public abstract class AbstractFileSource implements FileSource {
     	}));
     }
 
-    private void assertExistsAndIsDirectory() {
-    	if (rootDirectory.exists() && !rootDirectory.isDirectory()) {
-    		throw new RuntimeException(rootDirectory + " is not a directory");
-    	} else if (!rootDirectory.exists()) {
-    		throw new RuntimeException(rootDirectory + " does not exist");
-    	}
+    @Override
+    public void writeTextFile(String name, String contents) {
+    	writeTextFileAndTranslateExceptions(contents, writableFileFor(name));
     }
 
     @Override
-    public void writeTextFile(String name, String contents) {
-    	assertExistsAndIsDirectory();
-    	assertWritable();
-    	File toFile = new File(rootDirectory, name);
-    	try {
-    		Files.write(contents, toFile, UTF_8);
-    	} catch (IOException ioe) {
-    		throw new RuntimeException(ioe);
-    	}
+    public void writeBinaryFile(String name, byte[] contents) {
+        writeBinaryFileAndTranslateExceptions(contents, writableFileFor(name));
+    }
+
+    private File writableFileFor(String name) {
+        assertExistsAndIsDirectory();
+        assertWritable();
+        return new File(rootDirectory, name);
+    }
+
+    private void assertExistsAndIsDirectory() {
+        if (rootDirectory.exists() && !rootDirectory.isDirectory()) {
+            throw new RuntimeException(rootDirectory + " is not a directory");
+        } else if (!rootDirectory.exists()) {
+            throw new RuntimeException(rootDirectory + " does not exist");
+        }
     }
 
     private void assertWritable() {
         if (readOnly()) {
             throw new UnsupportedOperationException("Can't write to read only file sources");
+        }
+    }
+
+    private void writeTextFileAndTranslateExceptions(String contents, File toFile) {
+        try {
+            Files.write(contents, toFile, UTF_8);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
+
+    private void writeBinaryFileAndTranslateExceptions(byte[] contents, File toFile) {
+        try {
+            Files.write(contents, toFile);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
         }
     }
 
