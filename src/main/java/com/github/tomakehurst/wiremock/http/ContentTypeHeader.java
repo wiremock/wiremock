@@ -24,15 +24,6 @@ public class ContentTypeHeader extends HttpHeader {
 	
 	private String[] parts;
 
-	public static Optional<ContentTypeHeader> getFrom(Request request) {
-		String value = request.getHeader(KEY);
-		if (value != null) {
-			return Optional.of(new ContentTypeHeader(value));
-		}
-		
-		return Optional.absent();
-	}
-	
 	public ContentTypeHeader(String stringValue) {
         super(KEY, stringValue);
 		parts = stringValue != null ? stringValue.split(";") : new String[0];
