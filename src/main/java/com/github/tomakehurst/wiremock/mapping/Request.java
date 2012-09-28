@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -28,6 +29,7 @@ public interface Request {
 	RequestMethod getMethod();
 	String getHeader(String key);
     HttpHeader header(String key);
+    ContentTypeHeader contentTypeHeader();
     HttpHeaders getHeaders();
 	boolean containsHeader(String key);
 	Set<String> getAllHeaderKeys();

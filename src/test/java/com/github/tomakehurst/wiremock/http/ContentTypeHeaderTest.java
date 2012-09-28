@@ -67,17 +67,17 @@ public class ContentTypeHeaderTest {
 			.withHeader("Content-Type", "text/xml")
 			.build();
 		
-		Optional<ContentTypeHeader> optionalHeader = ContentTypeHeader.getFrom(request);
-		assertThat(optionalHeader.get().mimeTypePart(), is("text/xml"));
+		ContentTypeHeader contentTypeHeader = request.contentTypeHeader();
+		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 	
 	@Test
-	public void returnsAbsentOptionalWhenHeaderNotPresentInRequest() {
+	public void returnsPresentWhenHeaderValueNull() {
 		Request request = new MockRequestBuilder(context)
 			.withHeader("Content-Type", null)
 			.build();
 	
-		Optional<ContentTypeHeader> optionalHeader = ContentTypeHeader.getFrom(request);
-		assertFalse(optionalHeader.isPresent());
+        ContentTypeHeader contentTypeHeader = request.contentTypeHeader();
+		assertTrue(contentTypeHeader.isPresent());
 	}
 }

@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.http.ServletContainerUtils;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.mapping.Request;
 import com.google.common.io.CharStreams;
 
@@ -105,6 +102,11 @@ public class HttpServletRequestAdapter implements Request {
         }
 
         return HttpHeader.absent(key);
+    }
+
+    @Override
+    public ContentTypeHeader contentTypeHeader() {
+        return getHeaders().getContentTypeHeader();
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ContentTypeHeader extends HttpHeader {
 	
 	public ContentTypeHeader(String stringValue) {
         super(KEY, stringValue);
-		parts = stringValue.split(";");
+		parts = stringValue != null ? stringValue.split(";") : new String[0];
 	}
 
     private ContentTypeHeader() {

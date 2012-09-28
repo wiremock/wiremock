@@ -118,14 +118,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod() == POST || originalRequest.getMethod() == PUT) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
-			Optional<ContentTypeHeader> optionalContentType = ContentTypeHeader.getFrom(originalRequest);
+            ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader();
 			String body = originalRequest.getBodyAsString();
 			
-			if (optionalContentType.isPresent()) {
-				ContentTypeHeader header = optionalContentType.get();
+			if (contentTypeHeader.isPresent()) {
 				requestWithEntity.setEntity(new StringEntity(body,
-						header.mimeTypePart(),
-						header.encodingPart().isPresent() ? header.encodingPart().get() : "utf-8"));
+                        contentTypeHeader.mimeTypePart(),
+                        contentTypeHeader.encodingPart().isPresent() ? contentTypeHeader.encodingPart().get() : "utf-8"));
 			} else {
 				requestWithEntity.setEntity(new StringEntity(body,
 						"text/plain",

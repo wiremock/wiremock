@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -98,6 +99,11 @@ public class LoggedRequest implements Request {
     @Override
     public HttpHeader header(String key) {
         return headers.getHeader(key);
+    }
+
+    @Override
+    public ContentTypeHeader contentTypeHeader() {
+        return headers.getContentTypeHeader();
     }
 
     @Override

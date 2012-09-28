@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -89,6 +90,9 @@ public class MockRequestBuilder {
 			}
             for (HttpHeader header: headers.all()) {
                 allowing(request).header(header.key()); will(returnValue(header));
+                if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
+                    allowing(request).contentTypeHeader(); will(returnValue(new ContentTypeHeader(header.firstValue())));
+                }
             }
             allowing(request).getHeaders(); will(returnValue(headers));
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keys())));
