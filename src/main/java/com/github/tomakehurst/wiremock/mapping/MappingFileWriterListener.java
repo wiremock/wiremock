@@ -59,11 +59,11 @@ public class MappingFileWriterListener implements RequestListener {
         ResponseDefinition responseToWrite = new ResponseDefinition();
         responseToWrite.setStatus(response.getStatus());
         responseToWrite.setBodyFileName(bodyFileName);
-        
-        for (HttpHeader header: response.getHeaders().all()) {
-            responseToWrite.addHeader(header);
+
+        if (response.getHeaders().size() > 0) {
+            responseToWrite.setHeaders(response.getHeaders());
         }
-        
+
         RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
         
         filesFileSource.writeBinaryFile(bodyFileName, response.getBody());
