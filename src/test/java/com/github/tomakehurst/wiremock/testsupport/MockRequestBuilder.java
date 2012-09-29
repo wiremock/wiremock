@@ -23,7 +23,10 @@ import com.github.tomakehurst.wiremock.mapping.Request;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class MockRequestBuilder {
@@ -31,7 +34,7 @@ public class MockRequestBuilder {
 	private final Mockery context;
 	private String url = "/";
 	private RequestMethod method = GET;
-	private final HttpHeaders headers = new HttpHeaders();
+    private List<HttpHeader> individualHeaders = newArrayList();
 	private String body = "";
 	private boolean browserProxyRequest = false;
 	
@@ -65,7 +68,7 @@ public class MockRequestBuilder {
 	}
 
 	public MockRequestBuilder withHeader(String key, String value) {
-		headers.put(key, value);
+        individualHeaders.add(new HttpHeader(key, value));
 		return this;
 	}
 	
@@ -80,6 +83,8 @@ public class MockRequestBuilder {
 	}
 	
 	public Request build() {
+        final HttpHeaders headers = new HttpHeaders(individualHeaders);
+
 		final Request request = mockName == null ? context.mock(Request.class) : context.mock(Request.class, mockName);
 		context.checking(new Expectations() {{
 			allowing(request).getUrl(); will(returnValue(url));
