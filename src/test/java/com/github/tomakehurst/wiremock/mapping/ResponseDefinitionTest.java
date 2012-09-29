@@ -16,8 +16,10 @@
 package com.github.tomakehurst.wiremock.mapping;
 
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.mapping.ResponseDefinition.copyOf;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -34,7 +36,7 @@ public class ResponseDefinitionTest {
         response.setBody("blah");
         response.setBodyFileName("name.json");
         response.setFault(Fault.EMPTY_RESPONSE);
-        response.addHeader("thing", "thingvalue");
+        response.setHeaders(new HttpHeaders(httpHeader("thing", "thingvalue")));
         response.setFixedDelayMilliseconds(1112);
         response.setProxyBaseUrl("http://base.com");
         response.setStatus(222);

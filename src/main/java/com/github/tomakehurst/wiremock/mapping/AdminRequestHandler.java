@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.mapping;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -27,6 +29,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.mapping.Json.buildRequestPatternFrom;
 import static com.github.tomakehurst.wiremock.mapping.Json.write;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -80,7 +83,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
 		int matchingRequestCount = requestJournal.countRequestsMatching(requestPattern);
 		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
-		response.addHeader("Content-Type", "application/json");
+		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
 		return response;
 	}
 
@@ -88,7 +91,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
         List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
         ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new FindRequestsResult(requests)));
-        response.addHeader("Content-Type", "application/json");
+        response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
         return response;
     }
 

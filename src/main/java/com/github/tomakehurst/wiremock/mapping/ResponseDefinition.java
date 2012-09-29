@@ -157,20 +157,6 @@ public class ResponseDefinition {
         }
     }
 
-    public void addHeader(final String key, final String value) {
-		if (headers == null) {
-			headers = new HttpHeaders();
-		}
-		
-		headers.put(key, value);
-	}
-
-    public void addHeader(HttpHeader header) {
-        for (String value: header.values()) {
-            addHeader(header.key(), value);
-        }
-    }
-	
 	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
 	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
 	}
