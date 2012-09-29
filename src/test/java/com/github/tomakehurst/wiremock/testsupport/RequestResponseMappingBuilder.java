@@ -16,12 +16,16 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Lists.newArrayList;
 
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+
+import java.util.List;
 
 public class RequestResponseMappingBuilder {
 
@@ -29,7 +33,7 @@ public class RequestResponseMappingBuilder {
 	private RequestMethod method = GET;
 	private int responseStatus = 200;
 	private String responseBody = "";
-	private HttpHeaders headers = new HttpHeaders();
+	private List<HttpHeader> headers = newArrayList();
 	
 	public static RequestResponseMappingBuilder aMapping() {
 		return new RequestResponseMappingBuilder();
@@ -56,14 +60,14 @@ public class RequestResponseMappingBuilder {
 	}
 	
 	public RequestResponseMappingBuilder withHeader(String key, String value) {
-		headers.put(key, value);
+		headers.add(new HttpHeader(key, value));
 		return this;
 	}
 	
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = new RequestPattern(method, url);
 		ResponseDefinition response = new ResponseDefinition(responseStatus, responseBody);
-		response.setHeaders(headers);
+		response.setHeaders(new HttpHeaders(headers));
 		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);
 		return mapping;
 	}
