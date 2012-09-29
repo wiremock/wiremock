@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
@@ -25,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -36,21 +39,20 @@ public class HttpHeaders {
     private final Multimap<CaseInsensitiveKey, String> headers;
 
     public HttpHeaders() {
-        headers = LinkedHashMultimap.create();
+        headers = ImmutableMultimap.of();
     }
 
     public HttpHeaders(HttpHeader... headers) {
-        this();
-        for (HttpHeader header: headers) {
-            this.headers.putAll(caseInsensitive(header.key()), header.values());
-        }
+        this(ImmutableList.copyOf(headers));
     }
 
     public HttpHeaders(Iterable<HttpHeader> headers) {
-        this();
+        ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
         for (HttpHeader header: headers) {
-            this.headers.putAll(caseInsensitive(header.key()), header.values());
+            builder.putAll(caseInsensitive(header.key()), header.values());
         }
+
+        this.headers = builder.build();
     }
 
     public HttpHeaders(HttpHeaders headers) {

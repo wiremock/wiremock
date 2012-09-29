@@ -71,13 +71,12 @@ public class ContentTypeHeaderTest {
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
 	
-	@Test
-	public void returnsPresentWhenHeaderValueNull() {
+	@Test(expected=NullPointerException.class)
+	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
 		Request request = new MockRequestBuilder(context)
 			.withHeader("Content-Type", null)
 			.build();
 	
-        ContentTypeHeader contentTypeHeader = request.contentTypeHeader();
-		assertTrue(contentTypeHeader.isPresent());
+        request.contentTypeHeader();
 	}
 }
