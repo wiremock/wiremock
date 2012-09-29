@@ -79,10 +79,6 @@ public class HttpHeaders {
         return ContentTypeHeader.absent();
     }
 
-    public boolean hasContentTypeHeader() {
-        return headers.containsKey(ContentTypeHeader.KEY);
-    }
-
     public Collection<HttpHeader> all() {
         List<HttpHeader> httpHeaderList = newArrayList();
         for (CaseInsensitiveKey key: headers.keySet()) {
@@ -90,11 +86,6 @@ public class HttpHeaders {
         }
 
         return httpHeaderList;
-    }
-
-    public String put(String key, String value) {
-        headers.put(caseInsensitive(key), value);
-        return value;
     }
 
     public Set<String> keys() {
