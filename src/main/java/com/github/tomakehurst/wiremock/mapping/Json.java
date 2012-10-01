@@ -24,13 +24,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public final class Json {
 	
-	/**
-	 * All members of this class are static, the ctor
-	 * should not be available
-	 */
-	private Json() {
-		// never create an instance
-	}
+	private Json() {}
 	
 	public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
 		return read(mappingSpecJson, RequestResponseMapping.class);
