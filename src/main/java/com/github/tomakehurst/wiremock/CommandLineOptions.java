@@ -29,7 +29,6 @@ public class CommandLineOptions {
 	private static final String PORT = "port";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
-	private static final String ENABLE_JSON_COMMENTS = "enable-comments";
 	
 	private final OptionSet optionSet;
 	private String helpText;
@@ -41,7 +40,6 @@ public class CommandLineOptions {
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
-		optionParser.accepts(ENABLE_JSON_COMMENTS, "Allow comments in the json files");
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -71,10 +69,6 @@ public class CommandLineOptions {
 	
 	public boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
-	}
-	
-	public boolean jsonCommentsEnabled() {
-		return optionSet.has(ENABLE_JSON_COMMENTS);
 	}
 	
 	public int portNumber() {

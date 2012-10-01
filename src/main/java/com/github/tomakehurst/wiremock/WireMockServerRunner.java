@@ -21,7 +21,6 @@ import static java.lang.System.out;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.mapping.Json;
 import com.github.tomakehurst.wiremock.mapping.Mappings;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
 import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
@@ -42,8 +41,6 @@ public class WireMockServerRunner {
 			out.println(options.helpText());
 			return;
 		}
-		
-		Json.setEnableJsonComments(options.jsonCommentsEnabled());
 		
 		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
