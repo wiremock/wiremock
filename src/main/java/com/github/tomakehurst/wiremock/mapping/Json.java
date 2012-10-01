@@ -17,12 +17,21 @@ package com.github.tomakehurst.wiremock.mapping;
 
 import java.io.IOException;
 
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
-public class Json {
-
+public final class Json {
+	
+	/**
+	 * All members of this class are static, the ctor
+	 * should not be available
+	 */
+	private Json() {
+		// never create an instance
+	}
+	
 	public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
 		return read(mappingSpecJson, RequestResponseMapping.class);
 	}
@@ -42,6 +51,7 @@ public class Json {
 	public static <T> T read(String json, Class<T> clazz) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
 			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + json, ioe);
