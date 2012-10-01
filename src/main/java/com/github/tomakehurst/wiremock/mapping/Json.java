@@ -55,7 +55,7 @@ public final class Json {
 	public static <T> String write(T object) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			return mapper.writeValueAsString(object);
+			return mapper.defaultPrettyPrintingWriter().writeValueAsString(object);
 		} catch (IOException ioe) {
 			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
 		}

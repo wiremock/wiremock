@@ -245,7 +245,7 @@ public class StandaloneAcceptanceTest {
 		
 		assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
 		assertThat(contentsOfFirstFileNamedLike("please-record-this"),
-		        containsString("bodyFileName\":\"body-please-record-this"));
+		        containsString("bodyFileName\" : \"body-please-record-this"));
 	}
 	
 	@Test

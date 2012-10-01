@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.mapping;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
+@JsonPropertyOrder({ "request", "response" })
 public class RequestResponseMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
