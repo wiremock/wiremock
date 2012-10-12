@@ -233,8 +233,38 @@ public class RequestPatternTest {
 			assertTrue("Method in request pattern is ANY so any method should match", requestPattern.isMatchedBy(request));
 		}
 	}
-	
-	@Test
+
+    @Test
+    public void supportsMatchingOnAbsentHeader() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/without/header");
+        requestPattern.addHeader("X-My-Header", ValuePattern.absent());
+        Request request = aRequest(context)
+                .withUrl("/without/header")
+                .withMethod(GET)
+                .withHeader("X-Another-Header", "value")
+                .build();
+
+        assertTrue("Request is not a match for the request pattern", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
+    public void shouldFailMatchWhenRequiredAbsentHeaderIsPresent() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/without/header/fail");
+        requestPattern.addHeader("X-My-Header", ValuePattern.absent());
+        Request request = aRequest(context)
+                .withUrl("/without/header/fail")
+                .withMethod(GET)
+                .withHeader("X-My-Header", "value")
+                .build();
+
+        assertFalse("Request is a match for the request pattern and should not be", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
 	public void shouldLogMessageIndicatingFailedMethodMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but method GET is not");

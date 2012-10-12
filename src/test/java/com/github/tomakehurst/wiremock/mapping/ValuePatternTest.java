@@ -57,6 +57,14 @@ public class ValuePatternTest {
 		assertFalse(valuePattern.isMatchFor("Nothing to see here"));
 		assertTrue(valuePattern.isMatchFor("There's some text here"));
 	}
+
+    @Test
+    public void matchesOnAbsent() {
+        valuePattern = ValuePattern.absent();
+        assertFalse("Absent value should not be a match for a string", valuePattern.isMatchFor("Something"));
+        assertTrue("Absent value should be match for null", valuePattern.isMatchFor(null));
+        assertTrue("isAbsent() should be true", valuePattern.isAbsent());
+    }
 	
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitMoreThanOneTypeOfMatch() {

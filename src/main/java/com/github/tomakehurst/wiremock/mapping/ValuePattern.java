@@ -31,6 +31,7 @@ public class ValuePattern {
 	private String contains;
 	private String matches;
 	private String doesNotMatch;
+    private Boolean absent;
 	
 	public static ValuePattern equalTo(String value) {
 		ValuePattern valuePattern = new ValuePattern();
@@ -49,10 +50,19 @@ public class ValuePattern {
 		valuePattern.setMatches(value);
 		return valuePattern;
 	}
+
+    public static ValuePattern absent() {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.absent = true;
+        return valuePattern;
+    }
 	
 	public boolean isMatchFor(String value) {
 		checkOneMatchTypeSpecified();
-		if (equalTo != null) {
+
+        if (absent != null) {
+            return (absent && value == null);
+        } else if (equalTo != null) {
 			return value.equals(equalTo);
 		} else if (contains != null) {
 			return value.contains(contains);
@@ -91,7 +101,7 @@ public class ValuePattern {
 	}
 	
 	private int countAllAttributes() {
-		return count(equalTo, contains, matches, doesNotMatch);
+		return count(equalTo, contains, matches, doesNotMatch, absent);
 	}
 	
 	private int count(Object... objects) {
@@ -125,6 +135,11 @@ public class ValuePattern {
 		checkNoMoreThanOneMatchTypeSpecified();
 	}
 
+    public void setAbsent(Boolean absent) {
+        this.absent = absent;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+
 	public String getEqualTo() {
 		return equalTo;
 	}
@@ -140,6 +155,14 @@ public class ValuePattern {
 	public String getDoesNotMatch() {
 		return doesNotMatch;
 	}
+
+    public Boolean isAbsent() {
+        return absent;
+    }
+
+    public boolean nullSafeIsAbsent() {
+        return (absent != null && absent);
+    }
 	
 	@Override
 	public String toString() {
@@ -209,6 +232,4 @@ public class ValuePattern {
 		}
 		return true;
 	}
-
-	
 }

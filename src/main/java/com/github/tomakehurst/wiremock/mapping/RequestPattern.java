@@ -15,23 +15,28 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.mapping.ValuePattern.matching;
-import static com.google.common.collect.Iterables.all;
+import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestPattern {
 
-	private String urlPattern;
+    private String urlPattern;
 	private String url;
 	private RequestMethod method;
 	private Map<String, ValuePattern> headerPatterns;
@@ -64,6 +69,7 @@ public class RequestPattern {
 	public boolean isMatchedBy(Request request) {
 		return (urlIsMatch(request) &&
 				methodMatches(request) &&
+                requiredAbsentHeadersAreNotPresentIn(request) &&
 				headersMatch(request) &&
 				bodyMatches(request));
 	}
@@ -88,27 +94,38 @@ public class RequestPattern {
 		
 		return matched;
 	}
-	
-	private boolean headersMatch(Request request) {
-		if (headerPatterns == null) {
-			return true;
-		}
 
-		for (Map.Entry<String, ValuePattern> headerPattern: headerPatterns.entrySet()) {
-			ValuePattern headerValuePattern = headerPattern.getValue();
-			String key = headerPattern.getKey();
-			if (!request.containsHeader(key) || !request.header(key).hasValueMatching(headerValuePattern)) {
-				notifier().info(String.format(
-                        "URL %s is match, but header %s is not. For a match, value should %s",
-                        request.getUrl(),
-                        key,
-                        headerValuePattern.toString()));
-				return false;
-			}
-		}
-		
-		return true;
+    private boolean requiredAbsentHeadersAreNotPresentIn(final Request request) {
+        return !any(requiredAbsentHeaderKeys(), new Predicate<String>() {
+            public boolean apply(String key) {
+                return request.getAllHeaderKeys().contains(key);
+            }
+        });
+    }
+
+    private Set<String> requiredAbsentHeaderKeys() {
+        if (headerPatterns == null) {
+            return ImmutableSet.of();
+        }
+
+        return ImmutableSet.copyOf(filter(transform(headerPatterns.entrySet(), TO_KEYS_WHERE_VALUE_ABSENT), REMOVING_NULL));
+    }
+	
+	private boolean headersMatch(final Request request) {
+        boolean match = noPresentHeadersRequired() ||
+                all(headerPatterns.entrySet(), matchHeadersIn(request));
+
+		return match;
 	}
+
+    private boolean noPresentHeadersRequired() {
+        return headerPatterns == null ||
+            size(filter(headerPatterns.values(), new Predicate<ValuePattern>() {
+                public boolean apply(ValuePattern header) {
+                    return !header.nullSafeIsAbsent();
+                }
+            })) == 0;
+    }
 	
 	private boolean bodyMatches(Request request) {
 		if (bodyPatterns == null) {
@@ -238,4 +255,38 @@ public class RequestPattern {
 	public String toString() {
 		return Json.write(this);
 	}
+
+    private static final Function<Map.Entry<String,ValuePattern>,String> TO_KEYS_WHERE_VALUE_ABSENT = new Function<Map.Entry<String, ValuePattern>, String>() {
+        public String apply(Map.Entry<String, ValuePattern> input) {
+            return input.getValue().nullSafeIsAbsent() ? input.getKey() : null;
+        }
+    };
+
+    private static final Predicate<String> REMOVING_NULL = new Predicate<String>() {
+        public boolean apply(String input) {
+            return input != null;
+        }
+    };
+
+    private static final Predicate<Map.Entry<String, ValuePattern>> matchHeadersIn(final Request request) {
+        return new Predicate<Map.Entry<String, ValuePattern>>() {
+            public boolean apply(Map.Entry<String, ValuePattern> headerPattern) {
+                ValuePattern headerValuePattern = headerPattern.getValue();
+                String key = headerPattern.getKey();
+                HttpHeader header = request.header(key);
+
+                boolean match = (!header.isPresent() || header.hasValueMatching(headerValuePattern));
+
+                if (!match) {
+                    notifier().info(String.format(
+                            "URL %s is match, but header %s is not. For a match, value should %s",
+                            request.getUrl(),
+                            key,
+                            headerValuePattern.toString()));
+                }
+
+                return match;
+            }
+        };
+    }
 }

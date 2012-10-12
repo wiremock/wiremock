@@ -19,18 +19,23 @@ import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toVal
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.mapping.ValuePattern;
 
 public class RequestPatternBuilder {
 
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
+    private Set<String> withoutHeaders = newHashSet();
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 	
 	public RequestPatternBuilder(RequestMethod method,
@@ -43,6 +48,11 @@ public class RequestPatternBuilder {
 		headers.put(key, headerMatchingStrategy);
 		return this;
 	}
+
+    public RequestPatternBuilder withoutHeader(String key) {
+        withoutHeaders.add(key);
+        return this;
+    }
 	
 	public RequestPatternBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		bodyPatterns.add(bodyMatchingStrategy);
@@ -56,6 +66,10 @@ public class RequestPatternBuilder {
 		for (Map.Entry<String, ValueMatchingStrategy> header: headers.entrySet()) {
 			requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
 		}
+
+        for (String key: withoutHeaders) {
+            requestPattern.addHeader(key, ValuePattern.absent());
+        }
 		
 		if (!bodyPatterns.isEmpty()) {
 			requestPattern.setBodyPatterns(newArrayList(transform(bodyPatterns, toValuePattern)));

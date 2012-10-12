@@ -109,4 +109,19 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
 		
 		verify(4, getRequestedFor(urlEqualTo("/add/to/count")));
 	}
+
+    @Test
+    public void verifiesHeaderAbsent() {
+        testClient.get("/without/header", withHeader("Content-Type", "application/json"));
+        verify(getRequestedFor(urlEqualTo("/without/header"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withoutHeader("Accept"));
+    }
+
+    @Test(expected=VerificationException.class)
+    public void failsVerificationWhenAbsentHeaderPresent() {
+        testClient.get("/without/another/header", withHeader("Content-Type", "application/json"));
+        verify(getRequestedFor(urlEqualTo("/without/another/header"))
+                .withoutHeader("Content-Type"));
+    }
 }

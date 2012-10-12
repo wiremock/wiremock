@@ -25,6 +25,7 @@ import org.jmock.Mockery;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
@@ -93,12 +94,15 @@ public class MockRequestBuilder {
 				allowing(request).containsHeader(header.key()); will(returnValue(true));
 				allowing(request).getHeader(header.key()); will(returnValue(header.firstValue()));
 			}
+
             for (HttpHeader header: headers.all()) {
                 allowing(request).header(header.key()); will(returnValue(header));
                 if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
                     allowing(request).contentTypeHeader(); will(returnValue(new ContentTypeHeader(header.firstValue())));
                 }
             }
+            allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));
+
             allowing(request).getHeaders(); will(returnValue(headers));
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keys())));
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
