@@ -172,9 +172,11 @@ public class ValuePattern {
 			return "contains " + contains;
 		} else if (matches != null) {
 			return "matches " + matches;
-		} else {
+		} else if (doesNotMatch != null) {
 			return "not match " + doesNotMatch; 
-		}
+		} else {
+            return "is absent";
+        }
 	}
 
 	@Override
