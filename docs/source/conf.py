@@ -91,19 +91,29 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'yammerdoc'
+html_theme = 'twitter-bootstrap'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
+
+# For yammerdoc theme
+#html_theme_options = {
+#    'tagline': u'A tool for simulating HTTP services',
+#    'gradient_start': u'#545d63',
+#    'gradient_end': u'#182127',
+#    'gradient_text': u'#ffffff',
+#    'gradient_bg': u'#363F45',
+#    'github_page': u'https://github.com/tomakehurst/wiremock',
+#}
+
+# For twitter bootstrap theme
 html_theme_options = {
-    'tagline': u'A tool for simulating HTTP services',
-    'gradient_start': u'#545d63',
-    'gradient_end': u'#182127',
-    'gradient_text': u'#ffffff',
-    'gradient_bg': u'#363F45',
-    'github_page': u'https://github.com/tomakehurst/wiremock',
+    'github_repo': u'wiremock',
+    'github_user': u'tomakehurst',
+    'twitter_username': u'TomAkehurst'
 }
+
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["./_themes"]
