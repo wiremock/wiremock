@@ -1,10 +1,11 @@
 .. _getting-started:
 
+***************
 Getting Started
-===============
+***************
 
 Maven
------
+=====
 To add WireMock to your Java project, put the following in the dependencies section of your POM:
 
 .. code-block:: xml
@@ -20,7 +21,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
 
 
 JUnit 4.x
----------
+=========
 To use WireMock's fluent API add the following import:
 
 .. code-block:: java
@@ -71,4 +72,22 @@ Now you're ready to write a test case like this:
 
 For many more examples of JUnit tests look no further than `WireMock's own acceptance tests <https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock>`_
 
-For more details on verifying requests and stubbing responses, see :ref:`stubbing-and-verifying`
+
+Running standalone
+==================
+
+WireMock can be run completely in its own process like this:
+
+.. code-block:: bash
+
+    java -jar wiremock-1.25-standalone.jar
+
+
+Deploying into a servlet container
+==================================
+
+
+
+
+
+For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`

@@ -38,7 +38,8 @@ Contents
    :maxdepth: 1
 
    getting-started
-   stubbing-and-verifying
+   stubbing
+   verifying
    proxying
    record-playback
    stateful-behaviour
