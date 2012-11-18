@@ -7,8 +7,10 @@ creating an actual HTTP server that your code under test can connect to as it wo
 It supports HTTP response stubbing, request verification, proxy/intercept, record/playback of stubs and fault injection,
 and can be used from within a unit test or deployed into a test environment.
 
+Although it's written in Java, there's also a JSON API so you can use it with pretty much any language out there.
+
 What's it for?
----------------------
+--------------
 
 Some scenarios you might want to consider WireMock for:
 
