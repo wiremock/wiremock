@@ -3,6 +3,8 @@
 {%- set render_sidebar = (not embedded) and (not theme_nosidebar|tobool) and (sidebars != []) %}
 {%- set url_root = pathto('', 1) %}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
+{% set script_files = script_files + ["_static/myscript.js"] %}
+{% set css_files = css_files + ["_static/wiremock.css"] %}
 
 {%- macro relbar(bottom=False) %}
     <div class="related{% if bottom %} related-bottom{% endif %}">
