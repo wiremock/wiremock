@@ -100,9 +100,9 @@ html_theme = 'yammerdoc'
 # For yammerdoc theme
 html_theme_options = {
     'tagline': u'A tool for simulating HTTP services',
-    'gradient_start': u'#3C4286',
-    'gradient_end': u'#182127',
-    'gradient_text': u'#ffffff',
+    'gradient_start': u'#CCC',
+    'gradient_end': u'#8CA8BB',
+    'gradient_text': u'#333',
     'gradient_bg': u'#363F45',
     'github_page': u'https://github.com/tomakehurst/wiremock',
 }
