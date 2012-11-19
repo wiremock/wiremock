@@ -72,15 +72,41 @@ Now you're ready to write a test case like this:
 
 For many more examples of JUnit tests look no further than `WireMock's own acceptance tests <https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock>`_
 
+For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
 
 Running standalone
 ==================
 
-WireMock can be run completely in its own process like this:
+WireMock can be run completely in its own process. This will start the server on port 8080:
 
 .. code-block:: bash
 
     java -jar wiremock-1.25-standalone.jar
+
+Supported command line options are:
+
+``--port``:
+Set the port number e.g. ``--port 8080``
+
+``--verbose``:
+Turn on verbose logging to stdout
+
+``--record-mappings``:
+Record incoming requests as stub mappings. See :ref:`record-playback`.
+
+``--proxy-all``:
+Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
+Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
+See :ref:`record-playback`
+
+``--enable-browser-proxying``:
+Run as a browser proxy. See :ref:`browser-proxying`.
+
+``--help``:
+Show command line help
+
+
+
 
 
 Deploying into a servlet container
@@ -90,4 +116,3 @@ Deploying into a servlet container
 
 
 
-For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
