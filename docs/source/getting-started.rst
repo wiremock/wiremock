@@ -77,7 +77,9 @@ For more details on verifying requests and stubbing responses, see :ref:`stubbin
 Running standalone
 ==================
 
-WireMock can be run completely in its own process. This will start the server on port 8080:
+The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.
+
+This will start the server on port 8080:
 
 .. code-block:: bash
 
@@ -86,7 +88,7 @@ WireMock can be run completely in its own process. This will start the server on
 Supported command line options are:
 
 ``--port``:
-Set the port number e.g. ``--port 8080``
+Set the port number e.g. ``--port 9999``
 
 ``--verbose``:
 Turn on verbose logging to stdout
@@ -97,7 +99,6 @@ Record incoming requests as stub mappings. See :ref:`record-playback`.
 ``--proxy-all``:
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
-See :ref:`record-playback`
 
 ``--enable-browser-proxying``:
 Run as a browser proxy. See :ref:`browser-proxying`.
@@ -106,7 +107,51 @@ Run as a browser proxy. See :ref:`browser-proxying`.
 Show command line help
 
 
+Configuring via JSON
+--------------------
 
+Once the server has started you can give it a spin by setting up a stub mapping via the JSON API:
+
+.. code-block:: bash
+
+    $ curl -X POST --data '{ "request": { "url": "/get/this", "method": "GET" }, "response": { "status": 200, "body": "Here it is!\n" }}' http://localhost:8080/__admin/mappings/new
+
+Then fetching it back:
+
+.. code-block:: bash
+
+    $ curl http://localhost:8080/get/this
+    Here it is!
+
+
+You can also use the JSON API via files. When the WireMock server starts it creates two directories under the current one:
+``mappings`` and ``__files``.
+
+To create a stub like the one above by this method, drop a file with a ``.json`` extension under ``mappings``
+with the following content:
+
+.. code-block:: javascript
+
+   {
+       "request": {
+           "method": "GET",
+           "url": "/api/mytest"
+       },
+       "response": {
+           "status": 200,
+           "body": "More content\n"
+       }
+   }
+
+After restarting the server you should be able to do this:
+
+.. code-block:: bash
+
+    $ curl http://localhost:8080/api/mytest
+    More content
+
+
+See :ref:`stubbing` and :ref:`verifying` for more on the JSON API.
 
 
 Deploying into a servlet container

@@ -24,8 +24,9 @@ Why shouldn't I just use my favourite mocking library?
 ------------------------------------------------------
 
 Mocking HTTP client classes in a way that adequately reflects their real behaviour is pretty hard. Creating real HTTP
-exchanges alleviates this.
+exchanges alleviates this by allowing you to use your production HTTP client implementation in your tests.
 
+Object based mocking isn't really suitable for acceptance/functional testing scenarios.
 WireMock can be run as a standalone service or deployed into a servlet container to enable it to be installed into your dev/test
 environments.
 
