@@ -25,7 +25,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 
 	protected List<RequestListener> listeners = newArrayList();
 	protected final ResponseRenderer responseRenderer;
-	
+
 	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
 		this.responseRenderer = responseRenderer;
 	}
@@ -39,13 +39,18 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 	public Response handle(Request request) {
 		ResponseDefinition responseDefinition = handleRequest(request);
 		responseDefinition.setOriginalRequest(request);
+
 		Response response = responseRenderer.render(responseDefinition);
-		for (RequestListener listener: listeners) {
+		for (RequestListener listener : listeners) {
 			listener.requestReceived(request, response);
 		}
-		
+
+		if (responseDefinition.getNewRequest() != null) {
+			NewRequestDispatcher.dispatch(responseDefinition.getNewRequest());
+		}
+
 		return response;
 	}
-	
+
 	protected abstract ResponseDefinition handleRequest(Request request);
 }

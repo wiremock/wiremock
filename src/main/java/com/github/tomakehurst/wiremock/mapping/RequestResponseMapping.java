@@ -23,8 +23,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "request", "response" })
 public class RequestResponseMapping {
-	
-	public static final int DEFAULT_PRIORITY = 5; 
+
+	public static final int DEFAULT_PRIORITY = 5;
 
 	private RequestPattern request;
 	private ResponseDefinition response;
@@ -33,29 +33,29 @@ public class RequestResponseMapping {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private Scenario scenario;
-	
+
 	private long insertionIndex;
-	
+
 	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
 		this.response = response;
 	}
-	
+
 	public RequestResponseMapping() {
 		//Concession to Jackson
 	}
-	
+
 	public static final RequestResponseMapping NOT_CONFIGURED =
 	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
-	
+
 	public RequestPattern getRequest() {
 		return request;
 	}
-	
+
 	public ResponseDefinition getResponse() {
 		return response;
 	}
-	
+
 	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
@@ -86,7 +86,7 @@ public class RequestResponseMapping {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
-	
+
 	public String getScenarioName() {
 		return scenarioName;
 	}
@@ -110,13 +110,13 @@ public class RequestResponseMapping {
 	public void setNewScenarioState(String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
-	
+
 	public void updateScenarioStateIfRequired() {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
 		}
 	}
-	
+
 	@JsonIgnore
 	public Scenario getScenario() {
 		return scenario;
@@ -131,27 +131,28 @@ public class RequestResponseMapping {
 	public boolean isInScenario() {
 		return scenarioName != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean modifiesScenarioState() {
 		return newScenarioState != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
 	}
-	
+
 	@JsonIgnore
 	public boolean requiresCurrentScenarioState() {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
-	
+
 	public int comparePriorityWith(RequestResponseMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
 	}
+
 
 	@Override
 	public int hashCode() {
@@ -236,6 +237,6 @@ public class RequestResponseMapping {
 		return true;
 	}
 
-	
-	
+
+
 }

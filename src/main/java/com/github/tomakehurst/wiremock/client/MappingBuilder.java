@@ -21,14 +21,14 @@ import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 
 public class MappingBuilder {
-	
+
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
-	
+
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
 	}
@@ -37,37 +37,38 @@ public class MappingBuilder {
 		this.responseDefBuilder = responseDefBuilder;
 		return this;
 	}
-	
+
 	public MappingBuilder atPriority(Integer priority) {
 		this.priority = priority;
 		return this;
 	}
-	
+
 	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
 		return this;
 	}
-	
+
 	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
 		return this;
 	}
-	
+
+
 	public MappingBuilder inScenario(String scenarioName) {
 		this.scenarioName = scenarioName;
 		return this;
 	}
-	
+
 	public MappingBuilder whenScenarioStateIs(String stateName) {
 		this.requiredScenarioState = stateName;
 		return this;
 	}
-	
+
 	public MappingBuilder willSetStateTo(String stateName) {
 		this.newScenarioState = stateName;
 		return this;
 	}
-	
+
 	public RequestResponseMapping build() {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
@@ -76,6 +77,7 @@ public class MappingBuilder {
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
+
 		return mapping;
 	}
 }
