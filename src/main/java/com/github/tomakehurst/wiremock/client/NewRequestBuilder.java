@@ -40,6 +40,7 @@ public class NewRequestBuilder {
 		return this;
 	}
 
+
 	public NewRequestBuilder withMethod(RequestMethod method){
 		this.method = method;
 		return this;

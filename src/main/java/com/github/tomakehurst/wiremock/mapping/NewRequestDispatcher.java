@@ -13,6 +13,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 public class NewRequestDispatcher {
@@ -50,6 +51,10 @@ public class NewRequestDispatcher {
 
 				HttpRequestBase httpRequest = createHttpMethod(request,
 						absouteUrl);
+
+				for(HttpHeader header : request.getHeaders().all()){
+					httpRequest.addHeader(header.key(), header.firstValue());
+				}
 
 				HttpResponse httpResponse = client.execute(httpRequest);
 				getEntityAsByteArrayAndCloseStream(httpResponse);
