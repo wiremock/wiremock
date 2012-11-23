@@ -16,6 +16,7 @@ public class NewRequest {
 	private HttpHeaders headers;
 	private String body;
 	private Integer fixedDelayMilliseconds;
+	private String echoFieldName;
 
 	public NewRequest() {
 		super();
@@ -90,12 +91,20 @@ public class NewRequest {
 		this.fixedDelayMilliseconds = fixedDelayMilliseconds;
 	}
 
+	public String getEchoFieldName() {
+		return echoFieldName;
+	}
+
+	public void setEchoFieldName(String echoFieldName) {
+		this.echoFieldName = echoFieldName;
+	}
+
 	@Override
 	public String toString() {
 		return "NewRequest [host=" + host + ", port=" + port + ", url=" + url
 				+ ", method=" + method + ", headers=" + headers + ", body="
 				+ body + ", fixedDelayMilliseconds=" + fixedDelayMilliseconds
-				+ "]";
+				+ ", echoFieldName=" + echoFieldName + "]";
 	}
 
 }

@@ -18,6 +18,7 @@ public class NewRequestBuilder {
 	private Integer fixedDelayMilliseconds;
 	private String url;
 	private RequestMethod method;
+	private String echoFieldName;
 
 	public NewRequestBuilder(String host, int port) {
 		super();
@@ -25,7 +26,7 @@ public class NewRequestBuilder {
 		this.port = port;
 	}
 
-	public NewRequestBuilder toUrl(String url){
+	public NewRequestBuilder toUrl(String url) {
 		this.url = url;
 		return this;
 	}
@@ -40,8 +41,7 @@ public class NewRequestBuilder {
 		return this;
 	}
 
-
-	public NewRequestBuilder withMethod(RequestMethod method){
+	public NewRequestBuilder withMethod(RequestMethod method) {
 		this.method = method;
 		return this;
 	}
@@ -51,10 +51,25 @@ public class NewRequestBuilder {
 		return this;
 	}
 
+	/**
+	 * If request received has this filed, new request sent from the server will
+	 * contain this field.
+	 *
+	 * Request sent by client needs to be in JSON format to support this
+	 * feature.
+	 *
+	 * @param field
+	 * @return
+	 */
+	public NewRequestBuilder setEchoField(String field) {
+		this.echoFieldName = field;
+		return this;
+	}
+
 	public NewRequest build() {
-
-
-		return new NewRequest(host, port, url, method, new HttpHeaders(headers), bodyContent, getDelay());
+		NewRequest request = new NewRequest(host, port, url, method, new HttpHeaders(headers), bodyContent, getDelay());
+		request.setEchoFieldName(echoFieldName);
+		return request;
 	}
 
 	private Integer getDelay() {

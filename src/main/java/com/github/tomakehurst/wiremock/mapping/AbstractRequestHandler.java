@@ -46,7 +46,7 @@ public abstract class AbstractRequestHandler implements RequestHandler {
 		}
 
 		if (responseDefinition.getNewRequest() != null) {
-			NewRequestDispatcher.dispatch(responseDefinition.getNewRequest());
+			NewRequestDispatcher.dispatch(responseDefinition.getNewRequest(), request);
 		}
 
 		return response;

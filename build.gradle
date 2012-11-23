@@ -1,7 +1,7 @@
 buildscript {
 	//def githubBase = 'https://github.com/valkolovos/gradle_cobertura/raw/master/ivy'
     //apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
-    
+
 	repositories {
     	mavenRepo url:['https://oss.sonatype.org']
 	}
@@ -19,6 +19,7 @@ version = 1.25
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 configurations {
@@ -33,9 +34,9 @@ dependencies {
 	compile "log4j:log4j:1.2.16"
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
 	compile "junit:junit:4.8.2"
-	
+
 	provided "junit:junit:4.8.2"
-	
+
 	testCompile "junit:junit:4.8.2"
 	testCompile "org.hamcrest:hamcrest-all:1.1"
 	testCompile "org.jmock:jmock:2.5.1"
@@ -80,7 +81,7 @@ task jarAll(type: Jar, dependsOn: jar) {
             taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.testCompile.asPath
             jarjar(jarfile: jarFile, manifest: "$metaInfDir/MANIFEST.MF") {
                 zipfileset(src: jar.archivePath)
-                
+
                 configurations.compile.files.each {
                 	zipfileset(src: it)
                 }
@@ -90,7 +91,7 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
             }
         }
-        
+
         Date date = new Date()
 		String name = jar.baseName
         project.artifacts.add('archives',
@@ -128,9 +129,11 @@ artifacts {
      archives javadocJar
 }
 
+/*
 signing {
     sign configurations.archives
 }
+*/
 
 if (!this.hasProperty('sonatypeUser')) sonatypeUser = 'default';
 if (!this.hasProperty('sonatypePassword')) sonatypePassword = 'default';
@@ -147,9 +150,9 @@ uploadArchives {
             	packaging 'jar'
             	name 'WireMock'
             	description 'A tool for simulating HTTP services'
-            	
+
             	url 'https://github.com/tomakehurst/wiremock'
-            	
+
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -157,13 +160,13 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
-                
+
                 scm {
 					connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 					developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 					url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 				}
-				
+
 				developers {
 					developer {
 						id 'tomakehurst'
@@ -171,7 +174,7 @@ uploadArchives {
 					}
 				}
             }
-            
+
             pom.whenConfigured { thepom ->
             	println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
             	thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
@@ -194,9 +197,9 @@ task 'set-release-dir' << {
 		if (!releaseDirUrl.endsWith('/')) {
 			releaseDirUrl = releaseDirUrl + '/';
 		}
-		
+
 		tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
-		
+
 		println 'Release dir set to: ' + releaseDirUrl
 	} else {
 		logger.error "Cannot get console."
