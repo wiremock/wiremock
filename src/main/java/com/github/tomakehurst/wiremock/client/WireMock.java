@@ -164,8 +164,8 @@ public class WireMock {
 		return new ResponseDefinitionBuilder();
 	}
 
-	public static NewRequestBuilder aNewRequestTo(String host, int port){
-		return new NewRequestBuilder(host, port);
+	public static CallbackRequestBuilder aCallbackRequestTo(String host, int port){
+		return new CallbackRequestBuilder(host, port);
 	}
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {

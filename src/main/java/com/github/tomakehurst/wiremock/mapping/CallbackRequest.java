@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 @JsonSerialize(include = Inclusion.NON_NULL)
-public class NewRequest {
+public class CallbackRequest {
 
 	private String host;
 	private Integer port;
@@ -18,11 +18,11 @@ public class NewRequest {
 	private Integer fixedDelayMilliseconds;
 	private String echoFieldName;
 
-	public NewRequest() {
+	public CallbackRequest() {
 		super();
 	}
 
-	public NewRequest(String host, Integer port, String url,
+	public CallbackRequest(String host, Integer port, String url,
 			RequestMethod method, HttpHeaders headers, String body,
 			Integer fixedDelayMilliseconds) {
 		super();

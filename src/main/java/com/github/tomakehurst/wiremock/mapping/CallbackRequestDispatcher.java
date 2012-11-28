@@ -17,21 +17,21 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
-public class NewRequestDispatcher {
-	private static final Logger LOGGER = Logger.getLogger(NewRequestDispatcher.class);
+public class CallbackRequestDispatcher {
+	private static final Logger LOGGER = Logger.getLogger(CallbackRequestDispatcher.class);
 
-	public static void dispatch(final NewRequest request, final Request originalRequest) {
+	public static void dispatch(final CallbackRequest request, final Request originalRequest) {
 
-		Thread dt = new Thread(new NewRequestSender(request, originalRequest));
+		Thread dt = new Thread(new CallbackRequestSender(request, originalRequest));
 		dt.start();
 
 	}
 
-	private static final class NewRequestSender implements Runnable {
-		private final NewRequest newRequest;
+	private static final class CallbackRequestSender implements Runnable {
+		private final CallbackRequest newRequest;
 		private final Request originalRequest;
 
-		private NewRequestSender(NewRequest newRequest, Request originalRequest) {
+		private CallbackRequestSender(CallbackRequest newRequest, Request originalRequest) {
 			this.newRequest = newRequest;
 			this.originalRequest = originalRequest;
 		}
@@ -69,7 +69,7 @@ public class NewRequestDispatcher {
 		}
 
 		private HttpRequestBase
-				createHttpMethod(final NewRequest request, String absouteUrl) throws UnsupportedEncodingException {
+				createHttpMethod(final CallbackRequest request, String absouteUrl) throws UnsupportedEncodingException {
 
 			if (RequestMethod.GET == request.getMethod()) {
 				HttpGet httpRequest = new HttpGet(absouteUrl);

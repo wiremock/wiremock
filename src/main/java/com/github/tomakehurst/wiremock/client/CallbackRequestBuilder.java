@@ -7,9 +7,9 @@ import java.util.List;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.NewRequest;
+import com.github.tomakehurst.wiremock.mapping.CallbackRequest;
 
-public class NewRequestBuilder {
+public class CallbackRequestBuilder {
 
 	private String host;
 	private Integer port;
@@ -20,33 +20,33 @@ public class NewRequestBuilder {
 	private RequestMethod method;
 	private String echoFieldName;
 
-	public NewRequestBuilder(String host, int port) {
+	public CallbackRequestBuilder(String host, int port) {
 		super();
 		this.host = host;
 		this.port = port;
 	}
 
-	public NewRequestBuilder toUrl(String url) {
+	public CallbackRequestBuilder toUrl(String url) {
 		this.url = url;
 		return this;
 	}
 
-	public NewRequestBuilder withHeader(String key, String value) {
+	public CallbackRequestBuilder withHeader(String key, String value) {
 		headers.add(new HttpHeader(key, value));
 		return this;
 	}
 
-	public NewRequestBuilder withBody(String body) {
+	public CallbackRequestBuilder withBody(String body) {
 		this.bodyContent = body; // .getBytes(Charset.forName(UTF_8.name()));
 		return this;
 	}
 
-	public NewRequestBuilder withMethod(RequestMethod method) {
+	public CallbackRequestBuilder withMethod(RequestMethod method) {
 		this.method = method;
 		return this;
 	}
 
-	public NewRequestBuilder withDelay(int delay) {
+	public CallbackRequestBuilder withDelay(int delay) {
 		this.fixedDelayMilliseconds = delay;
 		return this;
 	}
@@ -61,13 +61,13 @@ public class NewRequestBuilder {
 	 * @param field
 	 * @return
 	 */
-	public NewRequestBuilder setEchoField(String field) {
+	public CallbackRequestBuilder setEchoField(String field) {
 		this.echoFieldName = field;
 		return this;
 	}
 
-	public NewRequest build() {
-		NewRequest request = new NewRequest(host, port, url, method, new HttpHeaders(headers), bodyContent, getDelay());
+	public CallbackRequest build() {
+		CallbackRequest request = new CallbackRequest(host, port, url, method, new HttpHeaders(headers), bodyContent, getDelay());
 		request.setEchoFieldName(echoFieldName);
 		return request;
 	}

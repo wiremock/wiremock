@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.mapping.NewRequest;
+import com.github.tomakehurst.wiremock.mapping.CallbackRequest;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 import com.google.common.collect.Lists;
 
@@ -38,7 +38,7 @@ public class ResponseDefinitionBuilder {
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private Fault fault;
-	private NewRequest newRequest;
+	private CallbackRequest callbackRequest;
 
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
@@ -82,8 +82,8 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 
-	public ResponseDefinitionBuilder withNewRequest(NewRequestBuilder newReqBuilder){
-		this.newRequest = newReqBuilder.build();
+	public ResponseDefinitionBuilder withCallbackRequest(CallbackRequestBuilder callbackReqBuilder){
+		this.callbackRequest = callbackReqBuilder.build();
 		return this;
 	}
 
@@ -108,7 +108,7 @@ public class ResponseDefinitionBuilder {
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);
-		response.setNewRequest(newRequest);
+		response.setCallbackRequest(callbackRequest);
 		return response;
 	}
 }

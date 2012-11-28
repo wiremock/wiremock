@@ -3,7 +3,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aNewRequestTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.aCallbackRequestTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -35,7 +35,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
  *        --- 4. http resp ---->
  * </pre>
  */
-public class WireMockSendNewRequestAsResponseTest {
+public class WireMockSendCallbackRequestAsResponseTest {
 
 	private static final String CLIENT_MSG_JSON = "{\"message\":\"Client Message\", \"correlationId\":1234567}";
 	private WireMockTestClient testClient;
@@ -69,8 +69,8 @@ public class WireMockSendNewRequestAsResponseTest {
 				aResponse()
 						.withStatus(200)
 						.withBody("Content")
-						.withNewRequest(
-								aNewRequestTo("localHost", 10090).withMethod(RequestMethod.POST)
+						.withCallbackRequest(
+								aCallbackRequestTo("localHost", 10090).withMethod(RequestMethod.POST)
 										.toUrl("/client/new/request").withBody("New Request").withDelay(100))));
 
 		mock4ClientServer.register(get(urlEqualTo("/client/new/request")).willReturn(
@@ -93,8 +93,8 @@ public class WireMockSendNewRequestAsResponseTest {
 				aResponse()
 						.withStatus(200)
 						.withBody("Server Response Content")
-						.withNewRequest(
-								aNewRequestTo("localHost", 10090).withMethod(RequestMethod.POST)
+						.withCallbackRequest(
+								aCallbackRequestTo("localHost", 10090).withMethod(RequestMethod.POST)
 										.toUrl("/client/new/request").withBody("{\"message\":\"Server Message\"}")
 										.setEchoField("correlationId").withDelay(100))));
 
