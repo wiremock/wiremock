@@ -136,7 +136,11 @@ For PUT and POST requests the contents of the request body can be used to match 
         .withRequestBody(notMatching(".*ERROR.*"))
             .willReturn(aResponse().withStatus(200)));
 
-Or
+Body content can be matched using all the same predicates as for headers: ``equalTo``, ``matching``, ``notMatching``,
+``containing``.
+
+
+The JSON equivalent of the above example would be:
 
 .. code-block:: javascript
 
@@ -153,7 +157,6 @@ Or
     		"status": 200
     	}
     }
-
 
 Stub priority
 =============
@@ -178,7 +181,7 @@ Adding a priority to a stub mapping facilitates this:
                 .withBody("Resource state")));
 
 
-Priority is set via the priority attribute in JSON:
+Priority is set via the ``priority`` attribute in JSON:
 
 .. code-block:: javascript
 
@@ -190,5 +193,120 @@ Priority is set via the priority attribute in JSON:
         },
         "response": {
             "status": 200
+        }
+    }
+
+
+Sending response headers
+========================
+
+In addition to matching on request headers, it's also possible to send response headers:
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/whatever"))
+            .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withHeader("Cache-Control", "no-cache")));
+
+Or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/whatever"
+        },
+        "response": {
+            "status": 200,
+            "headers": {
+                "Content-Type": "text/plain",
+                "Cache-Control": "no-cache"
+            }
+        }
+    }
+
+
+Specifying the response body
+============================
+
+The simplest way to specify a response body is as a string literal:
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/body"))
+            .willReturn(aResponse()
+                    .withBody("Literal text to put in the body")));
+
+Or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/body"
+        },
+        "response": {
+            "status": 200,
+            "body": "Literal text to put in the body"
+        }
+    }
+
+
+To read the body content from a file, place the file under the ``__files`` directory. By default this is expected to
+be under ``src/test/resources`` when running from the JUnit rule. When running standalone it will be under the current
+directory in which the server was started. To make your stub use the file, simply call ``bodyFile()`` on the response
+builder with the file's path relative to ``__files``:
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/body-file"))
+            .willReturn(aResponse()
+                    .withBodyFile("path/to/myfile.xml")));
+
+Or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/body-file"
+        },
+        "response": {
+            "status": 200,
+            "bodyFileName": "path/to/myfile.xml"
+        }
+    }
+
+.. note::
+
+    All strings used by WireMock, including the contents of body files are expected to be in ``UTF-8`` format. Passing strings
+    in other character sets, whether by JVM configuration or body file encoding will most likely produce strange behaviour.
+
+
+A response body in binary format can be specified as a ``byte[]`` via an overloaded ``body()``:
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/binary-body"))
+            .willReturn(aResponse()
+                    .withBody(new byte[] { 1, 2, 3, 4 })));
+
+The JSON API accepts this as a base64 string (to avoid stupidly long JSON documents):
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/binary-body"
+        },
+        "response": {
+            "status": 200,
+            "base64Body" : "WUVTIElOREVFRCE="
         }
     }

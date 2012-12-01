@@ -56,4 +56,27 @@ public class Examples extends AcceptanceTestBase {
                     .withBody("Resource state")));
     }
 
+    @Test
+    public void responseHeaders() {
+        stubFor(get(urlEqualTo("/whatever"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withHeader("Etag", "b13894794wb")));
+    }
+
+    @Test
+    public void bodyFile() {
+        stubFor(get(urlEqualTo("/body-file"))
+                .willReturn(aResponse()
+                        .withBodyFile("path/to/myfile.xml")));
+    }
+
+    @Test
+    public void binaryBody() {
+        stubFor(get(urlEqualTo("/binary-body"))
+                .willReturn(aResponse()
+                        .withBody(new byte[] { 1, 2, 3, 4 })));
+    }
+
 }
