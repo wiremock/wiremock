@@ -42,4 +42,18 @@ public class Examples extends AcceptanceTestBase {
                     .willReturn(aResponse().withStatus(200)));
     }
 
+    @Test
+    public void priorities() {
+
+        //Catch-all case
+        stubFor(get(urlMatching("/api/.*")).atPriority(5)
+            .willReturn(aResponse().withStatus(401)));
+
+        //Specific case
+        stubFor(get(urlEqualTo("/api/specific-resource")).atPriority(1) //1 is highest
+            .willReturn(aResponse()
+                    .withStatus(200)
+                    .withBody("Resource state")));
+    }
+
 }

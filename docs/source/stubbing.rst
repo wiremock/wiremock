@@ -158,4 +158,37 @@ Or
 Stub priority
 =============
 
+It is sometimes the case that you'll want to declare two or more stub mappings that "overlap", in that a given request
+would be a match for more than one of them. By default, WireMock will use the most recently added matching stub to satisfy
+the request. However, in some cases it is useful to exert more control.
 
+One example of this might be where you want to define a catch-all stub for any URL that doesn't match any more specific cases.
+Adding a priority to a stub mapping facilitates this:
+
+.. code-block:: java
+
+    //Catch-all case
+    stubFor(get(urlMatching("/api/.*")).atPriority(5)
+        .willReturn(aResponse().withStatus(401)));
+
+    //Specific case
+    stubFor(get(urlEqualTo("/api/specific-resource")).atPriority(1) //1 is highest
+        .willReturn(aResponse()
+                .withStatus(200)
+                .withBody("Resource state")));
+
+
+Priority is set via the priority attribute in JSON:
+
+.. code-block:: javascript
+
+    {
+        "priority": 1,
+        "request": {
+            "method": "GET",
+            "url": "/api/specific-resource"
+        },
+        "response": {
+            "status": 200
+        }
+    }
