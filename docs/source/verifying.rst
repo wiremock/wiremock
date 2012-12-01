@@ -15,8 +15,8 @@ Checking for matching requests
 ==============================
 
 
-Java
-----
+In Java
+-------
 
 To verify that a request matching some criteria was received by WireMock at least once:
 
@@ -35,10 +35,32 @@ To check for a precise number of requests matching the criteria, use this form:
     verify(3, postRequestedFor(urlEqualTo("/three/times")));
 
 
-JSON over HTTP
---------------
+Via JSON over HTTP
+------------------
 
-You can fetch
+There isn't a direct JSON equivalent to the above Java API. However, it's possible to achieve the same effect by requesting
+a count of the number of requests matching the specified criteria (and in fact this is what the Java method does under the
+hood).
+
+This can be done by posting a JSON document containing the criteria to ``http://<host>:<port>/__admin/requests/count``:
+
+.. code-block:: javascript
+
+    {
+        "method": "POST",
+        "url": "/resource/to/count",
+        "headers": {
+            "Content-Type": {
+                "matches": ".*/xml"
+            }
+        }
+    }
+
+A response of this form will be returned:
+
+.. code-block:: javascript
+
+    { "count": 4 }
 
 
 Querying requests
