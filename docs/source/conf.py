@@ -99,7 +99,7 @@ html_theme = 'yammerdoc'
 
 # For yammerdoc theme
 html_theme_options = {
-    'tagline': u'A tool for simulating HTTP services',
+    'tagline': u'A web service test double for all occasions',
     'gradient_start': u'#CCC',
     'gradient_end': u'#8CA8BB',
     'gradient_text': u'#333',

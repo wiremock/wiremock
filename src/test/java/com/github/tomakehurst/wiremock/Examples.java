@@ -79,4 +79,12 @@ public class Examples extends AcceptanceTestBase {
                         .withBody(new byte[] { 1, 2, 3, 4 })));
     }
 
+    @Test(expected=Exception.class)
+    public void verifyAtLeastOnce() {
+        verify(postRequestedFor(urlEqualTo("/verify/this"))
+                .withHeader("Content-Type", equalTo("text/xml")));
+
+        verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+    }
+
 }
