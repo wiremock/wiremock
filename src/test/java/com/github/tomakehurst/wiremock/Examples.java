@@ -17,4 +17,29 @@ public class Examples extends AcceptanceTestBase {
         assertThat(testClient.get("/some/thing").statusCode(), is(200));
         assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
     }
+
+    @Test
+    public void urlRegexMatch() {
+        stubFor(put(urlMatching("/thing/matching/[0-9]+"))
+                .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void headerMatching() {
+        stubFor(post(urlEqualTo("/with/headers"))
+                .withHeader("Content-Type", equalTo("text/xml"))
+                .withHeader("Accept", matching("text/.*"))
+                .withHeader("etag", notMatching("abcd.*"))
+                .withHeader("etag", containing("2134"))
+                    .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void bodyMatching() {
+        stubFor(post(urlEqualTo("/with/body"))
+                .withRequestBody(matching("<status>OK</status>"))
+                .withRequestBody(notMatching("<status>ERROR</status>"))
+                    .willReturn(aResponse().withStatus(200)));
+    }
+
 }
