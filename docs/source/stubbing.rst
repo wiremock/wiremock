@@ -4,11 +4,14 @@
 Stubbing
 ********
 
+.. rubric::
+    A core feature of WireMock is the ability to return canned HTTP responses for requests matching criteria. These criteria can be
+    defined in terms of URL, headers and body content.
+
+.. _stubbing-basic-stubbing:
+
 Basic stubbing
 ==============
-
-A core feature of WireMock is the ability to return canned HTTP responses for requests matching criteria. These criteria can be
-defined in terms of URL, headers and body content.
 
 
 The following code will configure a response with a status of 200 to be returned when the relative URL exactly
@@ -52,6 +55,7 @@ To create the stub described above via the JSON API, the following document can 
 HTTP methods currently supported are: ``GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS``. You can specify ``ANY`` if you
 want the stub mapping to match on any request method.
 
+.. _stubbing-url-matching:
 
 URL matching
 ============
@@ -79,6 +83,7 @@ And in JSON via the ``urlPattern`` attribute:
         }
     }
 
+.. _stubbing-request-header-matching:
 
 Request header matching
 =======================
@@ -122,7 +127,7 @@ Or
     	}
     }
 
-
+.. _stubbing-request-body-matching:
 
 Request body matching
 =====================
@@ -157,6 +162,8 @@ The JSON equivalent of the above example would be:
     		"status": 200
     	}
     }
+
+.. _stubbing-stub-priority:
 
 Stub priority
 =============
@@ -196,6 +203,7 @@ Priority is set via the ``priority`` attribute in JSON:
         }
     }
 
+.. _stubbing-sending-response-headers:
 
 Sending response headers
 ========================
@@ -228,6 +236,7 @@ Or
         }
     }
 
+.. _stubbing-specifying-the-response-body:
 
 Specifying the response body
 ============================
