@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.mapping.Scenario;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -154,6 +155,20 @@ public class Examples extends AcceptanceTestBase {
         response = testClient.get("/todo/items");
         assertThat(response.content(), containsString("Buy milk"));
         assertThat(response.content(), containsString("Cancel newspaper subscription"));
+    }
+
+    @Test
+    public void delay() {
+        stubFor(get(urlEqualTo("/delayed")).willReturn(
+                aResponse()
+                        .withStatus(200)
+                        .withFixedDelay(2000)));
+    }
+
+    @Test
+    public void fault() {
+        stubFor(get(urlEqualTo("/fault"))
+                .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
     }
 
 }
