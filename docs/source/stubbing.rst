@@ -31,6 +31,9 @@ matches ``/some/thing`` (including query parameters). The body of the response w
         assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
     }
 
+.. note::
+    If you'd prefer to use slightly more BDDish language in your tests you can replace ``stubFor`` with ``givenThat``.
+
 
 To create the stub described above via the JSON API, the following document can either be posted to
 ``http://<host>:<port>/__admin/mappings/new`` or placed in a file with a ``.json`` extension under the

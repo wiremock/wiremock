@@ -107,6 +107,16 @@ Run as a browser proxy. See :ref:`browser-proxying`.
 Show command line help
 
 
+File serving
+------------
+
+When running standalone files placed under the ``__files`` directory will be served up as if from under the docroot,
+except if stub mapping matching the URL exists. For example if a file exists ``__files/things/myfile.html`` and
+no stub mapping will match ``/things/myfile.html`` then hitting ``http://<host>:<port>/things/myfile.html`` will
+serve the file.
+
+
+
 Configuring via JSON
 --------------------
 

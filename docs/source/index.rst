@@ -31,6 +31,15 @@ WireMock can be run as a standalone service or deployed into a servlet container
 environments.
 
 
+I like the idea, but the implementation stinks/you've missed something I need/it's the wrong colour
+---------------------------------------------------------------------------------------------------
+
+Here are some alternative JVM based libraries with similar goals:
+
+* `Betamax <http://freeside.co/betamax/>`_
+* `REST-driver <https://github.com/rest-driver/rest-driver>`_
+
+
 
 Contents
 --------
