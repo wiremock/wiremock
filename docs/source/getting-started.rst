@@ -81,9 +81,9 @@ The WireMock server can be run in its own process, and configured via the Java A
 
 This will start the server on port 8080:
 
-.. code-block:: bash
+.. parsed-literal::
 
-    java -jar wiremock-1.25-standalone.jar
+    $ java -jar wiremock-|version|-standalone.jar
 
 Supported command line options are:
 
@@ -112,13 +112,13 @@ Configuring via JSON
 
 Once the server has started you can give it a spin by setting up a stub mapping via the JSON API:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ curl -X POST --data '{ "request": { "url": "/get/this", "method": "GET" }, "response": { "status": 200, "body": "Here it is!\n" }}' http://localhost:8080/__admin/mappings/new
 
 Then fetching it back:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ curl http://localhost:8080/get/this
     Here it is!
@@ -145,7 +145,7 @@ with the following content:
 
 After restarting the server you should be able to do this:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ curl http://localhost:8080/api/mytest
     More content

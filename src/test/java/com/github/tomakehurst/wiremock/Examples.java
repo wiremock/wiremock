@@ -97,4 +97,23 @@ public class Examples extends AcceptanceTestBase {
         List<LoggedRequest> requests = findAll(putRequestedFor(urlMatching("/api/.*")));
     }
 
+    @Test
+    public void proxying() {
+        stubFor(get(urlMatching("/other/service/.*"))
+                .willReturn(aResponse().proxiedFrom("http://otherhost.com/approot")));
+    }
+
+    @Test
+    public void proxyIntercept() {
+        // Low priority catch-all proxies to otherhost.com by default
+        stubFor(get(urlMatching(".*")).atPriority(10)
+                .willReturn(aResponse().proxiedFrom("http://otherhost.com")));
+
+
+        // High priority stub will send a Service Unavailable response
+        // if the specified URL is requested
+        stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
+                .willReturn(aResponse().withStatus(503)));
+    }
+
 }
