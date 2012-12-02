@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.mapping.Scenario;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Test;
 
@@ -7,7 +9,10 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.reset;
+import static com.github.tomakehurst.wiremock.mapping.Scenario.STARTED;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
@@ -114,6 +119,41 @@ public class Examples extends AcceptanceTestBase {
         // if the specified URL is requested
         stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
                 .willReturn(aResponse().withStatus(503)));
+    }
+
+    @Test
+    public void toDoListScenario() {
+        stubFor(get(urlEqualTo("/todo/items")).inScenario("To do list")
+                .whenScenarioStateIs(STARTED)
+                .willReturn(aResponse()
+                        .withBody("<items>" +
+                                "   <item>Buy milk</item>" +
+                                "</items>")));
+
+        stubFor(post(urlEqualTo("/todo/items")).inScenario("To do list")
+                .whenScenarioStateIs(STARTED)
+                .withRequestBody(containing("Cancel newspaper subscription"))
+                .willReturn(aResponse().withStatus(201))
+                .willSetStateTo("Cancel newspaper item added"));
+
+        stubFor(get(urlEqualTo("/todo/items")).inScenario("To do list")
+                .whenScenarioStateIs("Cancel newspaper item added")
+                .willReturn(aResponse()
+                        .withBody("<items>" +
+                                "   <item>Buy milk</item>" +
+                                "   <item>Cancel newspaper subscription</item>" +
+                                "</items>")));
+
+        WireMockResponse response = testClient.get("/todo/items");
+        assertThat(response.content(), containsString("Buy milk"));
+        assertThat(response.content(), not(containsString("Cancel newspaper subscription")));
+
+        response = testClient.postWithBody("/todo/items", "Cancel newspaper subscription", "text/plain", "UTF-8");
+        assertThat(response.statusCode(), is(201));
+
+        response = testClient.get("/todo/items");
+        assertThat(response.content(), containsString("Buy milk"));
+        assertThat(response.content(), containsString("Cancel newspaper subscription"));
     }
 
 }

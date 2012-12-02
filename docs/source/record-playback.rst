@@ -5,7 +5,6 @@ Record and Playback
 *******************
 
 .. rubric::
-
     WireMock has the ability to create stub mappings by recording them while you send requests. This can be used to
     quickly capture a collection of responses from a real service then use them offline in your tests.
 
@@ -22,7 +21,7 @@ Recording is done by starting the standalone runner like this:
 
 Once it's started you send requests to it as if it was the remote service:
 
-.. code-block:: console
+.. parsed-literal::
 
     $ curl "http://localhost:8080/search.json?q=from:sirbonar&result_type=recent&rpp=1"
 
