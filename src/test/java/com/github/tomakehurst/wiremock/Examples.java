@@ -1,7 +1,12 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Test;
+
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.reset;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -31,7 +36,7 @@ public class Examples extends AcceptanceTestBase {
                 .withHeader("Accept", matching("text/.*"))
                 .withHeader("etag", notMatching("abcd.*"))
                 .withHeader("etag", containing("2134"))
-                    .willReturn(aResponse().withStatus(200)));
+                .willReturn(aResponse().withStatus(200)));
     }
 
     @Test
@@ -39,7 +44,7 @@ public class Examples extends AcceptanceTestBase {
         stubFor(post(urlEqualTo("/with/body"))
                 .withRequestBody(matching("<status>OK</status>"))
                 .withRequestBody(notMatching("<status>ERROR</status>"))
-                    .willReturn(aResponse().withStatus(200)));
+                .willReturn(aResponse().withStatus(200)));
     }
 
     @Test
@@ -47,13 +52,13 @@ public class Examples extends AcceptanceTestBase {
 
         //Catch-all case
         stubFor(get(urlMatching("/api/.*")).atPriority(5)
-            .willReturn(aResponse().withStatus(401)));
+                .willReturn(aResponse().withStatus(401)));
 
         //Specific case
         stubFor(get(urlEqualTo("/api/specific-resource")).atPriority(1) //1 is highest
-            .willReturn(aResponse()
-                    .withStatus(200)
-                    .withBody("Resource state")));
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("Resource state")));
     }
 
     @Test
@@ -85,6 +90,11 @@ public class Examples extends AcceptanceTestBase {
                 .withHeader("Content-Type", equalTo("text/xml")));
 
         verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+    }
+
+    @Test
+    public void findingRequests() {
+        List<LoggedRequest> requests = findAll(putRequestedFor(urlMatching("/api/.*")));
     }
 
 }

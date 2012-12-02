@@ -319,3 +319,13 @@ The JSON API accepts this as a base64 string (to avoid stupidly long JSON docume
             "base64Body" : "WUVTIElOREVFRCE="
         }
     }
+
+.. _stubbing-reset:
+
+Reset
+=====
+
+The WireMock server can be reset at any time, removing all stub mappings and deleting the request log. If you're using
+either of the JUnit rules this will happen automatically at the start of every test case. However you can do it yourself
+via a call to ``WireMock.reset()`` in Java or posting a request with an empty body to ``http://<host>:<port>/__admin/reset``.
+
