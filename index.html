@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>WireMock | WireMock</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
+    <link rel="top" title="WireMock" href="#"/>
+    <link rel="next" title="Getting Started" href="getting-started.html"/>
+    <style lang="text/css">
+        #top-bar, #top-bar small, #top-bar a {
+            text-shadow: 0px 0px 0px #8CA8BB;
+            color: #333;
+        }
+        
+        #top-bar {
+            background-color: #363F45;
+            background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -ms-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#CCC), to(#8CA8BB));
+            background-image: -webkit-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -o-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: linear-gradient(top, #CCC, #8CA8BB);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#CCC', endColorstr = '#8CA8BB', GradientType = 0);
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+
+        .hero-unit {
+            background-image: url("_static/logo.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: 30px 50px;
+        }
+
+        .hero-unit div.section {
+            padding-left: 150px !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/tomakehurst/wiremock">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+             alt="Fork me on GitHub"></a>
+    <div class="navbar">
+        <div class="navbar-inner container-fluid" id="top-bar">
+            <header class="row-fluid">
+                <h1 class="span12" id="title">
+                    <a href="#">WireMock</a>
+                    <small>A web service test double for all occasions</small>
+                </h1>
+            </header>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3" id="sidebar">
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+</ul>
+
+            </div>
+            <div class="span9" id="body">
+                
+  <div class="section" id="wiremock">
+<h1>WireMock<a class="headerlink" href="#wiremock" title="Permalink to this headline">¶</a></h1>
+<p>WireMock is a flexible library for stubbing and mocking web services. Unlike general purpose mocking tools it works by
+creating an actual HTTP server that your code under test can connect to as it would a real web service.</p>
+<p>It supports HTTP response stubbing, request verification, proxy/intercept, record/playback of stubs and fault injection,
+and can be used from within a unit test or deployed into a test environment.</p>
+<p>Although it&#8217;s written in Java, there&#8217;s also a JSON API so you can use it with pretty much any language out there.</p>
+<div class="section" id="what-s-it-for">
+<h2>What&#8217;s it for?<a class="headerlink" href="#what-s-it-for" title="Permalink to this headline">¶</a></h2>
+<p>Some scenarios you might want to consider WireMock for:</p>
+<ul class="simple">
+<li>Testing mobile apps that depend on third-party REST APIs</li>
+<li>Creating quick prototypes of your APIs</li>
+<li>Injecting otherwise hard-to-create errors in 3rd party services</li>
+<li>Any unit testing of code that depends on a web service</li>
+</ul>
+</div>
+<div class="section" id="why-shouldn-t-i-just-use-my-favourite-mocking-library">
+<h2>Why shouldn&#8217;t I just use my favourite mocking library?<a class="headerlink" href="#why-shouldn-t-i-just-use-my-favourite-mocking-library" title="Permalink to this headline">¶</a></h2>
+<p>Mocking HTTP client classes in a way that adequately reflects their real behaviour is pretty hard. Creating real HTTP
+exchanges alleviates this by allowing you to use your production HTTP client implementation in your tests.</p>
+<p>Object based mocking isn&#8217;t really suitable for acceptance/functional testing scenarios.
+WireMock can be run as a standalone service or deployed into a servlet container to enable it to be installed into your dev/test
+environments.</p>
+</div>
+<div class="section" id="i-like-the-idea-but-the-implementation-stinks-you-ve-missed-something-i-need-it-s-the-wrong-colour">
+<h2>I like the idea, but the implementation stinks/you&#8217;ve missed something I need/it&#8217;s the wrong colour<a class="headerlink" href="#i-like-the-idea-but-the-implementation-stinks-you-ve-missed-something-i-need-it-s-the-wrong-colour" title="Permalink to this headline">¶</a></h2>
+<p>Here are some alternative JVM based libraries with similar goals:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://freeside.co/betamax/">Betamax</a></li>
+<li><a class="reference external" href="https://github.com/rest-driver/rest-driver">REST-driver</a></li>
+</ul>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+            </div>
+        </div>
+        <hr/>
+        <footer>
+            &copy; Copyright 2012, Tom Akehurst.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
+            1.1.3.
+        </footer>
+    </div>
+</body>
+</html>
+
+

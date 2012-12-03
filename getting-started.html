@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Getting Started | WireMock</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
+    <link rel="top" title="WireMock" href="index.html"/>
+    <link rel="next" title="Stubbing" href="stubbing.html"/>
+    <link rel="prev" title="WireMock" href="index.html"/>
+    <style lang="text/css">
+        #top-bar, #top-bar small, #top-bar a {
+            text-shadow: 0px 0px 0px #8CA8BB;
+            color: #333;
+        }
+        
+        #top-bar {
+            background-color: #363F45;
+            background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -ms-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#CCC), to(#8CA8BB));
+            background-image: -webkit-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -o-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: linear-gradient(top, #CCC, #8CA8BB);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#CCC', endColorstr = '#8CA8BB', GradientType = 0);
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+
+        .hero-unit {
+            background-image: url("_static/logo.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: 30px 50px;
+        }
+
+        .hero-unit div.section {
+            padding-left: 150px !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/tomakehurst/wiremock">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+             alt="Fork me on GitHub"></a>
+    <div class="navbar">
+        <div class="navbar-inner container-fluid" id="top-bar">
+            <header class="row-fluid">
+                <h1 class="span12" id="title">
+                    <a href="index.html">WireMock</a>
+                    <small>A web service test double for all occasions</small>
+                </h1>
+            </header>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3" id="sidebar">
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#maven">Maven</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#junit-4-x">JUnit 4.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-via-json">Configuring via JSON</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deploying-into-a-servlet-container">Deploying into a servlet container</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+</ul>
+
+            </div>
+            <div class="span9" id="body">
+                
+  <div class="section" id="getting-started">
+<span id="id1"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="maven">
+<h2>Maven<a class="headerlink" href="#maven" title="Permalink to this headline">¶</a></h2>
+<p>To add WireMock to your Java project, put the following in the dependencies section of your POM:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.25<span class="nt">&lt;/version&gt;</span>
+
+    <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
+    <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="junit-4-x">
+<h2>JUnit 4.x<a class="headerlink" href="#junit-4-x" title="Permalink to this headline">¶</a></h2>
+<p>To use WireMock&#8217;s fluent API add the following import:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">WireMock</span><span class="o">.*;</span>
+</pre></div>
+</div>
+<p>WireMock ships with two JUnit rules to manage the server&#8217;s lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span> <span class="c1">// No-args constructor defaults to port 8080</span>
+</pre></div>
+</div>
+<p>Alternatively, if you want the server to continue to run between test cases:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="n">WireMockStaticRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockStaticRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span>
+
+<span class="nd">@AfterClass</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">stopWireMock</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">wireMockRule</span><span class="o">.</span><span class="na">stopServer</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Now you&#8217;re ready to write a test case like this:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">exampleTest</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/my/resource&quot;</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">&quot;Accept&quot;</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">&quot;text/xml&quot;</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">&quot;Content-Type&quot;</span><span class="o">,</span> <span class="s">&quot;text/xml&quot;</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">&quot;&lt;response&gt;Some content&lt;/response&gt;&quot;</span><span class="o">)));</span>
+
+    <span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">myHttpServiceCallingObject</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
+
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">wasSuccessFul</span><span class="o">());</span>
+
+    <span class="n">verify</span><span class="o">(</span><span class="n">postRequestedFor</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">&quot;/my/resource/[a-z0-9]+&quot;</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matching</span><span class="o">(</span><span class="s">&quot;.*&lt;message&gt;1234&lt;/message&gt;.*&quot;</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">&quot;Content-Type&quot;</span><span class="o">,</span> <span class="n">notMatching</span><span class="o">(</span><span class="s">&quot;application/json&quot;</span><span class="o">)));</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>For many more examples of JUnit tests look no further than <a class="reference external" href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock">WireMock&#8217;s own acceptance tests</a></p>
+<p>For more details on verifying requests and stubbing responses, see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a></p>
+</div>
+<div class="section" id="running-standalone">
+<h2>Running standalone<a class="headerlink" href="#running-standalone" title="Permalink to this headline">¶</a></h2>
+<p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
+<p>This will start the server on port 8080:</p>
+<pre class="literal-block">
+$ java -jar wiremock-1.25-standalone.jar
+</pre>
+<p>Supported command line options are:</p>
+<p><tt class="docutils literal"><span class="pre">--port</span></tt>:
+Set the port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:
+Turn on verbose logging to stdout</p>
+<p><tt class="docutils literal"><span class="pre">--record-mappings</span></tt>:
+Record incoming requests as stub mappings. See <a class="reference internal" href="record-playback.html#record-playback"><em>Record and Playback</em></a>.</p>
+<p><tt class="docutils literal"><span class="pre">--proxy-all</span></tt>:
+Proxy all requests through to another base URL e.g. <tt class="docutils literal"><span class="pre">--proxy-all=&quot;http://api.someservice.com&quot;</span></tt>
+Typically used in conjunction with <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> such that a session on another service can be recorded.</p>
+<p><tt class="docutils literal"><span class="pre">--enable-browser-proxying</span></tt>:
+Run as a browser proxy. See <a class="reference internal" href="proxying.html#browser-proxying"><em>Running as a browser proxy</em></a>.</p>
+<p><tt class="docutils literal"><span class="pre">--help</span></tt>:
+Show command line help</p>
+<div class="section" id="file-serving">
+<h3>File serving<a class="headerlink" href="#file-serving" title="Permalink to this headline">¶</a></h3>
+<p>When running standalone files placed under the <tt class="docutils literal"><span class="pre">__files</span></tt> directory will be served up as if from under the docroot,
+except if stub mapping matching the URL exists. For example if a file exists <tt class="docutils literal"><span class="pre">__files/things/myfile.html</span></tt> and
+no stub mapping will match <tt class="docutils literal"><span class="pre">/things/myfile.html</span></tt> then hitting <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</span></tt> will
+serve the file.</p>
+</div>
+<div class="section" id="configuring-via-json">
+<h3>Configuring via JSON<a class="headerlink" href="#configuring-via-json" title="Permalink to this headline">¶</a></h3>
+<p>Once the server has started you can give it a spin by setting up a stub mapping via the JSON API:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl -X POST --data <span class="s1">&#39;{ &quot;request&quot;: { &quot;url&quot;: &quot;/get/this&quot;, &quot;method&quot;: &quot;GET&quot; }, &quot;response&quot;: { &quot;status&quot;: 200, &quot;body&quot;: &quot;Here it is!\n&quot; }}&#39;</span> http://localhost:8080/__admin/mappings/new
+</pre></div>
+</div>
+<p>Then fetching it back:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://localhost:8080/get/this
+<span class="go">Here it is!</span>
+</pre></div>
+</div>
+<p>You can also use the JSON API via files. When the WireMock server starts it creates two directories under the current one:
+<tt class="docutils literal"><span class="pre">mappings</span></tt> and <tt class="docutils literal"><span class="pre">__files</span></tt>.</p>
+<p>To create a stub like the one above by this method, drop a file with a <tt class="docutils literal"><span class="pre">.json</span></tt> extension under <tt class="docutils literal"><span class="pre">mappings</span></tt>
+with the following content:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/api/mytest&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;body&quot;</span><span class="o">:</span> <span class="s2">&quot;More content\n&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>After restarting the server you should be able to do this:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> curl http://localhost:8080/api/mytest
+<span class="go">More content</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a> for more on the JSON API.</p>
+</div>
+</div>
+<div class="section" id="deploying-into-a-servlet-container">
+<h2>Deploying into a servlet container<a class="headerlink" href="#deploying-into-a-servlet-container" title="Permalink to this headline">¶</a></h2>
+<p>WireMock can be packaged up as a WAR and deployed into a servlet container, with some caveats:
+fault injection and browser proxying won&#8217;t work, __files won&#8217;t be treated as a docroot as with standalone, and the container must be configured to explode the WAR on deployment.
+This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standalone is definitely the preferred option.</p>
+<p>The easiest way to create a WireMock WAR project is to clone the <a class="reference external" href="https://github.com/tomakehurst/wiremock/tree/master/sample-war">sample app</a></p>
+</div>
+</div>
+
+
+            </div>
+        </div>
+        <hr/>
+        <footer>
+            &copy; Copyright 2012, Tom Akehurst.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
+            1.1.3.
+        </footer>
+    </div>
+</body>
+</html>
+
+

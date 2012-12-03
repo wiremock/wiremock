@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Record and Playback | WireMock</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
+    <link rel="top" title="WireMock" href="index.html"/>
+    <link rel="next" title="Stateful Behaviour" href="stateful-behaviour.html"/>
+    <link rel="prev" title="Proxying" href="proxying.html"/>
+    <style lang="text/css">
+        #top-bar, #top-bar small, #top-bar a {
+            text-shadow: 0px 0px 0px #8CA8BB;
+            color: #333;
+        }
+        
+        #top-bar {
+            background-color: #363F45;
+            background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -ms-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#CCC), to(#8CA8BB));
+            background-image: -webkit-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -o-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: linear-gradient(top, #CCC, #8CA8BB);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#CCC', endColorstr = '#8CA8BB', GradientType = 0);
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+
+        .hero-unit {
+            background-image: url("_static/logo.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: 30px 50px;
+        }
+
+        .hero-unit div.section {
+            padding-left: 150px !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/tomakehurst/wiremock">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+             alt="Fork me on GitHub"></a>
+    <div class="navbar">
+        <div class="navbar-inner container-fluid" id="top-bar">
+            <header class="row-fluid">
+                <h1 class="span12" id="title">
+                    <a href="index.html">WireMock</a>
+                    <small>A web service test double for all occasions</small>
+                </h1>
+            </header>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3" id="sidebar">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Record and Playback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#recording">Recording</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#playback">Playback</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+</ul>
+
+            </div>
+            <div class="span9" id="body">
+                
+  <div class="section" id="record-and-playback">
+<span id="record-playback"></span><h1>Record and Playback<a class="headerlink" href="#record-and-playback" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">WireMock has the ability to create stub mappings by recording them while you send requests. This can be used to
+quickly capture a collection of responses from a real service then use them offline in your tests.</p>
+<div class="section" id="recording">
+<span id="record-playback-recording"></span><h2>Recording<a class="headerlink" href="#recording" title="Permalink to this headline">¶</a></h2>
+<p>Recording is done by starting the standalone runner like this:</p>
+<pre class="literal-block">
+$ java -jar wiremock-1.25-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
+</pre>
+<p>Once it&#8217;s started you send requests to it as if it was the remote service:</p>
+<div class="highlight-python"><pre>$ curl "http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</pre>
+</div>
+<p>Now if you look under <tt class="docutils literal"><span class="pre">mappings</span></tt> and <tt class="docutils literal"><span class="pre">__files</span></tt> (under the current directory you&#8217;re running WireMock in)
+you&#8217;ll see that a new file has been one created under each, the former for the stub mapping and the latter
+for the body content.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The WireMock recorder will ignore a request with a method and URL identical to those of a stub already recorded.</p>
+</div>
+</div>
+<div class="section" id="playback">
+<h2>Playback<a class="headerlink" href="#playback" title="Permalink to this headline">¶</a></h2>
+<p>If you start the standlone runner again without the extra commandline options it will automatically load the newly
+created stub mappings and start serving them.</p>
+<p>Alternatively you can copy the files created under <tt class="docutils literal"><span class="pre">src/test/resources/mappings</span></tt> and <tt class="docutils literal"><span class="pre">src/test/resources/__files</span></tt>
+in your Java project, or the equivalents under <tt class="docutils literal"><span class="pre">WEB-INF/wiremock</span></tt> in your WAR project.</p>
+</div>
+</div>
+
+
+            </div>
+        </div>
+        <hr/>
+        <footer>
+            &copy; Copyright 2012, Tom Akehurst.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
+            1.1.3.
+        </footer>
+    </div>
+</body>
+</html>
+
+

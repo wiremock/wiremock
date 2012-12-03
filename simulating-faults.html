@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Simulating Faults | WireMock</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
+    <link rel="top" title="WireMock" href="index.html"/>
+    <link rel="prev" title="Stateful Behaviour" href="stateful-behaviour.html"/>
+    <style lang="text/css">
+        #top-bar, #top-bar small, #top-bar a {
+            text-shadow: 0px 0px 0px #8CA8BB;
+            color: #333;
+        }
+        
+        #top-bar {
+            background-color: #363F45;
+            background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -ms-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#CCC), to(#8CA8BB));
+            background-image: -webkit-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -o-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: linear-gradient(top, #CCC, #8CA8BB);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#CCC', endColorstr = '#8CA8BB', GradientType = 0);
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+
+        .hero-unit {
+            background-image: url("_static/logo.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: 30px 50px;
+        }
+
+        .hero-unit div.section {
+            padding-left: 150px !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/tomakehurst/wiremock">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+             alt="Fork me on GitHub"></a>
+    <div class="navbar">
+        <div class="navbar-inner container-fluid" id="top-bar">
+            <header class="row-fluid">
+                <h1 class="span12" id="title">
+                    <a href="index.html">WireMock</a>
+                    <small>A web service test double for all occasions</small>
+                </h1>
+            </header>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3" id="sidebar">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Simulating Faults</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#delays">Delays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#global-delays">Global delays</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bad-responses">Bad responses</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+            <div class="span9" id="body">
+                
+  <div class="section" id="simulating-faults">
+<span id="id1"></span><h1>Simulating Faults<a class="headerlink" href="#simulating-faults" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">One of the main reasons it&#8217;s beneficial to use web service fakes when testing is to inject faulty behaviour that
+might be difficult to get the real service to produce on demand. In addition to being able to send back any HTTP
+response code indicating an error, WireMock is able to generate a few other types of problem.</p>
+<div class="section" id="delays">
+<span id="simulating-faults-delays"></span><h2>Delays<a class="headerlink" href="#delays" title="Permalink to this headline">¶</a></h2>
+<p>A stub response can have a fixed delay attached to it, such that the response will not be returned until after the
+specified number of milliseconds:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/delayed&quot;</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span>
+        <span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withFixedDelay</span><span class="o">(</span><span class="mi">2000</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>Or</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/delayed&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;fixedDelayMilliseconds&quot;</span><span class="o">:</span> <span class="mi">2000</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="global-delays">
+<h3>Global delays<a class="headerlink" href="#global-delays" title="Permalink to this headline">¶</a></h3>
+<p>A fixed delay can be added to all stubs either by calling <tt class="docutils literal"><span class="pre">WireMock.setGlobalFixedDelay()</span></tt> or posting a JSON
+document of the following form to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;fixedDelay&quot;</span><span class="o">:</span> <span class="mi">500</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="bad-responses">
+<span id="simulating-faults-bad-responses"></span><h2>Bad responses<a class="headerlink" href="#bad-responses" title="Permalink to this headline">¶</a></h2>
+<p>It is also possible to create several kinds of corrupted responses:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/fault&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withFault</span><span class="o">(</span><span class="n">Fault</span><span class="o">.</span><span class="na">MALFORMED_RESPONSE_CHUNK</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">Fault</span></tt> enum has the following options:</p>
+<p><tt class="docutils literal"><span class="pre">EMPTY_RESPONSE</span></tt>:
+Return a completely empty response.</p>
+<p><tt class="docutils literal"><span class="pre">MALFORMED_RESPONSE_CHUNK</span></tt>:
+Send an OK status header, then garbage, then close the connection.</p>
+<p><tt class="docutils literal"><span class="pre">RANDOM_DATA_THEN_CLOSE</span></tt>:
+Send garbage then close the connection.</p>
+<p>In JSON (fault values are the same as the ones listed above):</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/fault&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fault&quot;</span><span class="o">:</span> <span class="s2">&quot;MALFORMED_RESPONSE_CHUNK&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+            </div>
+        </div>
+        <hr/>
+        <footer>
+            &copy; Copyright 2012, Tom Akehurst.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
+            1.1.3.
+        </footer>
+    </div>
+</body>
+</html>
+
+
