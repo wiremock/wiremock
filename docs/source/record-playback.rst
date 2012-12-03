@@ -8,7 +8,7 @@ Record and Playback
     WireMock has the ability to create stub mappings by recording them while you send requests. This can be used to
     quickly capture a collection of responses from a real service then use them offline in your tests.
 
-.. _record-playback-recording
+.. _record-playback-recording:
 
 Recording
 =========

@@ -10,7 +10,7 @@ Proxying
     are returned in place of the remote serivce's response. Responses that the live service can't be forced to generate
     on demand can thus be injected for testing. Proxying also supports :ref:`record-playback`.
 
-.. _proxying-proxy-stub-mappings
+.. _proxying-proxy-stub-mappings:
 
 Proxy stub mappings
 ===================
@@ -43,7 +43,7 @@ The JSON equivalent would be:
     }
 
 
-.. _proxying-proxy-intercept
+.. _proxying-proxy-intercept:
 
 Proxy/intercept
 ===============

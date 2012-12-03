@@ -55,7 +55,7 @@ document of the following form to ``http://<host>:<port>/__admin/settings``:
     }
 
 
-.. _simulating-faults-bad-responses
+.. _simulating-faults-bad-responses:
 
 Bad responses
 =============

@@ -9,7 +9,7 @@ Stateful Behaviour
     pretty useful to be able to simulate this when you've swapped a real service for a test double.
 
 
-.. _stateful-behaviour-scenarios
+.. _stateful-behaviour-scenarios:
 
 Scenarios
 =========
@@ -109,7 +109,7 @@ The JSON equivalent for the above three stubs is:
     }
 
 
-.. _stateful-behaviour-scenarios-reset
+.. _stateful-behaviour-scenarios-reset:
 
 Scenarios reset
 ===============

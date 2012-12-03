@@ -9,7 +9,7 @@ Verifying
     to verify that a request matching a specific pattern was received, and also to fetch the requests' details.
 
 
-.. _verifying-checking-for-matching-requests
+.. _verifying-checking-for-matching-requests:
 
 Checking for matching requests
 ==============================
@@ -63,7 +63,7 @@ A response of this form will be returned:
     { "count": 4 }
 
 
-.. _verifying-querying-request-details
+.. _verifying-querying-request-details:
 
 Querying request details
 ========================
