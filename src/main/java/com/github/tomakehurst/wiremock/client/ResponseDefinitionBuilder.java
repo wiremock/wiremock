@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.mapping.CallbackRequest;
 import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
 import com.google.common.collect.Lists;
 
@@ -37,22 +38,23 @@ public class ResponseDefinitionBuilder {
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private Fault fault;
-	
+	private CallbackRequest callbackRequest;
+
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withHeader(String key, String value) {
 		headers.add(new HttpHeader(key, value));
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withBodyFile(String fileName) {
 		this.bodyFileName = fileName;
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withBody(String body) {
 		this.bodyContent = body.getBytes(Charset.forName(UTF_8.name()));
         isBinaryBody = false;
@@ -69,17 +71,22 @@ public class ResponseDefinitionBuilder {
         this.fixedDelayMilliseconds = milliseconds;
         return this;
     }
-	
+
 	public ResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
 		this.proxyBaseUrl = proxyBaseUrl;
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withFault(Fault fault) {
 		this.fault = fault;
 		return this;
 	}
-	
+
+	public ResponseDefinitionBuilder withCallbackRequest(CallbackRequestBuilder callbackReqBuilder){
+		this.callbackRequest = callbackReqBuilder.build();
+		return this;
+	}
+
 	public ResponseDefinition build() {
         ResponseDefinition response;
 
@@ -96,11 +103,12 @@ public class ResponseDefinitionBuilder {
         if (!headers.isEmpty()) {
             response.setHeaders(new HttpHeaders(headers));
         }
-		
+
         response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);
+		response.setCallbackRequest(callbackRequest);
 		return response;
 	}
 }
