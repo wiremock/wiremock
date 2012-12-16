@@ -15,14 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.net.URL;
+import org.apache.log4j.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import static org.apache.log4j.Level.*;
 
 public class Log4jNotifier implements Notifier {
 	
 	private static final Logger log = Logger.getLogger(Log4jNotifier.class);
+
+    private static ConsoleAppender appender;
+
+    static {
+        appender = new ConsoleAppender();
+        appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %m%n"));
+        appender.activateOptions();
+        appender.setThreshold(ERROR);
+        Logger.getRootLogger().addAppender(appender);
+        Logger.getRootLogger().setLevel(TRACE);
+    }
 	
 	public Log4jNotifier() {
 		setVerbose(false);
@@ -30,14 +40,12 @@ public class Log4jNotifier implements Notifier {
 	
 	public void setVerbose(boolean verbose) {
 		if (verbose) {
-			PropertyConfigurator.configure(classPathFile("log4j-verbose.properties"));
+            appender.setThreshold(INFO);
 		} else {
-			PropertyConfigurator.configure(classPathFile("log4j-terse.properties"));
+            appender.setThreshold(ERROR);
 		}
-	}
-	
-	private URL classPathFile(String path) {
-		return Thread.currentThread().getContextClassLoader().getResource(path);
+
+        appender.activateOptions();
 	}
 
 	@Override
