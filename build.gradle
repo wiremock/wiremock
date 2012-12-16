@@ -216,7 +216,7 @@ task 'release-to' {
 	dependsOn 'set-release-dir', clean, jarAll, uploadArchives
 }
 
-task 'bump-version' {
+task 'bump-version' << {
     def filesWithVersion = [
         'build.gradle': { "version = 1.${it}" },
         'docs/source/conf.py': { "version = '1.${it}'" },
