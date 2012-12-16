@@ -234,7 +234,7 @@ task 'bump-version' {
             def file = new File(fileName)
             def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
             def newLine = lineWithVersionTemplate.call(nextMinorVersion)
-            println "Replacing ${oldLine} with ${newLine}"
+            println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
             file.text = file.text.replace(oldLine, newLine);
         }
     }
