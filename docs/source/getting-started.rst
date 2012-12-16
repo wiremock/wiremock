@@ -74,6 +74,27 @@ For many more examples of JUnit tests look no further than `WireMock's own accep
 
 For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
 
+
+Non-JUnit and general Java usage
+================================
+
+If you're not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
+server directly:
+
+.. code-block:: java
+
+    WireMockServer wireMockServer = new WireMockServer();
+    wireMockServer.start();
+
+    // Do some stuff
+
+    WireMock.reset();
+
+    // Finish doing stuff
+
+    wireMockServer.stop();
+
+
 Running standalone
 ==================
 
