@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.25</version>
+        <version>1.26</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -73,6 +73,27 @@ Now you're ready to write a test case like this:
 For many more examples of JUnit tests look no further than `WireMock's own acceptance tests <https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock>`_
 
 For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
+
+
+Non-JUnit and general Java usage
+================================
+
+If you're not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
+server directly:
+
+.. code-block:: java
+
+    WireMockServer wireMockServer = new WireMockServer();
+    wireMockServer.start();
+
+    // Do some stuff
+
+    WireMock.reset();
+
+    // Finish doing stuff
+
+    wireMockServer.stop();
+
 
 Running standalone
 ==================

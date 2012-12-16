@@ -78,6 +78,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#maven">Maven</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#junit-4-x">JUnit 4.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#non-junit-and-general-java-usage">Non-JUnit and general Java usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-via-json">Configuring via JSON</a></li>
@@ -105,7 +106,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.25<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.26<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -157,12 +158,29 @@
 <p>For many more examples of JUnit tests look no further than <a class="reference external" href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock">WireMock&#8217;s own acceptance tests</a></p>
 <p>For more details on verifying requests and stubbing responses, see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a></p>
 </div>
+<div class="section" id="non-junit-and-general-java-usage">
+<h2>Non-JUnit and general Java usage<a class="headerlink" href="#non-junit-and-general-java-usage" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
+server directly:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="c1">// Do some stuff</span>
+
+<span class="n">WireMock</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
+
+<span class="c1">// Finish doing stuff</span>
+
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="running-standalone">
 <h2>Running standalone<a class="headerlink" href="#running-standalone" title="Permalink to this headline">¶</a></h2>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.25-standalone.jar
+$ java -jar wiremock-1.26-standalone.jar
 </pre>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
