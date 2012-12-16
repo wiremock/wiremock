@@ -12,10 +12,11 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
+apply plugin: 'project-report'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.25
+version = 1.26
 
 repositories {
 	mavenCentral()
@@ -32,15 +33,20 @@ dependencies {
 	compile "org.apache.httpcomponents:httpclient:4.1.2"
 	compile "log4j:log4j:1.2.16"
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
-	compile "junit:junit:4.8.2"
+	compile ("junit:junit-dep:4.10") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
 	
-	provided "junit:junit:4.8.2"
-	
-	testCompile "junit:junit:4.8.2"
-	testCompile "org.hamcrest:hamcrest-all:1.1"
-	testCompile "org.jmock:jmock:2.5.1"
+    testCompile "org.hamcrest:hamcrest-all:1.1"
+	testCompile ("org.jmock:jmock:2.5.1") {
+        exclude group: "junit", module: "junit-dep"
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+        exclude group: "org.hamcrest", module: "hamcrest-library"
+    }
 	testCompile ("org.jmock:jmock-junit4:2.5.1") {
 		exclude group: "junit", module: "junit-dep"
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+        exclude group: "org.hamcrest", module: "hamcrest-library"
 	}
 	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
 	testCompile "com.googlecode.jarjar:jarjar:1.3"
@@ -81,7 +87,7 @@ task jarAll(type: Jar, dependsOn: jar) {
             jarjar(jarfile: jarFile, manifest: "$metaInfDir/MANIFEST.MF") {
                 zipfileset(src: jar.archivePath)
                 
-                configurations.compile.files.each {
+                configurations.compile.files.findAll { !it.name.contains("junit") }.each {
                 	zipfileset(src: it)
                 }
                 rule pattern: "org.mortbay.**", result: "wiremock.org.mortbay.@1"
@@ -89,6 +95,7 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "org.codehaus.jackson.**", result: "wiremock.org.codehaus.jackson.@1"
                 rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
                 rule pattern: "org.apache.log4j.**", result: "wiremock.org.apache.log4j.@1"
+                rule pattern: "org.apache.commons.**", result: "wiremock.org.apache.commons.@1"
                 rule pattern: "joptsimple.**", result: "wiremock.joptsimple.@1"
             }
         }
