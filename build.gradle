@@ -216,6 +216,30 @@ task 'release-to' {
 	dependsOn 'set-release-dir', clean, jarAll, uploadArchives
 }
 
+task 'bump-version' {
+    def filesWithVersion = [
+        'build.gradle': { "version = 1.${it}" },
+        'docs/source/conf.py': { "version = '1.${it}'" },
+        'docs/source/getting-started.rst': { "<version>1.${it}</version>" },
+        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
+    ]
+
+    def gradleBuildFile = new File('build.gradle')
+    int currentMinorVersion
+    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
+        currentMinorVersion = Integer.valueOf(minorVersion)
+        int nextMinorVersion = currentMinorVersion + 1
+
+        filesWithVersion.each { fileName, lineWithVersionTemplate ->
+            def file = new File(fileName)
+            def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
+            def newLine = lineWithVersionTemplate.call(nextMinorVersion)
+            println "Replacing ${oldLine} with ${newLine}"
+            file.text = file.text.replace(oldLine, newLine);
+        }
+    }
+}
+
 task 'add-copyright-headers' << {
 	def copyrightNotice = """/*
  * Copyright (C) 2011 Thomas Akehurst
