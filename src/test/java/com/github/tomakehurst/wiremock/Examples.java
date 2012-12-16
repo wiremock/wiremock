@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.mapping.Scenario;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Test;
@@ -24,11 +24,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.reset;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.mapping.Scenario.STARTED;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class Examples extends AcceptanceTestBase {
@@ -105,12 +103,17 @@ public class Examples extends AcceptanceTestBase {
                         .withBody(new byte[] { 1, 2, 3, 4 })));
     }
 
-    @Test(expected=Exception.class)
+    @Test(expected=VerificationException.class)
     public void verifyAtLeastOnce() {
         verify(postRequestedFor(urlEqualTo("/verify/this"))
                 .withHeader("Content-Type", equalTo("text/xml")));
 
         verify(3, postRequestedFor(urlEqualTo("/3/of/these")));
+    }
+
+    @Test(expected=VerificationException.class)
+    public void verifyWithoutHeader() {
+        verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
     }
 
     @Test
