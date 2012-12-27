@@ -232,5 +232,13 @@ public class WireMock {
 		settings.setFixedDelay(milliseconds);
 		adminClient.updateGlobalSettings(settings);
 	}
+
+    public static void addSocketAcceptDelay(SocketAcceptDelaySpec delaySpec) {
+        defaultInstance.addDelayToSocketAccept(delaySpec);
+    }
+
+    public void addDelayToSocketAccept(SocketAcceptDelaySpec delaySpec) {
+        adminClient.addSocketAcceptDelay(delaySpec);
+    }
 	
 }

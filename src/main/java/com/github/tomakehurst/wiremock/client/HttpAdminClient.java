@@ -41,6 +41,7 @@ public class HttpAdminClient implements AdminClient {
 	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
     private static final String LOCAL_WIREMOCK_FIND_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/find";
 	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
+    private static final String SOCKET_ACCEPT_DELAY_URL = ADMIN_URL_PREFIX + "/socket-delay";
 	
 	private final String host;
 	private final int port;
@@ -107,12 +108,19 @@ public class HttpAdminClient implements AdminClient {
 		postJsonAssertOkAndReturnBody(globalSettingsUrl(), json, HTTP_OK);
 	}
 
-	private int postJsonAndReturnStatus(String url, String json) {
+    @Override
+    public void addSocketAcceptDelay(SocketAcceptDelaySpec spec) {
+        String json = Json.write(spec);
+        postJsonAssertOkAndReturnBody(socketAcceptDelayUrl(), json, HTTP_OK);
+    }
+
+    private int postJsonAndReturnStatus(String url, String json) {
 		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
 				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
+            System.out.println("Posting " + json + " to " + url);
 			HttpResponse response = httpClient.execute(post);
 			int statusCode = response.getStatusLine().getStatusCode();
 			getEntityAsStringAndCloseStream(response);
@@ -131,9 +139,12 @@ public class HttpAdminClient implements AdminClient {
 			if (json != null) {
 				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
+            System.out.println("Posting " + json + " to " + url);
 			HttpResponse response = httpClient.execute(post);
-			if (response.getStatusLine().getStatusCode() != expectedStatus) {
-				throw new VerificationException("Expected status " + expectedStatus);
+            int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != expectedStatus) {
+				throw new VerificationException(
+                        "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
 			}
 			
 			String body = getEntityAsStringAndCloseStream(response);
@@ -172,4 +183,8 @@ public class HttpAdminClient implements AdminClient {
 	private String globalSettingsUrl() {
 		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port, urlPathPrefix);
 	}
+
+    private String socketAcceptDelayUrl() {
+        return String.format(SOCKET_ACCEPT_DELAY_URL, host, port, urlPathPrefix);
+    }
 }

@@ -26,6 +26,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.SocketControl;
+import com.github.tomakehurst.wiremock.ThreadSafeSocketControl;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -45,6 +47,7 @@ public class AdminRequestHandlerTest {
 	private Mappings mappings;
 	private RequestJournal requestJournal;
 	private GlobalSettingsHolder globalSettingsHolder;
+    private SocketControl socketControl;
 	
 	private AdminRequestHandler handler;
 	
@@ -55,8 +58,13 @@ public class AdminRequestHandlerTest {
 		mappings = context.mock(Mappings.class);
 		requestJournal = context.mock(RequestJournal.class);
 		globalSettingsHolder = new GlobalSettingsHolder();
-		
-		handler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer());
+        socketControl = context.mock(ThreadSafeSocketControl.class);
+        context.checking(new Expectations() {{
+            ignoring(socketControl);
+        }});
+
+		handler = new AdminRequestHandler(
+                mappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer(), socketControl);
 	}
 	
 	@Test

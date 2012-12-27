@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.mapping;
 
 import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+
 public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	private final Mappings mappings;
@@ -30,6 +32,8 @@ public class MockServiceRequestHandler extends AbstractRequestHandler {
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
+        notifier().info("Received request to " + request.getUrl());
+
 		ResponseDefinition responseDef = mappings.serveFor(request);
 		if (!responseDef.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
 			return ResponseDefinition.browserProxy(request);

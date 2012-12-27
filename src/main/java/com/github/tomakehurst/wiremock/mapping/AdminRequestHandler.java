@@ -15,9 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
+import com.github.tomakehurst.wiremock.SocketControl;
+import com.github.tomakehurst.wiremock.client.SocketAcceptDelaySpec;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.mapping.Json.buildRequestPatternFrom;
 import static com.github.tomakehurst.wiremock.mapping.Json.write;
@@ -40,18 +42,25 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private final JsonMappingCreator jsonMappingCreator;
 	private final RequestJournal requestJournal;
 	private final GlobalSettingsHolder globalSettingsHolder;
+    private final SocketControl socketControl;
 	
-	public AdminRequestHandler(Mappings mappings, RequestJournal requestJournal,
-			GlobalSettingsHolder globalSettingsHolder, ResponseRenderer responseRenderer) {
+	public AdminRequestHandler(Mappings mappings,
+                               RequestJournal requestJournal,
+                               GlobalSettingsHolder globalSettingsHolder,
+                               ResponseRenderer responseRenderer,
+                               SocketControl socketAcceptor) {
 		super(responseRenderer);
 		this.mappings = mappings;
 		this.requestJournal = requestJournal;
 		this.globalSettingsHolder = globalSettingsHolder;
-		jsonMappingCreator = new JsonMappingCreator(mappings);
+        this.socketControl = socketAcceptor;
+        jsonMappingCreator = new JsonMappingCreator(mappings);
 	}
 
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
+        notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
+
 		if (isNewMappingRequest(request)) {
 			jsonMappingCreator.addMappingFrom(request.getBodyAsString());
 			return ResponseDefinition.created();
@@ -70,6 +79,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 			GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
 			globalSettingsHolder.replaceWith(newSettings);
 			return ResponseDefinition.ok();
+        } else if (isSocketDelayRequest(request)) {
+            SocketAcceptDelaySpec delaySpec = Json.read(request.getBodyAsString(), SocketAcceptDelaySpec.class);
+            socketControl.setDelay(delaySpec.requestCount(), delaySpec.milliseconds());
+            return ResponseDefinition.ok();
 		} else {
 			return ResponseDefinition.notFound();
 		}
@@ -114,7 +127,11 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private boolean isFindRequestsRequest(Request request) {
         return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/find");
     }
-	
+
+    private boolean isSocketDelayRequest(Request request) {
+        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/socket-delay");
+    }
+
 	private static String withoutAdminRoot(String url) {
 	    return url.replace(ADMIN_CONTEXT_ROOT, "");
 	}

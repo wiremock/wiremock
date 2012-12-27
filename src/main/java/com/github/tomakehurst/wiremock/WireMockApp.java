@@ -39,10 +39,12 @@ public class WireMockApp {
     private final RequestHandler mockServiceRequestHandler;
     private final RequestHandler adminRequestHandler;
     private final GlobalSettingsHolder globalSettingsHolder;
+    private final SocketControl socketControl;
 
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
-    public WireMockApp(FileSource fileSource, Notifier notifier, boolean enableBrowserProxying) {
+    public WireMockApp(FileSource fileSource, Notifier notifier, boolean enableBrowserProxying, SocketControl socketAcceptor) {
+        this.socketControl = socketAcceptor;
         globalSettingsHolder = new GlobalSettingsHolder();
         mappings = new InMemoryMappings();
         requestJournal = new InMemoryRequestJournal();
@@ -50,7 +52,7 @@ public class WireMockApp {
                 new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
         adminRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
-                new BasicResponseRenderer());
+                new BasicResponseRenderer(), socketControl);
     }
 
     public RequestHandler getMockServiceRequestHandler() {
