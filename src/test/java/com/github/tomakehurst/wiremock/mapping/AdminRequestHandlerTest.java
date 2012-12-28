@@ -26,8 +26,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.github.tomakehurst.wiremock.SocketControl;
-import com.github.tomakehurst.wiremock.ThreadSafeSocketControl;
+import com.github.tomakehurst.wiremock.RequestDelayControl;
+import com.github.tomakehurst.wiremock.ThreadSafeRequestDelayControl;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -47,7 +47,7 @@ public class AdminRequestHandlerTest {
 	private Mappings mappings;
 	private RequestJournal requestJournal;
 	private GlobalSettingsHolder globalSettingsHolder;
-    private SocketControl socketControl;
+    private RequestDelayControl requestDelayControl;
 	
 	private AdminRequestHandler handler;
 	
@@ -58,13 +58,10 @@ public class AdminRequestHandlerTest {
 		mappings = context.mock(Mappings.class);
 		requestJournal = context.mock(RequestJournal.class);
 		globalSettingsHolder = new GlobalSettingsHolder();
-        socketControl = context.mock(ThreadSafeSocketControl.class);
-        context.checking(new Expectations() {{
-            ignoring(socketControl);
-        }});
+        requestDelayControl = context.mock(RequestDelayControl.class);
 
 		handler = new AdminRequestHandler(
-                mappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer(), socketControl);
+                mappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer(), requestDelayControl);
 	}
 	
 	@Test
@@ -91,7 +88,7 @@ public class AdminRequestHandlerTest {
 	}
 	
 	@Test
-	public void shouldClearMappingsAndJournalWhenResetCalled() {
+	public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
 		Request request = aRequest(context)
 			.withUrl("/reset")
 			.withMethod(POST)
@@ -100,6 +97,7 @@ public class AdminRequestHandlerTest {
 		context.checking(new Expectations() {{
 			one(mappings).reset();
 			one(requestJournal).reset();
+            one(requestDelayControl).clearDelay();
 		}});
 		
 		Response response = handler.handle(request);

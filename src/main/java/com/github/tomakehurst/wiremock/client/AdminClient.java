@@ -27,5 +27,5 @@ public interface AdminClient {
 	int countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
-    void addSocketAcceptDelay(SocketAcceptDelaySpec spec);
+    void addSocketAcceptDelay(RequestDelaySpec spec);
 }

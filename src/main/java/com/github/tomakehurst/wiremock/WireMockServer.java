@@ -46,7 +46,7 @@ public class WireMockServer {
 	private final WireMockApp wireMockApp;
 	
 	private Server jettyServer;
-    private SocketControl socketControl;
+    private RequestDelayControl requestDelayControl;
 	private final FileSource fileSource;
 	private final Log4jNotifier notifier;
 	private final int port;
@@ -56,8 +56,8 @@ public class WireMockServer {
 		this.fileSource = fileSource;
 		this.port = port;
 
-        socketControl = new ThreadSafeSocketControl();
-		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying, socketControl);
+        requestDelayControl = new ThreadSafeRequestDelayControl();
+		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying, requestDelayControl);
 	}
 	
 	public WireMockServer(int port) {
@@ -91,7 +91,6 @@ public class WireMockServer {
 	
 	public void stop() {
 		try {
-            Thread.sleep(5000);
 			jettyServer.stop();
             jettyServer.join();
 		} catch (Exception e) {
@@ -102,7 +101,7 @@ public class WireMockServer {
 	public void start() {
 		try {
             jettyServer = new Server();
-            DelayableSocketConnector connector = new DelayableSocketConnector(socketControl);
+            DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
             connector.setPort(port);
             connector.setHeaderBufferSize(8192);
             jettyServer.addConnector(connector);

@@ -2,39 +2,59 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.SingleClientConnManager;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.SocketAcceptDelaySpec.ofMilliseconds;
-import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertThat;
 
-public class SocketAcceptDelayAcceptanceTest extends AcceptanceTestBase {
+public class SocketAcceptDelayAcceptanceTest {
+
+    public static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
+    public static final int A_BIT_LONGER_THAN_SOCKET_TIMEOUT = 550;
+    public static final int LONG_ENOUGH_FOR_SERVER_THREAD_TO_FINISH_SLEEPING = 60;
+
+    private HttpClient httpClient;
+
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule();
+
+    @Before
+    public void init() {
+        httpClient = HttpClientFactory.createClient(50, SOCKET_TIMEOUT_MILLISECONDS);
+    }
 
     @Test(expected=SocketTimeoutException.class)
     public void addsDelayToSocketAcceptanceForDefinedNumberOfRequests() throws Exception {
-        WireMock.addSocketAcceptDelay(ofMilliseconds(3000).forNumRequests(1));
+        WireMock.addRequestProcessingDelay(3000);
+        executeGetRequest();
+    }
 
-        ClientConnectionManager conMan = new SingleClientConnManager();
-        conMan.closeIdleConnections(1, TimeUnit.MILLISECONDS);
-        HttpClient client = new DefaultHttpClient(conMan);
-        HttpParams params = client.getParams();
-        params.setParameter(HANDLE_REDIRECTS, false);
-        HttpConnectionParams.setSoTimeout(params, 300);
+    @Test
+    public void resetAlsoResetsRequestDelay() throws Exception {
+        WireMock.addRequestProcessingDelay(A_BIT_LONGER_THAN_SOCKET_TIMEOUT);
+        try {
+            executeGetRequest();
+        } catch (IOException e) {
+            assertThat(e, instanceOf(SocketTimeoutException.class));
+        }
 
-        HttpClient httpClient = HttpClientFactory.createClient(50, 300);
+        WireMock.reset();
+        Thread.sleep(LONG_ENOUGH_FOR_SERVER_THREAD_TO_FINISH_SLEEPING);
+
+        executeGetRequest();
+        // No exception expected
+    }
+
+    private void executeGetRequest() throws IOException {
         HttpGet get = new HttpGet("http://localhost:8080/anything");
-
-        System.out.println("Getting...");
         httpClient.execute(get);
-        System.out.println("Got");
     }
 }

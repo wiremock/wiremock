@@ -19,7 +19,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.github.tomakehurst.wiremock.NotImplementedSocketControl;
+import com.github.tomakehurst.wiremock.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.WireMockApp;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
@@ -41,7 +41,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         Log4jNotifier notifier = new Log4jNotifier();
         notifier.setVerbose(true);
         
-        WireMockApp wireMockApp = new WireMockApp(fileSource, notifier, false, new NotImplementedSocketControl());
+        WireMockApp wireMockApp = new WireMockApp(fileSource, notifier, false, new NotImplementedRequestDelayControl());
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
         context.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());

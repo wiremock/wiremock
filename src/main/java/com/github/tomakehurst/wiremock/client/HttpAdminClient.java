@@ -109,7 +109,7 @@ public class HttpAdminClient implements AdminClient {
 	}
 
     @Override
-    public void addSocketAcceptDelay(SocketAcceptDelaySpec spec) {
+    public void addSocketAcceptDelay(RequestDelaySpec spec) {
         String json = Json.write(spec);
         postJsonAssertOkAndReturnBody(socketAcceptDelayUrl(), json, HTTP_OK);
     }
@@ -120,7 +120,6 @@ public class HttpAdminClient implements AdminClient {
 			if (json != null) {
 				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
-            System.out.println("Posting " + json + " to " + url);
 			HttpResponse response = httpClient.execute(post);
 			int statusCode = response.getStatusLine().getStatusCode();
 			getEntityAsStringAndCloseStream(response);
@@ -139,7 +138,6 @@ public class HttpAdminClient implements AdminClient {
 			if (json != null) {
 				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
 			}
-            System.out.println("Posting " + json + " to " + url);
 			HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != expectedStatus) {

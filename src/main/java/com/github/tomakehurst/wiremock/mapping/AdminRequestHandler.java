@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.mapping;
 
-import com.github.tomakehurst.wiremock.SocketControl;
-import com.github.tomakehurst.wiremock.client.SocketAcceptDelaySpec;
+import com.github.tomakehurst.wiremock.RequestDelayControl;
+import com.github.tomakehurst.wiremock.client.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -42,18 +42,18 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private final JsonMappingCreator jsonMappingCreator;
 	private final RequestJournal requestJournal;
 	private final GlobalSettingsHolder globalSettingsHolder;
-    private final SocketControl socketControl;
+    private final RequestDelayControl requestDelayControl;
 	
 	public AdminRequestHandler(Mappings mappings,
                                RequestJournal requestJournal,
                                GlobalSettingsHolder globalSettingsHolder,
                                ResponseRenderer responseRenderer,
-                               SocketControl socketAcceptor) {
+                               RequestDelayControl requestDelayControl) {
 		super(responseRenderer);
 		this.mappings = mappings;
 		this.requestJournal = requestJournal;
 		this.globalSettingsHolder = globalSettingsHolder;
-        this.socketControl = socketAcceptor;
+        this.requestDelayControl = requestDelayControl;
         jsonMappingCreator = new JsonMappingCreator(mappings);
 	}
 
@@ -67,6 +67,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		} else if (isResetRequest(request)) {
 			mappings.reset();
 			requestJournal.reset();
+            requestDelayControl.clearDelay();
 			return ResponseDefinition.ok();
 		} else if (isResetScenariosRequest(request)) {
 			mappings.resetScenarios();
@@ -80,8 +81,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 			globalSettingsHolder.replaceWith(newSettings);
 			return ResponseDefinition.ok();
         } else if (isSocketDelayRequest(request)) {
-            SocketAcceptDelaySpec delaySpec = Json.read(request.getBodyAsString(), SocketAcceptDelaySpec.class);
-            socketControl.setDelay(delaySpec.requestCount(), delaySpec.milliseconds());
+            RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
+            requestDelayControl.setDelay(delaySpec.milliseconds());
             return ResponseDefinition.ok();
 		} else {
 			return ResponseDefinition.notFound();
