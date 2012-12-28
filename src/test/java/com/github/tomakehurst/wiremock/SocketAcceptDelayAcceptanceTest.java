@@ -12,14 +12,14 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 public class SocketAcceptDelayAcceptanceTest {
 
     public static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
-    public static final int A_BIT_LONGER_THAN_SOCKET_TIMEOUT = 550;
-    public static final int LONG_ENOUGH_FOR_SERVER_THREAD_TO_FINISH_SLEEPING = 60;
+    public static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
 
     private HttpClient httpClient;
 
@@ -31,15 +31,27 @@ public class SocketAcceptDelayAcceptanceTest {
         httpClient = HttpClientFactory.createClient(50, SOCKET_TIMEOUT_MILLISECONDS);
     }
 
+    @Test
+    public void addsDelayBeforeServingRequest() throws Exception {
+        int delayMillis = SOCKET_TIMEOUT_MILLISECONDS / 2;
+
+        WireMock.addRequestProcessingDelay(delayMillis);
+        long start = System.currentTimeMillis();
+        executeGetRequest();
+        int timeTaken = (int) (System.currentTimeMillis() - start);
+
+        assertThat(timeTaken, greaterThanOrEqualTo(delayMillis));
+    }
+
     @Test(expected=SocketTimeoutException.class)
-    public void addsDelayToSocketAcceptanceForDefinedNumberOfRequests() throws Exception {
-        WireMock.addRequestProcessingDelay(3000);
+    public void causesSocketTimeoutExceptionWhenDelayGreaterThanSoTimeoutSetting() throws Exception {
+        WireMock.addRequestProcessingDelay(SOCKET_TIMEOUT_MILLISECONDS * 2);
         executeGetRequest();
     }
 
     @Test
-    public void resetAlsoResetsRequestDelay() throws Exception {
-        WireMock.addRequestProcessingDelay(A_BIT_LONGER_THAN_SOCKET_TIMEOUT);
+    public void resetResetsRequestDelay() throws Exception {
+        WireMock.addRequestProcessingDelay(LONGER_THAN_SOCKET_TIMEOUT);
         try {
             executeGetRequest();
         } catch (IOException e) {
@@ -47,7 +59,6 @@ public class SocketAcceptDelayAcceptanceTest {
         }
 
         WireMock.reset();
-        Thread.sleep(LONG_ENOUGH_FOR_SERVER_THREAD_TO_FINISH_SLEEPING);
 
         executeGetRequest();
         // No exception expected

@@ -16,9 +16,16 @@ public class DelayableSocketConnector extends SocketConnector {
     @Override
     public void accept(int acceptorID) throws IOException, InterruptedException {
         Socket socket = _serverSocket.accept();
-        requestDelayControl.delayIfRequired();
-        configure(socket);
 
+        try {
+            requestDelayControl.delayIfRequired();
+        } catch (InterruptedException e) {
+            if (!(isStopping() || isStopped())) {
+                Thread.interrupted(); // Clear the interrupt flag on the current thread
+            }
+        }
+
+        configure(socket);
         Connection connection = new Connection(socket);
         connection.dispatch();
     }
