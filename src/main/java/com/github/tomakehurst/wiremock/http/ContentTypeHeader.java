@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.google.common.base.Optional;
-import com.github.tomakehurst.wiremock.mapping.Request;
 
 public class ContentTypeHeader extends HttpHeader {
 

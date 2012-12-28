@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.common.base.Optional;
-import com.github.tomakehurst.wiremock.mapping.Request;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 
 @RunWith(JMock.class)

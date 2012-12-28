@@ -19,7 +19,7 @@ import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.jetty.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 
 public class WireMockStaticRule implements MethodRule {

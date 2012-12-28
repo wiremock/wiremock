@@ -21,14 +21,13 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
-import com.github.tomakehurst.wiremock.mapping.ValuePattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
 
 public class RequestPatternBuilder {
 

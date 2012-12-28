@@ -15,19 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
-import com.github.tomakehurst.wiremock.mapping.ValuePattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.header;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-
-import com.github.tomakehurst.wiremock.mapping.ValuePattern;
-import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
 
 public class MappingBuilderTest {
 

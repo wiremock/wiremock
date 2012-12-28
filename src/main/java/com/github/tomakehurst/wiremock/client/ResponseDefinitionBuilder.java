@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
-import com.google.common.collect.Lists;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.nio.charset.Charset;
 import java.util.List;

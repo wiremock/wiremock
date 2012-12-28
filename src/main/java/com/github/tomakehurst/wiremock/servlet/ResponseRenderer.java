@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.mapping.Response;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 
 public interface ResponseRenderer {

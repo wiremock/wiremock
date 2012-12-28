@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.mapping.Mappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public interface MappingsLoader {
 
-	void loadMappingsInto(Mappings mappings);
+	void loadMappingsInto(StubMappings stubMappings);
 
 }

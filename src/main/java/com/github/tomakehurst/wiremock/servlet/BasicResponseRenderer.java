@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.mapping.Response;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-import static com.github.tomakehurst.wiremock.mapping.Response.response;
+import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class BasicResponseRenderer implements ResponseRenderer {
 

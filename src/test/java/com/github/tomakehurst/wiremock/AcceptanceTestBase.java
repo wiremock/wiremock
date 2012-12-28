@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.jetty.WireMockServer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

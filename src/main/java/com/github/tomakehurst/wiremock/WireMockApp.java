@@ -18,12 +18,9 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.mapping.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.mapping.InMemoryMappings;
-import com.github.tomakehurst.wiremock.mapping.Mappings;
-import com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler;
-import com.github.tomakehurst.wiremock.mapping.RequestHandler;
-import com.github.tomakehurst.wiremock.mapping.RequestListener;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import com.github.tomakehurst.wiremock.stubbing.*;
+import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.servlet.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.servlet.MockServiceResponseRenderer;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -34,7 +31,7 @@ public class WireMockApp {
     
     public static final String FILES_ROOT = "__files";
     
-    private final Mappings mappings;
+    private final StubMappings stubMappings;
     private final InMemoryRequestJournal requestJournal;
     private final RequestHandler mockServiceRequestHandler;
     private final RequestHandler adminRequestHandler;
@@ -46,12 +43,12 @@ public class WireMockApp {
     public WireMockApp(FileSource fileSource, Notifier notifier, boolean enableBrowserProxying, RequestDelayControl socketAcceptor) {
         this.requestDelayControl = socketAcceptor;
         globalSettingsHolder = new GlobalSettingsHolder();
-        mappings = new InMemoryMappings();
+        stubMappings = new InMemoryStubMappings();
         requestJournal = new InMemoryRequestJournal();
-        mockServiceRequestHandler = new MockServiceRequestHandler(mappings,
+        mockServiceRequestHandler = new MockServiceRequestHandler(stubMappings,
                 new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
-        adminRequestHandler = new AdminRequestHandler(mappings, requestJournal, globalSettingsHolder,
+        adminRequestHandler = new AdminRequestHandler(stubMappings, requestJournal, globalSettingsHolder,
                 new BasicResponseRenderer(), requestDelayControl);
     }
 
@@ -72,7 +69,7 @@ public class WireMockApp {
     }
     
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-        mappingsLoader.loadMappingsInto(mappings);
+        mappingsLoader.loadMappingsInto(stubMappings);
     }
     
     public void addMockServiceRequestListener(RequestListener listener) {

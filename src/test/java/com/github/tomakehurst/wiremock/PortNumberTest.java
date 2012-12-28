@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.jetty.WireMockServer;
 import org.junit.Test;
 
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;

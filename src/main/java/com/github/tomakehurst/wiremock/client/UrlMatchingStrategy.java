@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
 
 public class UrlMatchingStrategy {
 

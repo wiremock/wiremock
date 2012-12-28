@@ -16,9 +16,9 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
-import com.github.tomakehurst.wiremock.mapping.RequestResponseMapping;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public class MappingBuilder {
 	

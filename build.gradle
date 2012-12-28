@@ -70,7 +70,7 @@ task "create-dirs" << {
 
 jar {
     manifest {
-        attributes("Main-Class": "com.github.tomakehurst.wiremock.WireMockServerRunner")
+        attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     }
 }
 
@@ -114,7 +114,7 @@ task jarAll(type: Jar, dependsOn: jar) {
 		)
     }
     manifest {
-        attributes("Main-Class": "com.github.tomakehurst.wiremock.WireMockServerRunner")
+        attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     }
 }
 

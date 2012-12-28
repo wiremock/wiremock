@@ -19,10 +19,10 @@ import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.mapping.Response;
-import com.github.tomakehurst.wiremock.mapping.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-import static com.github.tomakehurst.wiremock.mapping.Response.response;
+import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class MockServiceResponseRenderer implements ResponseRenderer {
 	

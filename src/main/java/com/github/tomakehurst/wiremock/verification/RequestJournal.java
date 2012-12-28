@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
 
 import java.util.List;
 

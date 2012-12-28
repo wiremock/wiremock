@@ -20,7 +20,7 @@
   	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.github.tomakehurst.wiremock.mapping.MockServiceRequestHandler</param-value>
+  		<param-value>com.github.tomakehurst.wiremock.stubbing.MockServiceRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>
@@ -33,7 +33,7 @@
   	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
-  		<param-value>com.github.tomakehurst.wiremock.mapping.AdminRequestHandler</param-value>
+  		<param-value>com.github.tomakehurst.wiremock.stubbing.AdminRequestHandler</param-value>
   	</init-param>
   </servlet>
   <servlet-mapping>

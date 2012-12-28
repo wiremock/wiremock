@@ -20,8 +20,8 @@ import static com.google.common.collect.Iterables.filter;
 import com.google.common.base.Predicate;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
-import com.github.tomakehurst.wiremock.mapping.JsonMappingCreator;
-import com.github.tomakehurst.wiremock.mapping.Mappings;
+import com.github.tomakehurst.wiremock.stubbing.JsonMappingCreator;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public class JsonFileMappingsLoader implements MappingsLoader {
 
@@ -32,8 +32,8 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 	}
 
 	@Override
-	public void loadMappingsInto(Mappings mappings) {
-		JsonMappingCreator jsonMappingCreator = new JsonMappingCreator(mappings);
+	public void loadMappingsInto(StubMappings stubMappings) {
+		JsonMappingCreator jsonMappingCreator = new JsonMappingCreator(stubMappings);
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
 			jsonMappingCreator.addMappingFrom(mappingFile.readContents());

@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 
 @RunWith(JMock.class)

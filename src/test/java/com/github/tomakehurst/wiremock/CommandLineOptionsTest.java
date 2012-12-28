@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.standalone.CommandLineOptions;
 import org.junit.Test;
 
 public class CommandLineOptionsTest {

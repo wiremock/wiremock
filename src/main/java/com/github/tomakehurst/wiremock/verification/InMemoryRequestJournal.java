@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.mapping.Request;
-import com.github.tomakehurst.wiremock.mapping.RequestListener;
-import com.github.tomakehurst.wiremock.mapping.RequestPattern;
-import com.github.tomakehurst.wiremock.mapping.Response;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.RequestListener;
+import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 

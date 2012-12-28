@@ -33,9 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.github.tomakehurst.wiremock.WireMockApp;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.mapping.Request;
-import com.github.tomakehurst.wiremock.mapping.RequestHandler;
-import com.github.tomakehurst.wiremock.mapping.Response;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.RequestHandler;
+import com.github.tomakehurst.wiremock.http.Response;
 
 public class HandlerDispatchingServlet extends HttpServlet {
 
