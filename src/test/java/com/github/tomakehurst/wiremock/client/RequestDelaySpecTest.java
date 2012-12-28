@@ -22,7 +22,7 @@ import static net.sf.json.test.JSONAssert.assertJsonEquals;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SocketDelayAcceptSpecTest {
+public class RequestDelaySpecTest {
 
     @Test
     public void canSerialiseToJson() {
