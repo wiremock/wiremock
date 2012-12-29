@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
-import static com.github.tomakehurst.wiremock.http.ServletContainerUtils.getUnderlyingSocketFrom;
+import static com.github.tomakehurst.wiremock.jetty.ServletContainerUtils.getUnderlyingSocketFrom;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;

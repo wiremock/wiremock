@@ -34,20 +34,20 @@ import org.junit.runner.RunWith;
 import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 
 @RunWith(JMock.class)
-public class MockServiceRequestHandlerTest {
+public class StubRequestHandlerTest {
 
 	private Mockery context;
 	private StubMappings stubMappings;
 	private ResponseRenderer responseRenderer;
 	
-	private MockServiceRequestHandler requestHandler;
+	private StubRequestHandler requestHandler;
 	
 	@Before
 	public void init() {
 		context = new Mockery();
 		stubMappings = context.mock(StubMappings.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
-		requestHandler = new MockServiceRequestHandler(stubMappings, responseRenderer, false); //TODO: don't hard code this
+		requestHandler = new StubRequestHandler(stubMappings, responseRenderer, false); //TODO: don't hard code this
 	}
 	
 	@Test

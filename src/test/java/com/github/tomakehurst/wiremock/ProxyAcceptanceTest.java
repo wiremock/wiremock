@@ -26,7 +26,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.github.tomakehurst.wiremock.jetty.WireMockServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

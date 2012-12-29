@@ -28,14 +28,14 @@ import java.net.URI;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 
-public class MappingFileWriterListener implements RequestListener {
+public class StubMappingJsonRecorder implements RequestListener {
 	
 	private final FileSource mappingsFileSource;
 	private final FileSource filesFileSource;
 	private final RequestJournal requestJournal;
 	private IdGenerator idGenerator;
 	
-	public MappingFileWriterListener(FileSource mappingsFileSource, FileSource filesFileSource, RequestJournal requestJournal) {
+	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, RequestJournal requestJournal) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
 		this.requestJournal = requestJournal;

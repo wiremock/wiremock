@@ -42,7 +42,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class AdminRequestHandler extends AbstractRequestHandler {
     
     private final StubMappings stubMappings;
-	private final JsonMappingCreator jsonMappingCreator;
+	private final JsonStubMappingCreator jsonStubMappingCreator;
 	private final RequestJournal requestJournal;
 	private final GlobalSettingsHolder globalSettingsHolder;
     private final RequestDelayControl requestDelayControl;
@@ -57,7 +57,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		this.requestJournal = requestJournal;
 		this.globalSettingsHolder = globalSettingsHolder;
         this.requestDelayControl = requestDelayControl;
-        jsonMappingCreator = new JsonMappingCreator(stubMappings);
+        jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
 
 		if (isNewMappingRequest(request)) {
-			jsonMappingCreator.addMappingFrom(request.getBodyAsString());
+			jsonStubMappingCreator.addMappingFrom(request.getBodyAsString());
 			return ResponseDefinition.created();
 		} else if (isResetRequest(request)) {
 			stubMappings.reset();

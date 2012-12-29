@@ -21,12 +21,12 @@ import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
-public class MockServiceRequestHandler extends AbstractRequestHandler {
+public class StubRequestHandler extends AbstractRequestHandler {
 	
 	private final StubMappings stubMappings;
 	private final boolean browserProxyingEnabled;
 
-	public MockServiceRequestHandler(StubMappings stubMappings, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
+	public StubRequestHandler(StubMappings stubMappings, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
 		super(responseRenderer);
 		this.stubMappings = stubMappings;
 		this.browserProxyingEnabled = browserProxyingEnabled;

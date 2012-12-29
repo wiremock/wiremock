@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.WireMockApp;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.stubbing.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.stubbing.MockServiceRequestHandler;
+import com.github.tomakehurst.wiremock.stubbing.StubRequestHandler;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 
 public class WireMockWebContextListener implements ServletContextListener {
@@ -43,7 +43,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         
         WireMockApp wireMockApp = new WireMockApp(fileSource, notifier, false, new NotImplementedRequestDelayControl());
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
-        context.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
+        context.setAttribute(StubRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
         context.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
         
         wireMockApp.loadMappingsUsing(new JsonFileMappingsLoader(fileSource.child("mappings")));

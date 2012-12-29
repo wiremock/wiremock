@@ -45,7 +45,7 @@ public class WireMockApp {
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
         requestJournal = new InMemoryRequestJournal();
-        mockServiceRequestHandler = new MockServiceRequestHandler(stubMappings,
+        mockServiceRequestHandler = new StubRequestHandler(stubMappings,
                 new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
         adminRequestHandler = new AdminRequestHandler(stubMappings, requestJournal, globalSettingsHolder,

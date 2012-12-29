@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.jetty.DelayableSocketConnector;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
@@ -88,7 +89,7 @@ public class WireMockServer {
 	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
-                new MappingFileWriterListener(mappingsFileSource, filesFileSource, wireMockApp.getRequestJournal()));
+                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp.getRequestJournal()));
 	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 	
@@ -128,10 +129,10 @@ public class WireMockServer {
         
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
-		mockServiceContext.setAttribute(MockServiceRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
+		mockServiceContext.setAttribute(StubRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
 		ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
-		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, MockServiceRequestHandler.class.getName());
+		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
 		servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 		
 		MimeTypes mimeTypes = new MimeTypes();

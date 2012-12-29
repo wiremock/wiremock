@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.client;
+package com.github.tomakehurst.wiremock.stubbing;
 
-public class VerificationException extends RuntimeException {
 
-	private static final long serialVersionUID = 5116216532516117538L;
+import com.github.tomakehurst.wiremock.common.Json;
 
-	public VerificationException() {
-		super();
+public class JsonStubMappingCreator {
+
+	private StubMappings stubMappings;
+
+	public JsonStubMappingCreator(StubMappings stubMappings) {
+		this.stubMappings = stubMappings;
 	}
-
-	public VerificationException(String message) {
-		super(message);
+	
+	public void addMappingFrom(String mappingSpecJson) {
+		RequestResponseMapping mapping = Json.buildMappingFrom(mappingSpecJson);
+		stubMappings.addMapping(mapping);
 	}
 }

@@ -37,9 +37,9 @@ import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 @RunWith(JMock.class)
-public class MappingFileWriterListenerTest {
+public class StubMappingJsonRecorderTest {
     
-	private MappingFileWriterListener listener;
+	private StubMappingJsonRecorder listener;
 	private FileSource mappingsFileSource;
 	private FileSource filesFileSource;
 	private RequestJournal requestJournal;
@@ -53,7 +53,7 @@ public class MappingFileWriterListenerTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
 		requestJournal = context.mock(RequestJournal.class);
 		
-		listener = new MappingFileWriterListener(mappingsFileSource, filesFileSource, requestJournal);
+		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, requestJournal);
 		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
 	}
 	
