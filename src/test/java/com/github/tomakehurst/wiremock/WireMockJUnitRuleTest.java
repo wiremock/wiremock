@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -67,7 +68,7 @@ public class WireMockJUnitRuleTest {
         
         @ClassRule
         @Rule
-        public static WireMockRule wireMockRule = new WireMockRule(8089);
+        public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
         
         @Test
         public void testStubAndFetchOnce() {
