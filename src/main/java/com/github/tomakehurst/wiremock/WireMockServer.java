@@ -127,6 +127,10 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
+	
+    public boolean isRunning() {
+        return jettyServer != null && jettyServer.isRunning();
+    }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     private void addMockServiceContext() {

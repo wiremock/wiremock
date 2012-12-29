@@ -15,43 +15,83 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
+@RunWith(Enclosed.class)
 public class WireMockJUnitRuleTest {
 
-	@Rule
-	public WireMockRule wireMockRule = new WireMockRule(8089);
+    public static class BasicWireMockRule {
+    
+    	@Rule
+    	public WireMockRule wireMockRule = new WireMockRule(8089);
 	
-	@Test
-	public void canRegisterStubAndFetchOnCorrectPort() {
-		givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
-		
-		WireMockTestClient testClient = new WireMockTestClient(8089);
-		
-		assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
-	}
-
-    @Ignore("Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions on subsequent (otherwise passing) tests")
-    @Test
-    public void fail() {
-        assertTrue(false);
+    	@Test
+    	public void canRegisterStubAndFetchOnCorrectPort() {
+    		givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
+    		
+    		WireMockTestClient testClient = new WireMockTestClient(8089);
+    		
+    		assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
+    	}
+    	
     }
+    
+    public static class WireMockRuleFailThenPass {
+        
+        @Ignore("Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions on subsequent (otherwise passing) tests")
+        @Test
+        public void fail() {
+            assertTrue(false);
+        }
+    
+        @Test
+        public void succeed() {
+            assertTrue(true);
+        }
+        
+    }
+    
+    public static class WireMockRuleAsClassRule {
+        
+        @ClassRule
+        @Rule
+        public static WireMockRule wireMockRule = new WireMockRule(8089);
+        
+        @Test
+        public void testStubAndFetchOnce() {
+            assertNoReviousRequestsReceived();
+            assertCanRegisterStubAndFetchOnCorrectPort();
+        }
+        
+        @Test
+        public void testStubAndFetchAgain() {
+            assertNoReviousRequestsReceived(); // Will fail if reset() not called after the previous test case
+            assertCanRegisterStubAndFetchOnCorrectPort();
+        }
 
-    @Test
-    public void succeed() {
-        assertTrue(true);
+        private void assertNoReviousRequestsReceived() {
+            verify(0, getRequestedFor(urlMatching(".*")));
+        }
+    
+        public void assertCanRegisterStubAndFetchOnCorrectPort() {
+            givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
+            
+            WireMockTestClient testClient = new WireMockTestClient(8089);
+            
+            assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
+        }
+
     }
 }
