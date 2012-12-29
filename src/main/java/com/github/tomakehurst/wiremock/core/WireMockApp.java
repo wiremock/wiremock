@@ -40,7 +40,6 @@ public class WireMockApp implements StubServer, Admin {
     private final StubMappings stubMappings;
     private final InMemoryRequestJournal requestJournal;
     private final RequestHandler mockServiceRequestHandler;
-    private final RequestHandler adminRequestHandler;
     private final GlobalSettingsHolder globalSettingsHolder;
     private final RequestDelayControl requestDelayControl;
 
@@ -54,15 +53,10 @@ public class WireMockApp implements StubServer, Admin {
         mockServiceRequestHandler = new StubRequestHandler(stubMappings,
                 new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
-        adminRequestHandler = new AdminRequestHandler(this, new BasicResponseRenderer());
     }
 
     public RequestHandler getMockServiceRequestHandler() {
         return mockServiceRequestHandler;
-    }
-
-    public RequestHandler getAdminRequestHandler() {
-        return adminRequestHandler;
     }
 
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {

@@ -22,10 +22,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.DelayableSocketConnector;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
@@ -52,6 +49,8 @@ public class WireMockServer {
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
 	private final WireMockApp wireMockApp;
+    private final AdminRequestHandler adminRequestHandler;
+
 	
 	private Server jettyServer;
     private RequestDelayControl requestDelayControl;
@@ -66,6 +65,8 @@ public class WireMockServer {
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying, requestDelayControl);
+
+        adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
 	}
 	
 	public WireMockServer(int port) {
@@ -158,7 +159,7 @@ public class WireMockServer {
         Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
 		ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
-		adminContext.setAttribute(AdminRequestHandler.class.getName(), wireMockApp.getAdminRequestHandler());
+		adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
 		adminContext.setAttribute(Notifier.KEY, notifier);
 		jettyServer.addHandler(adminContext);
     }
