@@ -22,12 +22,10 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 public class StubRequestHandler extends AbstractRequestHandler {
 	
 	private final StubServer stubServer;
-	private final boolean browserProxyingEnabled;
 
-	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
+	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
 		this.stubServer = stubServer;
-		this.browserProxyingEnabled = browserProxyingEnabled;
 	}
 	
 	@Override

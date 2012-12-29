@@ -70,7 +70,7 @@ public class WireMockServer {
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
-                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()), enableBrowserProxying);
+                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()));
 
 
 	}

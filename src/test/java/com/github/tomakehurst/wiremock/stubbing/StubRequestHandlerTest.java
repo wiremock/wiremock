@@ -46,7 +46,7 @@ public class StubRequestHandlerTest {
 		context = new Mockery();
         stubServer = context.mock(StubServer.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, false); //TODO: don't hard code this
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer);
 	}
 	
 	@Test

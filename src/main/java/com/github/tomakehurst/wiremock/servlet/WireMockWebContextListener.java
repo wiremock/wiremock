@@ -47,7 +47,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false);
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
-                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()), false);
+                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()));
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
