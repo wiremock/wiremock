@@ -40,6 +40,15 @@ Here are some alternative JVM based libraries with similar goals:
 * `REST-driver <https://github.com/rest-driver/rest-driver>`_
 
 
+Contributors
+------------
+
+Shouts to the following folks who've been kind enough to submit improvements:
+
+* `Tim Perry <https://github.com/pimterry>`_
+* `Dominic Tootell <https://github.com/tootedom>`_
+* `mangotang <https://github.com/mangotang>`_
+
 
 Contents
 --------

@@ -28,25 +28,13 @@ To use WireMock's fluent API add the following import:
 
     import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-WireMock ships with two JUnit rules to manage the server's lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):
+WireMock ships with some JUnit rules to manage the server's lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):
 
 .. code-block:: java
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089); // No-args constructor defaults to port 8080
 
-
-Alternatively, if you want the server to continue to run between test cases:
-
-.. code-block:: java
-
-    @Rule
-    public static WireMockStaticRule wireMockRule = new WireMockStaticRule(8089);
-
-    @AfterClass
-    public static void stopWireMock() {
-        wireMockRule.stopServer();
-    }
 
 Now you're ready to write a test case like this:
 
@@ -73,6 +61,33 @@ Now you're ready to write a test case like this:
 For many more examples of JUnit tests look no further than `WireMock's own acceptance tests <https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock>`_
 
 For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
+
+Other @Rule configurations
+==========================
+
+If you want the server to continue to run between test cases (JUnit 4.9 and newer):
+
+.. code-block:: java
+
+    @ClassRule
+    @Rule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
+
+
+Or if you're using JUnit 4.8:
+
+.. code-block:: java
+
+    @Rule
+    public static WireMockStaticRule wireMockRule = new WireMockStaticRule(8089);
+
+    @AfterClass
+    public static void stopWireMock() {
+        wireMockRule.stopServer();
+    }
+
+.. note::
+    ``WireMockStaticRule`` is deprecated as the above usage isn't permitted from JUnit 4.11 onwards
 
 
 Non-JUnit and general Java usage
