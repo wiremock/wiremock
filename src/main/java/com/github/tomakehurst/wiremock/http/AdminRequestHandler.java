@@ -18,15 +18,10 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;

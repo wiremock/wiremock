@@ -65,10 +65,6 @@ public class WireMockApp implements StubServer, Admin {
         return adminRequestHandler;
     }
 
-    public GlobalSettingsHolder getGlobalSettingsHolder() {
-        return globalSettingsHolder;
-    }
-    
     public RequestJournal getRequestJournal() {
         return requestJournal;
     }
