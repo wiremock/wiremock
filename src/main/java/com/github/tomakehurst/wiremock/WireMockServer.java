@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -40,7 +41,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 import static com.google.common.collect.Maps.newHashMap;
 

@@ -29,8 +29,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.trace;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -195,8 +196,10 @@ public class WireMockClientTest {
 	}
 	
 	public void expectExactlyOneAddResponseCallWithJson(final String json) {
+        final StubMapping stubMapping = Json.read(json, StubMapping.class);
+
 		context.checking(new Expectations() {{
-			one(adminClient).addResponse(with(equalToJson(json)));
+			one(adminClient).addStubMapping(stubMapping);
 		}});
 	}
 	

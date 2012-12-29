@@ -88,8 +88,7 @@ public class WireMock {
 	
 	public void register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
-		String json = StubMapping.buildJsonStringFor(mapping);
-		adminClient.addResponse(json);
+		adminClient.addStubMapping(mapping);
 	}
 	
 	public static UrlMatchingStrategy urlEqualTo(String url) {

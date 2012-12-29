@@ -75,7 +75,7 @@ public class MappingJsonSamples {
 		"		\"url\": \"/basic/mapping/resource\"		\n" +
 		"	},												\n" +
 		"	\"response\": {									\n" +
-		"		\"status\": 304,							\n" +
+		"		\"status\": 304 							\n" +
 		"	}												\n" +
 		"}													";
 	

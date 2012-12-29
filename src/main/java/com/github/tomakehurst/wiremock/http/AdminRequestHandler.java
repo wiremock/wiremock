@@ -30,7 +30,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.buildRequestPatternFrom;

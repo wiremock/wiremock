@@ -20,7 +20,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
-import com.github.tomakehurst.wiremock.WireMockApp;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;

@@ -18,11 +18,12 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 
 public interface AdminClient {
 
-	void addResponse(String responseSpecJson);
+	void addStubMapping(StubMapping stubMapping);
 	void resetMappings();
 	void resetScenarios();
 	int countRequestsMatching(RequestPattern requestPattern);

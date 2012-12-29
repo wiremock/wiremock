@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
@@ -63,8 +64,9 @@ public class HttpAdminClient implements AdminClient {
 	}
 
 	@Override
-	public void addResponse(String responseSpecJson) {
-		int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
+	public void addStubMapping(StubMapping stubMapping) {
+        String json = Json.write(stubMapping);
+		int status = postJsonAndReturnStatus(newMappingUrl(), json);
 		if (status != HTTP_CREATED) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
