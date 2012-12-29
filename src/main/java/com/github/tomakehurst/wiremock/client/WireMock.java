@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationException;
@@ -88,8 +88,8 @@ public class WireMock {
 	}
 	
 	public void register(MappingBuilder mappingBuilder) {
-		RequestResponseMapping mapping = mappingBuilder.build();
-		String json = RequestResponseMapping.buildJsonStringFor(mapping);
+		StubMapping mapping = mappingBuilder.build();
+		String json = StubMapping.buildJsonStringFor(mapping);
 		adminClient.addResponse(json);
 	}
 	

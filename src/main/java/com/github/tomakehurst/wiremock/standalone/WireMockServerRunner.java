@@ -22,9 +22,9 @@ import static java.lang.System.out;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 public class WireMockServerRunner {
@@ -77,7 +77,7 @@ public class WireMockServerRunner {
 				requestPattern.setUrlPattern(".*");
 				ResponseDefinition responseDef = new ResponseDefinition();
 				responseDef.setProxyBaseUrl(baseUrl);
-				stubMappings.addMapping(new RequestResponseMapping(requestPattern, responseDef));
+				stubMappings.addMapping(new StubMapping(requestPattern, responseDef));
 			}
 		});
 	}

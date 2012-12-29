@@ -25,7 +25,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "request", "response" })
-public class RequestResponseMapping {
+public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
 
@@ -39,23 +39,23 @@ public class RequestResponseMapping {
 	
 	private long insertionIndex;
 	
-	public RequestResponseMapping(RequestPattern requestPattern, ResponseDefinition response) {
+	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
 		this.response = response;
 	}
 	
-	public RequestResponseMapping() {
+	public StubMapping() {
 		//Concession to Jackson
 	}
 	
-	public static final RequestResponseMapping NOT_CONFIGURED =
-	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
+	public static final StubMapping NOT_CONFIGURED =
+	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 
-    public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
-        return Json.read(mappingSpecJson, RequestResponseMapping.class);
+    public static StubMapping buildFrom(String mappingSpecJson) {
+        return Json.read(mappingSpecJson, StubMapping.class);
     }
 
-    public static String buildJsonStringFor(RequestResponseMapping mapping) {
+    public static String buildJsonStringFor(StubMapping mapping) {
 		return Json.write(mapping);
 	}
 
@@ -158,7 +158,7 @@ public class RequestResponseMapping {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
 	
-	public int comparePriorityWith(RequestResponseMapping otherMapping) {
+	public int comparePriorityWith(StubMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
@@ -198,7 +198,7 @@ public class RequestResponseMapping {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		RequestResponseMapping other = (RequestResponseMapping) obj;
+		StubMapping other = (StubMapping) obj;
 		if (insertionIndex != other.insertionIndex) {
 			return false;
 		}

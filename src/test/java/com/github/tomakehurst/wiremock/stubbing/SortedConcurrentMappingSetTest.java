@@ -83,22 +83,22 @@ public class SortedConcurrentMappingSetTest {
 		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
 	}
 	
-	private RequestResponseMapping aMapping(Integer priority, String url) {
+	private StubMapping aMapping(Integer priority, String url) {
 		RequestPattern requestPattern = new RequestPattern(ANY, url);
-		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, new ResponseDefinition());
+		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
 		mapping.setPriority(priority);
 		return mapping;
 	}
 	
-	private Matcher<RequestResponseMapping> requestUrlIs(final String expectedUrl) {
-		return new TypeSafeMatcher<RequestResponseMapping>() {
+	private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
+		return new TypeSafeMatcher<StubMapping>() {
 
 			@Override
 			public void describeTo(Description desc) {
 			}
 
 			@Override
-			public boolean matchesSafely(RequestResponseMapping actualMapping) {
+			public boolean matchesSafely(StubMapping actualMapping) {
 				return actualMapping.getRequest().getUrl().equals(expectedUrl);
 			}
 			

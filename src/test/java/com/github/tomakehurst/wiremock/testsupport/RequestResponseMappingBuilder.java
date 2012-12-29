@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.util.List;
@@ -64,11 +64,11 @@ public class RequestResponseMappingBuilder {
 		return this;
 	}
 	
-	public RequestResponseMapping build() {
+	public StubMapping build() {
 		RequestPattern requestPattern = new RequestPattern(method, url);
 		ResponseDefinition response = new ResponseDefinition(responseStatus, responseBody);
 		response.setHeaders(new HttpHeaders(headers));
-		RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, response);
+		StubMapping mapping = new StubMapping(requestPattern, response);
 		return mapping;
 	}
 }

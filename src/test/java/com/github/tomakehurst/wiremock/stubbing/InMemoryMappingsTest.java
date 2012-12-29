@@ -61,7 +61,7 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void correctlyAcceptsMappingAndReturnsCorrespondingResponse() {
-		mappings.addMapping(new RequestResponseMapping(
+		mappings.addMapping(new StubMapping(
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
@@ -73,7 +73,7 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsNotFoundWhenMethodIncorrect() {
-		mappings.addMapping(new RequestResponseMapping(
+		mappings.addMapping(new StubMapping(
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
@@ -85,7 +85,7 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsNotFoundWhenUrlIncorrect() {
-		mappings.addMapping(new RequestResponseMapping(
+		mappings.addMapping(new StubMapping(
 				new RequestPattern(PUT, "/some/resource"),
 				new ResponseDefinition(204, "")));
 		
@@ -105,11 +105,11 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsMostRecentlyInsertedResponseIfTwoOrMoreMatch() {
-		mappings.addMapping(new RequestResponseMapping(
+		mappings.addMapping(new StubMapping(
 				new RequestPattern(GET, "/duplicated/resource"),
 				new ResponseDefinition(204, "Some content")));
 		
-		mappings.addMapping(new RequestResponseMapping(
+		mappings.addMapping(new StubMapping(
 				new RequestPattern(GET, "/duplicated/resource"),
 				new ResponseDefinition(201, "Desired content")));
 		
@@ -121,14 +121,14 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsMappingInScenarioOnlyWhenStateIsCorrect() {
-		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		StubMapping firstGetMapping = new StubMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Initial content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		firstGetMapping.setRequiredScenarioState(STARTED);
 		mappings.addMapping(firstGetMapping);
 		
-		RequestResponseMapping putMapping = new RequestResponseMapping(
+		StubMapping putMapping = new StubMapping(
 				new RequestPattern(PUT, "/scenario/resource"),
 				new ResponseDefinition(204, ""));
 		putMapping.setScenarioName("TestScenario");
@@ -136,7 +136,7 @@ public class InMemoryMappingsTest {
 		putMapping.setNewScenarioState("Modified");
 		mappings.addMapping(putMapping);
 		
-		RequestResponseMapping secondGetMapping = new RequestResponseMapping(
+		StubMapping secondGetMapping = new StubMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Modified content"));
 		secondGetMapping.setScenarioName("TestScenario");
@@ -155,7 +155,7 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void returnsMappingInScenarioWithNoRequiredState() {
-		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		StubMapping firstGetMapping = new StubMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(200, "Expected content"));
 		firstGetMapping.setScenarioName("TestScenario");
@@ -168,14 +168,14 @@ public class InMemoryMappingsTest {
 	
 	@Test
 	public void supportsResetOfAllScenariosState() {
-		RequestResponseMapping firstGetMapping = new RequestResponseMapping(
+		StubMapping firstGetMapping = new StubMapping(
 				new RequestPattern(GET, "/scenario/resource"),
 				new ResponseDefinition(204, "Desired content"));
 		firstGetMapping.setScenarioName("TestScenario");
 		firstGetMapping.setRequiredScenarioState(STARTED);
 		mappings.addMapping(firstGetMapping);
 		
-		RequestResponseMapping putMapping = new RequestResponseMapping(
+		StubMapping putMapping = new StubMapping(
 				new RequestPattern(PUT, "/scenario/resource"),
 				new ResponseDefinition(204, ""));
 		putMapping.setScenarioName("TestScenario");
@@ -214,12 +214,12 @@ public class InMemoryMappingsTest {
 
     @Test
     public void scenariosShouldBeResetWhenMappingsAreReset() {
-        RequestResponseMapping firstMapping = aBasicMappingInScenario("Starting content");
+        StubMapping firstMapping = aBasicMappingInScenario("Starting content");
         firstMapping.setRequiredScenarioState(Scenario.STARTED);
         firstMapping.setNewScenarioState("modified");
         mappings.addMapping(firstMapping);
 
-        RequestResponseMapping secondMapping = aBasicMappingInScenario("Modified content");
+        StubMapping secondMapping = aBasicMappingInScenario("Modified content");
         secondMapping.setRequiredScenarioState("modified");
         mappings.addMapping(secondMapping);
 
@@ -229,15 +229,15 @@ public class InMemoryMappingsTest {
 
         mappings.reset();
 
-        RequestResponseMapping thirdMapping = aBasicMappingInScenario("Starting content");
+        StubMapping thirdMapping = aBasicMappingInScenario("Starting content");
         thirdMapping.setRequiredScenarioState(Scenario.STARTED);
         mappings.addMapping(thirdMapping);
 
         assertThat(mappings.serveFor(request).getBody(), is("Starting content"));
     }
 
-    private RequestResponseMapping aBasicMappingInScenario(String body) {
-        RequestResponseMapping mapping = new RequestResponseMapping(
+    private StubMapping aBasicMappingInScenario(String body) {
+        StubMapping mapping = new StubMapping(
                 new RequestPattern(POST, "/scenario/resource"),
                 new ResponseDefinition(200, body));
         mapping.setScenarioName("TestScenario");

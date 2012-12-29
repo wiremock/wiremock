@@ -20,19 +20,19 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class SortedConcurrentMappingSet implements Iterable<RequestResponseMapping> {
+public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
 	private AtomicLong insertionCount;
-	private ConcurrentSkipListSet<RequestResponseMapping> mappingSet;
+	private ConcurrentSkipListSet<StubMapping> mappingSet;
 	
 	public SortedConcurrentMappingSet() {
 		insertionCount = new AtomicLong();
-		mappingSet = new ConcurrentSkipListSet<RequestResponseMapping>(sortedByPriorityThenReverseInsertionOrder());
+		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
 	}
 	
-	private Comparator<RequestResponseMapping> sortedByPriorityThenReverseInsertionOrder() {
-		return new Comparator<RequestResponseMapping>() {
-			public int compare(RequestResponseMapping one, RequestResponseMapping two) {
+	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
+		return new Comparator<StubMapping>() {
+			public int compare(StubMapping one, StubMapping two) {
 				int priorityComparison = one.comparePriorityWith(two);
 				if (priorityComparison != 0) {
 					return priorityComparison;
@@ -44,11 +44,11 @@ public class SortedConcurrentMappingSet implements Iterable<RequestResponseMappi
 	}
 
 	@Override
-	public Iterator<RequestResponseMapping> iterator() {
+	public Iterator<StubMapping> iterator() {
 		return mappingSet.iterator();
 	}
 	
-	public void add(RequestResponseMapping mapping) {
+	public void add(StubMapping mapping) {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
 	}

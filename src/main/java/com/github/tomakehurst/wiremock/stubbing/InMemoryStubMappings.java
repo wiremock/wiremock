@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping.NOT_CONFIGURED;
+import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.google.common.collect.Iterables.find;
 
@@ -34,24 +34,24 @@ public class InMemoryStubMappings implements StubMappings {
 	
 	@Override
 	public ResponseDefinition serveFor(Request request) {
-		RequestResponseMapping matchingMapping = find(
+		StubMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
-				RequestResponseMapping.NOT_CONFIGURED);
+				StubMapping.NOT_CONFIGURED);
 		
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
 		return copyOf(matchingMapping.getResponse());
 	}
 
-	private void notifyIfResponseNotConfigured(Request request, RequestResponseMapping matchingMapping) {
+	private void notifyIfResponseNotConfigured(Request request, StubMapping matchingMapping) {
 		if (matchingMapping == NOT_CONFIGURED) {
 		    notifier().info("No mapping found matching URL " + request.getUrl());
 		}
 	}
 
 	@Override
-	public void addMapping(RequestResponseMapping mapping) {
+	public void addMapping(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
 			Scenario scenario = scenarioMap.get(mapping.getScenarioName());
@@ -74,9 +74,9 @@ public class InMemoryStubMappings implements StubMappings {
 		}
 	}
 	
-	private Predicate<RequestResponseMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
-		return new Predicate<RequestResponseMapping>() {
-			public boolean apply(RequestResponseMapping mapping) {
+	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+		return new Predicate<StubMapping>() {
+			public boolean apply(StubMapping mapping) {
 				return mapping.getRequest().isMatchedBy(request) &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}

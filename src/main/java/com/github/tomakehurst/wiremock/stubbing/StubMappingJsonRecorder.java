@@ -68,7 +68,7 @@ public class StubMappingJsonRecorder implements RequestListener {
             responseToWrite.setHeaders(response.getHeaders());
         }
 
-        RequestResponseMapping mapping = new RequestResponseMapping(requestPattern, responseToWrite);
+        StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
         
         filesFileSource.writeBinaryFile(bodyFileName, response.getBody());
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));

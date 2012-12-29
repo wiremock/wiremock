@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 public interface StubMappings {
 
 	ResponseDefinition serveFor(Request request);
-	void addMapping(RequestResponseMapping mapping);
+	void addMapping(StubMapping mapping);
 	void reset();
 	void resetScenarios();
 }
