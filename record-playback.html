@@ -99,7 +99,7 @@ quickly capture a collection of responses from a real service then use them offl
 <span id="record-playback-recording"></span><h2>Recording<a class="headerlink" href="#recording" title="Permalink to this headline">¶</a></h2>
 <p>Recording is done by starting the standalone runner like this:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.26-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
+$ java -jar wiremock-1.28-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
 </pre>
 <p>Once it&#8217;s started you send requests to it as if it was the remote service:</p>
 <div class="highlight-python"><pre>$ curl "http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</pre>

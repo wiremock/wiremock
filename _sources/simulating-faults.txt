@@ -10,10 +10,10 @@ Simulating Faults
     response code indicating an error, WireMock is able to generate a few other types of problem.
 
 
-.. _simulating-faults-delays:
+.. _simulating-faults-stub-delays:
 
-Delays
-======
+Stub delays
+===========
 
 A stub response can have a fixed delay attached to it, such that the response will not be returned until after the
 specified number of milliseconds:
@@ -41,9 +41,8 @@ Or
         }
     }
 
-
-Global delays
--------------
+Global stub delays
+------------------
 
 A fixed delay can be added to all stubs either by calling ``WireMock.setGlobalFixedDelay()`` or posting a JSON
 document of the following form to ``http://<host>:<port>/__admin/settings``:
@@ -53,6 +52,29 @@ document of the following form to ``http://<host>:<port>/__admin/settings``:
     {
         "fixedDelay": 500
     }
+
+
+.. _simulating-faults-request-delays
+
+Request delays (and socket timeouts)
+====================================
+
+Adding stub delays by either of the above routes won't allow you to create the conditions for a socket timeout.
+This is because data must be sent and received on the socket for WireMock to determine enough about the request (URL,
+headers etc.) to select an appropriate stub. To reliably create a socket timeout, or test client behaviour when there
+is latency in request handling it is possible to set a delay for all requests that occurs before any processing:
+
+.. code-block:: java
+
+    addRequestProcessingDelay(300); // Milliseconds
+
+Or post the following to ``http://<host>:<port>/__admin/socket-delay``:
+
+.. code-block:: javascript
+
+    { "milliseconds": 300 }
+
+Resetting WireMock removes this delay.
 
 
 .. _simulating-faults-bad-responses:
