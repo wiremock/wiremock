@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
@@ -34,7 +35,7 @@ import static com.github.tomakehurst.wiremock.verification.VerificationResult.bu
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-public class HttpAdminClient implements AdminClient {
+public class HttpAdminClient implements Admin {
 	
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";

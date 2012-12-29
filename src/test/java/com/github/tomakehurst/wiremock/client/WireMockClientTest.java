@@ -31,6 +31,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -47,15 +48,15 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 public class WireMockClientTest {
 
 	private Mockery context;
-	private AdminClient adminClient;
+	private Admin admin;
 	private WireMock wireMock;
 	
 	@Before
 	public void init() {
 		context = new Mockery();
-		adminClient = context.mock(AdminClient.class);
+		admin = context.mock(Admin.class);
 		wireMock = new WireMock();
-		wireMock.setAdminClient(adminClient);
+		wireMock.setAdmin(admin);
 	}
 	
 	@Test
@@ -175,7 +176,7 @@ public class WireMockClientTest {
 	@Test
 	public void shouldVerifyRequestMadeWhenCountMoreThan0() {
 		context.checking(new Expectations() {{
-			allowing(adminClient).countRequestsMatching(
+			allowing(admin).countRequestsMatching(
                     new RequestPattern(RequestMethod.DELETE, "/to/delete")); will(returnValue(3));
 		}});
 		
@@ -187,7 +188,7 @@ public class WireMockClientTest {
 	@Test(expected=VerificationException.class)
 	public void shouldThrowVerificationExceptionWhenVerifyingRequestNotMatching() {
 		context.checking(new Expectations() {{
-			allowing(adminClient).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
 		}});
 		
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
@@ -199,7 +200,7 @@ public class WireMockClientTest {
         final StubMapping stubMapping = Json.read(json, StubMapping.class);
 
 		context.checking(new Expectations() {{
-			one(adminClient).addStubMapping(stubMapping);
+			one(admin).addStubMapping(stubMapping);
 		}});
 	}
 	

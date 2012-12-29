@@ -15,47 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.buildRequestPatternFrom;
-import static com.github.tomakehurst.wiremock.common.Json.write;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
-    
-    private final StubMappings stubMappings;
-	private final JsonStubMappingCreator jsonStubMappingCreator;
-	private final RequestJournal requestJournal;
-	private final GlobalSettingsHolder globalSettingsHolder;
-    private final RequestDelayControl requestDelayControl;
-	
-	public AdminRequestHandler(StubMappings stubMappings,
-                               RequestJournal requestJournal,
-                               GlobalSettingsHolder globalSettingsHolder,
-                               ResponseRenderer responseRenderer,
-                               RequestDelayControl requestDelayControl) {
+
+    private final Admin admin;
+
+	public AdminRequestHandler(Admin admin, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
-		this.stubMappings = stubMappings;
-		this.requestJournal = requestJournal;
-		this.globalSettingsHolder = globalSettingsHolder;
-        this.requestDelayControl = requestDelayControl;
-        jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
+        this.admin = admin;
 	}
 
 	@Override
@@ -63,15 +50,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
 
 		if (isNewMappingRequest(request)) {
-			jsonStubMappingCreator.addMappingFrom(request.getBodyAsString());
+            StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
+            admin.addStubMapping(newMapping);
 			return ResponseDefinition.created();
 		} else if (isResetRequest(request)) {
-			stubMappings.reset();
-			requestJournal.reset();
-            requestDelayControl.clearDelay();
+			admin.resetMappings();
 			return ResponseDefinition.ok();
 		} else if (isResetScenariosRequest(request)) {
-			stubMappings.resetScenarios();
+			admin.resetScenarios();
 			return ResponseDefinition.ok();
 		} else if (isRequestCountRequest(request)) {
 			return getRequestCount(request);
@@ -79,11 +65,11 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             return findRequests(request);
 		} else if (isGlobalSettingsUpdateRequest(request)) {
 			GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
-			globalSettingsHolder.replaceWith(newSettings);
+            admin.updateGlobalSettings(newSettings);
 			return ResponseDefinition.ok();
         } else if (isSocketDelayRequest(request)) {
             RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
-            requestDelayControl.setDelay(delaySpec.milliseconds());
+            admin.addSocketAcceptDelay(delaySpec);
             return ResponseDefinition.ok();
 		} else {
 			return ResponseDefinition.notFound();
@@ -96,7 +82,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
 	private ResponseDefinition getRequestCount(Request request) {
 		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-		int matchingRequestCount = requestJournal.countRequestsMatching(requestPattern);
+		int matchingRequestCount = admin.countRequestsMatching(requestPattern);
 		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
 		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
 		return response;
@@ -104,8 +90,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
     private ResponseDefinition findRequests(Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
-        ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new FindRequestsResult(requests)));
+        FindRequestsResult result = admin.findRequestsMatching(requestPattern);
+        ResponseDefinition response = new ResponseDefinition(HTTP_OK, Json.write(result));
         response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
         return response;
     }

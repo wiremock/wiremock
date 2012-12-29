@@ -26,6 +26,8 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -47,24 +49,17 @@ import com.github.tomakehurst.wiremock.verification.RequestJournal;
 public class AdminRequestHandlerTest {
 	
 	private Mockery context;
-	private StubMappings stubMappings;
-	private RequestJournal requestJournal;
-	private GlobalSettingsHolder globalSettingsHolder;
-    private RequestDelayControl requestDelayControl;
-	
+	private Admin admin;
+
 	private AdminRequestHandler handler;
 	
 	
 	@Before
 	public void init() {
 		context = new Mockery();
-		stubMappings = context.mock(StubMappings.class);
-		requestJournal = context.mock(RequestJournal.class);
-		globalSettingsHolder = new GlobalSettingsHolder();
-        requestDelayControl = context.mock(RequestDelayControl.class);
+        admin = context.mock(Admin.class);
 
-		handler = new AdminRequestHandler(
-                stubMappings, requestJournal, globalSettingsHolder, new BasicResponseRenderer(), requestDelayControl);
+		handler = new AdminRequestHandler(admin, new BasicResponseRenderer());
 	}
 	
 	@Test
@@ -76,13 +71,13 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(stubMappings).addMapping(aMapping()
-					.withMethod(RequestMethod.GET)
-					.withUrl("/a/registered/resource")
-					.withResponseStatus(401)
-					.withResponseBody("Not allowed!")
-					.withHeader("Content-Type", "text/plain")
-					.build());
+			one(admin).addStubMapping(aMapping()
+                    .withMethod(RequestMethod.GET)
+                    .withUrl("/a/registered/resource")
+                    .withResponseStatus(401)
+                    .withResponseBody("Not allowed!")
+                    .withHeader("Content-Type", "text/plain")
+                    .build());
 		}});
 		
 		Response response = handler.handle(request);
@@ -98,9 +93,7 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(stubMappings).reset();
-			one(requestJournal).reset();
-            one(requestDelayControl).clearDelay();
+			one(admin).resetMappings();
 		}});
 		
 		Response response = handler.handle(request);
@@ -118,7 +111,7 @@ public class AdminRequestHandlerTest {
 	public void shouldReturnCountOfMatchingRequests() {
 		context.checking(new Expectations() {{
 			RequestPattern requestPattern = new RequestPattern(DELETE, "/some/resource");
-			allowing(requestJournal).countRequestsMatching(requestPattern); will(returnValue(5));
+			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(5));
 		}});
 		
 		Response response = handler.handle(aRequest(context)
@@ -138,13 +131,18 @@ public class AdminRequestHandlerTest {
 	
 	@Test
 	public void shouldUpdateGlobalSettings() {
+        context.checking(new Expectations() {{
+            GlobalSettings expectedSettings = new GlobalSettings();
+            expectedSettings.setFixedDelay(2000);
+            allowing(admin).updateGlobalSettings(expectedSettings);
+        }});
+
 		handler.handle(aRequest(context)
 				.withUrl("/settings")
 				.withMethod(POST)
 				.withBody(GLOBAL_SETTINGS_JSON)
 				.build());
 		
-		assertThat(globalSettingsHolder.get().getFixedDelay(), is(2000));
 	}
 	
 }

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -30,24 +31,24 @@ public class WireMock {
 	private static final int DEFAULT_PORT = 8080;
 	private static final String DEFAULT_HOST = "localhost";
 
-	private AdminClient adminClient;
+	private Admin admin;
 	
 	private static WireMock defaultInstance = new WireMock();
 	
 	public WireMock(String host, int port) {
-		adminClient = new HttpAdminClient(host, port);
+		admin = new HttpAdminClient(host, port);
 	}
 	
 	public WireMock(String host, int port, String urlPathPrefix) {
-		adminClient = new HttpAdminClient(host, port, urlPathPrefix);
+		admin = new HttpAdminClient(host, port, urlPathPrefix);
 	}
 	
 	public WireMock() {
-		adminClient = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
+		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
 	
-	void setAdminClient(AdminClient adminClient) {
-		this.adminClient = adminClient;
+	void setAdmin(Admin admin) {
+		this.admin = admin;
 	}
 	
 	public static void givenThat(MappingBuilder mappingBuilder) {
@@ -71,7 +72,7 @@ public class WireMock {
 	}
 	
 	public void resetMappings() {
-		adminClient.resetMappings();
+		admin.resetMappings();
 	}
 	
 	public static void reset() {
@@ -79,7 +80,7 @@ public class WireMock {
 	}
 	
 	public void resetScenarios() {
-		adminClient.resetScenarios();
+		admin.resetScenarios();
 	}
 	
 	public static void resetAllScenarios() {
@@ -88,7 +89,7 @@ public class WireMock {
 	
 	public void register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
-		adminClient.addStubMapping(mapping);
+		admin.addStubMapping(mapping);
 	}
 	
 	public static UrlMatchingStrategy urlEqualTo(String url) {
@@ -165,14 +166,14 @@ public class WireMock {
 	
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		if (adminClient.countRequestsMatching(requestPattern) < 1) {
+		if (admin.countRequestsMatching(requestPattern) < 1) {
 			throw new VerificationException("Expected: " + requestPattern);
 		}
 	}
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		if (adminClient.countRequestsMatching(requestPattern) != count) {
+		if (admin.countRequestsMatching(requestPattern) != count) {
 			throw new VerificationException("Expected " + count + " of: " + requestPattern);
 		}
 	}
@@ -186,7 +187,7 @@ public class WireMock {
 	}
 
     public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
-        FindRequestsResult result = adminClient.findRequestsMatching(requestPatternBuilder.build());
+        FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
         return result.getRequests();
     }
 
@@ -229,11 +230,11 @@ public class WireMock {
 	public void setGlobalFixedDelayVariable(int milliseconds) {
 		GlobalSettings settings = new GlobalSettings();
 		settings.setFixedDelay(milliseconds);
-		adminClient.updateGlobalSettings(settings);
+		admin.updateGlobalSettings(settings);
 	}
 
     public void addDelayBeforeProcessingRequests(int milliseconds) {
-        adminClient.addSocketAcceptDelay(new RequestDelaySpec(milliseconds));
+        admin.addSocketAcceptDelay(new RequestDelaySpec(milliseconds));
     }
 
     public static void addRequestProcessingDelay(int milliseconds) {

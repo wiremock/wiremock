@@ -17,21 +17,23 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
+import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
-import com.github.tomakehurst.wiremock.http.MockServiceResponseRenderer;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
-public class WireMockApp {
+import java.util.List;
+
+public class WireMockApp implements StubServer, Admin {
     
     public static final String FILES_ROOT = "__files";
     
@@ -52,8 +54,7 @@ public class WireMockApp {
         mockServiceRequestHandler = new StubRequestHandler(stubMappings,
                 new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
         mockServiceRequestHandler.addRequestListener(requestJournal);
-        adminRequestHandler = new AdminRequestHandler(stubMappings, requestJournal, globalSettingsHolder,
-                new BasicResponseRenderer(), requestDelayControl);
+        adminRequestHandler = new AdminRequestHandler(this, new BasicResponseRenderer());
     }
 
     public RequestHandler getMockServiceRequestHandler() {
@@ -79,5 +80,47 @@ public class WireMockApp {
     public void addMockServiceRequestListener(RequestListener listener) {
         mockServiceRequestHandler.addRequestListener(listener);
     }
-    
+
+    @Override
+    public ResponseDefinition serveStubFor(Request request) {
+        return stubMappings.serveFor(request);
+    }
+
+    @Override
+    public void addStubMapping(StubMapping stubMapping) {
+        stubMappings.addMapping(stubMapping);
+    }
+
+    @Override
+    public void resetMappings() {
+        stubMappings.reset();
+        requestJournal.reset();
+        requestDelayControl.clearDelay();
+    }
+
+    @Override
+    public void resetScenarios() {
+        stubMappings.resetScenarios();
+    }
+
+    @Override
+    public int countRequestsMatching(RequestPattern requestPattern) {
+        return requestJournal.countRequestsMatching(requestPattern);
+    }
+
+    @Override
+    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
+        List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
+        return new FindRequestsResult(requests);
+    }
+
+    @Override
+    public void updateGlobalSettings(GlobalSettings newSettings) {
+        globalSettingsHolder.replaceWith(newSettings);
+    }
+
+    @Override
+    public void addSocketAcceptDelay(RequestDelaySpec delaySpec) {
+        requestDelayControl.setDelay(delaySpec.milliseconds());
+    }
 }
