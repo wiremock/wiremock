@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -34,13 +35,13 @@ public class StubMappingJsonRecorder implements RequestListener {
 	
 	private final FileSource mappingsFileSource;
 	private final FileSource filesFileSource;
-	private final RequestJournal requestJournal;
+	private final Admin admin;
 	private IdGenerator idGenerator;
 	
-	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, RequestJournal requestJournal) {
+	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
-		this.requestJournal = requestJournal;
+		this.admin = admin;
 		idGenerator = new VeryShortIdGenerator();
 	}
 
@@ -75,7 +76,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
-        return requestJournal.countRequestsMatching(requestPattern) <= 1;
+        return admin.countRequestsMatching(requestPattern) <= 1;
     }
 	
 	private String generateNewUniqueFileNameFromRequest(Request request, String prefix, String id) {

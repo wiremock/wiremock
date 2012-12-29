@@ -65,10 +65,6 @@ public class WireMockApp implements StubServer, Admin {
         return adminRequestHandler;
     }
 
-    public RequestJournal getRequestJournal() {
-        return requestJournal;
-    }
-    
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
         mappingsLoader.loadMappingsInto(stubMappings);
     }

@@ -93,7 +93,7 @@ public class WireMockServer {
 	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
-                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp.getRequestJournal()));
+                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp));
 	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 	
