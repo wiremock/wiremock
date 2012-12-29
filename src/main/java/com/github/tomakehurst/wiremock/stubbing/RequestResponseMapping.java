@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -49,8 +50,16 @@ public class RequestResponseMapping {
 	
 	public static final RequestResponseMapping NOT_CONFIGURED =
 	    new RequestResponseMapping(new RequestPattern(), ResponseDefinition.notConfigured());
-	
-	public RequestPattern getRequest() {
+
+    public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
+        return Json.read(mappingSpecJson, RequestResponseMapping.class);
+    }
+
+    public static String buildJsonStringFor(RequestResponseMapping mapping) {
+		return Json.write(mapping);
+	}
+
+    public RequestPattern getRequest() {
 		return request;
 	}
 	

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -31,7 +31,7 @@ import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.stubbing.ValuePattern.matching;
+import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
 import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
@@ -61,8 +61,12 @@ public class RequestPattern {
 	
 	public RequestPattern() {
 	}
-	
-	private void assertIsInValidState() {
+
+    public static RequestPattern buildRequestPatternFrom(String json) {
+        return Json.read(json, RequestPattern.class);
+    }
+
+    private void assertIsInValidState() {
 		if (url != null && urlPattern != null) {
 			throw new IllegalStateException("URL and URL pattern may not be set simultaneously");
 		}

@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.client;
+package com.github.tomakehurst.wiremock.http;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.Response;
 
-public class RequestDelaySpec {
+public interface RequestListener {
 
-    private final int milliseconds;
-
-    @JsonCreator
-    public RequestDelaySpec(@JsonProperty("milliseconds") int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
-    @JsonProperty("milliseconds")
-    public int milliseconds() {
-        return milliseconds;
-    }
+	void requestReceived(Request request, Response response);
 }

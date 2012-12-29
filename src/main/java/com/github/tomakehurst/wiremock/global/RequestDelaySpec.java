@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.global;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-public interface RequestHandler {
-	
-	public static final String HANDLER_CLASS_KEY = "RequestHandlerClass";
+public class RequestDelaySpec {
 
-	Response handle(Request request);
-	void addRequestListener(RequestListener requestListener);
+    private final int milliseconds;
+
+    @JsonCreator
+    public RequestDelaySpec(@JsonProperty("milliseconds") int milliseconds) {
+        this.milliseconds = milliseconds;
+    }
+
+    @JsonProperty("milliseconds")
+    public int milliseconds() {
+        return milliseconds;
+    }
 }

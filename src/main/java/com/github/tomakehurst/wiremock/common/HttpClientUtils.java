@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.client;
+package com.github.tomakehurst.wiremock.common;
 
 import static com.google.common.base.Charsets.UTF_8;
 

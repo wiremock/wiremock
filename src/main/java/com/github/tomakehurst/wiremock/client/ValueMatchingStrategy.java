@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.base.Function;
 
 public class ValueMatchingStrategy {

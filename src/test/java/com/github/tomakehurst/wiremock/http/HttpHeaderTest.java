@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItems;

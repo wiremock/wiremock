@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.collect.ImmutableMap;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -31,7 +33,7 @@ import org.junit.runner.RunWith;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
-import static com.github.tomakehurst.wiremock.stubbing.ValuePattern.equalTo;
+import static com.github.tomakehurst.wiremock.matching.ValuePattern.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;

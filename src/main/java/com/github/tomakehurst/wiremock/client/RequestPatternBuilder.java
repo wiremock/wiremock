@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 
 public class RequestPatternBuilder {
 

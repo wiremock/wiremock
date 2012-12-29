@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
-import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;

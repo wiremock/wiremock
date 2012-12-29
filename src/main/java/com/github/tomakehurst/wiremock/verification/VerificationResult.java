@@ -15,11 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.common.Json;
+
 public class VerificationResult {
 
 	private int count;
 
-	public int getCount() {
+    public static VerificationResult buildVerificationResultFrom(String json) {
+		return Json.read(json, VerificationResult.class);
+	}
+
+    public int getCount() {
 		return count;
 	}
 

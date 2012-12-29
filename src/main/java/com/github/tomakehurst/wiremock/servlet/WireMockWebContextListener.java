@@ -23,8 +23,8 @@ import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.WireMockApp;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
-import com.github.tomakehurst.wiremock.stubbing.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.stubbing.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 
 public class WireMockWebContextListener implements ServletContextListener {

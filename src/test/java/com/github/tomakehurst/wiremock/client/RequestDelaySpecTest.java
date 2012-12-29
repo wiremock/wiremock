@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import org.junit.Test;
 
 import static net.sf.json.test.JSONAssert.assertJsonEquals;

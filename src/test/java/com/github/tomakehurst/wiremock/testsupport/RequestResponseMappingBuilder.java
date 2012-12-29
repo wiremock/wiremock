@@ -21,7 +21,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 

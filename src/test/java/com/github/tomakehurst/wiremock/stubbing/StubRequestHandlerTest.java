@@ -21,9 +21,7 @@ import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRe
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;

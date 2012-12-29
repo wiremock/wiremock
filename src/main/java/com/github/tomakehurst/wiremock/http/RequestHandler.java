@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
+public interface RequestHandler {
+	
+	public static final String HANDLER_CLASS_KEY = "RequestHandlerClass";
 
-public interface RequestListener {
-
-	void requestReceived(Request request, Response response);
+	Response handle(Request request);
+	void addRequestListener(RequestListener requestListener);
 }

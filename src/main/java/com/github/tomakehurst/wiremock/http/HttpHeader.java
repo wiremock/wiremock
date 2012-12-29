@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.stubbing.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.base.Predicate;
 
 import java.util.Collection;

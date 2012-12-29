@@ -15,36 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.IOException;
-
-import com.github.tomakehurst.wiremock.stubbing.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.RequestResponseMapping;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import java.io.IOException;
 
 public final class Json {
 	
 	private Json() {}
-	
-	public static RequestResponseMapping buildMappingFrom(String mappingSpecJson) {
-		return read(mappingSpecJson, RequestResponseMapping.class);
-	}
-	
-	public static String buildJsonStringFor(RequestResponseMapping mapping) {
-		return write(mapping);
-	}
-	
-	public static VerificationResult buildVerificationResultFrom(String json) {
-		return read(json, VerificationResult.class);
-	}
-	
-	public static RequestPattern buildRequestPatternFrom(String json) {
-		return read(json, RequestPattern.class);
-	}
-	
-	public static <T> T read(String json, Class<T> clazz) {
+
+    public static <T> T read(String json, Class<T> clazz) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
