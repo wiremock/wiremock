@@ -19,8 +19,6 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
-import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
-
 public abstract class AbstractRequestHandler implements RequestHandler {
 
 	protected List<RequestListener> listeners = newArrayList();

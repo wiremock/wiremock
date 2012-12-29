@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.servlet;
+package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.base.Function;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;

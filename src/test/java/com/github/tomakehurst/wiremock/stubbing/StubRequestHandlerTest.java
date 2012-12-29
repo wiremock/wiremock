@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 
 @RunWith(JMock.class)
 public class StubRequestHandlerTest {

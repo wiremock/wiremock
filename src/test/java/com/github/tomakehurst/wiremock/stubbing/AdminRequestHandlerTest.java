@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.servlet.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 @RunWith(JMock.class)

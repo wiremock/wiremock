@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.servlet.ResponseRenderer;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;

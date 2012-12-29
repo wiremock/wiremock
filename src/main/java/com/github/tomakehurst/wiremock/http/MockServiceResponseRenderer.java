@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.servlet;
+package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
