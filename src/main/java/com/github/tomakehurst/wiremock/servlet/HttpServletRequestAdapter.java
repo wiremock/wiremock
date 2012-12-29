@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.jetty.ServletContainerUtils;
 import com.google.common.io.CharStreams;
 

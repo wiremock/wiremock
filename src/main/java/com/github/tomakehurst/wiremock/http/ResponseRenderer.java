@@ -15,10 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-
-
 public interface ResponseRenderer {
 	
 	public static final String CONTEXT_KEY = "ResponseRenderer";

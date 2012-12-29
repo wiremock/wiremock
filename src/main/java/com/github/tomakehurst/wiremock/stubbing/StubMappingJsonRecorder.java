@@ -24,12 +24,11 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 import java.net.URI;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.Json.write;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubMappingJsonRecorder implements RequestListener {
 	

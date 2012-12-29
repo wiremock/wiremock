@@ -15,20 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.Set;
+public interface RequestEventSource {
 
-public interface Request {
-
-	String getUrl();
-	String getAbsoluteUrl();
-	RequestMethod getMethod();
-	String getHeader(String key);
-    HttpHeader header(String key);
-    ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
-	boolean containsHeader(String key);
-	Set<String> getAllHeaderKeys();
-	String getBodyAsString();
-	boolean isBrowserProxyRequest();
-	
+    void addRequestListener(RequestListener requestListener);
 }

@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
-
 public interface RequestListener {
 
 	void requestReceived(Request request, Response response);

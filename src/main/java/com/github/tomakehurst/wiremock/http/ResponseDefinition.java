@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
-
 import com.github.tomakehurst.wiremock.common.Json;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -27,6 +22,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import java.nio.charset.Charset;
 
+import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.*;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 

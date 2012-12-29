@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.base.Charsets.UTF_8;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.URLDecoder.decode;
-
-import java.io.IOException;
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestHandler;
+import com.github.tomakehurst.wiremock.http.Response;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -29,13 +29,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.Response;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.URLDecoder.decode;
 
 public class HandlerDispatchingServlet extends HttpServlet {
 

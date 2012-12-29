@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Charsets.UTF_8;
-
-import java.io.IOException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+
+import static com.google.common.base.Charsets.UTF_8;
 
 public class HttpClientUtils {
 

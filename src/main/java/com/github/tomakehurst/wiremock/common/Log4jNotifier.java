@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.log4j.*;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import static org.apache.log4j.Level.*;
 

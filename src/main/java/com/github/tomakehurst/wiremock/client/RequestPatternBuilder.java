@@ -15,19 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toValuePattern;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-import static com.google.common.collect.Sets.newHashSet;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toValuePattern;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class RequestPatternBuilder {
 

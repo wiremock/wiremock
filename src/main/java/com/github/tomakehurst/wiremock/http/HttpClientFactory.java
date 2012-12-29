@@ -21,8 +21,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
 
 public class HttpClientFactory {

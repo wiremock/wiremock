@@ -15,10 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Socket;
-
-import javax.servlet.http.HttpServletResponse;
 
 public enum Fault {
 

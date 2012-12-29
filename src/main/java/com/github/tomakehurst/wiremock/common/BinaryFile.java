@@ -20,8 +20,6 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 
-import static com.google.common.base.Charsets.UTF_8;
-
 public class BinaryFile {
 
 	private final File file;

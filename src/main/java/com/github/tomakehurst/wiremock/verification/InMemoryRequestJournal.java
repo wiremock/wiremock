@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -54,6 +54,10 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	public void requestReceived(Request request, Response response) {
 		requests.add(LoggedRequest.createFrom(request));
 	}
+
+    public void requestReceived(Request request) {
+        requestReceived(request, null);
+    }
 
 	@Override
 	public void reset() {

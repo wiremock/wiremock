@@ -15,16 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
-import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static com.google.common.collect.Iterables.find;
-
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.base.Predicate;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
+import static com.google.common.collect.Iterables.find;
 
 
 public class InMemoryStubMappings implements StubMappings {

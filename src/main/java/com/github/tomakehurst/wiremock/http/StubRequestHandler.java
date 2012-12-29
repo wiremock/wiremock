@@ -15,18 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.core.StubServer;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	
-	private final StubMappings stubMappings;
+	private final StubServer stubServer;
 	private final boolean browserProxyingEnabled;
 
-	public StubRequestHandler(StubMappings stubMappings, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
+	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer, boolean browserProxyingEnabled) {
 		super(responseRenderer);
-		this.stubMappings = stubMappings;
+		this.stubServer = stubServer;
 		this.browserProxyingEnabled = browserProxyingEnabled;
 	}
 	
@@ -34,11 +34,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
 	public ResponseDefinition handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl());
 
-		ResponseDefinition responseDef = stubMappings.serveFor(request);
-		if (!responseDef.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
-			return ResponseDefinition.browserProxy(request);
-		}
-		
+		ResponseDefinition responseDef = stubServer.serveStubFor(request);
+
 		return responseDef;
 	}
 

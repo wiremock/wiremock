@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import java.lang.reflect.Field;
-import java.net.Socket;
-import java.net.URI;
+import org.mortbay.jetty.HttpConnection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.mortbay.jetty.HttpConnection;
+import java.lang.reflect.Field;
+import java.net.Socket;
+import java.net.URI;
 
 public class ServletContainerUtils {
 

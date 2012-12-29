@@ -15,20 +15,20 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.DelayableSocketConnector;
-import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -50,6 +50,7 @@ public class WireMockServer {
 	
 	private final WireMockApp wireMockApp;
     private final AdminRequestHandler adminRequestHandler;
+    private final StubRequestHandler stubRequestHandler;
 
 	
 	private Server jettyServer;
@@ -64,9 +65,14 @@ public class WireMockServer {
 		this.port = port;
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
-		wireMockApp = new WireMockApp(fileSource, notifier, enableBrowserProxying, requestDelayControl);
+
+        wireMockApp = new WireMockApp(requestDelayControl, enableBrowserProxying);
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
+        stubRequestHandler = new StubRequestHandler(wireMockApp,
+                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()), enableBrowserProxying);
+
+
 	}
 	
 	public WireMockServer(int port) {
@@ -82,7 +88,7 @@ public class WireMockServer {
 	}
 	
 	public void addMockServiceRequestListener(RequestListener listener) {
-		wireMockApp.addMockServiceRequestListener(listener);
+		stubRequestHandler.addRequestListener(listener);
 	}
 	
 	public void setVerboseLogging(boolean verbose) {
@@ -134,7 +140,7 @@ public class WireMockServer {
         
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
-		mockServiceContext.setAttribute(StubRequestHandler.class.getName(), wireMockApp.getMockServiceRequestHandler());
+		mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
 		mockServiceContext.setAttribute(Notifier.KEY, notifier);
 		ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
 		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());

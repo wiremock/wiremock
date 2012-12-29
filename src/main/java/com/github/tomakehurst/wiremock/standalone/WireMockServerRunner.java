@@ -15,17 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static com.github.tomakehurst.wiremock.WireMockServer.DEFAULT_PORT;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static java.lang.System.out;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+
+import static com.github.tomakehurst.wiremock.WireMockServer.DEFAULT_PORT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static java.lang.System.out;
 
 public class WireMockServerRunner {
 	

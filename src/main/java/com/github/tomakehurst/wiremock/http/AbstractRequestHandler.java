@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.List;
 
-public abstract class AbstractRequestHandler implements RequestHandler {
+import static com.google.common.collect.Lists.newArrayList;
+
+public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
 	protected List<RequestListener> listeners = newArrayList();
 	protected final ResponseRenderer responseRenderer;

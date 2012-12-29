@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRe
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.http.*;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -35,7 +36,7 @@ import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 public class StubRequestHandlerTest {
 
 	private Mockery context;
-	private StubMappings stubMappings;
+	private StubServer stubServer;
 	private ResponseRenderer responseRenderer;
 	
 	private StubRequestHandler requestHandler;
@@ -43,15 +44,15 @@ public class StubRequestHandlerTest {
 	@Before
 	public void init() {
 		context = new Mockery();
-		stubMappings = context.mock(StubMappings.class);
+        stubServer = context.mock(StubServer.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
-		requestHandler = new StubRequestHandler(stubMappings, responseRenderer, false); //TODO: don't hard code this
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer, false); //TODO: don't hard code this
 	}
 	
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
-			allowing(stubMappings).serveFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
 
             Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
@@ -74,7 +75,7 @@ public class StubRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(stubMappings).serveFor(request); will(returnValue(ResponseDefinition.notConfigured()));
+			allowing(stubServer).serveStubFor(request); will(returnValue(ResponseDefinition.notConfigured()));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});

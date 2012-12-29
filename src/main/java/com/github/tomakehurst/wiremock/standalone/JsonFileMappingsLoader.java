@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static com.google.common.collect.Iterables.filter;
-
-import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
-import com.google.common.base.Predicate;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.google.common.base.Predicate;
+
+import static com.google.common.collect.Iterables.filter;
 
 public class JsonFileMappingsLoader implements MappingsLoader {
 

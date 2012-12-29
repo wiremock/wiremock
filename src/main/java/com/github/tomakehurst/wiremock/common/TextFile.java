@@ -15,12 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.google.common.base.Charsets.UTF_8;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
 
-import com.google.common.io.Files;
+import static com.google.common.base.Charsets.UTF_8;
 
 public class TextFile {
 

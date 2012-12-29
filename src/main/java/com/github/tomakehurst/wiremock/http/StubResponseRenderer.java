@@ -16,20 +16,20 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.BinaryFile;
-import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.google.common.base.Optional;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
-public class MockServiceResponseRenderer implements ResponseRenderer {
+public class StubResponseRenderer implements ResponseRenderer {
 	
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
 
-    public MockServiceResponseRenderer(FileSource fileSource,
-                                       GlobalSettingsHolder globalSettingsHolder) {
+    public StubResponseRenderer(FileSource fileSource,
+                                GlobalSettingsHolder globalSettingsHolder) {
         this.fileSource = fileSource;
         this.globalSettingsHolder = globalSettingsHolder;
         this.proxyResponseRenderer = new ProxyResponseRenderer();

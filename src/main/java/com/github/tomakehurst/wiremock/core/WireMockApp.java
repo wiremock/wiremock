@@ -15,61 +15,59 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.*;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 import java.util.List;
 
 public class WireMockApp implements StubServer, Admin {
     
     public static final String FILES_ROOT = "__files";
-    
-    private final StubMappings stubMappings;
-    private final InMemoryRequestJournal requestJournal;
-    private final RequestHandler mockServiceRequestHandler;
-    private final GlobalSettingsHolder globalSettingsHolder;
-    private final RequestDelayControl requestDelayControl;
-
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
-    public WireMockApp(FileSource fileSource, Notifier notifier, boolean enableBrowserProxying, RequestDelayControl socketAcceptor) {
-        this.requestDelayControl = socketAcceptor;
+    private final StubMappings stubMappings;
+    private final InMemoryRequestJournal requestJournal;
+    private final GlobalSettingsHolder globalSettingsHolder;
+    private final RequestDelayControl requestDelayControl;
+    private final boolean browserProxyingEnabled;
+
+    public WireMockApp(RequestDelayControl requestDelayControl, boolean browserProxyingEnabled) {
+        this.requestDelayControl = requestDelayControl;
+        this.browserProxyingEnabled = browserProxyingEnabled;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
         requestJournal = new InMemoryRequestJournal();
-        mockServiceRequestHandler = new StubRequestHandler(stubMappings,
-                new MockServiceResponseRenderer(fileSource.child(FILES_ROOT), globalSettingsHolder), enableBrowserProxying);
-        mockServiceRequestHandler.addRequestListener(requestJournal);
     }
 
-    public RequestHandler getMockServiceRequestHandler() {
-        return mockServiceRequestHandler;
+    public GlobalSettingsHolder getGlobalSettingsHolder() {
+        return globalSettingsHolder;
     }
 
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
         mappingsLoader.loadMappingsInto(stubMappings);
     }
     
-    public void addMockServiceRequestListener(RequestListener listener) {
-        mockServiceRequestHandler.addRequestListener(listener);
-    }
-
     @Override
     public ResponseDefinition serveStubFor(Request request) {
-        return stubMappings.serveFor(request);
+        ResponseDefinition responseDefinition = stubMappings.serveFor(request);
+        requestJournal.requestReceived(request);
+        if (!responseDefinition.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
+            return ResponseDefinition.browserProxy(request);
+        }
+
+        return responseDefinition;
     }
 
     @Override

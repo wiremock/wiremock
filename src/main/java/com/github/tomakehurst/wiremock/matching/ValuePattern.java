@@ -15,14 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static java.util.regex.Pattern.DOTALL;
-
-import java.util.regex.Pattern;
-
+import com.google.common.base.Predicate;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
-import com.google.common.base.Predicate;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.DOTALL;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ValuePattern {

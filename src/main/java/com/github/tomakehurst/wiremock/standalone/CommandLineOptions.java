@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 public class CommandLineOptions {
 	
