@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.SerializerProvider;
-
 import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 public class HttpHeadersJsonSerializer extends JsonSerializer<HttpHeaders> {
 
