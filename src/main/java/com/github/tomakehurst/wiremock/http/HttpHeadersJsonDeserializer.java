@@ -15,25 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
+import static com.google.common.collect.Iterables.transform;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.google.common.collect.Iterables.transform;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 
 public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
 
     @Override
     public HttpHeaders deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode rootNode = parser.readValueAsTree();
-        return new HttpHeaders(transform(all(rootNode.getFields()), toHttpHeaders()));
+        return new HttpHeaders(transform(all(rootNode.fields()), toHttpHeaders()));
     }
 
     private static Function<Map.Entry<String, JsonNode>, HttpHeader> toHttpHeaders() {
@@ -43,9 +43,9 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
                 String key = field.getKey();
                 if (field.getValue().isArray()) {
                     return new HttpHeader(key,
-                            ImmutableList.copyOf(transform(all(field.getValue().getElements()), toStringValues())));
+                            ImmutableList.copyOf(transform(all(field.getValue().elements()), toStringValues())));
                 } else {
-                    return new HttpHeader(key, field.getValue().getTextValue());
+                    return new HttpHeader(key, field.getValue().textValue());
                 }
             }
         };
@@ -54,7 +54,7 @@ public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
     private static Function<JsonNode, String> toStringValues() {
         return new Function<JsonNode, String>() {
             public String apply(JsonNode node) {
-                return node.getTextValue();
+                return node.textValue();
             }
         };
     }
