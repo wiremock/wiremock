@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class Json {
 	
@@ -37,7 +37,7 @@ public final class Json {
 	public static <T> String write(T object) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			return mapper.defaultPrettyPrintingWriter().writeValueAsString(object);
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 		} catch (IOException ioe) {
 			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
 		}
