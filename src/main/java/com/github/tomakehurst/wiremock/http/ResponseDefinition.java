@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
@@ -130,6 +131,9 @@ public class ResponseDefinition {
         body = parseBase64Binary(base64Body);
     }
 
+    // Needs to be explicitly marked as a property, since an overloaded setter with the same
+    // name is marked as ignored (see currently open JACKSON-783 bug)
+    @JsonProperty
 	public void setBody(final String body) {
 		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
         isBinaryBody = false;
