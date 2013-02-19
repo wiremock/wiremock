@@ -23,11 +23,17 @@ import org.junit.runners.model.Statement;
 
 public class WireMockRule implements MethodRule {
 	
-	private int port;
+	private final int port;
+    private final Integer httpsPort;
 	
 	public WireMockRule(int port) {
-		this.port = port;
+		this(port, null);
 	}
+
+    public WireMockRule(int port, Integer httpsPort) {
+        this.port = port;
+        this.httpsPort = httpsPort;
+    }
 	
 	public WireMockRule() {
 		this(WireMockServer.DEFAULT_PORT);
@@ -39,7 +45,7 @@ public class WireMockRule implements MethodRule {
 
 			@Override
 			public void evaluate() throws Throwable {
-				WireMockServer wireMockServer = new WireMockServer(port);
+				WireMockServer wireMockServer = new WireMockServer(port, httpsPort);
 				wireMockServer.start();
 				WireMock.configureFor("localhost", port);
 				try {

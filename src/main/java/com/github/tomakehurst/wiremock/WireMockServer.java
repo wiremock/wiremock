@@ -21,11 +21,13 @@ import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.DelayableSocketConnector;
+import com.github.tomakehurst.wiremock.jetty.DelayableSslSocketConnector;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
+import com.google.common.io.Resources;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -55,11 +57,13 @@ public class WireMockServer {
 	private final FileSource fileSource;
 	private final Log4jNotifier notifier;
 	private final int port;
-	
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
-		notifier = new Log4jNotifier();
-		this.fileSource = fileSource;
-		this.port = port;
+    private final Integer httpsPort;
+
+    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
+        notifier = new Log4jNotifier();
+        this.fileSource = fileSource;
+        this.port = port;
+        this.httpsPort = httpsPort;
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
@@ -68,10 +72,12 @@ public class WireMockServer {
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
-                                         wireMockApp.getGlobalSettingsHolder(),
-                                         new ProxyResponseRenderer(proxySettings)));
+                        wireMockApp.getGlobalSettingsHolder(),
+                        new ProxyResponseRenderer(proxySettings)));
+    }
 
-
+	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
+		this(port, null, fileSource, enableBrowserProxying, proxySettings);
 	}
 
     public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
@@ -81,6 +87,10 @@ public class WireMockServer {
 	public WireMockServer(int port) {
 		this(port, new SingleRootFileSource("src/test/resources"), false);
 	}
+
+    public WireMockServer(int port, Integer httpsPort) {
+        this(port, httpsPort, new SingleRootFileSource("src/test/resources"), false, ProxySettings.NO_PROXY);
+    }
 	
 	public WireMockServer() {
 		this(DEFAULT_PORT);
@@ -119,10 +129,12 @@ public class WireMockServer {
 	public void start() {
 		try {
             jettyServer = new Server();
-            DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
-            connector.setPort(port);
-            connector.setHeaderBufferSize(8192);
-            jettyServer.addConnector(connector);
+            jettyServer.addConnector(createHttpConnector());
+
+            if (httpsPort != null) {
+                jettyServer.addConnector(createHttpsConnector());
+            }
+
             addAdminContext();
             addMockServiceContext();
 			jettyServer.start();
@@ -130,7 +142,23 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+    private DelayableSocketConnector createHttpConnector() {
+        DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
+        connector.setPort(port);
+        connector.setHeaderBufferSize(8192);
+        return connector;
+    }
+
+    private DelayableSslSocketConnector createHttpsConnector() {
+        DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
+        connector.setPort(httpsPort);
+        connector.setHeaderBufferSize(8192);
+        connector.setKeystore(Resources.getResource("keystore").toString());
+        connector.setKeyPassword("password");
+        return connector;
+    }
+
     public boolean isRunning() {
         return jettyServer != null && jettyServer.isRunning();
     }

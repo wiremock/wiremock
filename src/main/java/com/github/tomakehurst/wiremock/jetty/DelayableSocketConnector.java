@@ -31,7 +31,7 @@ public class DelayableSocketConnector extends SocketConnector {
 
     @Override
     public void accept(int acceptorID) throws IOException, InterruptedException {
-        Socket socket = _serverSocket.accept();
+        final Socket socket = _serverSocket.accept();
 
         try {
             requestDelayControl.delayIfRequired();
@@ -42,7 +42,14 @@ public class DelayableSocketConnector extends SocketConnector {
         }
 
         configure(socket);
-        Connection connection = new Connection(socket);
+        Connection connection = new Connection(socket) {
+            @Override
+            public void run() {
+                ActiveSocket.set(socket);
+                super.run();
+                ActiveSocket.clear();
+            }
+        };
         connection.dispatch();
     }
 }

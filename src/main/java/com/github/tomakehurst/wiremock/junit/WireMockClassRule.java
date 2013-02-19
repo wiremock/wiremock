@@ -14,9 +14,13 @@ public class WireMockClassRule implements MethodRule, TestRule {
     private int port;
     private final WireMockServer wireMockServer;
 
-    public WireMockClassRule(int port) {
+    public WireMockClassRule(int port, Integer httpsPort) {
         this.port = port;
-        this.wireMockServer = new WireMockServer(port);
+        this.wireMockServer = new WireMockServer(port, httpsPort);
+    }
+
+    public WireMockClassRule(int port) {
+        this(port, null);
     }
 
     public WireMockClassRule() {

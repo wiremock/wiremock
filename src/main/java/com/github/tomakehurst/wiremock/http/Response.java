@@ -15,13 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.jetty.ActiveSocket;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
-import static com.github.tomakehurst.wiremock.jetty.ServletContainerUtils.getUnderlyingSocketFrom;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -85,7 +87,8 @@ public class Response {
 	
 	public void applyTo(HttpServletResponse httpServletResponse) {
 		if (fault != null) {
-			fault.apply(httpServletResponse, getUnderlyingSocketFrom(httpServletResponse));
+            Socket socket = ActiveSocket.get();
+			fault.apply(httpServletResponse, socket);
 			return;
 		}
 		

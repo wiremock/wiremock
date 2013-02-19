@@ -18,9 +18,11 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.google.common.base.Stopwatch;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,13 +35,15 @@ import static org.junit.Assert.assertThat;
 
 public class RequestDelayAcceptanceTest {
 
-    public static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
-    public static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
+    private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
+    private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
+    private static final int HTTP_PORT = 8080;
+    private static final int HTTPS_PORT = 8443;
 
     private HttpClient httpClient;
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule();
+    public WireMockRule wireMockRule = new WireMockRule(HTTP_PORT, HTTPS_PORT);
 
     @Before
     public void init() {
@@ -47,40 +51,66 @@ public class RequestDelayAcceptanceTest {
     }
 
     @Test
-    public void addsDelayBeforeServingRequest() throws Exception {
-        int delayMillis = SOCKET_TIMEOUT_MILLISECONDS / 2;
+    public void addsDelayBeforeServingHttpRequest() throws Exception {
+        executeRequestAndVerifyDelayAdded("http");
+    }
 
-        WireMock.addRequestProcessingDelay(delayMillis);
-        long start = System.currentTimeMillis();
-        executeGetRequest();
-        int timeTaken = (int) (System.currentTimeMillis() - start);
+    @Test
+    public void addsDelayBeforeServingHttpsRequest() throws Exception {
+        executeRequestAndVerifyDelayAdded("https");
+    }
 
-        assertThat(timeTaken, greaterThanOrEqualTo(delayMillis));
+    private void executeRequestAndVerifyDelayAdded(String protocol) throws Exception {
+        long delayMillis = SOCKET_TIMEOUT_MILLISECONDS / 2;
+        WireMock.addRequestProcessingDelay((int) delayMillis);
+
+        Stopwatch stopwatch = new Stopwatch().start();
+        executeGetRequest(protocol);
+        stopwatch.stop();
+
+        assertThat(stopwatch.elapsedMillis(), greaterThanOrEqualTo(delayMillis));
     }
 
     @Test(expected=SocketTimeoutException.class)
     public void causesSocketTimeoutExceptionWhenDelayGreaterThanSoTimeoutSetting() throws Exception {
-        WireMock.addRequestProcessingDelay(SOCKET_TIMEOUT_MILLISECONDS * 2);
-        executeGetRequest();
+        WireMock.addRequestProcessingDelay(LONGER_THAN_SOCKET_TIMEOUT);
+        executeHttpGetRequest();
+    }
+
+    @Ignore("This currently causes an SSLPeerUnverifiedException. Not sure it's possible to do SocketTimeoutException over HTTPS in Java.")
+    @Test(expected=SocketTimeoutException.class)
+    public void causesSocketTimeoutExceptionOverHttpsWhenDelayGreaterThanSoTimeoutSetting() throws Exception {
+        WireMock.addRequestProcessingDelay(LONGER_THAN_SOCKET_TIMEOUT);
+        executeHttpsGetRequest();
     }
 
     @Test
     public void resetResetsRequestDelay() throws Exception {
         WireMock.addRequestProcessingDelay(LONGER_THAN_SOCKET_TIMEOUT);
         try {
-            executeGetRequest();
+            executeHttpGetRequest();
         } catch (IOException e) {
             assertThat(e, instanceOf(SocketTimeoutException.class));
         }
 
         WireMock.reset();
 
-        executeGetRequest();
+        executeHttpGetRequest();
         // No exception expected
     }
 
-    private void executeGetRequest() throws IOException {
-        HttpGet get = new HttpGet("http://localhost:8080/anything");
+    private void executeHttpGetRequest() throws IOException {
+        executeGetRequest("http");
+    }
+
+    private void executeHttpsGetRequest() throws IOException {
+        executeGetRequest("https");
+    }
+
+    private void executeGetRequest(String protocol) throws IOException {
+        int port = protocol.equals("https") ? HTTPS_PORT : HTTP_PORT;
+        String url = String.format("%s://localhost:%d/anything", protocol, port);
+        HttpGet get = new HttpGet(url);
         httpClient.execute(get);
     }
 }

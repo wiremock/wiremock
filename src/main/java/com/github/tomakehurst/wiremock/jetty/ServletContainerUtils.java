@@ -15,22 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.jetty;
 
-import org.mortbay.jetty.HttpConnection;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
-import java.net.Socket;
 import java.net.URI;
 
 public class ServletContainerUtils {
 
-	public static Socket getUnderlyingSocketFrom(HttpServletResponse httpServletResponse) {
-		HttpConnection httpConnection = getPrivateField(httpServletResponse, "_connection");
-		Object channelEndPoint = httpConnection.getEndPoint();
-		return getPrivateField(channelEndPoint, "_socket");
-	}
-	
 	public static boolean isBrowserProxyRequest(HttpServletRequest request) {
 		if (!hasField(request, "_uri")) {
 			return false;
