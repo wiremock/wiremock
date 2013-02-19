@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock;
+package com.github.tomakehurst.wiremock.standalone;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.standalone.CommandLineOptions;
 import org.junit.Test;
 
@@ -96,4 +98,17 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--help");
 		assertThat(options.helpText(), allOf(containsString("verbose")));
 	}
+
+    @Test
+    public void returnsCorrectlyParsedProxyViaParameter() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
+        assertThat(options.getProxyVia().host(), is("somehost.mysite.com"));
+        assertThat(options.getProxyVia().port(), is(8080));
+    }
+
+    @Test
+    public void returnsNoProxyWhenNoProxyViaSpecified() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getProxyVia(), is(ProxySettings.NO_PROXY));
+    }
 }

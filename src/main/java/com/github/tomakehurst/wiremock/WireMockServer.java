@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
@@ -59,7 +56,7 @@ public class WireMockServer {
 	private final Log4jNotifier notifier;
 	private final int port;
 	
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
+	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
 		notifier = new Log4jNotifier();
 		this.fileSource = fileSource;
 		this.port = port;
@@ -70,10 +67,16 @@ public class WireMockServer {
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
-                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()));
+                new StubResponseRenderer(fileSource.child(FILES_ROOT),
+                                         wireMockApp.getGlobalSettingsHolder(),
+                                         new ProxyResponseRenderer(proxySettings)));
 
 
 	}
+
+    public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
+        this(port, fileSource, enableBrowserProxying, ProxySettings.NO_PROXY);
+    }
 	
 	public WireMockServer(int port) {
 		this(port, new SingleRootFileSource("src/test/resources"), false);

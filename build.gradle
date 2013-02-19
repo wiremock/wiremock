@@ -24,7 +24,7 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-core:2.1.2", 
         	"com.fasterxml.jackson.core:jackson-annotations:2.1.2", 
         	"com.fasterxml.jackson.core:jackson-databind:2.1.2"
-	compile "org.apache.httpcomponents:httpclient:4.1.2"
+	compile "org.apache.httpcomponents:httpclient:4.2.3"
 	compile "log4j:log4j:1.2.16"
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
 	compile ("junit:junit-dep:4.10") {

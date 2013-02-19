@@ -49,9 +49,9 @@ public class WireMockServerRunner {
 		mappingsFileSource.createIfNecessary();
 		
 		if (options.specifiesPortNumber()) {
-			wireMockServer = new WireMockServer(options.portNumber(), fileSource, options.browserProxyingEnabled());
+			wireMockServer = new WireMockServer(options.portNumber(), fileSource, options.browserProxyingEnabled(), options.getProxyVia());
 		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, fileSource, options.browserProxyingEnabled());
+			wireMockServer = new WireMockServer(DEFAULT_PORT, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
 		}
 		
 		if (options.recordMappingsEnabled()) {

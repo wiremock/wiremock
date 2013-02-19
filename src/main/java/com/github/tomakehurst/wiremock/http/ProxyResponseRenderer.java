@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.base.Function;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -41,9 +42,17 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	
 	private final HttpClient client;
 	
-	public ProxyResponseRenderer() {
-		client = HttpClientFactory.createClient(1000, 5 * MINUTES);
+	public ProxyResponseRenderer(ProxySettings proxySettings) {
+        if (proxySettings != null) {
+            client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings);
+        } else {
+            client = HttpClientFactory.createClient(1000, 5 * MINUTES);
+        }
 	}
+
+    public ProxyResponseRenderer() {
+        this(ProxySettings.NO_PROXY);
+    }
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {

@@ -29,10 +29,11 @@ public class StubResponseRenderer implements ResponseRenderer {
 	private final ProxyResponseRenderer proxyResponseRenderer;
 
     public StubResponseRenderer(FileSource fileSource,
-                                GlobalSettingsHolder globalSettingsHolder) {
+                                GlobalSettingsHolder globalSettingsHolder,
+                                ProxyResponseRenderer proxyResponseRenderer) {
         this.fileSource = fileSource;
         this.globalSettingsHolder = globalSettingsHolder;
-        this.proxyResponseRenderer = new ProxyResponseRenderer();
+        this.proxyResponseRenderer = proxyResponseRenderer;
     }
 
 	@Override

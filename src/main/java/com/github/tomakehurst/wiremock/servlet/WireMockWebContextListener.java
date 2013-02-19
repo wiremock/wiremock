@@ -19,10 +19,7 @@ import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 
 import javax.servlet.ServletContext;
@@ -47,7 +44,9 @@ public class WireMockWebContextListener implements ServletContextListener {
         WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false);
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
-                new StubResponseRenderer(fileSource.child(FILES_ROOT), wireMockApp.getGlobalSettingsHolder()));
+                new StubResponseRenderer(fileSource.child(FILES_ROOT),
+                        wireMockApp.getGlobalSettingsHolder(),
+                        new ProxyResponseRenderer()));
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
