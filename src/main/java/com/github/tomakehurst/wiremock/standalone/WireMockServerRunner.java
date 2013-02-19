@@ -47,11 +47,12 @@ public class WireMockServerRunner {
 		filesFileSource.createIfNecessary();
 		FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
 		mappingsFileSource.createIfNecessary();
-		
+
+        Integer httpsPort = options.specifiesHttpsPortNumber() ? options.httpsPortNumber() : null;
 		if (options.specifiesPortNumber()) {
-			wireMockServer = new WireMockServer(options.portNumber(), fileSource, options.browserProxyingEnabled(), options.getProxyVia());
+			wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
 		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
+			wireMockServer = new WireMockServer(DEFAULT_PORT, httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
 		}
 		
 		if (options.recordMappingsEnabled()) {

@@ -52,11 +52,18 @@ public class CommandLineOptionsTest {
 	}
 	
 	@Test
-	public void setsPortNumberWhenOptionPresent() {
-		CommandLineOptions options = new CommandLineOptions("--port", "8086");
-		assertThat(options.specifiesPortNumber(), is(true));
-		assertThat(options.portNumber(), is(8086));
-	}
+     public void setsPortNumberWhenOptionPresent() {
+        CommandLineOptions options = new CommandLineOptions("--port", "8086");
+        assertThat(options.specifiesPortNumber(), is(true));
+        assertThat(options.portNumber(), is(8086));
+    }
+
+    @Test
+    public void setsHttpsPortNumberWhenOptionPresent() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
+        assertThat(options.specifiesHttpsPortNumber(), is(true));
+        assertThat(options.httpsPortNumber(), is(8443));
+    }
 	
 	@Test(expected=Exception.class)
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {

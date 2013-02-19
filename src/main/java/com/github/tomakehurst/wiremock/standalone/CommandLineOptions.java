@@ -32,6 +32,7 @@ public class CommandLineOptions {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
+    private static final String HTTPS_PORT = "https-port";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
 	
@@ -41,6 +42,7 @@ public class CommandLineOptions {
 	public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
+        optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
@@ -80,6 +82,14 @@ public class CommandLineOptions {
 	public int portNumber() {
 		return Integer.parseInt((String) optionSet.valueOf(PORT));
 	}
+
+    public boolean specifiesHttpsPortNumber() {
+        return optionSet.has(HTTPS_PORT);
+    }
+
+    public int httpsPortNumber() {
+        return Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT));
+    }
 	
 	public boolean help() {
 		return optionSet.has(HELP);
