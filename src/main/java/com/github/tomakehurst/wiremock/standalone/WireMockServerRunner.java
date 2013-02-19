@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
@@ -40,6 +41,7 @@ public class WireMockServerRunner {
 			out.println(options.helpText());
 			return;
 		}
+        Log4jConfiguration.configureLogging(options.verboseLoggingEnabled());
 		
 		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
@@ -57,8 +59,6 @@ public class WireMockServerRunner {
 		if (options.recordMappingsEnabled()) {
 		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}
-		
-		wireMockServer.setVerboseLogging(options.verboseLoggingEnabled());
 		
 		wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
 		

@@ -91,13 +91,6 @@ public class WireMockServer {
 		stubRequestHandler.addRequestListener(listener);
 	}
 	
-	public void setVerboseLogging(boolean verbose) {
-		notifier.setVerbose(verbose);
-		if (verbose) {
-		    notifier.info("Verbose logging enabled");
-		}
-	}
-	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp));

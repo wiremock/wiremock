@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
+import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
@@ -41,8 +41,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         String fileSourceRoot = context.getInitParameter(FILE_SOURCE_ROOT_KEY);
         
         ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
-        Log4jNotifier notifier = new Log4jNotifier();
-        notifier.setVerbose(true);
+        Log4jConfiguration.configureLogging(true);
         
         WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false);
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
