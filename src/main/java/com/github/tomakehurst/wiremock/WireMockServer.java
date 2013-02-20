@@ -56,13 +56,17 @@ public class WireMockServer {
 	private Server jettyServer;
     private RequestDelayControl requestDelayControl;
 	private final FileSource fileSource;
-	private final Log4jNotifier notifier;
+	private final Notifier notifier;
 	private final int port;
-	
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
-		notifier = new Log4jNotifier();
+
+    public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
+        this(port, fileSource, enableBrowserProxying, new Log4jNotifier());
+    }
+
+	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, Notifier notifier) {
 		this.fileSource = fileSource;
-		this.port = port;
+        this.port = port;
+        this.notifier = notifier;
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
