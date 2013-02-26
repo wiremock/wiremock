@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -30,6 +31,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class LoggedRequest implements Request {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -53,7 +55,7 @@ public class LoggedRequest implements Request {
 	}
 
     @JsonCreator
-    private LoggedRequest(@JsonProperty("url") String url,
+    public LoggedRequest(@JsonProperty("url") String url,
                          @JsonProperty("absoluteUrl") String absoluteUrl,
                          @JsonProperty("method") RequestMethod method,
                          @JsonProperty("headers") HttpHeaders headers,
@@ -136,7 +138,6 @@ public class LoggedRequest implements Request {
         return loggedDate;
     }
 
-    @JsonIgnore
     public String getLoggedDateString() {
         return format(loggedDate);
     }
