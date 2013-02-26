@@ -50,11 +50,10 @@ dependencies {
 }
 
 buildscript {
-    //def githubBase = 'https://github.com/valkolovos/gradle_cobertura/raw/master/ivy'
-    //apply from: "${githubBase}/gradle_cobertura/gradle_cobertura/1.0-rc4/coberturainit.gradle"
-
     repositories {
-        mavenRepo url:['https://oss.sonatype.org']
+        maven {
+            url "https://oss.sonatype.org"
+        }
         mavenCentral()
     }
 
@@ -74,11 +73,6 @@ eclipse {
 	}
 }
 
-task "create-dirs" << {
-   sourceSets.all*.java.srcDirs*.each { it.mkdirs() }
-   sourceSets.all*.resources.srcDirs*.each { it.mkdirs() }
-}
-
 jar {
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
@@ -88,14 +82,15 @@ jar {
 task jarAll(type: Jar, dependsOn: jar) {
     inputs.files jar.archivePath
     appendix = 'standalone'
-    metaInfDir = "$buildDir/tmp/manifest"
+    def metaInfDir = "$buildDir/tmp/manifest"
     def jar = project.tasks.jar
-	File jarFile = new File(jar.destinationDir, jar.archiveName - ("." + jar.extension) + "-standalone." + jar.extension)
+    String fileName = jar.archiveName - ("." + jar.extension) + "-standalone." + jar.extension
+	File jarFile = new File(jar.destinationDir, fileName)
     doFirst {
-    	manifest.writeTo("$metaInfDir/MANIFEST.MF")
+    	manifest.writeTo("${metaInfDir}/MANIFEST.MF")
         project.ant {
             taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.testCompile.asPath
-            jarjar(jarfile: jarFile, manifest: "$metaInfDir/MANIFEST.MF") {
+            jarjar(jarfile: jarFile, manifest: "${metaInfDir}/MANIFEST.MF") {
                 zipfileset(src: jar.archivePath)
                 
                 configurations.compile.files.findAll { !it.name.contains("junit") }.each {
@@ -166,7 +161,7 @@ uploadArchives {
             pom.project {
             	packaging 'jar'
             	name 'WireMock'
-            	description 'A tool for simulating HTTP services'
+            	description 'A web service test double for all occasions'
             	
             	url 'https://github.com/tomakehurst/wiremock'
             	
