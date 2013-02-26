@@ -26,6 +26,9 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.RequestPatternBuilder.allRequests;
+
+
 public class WireMock {
 	
 	private static final int DEFAULT_PORT = 8080;
@@ -167,14 +170,14 @@ public class WireMock {
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		if (admin.countRequestsMatching(requestPattern) < 1) {
-			throw new VerificationException("Expected: " + requestPattern);
+			throw new VerificationException(requestPattern, find(allRequests()));
 		}
 	}
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		if (admin.countRequestsMatching(requestPattern) != count) {
-			throw new VerificationException("Expected " + count + " of: " + requestPattern);
+            throw new VerificationException(requestPattern, count, find(allRequests()));
 		}
 	}
 	

@@ -15,15 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+
+import java.util.List;
+
 public class VerificationException extends RuntimeException {
 
 	private static final long serialVersionUID = 5116216532516117538L;
 
-	public VerificationException() {
-		super();
-	}
-
 	public VerificationException(String message) {
 		super(message);
 	}
+
+    public VerificationException(RequestPattern expected, List<LoggedRequest> requests) {
+        super(String.format("Expected at least one request matching: %s\nRequests received: %s",
+                expected.toString(), Json.write(requests)));
+    }
+
+    public VerificationException(RequestPattern expected, int expectedCount, List<LoggedRequest> requests) {
+        super(String.format("Expected exactly %d requests matching: %s\nRequests received: %s",
+                expectedCount, expected.toString(), Json.write(requests)));
+    }
 }

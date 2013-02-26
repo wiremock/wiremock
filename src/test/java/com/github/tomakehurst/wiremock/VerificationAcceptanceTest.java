@@ -21,6 +21,11 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class VerificationAcceptanceTest extends AcceptanceTestBase {
 
@@ -123,5 +128,37 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
         testClient.get("/without/another/header", withHeader("Content-Type", "application/json"));
         verify(getRequestedFor(urlEqualTo("/without/another/header"))
                 .withoutHeader("Content-Type"));
+    }
+
+    @Test
+    public void showsExpectedAndReceivedRequestsOnVerificationException() {
+        testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
+
+        try {
+            verify(getRequestedFor(urlEqualTo("/specific/thing")));
+            fail();
+        } catch (VerificationException e) {
+            assertThat(e.getMessage(), allOf(
+                    containsString("Expected at least one request matching: {"),
+                    containsString("/specific/thing"),
+                    containsString("Requests received: "),
+                    containsString("/some/request")));
+        }
+    }
+
+    @Test
+    public void showsReceivedRequestsOnVerificationException() {
+        testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
+
+        try {
+            verify(14, getRequestedFor(urlEqualTo("/specific/thing")));
+            fail();
+        } catch (VerificationException e) {
+            assertThat(e.getMessage(), allOf(
+                    containsString("Expected exactly 14 requests matching: {"),
+                    containsString("/specific/thing"),
+                    containsString("Requests received: "),
+                    containsString("/some/request")));
+        }
     }
 }

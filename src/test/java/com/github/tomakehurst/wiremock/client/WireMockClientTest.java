@@ -15,24 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.head;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.options;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.trace;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.collect.ImmutableList;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -43,6 +31,8 @@ import org.junit.runner.RunWith;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 @RunWith(JMock.class)
 public class WireMockClientTest {
@@ -189,6 +179,8 @@ public class WireMockClientTest {
 	public void shouldThrowVerificationExceptionWhenVerifyingRequestNotMatching() {
 		context.checking(new Expectations() {{
 			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+            allowing(admin).findRequestsMatching(with(any(RequestPattern.class)));
+                will(returnValue(new FindRequestsResult(ImmutableList.<LoggedRequest>of())));
 		}});
 		
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();

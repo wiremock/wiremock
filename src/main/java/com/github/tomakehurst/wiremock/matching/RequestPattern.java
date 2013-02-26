@@ -66,6 +66,12 @@ public class RequestPattern {
 	public RequestPattern() {
 	}
 
+    public static RequestPattern everything() {
+        RequestPattern requestPattern = new RequestPattern(RequestMethod.ANY);
+        requestPattern.setUrlPattern(".*");
+        return requestPattern;
+    }
+
     public static RequestPattern buildRequestPatternFrom(String json) {
         return Json.read(json, RequestPattern.class);
     }

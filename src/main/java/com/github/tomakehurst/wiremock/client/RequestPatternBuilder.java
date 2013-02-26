@@ -57,6 +57,12 @@ public class RequestPatternBuilder {
 		bodyPatterns.add(bodyMatchingStrategy);
 		return this;
 	}
+
+    public static RequestPatternBuilder allRequests() {
+        UrlMatchingStrategy matchAllUrls = new UrlMatchingStrategy();
+        matchAllUrls.setUrlPattern(".*");
+        return new RequestPatternBuilder(RequestMethod.ANY, matchAllUrls);
+    }
 	
 	public RequestPattern build() {
 		RequestPattern requestPattern = new RequestPattern();
