@@ -15,40 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-
-import static org.apache.log4j.Level.*;
 
 public class Log4jNotifier implements Notifier {
 	
 	private static final Logger log = Logger.getLogger(Log4jNotifier.class);
-
-    private static ConsoleAppender appender;
-
-    static {
-        appender = new ConsoleAppender();
-        appender.setLayout(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %m%n"));
-        appender.activateOptions();
-        appender.setThreshold(ERROR);
-        Logger.getRootLogger().addAppender(appender);
-        Logger.getRootLogger().setLevel(TRACE);
-    }
-	
-	public Log4jNotifier() {
-		setVerbose(false);
-	}
-	
-	public void setVerbose(boolean verbose) {
-		if (verbose) {
-            appender.setThreshold(INFO);
-		} else {
-            appender.setThreshold(ERROR);
-		}
-
-        appender.activateOptions();
-	}
 
 	@Override
 	public void info(String message) {

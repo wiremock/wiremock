@@ -100,7 +100,6 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "com.google.common.**", result: "wiremock.com.google.common.@1"
                 rule pattern: "org.codehaus.jackson.**", result: "wiremock.org.codehaus.jackson.@1"
                 rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
-                rule pattern: "org.apache.log4j.**", result: "wiremock.org.apache.log4j.@1"
                 rule pattern: "org.apache.commons.**", result: "wiremock.org.apache.commons.@1"
                 rule pattern: "joptsimple.**", result: "wiremock.joptsimple.@1"
             }

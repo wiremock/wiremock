@@ -32,7 +32,6 @@ public class HttpsAcceptanceTest {
     @BeforeClass
     public static void setupServer() {
         wireMockServer = new WireMockServer(HTTP_PORT, HTTPS_PORT);
-        wireMockServer.setVerboseLogging(true);
         wireMockServer.start();
         WireMock.configure();
 

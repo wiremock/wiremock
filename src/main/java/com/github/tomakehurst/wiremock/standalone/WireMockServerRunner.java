@@ -15,8 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -40,6 +42,7 @@ public class WireMockServerRunner {
 			out.println(options.helpText());
 			return;
 		}
+        Log4jConfiguration.configureLogging(options.verboseLoggingEnabled());
 		
 		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
@@ -50,16 +53,14 @@ public class WireMockServerRunner {
 
         Integer httpsPort = options.specifiesHttpsPortNumber() ? options.httpsPortNumber() : null;
 		if (options.specifiesPortNumber()) {
-			wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
+			wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia(), new Log4jNotifier());
 		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia());
+			wireMockServer = new WireMockServer(DEFAULT_PORT, httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia(), new Log4jNotifier());
 		}
 		
 		if (options.recordMappingsEnabled()) {
 		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}
-		
-		wireMockServer.setVerboseLogging(options.verboseLoggingEnabled());
 		
 		wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
 		

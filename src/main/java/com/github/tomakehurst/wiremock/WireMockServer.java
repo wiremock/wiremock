@@ -55,15 +55,15 @@ public class WireMockServer {
 	private Server jettyServer;
     private RequestDelayControl requestDelayControl;
 	private final FileSource fileSource;
-	private final Log4jNotifier notifier;
+	private final Notifier notifier;
 	private final int port;
     private final Integer httpsPort;
 
-    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
-        notifier = new Log4jNotifier();
+    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
         this.fileSource = fileSource;
         this.port = port;
         this.httpsPort = httpsPort;
+        this.notifier = notifier;
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
@@ -74,10 +74,11 @@ public class WireMockServer {
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
                         new ProxyResponseRenderer(proxySettings)));
+
     }
 
 	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
-		this(port, null, fileSource, enableBrowserProxying, proxySettings);
+		this(port, null, fileSource, enableBrowserProxying, proxySettings, new Log4jNotifier());
 	}
 
     public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
@@ -89,7 +90,7 @@ public class WireMockServer {
 	}
 
     public WireMockServer(int port, Integer httpsPort) {
-        this(port, httpsPort, new SingleRootFileSource("src/test/resources"), false, ProxySettings.NO_PROXY);
+        this(port, httpsPort, new SingleRootFileSource("src/test/resources"), false, ProxySettings.NO_PROXY, new Log4jNotifier());
     }
 	
 	public WireMockServer() {
@@ -102,13 +103,6 @@ public class WireMockServer {
 	
 	public void addMockServiceRequestListener(RequestListener listener) {
 		stubRequestHandler.addRequestListener(listener);
-	}
-	
-	public void setVerboseLogging(boolean verbose) {
-		notifier.setVerbose(verbose);
-		if (verbose) {
-		    notifier.info("Verbose logging enabled");
-		}
 	}
 	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {

@@ -30,7 +30,6 @@ public class AcceptanceTestBase {
 	@BeforeClass
 	public static void setupServer() {
 		wireMockServer = new WireMockServer();
-        wireMockServer.setVerboseLogging(true);
 		wireMockServer.start();
 		testClient = new WireMockTestClient();
 		WireMock.configure();

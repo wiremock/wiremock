@@ -42,6 +42,7 @@ bin
 .classpath
 .settings
 .gradle
+**/target
 
 # IDEA #
 #################
@@ -49,7 +50,7 @@ out
 wiremock.iml
 wiremock.ipr
 wiremock.iws
-
+**/*.iml
 
 
 # Misc #

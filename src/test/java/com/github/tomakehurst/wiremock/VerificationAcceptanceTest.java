@@ -131,6 +131,7 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void showsExpectedAndReceivedRequestsOnVerificationException() {
         testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
 
@@ -147,6 +148,7 @@ public class VerificationAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void showsReceivedRequestsOnVerificationException() {
         testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
 
