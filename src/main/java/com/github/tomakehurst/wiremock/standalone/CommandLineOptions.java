@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -90,7 +90,7 @@ public class CommandLineOptions implements Options {
 	}
 
     @Override
-    public boolean specifiesHttpsPortNumber() {
+    public boolean httpsEnabled() {
         return optionSet.has(HTTPS_PORT);
     }
 
@@ -128,5 +128,15 @@ public class CommandLineOptions implements Options {
         }
 
         return ProxySettings.NO_PROXY;
+    }
+
+    @Override
+    public FileSource filesRoot() {
+        return new SingleRootFileSource(".");
+    }
+
+    @Override
+    public Notifier notifier() {
+        return new Log4jNotifier();
     }
 }

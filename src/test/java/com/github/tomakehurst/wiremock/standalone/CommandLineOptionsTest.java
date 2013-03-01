@@ -59,7 +59,7 @@ public class CommandLineOptionsTest {
     @Test
     public void setsHttpsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
-        assertThat(options.specifiesHttpsPortNumber(), is(true));
+        assertThat(options.httpsEnabled(), is(true));
         assertThat(options.httpsPortNumber(), is(8443));
     }
 	

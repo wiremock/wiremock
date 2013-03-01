@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
@@ -53,7 +54,7 @@ public class WireMockServer {
 
 	
 	private Server jettyServer;
-    private RequestDelayControl requestDelayControl;
+    private final RequestDelayControl requestDelayControl;
 	private final FileSource fileSource;
 	private final Notifier notifier;
 	private final int port;
@@ -75,6 +76,15 @@ public class WireMockServer {
                         wireMockApp.getGlobalSettingsHolder(),
                         new ProxyResponseRenderer(proxySettings)));
 
+    }
+
+    public WireMockServer(WireMockConfiguration config) {
+        this(config.portNumber(),
+             config.httpsEnabled() ? config.httpsPortNumber() : null,
+             config.filesRoot(),
+             config.browserProxyingEnabled(),
+             config.proxyVia(),
+             config.notifier());
     }
 
 	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
