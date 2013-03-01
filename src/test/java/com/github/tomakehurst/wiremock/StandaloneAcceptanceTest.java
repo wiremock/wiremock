@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -330,7 +331,7 @@ public class StandaloneAcceptanceTest {
     }
 
 	private void startRunner(String... args) {
-		runner.run(FILE_SOURCE_ROOT.getPath(), args);
+		runner.run(new SingleRootFileSource(FILE_SOURCE_ROOT.getPath()), args);
 	}
 	
 	private void startRecordingSystemOut() {

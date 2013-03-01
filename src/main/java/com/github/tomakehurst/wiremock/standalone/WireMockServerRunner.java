@@ -35,15 +35,14 @@ public class WireMockServerRunner {
 	
 	private WireMockServer wireMockServer;
 	
-	public void run(String fileSourcesRoot, String... args) {
-		CommandLineOptions options = new CommandLineOptions(args);
+	public void run(FileSource fileSource, String... args) {
+		CommandLineOptions options = new CommandLineOptions(fileSource, args);
 		if (options.help()) {
 			out.println(options.helpText());
 			return;
 		}
         Log4jConfiguration.configureLogging(options.verboseLoggingEnabled());
 		
-		FileSource fileSource = new SingleRootFileSource(fileSourcesRoot);
 		fileSource.createIfNecessary();
 		FileSource filesFileSource = fileSource.child(FILES_ROOT);
 		filesFileSource.createIfNecessary();
@@ -56,9 +55,11 @@ public class WireMockServerRunner {
 		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}
 
-        Integer httpsPort = options.httpsEnabled() ? options.httpsPortNumber() : null;
-        wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.proxyVia(), new Log4jNotifier());
-        
+//        Integer httpsPort = options.httpsEnabled() ? options.httpsPortNumber() : null;
+//        wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.proxyVia(), new Log4jNotifier());
+        wireMockServer = new WireMockServer(options);
+
+
         wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
 		
 		if (options.specifiesProxyUrl()) {
@@ -86,6 +87,6 @@ public class WireMockServerRunner {
 	}
 
 	public static void main(String... args) {
-		new WireMockServerRunner().run(".", args);
+		new WireMockServerRunner().run(new SingleRootFileSource("."), args);
 	}
 }

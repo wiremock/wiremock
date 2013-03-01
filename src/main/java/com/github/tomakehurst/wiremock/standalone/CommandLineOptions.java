@@ -38,11 +38,14 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_PORT = "https-port";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
-	
+
+    private final FileSource fileSource;
 	private final OptionSet optionSet;
 	private String helpText;
 
-	public CommandLineOptions(String... args) {
+    public CommandLineOptions(FileSource fileSource, String... args) {
+        this.fileSource = fileSource;
+
 		OptionParser optionParser = new OptionParser();
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
@@ -57,7 +60,11 @@ public class CommandLineOptions implements Options {
 		captureHelpTextIfRequested(optionParser);
 	}
 
-	private void captureHelpTextIfRequested(OptionParser optionParser) {
+    public CommandLineOptions(String... args) {
+        this(new SingleRootFileSource("."), args);
+    }
+
+    private void captureHelpTextIfRequested(OptionParser optionParser) {
 		if (optionSet.has(HELP)) {
 			StringWriter out = new StringWriter();
 			try {
@@ -134,7 +141,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public FileSource filesRoot() {
-        return new SingleRootFileSource(".");
+        return fileSource;
     }
 
     @Override
