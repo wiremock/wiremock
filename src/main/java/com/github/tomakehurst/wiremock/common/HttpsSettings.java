@@ -29,4 +29,12 @@ public class HttpsSettings {
     public boolean enabled() {
         return this != NO_HTTPS;
     }
+
+    @Override
+    public String toString() {
+        return "HttpsSettings{" +
+                "port=" + port +
+                ", keyStorePath='" + keyStorePath + '\'' +
+                '}';
+    }
 }

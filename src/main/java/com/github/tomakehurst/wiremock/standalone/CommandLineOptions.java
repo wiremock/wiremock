@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -59,8 +60,15 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
+        validate();
 		captureHelpTextIfRequested(optionParser);
 	}
+
+    private void validate() {
+        if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
+            throw new IllegalStateException("HTTPS port number must be specified if specifying the keystore path");
+        }
+    }
 
     public CommandLineOptions(String... args) {
         this(new SingleRootFileSource("."), args);
@@ -101,16 +109,6 @@ public class CommandLineOptions implements Options {
 	}
 
     @Override
-    public boolean httpsEnabled() {
-        return httpsSettings().enabled();
-    }
-
-    @Override
-    public int httpsPortNumber() {
-        return Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT));
-    }
-
-    @Override
     public HttpsSettings httpsSettings() {
         if (!optionSet.has(HTTPS_PORT)) {
             return HttpsSettings.NO_HTTPS;
@@ -121,6 +119,10 @@ public class CommandLineOptions implements Options {
         }
 
         return new HttpsSettings(httpsPortNumber());
+    }
+
+    private int httpsPortNumber() {
+        return Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT));
     }
 
     public boolean help() {
@@ -169,7 +171,7 @@ public class CommandLineOptions implements Options {
         return Joiner.on(", ").withKeyValueSeparator("=").join(
                 ImmutableMap.builder()
                         .put("port", portNumber())
-                        .put("httpsPort", httpsEnabled() ? httpsPortNumber() : "(disabled)")
+                        .put("https", httpsSettings())
                         .put("fileSource", filesRoot())
                         .put("proxyVia", nullToString(proxyVia()))
                         .put("proxyUrl", nullToString(proxyUrl()))

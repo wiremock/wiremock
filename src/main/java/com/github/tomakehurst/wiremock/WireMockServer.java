@@ -145,7 +145,7 @@ public class WireMockServer {
             jettyServer = new Server();
             jettyServer.addConnector(createHttpConnector());
 
-            if (options.httpsEnabled()) {
+            if (options.httpsSettings().enabled()) {
                 jettyServer.addConnector(createHttpsConnector());
             }
 

@@ -57,10 +57,21 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsHttpsPortNumberWhenOptionPresent() {
+    public void enablesHttpsAndSetsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
-        assertThat(options.httpsEnabled(), is(true));
-        assertThat(options.httpsPortNumber(), is(8443));
+        assertThat(options.httpsSettings().enabled(), is(true));
+        assertThat(options.httpsSettings().port(), is(8443));
+    }
+
+    @Test
+    public void setsKeyStorePath() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
+        assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+    }
+
+    @Test(expected=Exception.class)
+    public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
+        new CommandLineOptions("--https-keystore", "/my/keystore");
     }
 	
 	@Test(expected=Exception.class)

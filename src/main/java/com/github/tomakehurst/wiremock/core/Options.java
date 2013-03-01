@@ -11,8 +11,6 @@ public interface Options {
 
     int portNumber();
     HttpsSettings httpsSettings();
-    boolean httpsEnabled();
-    int httpsPortNumber();
     boolean browserProxyingEnabled();
     ProxySettings proxyVia();
     FileSource filesRoot();

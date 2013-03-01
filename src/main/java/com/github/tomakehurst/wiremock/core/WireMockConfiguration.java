@@ -69,17 +69,6 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public boolean httpsEnabled() {
-        return httpsPort != null;
-    }
-
-    @Override
-    public int httpsPortNumber() {
-        checkState(httpsEnabled(), "HTTPS not enabled");
-        return httpsPort;
-    }
-
-    @Override
     public HttpsSettings httpsSettings() {
         if (httpsPort == null) {
             return HttpsSettings.NO_HTTPS;
