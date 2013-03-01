@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
@@ -40,6 +41,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -60,51 +62,58 @@ public class WireMockServer {
 	private final int port;
     private final Integer httpsPort;
 
-    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
-        this.fileSource = fileSource;
-        this.port = port;
-        this.httpsPort = httpsPort;
-        this.notifier = notifier;
+    public WireMockServer(Options options) {
+        this.fileSource = options.filesRoot();
+        this.port = options.portNumber();
+        this.httpsPort = options.httpsEnabled() ? options.httpsPortNumber() : null;
+        this.notifier = options.notifier();
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
-        wireMockApp = new WireMockApp(requestDelayControl, enableBrowserProxying);
+        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled());
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(proxySettings)));
-
+                        new ProxyResponseRenderer(options.proxyVia())));
     }
 
-    public WireMockServer(WireMockConfiguration config) {
-        this(config.portNumber(),
-             config.httpsEnabled() ? config.httpsPortNumber() : null,
-             config.filesRoot(),
-             config.browserProxyingEnabled(),
-             config.proxyVia(),
-             config.notifier());
+    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
+        this(wireMockConfig()
+                .port(port)
+                .httpsPort(httpsPort)
+                .fileSource(fileSource)
+                .enableBrowserProxying(enableBrowserProxying)
+                .proxyVia(proxySettings)
+                .notifier(notifier));
     }
 
 	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
-		this(port, null, fileSource, enableBrowserProxying, proxySettings, new Log4jNotifier());
+        this(wireMockConfig()
+                .port(port)
+                .fileSource(fileSource)
+                .enableBrowserProxying(enableBrowserProxying)
+                .proxyVia(proxySettings));
 	}
 
     public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
-        this(port, fileSource, enableBrowserProxying, ProxySettings.NO_PROXY);
+        this(wireMockConfig()
+                .port(port)
+                .fileSource(fileSource)
+                .enableBrowserProxying(enableBrowserProxying));
     }
 	
 	public WireMockServer(int port) {
-		this(port, new SingleRootFileSource("src/test/resources"), false);
+		this(wireMockConfig().port(port));
 	}
 
     public WireMockServer(int port, Integer httpsPort) {
-        this(port, httpsPort, new SingleRootFileSource("src/test/resources"), false, ProxySettings.NO_PROXY, new Log4jNotifier());
+        this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
 	
 	public WireMockServer() {
-		this(Options.DEFAULT_PORT);
+		this(wireMockConfig());
 	}
 	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {

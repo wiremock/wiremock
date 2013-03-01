@@ -36,4 +36,9 @@ public class SingleRootFileSource extends AbstractFileSource {
     protected boolean readOnly() {
         return false;
     }
+
+    @Override
+    public String toString() {
+        return SingleRootFileSource.class.getSimpleName() + ": " + rootDirectory;
+    }
 }

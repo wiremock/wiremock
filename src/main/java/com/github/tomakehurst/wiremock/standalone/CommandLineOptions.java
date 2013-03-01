@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -138,5 +140,26 @@ public class CommandLineOptions implements Options {
     @Override
     public Notifier notifier() {
         return new Log4jNotifier();
+    }
+
+    @Override
+    public String toString() {
+        return Joiner.on(", ").withKeyValueSeparator("=").join(
+                ImmutableMap.builder()
+                        .put("port", portNumber())
+                        .put("httpsPort", httpsEnabled() ? httpsPortNumber() : "(disabled)")
+                        .put("fileSource", filesRoot())
+                        .put("proxyVia", nullToString(proxyVia()))
+                        .put("proxyUrl", nullToString(proxyUrl()))
+                        .put("recordMappingsEnabled", recordMappingsEnabled())
+                        .build());
+    }
+
+    private String nullToString(Object value) {
+        if (value == null) {
+            return "(null)";
+        }
+
+        return value.toString();
     }
 }

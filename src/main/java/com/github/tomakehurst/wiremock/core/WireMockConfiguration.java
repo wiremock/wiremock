@@ -2,7 +2,6 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class WireMockConfiguration implements Options {
@@ -10,8 +9,7 @@ public class WireMockConfiguration implements Options {
     private int portNumber = DEFAULT_PORT;
     private Integer httpsPort = null;
     private boolean browserProxyingEnabled = false;
-    private String proxyViaHost;
-    private int proxyViaPort = 80;
+    private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Log4jNotifier();
 
@@ -19,29 +17,28 @@ public class WireMockConfiguration implements Options {
         return new WireMockConfiguration();
     }
 
-    public WireMockConfiguration onPortNumber(int portNumber) {
+    public WireMockConfiguration port(int portNumber) {
         this.portNumber = portNumber;
         return this;
     }
 
-    public WireMockConfiguration enableHttpsOnPort(int httpsPort) {
+    public WireMockConfiguration httpsPort(Integer httpsPort) {
         this.httpsPort = httpsPort;
         return this;
     }
 
-    public WireMockConfiguration enableBrowserProxying() {
-        this.browserProxyingEnabled = true;
+    public WireMockConfiguration enableBrowserProxying(boolean enabled) {
+        this.browserProxyingEnabled = enabled;
         return this;
     }
 
-    public WireMockConfiguration useProxyServer(String host, int port) {
-        this.proxyViaHost = host;
-        this.proxyViaPort = port;
+    public WireMockConfiguration proxyVia(String host, int port) {
+        this.proxySettings = new ProxySettings(host, port);
         return this;
     }
 
-    public WireMockConfiguration useProxyServer(String host) {
-        this.proxyViaHost = host;
+    public WireMockConfiguration proxyVia(ProxySettings proxySettings) {
+        this.proxySettings = proxySettings;
         return this;
     }
 
@@ -50,8 +47,13 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration withFileSource(FileSource fileSource) {
+    public WireMockConfiguration fileSource(FileSource fileSource) {
         this.filesRoot = fileSource;
+        return this;
+    }
+
+    public WireMockConfiguration notifier(Notifier notifier) {
+        this.notifier = notifier;
         return this;
     }
 
@@ -78,8 +80,7 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public ProxySettings proxyVia() {
-        checkNotNull(proxyViaHost, "Proxy via host must be specified");
-        return new ProxySettings(proxyViaHost, proxyViaPort);
+        return proxySettings;
     }
 
     @Override

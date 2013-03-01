@@ -34,4 +34,13 @@ public class ProxySettings {
     public int port() {
         return port;
     }
+
+    @Override
+    public String toString() {
+        if (this == NO_PROXY) {
+            return "(no proxy)";
+        }
+
+        return host() + ":" + port();
+    }
 }
