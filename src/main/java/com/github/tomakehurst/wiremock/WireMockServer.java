@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
@@ -44,7 +45,6 @@ import static com.google.common.collect.Maps.newHashMap;
 public class WireMockServer {
 
 	public static final String FILES_ROOT = "__files";
-	public static final int DEFAULT_PORT = 8080;
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
 	private final WireMockApp wireMockApp;
@@ -94,7 +94,7 @@ public class WireMockServer {
     }
 	
 	public WireMockServer() {
-		this(DEFAULT_PORT);
+		this(Options.DEFAULT_PORT);
 	}
 	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {

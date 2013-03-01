@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.core.Options;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
@@ -25,7 +26,7 @@ import java.io.StringWriter;
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.getLast;
 
-public class CommandLineOptions {
+public class CommandLineOptions implements Options {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
@@ -75,22 +76,29 @@ public class CommandLineOptions {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
 	
-	public boolean specifiesPortNumber() {
+	private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
 	}
 	
-	public int portNumber() {
-		return Integer.parseInt((String) optionSet.valueOf(PORT));
+	@Override
+    public int portNumber() {
+        if (specifiesPortNumber()) {
+            return Integer.parseInt((String) optionSet.valueOf(PORT));
+        }
+
+        return DEFAULT_PORT;
 	}
 
+    @Override
     public boolean specifiesHttpsPortNumber() {
         return optionSet.has(HTTPS_PORT);
     }
 
+    @Override
     public int httpsPortNumber() {
         return Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT));
     }
-	
+
 	public boolean help() {
 		return optionSet.has(HELP);
 	}
@@ -107,11 +115,13 @@ public class CommandLineOptions {
 		return (String) optionSet.valueOf(PROXY_ALL);
 	}
 	
-	public boolean browserProxyingEnabled() {
+	@Override
+    public boolean browserProxyingEnabled() {
 		return optionSet.has(ENABLE_BROWSER_PROXYING);
 	}
 
-    public ProxySettings getProxyVia() {
+    @Override
+    public ProxySettings proxyVia() {
         if (optionSet.has(PROXY_VIA)) {
             String proxyVia = (String) optionSet.valueOf(PROXY_VIA);
             return ProxySettings.fromString(proxyVia);

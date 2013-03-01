@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
-import static com.github.tomakehurst.wiremock.WireMockServer.DEFAULT_PORT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.lang.System.out;
 
@@ -52,12 +51,8 @@ public class WireMockServerRunner {
 		mappingsFileSource.createIfNecessary();
 
         Integer httpsPort = options.specifiesHttpsPortNumber() ? options.httpsPortNumber() : null;
-		if (options.specifiesPortNumber()) {
-			wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia(), new Log4jNotifier());
-		} else {
-			wireMockServer = new WireMockServer(DEFAULT_PORT, httpsPort, fileSource, options.browserProxyingEnabled(), options.getProxyVia(), new Log4jNotifier());
-		}
-		
+        wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.proxyVia(), new Log4jNotifier());
+
 		if (options.recordMappingsEnabled()) {
 		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}

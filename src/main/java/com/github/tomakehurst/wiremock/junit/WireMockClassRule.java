@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.junit;
 
+import com.github.tomakehurst.wiremock.core.Options;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -24,7 +25,7 @@ public class WireMockClassRule implements MethodRule, TestRule {
     }
 
     public WireMockClassRule() {
-        this(WireMockServer.DEFAULT_PORT);
+        this(Options.DEFAULT_PORT);
     }
 
     @Override

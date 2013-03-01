@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -38,7 +39,7 @@ public class WireMockRule implements MethodRule, TestRule {
     }
 	
 	public WireMockRule() {
-		this(WireMockServer.DEFAULT_PORT);
+		this(Options.DEFAULT_PORT);
 	}
 
     @Override

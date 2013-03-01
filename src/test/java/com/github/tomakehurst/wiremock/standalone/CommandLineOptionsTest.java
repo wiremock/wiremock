@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.standalone.CommandLineOptions;
 import org.junit.Test;
 
 public class CommandLineOptionsTest {
@@ -54,7 +53,6 @@ public class CommandLineOptionsTest {
 	@Test
      public void setsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--port", "8086");
-        assertThat(options.specifiesPortNumber(), is(true));
         assertThat(options.portNumber(), is(8086));
     }
 
@@ -93,7 +91,6 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com");
 		assertThat(options.verboseLoggingEnabled(), is(true));
 		assertThat(options.recordMappingsEnabled(), is(true));
-		assertThat(options.specifiesPortNumber(), is(true));
 		assertThat(options.portNumber(), is(8088));
 		assertThat(options.specifiesProxyUrl(), is(true));
 		assertThat(options.proxyUrl(), is("http://somewhere.com"));
@@ -109,13 +106,13 @@ public class CommandLineOptionsTest {
     @Test
     public void returnsCorrectlyParsedProxyViaParameter() {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
-        assertThat(options.getProxyVia().host(), is("somehost.mysite.com"));
-        assertThat(options.getProxyVia().port(), is(8080));
+        assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
+        assertThat(options.proxyVia().port(), is(8080));
     }
 
     @Test
     public void returnsNoProxyWhenNoProxyViaSpecified() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.getProxyVia(), is(ProxySettings.NO_PROXY));
+        assertThat(options.proxyVia(), is(ProxySettings.NO_PROXY));
     }
 }
