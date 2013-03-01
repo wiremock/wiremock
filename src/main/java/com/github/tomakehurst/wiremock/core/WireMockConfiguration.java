@@ -8,6 +8,7 @@ public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
     private Integer httpsPort = null;
+    private String keyStorePath = null;
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
@@ -24,6 +25,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration httpsPort(Integer httpsPort) {
         this.httpsPort = httpsPort;
+        return this;
+    }
+
+    public WireMockConfiguration keyStorePath(String path) {
+        this.keyStorePath = path;
         return this;
     }
 
@@ -71,6 +77,19 @@ public class WireMockConfiguration implements Options {
     public int httpsPortNumber() {
         checkState(httpsEnabled(), "HTTPS not enabled");
         return httpsPort;
+    }
+
+    @Override
+    public HttpsSettings httpsSettings() {
+        if (httpsPort == null) {
+            return HttpsSettings.NO_HTTPS;
+        }
+
+        if (keyStorePath == null) {
+            return new HttpsSettings(httpsPort);
+        }
+
+        return new HttpsSettings(httpsPort, keyStorePath);
     }
 
     @Override

@@ -60,12 +60,13 @@ public class WireMockServer {
 	private final FileSource fileSource;
 	private final Notifier notifier;
 	private final int port;
-    private final Integer httpsPort;
+
+    private final Options options;
 
     public WireMockServer(Options options) {
+        this.options = options;
         this.fileSource = options.filesRoot();
         this.port = options.portNumber();
-        this.httpsPort = options.httpsEnabled() ? options.httpsPortNumber() : null;
         this.notifier = options.notifier();
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
@@ -144,7 +145,7 @@ public class WireMockServer {
             jettyServer = new Server();
             jettyServer.addConnector(createHttpConnector());
 
-            if (httpsPort != null) {
+            if (options.httpsEnabled()) {
                 jettyServer.addConnector(createHttpsConnector());
             }
 
@@ -165,9 +166,9 @@ public class WireMockServer {
 
     private DelayableSslSocketConnector createHttpsConnector() {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
-        connector.setPort(httpsPort);
+        connector.setPort(options.httpsSettings().port());
         connector.setHeaderBufferSize(8192);
-        connector.setKeystore(Resources.getResource("keystore").toString());
+        connector.setKeystore(options.httpsSettings().keyStorePath());
         connector.setKeyPassword("password");
         return connector;
     }
