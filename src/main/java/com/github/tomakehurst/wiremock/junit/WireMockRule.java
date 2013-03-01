@@ -18,10 +18,12 @@ package com.github.tomakehurst.wiremock.junit;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-public class WireMockRule implements MethodRule {
+public class WireMockRule implements MethodRule, TestRule {
 	
 	private final int port;
     private final Integer httpsPort;
@@ -38,6 +40,11 @@ public class WireMockRule implements MethodRule {
 	public WireMockRule() {
 		this(WireMockServer.DEFAULT_PORT);
 	}
+
+    @Override
+    public Statement apply(final Statement base, Description description) {
+        return apply(base, null, null);
+    }
 
 	@Override
 	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
