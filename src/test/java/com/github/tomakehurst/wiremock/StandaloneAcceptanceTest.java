@@ -67,7 +67,7 @@ public class StandaloneAcceptanceTest {
 	@Before
 	public void init() {
 		if (FILE_SOURCE_ROOT.exists()) {
-			FILE_SOURCE_ROOT.delete();
+			deleteRecursively(FILE_SOURCE_ROOT);
 		}
 		
 		FILE_SOURCE_ROOT.mkdirs();
@@ -328,6 +328,15 @@ public class StandaloneAcceptanceTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void deleteRecursively(File f) {
+        if (f.isDirectory()) {
+            for (File c : f.listFiles())
+                deleteRecursively(c);
+        }
+        if (!f.delete())
+            throw new RuntimeException("Failed to delete file: " + f);
     }
 
 	private void startRunner(String... args) {

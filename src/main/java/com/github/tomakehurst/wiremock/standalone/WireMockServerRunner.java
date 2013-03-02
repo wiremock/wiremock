@@ -55,11 +55,6 @@ public class WireMockServerRunner {
 		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
 		}
 
-//        Integer httpsPort = options.httpsEnabled() ? options.httpsPortNumber() : null;
-//        wireMockServer = new WireMockServer(options.portNumber(), httpsPort, fileSource, options.browserProxyingEnabled(), options.proxyVia(), new Log4jNotifier());
-        wireMockServer = new WireMockServer(options);
-
-
         wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
 		
 		if (options.specifiesProxyUrl()) {
