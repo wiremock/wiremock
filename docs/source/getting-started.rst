@@ -90,6 +90,22 @@ Or if you're using JUnit 4.8:
     ``WireMockStaticRule`` is deprecated as the above usage isn't permitted from JUnit 4.11 onwards
 
 
+Detailed configuration
+======================
+
+For a bit more control over the settings of the WireMock server created by the rule you can pass a fluently built
+Options object to either (non-deprecated) rule's constructor:
+
+.. code-block:: java
+
+    import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+    ...
+
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).httpsPort(8443));
+
+
+
 Non-JUnit and general Java usage
 ================================
 
@@ -98,7 +114,7 @@ server directly:
 
 .. code-block:: java
 
-    WireMockServer wireMockServer = new WireMockServer();
+    WireMockServer wireMockServer = new WireMockServer(wireMockConfig().port(8089)); //No-args constructor will start on port 8080, no HTTPS
     wireMockServer.start();
 
     // Do some stuff

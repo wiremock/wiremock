@@ -90,3 +90,17 @@ This currently only works in standalone mode:
 
     $ java -jar wiremock-|version|-standalone.jar --enable-browser-proxying
 
+
+Proxying via another proxy server
+=================================
+
+If you're inside a network that only permits HTTP traffic out to the internet via an opaque proxy you might wish to
+set up proxy mappings that route via this server. This can be configured programmatically by passing a configuration
+object to the constructor of ``WireMockServer`` or the JUnit rules like this:
+
+.. code-block:: java
+
+    import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+    ...
+
+    WireMockServer wireMockServer = new WireMockServer(wireMockConfig().proxyVia("proxy.mycorp.com", 8080);
