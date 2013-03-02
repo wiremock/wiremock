@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -36,7 +37,7 @@ public class WireMockJUnitRuleTest {
     public static class BasicWireMockRule {
     
     	@Rule
-    	public WireMockRule wireMockRule = new WireMockRule(8089);
+    	public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089));
 	
     	@Test
     	public void canRegisterStubAndFetchOnCorrectPort() {
@@ -68,7 +69,7 @@ public class WireMockJUnitRuleTest {
         
         @ClassRule
         @Rule
-        public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
+        public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(8089));
         
         @Test
         public void testStubAndFetchOnce() {
