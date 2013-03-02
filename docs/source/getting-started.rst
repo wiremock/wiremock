@@ -124,7 +124,15 @@ This will start the server on port 8080:
 Supported command line options are:
 
 ``--port``:
-Set the port number e.g. ``--port 9999``
+Set the HTTP port number e.g. ``--port 9999``
+
+``--https-port``:
+If specified, enables HTTPS on the supplied port.
+
+``--https-keystore``:
+Path to a keystore file containing an SSL certificate to use with HTTPS. The keystore must have a password of "password".
+This option will only work if ``--https-port`` is specified. If this option isn't used WireMock will default to its
+own self-signed certificate.
 
 ``--verbose``:
 Turn on verbose logging to stdout
@@ -135,6 +143,14 @@ Record incoming requests as stub mappings. See :ref:`record-playback`.
 ``--proxy-all``:
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
+
+``--proxy-via``:
+When proxying requests (either by using --proxy-all or by creating stub mappings that proxy to other hosts), route via
+another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
+e.g.
+``--proxy-via webproxy.mycorp.com`` (defaults to port 80)
+or
+``--proxy-via webproxy.mycorp.com:8080``
 
 ``--enable-browser-proxying``:
 Run as a browser proxy. See :ref:`browser-proxying`.
