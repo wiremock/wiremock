@@ -24,22 +24,26 @@ import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 public class WireMockRule implements MethodRule, TestRule {
-	
-	private final int port;
-    private final Integer httpsPort;
-	
-	public WireMockRule(int port) {
-		this(port, null);
+
+    private final Options options;
+
+    public WireMockRule(Options options) {
+        this.options = options;
+    }
+
+    public WireMockRule(int port) {
+		this(wireMockConfig().port(port));
 	}
 
     public WireMockRule(int port, Integer httpsPort) {
-        this.port = port;
-        this.httpsPort = httpsPort;
+        this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
 	
 	public WireMockRule() {
-		this(Options.DEFAULT_PORT);
+		this(wireMockConfig());
 	}
 
     @Override
@@ -53,9 +57,9 @@ public class WireMockRule implements MethodRule, TestRule {
 
 			@Override
 			public void evaluate() throws Throwable {
-				WireMockServer wireMockServer = new WireMockServer(port, httpsPort);
+				WireMockServer wireMockServer = new WireMockServer(options);
 				wireMockServer.start();
-				WireMock.configureFor("localhost", port);
+				WireMock.configureFor("localhost", options.portNumber());
 				try {
                     base.evaluate();
                 } finally {
