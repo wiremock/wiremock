@@ -79,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#maven">Maven</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#junit-4-x">JUnit 4.x</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#other-rule-configurations">Other &#64;Rule configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detailed-configuration">Detailed configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#non-junit-and-general-java-usage">Non-JUnit and general Java usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
@@ -107,7 +108,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.28<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.30<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -172,11 +173,23 @@
 <p class="last"><tt class="docutils literal"><span class="pre">WireMockStaticRule</span></tt> is deprecated as the above usage isn&#8217;t permitted from JUnit 4.11 onwards</p>
 </div>
 </div>
+<div class="section" id="detailed-configuration">
+<h2>Detailed configuration<a class="headerlink" href="#detailed-configuration" title="Permalink to this headline">¶</a></h2>
+<p>For a bit more control over the settings of the WireMock server created by the rule you can pass a fluently built
+Options object to either (non-deprecated) rule&#8217;s constructor:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">WireMockConfiguration</span><span class="o">.</span><span class="na">wireMockConfig</span><span class="o">;</span>
+<span class="o">...</span>
+
+<span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">).</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="non-junit-and-general-java-usage">
 <h2>Non-JUnit and general Java usage<a class="headerlink" href="#non-junit-and-general-java-usage" title="Permalink to this headline">¶</a></h2>
 <p>If you&#8217;re not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
 server directly:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">));</span> <span class="c1">//No-args constructor will start on port 8080, no HTTPS</span>
 <span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 
 <span class="c1">// Do some stuff</span>
@@ -194,11 +207,17 @@ server directly:</p>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.28-standalone.jar
+$ java -jar wiremock-1.30-standalone.jar
 </pre>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
-Set the port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
+Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">--https-port</span></tt>:
+If specified, enables HTTPS on the supplied port.</p>
+<p><tt class="docutils literal"><span class="pre">--https-keystore</span></tt>:
+Path to a keystore file containing an SSL certificate to use with HTTPS. The keystore must have a password of &#8220;password&#8221;.
+This option will only work if <tt class="docutils literal"><span class="pre">--https-port</span></tt> is specified. If this option isn&#8217;t used WireMock will default to its
+own self-signed certificate.</p>
 <p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:
 Turn on verbose logging to stdout</p>
 <p><tt class="docutils literal"><span class="pre">--record-mappings</span></tt>:
@@ -206,6 +225,13 @@ Record incoming requests as stub mappings. See <a class="reference internal" hre
 <p><tt class="docutils literal"><span class="pre">--proxy-all</span></tt>:
 Proxy all requests through to another base URL e.g. <tt class="docutils literal"><span class="pre">--proxy-all=&quot;http://api.someservice.com&quot;</span></tt>
 Typically used in conjunction with <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> such that a session on another service can be recorded.</p>
+<p><tt class="docutils literal"><span class="pre">--proxy-via</span></tt>:
+When proxying requests (either by using &#8211;proxy-all or by creating stub mappings that proxy to other hosts), route via
+another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
+e.g.
+<tt class="docutils literal"><span class="pre">--proxy-via</span> <span class="pre">webproxy.mycorp.com</span></tt> (defaults to port 80)
+or
+<tt class="docutils literal"><span class="pre">--proxy-via</span> <span class="pre">webproxy.mycorp.com:8080</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">--enable-browser-proxying</span></tt>:
 Run as a browser proxy. See <a class="reference internal" href="proxying.html#browser-proxying"><em>Running as a browser proxy</em></a>.</p>
 <p><tt class="docutils literal"><span class="pre">--help</span></tt>:
