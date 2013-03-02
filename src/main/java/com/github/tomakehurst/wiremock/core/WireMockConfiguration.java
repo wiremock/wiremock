@@ -2,8 +2,6 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
 
-import static com.google.common.base.Preconditions.checkState;
-
 public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
@@ -28,7 +26,7 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration keyStorePath(String path) {
+    public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
         return this;
     }

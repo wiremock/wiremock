@@ -34,7 +34,7 @@ public class HttpsSettings {
     public String toString() {
         return "HttpsSettings{" +
                 "port=" + port +
-                ", keyStorePath='" + keyStorePath + '\'' +
+                ", keystorePath='" + keyStorePath + '\'' +
                 '}';
     }
 }
