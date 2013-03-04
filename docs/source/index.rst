@@ -48,6 +48,7 @@ Shouts to the following folks who've been kind enough to submit improvements:
 * `Tim Perry <https://github.com/pimterry>`_
 * `Dominic Tootell <https://github.com/tootedom>`_
 * `mangotang <https://github.com/mangotang>`_
+* `Rob Elliot <https://github.com/mahoney>`_
 
 
 Contents
