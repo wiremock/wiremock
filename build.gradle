@@ -8,7 +8,7 @@ apply plugin: 'jdepend'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.30
+version = 1.31
 
 repositories {
 	mavenCentral()
