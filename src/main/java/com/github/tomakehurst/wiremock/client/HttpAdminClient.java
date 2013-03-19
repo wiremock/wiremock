@@ -40,8 +40,9 @@ public class HttpAdminClient implements Admin {
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";
 	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
-	private static final String LOCAL_WIREMOCK_RESET_SCENARIOS_URL = ADMIN_URL_PREFIX + "/scenarios/reset";
-	private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
+    private static final String LOCAL_WIREMOCK_RESET_SCENARIOS_URL = ADMIN_URL_PREFIX + "/scenarios/reset";
+    private static final String LOCAL_WIREMOCK_RESET_TO_DEFAULT_MAPPINGS_URL = ADMIN_URL_PREFIX + "/mappings/reset";
+    private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
     private static final String LOCAL_WIREMOCK_FIND_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/find";
 	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
     private static final String SOCKET_ACCEPT_DELAY_URL = ADMIN_URL_PREFIX + "/socket-delay";
@@ -85,7 +86,13 @@ public class HttpAdminClient implements Admin {
 		assertStatusOk(status);
 	}
 
-	private void assertStatusOk(int status) {
+    @Override
+    public void resetToDefaultMappings() {
+        int status = postEmptyBodyAndReturnStatus(resetToDefaultMappingsUrl());
+        assertStatusOk(status);
+    }
+
+    private void assertStatusOk(int status) {
 		if (status != HTTP_OK) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
@@ -173,6 +180,10 @@ public class HttpAdminClient implements Admin {
 	private String resetScenariosUrl() {
 		return String.format(LOCAL_WIREMOCK_RESET_SCENARIOS_URL, host, port, urlPathPrefix);
 	}
+
+    private String resetToDefaultMappingsUrl() {
+        return String.format(LOCAL_WIREMOCK_RESET_TO_DEFAULT_MAPPINGS_URL, host, port, urlPathPrefix);
+    }
 	
 	private String requestsCountUrl() {
 		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port, urlPathPrefix);

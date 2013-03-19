@@ -42,17 +42,27 @@ public class WireMockApp implements StubServer, Admin {
     private final GlobalSettingsHolder globalSettingsHolder;
     private final RequestDelayControl requestDelayControl;
     private final boolean browserProxyingEnabled;
+    private final MappingsLoader defaultMappingsLoader;
 
-    public WireMockApp(RequestDelayControl requestDelayControl, boolean browserProxyingEnabled) {
+    public WireMockApp(
+            RequestDelayControl requestDelayControl,
+            boolean browserProxyingEnabled,
+            MappingsLoader defaultMappingsLoader) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
+        this.defaultMappingsLoader = defaultMappingsLoader;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
         requestJournal = new InMemoryRequestJournal();
+        loadDefaultMappings();
     }
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
         return globalSettingsHolder;
+    }
+
+    private void loadDefaultMappings() {
+        loadMappingsUsing(defaultMappingsLoader);
     }
 
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
@@ -83,6 +93,12 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public void resetToDefaultMappings() {
+        resetMappings();
+        loadDefaultMappings();
+    }
+
+    @Override
     public void resetScenarios() {
         stubMappings.resetScenarios();
     }
@@ -107,4 +123,5 @@ public class WireMockApp implements StubServer, Admin {
     public void addSocketAcceptDelay(RequestDelaySpec delaySpec) {
         requestDelayControl.setDelay(delaySpec.milliseconds());
     }
+
 }

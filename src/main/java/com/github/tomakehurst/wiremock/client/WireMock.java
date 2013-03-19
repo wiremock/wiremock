@@ -89,7 +89,15 @@ public class WireMock {
 	public static void resetAllScenarios() {
 		defaultInstance.resetScenarios();
 	}
-	
+
+    public void resetToDefaultMappings() {
+        admin.resetToDefaultMappings();
+    }
+
+    public static void resetToDefault() {
+        defaultInstance.resetToDefaultMappings();
+    }
+
 	public void register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
 		admin.addStubMapping(mapping);
@@ -243,5 +251,4 @@ public class WireMock {
     public static void addRequestProcessingDelay(int milliseconds) {
         defaultInstance.addDelayBeforeProcessingRequests(milliseconds);
     }
-
 }

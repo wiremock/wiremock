@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -51,12 +50,10 @@ public class WireMockServerRunner {
 
         wireMockServer = new WireMockServer(options);
 
-		if (options.recordMappingsEnabled()) {
-		    wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
-		}
+        if (options.recordMappingsEnabled()) {
+            wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
+        }
 
-        wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(mappingsFileSource));
-		
 		if (options.specifiesProxyUrl()) {
 			addProxyMapping(options.proxyUrl());
 		}
