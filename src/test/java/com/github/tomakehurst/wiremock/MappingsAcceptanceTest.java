@@ -89,6 +89,33 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	}
 
     @Test
+    public void loadsDefaultMappingsOnStart() {
+        getResponseAndAssert200Status("/testmapping");
+    }
+
+    @Test
+    public void resetToDefaultRemovesAllButDefault() {
+        add200ResponseFor("/resource/11");
+
+        testClient.resetDefaultMappings();
+
+        getResponseAndAssert404Status("/resource/11");
+        getResponseAndAssert200Status("/testmapping");
+    }
+
+    @Test
+    public void resetToDefaultRestoresOldMeaningOfDefault() {
+        add200ResponseFor("/testmapping");
+        WireMockResponse response1 = testClient.get("/testmapping");
+        assertThat(response1.content(), is(""));
+
+        testClient.resetDefaultMappings();
+
+        WireMockResponse response2 = testClient.get("/testmapping");
+        assertThat(response2.content(), is("default test mapping"));
+    }
+
+    @Test
     public void readsMapppingForByteBody() {
         testClient.addResponse(MAPPING_REQUEST_FOR_BYTE_BODY);
         assertThat(testClient.get("/byte/resource/from/file").content(), is("ABC"));

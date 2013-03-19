@@ -42,7 +42,7 @@ public class AcceptanceTestBase {
 
 	@Before
 	public void init() throws InterruptedException {
-		WireMock.reset();
+		WireMock.resetToDefault();
 	}
 	
 }
