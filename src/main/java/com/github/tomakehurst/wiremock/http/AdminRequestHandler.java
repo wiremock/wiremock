@@ -54,7 +54,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		} else if (isResetScenariosRequest(request)) {
 			admin.resetScenarios();
 			return ResponseDefinition.ok();
-		} else if (isRequestCountRequest(request)) {
+		} else if (isResetToDefaultMappingsRequest(request)) {
+            admin.resetToDefaultMappings();
+            return ResponseDefinition.ok();
+        } else if (isRequestCountRequest(request)) {
 			return getRequestCount(request);
         } else if (isFindRequestsRequest(request)) {
             return findRequests(request);
@@ -98,6 +101,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	private boolean isResetScenariosRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/scenarios/reset");
 	}
+
+    private boolean isResetToDefaultMappingsRequest(Request request) {
+        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/reset");
+    }
 
 	private boolean isNewMappingRequest(Request request) {
 		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/new");

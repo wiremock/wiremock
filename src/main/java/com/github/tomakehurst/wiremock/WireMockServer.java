@@ -28,9 +28,9 @@ import com.github.tomakehurst.wiremock.jetty.DelayableSslSocketConnector;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.google.common.io.Resources;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -74,7 +74,8 @@ public class WireMockServer {
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
-        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled());
+        JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
+        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader);
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,

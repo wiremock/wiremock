@@ -26,6 +26,7 @@ public interface Admin {
 	void addStubMapping(StubMapping stubMapping);
 	void resetMappings();
 	void resetScenarios();
+    void resetToDefaultMappings();
 	int countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);

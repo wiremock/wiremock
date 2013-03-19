@@ -51,6 +51,7 @@ wiremock.iml
 wiremock.ipr
 wiremock.iws
 **/*.iml
+.idea
 
 
 # Misc #

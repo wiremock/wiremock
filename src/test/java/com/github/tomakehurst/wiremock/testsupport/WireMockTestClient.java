@@ -41,7 +41,8 @@ public class WireMockTestClient {
 	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:%d%s";
 	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:%d/__admin/mappings/new";
 	private static final String LOCAL_WIREMOCK_RESET_URL = "http://localhost:%d/__admin/reset";
-	
+	private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://localhost:%d/__admin/mappings/reset";
+
 	private int port;
 	
 	public WireMockTestClient(int port) {
@@ -63,6 +64,10 @@ public class WireMockTestClient {
 	private String resetUrl() {
 		return String.format(LOCAL_WIREMOCK_RESET_URL, port);
 	}
+
+    private String resetDefaultMappingsUrl() {
+        return String.format(LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL, port);
+    }
 
 	public WireMockResponse get(String url, TestHttpHeader... headers) {
 		HttpUriRequest httpRequest = new HttpGet(mockServiceUrlFor(url));
@@ -130,7 +135,14 @@ public class WireMockTestClient {
 		}
 	}
 
-	private int postJsonAndReturnStatus(String url, String json) {
+    public void resetDefaultMappings() {
+        int status = postEmptyBodyAndReturnStatus(resetDefaultMappingsUrl());
+        if (status != HTTP_OK) {
+            throw new RuntimeException("Returned status code was " + status);
+        }
+    }
+
+    private int postJsonAndReturnStatus(String url, String json) {
 		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
