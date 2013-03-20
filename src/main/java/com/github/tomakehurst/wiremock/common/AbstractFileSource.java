@@ -107,6 +107,11 @@ public abstract class AbstractFileSource implements FileSource {
         writeBinaryFileAndTranslateExceptions(contents, writableFileFor(name));
     }
 
+    @Override
+    public boolean exists() {
+        return rootDirectory.exists();
+    }
+
     private File writableFileFor(String name) {
         assertExistsAndIsDirectory();
         assertWritable();
