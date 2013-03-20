@@ -3,18 +3,20 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class WireMockServerTests {
 
+    @Rule
+    public final TemporaryFolder tempDir = new TemporaryFolder();
+
     @Test
     public void instantiationWithEmptyFileSource() throws IOException {
-        Path tempDir = Files.createTempDirectory("forwiremock");
-        Options options = new WireMockConfiguration().fileSource(new SingleRootFileSource(tempDir.toFile()));
+        Options options = new WireMockConfiguration().fileSource(new SingleRootFileSource(tempDir.getRoot()));
 
         WireMockServer wireMockServer = null;
         try {
