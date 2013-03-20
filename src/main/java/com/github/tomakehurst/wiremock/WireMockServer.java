@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
+import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -74,7 +75,7 @@ public class WireMockServer {
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
-        JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
+        MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
         wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader);
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
@@ -88,6 +89,15 @@ public class WireMockServer {
             System.out.println("Here...");
         }
 
+    }
+
+    private MappingsLoader makeDefaultMappingsLoader() {
+        FileSource mappingsFileSource = fileSource.child("mappings");
+        if (mappingsFileSource.exists()) {
+            return new JsonFileMappingsLoader(mappingsFileSource);
+        } else {
+            return new NoOpMappingsLoader();
+        }
     }
 
     public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
@@ -228,6 +238,12 @@ public class WireMockServer {
 		adminContext.setAttribute(Notifier.KEY, notifier);
 		jettyServer.addHandler(adminContext);
     }
-    
-    
+
+
+    private static class NoOpMappingsLoader implements MappingsLoader {
+        @Override
+        public void loadMappingsInto(StubMappings stubMappings) {
+            // do nothing
+        }
+    }
 }

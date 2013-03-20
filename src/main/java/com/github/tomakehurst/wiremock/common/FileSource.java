@@ -29,4 +29,5 @@ public interface FileSource {
 	List<TextFile> listFilesRecursively();
 	void writeTextFile(String name, String contents);
     void writeBinaryFile(String name, byte[] contents);
+    boolean exists();
 }
