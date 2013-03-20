@@ -24,7 +24,7 @@ public class NotImplementedRequestDelayControl implements RequestDelayControl {
 
     @Override
     public void clearDelay() {
-        throw new UnsupportedOperationException("Socket control isn't available in this configuration");
+        // Do nothing
     }
 
     @Override
