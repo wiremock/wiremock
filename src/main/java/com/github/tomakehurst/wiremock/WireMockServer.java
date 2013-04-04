@@ -49,8 +49,6 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class WireMockServer {
 
-    private static AtomicInteger stubHandlerCount = new AtomicInteger(0);
-
 	public static final String FILES_ROOT = "__files";
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
@@ -83,12 +81,6 @@ public class WireMockServer {
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
                         new ProxyResponseRenderer(options.proxyVia())));
-
-        System.out.println("Created " + stubHandlerCount.incrementAndGet() + " stubRequestHandlers");
-        if (stubHandlerCount.get() == 3) {
-            System.out.println("Here...");
-        }
-
     }
 
     private MappingsLoader makeDefaultMappingsLoader() {
