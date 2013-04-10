@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -111,14 +112,18 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	private static void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest(); 
 		for (String key: originalRequest.getAllHeaderKeys()) {
-			if (!key.equals("Content-Length")) {
+			if (headerShouldBeTransferred(key)) {
 				String value = originalRequest.getHeader(key);
 				httpRequest.addHeader(key, value);
 			}
 		}
 	}
-	
-	private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
+
+    private static boolean headerShouldBeTransferred(String key) {
+        return !ImmutableList.of("content-length", "transfer-encoding").contains(key.toLowerCase());
+    }
+
+    private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
 		Request originalRequest = response.getOriginalRequest();
 		if (originalRequest.getMethod() == POST || originalRequest.getMethod() == PUT) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;

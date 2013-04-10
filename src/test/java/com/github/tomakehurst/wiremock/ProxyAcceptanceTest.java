@@ -15,14 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -99,4 +92,14 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(200));
 	}
+
+    @Test
+    public void sendsContentLengthHeaderWhenPosting() {
+        otherServiceClient.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
+        stubFor(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.postWithBody("/with/length", "TEST", "application/x-www-form-urlencoded", "utf-8");
+
+        verify(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+    }
 }
