@@ -128,22 +128,23 @@ public class RequestPattern {
     }
 	
 	private boolean headersMatch(final Request request) {
-        boolean match = noPresentHeadersRequired() ||
+        return noHeadersAreRequiredToBePresent() ||
                 all(headerPatterns.entrySet(), matchHeadersIn(request));
-
-		return match;
 	}
 
-    private boolean noPresentHeadersRequired() {
-        return headerPatterns == null ||
-            size(filter(headerPatterns.values(), new Predicate<ValuePattern>() {
-                public boolean apply(ValuePattern header) {
-                    return !header.nullSafeIsAbsent();
-                }
-            })) == 0;
+    private boolean noHeadersAreRequiredToBePresent() {
+        return headerPatterns == null || allHeaderPatternsSpecifyAbsent();
     }
-	
-	private boolean bodyMatches(Request request) {
+
+    private boolean allHeaderPatternsSpecifyAbsent() {
+        return size(filter(headerPatterns.values(), new Predicate<ValuePattern>() {
+            public boolean apply(ValuePattern headerPattern) {
+                return !headerPattern.nullSafeIsAbsent();
+            }
+        })) == 0;
+    }
+
+    private boolean bodyMatches(Request request) {
 		if (bodyPatterns == null) {
 			return true;
 		}
@@ -291,7 +292,7 @@ public class RequestPattern {
                 String key = headerPattern.getKey();
                 HttpHeader header = request.header(key);
 
-                boolean match = (!header.isPresent() || header.hasValueMatching(headerValuePattern));
+                boolean match = header.hasValueMatching(headerValuePattern);
 
                 if (!match) {
                     notifier().info(String.format(

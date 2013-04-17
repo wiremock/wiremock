@@ -15,23 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.apache.http.MalformedChunkCodingException;
@@ -102,6 +91,29 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(204));
 	}
+
+    @Test
+    public void doesNotMatchOnAbsentHeader() {
+        stubFor(post(urlEqualTo("/some/url"))
+                .withRequestBody(containing("BODY"))
+                .withHeader("NoSuchHeader", equalTo("This better not be here"))
+                .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.postWithBody("/some/url", "BODY", "text/plain", "utf-8").statusCode(), is(404));
+    }
+
+    @Test
+    public void matchesIfRequestContainsHeaderNotSpecified() {
+        stubFor(get(urlEqualTo("/some/extra/header"))
+                .withHeader("ExpectedHeader", equalTo("expected-value"))
+                .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response = testClient.get("/some/extra/header",
+                withHeader("ExpectedHeader", "expected-value"),
+                withHeader("UnexpectedHeader", "unexpected-value"));
+
+        assertThat(response.statusCode(), is(200));
+    }
 	
 	@Test
 	public void responseBodyLoadedFromFile() {
@@ -235,7 +247,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(testClient.get("/binary/content").binaryContent(), is(bytes));
     }
-	
+
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {

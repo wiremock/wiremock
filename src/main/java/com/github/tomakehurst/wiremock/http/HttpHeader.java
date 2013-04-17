@@ -84,7 +84,11 @@ public class HttpHeader {
 
     public boolean hasValueMatching(final ValuePattern valuePattern) {
         return (valuePattern.nullSafeIsAbsent() && !isPresent())
-             || any(values, new Predicate<String>() {
+                || anyValueMatches(valuePattern);
+    }
+
+    private boolean anyValueMatches(final ValuePattern valuePattern) {
+        return any(values, new Predicate<String>() {
             public boolean apply(String headerValue) {
                 return valuePattern.isMatchFor(headerValue);
             }
@@ -94,7 +98,7 @@ public class HttpHeader {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (String value: values) {
+        for (String value : values) {
             sb.append(key).append(": ").append(value).append("\n");
         }
 
