@@ -47,13 +47,14 @@ public class WireMockApp implements StubServer, Admin {
     public WireMockApp(
             RequestDelayControl requestDelayControl,
             boolean browserProxyingEnabled,
-            MappingsLoader defaultMappingsLoader) {
+            MappingsLoader defaultMappingsLoader,
+            int journalCapacity) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
-        requestJournal = new InMemoryRequestJournal();
+        requestJournal = new InMemoryRequestJournal(journalCapacity);
         loadDefaultMappings();
     }
 

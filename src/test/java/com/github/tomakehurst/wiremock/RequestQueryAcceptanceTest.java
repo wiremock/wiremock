@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -98,17 +96,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {
-        return new TypeSafeMatcher<LoggedRequest>() {
-            @Override
-            public boolean matchesSafely(LoggedRequest loggedRequest) {
-                return loggedRequest.getUrl().equals(url);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("A logged request with url: " + url);
-            }
-        };
+        return new LoggedRequestWithUrlMatcher(url);
     }
 
     private static Date parse(String dateString) throws ParseException {

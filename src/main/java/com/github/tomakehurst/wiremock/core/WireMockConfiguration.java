@@ -11,6 +11,7 @@ public class WireMockConfiguration implements Options {
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Log4jNotifier();
+    private int journalCapacity = DEFAULT_JOURNAL_CAPACITY;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -61,6 +62,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration journalCapacity(int journalCapacity) {
+        this.journalCapacity = journalCapacity;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -97,5 +103,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public Notifier notifier() {
         return notifier;
+    }
+
+    @Override
+    public int journalCapacity() {
+        return journalCapacity;
     }
 }

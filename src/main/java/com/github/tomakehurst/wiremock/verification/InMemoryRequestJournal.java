@@ -22,23 +22,30 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	
-	private ConcurrentLinkedQueue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+	private final Queue<LoggedRequest> requests;
+    private final int capacity;
+
+    public InMemoryRequestJournal(int capacity) {
+        this.capacity = capacity;
+        requests = new LinkedList<LoggedRequest>();
+    }
 
 	@Override
-	public int countRequestsMatching(RequestPattern requestPattern) {
+	public synchronized int countRequestsMatching(RequestPattern requestPattern) {
 		return size(filter(requests, matchedBy(requestPattern))); 
 	}
 
     @Override
-    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+    public synchronized List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
         return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
     }
 
@@ -51,15 +58,22 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	}
 
 	@Override
-	public void requestReceived(Request request, Response response) {
-		requests.add(LoggedRequest.createFrom(request));
+	public synchronized void requestReceived(Request request, Response response) {
+        requests.add(LoggedRequest.createFrom(request));
+        freeExcessOfRequests();
 	}
+
+    private void freeExcessOfRequests() {
+        while (requests.size() > capacity)  {
+            requests.remove();
+        }
+    }
 
     public void requestReceived(Request request) {
         requestReceived(request, null);
     }
 
-	@Override
+    @Override
 	public void reset() {
 		requests.clear();
 	}
