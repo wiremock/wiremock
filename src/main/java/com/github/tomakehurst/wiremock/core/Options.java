@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 public interface Options {
 
     public static final int DEFAULT_PORT = 8080;
-    public static final int DEFAULT_JOURNAL_CAPACITY = Integer.MAX_VALUE;
 
     int portNumber();
     HttpsSettings httpsSettings();
@@ -16,7 +15,7 @@ public interface Options {
     ProxySettings proxyVia();
     FileSource filesRoot();
     Notifier notifier();
-    int journalCapacity();
+    Integer journalCapacity();
 
 
 }

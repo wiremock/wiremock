@@ -14,11 +14,7 @@
   	<param-name>WireMockFileSourceRoot</param-name>
   	<param-value>/WEB-INF/wiremock</param-value>
   </context-param>
-  <context-param>
-    <param-name>WireMockJournalCapacity</param-name>
-    <param-value>10000</param-value>
-  </context-param>
-  
+
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
   	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Predicate;
 import net.sf.json.test.JSONAssert;
 import org.hamcrest.Description;
@@ -188,6 +189,21 @@ public class WireMatchers {
             @Override
             public void describeTo(Description description) {
                 description.appendText(String.format("Header %s: %s", key, value));
+            }
+        };
+    }
+
+    public static TypeSafeMatcher<LoggedRequest> withUrl(final String url) {
+        return new TypeSafeMatcher<LoggedRequest>() {
+
+            @Override
+            public boolean matchesSafely(LoggedRequest loggedRequest) {
+                return loggedRequest.getUrl().equals(url);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("A logged request with url: " + url);
             }
         };
     }

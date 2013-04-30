@@ -91,7 +91,7 @@ public class WireMockServer {
         }
     }
 
-    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier, int journalCapacity) {
+    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier, Integer journalCapacity) {
         this(wireMockConfig()
                 .port(port)
                 .httpsPort(httpsPort)

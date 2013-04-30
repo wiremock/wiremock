@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Roger Abelenda
+ * Copyright (C) 2011 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.github.tomakehurst.wiremock.verification.journal;
 
-package com.github.tomakehurst.wiremock;
-
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 
-public class LoggedRequestWithUrlMatcher extends TypeSafeMatcher<LoggedRequest> {
+import java.util.List;
 
-    private final String url;
+public interface RequestJournal extends RequestListener {
 
-    public LoggedRequestWithUrlMatcher(String url) {
-        this.url = url;
-    }
-
-    @Override
-    public boolean matchesSafely(LoggedRequest loggedRequest) {
-        return loggedRequest.getUrl().equals(url);
-    }
-
-    @Override
-    public void describeTo(Description description) {
-        description.appendText("A logged request with url: " + url);
-    }
+	int countRequestsMatching(RequestPattern requestPattern);
+    List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
+	void reset();
 }

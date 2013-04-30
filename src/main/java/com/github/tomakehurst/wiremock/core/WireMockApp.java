@@ -27,8 +27,9 @@ import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.journal.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.journal.RequestJournalFactory;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
     private final StubMappings stubMappings;
-    private final InMemoryRequestJournal requestJournal;
+    private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
     private final RequestDelayControl requestDelayControl;
     private final boolean browserProxyingEnabled;
@@ -48,13 +49,13 @@ public class WireMockApp implements StubServer, Admin {
             RequestDelayControl requestDelayControl,
             boolean browserProxyingEnabled,
             MappingsLoader defaultMappingsLoader,
-            int journalCapacity) {
+            Integer journalCapacity) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
-        requestJournal = new InMemoryRequestJournal(journalCapacity);
+        requestJournal = RequestJournalFactory.fromCapacity(journalCapacity);
         loadDefaultMappings();
     }
 
@@ -73,7 +74,7 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public ResponseDefinition serveStubFor(Request request) {
         ResponseDefinition responseDefinition = stubMappings.serveFor(request);
-        requestJournal.requestReceived(request);
+        requestJournal.requestReceived(request, null);
         if (!responseDefinition.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
             return ResponseDefinition.browserProxy(request);
         }

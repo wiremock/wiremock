@@ -54,7 +54,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
-        optionParser.accepts(JOURNAL_CAPACITY, "Specify the maximum amount of requests maintained in the journal, older are discarded.").withRequiredArg();
+        optionParser.accepts(JOURNAL_CAPACITY, "Specify the maximum amount of requests maintained in the journal, older are discarded. If not set then journal is unbounded.").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -66,6 +66,14 @@ public class CommandLineOptions implements Options {
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
             throw new IllegalStateException("HTTPS port number must be specified if specifying the keystore path");
         }
+        if (!isValidJournalCapacity()) {
+            throw new IllegalArgumentException("Journal capacity, when specified, must be greater or equal to 0");
+        }
+    }
+
+    private boolean isValidJournalCapacity() {
+        Integer c = journalCapacity();
+        return c == null || c >= 0;
     }
 
     public CommandLineOptions(String... args) {
@@ -169,12 +177,12 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-    public int journalCapacity() {
+    public Integer journalCapacity() {
         if (specifiesJournalCapacity()) {
-            return Integer.parseInt((String) optionSet.valueOf(JOURNAL_CAPACITY));
+            return Integer.valueOf((String) optionSet.valueOf(JOURNAL_CAPACITY));
         }
 
-        return DEFAULT_JOURNAL_CAPACITY;
+        return null;
     }
 
     @Override
@@ -187,7 +195,7 @@ public class CommandLineOptions implements Options {
                         .put("proxyVia", nullToString(proxyVia()))
                         .put("proxyUrl", nullToString(proxyUrl()))
                         .put("recordMappingsEnabled", recordMappingsEnabled())
-                        .put("journalCapacity", journalCapacity())
+                        .put("journalCapacity", nullToString(journalCapacity()) )
                         .build());
     }
 
@@ -198,4 +206,5 @@ public class CommandLineOptions implements Options {
 
         return value.toString();
     }
+
 }

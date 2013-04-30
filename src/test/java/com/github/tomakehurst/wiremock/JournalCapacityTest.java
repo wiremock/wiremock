@@ -20,34 +20,70 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.withUrl;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class JournalCapacityTest {
 
-    @Test
-    public void shouldGetLastRequestsWhenRequestQueryWithLimitedJournal() {
-        WireMockServer server = new WireMockServer(new WireMockConfiguration().journalCapacity(3));
-        server.start();
-        WireMockTestClient testClient = new WireMockTestClient();
+    private WireMockServer server;
+    private WireMockTestClient testClient;
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldGetLastRequestsWhenRequestQueryWithBoundedJournal() {
+        setupJournalWithCapacity(3);
+        try {
+            generateRequests();
+            assertThat(getAllRequests(), hasExactly(withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
+        } finally {
+            server.stop();
+        }
+    }
+
+    private void generateRequests() {
         testClient.get("/use/1");
         testClient.get("/use/2");
         testClient.get("/use/3");
         testClient.get("/use/4");
-
-        List<LoggedRequest> requests = findAll(getRequestedFor(urlMatching("/.*")));
-
-        assertThat(requests, hasExactly(withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
-
-        server.stop();
     }
 
-    private LoggedRequestWithUrlMatcher withUrl(String url) {
-          return new LoggedRequestWithUrlMatcher(url);
+    private List<LoggedRequest> getAllRequests() {
+        return findAll(getRequestedFor(urlMatching("/.*")));
+    }
+
+    private void setupJournalWithCapacity(Integer capacity) {
+        server = new WireMockServer(new WireMockConfiguration().journalCapacity(capacity));
+        server.start();
+        testClient = new WireMockTestClient();
+    }
+
+    @Test
+    public void shouldGetNoRequestsWhenRequestQueryWithZeroJournal() {
+        setupJournalWithCapacity(0);
+        try {
+            generateRequests();
+            assertEquals(Collections.<LoggedRequest>emptyList(), getAllRequests());
+        } finally {
+            server.stop();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldGetAllRequestsWhenRequestQueryWithUnboundedJournal() {
+        setupJournalWithCapacity(null);
+        try {
+            generateRequests();
+            assertThat(getAllRequests(), hasExactly(withUrl("/use/1"), withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
+        } finally {
+            server.stop();
+        }
     }
 
 }

@@ -171,6 +171,9 @@ or
 ``--enable-browser-proxying``:
 Run as a browser proxy. See :ref:`browser-proxying`.
 
+``--journal-capacity``:
+Set the capacity of the in memory journal. See :ref:`journal-capacity`.
+
 ``--help``:
 Show command line help
 

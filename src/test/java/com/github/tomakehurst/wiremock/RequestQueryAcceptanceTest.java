@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -27,8 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.isToday;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.*;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -93,10 +91,6 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         List<LoggedRequest> requests = findAll(getRequestedFor(urlMatching("/use/.*")));
 
         assertThat(requests, hasExactly(withUrl("/use/1"), withUrl("/use/2"), withUrl("/use/3"), withUrl("/use/4")));
-    }
-
-    private Matcher<LoggedRequest> withUrl(final String url) {
-        return new LoggedRequestWithUrlMatcher(url);
     }
 
     private static Date parse(String dateString) throws ParseException {

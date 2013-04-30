@@ -30,6 +30,7 @@ dependencies {
 	compile ("junit:junit-dep:4.10") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
+    compile "commons-collections:commons-collections:3.2.1"
 	
     testCompile "org.hamcrest:hamcrest-all:1.1"
 	testCompile ("org.jmock:jmock:2.5.1") {
