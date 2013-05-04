@@ -10,7 +10,7 @@ public final class RequestJournalFactory {
         } else if (capacity > 0) {
             return new BoundedInMemoryRequestJournal(capacity);
         } else if (capacity == 0) {
-            return new EmptyRequestJornal();
+            return new DisabledRequestJournal();
         } else {
             throw new IllegalArgumentException();
         }

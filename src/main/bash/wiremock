@@ -1,0 +1,232 @@
+#!/bin/bash
+# Script to control wiremock
+
+WIREMOCK_VERSION="1.32"
+WIREMOCK_JAR="wiremock-$WIREMOCK_VERSION-standalone.jar"
+SCRIPT_NAME=`basename $0`
+PID_FILE="/var/run/$SCRIPT_NAME.pid"
+MAX_STOP_TIME=10
+DEFAULT_PORT="8088"
+DEFAULT_JOURNAL_CAPACITY="1000"
+DEFAULT_REQUEST_URL="/.*"
+DEFAULT_REQUEST_METHOD="ANY"
+
+PORT=$DEFAULT_PORT
+JOURNAL_CAPACITY=$DEFAULT_JOURNAL_CAPACITY
+REQUEST_URL=$DEFAULT_REQUEST_URL
+REQUEST_METHOD=$DEFAULT_REQUEST_METHOD
+
+usage() {
+    cat << EOF
+usage: $SCRIPT_NAME command [options]
+
+Script to control wiremock
+
+COMMANDS:
+    start               starts wiremock instance
+    stop                stops wiremock instance
+    kill                kills wiremock instance
+    status              shows wiremock status
+    reload              reloads mappings and resets log
+    list                lists logged requests 
+
+START OPTIONS:
+    -p PORT         Port used by wiremock (Default: $DEFAULT_PORT)
+    -j CAPACITY     Journal capacity (Default: $DEFAULT_JOURNAL_CAPACITY)
+    -v              Verbose
+
+LIST OPTIONS:
+    -u URL_PATTERN  Request URL pattern (Default: $DEFAULT_REQUEST_URL)
+    -m METHOD       Request method (Default: $DEFAULT_REQUEST_METHOD)
+
+EOF
+}
+
+loadRunningInfo() {
+    touch "$PID_FILE" || exit 1
+    RUNNING_INFO="$(<$PID_FILE)"
+    set -- junk $RUNNING_INFO
+    shift
+    PID="$1"
+    RUN_PORT="$2"
+}
+
+noMoreParams() {
+    if [ -n "$*" ]; then
+        echo "Invalid params: $*"
+        usage
+        exit 1
+    fi
+}
+
+parseStartParams() {
+    while getopts "p:j:v" OPTION
+    do
+        case $OPTION in
+            p)
+                PORT=$OPTARG
+                ;;
+            j)
+                JOURNAL_CAPACITY=$OPTARG
+                ;;
+            v)
+                VERBOSE=1
+                ;;
+            ?)
+                usage
+                exit
+                ;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+    noMoreParams "$@"
+}
+
+getStartCommand() {
+    local VERBOSE_PARAM=""
+    if [[ -n $VERBOSE ]]; then
+        VERBOSE_PARAM="--verbose"
+    fi
+    echo "java -server -jar $WIREMOCK_JAR --port=$PORT --journal-capacity=$JOURNAL_CAPACITY $VERBOSE_PARAM"
+}
+
+isRunning() {
+    if ps -p "$PID" >/dev/null 2>&1; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+start() {
+    parseStartParams "$@"
+    if [ $(isRunning) == 1 ]; then
+        echo "$SCRIPT_NAME is already running!"
+    else  
+        echo "Starting $SCRIPT_NAME..."
+        exec -a $SCRIPT_NAME $(getStartCommand) <&- &
+        echo "$! $PORT" > $PID_FILE
+    
+        sleep 0.1
+        loadRunningInfo
+        if [ $(isRunning) == 1 ]; then
+            echo "Started with PID=$PID."
+        else
+            echo "Failed starting."
+        fi
+    fi
+}
+
+preIsRunning() {
+    if [ $(isRunning) == 0 ]; then
+        echo "$SCRIPT_NAME is NOT running."
+        exit 1
+    fi
+}
+
+stop() {
+    noMoreParams "$@"
+    preIsRunning
+  
+    echo "Stopping $SCRIPT_NAME..."
+    kill $PID || return 1
+    for ((i=0; $i<$MAX_STOP_TIME*10; $i++))
+    do
+        if [ $(isRunning) == 0 ]; then
+            echo "$SCRIPT_NAME stopped."
+            return 0
+        fi
+        sleep 0.1
+    done
+    echo -e "\n$SCRIPT_NAME did not terminate within $MAX_STOP_TIME seconds, the pid is $PID"
+    return 0
+}
+
+killIt() {
+    noMoreParams "$@"
+    preIsRunning
+    kill -9 $PID
+    echo "Killed $SCRIPT_NAME."
+}
+
+status() {
+    noMoreParams "$@"
+    if [ $(isRunning) == 1 ]; then
+        echo "$SCRIPT_NAME is running on port $RUN_PORT."
+    else
+        echo "$SCRIPT_NAME is NOT running."
+    fi
+}
+
+reload() {
+    noMoreParams "$@"
+    preIsRunning
+    curl -X POST http://localhost:$RUN_PORT/__admin/mappings/reset && echo "Reloaded $SCRIPT_NAME."
+}
+
+parseQueryParams() {
+    while getopts "u:" OPTION
+    do
+        case $OPTION in
+            u)
+                REQUEST_URL=$OPTARG
+                ;;
+            m)
+                REQUEST_METHOD=$OPTARG
+                ;;
+            ?)
+                usage
+                exit
+                ;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+    noMoreParams "$@"
+}
+
+list() {
+    parseQueryParams "$@"
+    preIsRunning
+    curl -X POST -d "{\"urlPattern\": \"$REQUEST_URL\", \"method\" :\"$REQUEST_METHOD\"}" http://localhost:$RUN_PORT/__admin/requests/find
+}
+
+count() {
+    parseQueryParams "$@"
+    preIsRunning
+    curl -X POST -d "{\"urlPattern\": \"$REQUEST_URL\", \"method\" :\"$REQUEST_METHOD\"}" http://localhost:$RUN_PORT/__admin/requests/count
+}
+
+run() {
+    local COMMAND=$1
+    shift
+    loadRunningInfo
+    case $COMMAND in
+        start)
+            start "$@"
+            ;;
+        stop)
+            stop "$@"
+            ;;
+        'kill')
+            killIt "$@"
+            ;;
+        status)
+            status "$@"
+            ;;
+        reload)
+            reload "$@"
+            ;;
+        list)
+            list "$@"
+            ;;
+        count)
+            count "$@"
+            ;;
+        *)
+            echo "Invalid command: $COMMAND"
+            usage
+            ;;
+    esac
+}
+
+run "$@"

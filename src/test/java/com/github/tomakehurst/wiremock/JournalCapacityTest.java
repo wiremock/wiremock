@@ -15,18 +15,17 @@
 
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.withUrl;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class JournalCapacityTest {
@@ -63,12 +62,12 @@ public class JournalCapacityTest {
         testClient = new WireMockTestClient();
     }
 
-    @Test
-    public void shouldGetNoRequestsWhenRequestQueryWithZeroJournal() {
+    @Test(expected = VerificationException.class)
+    public void shouldFailWhenRequestQueryWithDisabledJournal() {
         setupJournalWithCapacity(0);
         try {
             generateRequests();
-            assertEquals(Collections.<LoggedRequest>emptyList(), getAllRequests());
+            getAllRequests();
         } finally {
             server.stop();
         }
@@ -84,6 +83,11 @@ public class JournalCapacityTest {
         } finally {
             server.stop();
         }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailWhenRequestQueryWithNegativeCapacityJournal() {
+        setupJournalWithCapacity(-1);
     }
 
 }

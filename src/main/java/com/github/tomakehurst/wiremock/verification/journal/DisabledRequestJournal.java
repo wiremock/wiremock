@@ -21,19 +21,26 @@ import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
-import java.util.Collections;
 import java.util.List;
 
-public class EmptyRequestJornal implements RequestJournal {
+public class DisabledRequestJournal implements RequestJournal {
+
+    public static class JournalDisabledException extends IllegalStateException {
+
+        public String getMessage() {
+            return "Journal is disabled";
+        }
+
+    }
 
     @Override
     public int countRequestsMatching(RequestPattern requestPattern) {
-        return 0;
+        throw new JournalDisabledException();
     }
 
     @Override
     public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-        return Collections.emptyList();
+        throw new JournalDisabledException();
     }
 
     @Override

@@ -24,6 +24,13 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -35,6 +42,13 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
     private final Admin admin;
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    private static @interface AdminOperation {
+
+        String value();
+    }
+
 	public AdminRequestHandler(Admin admin, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
         this.admin = admin;
@@ -44,48 +58,82 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	public ResponseDefinition handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
 
-		if (isNewMappingRequest(request)) {
-            StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
-            admin.addStubMapping(newMapping);
-			return ResponseDefinition.created();
-		} else if (isResetRequest(request)) {
-			admin.resetMappings();
-			return ResponseDefinition.ok();
-		} else if (isResetScenariosRequest(request)) {
-			admin.resetScenarios();
-			return ResponseDefinition.ok();
-		} else if (isResetToDefaultMappingsRequest(request)) {
-            admin.resetToDefaultMappings();
-            return ResponseDefinition.ok();
-        } else if (isRequestCountRequest(request)) {
-			return getRequestCount(request);
-        } else if (isFindRequestsRequest(request)) {
-            return findRequests(request);
-		} else if (isGlobalSettingsUpdateRequest(request)) {
-			GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
-            admin.updateGlobalSettings(newSettings);
-			return ResponseDefinition.ok();
-        } else if (isSocketDelayRequest(request)) {
-            RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
-            admin.addSocketAcceptDelay(delaySpec);
-            return ResponseDefinition.ok();
-		} else {
-			return ResponseDefinition.notFound();
-		}
+        if (request.getMethod() == RequestMethod.POST) {
+            Method m = getMethodFromPath(withoutAdminRoot(request.getUrl()));
+            if (m != null) {
+                return invoke(m, request);
+            }
+        }
+		return ResponseDefinition.notFound();
 	}
 
-	private boolean isGlobalSettingsUpdateRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/settings");
-	}
+    private Method getMethodFromPath(String path) {
+        for (Method m : getClass().getDeclaredMethods()) {
+            if (isMethodForPath(m, path)) {
+                return m;
+            }
+        }
+        return null;
+    }
 
-	private ResponseDefinition getRequestCount(Request request) {
-		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-		int matchingRequestCount = admin.countRequestsMatching(requestPattern);
-		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
-		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
-		return response;
-	}
+    private boolean isMethodForPath(Method m, String path) {
+        AdminOperation a = m.getAnnotation(AdminOperation.class);
+        return a!=null && a.value().equals(path);
+    }
 
+    private ResponseDefinition invoke(Method m, Request request) {
+        try {
+            if (m.getParameterTypes().length == 0) {
+                return (ResponseDefinition) m.invoke(this);
+            } else {
+                return (ResponseDefinition) m.invoke(this, request);
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException) e.getTargetException();
+        }
+    }
+
+    private static String withoutAdminRoot(String url) {
+        return url.replace(ADMIN_CONTEXT_ROOT, "");
+    }
+
+    @AdminOperation("/reset")
+    private ResponseDefinition reset() {
+        admin.resetMappings();
+        return ResponseDefinition.ok();
+    }
+
+    @AdminOperation("/scenarios/reset")
+    private ResponseDefinition resetScenarios() {
+        admin.resetScenarios();
+        return ResponseDefinition.ok();
+    }
+
+    @AdminOperation("/mappings/reset")
+    private ResponseDefinition resetToDefaultMappings() {
+        admin.resetToDefaultMappings();
+        return ResponseDefinition.ok();
+    }
+
+    @AdminOperation("/mappings/new")
+    private ResponseDefinition newMapping(Request request) {
+        StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
+        admin.addStubMapping(newMapping);
+        return ResponseDefinition.created();
+    }
+
+    @AdminOperation("/requests/count")
+    private ResponseDefinition getRequestCount(Request request) {
+        RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
+        int matchingRequestCount = admin.countRequestsMatching(requestPattern);
+        ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
+        response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
+        return response;
+    }
+
+    @AdminOperation("/requests/find")
     private ResponseDefinition findRequests(Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
         FindRequestsResult result = admin.findRequestsMatching(requestPattern);
@@ -94,36 +142,18 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         return response;
     }
 
-	private boolean isResetRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/reset");
-	}
-	
-	private boolean isResetScenariosRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/scenarios/reset");
-	}
-
-    private boolean isResetToDefaultMappingsRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/reset");
+    @AdminOperation("/settings")
+    private ResponseDefinition globalSettingsUpdate(Request request) {
+        GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
+        admin.updateGlobalSettings(newSettings);
+        return ResponseDefinition.ok();
     }
 
-	private boolean isNewMappingRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/new");
-	}
-	
-	private boolean isRequestCountRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/count");
-	}
-
-    private boolean isFindRequestsRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/find");
+    @AdminOperation("/socket-delay")
+    private ResponseDefinition socketDelay(Request request) {
+        RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
+        admin.addSocketAcceptDelay(delaySpec);
+        return ResponseDefinition.ok();
     }
-
-    private boolean isSocketDelayRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/socket-delay");
-    }
-
-	private static String withoutAdminRoot(String url) {
-	    return url.replace(ADMIN_CONTEXT_ROOT, "");
-	}
 	
 }
