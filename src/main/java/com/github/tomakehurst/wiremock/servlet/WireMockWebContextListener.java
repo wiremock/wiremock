@@ -31,17 +31,19 @@ public class WireMockWebContextListener implements ServletContextListener {
     private static final String FILES_ROOT = "__files";
     private static final String APP_CONTEXT_KEY = "WireMockApp";
     private static final String FILE_SOURCE_ROOT_KEY = "WireMockFileSourceRoot";
+    private static final String JOURNAL_CAPACITY_KEY = "WireMockJournalCapacity";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
         String fileSourceRoot = context.getInitParameter(FILE_SOURCE_ROOT_KEY);
+        Integer journalCapacity = getOptionalInt(context.getInitParameter(JOURNAL_CAPACITY_KEY));
         
         ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
         Log4jConfiguration.configureLogging(true);
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
-        WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false, defaultMappingsLoader);
+        WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false, defaultMappingsLoader, journalCapacity);
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
@@ -50,6 +52,13 @@ public class WireMockWebContextListener implements ServletContextListener {
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
+    }
+
+    private Integer getOptionalInt(String str) {
+        if (str == null)
+            return null;
+        else
+            return Integer.valueOf(str);
     }
 
     @Override

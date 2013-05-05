@@ -40,7 +40,6 @@ import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -74,7 +73,7 @@ public class WireMockServer {
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
-        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader);
+        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader, options.journalCapacity());
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
@@ -92,14 +91,15 @@ public class WireMockServer {
         }
     }
 
-    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
+    public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier, Integer journalCapacity) {
         this(wireMockConfig()
                 .port(port)
                 .httpsPort(httpsPort)
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying)
                 .proxyVia(proxySettings)
-                .notifier(notifier));
+                .notifier(notifier)
+                .journalCapacity(journalCapacity));
     }
 
 	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {

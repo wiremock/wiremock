@@ -18,16 +18,12 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
-
-import static com.google.common.base.Splitter.on;
-import static com.google.common.collect.Iterables.getLast;
 
 public class CommandLineOptions implements Options {
 	
@@ -40,6 +36,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_KEYSTORE = "https-keystore";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String JOURNAL_CAPACITY = "journal-capacity";
 
     private final FileSource fileSource;
 	private final OptionSet optionSet;
@@ -57,6 +54,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
+        optionParser.accepts(JOURNAL_CAPACITY, "Specify the maximum amount of requests maintained in the journal, older are discarded. If not set then journal is unbounded.").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -68,6 +66,14 @@ public class CommandLineOptions implements Options {
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
             throw new IllegalStateException("HTTPS port number must be specified if specifying the keystore path");
         }
+        if (!isValidJournalCapacity()) {
+            throw new IllegalArgumentException("Journal capacity, when specified, must be greater or equal to 0");
+        }
+    }
+
+    private boolean isValidJournalCapacity() {
+        Integer c = journalCapacity();
+        return c == null || c >= 0;
     }
 
     public CommandLineOptions(String... args) {
@@ -166,6 +172,19 @@ public class CommandLineOptions implements Options {
         return new Log4jNotifier();
     }
 
+    private boolean specifiesJournalCapacity() {
+        return optionSet.has(JOURNAL_CAPACITY);
+    }
+
+    @Override
+    public Integer journalCapacity() {
+        if (specifiesJournalCapacity()) {
+            return Integer.valueOf((String) optionSet.valueOf(JOURNAL_CAPACITY));
+        }
+
+        return null;
+    }
+
     @Override
     public String toString() {
         return Joiner.on(", ").withKeyValueSeparator("=").join(
@@ -176,6 +195,7 @@ public class CommandLineOptions implements Options {
                         .put("proxyVia", nullToString(proxyVia()))
                         .put("proxyUrl", nullToString(proxyUrl()))
                         .put("recordMappingsEnabled", recordMappingsEnabled())
+                        .put("journalCapacity", nullToString(journalCapacity()) )
                         .build());
     }
 
@@ -186,4 +206,5 @@ public class CommandLineOptions implements Options {
 
         return value.toString();
     }
+
 }

@@ -5,8 +5,13 @@ Verifying
 *********
 
 .. rubric::
-    The WireMock server records all requests it receives in memory (at least until it is :ref:`stubbing-reset`). This makes it possible
-    to verify that a request matching a specific pattern was received, and also to fetch the requests' details.
+    The WireMock server records by default all requests it receives in memory (at least until it is :ref:`stubbing-reset`).
+    This makes it possible to verify that a request matching a specific pattern was received, and also to fetch the requests' details.
+
+.. _journal-capacity:
+    By default all requests are stored in memory. This is not always the desired approach: if the stubbed service is under heavy load of requests, memory will increase linearly until filled up by requests records.
+    These kind of scenarios are probable when running WireMock in standalone, so for this purpose exists the parameter --journal-capacity. Setting it to 0 will totally disable requests recording.
+    On the other hand by setting it to a value X greater than 0, WireMock will only hold the last X requests. Be aware that this parameter will affect any verification of requests, as the following described ones.
 
 
 .. _verifying-checking-for-matching-requests:

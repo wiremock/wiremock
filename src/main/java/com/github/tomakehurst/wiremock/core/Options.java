@@ -15,6 +15,7 @@ public interface Options {
     ProxySettings proxyVia();
     FileSource filesRoot();
     Notifier notifier();
+    Integer journalCapacity();
 
 
 }

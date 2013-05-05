@@ -15,28 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
-import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import org.hamcrest.Matchers;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
+import static org.junit.Assert.*;
 
 @RunWith(JMock.class)
 public class LoggedRequestTest {
@@ -76,7 +73,7 @@ public class LoggedRequestTest {
             "      },\n" +
             "      \"body\" : \"some text\",\n" +
             "      \"browserProxyRequest\" : true,\n" +
-            "      \"loggedDate\" : 1339083581000,\n" +
+            "      \"loggedDate\" : " + parse(DATE).getTime() + ",\n" +
             "      \"loggedDateString\" : \"" + DATE + "\"\n" +
             "    }";
 
@@ -96,9 +93,13 @@ public class LoggedRequestTest {
         assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(JSON_EXAMPLE));
     }
 
-    private Date parse(String dateString) throws Exception {
+    private static Date parse(String dateString) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        return df.parse(dateString);
+        try {
+            return df.parse(dateString);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.verification;
+package com.github.tomakehurst.wiremock.verification.journal;
 
+import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.List;
 
-public interface RequestJournal {
+public interface RequestJournal extends RequestListener {
 
 	int countRequestsMatching(RequestPattern requestPattern);
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
