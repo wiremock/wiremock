@@ -30,6 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -47,19 +49,33 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private static @interface AdminOperation {
 
         String value();
+
     }
+
+    private Map<String, Method> adminOperations;
 
 	public AdminRequestHandler(Admin admin, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
         this.admin = admin;
+        loadAdminOperations();
 	}
 
-	@Override
+    private void loadAdminOperations() {
+        adminOperations = new HashMap<String, Method>();
+        for (Method m : getClass().getDeclaredMethods()) {
+            AdminOperation a = m.getAnnotation(AdminOperation.class);
+            if (a != null) {
+                adminOperations.put(a.value(), m);
+            }
+        }
+    }
+
+    @Override
 	public ResponseDefinition handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
 
         if (request.getMethod() == RequestMethod.POST) {
-            Method m = getMethodFromPath(withoutAdminRoot(request.getUrl()));
+            Method m = adminOperations.get(withoutAdminRoot(request.getUrl()));
             if (m != null) {
                 return invoke(m, request);
             }
@@ -67,18 +83,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 		return ResponseDefinition.notFound();
 	}
 
-    private Method getMethodFromPath(String path) {
-        for (Method m : getClass().getDeclaredMethods()) {
-            if (isMethodForPath(m, path)) {
-                return m;
-            }
-        }
-        return null;
-    }
-
-    private boolean isMethodForPath(Method m, String path) {
-        AdminOperation a = m.getAnnotation(AdminOperation.class);
-        return a!=null && a.value().equals(path);
+    private static String withoutAdminRoot(String url) {
+        return url.replace(ADMIN_CONTEXT_ROOT, "");
     }
 
     private ResponseDefinition invoke(Method m, Request request) {
@@ -95,37 +101,33 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         }
     }
 
-    private static String withoutAdminRoot(String url) {
-        return url.replace(ADMIN_CONTEXT_ROOT, "");
-    }
-
     @AdminOperation("/reset")
-    private ResponseDefinition reset() {
+    public ResponseDefinition reset() {
         admin.resetMappings();
         return ResponseDefinition.ok();
     }
 
     @AdminOperation("/scenarios/reset")
-    private ResponseDefinition resetScenarios() {
+    public ResponseDefinition resetScenarios() {
         admin.resetScenarios();
         return ResponseDefinition.ok();
     }
 
     @AdminOperation("/mappings/reset")
-    private ResponseDefinition resetToDefaultMappings() {
+    public ResponseDefinition resetToDefaultMappings() {
         admin.resetToDefaultMappings();
         return ResponseDefinition.ok();
     }
 
     @AdminOperation("/mappings/new")
-    private ResponseDefinition newMapping(Request request) {
+    public ResponseDefinition newMapping(Request request) {
         StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
         admin.addStubMapping(newMapping);
         return ResponseDefinition.created();
     }
 
     @AdminOperation("/requests/count")
-    private ResponseDefinition getRequestCount(Request request) {
+    public ResponseDefinition getRequestCount(Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
         int matchingRequestCount = admin.countRequestsMatching(requestPattern);
         ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
@@ -134,7 +136,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     }
 
     @AdminOperation("/requests/find")
-    private ResponseDefinition findRequests(Request request) {
+    public ResponseDefinition findRequests(Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
         FindRequestsResult result = admin.findRequestsMatching(requestPattern);
         ResponseDefinition response = new ResponseDefinition(HTTP_OK, Json.write(result));
@@ -143,14 +145,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     }
 
     @AdminOperation("/settings")
-    private ResponseDefinition globalSettingsUpdate(Request request) {
+    public ResponseDefinition globalSettingsUpdate(Request request) {
         GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
         admin.updateGlobalSettings(newSettings);
         return ResponseDefinition.ok();
     }
 
     @AdminOperation("/socket-delay")
-    private ResponseDefinition socketDelay(Request request) {
+    public ResponseDefinition socketDelay(Request request) {
         RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
         admin.addSocketAcceptDelay(delaySpec);
         return ResponseDefinition.ok();
