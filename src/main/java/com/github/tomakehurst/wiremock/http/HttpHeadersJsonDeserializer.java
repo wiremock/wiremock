@@ -15,18 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.collect.Iterables.transform;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+
+import static com.google.common.collect.Iterables.transform;
 
 public class HttpHeadersJsonDeserializer extends JsonDeserializer<HttpHeaders> {
 

@@ -15,21 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class LoggedRequest implements Request {

@@ -19,9 +19,7 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BINARY_BYTE_BODY;
-import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BYTE_BODY;
-import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BINARY_COMPRESSED_CONTENT;
+import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.*;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;

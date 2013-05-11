@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import org.hamcrest.Description;
@@ -27,6 +22,11 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class SortedConcurrentMappingSetTest {
 	

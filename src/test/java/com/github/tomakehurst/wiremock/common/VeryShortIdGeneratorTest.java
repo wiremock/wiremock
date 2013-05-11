@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import org.junit.Test;
+
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class VeryShortIdGeneratorTest {
 

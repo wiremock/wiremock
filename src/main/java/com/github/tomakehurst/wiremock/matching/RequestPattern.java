@@ -15,20 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
-import static com.google.common.collect.Iterables.all;
-import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -38,6 +24,16 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
+import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class RequestPattern {

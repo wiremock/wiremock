@@ -15,13 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.github.tomakehurst.wiremock.jetty.ServletContainerUtils;
+import com.github.tomakehurst.wiremock.testsupport.MockHttpServletRequest;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.testsupport.MockHttpServletRequest;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ServletContainerUtilsTest {
 

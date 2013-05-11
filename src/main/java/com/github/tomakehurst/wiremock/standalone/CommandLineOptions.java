@@ -18,16 +18,12 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
-
-import static com.google.common.base.Splitter.on;
-import static com.google.common.collect.Iterables.getLast;
 
 public class CommandLineOptions implements Options {
 	

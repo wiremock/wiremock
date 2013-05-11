@@ -15,15 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
-import static org.junit.Assert.assertThat;
-
-import java.util.List;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
+
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static org.junit.Assert.assertThat;
 
 public class SingleRootFileSourceTest {
 

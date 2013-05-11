@@ -15,18 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static com.google.common.base.Charsets.UTF_8;
-
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -36,6 +24,17 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static com.google.common.base.Charsets.UTF_8;
 
 @RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {

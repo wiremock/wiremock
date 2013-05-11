@@ -15,17 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.util.List;
+
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RequestResponseMappingBuilder {
 

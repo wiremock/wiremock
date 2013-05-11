@@ -15,20 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-import static javax.xml.bind.DatatypeConverter.printBase64Binary;
-
-import java.nio.charset.Charset;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+
+import java.nio.charset.Charset;
+
+import static com.google.common.base.Charsets.UTF_8;
+import static java.net.HttpURLConnection.*;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {

@@ -15,19 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.google.common.base.Optional;
-import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class ContentTypeHeaderTest {

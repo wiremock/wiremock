@@ -15,10 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,13 +29,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
-import org.junit.Before;
-import org.junit.Test;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static org.junit.Assert.assertThat;
 
 public class ServletContextFileSourceTest {
     

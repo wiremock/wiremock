@@ -15,14 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
 

@@ -15,12 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.http.*;
 import org.jmock.Expectations;
@@ -30,7 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.tomakehurst.wiremock.http.ResponseRenderer;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class StubRequestHandlerTest {

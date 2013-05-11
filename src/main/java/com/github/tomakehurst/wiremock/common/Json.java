@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 
 public final class Json {
 	

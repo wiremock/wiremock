@@ -1,14 +1,11 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
-
-import static org.apache.log4j.Level.ERROR;
-import static org.apache.log4j.Level.INFO;
-import static org.apache.log4j.Level.TRACE;
+import static org.apache.log4j.Level.*;
 
 public class Log4jConfiguration {
     public static void configureLogging(boolean verbose) {

@@ -15,12 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
 
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 
