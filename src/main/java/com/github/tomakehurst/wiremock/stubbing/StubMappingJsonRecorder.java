@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
+import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -24,8 +25,6 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-
-import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -58,8 +57,8 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
         String fileId = idGenerator.generate();
-        String mappingFileName = generateNewUniqueFileNameFromRequest(request, "mapping", fileId);
-        String bodyFileName = generateNewUniqueFileNameFromRequest(request, "body", fileId);
+        String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
+        String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
         ResponseDefinition responseToWrite = new ResponseDefinition();
         responseToWrite.setStatus(response.getStatus());
         responseToWrite.setBodyFileName(bodyFileName);
@@ -77,23 +76,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
         return admin.countRequestsMatching(requestPattern) <= 1;
     }
-	
-	private String generateNewUniqueFileNameFromRequest(Request request, String prefix, String id) {
-	    URI uri = URI.create(request.getUrl());
-	    String[] pathNodes = uri.getPath().split("/");
-	    StringBuilder sb = new StringBuilder(prefix).append("-");
-	    if (pathNodes.length > 1) {
-	        sb.append(pathNodes[pathNodes.length - 2]).append("-");
-	    }
-	        
-        sb.append(pathNodes[pathNodes.length - 1])
-            .append("-")
-	        .append(id)
-	        .append(".json");
-        
-        return sb.toString();
-	}
-	
+
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
