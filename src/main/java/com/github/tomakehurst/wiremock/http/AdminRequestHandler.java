@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
@@ -80,8 +81,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
 	private ResponseDefinition getRequestCount(Request request) {
 		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-		int matchingRequestCount = admin.countRequestsMatching(requestPattern);
-		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(new VerificationResult(matchingRequestCount)));
+        VerificationResult result;
+        try {
+		    int matchingRequestCount = admin.countRequestsMatching(requestPattern);
+            result = VerificationResult.withCount(matchingRequestCount);
+        } catch (RequestJournalDisabledException e) {
+            result = VerificationResult.withRequestJournalDisabled();
+        }
+		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(result));
 		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
 		return response;
 	}

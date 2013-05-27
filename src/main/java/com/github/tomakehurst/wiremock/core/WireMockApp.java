@@ -26,9 +26,7 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.*;
 
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
     private final StubMappings stubMappings;
-    private final InMemoryRequestJournal requestJournal;
+    private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
     private final RequestDelayControl requestDelayControl;
     private final boolean browserProxyingEnabled;
@@ -47,13 +45,14 @@ public class WireMockApp implements StubServer, Admin {
     public WireMockApp(
             RequestDelayControl requestDelayControl,
             boolean browserProxyingEnabled,
-            MappingsLoader defaultMappingsLoader) {
+            MappingsLoader defaultMappingsLoader,
+            boolean requestJournalDisabled) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
-        requestJournal = new InMemoryRequestJournal();
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal();
         loadDefaultMappings();
     }
 

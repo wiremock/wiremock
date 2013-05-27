@@ -163,6 +163,11 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
+    public boolean requestJournalDisabled() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public String toString() {
         return Joiner.on(", ").withKeyValueSeparator("=").join(
                 ImmutableMap.builder()

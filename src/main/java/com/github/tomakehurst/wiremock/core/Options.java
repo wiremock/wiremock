@@ -15,6 +15,6 @@ public interface Options {
     ProxySettings proxyVia();
     FileSource filesRoot();
     Notifier notifier();
-
+    boolean requestJournalDisabled();
 
 }

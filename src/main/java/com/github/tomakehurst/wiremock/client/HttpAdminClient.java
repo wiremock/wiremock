@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,7 +32,6 @@ import org.apache.http.entity.StringEntity;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
-import static com.github.tomakehurst.wiremock.verification.VerificationResult.buildVerificationResultFrom;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -102,7 +102,11 @@ public class HttpAdminClient implements Admin {
 	public int countRequestsMatching(RequestPattern requestPattern) {
 		String json = Json.write(requestPattern);
 		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
-		VerificationResult verificationResult = buildVerificationResultFrom(body);
+		VerificationResult verificationResult = VerificationResult.from(body);
+        if (verificationResult.requestJournalIsDisabled()) {
+            throw new RequestJournalDisabledException();
+        }
+
 		return verificationResult.getCount();
 	}
 

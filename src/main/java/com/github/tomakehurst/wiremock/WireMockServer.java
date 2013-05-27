@@ -73,7 +73,7 @@ public class WireMockServer {
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
-        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader);
+        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader, options.requestJournalDisabled());
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,

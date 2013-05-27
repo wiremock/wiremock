@@ -55,6 +55,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 		requests.add(LoggedRequest.createFrom(request));
 	}
 
+    @Override
     public void requestReceived(Request request) {
         requestReceived(request, null);
     }
