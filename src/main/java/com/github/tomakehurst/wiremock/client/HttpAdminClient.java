@@ -99,15 +99,10 @@ public class HttpAdminClient implements Admin {
 	}
 	
 	@Override
-	public int countRequestsMatching(RequestPattern requestPattern) {
+	public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
 		String json = Json.write(requestPattern);
 		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
-		VerificationResult verificationResult = VerificationResult.from(body);
-        if (verificationResult.requestJournalIsDisabled()) {
-            throw new RequestJournalDisabledException();
-        }
-
-		return verificationResult.getCount();
+		return VerificationResult.from(body);
 	}
 
     @Override

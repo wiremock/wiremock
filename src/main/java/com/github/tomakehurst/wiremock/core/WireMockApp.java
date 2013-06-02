@@ -103,14 +103,22 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public int countRequestsMatching(RequestPattern requestPattern) {
-        return requestJournal.countRequestsMatching(requestPattern);
+    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+        try {
+            return VerificationResult.withCount(requestJournal.countRequestsMatching(requestPattern));
+        } catch (RequestJournalDisabledException e) {
+            return VerificationResult.withRequestJournalDisabled();
+        }
     }
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
-        List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
-        return new FindRequestsResult(requests);
+        try {
+            List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
+            return FindRequestsResult.withRequests(requests);
+        } catch (RequestJournalDisabledException e) {
+            return FindRequestsResult.withRequestJournalDisabled();
+        }
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -74,7 +75,9 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
-        return admin.countRequestsMatching(requestPattern) <= 1;
+        VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
+        verificationResult.assertRequestJournalEnabled();
+        return (verificationResult.getCount() <= 1);
     }
 
     public void setIdGenerator(IdGenerator idGenerator) {

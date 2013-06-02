@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public interface Admin {
 
@@ -27,7 +28,7 @@ public interface Admin {
 	void resetMappings();
 	void resetScenarios();
     void resetToDefaultMappings();
-	int countRequestsMatching(RequestPattern requestPattern);
+	VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
     void addSocketAcceptDelay(RequestDelaySpec spec);

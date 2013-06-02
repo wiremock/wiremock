@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -72,7 +73,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
-		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 			        with(equalToJson(SAMPLE_REQUEST_MAPPING)));
 			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
@@ -112,7 +113,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(1));
+	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.json", "Recorded body content".getBytes(UTF_8));
@@ -138,7 +139,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfRequestAlreadyReceived() {
 	    context.checking(new Expectations() {{
-            atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(2));
+            atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(2)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -153,7 +154,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfResponseNotFromProxy() {
 	    context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(0));
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});

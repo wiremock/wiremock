@@ -19,16 +19,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 
-public class VerificationResult {
+public class VerificationResult extends JournalBasedResult {
 
-	private Integer count;
-    private boolean requestJournalDisabled;
+	private final Integer count;
 
     @JsonCreator
     public VerificationResult(@JsonProperty("count") Integer count,
                               @JsonProperty("requestJournalDisabled") boolean requestJournalDisabled) {
+        super(requestJournalDisabled);
         this.count = count;
-        this.requestJournalDisabled = requestJournalDisabled;
     }
 
     public static VerificationResult from(String json) {
@@ -47,7 +46,4 @@ public class VerificationResult {
 		return count;
 	}
 
-    public boolean requestJournalIsDisabled() {
-        return requestJournalDisabled;
-    }
 }

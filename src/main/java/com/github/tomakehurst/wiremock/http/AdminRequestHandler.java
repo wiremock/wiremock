@@ -81,13 +81,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
 	private ResponseDefinition getRequestCount(Request request) {
 		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        VerificationResult result;
-        try {
-		    int matchingRequestCount = admin.countRequestsMatching(requestPattern);
-            result = VerificationResult.withCount(matchingRequestCount);
-        } catch (RequestJournalDisabledException e) {
-            result = VerificationResult.withRequestJournalDisabled();
-        }
+        VerificationResult result = admin.countRequestsMatching(requestPattern);
 		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(result));
 		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
 		return response;

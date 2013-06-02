@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -103,7 +104,7 @@ public class AdminRequestHandlerTest {
 	public void shouldReturnCountOfMatchingRequests() {
 		context.checking(new Expectations() {{
 			RequestPattern requestPattern = new RequestPattern(DELETE, "/some/resource");
-			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(5));
+			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
 		}});
 		
 		Response response = handler.handle(aRequest(context)
@@ -113,7 +114,7 @@ public class AdminRequestHandlerTest {
 				.build());
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
-		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5 }"));
+		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
 	}
 	
 	private static final String GLOBAL_SETTINGS_JSON =
