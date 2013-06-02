@@ -36,6 +36,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_KEYSTORE = "https-keystore";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
 
     private final FileSource fileSource;
 	private final OptionSet optionSet;
@@ -53,6 +54,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
+        optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -62,7 +64,11 @@ public class CommandLineOptions implements Options {
 
     private void validate() {
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
-            throw new IllegalStateException("HTTPS port number must be specified if specifying the keystore path");
+            throw new IllegalArgumentException("HTTPS port number must be specified if specifying the keystore path");
+        }
+
+        if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
+            throw new IllegalArgumentException("Request journal must be enabled to record stubs");
         }
     }
 
@@ -164,7 +170,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public boolean requestJournalDisabled() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
 
     @Override

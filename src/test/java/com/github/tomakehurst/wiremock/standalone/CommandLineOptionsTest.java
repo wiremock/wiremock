@@ -66,7 +66,7 @@ public class CommandLineOptionsTest {
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
     }
 
-    @Test(expected=Exception.class)
+    @Test(expected=IllegalArgumentException.class)
     public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
         new CommandLineOptions("--https-keystore", "/my/keystore");
     }
@@ -122,5 +122,16 @@ public class CommandLineOptionsTest {
     public void returnsNoProxyWhenNoProxyViaSpecified() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.proxyVia(), is(ProxySettings.NO_PROXY));
+    }
+
+    @Test
+    public void returnsDisabledRequestJournal() {
+        CommandLineOptions options = new CommandLineOptions("--no-request-journal");
+        assertThat(options.requestJournalDisabled(), is(true));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void preventsRecordingWhenRequestJournalDisabled() {
+        new CommandLineOptions("--no-request-journal", "--record-mappings");
     }
 }
