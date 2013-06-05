@@ -125,6 +125,17 @@ server directly:
 
     wireMockServer.stop();
 
+If you've changed the port number and/or you're running the server on another host, you'll need to tell the client:
+
+.. code-block:: java
+
+    WireMock.configureFor("wiremock.host", 8089);
+
+And if you've deployed it into a servlet container under a path other than root you'll need to set that too:
+
+.. code-block:: java
+
+    WireMock.configureFor("tomcat.host", 8080, "/wiremock");
 
 Running standalone
 ==================
@@ -136,6 +147,8 @@ This will start the server on port 8080:
 .. parsed-literal::
 
     $ java -jar wiremock-|version|-standalone.jar
+
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.32/wiremock-1.32-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -170,6 +183,11 @@ or
 
 ``--enable-browser-proxying``:
 Run as a browser proxy. See :ref:`browser-proxying`.
+
+``--no-request-journal``:
+Disable the request journal, which records incoming requests for later verification. This allows WireMock to be run
+(and serve stubs) for long periods (without resetting) without exhausting the heap. The ``--record-mappings`` option isn't
+available if this one is specified.
 
 ``--help``:
 Show command line help
