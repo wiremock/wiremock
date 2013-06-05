@@ -332,3 +332,7 @@ The WireMock server can be reset at any time, removing all stub mappings and del
 either of the JUnit rules this will happen automatically at the start of every test case. However you can do it yourself
 via a call to ``WireMock.reset()`` in Java or posting a request with an empty body to ``http://<host>:<port>/__admin/reset``.
 
+If you've created some file based stub mappings to be loaded at startup and you don't want these to disappear when you
+do a reset you can call ``WireMock.resetToDefault()`` instead, or post an empty request to
+``http://<host>:<port>/__admin/mappings/reset``.
+

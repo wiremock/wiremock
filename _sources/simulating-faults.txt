@@ -54,7 +54,7 @@ document of the following form to ``http://<host>:<port>/__admin/settings``:
     }
 
 
-.. _simulating-faults-request-delays
+.. _simulating-faults-request-delays:
 
 Request delays (and socket timeouts)
 ====================================

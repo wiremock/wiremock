@@ -134,7 +134,7 @@ document of the following form to <tt class="docutils literal"><span class="pre"
 </div>
 </div>
 <div class="section" id="request-delays-and-socket-timeouts">
-<h2>Request delays (and socket timeouts)<a class="headerlink" href="#request-delays-and-socket-timeouts" title="Permalink to this headline">¶</a></h2>
+<span id="simulating-faults-request-delays"></span><h2>Request delays (and socket timeouts)<a class="headerlink" href="#request-delays-and-socket-timeouts" title="Permalink to this headline">¶</a></h2>
 <p>Adding stub delays by either of the above routes won&#8217;t allow you to create the conditions for a socket timeout.
 This is because data must be sent and received on the socket for WireMock to determine enough about the request (URL,
 headers etc.) to select an appropriate stub. To reliably create a socket timeout, or test client behaviour when there
@@ -184,7 +184,7 @@ Send garbage then close the connection.</p>
         <footer>
             &copy; Copyright 2012, Tom Akehurst.
             Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
-            1.1.3.
+            1.2b1.
         </footer>
     </div>
 </body>
