@@ -70,7 +70,6 @@ If you want the server to continue to run between test cases (JUnit 4.9 and newe
 .. code-block:: java
 
     @ClassRule
-    @Rule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
 
 
