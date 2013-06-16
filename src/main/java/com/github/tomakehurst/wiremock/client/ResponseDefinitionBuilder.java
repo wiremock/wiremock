@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class ResponseDefinitionBuilder {
 
@@ -36,6 +38,14 @@ public class ResponseDefinitionBuilder {
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private Fault fault;
+
+    public static ResponseDefinition jsonResponse(Object body) {
+        return new ResponseDefinitionBuilder()
+                .withBody(Json.write(body))
+                .withStatus(HTTP_OK)
+                .withHeader("Content-Type", "application/json")
+                .build();
+    }
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;

@@ -22,11 +22,13 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -67,8 +69,16 @@ public class HttpAdminClient implements Admin {
                 Json.write(stubMapping),
                 HTTP_CREATED);
 	}
-	
-	@Override
+
+    @Override
+    public ListStubMappingsResult listAllStubMappings() {
+        String body = getJsonAssertOkAndReturnBody(
+                urlFor(RootTask.class),
+                HTTP_OK);
+        return Json.read(body, ListStubMappingsResult.class);
+    }
+
+    @Override
 	public void resetMappings() {
 		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
 	}
@@ -129,6 +139,22 @@ public class HttpAdminClient implements Admin {
 				throw new VerificationException(
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
 			}
+
+            return getEntityAsStringAndCloseStream(response);
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
+
+    private String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
+        HttpGet get = new HttpGet(url);
+        try {
+            HttpResponse response = httpClient.execute(get);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != expectedStatus) {
+                throw new VerificationException(
+                        "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
+            }
 
             return getEntityAsStringAndCloseStream(response);
         } catch (Exception e) {

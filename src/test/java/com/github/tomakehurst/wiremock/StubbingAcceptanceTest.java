@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
@@ -24,6 +27,8 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -246,6 +251,24 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         stubFor(get(urlEqualTo("/binary/content")).willReturn(aResponse().withBody(bytes)));
 
         assertThat(testClient.get("/binary/content").binaryContent(), is(bytes));
+    }
+
+    @Test
+    public void listingAllStubMappings() {
+        stubFor(get(urlEqualTo("/stub/one")).willReturn(aResponse().withBody("One")));
+        stubFor(post(urlEqualTo("/stub/two")).willReturn(aResponse().withBody("Two").withStatus(201)));
+
+        ListStubMappingsResult listingResult = listAllStubMappings();
+        StubMapping mapping1 = listingResult.getMappings().get(0);
+        assertThat(mapping1.getRequest().getMethod(), is(POST));
+        assertThat(mapping1.getRequest().getUrl(), is("/stub/two"));
+        assertThat(mapping1.getResponse().getBody(), is("Two"));
+        assertThat(mapping1.getResponse().getStatus(), is(201));
+
+        StubMapping mapping2 = listingResult.getMappings().get(1);
+        assertThat(mapping2.getRequest().getMethod(), is(GET));
+        assertThat(mapping2.getRequest().getUrl(), is("/stub/one"));
+        assertThat(mapping2.getResponse().getBody(), is("One"));
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

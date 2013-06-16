@@ -19,10 +19,14 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
+import java.util.List;
+
 public interface StubMappings {
 
 	ResponseDefinition serveFor(Request request);
 	void addMapping(StubMapping mapping);
 	void reset();
 	void resetScenarios();
+
+    List<StubMapping> getAll();
 }

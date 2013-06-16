@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -63,6 +64,10 @@ public class WireMock {
 	public static void stubFor(MappingBuilder mappingBuilder) {
 		givenThat(mappingBuilder);
 	}
+
+    public static ListStubMappingsResult listAllStubMappings() {
+        return defaultInstance.allStubMappings();
+    }
 	
 	public static void configureFor(String host, int port) {
 		defaultInstance = new WireMock(host, port);
@@ -104,6 +109,10 @@ public class WireMock {
 		StubMapping mapping = mappingBuilder.build();
 		admin.addStubMapping(mapping);
 	}
+
+    public ListStubMappingsResult allStubMappings() {
+        return admin.listAllStubMappings();
+    }
 	
 	public static UrlMatchingStrategy urlEqualTo(String url) {
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();

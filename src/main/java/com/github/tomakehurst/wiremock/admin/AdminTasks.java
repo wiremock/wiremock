@@ -6,12 +6,14 @@ import com.google.common.collect.ImmutableBiMap;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 
 public class AdminTasks {
 
     private static final BiMap<RequestSpec, Class<? extends AdminTask>> TASKS =
             new ImmutableBiMap.Builder<RequestSpec, Class<? extends AdminTask>>()
+                .put(requestSpec(GET, "/"), RootTask.class)
                 .put(requestSpec(POST, "/reset"), ResetTask.class)
                 .put(requestSpec(POST, "/mappings/new"), NewStubMappingTask.class)
                 .put(requestSpec(POST, "/scenarios/reset"), ResetScenariosTask.class)

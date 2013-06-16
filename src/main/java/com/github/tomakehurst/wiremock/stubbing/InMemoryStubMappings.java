@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -73,8 +75,13 @@ public class InMemoryStubMappings implements StubMappings {
 			scenario.reset();
 		}
 	}
-	
-	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+
+    @Override
+    public List<StubMapping> getAll() {
+        return ImmutableList.copyOf(mappings);
+    }
+
+    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
 				return mapping.getRequest().isMatchedBy(request) &&

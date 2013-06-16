@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -82,6 +83,11 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void addStubMapping(StubMapping stubMapping) {
         stubMappings.addMapping(stubMapping);
+    }
+
+    @Override
+    public ListStubMappingsResult listAllStubMappings() {
+        return new ListStubMappingsResult(stubMappings.getAll());
     }
 
     @Override
