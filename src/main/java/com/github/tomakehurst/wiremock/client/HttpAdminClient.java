@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -23,7 +24,6 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -38,15 +38,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class HttpAdminClient implements Admin {
 	
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = ADMIN_URL_PREFIX + "/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_URL = ADMIN_URL_PREFIX + "/reset";
-    private static final String LOCAL_WIREMOCK_RESET_SCENARIOS_URL = ADMIN_URL_PREFIX + "/scenarios/reset";
-    private static final String LOCAL_WIREMOCK_RESET_TO_DEFAULT_MAPPINGS_URL = ADMIN_URL_PREFIX + "/mappings/reset";
-    private static final String LOCAL_WIREMOCK_COUNT_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/count";
-    private static final String LOCAL_WIREMOCK_FIND_REQUESTS_URL = ADMIN_URL_PREFIX + "/requests/find";
-	private static final String WIREMOCK_GLOBAL_SETTINGS_URL = ADMIN_URL_PREFIX + "/settings";
-    private static final String SOCKET_ACCEPT_DELAY_URL = ADMIN_URL_PREFIX + "/socket-delay";
-	
+
 	private final String host;
 	private final int port;
 	private final String urlPathPrefix;
@@ -68,7 +60,7 @@ public class HttpAdminClient implements Admin {
 	@Override
 	public void addStubMapping(StubMapping stubMapping) {
         String json = Json.write(stubMapping);
-		int status = postJsonAndReturnStatus(newMappingUrl(), json);
+		int status = postJsonAndReturnStatus(urlFor(NewStubMappingTask.class), json);
 		if (status != HTTP_CREATED) {
 			throw new RuntimeException("Returned status code was " + status);
 		}
@@ -76,19 +68,19 @@ public class HttpAdminClient implements Admin {
 	
 	@Override
 	public void resetMappings() {
-		int status = postEmptyBodyAndReturnStatus(resetUrl());
+		int status = postEmptyBodyAndReturnStatus(urlFor(ResetTask.class));
 		assertStatusOk(status);
 	}
 	
 	@Override
 	public void resetScenarios() {
-		int status = postEmptyBodyAndReturnStatus(resetScenariosUrl());
+		int status = postEmptyBodyAndReturnStatus(urlFor(ResetScenariosTask.class));
 		assertStatusOk(status);
 	}
 
     @Override
     public void resetToDefaultMappings() {
-        int status = postEmptyBodyAndReturnStatus(resetToDefaultMappingsUrl());
+        int status = postEmptyBodyAndReturnStatus(urlFor(ResetToDefaultMappingsTask.class));
         assertStatusOk(status);
     }
 
@@ -101,27 +93,27 @@ public class HttpAdminClient implements Admin {
 	@Override
 	public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
 		String json = Json.write(requestPattern);
-		String body = postJsonAssertOkAndReturnBody(requestsCountUrl(), json, HTTP_OK);
+		String body = postJsonAssertOkAndReturnBody(urlFor(GetRequestCountTask.class), json, HTTP_OK);
 		return VerificationResult.from(body);
 	}
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         String json = Json.write(requestPattern);
-        String body = postJsonAssertOkAndReturnBody(findRequestsUrl(), json, HTTP_OK);
+        String body = postJsonAssertOkAndReturnBody(urlFor(FindRequestsTask.class), json, HTTP_OK);
         return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
 	public void updateGlobalSettings(GlobalSettings settings) {
 		String json = Json.write(settings);
-		postJsonAssertOkAndReturnBody(globalSettingsUrl(), json, HTTP_OK);
+		postJsonAssertOkAndReturnBody(urlFor(GlobalSettingsUpdateTask.class), json, HTTP_OK);
 	}
 
     @Override
     public void addSocketAcceptDelay(RequestDelaySpec spec) {
         String json = Json.write(spec);
-        postJsonAssertOkAndReturnBody(socketAcceptDelayUrl(), json, HTTP_OK);
+        postJsonAssertOkAndReturnBody(urlFor(SocketDelayTask.class), json, HTTP_OK);
     }
 
     private int postJsonAndReturnStatus(String url, String json) {
@@ -154,49 +146,21 @@ public class HttpAdminClient implements Admin {
 				throw new VerificationException(
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
 			}
-			
-			String body = getEntityAsStringAndCloseStream(response);
-			return body;
+
+            return getEntityAsStringAndCloseStream(response);
 		} catch (RuntimeException re) {
 			throw re;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
+
+    private String urlFor(Class<? extends AdminTask> taskClass) {
+        RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
+        return String.format(ADMIN_URL_PREFIX + requestSpec.path(), host, port, urlPathPrefix);
+    }
 	
 	private int postEmptyBodyAndReturnStatus(String url) {
 		return postJsonAndReturnStatus(url, null);
 	}
-
-	private String newMappingUrl() {
-		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, host, port, urlPathPrefix);
-	}
-	
-	private String resetUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_URL, host, port, urlPathPrefix);
-	}
-	
-	private String resetScenariosUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_SCENARIOS_URL, host, port, urlPathPrefix);
-	}
-
-    private String resetToDefaultMappingsUrl() {
-        return String.format(LOCAL_WIREMOCK_RESET_TO_DEFAULT_MAPPINGS_URL, host, port, urlPathPrefix);
-    }
-	
-	private String requestsCountUrl() {
-		return String.format(LOCAL_WIREMOCK_COUNT_REQUESTS_URL, host, port, urlPathPrefix);
-	}
-
-    private String findRequestsUrl() {
-        return String.format(LOCAL_WIREMOCK_FIND_REQUESTS_URL, host, port, urlPathPrefix);
-    }
-
-	private String globalSettingsUrl() {
-		return String.format(WIREMOCK_GLOBAL_SETTINGS_URL, host, port, urlPathPrefix);
-	}
-
-    private String socketAcceptDelayUrl() {
-        return String.format(SOCKET_ACCEPT_DELAY_URL, host, port, urlPathPrefix);
-    }
 }

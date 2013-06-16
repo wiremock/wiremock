@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.AdminTasks;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -44,84 +47,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
-
-		if (isNewMappingRequest(request)) {
-            StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
-            admin.addStubMapping(newMapping);
-			return ResponseDefinition.created();
-		} else if (isResetRequest(request)) {
-			admin.resetMappings();
-			return ResponseDefinition.ok();
-		} else if (isResetScenariosRequest(request)) {
-			admin.resetScenarios();
-			return ResponseDefinition.ok();
-		} else if (isResetToDefaultMappingsRequest(request)) {
-            admin.resetToDefaultMappings();
-            return ResponseDefinition.ok();
-        } else if (isRequestCountRequest(request)) {
-			return getRequestCount(request);
-        } else if (isFindRequestsRequest(request)) {
-            return findRequests(request);
-		} else if (isGlobalSettingsUpdateRequest(request)) {
-			GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
-            admin.updateGlobalSettings(newSettings);
-			return ResponseDefinition.ok();
-        } else if (isSocketDelayRequest(request)) {
-            RequestDelaySpec delaySpec = Json.read(request.getBodyAsString(), RequestDelaySpec.class);
-            admin.addSocketAcceptDelay(delaySpec);
-            return ResponseDefinition.ok();
-		} else {
-			return ResponseDefinition.notFound();
-		}
+        AdminTask adminTask = AdminTasks.taskFor(request.getMethod(), withoutAdminRoot(request.getUrl()));
+        return adminTask.execute(admin, request);
 	}
-
-	private boolean isGlobalSettingsUpdateRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/settings");
-	}
-
-	private ResponseDefinition getRequestCount(Request request) {
-		RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-		ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(result));
-		response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
-		return response;
-	}
-
-    private ResponseDefinition findRequests(Request request) {
-        RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        FindRequestsResult result = admin.findRequestsMatching(requestPattern);
-        ResponseDefinition response = new ResponseDefinition(HTTP_OK, Json.write(result));
-        response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
-        return response;
-    }
-
-	private boolean isResetRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/reset");
-	}
-	
-	private boolean isResetScenariosRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/scenarios/reset");
-	}
-
-    private boolean isResetToDefaultMappingsRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/reset");
-    }
-
-	private boolean isNewMappingRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/mappings/new");
-	}
-	
-	private boolean isRequestCountRequest(Request request) {
-		return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/count");
-	}
-
-    private boolean isFindRequestsRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/requests/find");
-    }
-
-    private boolean isSocketDelayRequest(Request request) {
-        return request.getMethod() == RequestMethod.POST && withoutAdminRoot(request.getUrl()).equals("/socket-delay");
-    }
 
 	private static String withoutAdminRoot(String url) {
 	    return url.replace(ADMIN_CONTEXT_ROOT, "");
