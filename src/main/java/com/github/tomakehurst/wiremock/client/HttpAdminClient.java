@@ -30,6 +30,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -59,81 +60,61 @@ public class HttpAdminClient implements Admin {
 
 	@Override
 	public void addStubMapping(StubMapping stubMapping) {
-        String json = Json.write(stubMapping);
-		int status = postJsonAndReturnStatus(urlFor(NewStubMappingTask.class), json);
-		if (status != HTTP_CREATED) {
-			throw new RuntimeException("Returned status code was " + status);
-		}
+        postJsonAssertOkAndReturnBody(
+                urlFor(NewStubMappingTask.class),
+                Json.write(stubMapping),
+                HTTP_CREATED);
 	}
 	
 	@Override
 	public void resetMappings() {
-		int status = postEmptyBodyAndReturnStatus(urlFor(ResetTask.class));
-		assertStatusOk(status);
+		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
 	}
 	
 	@Override
 	public void resetScenarios() {
-		int status = postEmptyBodyAndReturnStatus(urlFor(ResetScenariosTask.class));
-		assertStatusOk(status);
+        postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
 	}
 
     @Override
     public void resetToDefaultMappings() {
-        int status = postEmptyBodyAndReturnStatus(urlFor(ResetToDefaultMappingsTask.class));
-        assertStatusOk(status);
+        postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null, HTTP_OK);
     }
 
-    private void assertStatusOk(int status) {
-		if (status != HTTP_OK) {
-			throw new RuntimeException("Returned status code was " + status);
-		}
-	}
-	
 	@Override
 	public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
-		String json = Json.write(requestPattern);
-		String body = postJsonAssertOkAndReturnBody(urlFor(GetRequestCountTask.class), json, HTTP_OK);
+		String body = postJsonAssertOkAndReturnBody(
+                urlFor(GetRequestCountTask.class),
+                Json.write(requestPattern),
+                HTTP_OK);
 		return VerificationResult.from(body);
 	}
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
-        String json = Json.write(requestPattern);
-        String body = postJsonAssertOkAndReturnBody(urlFor(FindRequestsTask.class), json, HTTP_OK);
+        String body = postJsonAssertOkAndReturnBody(
+                urlFor(FindRequestsTask.class),
+                Json.write(requestPattern),
+                HTTP_OK);
         return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
 	public void updateGlobalSettings(GlobalSettings settings) {
-		String json = Json.write(settings);
-		postJsonAssertOkAndReturnBody(urlFor(GlobalSettingsUpdateTask.class), json, HTTP_OK);
+        postJsonAssertOkAndReturnBody(
+                urlFor(GlobalSettingsUpdateTask.class),
+                Json.write(settings),
+                HTTP_OK);
 	}
 
     @Override
     public void addSocketAcceptDelay(RequestDelaySpec spec) {
-        String json = Json.write(spec);
-        postJsonAssertOkAndReturnBody(urlFor(SocketDelayTask.class), json, HTTP_OK);
+        postJsonAssertOkAndReturnBody(
+                urlFor(SocketDelayTask.class),
+                Json.write(spec),
+                HTTP_OK);
     }
 
-    private int postJsonAndReturnStatus(String url, String json) {
-		HttpPost post = new HttpPost(url);
-		try {
-			if (json != null) {
-				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
-			}
-			HttpResponse response = httpClient.execute(post);
-			int statusCode = response.getStatusLine().getStatusCode();
-			getEntityAsStringAndCloseStream(response);
-			
-			return statusCode;
-		} catch (RuntimeException re) {
-			throw re;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
 		HttpPost post = new HttpPost(url);
 		try {
@@ -148,19 +129,13 @@ public class HttpAdminClient implements Admin {
 			}
 
             return getEntityAsStringAndCloseStream(response);
-		} catch (RuntimeException re) {
-			throw re;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
 
     private String urlFor(Class<? extends AdminTask> taskClass) {
         RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
         return String.format(ADMIN_URL_PREFIX + requestSpec.path(), host, port, urlPathPrefix);
     }
-	
-	private int postEmptyBodyAndReturnStatus(String url) {
-		return postJsonAndReturnStatus(url, null);
-	}
 }
