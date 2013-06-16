@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -35,6 +36,7 @@ import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
 	
@@ -119,7 +121,7 @@ public class HttpAdminClient implements Admin {
 		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
-				post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
+				post.setEntity(new StringEntity(json, APPLICATION_JSON));
 			}
 			HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
