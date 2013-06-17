@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import java.util.List;
@@ -149,6 +148,12 @@ public class WireMock {
 		headerStrategy.setDoesNotMatch(value);
 		return headerStrategy;
 	}
+
+    public static ValueMatchingStrategy matchingJsonPath(String jsonPath) {
+        ValueMatchingStrategy matchingStrategy = new ValueMatchingStrategy();
+        matchingStrategy.setJsonMatchesPath(jsonPath);
+        return matchingStrategy;
+    }
 	
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);

@@ -18,9 +18,13 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.google.common.base.Predicate;
+import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 import java.util.regex.Pattern;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.regex.Pattern.DOTALL;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
@@ -31,7 +35,8 @@ public class ValuePattern {
 	private String matches;
 	private String doesNotMatch;
     private Boolean absent;
-	
+    private String matchesJsonPath;
+
 	public static ValuePattern equalTo(String value) {
 		ValuePattern valuePattern = new ValuePattern();
 		valuePattern.setEqualTo(value);
@@ -69,7 +74,9 @@ public class ValuePattern {
 			return isMatch(matches, value);
 		} else if (doesNotMatch != null) {
 			return !isMatch(doesNotMatch, value);
-		}
+		} else if (matchesJsonPath != null) {
+            return isJsonPathMatch(value);
+        }
 		
 		return false;
 	}
@@ -86,6 +93,37 @@ public class ValuePattern {
 		Pattern pattern = Pattern.compile(regex, DOTALL);
 		return pattern.matcher(value).matches();
 	}
+
+    private boolean isJsonPathMatch(String value) {
+        try {
+            Object obj = JsonPath.read(value, matchesJsonPath);
+            if (obj instanceof JSONArray) {
+                return ((JSONArray) obj).size() > 0;
+            }
+
+            if (obj instanceof JSONObject) {
+                return ((JSONObject) obj).size() > 0;
+            }
+
+            return obj != null;
+        } catch (Exception e) {
+            String error;
+            if (e.getMessage().equalsIgnoreCase("invalid path")) {
+                error = "the JSON path didn't match the document structure";
+            }
+            else if (e.getMessage().equalsIgnoreCase("invalid container object")) {
+                error = "the JSON document couldn't be parsed";
+            } else {
+                error = "of error '" + e.getMessage() + "'";
+            }
+
+            String message = String.format(
+                    "Warning: JSON path expression '%s' failed to match document '%s' because %s",
+                    matchesJsonPath, value, error);
+            notifier().info(message);
+            return false;
+        }
+    }
 	
 	private void checkNoMoreThanOneMatchTypeSpecified() {
 		if (countAllAttributes() > 1) {
@@ -100,7 +138,7 @@ public class ValuePattern {
 	}
 	
 	private int countAllAttributes() {
-		return count(equalTo, contains, matches, doesNotMatch, absent);
+		return count(equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
 	}
 	
 	private int count(Object... objects) {
@@ -139,6 +177,11 @@ public class ValuePattern {
         checkNoMoreThanOneMatchTypeSpecified();
     }
 
+    public void setMatchesJsonPaths(String matchesJsonPath) {
+        this.matchesJsonPath = matchesJsonPath;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+
 	public String getEqualTo() {
 		return equalTo;
 	}
@@ -159,6 +202,10 @@ public class ValuePattern {
         return absent;
     }
 
+    public String getMatchesJsonPath() {
+        return matchesJsonPath;
+    }
+
     public boolean nullSafeIsAbsent() {
         return (absent != null && absent);
     }
@@ -172,65 +219,40 @@ public class ValuePattern {
 		} else if (matches != null) {
 			return "matches " + matches;
 		} else if (doesNotMatch != null) {
-			return "not match " + doesNotMatch; 
+			return "not match " + doesNotMatch;
+        } else if (matchesJsonPath != null) {
+            return "matches JSON path " + matchesJsonPath;
 		} else {
             return "is absent";
         }
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((contains == null) ? 0 : contains.hashCode());
-		result = prime * result
-				+ ((doesNotMatch == null) ? 0 : doesNotMatch.hashCode());
-		result = prime * result + ((equalTo == null) ? 0 : equalTo.hashCode());
-		result = prime * result + ((matches == null) ? 0 : matches.hashCode());
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ValuePattern other = (ValuePattern) obj;
-		if (contains == null) {
-			if (other.contains != null) {
-				return false;
-			}
-		} else if (!contains.equals(other.contains)) {
-			return false;
-		}
-		if (doesNotMatch == null) {
-			if (other.doesNotMatch != null) {
-				return false;
-			}
-		} else if (!doesNotMatch.equals(other.doesNotMatch)) {
-			return false;
-		}
-		if (equalTo == null) {
-			if (other.equalTo != null) {
-				return false;
-			}
-		} else if (!equalTo.equals(other.equalTo)) {
-			return false;
-		}
-		if (matches == null) {
-			if (other.matches != null) {
-				return false;
-			}
-		} else if (!matches.equals(other.matches)) {
-			return false;
-		}
-		return true;
-	}
+        ValuePattern that = (ValuePattern) o;
+
+        if (absent != null ? !absent.equals(that.absent) : that.absent != null) return false;
+        if (contains != null ? !contains.equals(that.contains) : that.contains != null) return false;
+        if (doesNotMatch != null ? !doesNotMatch.equals(that.doesNotMatch) : that.doesNotMatch != null) return false;
+        if (equalTo != null ? !equalTo.equals(that.equalTo) : that.equalTo != null) return false;
+        if (matches != null ? !matches.equals(that.matches) : that.matches != null) return false;
+        if (matchesJsonPath != null ? !matchesJsonPath.equals(that.matchesJsonPath) : that.matchesJsonPath != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = equalTo != null ? equalTo.hashCode() : 0;
+        result = 31 * result + (contains != null ? contains.hashCode() : 0);
+        result = 31 * result + (matches != null ? matches.hashCode() : 0);
+        result = 31 * result + (doesNotMatch != null ? doesNotMatch.hashCode() : 0);
+        result = 31 * result + (absent != null ? absent.hashCode() : 0);
+        result = 31 * result + (matchesJsonPath != null ? matchesJsonPath.hashCode() : 0);
+        return result;
+    }
 }

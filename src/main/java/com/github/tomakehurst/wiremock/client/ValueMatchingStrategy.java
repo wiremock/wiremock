@@ -18,12 +18,15 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.base.Function;
 
+import java.util.List;
+
 public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String matches;
 	private String doesNotMatch;
 	private String contains;
+    private String matchesJsonPath;
 	
 	public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
@@ -31,6 +34,7 @@ public class ValueMatchingStrategy {
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
 		pattern.setContains(contains);
+        pattern.setMatchesJsonPaths(matchesJsonPath);
 		return pattern;
 	}
 	
@@ -72,5 +76,7 @@ public class ValueMatchingStrategy {
 		this.doesNotMatch = doesNotMatch;
 	}
 
-	
+    public void setJsonMatchesPath(String jsonPaths) {
+        this.matchesJsonPath = jsonPaths;
+    }
 }

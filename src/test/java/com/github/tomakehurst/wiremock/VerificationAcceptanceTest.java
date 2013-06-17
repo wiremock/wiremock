@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.ConfigurationException;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import org.junit.Rule;
@@ -97,9 +96,17 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
-        public void verifiesWithBodyContaining() {
+        public void verifiesWithBodyContainingJson() {
             testClient.postWithBody("/body/contains", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/contains"))
+                    .withRequestBody(matchingJsonPath("$.thing"))
+                    .withRequestBody(matchingJsonPath("$..*[?(@.importantKey == 'Important value')]")));
+        }
+
+        @Test
+        public void verifiesWithBodyContaining() {
+            testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+            verify(postRequestedFor(urlEqualTo("/body/json"))
                     .withRequestBody(containing("Important value")));
         }
 
