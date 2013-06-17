@@ -166,6 +166,43 @@ The JSON equivalent of the above example would be:
     	}
     }
 
+JSONPath body matching
+-----------------------
+Body content which is valid JSON can be specified via JSONPath expressions:
+
+.. code-block:: java
+
+    stubFor(post(urlEqualTo("/with/json/body"))
+        .withRequestBody(matchingJsonPath("$.status"))
+        .withRequestBody(matchingJsonPath("$.things[$(@.name == 'RequiredThing')]"))
+        .willReturn(aResponse().withStatus(201)));
+
+The path syntax is implemented by the `JSONPath library <http://goessner.net/articles/JsonPath/>`_. A JSON body will be
+considered to match a path expression if the expression returns either a non-null single value (string, integer etc.),
+or a non-empty object or array.
+
+The JSON equivalent of the above example would be:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "POST",
+            "url": "/with/json/body",
+            "bodyPatterns" : [
+              	{ "matchesJsonPath" : "$.status"},
+              	{ "matchesJsonPath" : "$.things[$(@.name == 'RequiredThing')]" }
+            ]
+    	},
+    	"response": {
+    		"status": 201
+    	}
+    }
+
+.. note::
+    All of the request matching options described here can also be used for :ref:`verifying`.
+
+
 .. _stubbing-stub-priority:
 
 Stub priority

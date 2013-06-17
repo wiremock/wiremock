@@ -148,7 +148,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.32/wiremock-1.32-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.33-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -249,6 +249,12 @@ After restarting the server you should be able to do this:
 
 See :ref:`stubbing` and :ref:`verifying` for more on the JSON API.
 
+Fetching all of your stub mappings (and checking WireMock is working)
+---------------------------------------------------------------------
+A GET request to the root admin URL e.g ``http://localhost:8080/__admin`` will return all currently registered stub mappings. This is a useful way to check
+whether WireMock is running on the host and port you expect:
+
+
 
 Deploying into a servlet container
 ==================================
@@ -258,8 +264,5 @@ fault injection and browser proxying won't work, __files won't be treated as a d
 This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standalone is definitely the preferred option.
 
 The easiest way to create a WireMock WAR project is to clone the `sample app <https://github.com/tomakehurst/wiremock/tree/master/sample-war>`_
-
-
-
 
 
