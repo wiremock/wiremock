@@ -19,8 +19,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -92,6 +94,13 @@ public class ResponseDefinition {
 	public static ResponseDefinition created() {
 		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
+
+    public static ResponseDefinition redirectTo(String path) {
+        return new ResponseDefinitionBuilder()
+                .withHeader("Location", path)
+                .withStatus(HTTP_MOVED_TEMP)
+                .build();
+    }
 	
 	public static ResponseDefinition notConfigured() {
 	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);

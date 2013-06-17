@@ -14,6 +14,7 @@ public class AdminTasks {
     private static final BiMap<RequestSpec, Class<? extends AdminTask>> TASKS =
             new ImmutableBiMap.Builder<RequestSpec, Class<? extends AdminTask>>()
                 .put(requestSpec(GET, "/"), RootTask.class)
+                .put(requestSpec(GET, ""), RootRedirectTask.class)
                 .put(requestSpec(POST, "/reset"), ResetTask.class)
                 .put(requestSpec(POST, "/mappings/new"), NewStubMappingTask.class)
                 .put(requestSpec(POST, "/scenarios/reset"), ResetScenariosTask.class)
