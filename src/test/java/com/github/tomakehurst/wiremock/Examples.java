@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+@Ignore("Run when validating documentation")
 public class Examples extends AcceptanceTestBase {
 
     @Test
