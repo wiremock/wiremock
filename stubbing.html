@@ -80,7 +80,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#basic-stubbing">Basic stubbing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#url-matching">URL matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#jsonpath-body-matching">JSONPath body matching</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#stub-priority">Stub priority</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sending-response-headers">Sending response headers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-the-response-body">Specifying the response body</a></li>
@@ -228,6 +231,39 @@ function:</p>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
+</div>
+<div class="section" id="jsonpath-body-matching">
+<h3>JSONPath body matching<a class="headerlink" href="#jsonpath-body-matching" title="Permalink to this headline">¶</a></h3>
+<p>Body content which is valid JSON can be specified via JSONPath expressions:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/with/json/body&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">&quot;$.status&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">&quot;$.things[$(@.name == &#39;RequiredThing&#39;)]&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">201</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>The path syntax is implemented by the <a class="reference external" href="http://goessner.net/articles/JsonPath/">JSONPath library</a>. A JSON body will be
+considered to match a path expression if the expression returns either a non-null single value (string, integer etc.),
+or a non-empty object or array.</p>
+<p>The JSON equivalent of the above example would be:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/with/json/body&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bodyPatterns&quot;</span> <span class="o">:</span> <span class="p">[</span>
+            <span class="p">{</span> <span class="s2">&quot;matchesJsonPath&quot;</span> <span class="o">:</span> <span class="s2">&quot;$.status&quot;</span><span class="p">},</span>
+            <span class="p">{</span> <span class="s2">&quot;matchesJsonPath&quot;</span> <span class="o">:</span> <span class="s2">&quot;$.things[$(@.name == &#39;RequiredThing&#39;)]&quot;</span> <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">201</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All of the request matching options described here can also be used for <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a>.</p>
+</div>
 </div>
 </div>
 <div class="section" id="stub-priority">

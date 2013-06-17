@@ -84,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-via-json">Configuring via JSON</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working">Fetching all of your stub mappings (and checking WireMock is working)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#deploying-into-a-servlet-container">Deploying into a servlet container</a></li>
@@ -108,7 +109,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.32<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.33<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -215,9 +216,9 @@ server directly:</p>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.32-standalone.jar
+$ java -jar wiremock-1.33-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.32/wiremock-1.32-standalone.jar">download the standalone JAR from here</a>.</p>
+<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.33-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
 Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
@@ -289,6 +290,11 @@ with the following content:</p>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a> for more on the JSON API.</p>
+</div>
+<div class="section" id="fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working">
+<h3>Fetching all of your stub mappings (and checking WireMock is working)<a class="headerlink" href="#fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working" title="Permalink to this headline">¶</a></h3>
+<p>A GET request to the root admin URL e.g <tt class="docutils literal"><span class="pre">http://localhost:8080/__admin</span></tt> will return all currently registered stub mappings. This is a useful way to check
+whether WireMock is running on the host and port you expect:</p>
 </div>
 </div>
 <div class="section" id="deploying-into-a-servlet-container">
