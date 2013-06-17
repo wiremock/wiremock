@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.List;
 
-public class VerificationException extends RuntimeException {
+public class VerificationException extends AssertionError {
 
 	private static final long serialVersionUID = 5116216532516117538L;
 
