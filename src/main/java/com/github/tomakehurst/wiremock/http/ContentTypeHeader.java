@@ -41,10 +41,11 @@ public class ContentTypeHeader extends HttpHeader {
 	}
 	
 	public Optional<String> encodingPart() {
-		if (parts.length < 2) {
-			return Optional.absent();
-		}
-		
-		return Optional.of(parts[1].split("=")[1]);
+	    for( int i = 1; i < parts.length; i++ ) {
+	        if( parts[i].matches("\\s*charset\\s*=.*") ) {
+	            return Optional.of(parts[i].split("=")[1]);
+	        }
+	    }
+        return Optional.absent();
 	}
 }
