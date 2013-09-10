@@ -55,10 +55,10 @@ public class ContentTypeHeaderTest {
 	
 	@Test
 	public void returnsCharsetWhenNotFirstParameter() {
-	    ContentTypeHeader header = new ContentTypeHeader("text/plain; param=value; charset=utf-8");
-	    Optional<String> encoding = header.encodingPart();
-	    assertTrue(encoding.isPresent());
-	    assertThat(encoding.get(), is("utf-8"));
+		ContentTypeHeader header = new ContentTypeHeader("text/plain; param=value; charset=utf-8");
+		Optional<String> encoding = header.encodingPart();
+		assertTrue(encoding.isPresent());
+		assertThat(encoding.get(), is("utf-8"));
 	}
 	
 	@Test
