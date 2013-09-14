@@ -8,7 +8,7 @@ apply plugin: 'jdepend'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.35
+version = 1.34
 
 repositories {
 	mavenCentral()
@@ -240,6 +240,36 @@ task 'bump-version' << {
     gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
+
+        filesWithVersion.each { fileName, lineWithVersionTemplates ->
+            def file = new File(fileName)
+            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates];
+
+            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+                def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
+                def newLine = lineWithVersionTemplate.call(nextMinorVersion)
+                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+                file.text = file.text.replace(oldLine, newLine);
+            }
+        }
+    }
+}
+
+task 'bump-version-down' << {
+    def filesWithVersion = [
+        'build.gradle': { "version = 1.${it}" },
+        'docs/source/conf.py': { "version = '1.${it}'" },
+        'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock-1.${it}-standalone.jar" }],
+        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
+    ]
+
+    def gradleBuildFile = new File('build.gradle')
+    int currentMinorVersion
+    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
+        currentMinorVersion = Integer.valueOf(minorVersion)
+        int nextMinorVersion = currentMinorVersion - 1
 
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
