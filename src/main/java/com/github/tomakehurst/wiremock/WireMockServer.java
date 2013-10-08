@@ -62,6 +62,7 @@ public class WireMockServer {
 	private final FileSource fileSource;
 	private final Notifier notifier;
 	private final int port;
+	private final String biddingAddress;
 
     private final Options options;
 
@@ -69,6 +70,7 @@ public class WireMockServer {
         this.options = options;
         this.fileSource = options.filesRoot();
         this.port = options.portNumber();
+        this.biddingAddress = options.bindAddress();
         this.notifier = options.notifier();
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
@@ -171,6 +173,7 @@ public class WireMockServer {
 
     private DelayableSocketConnector createHttpConnector() {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
+        connector.setHost(biddingAddress);
         connector.setPort(port);
         connector.setHeaderBufferSize(8192);
         return connector;

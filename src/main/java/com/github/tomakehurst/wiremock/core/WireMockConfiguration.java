@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.*;
 public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
+    private String biddingAddress = DEFAULT_BIDDINGADDRESS;
     private Integer httpsPort = null;
     private String keyStorePath = null;
     private boolean browserProxyingEnabled = false;
@@ -34,6 +35,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration port(int portNumber) {
         this.portNumber = portNumber;
+        return this;
+    }
+
+    public WireMockConfiguration biddingAddress(String biddingAddress) {
+        this.biddingAddress = biddingAddress;
         return this;
     }
 
@@ -85,6 +91,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public int portNumber() {
         return portNumber;
+    }
+
+    @Override
+    public String bindAddress(){
+        return biddingAddress;
     }
 
     @Override
