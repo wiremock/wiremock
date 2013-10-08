@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import java.util.Arrays;
+
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
@@ -25,6 +27,7 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
@@ -47,6 +50,7 @@ public class StubMappingJsonRecorder implements RequestListener {
 	@Override
 	public void requestReceived(Request request, Response response) {
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+		requestPattern.setBodyPatterns(Arrays.asList(ValuePattern.equalTo(request.getBodyAsString())));
 		
 		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
