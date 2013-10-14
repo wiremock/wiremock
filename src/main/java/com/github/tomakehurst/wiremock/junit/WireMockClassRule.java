@@ -30,10 +30,12 @@ public class WireMockClassRule implements MethodRule, TestRule {
 
     private final Options options;
     private final WireMockServer wireMockServer;
+    private final WireMock wireMock;
 
     public WireMockClassRule(Options options) {
         this.options = options;
         this.wireMockServer = new WireMockServer(options);
+        this.wireMock = new WireMock("localhost", options.portNumber());
     }
 
     public WireMockClassRule(int port, Integer httpsPort) {
