@@ -31,7 +31,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule implements MethodRule, TestRule, Stubbing, Verifying {
+public class WireMockRule implements MethodRule, TestRule, Stubbing, Verifying, Delaying {
 
     private final Options options;
     private final WireMock wireMock;
@@ -100,5 +100,15 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing, Verifying {
     @Override
     public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
         return wireMock.find(requestPatternBuilder);
+    }
+
+    @Override
+    public void setGlobalFixedDelay(int milliseconds) {
+        wireMock.setGlobalFixedDelayVariable(milliseconds);
+    }
+
+    @Override
+    public void addRequestProcessingDelay(int milliseconds) {
+        wireMock.addDelayBeforeProcessingRequests(milliseconds);
     }
 }
