@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.junit.rules.MethodRule;
@@ -26,12 +27,14 @@ import org.junit.runners.model.Statement;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule implements MethodRule, TestRule {
+public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
     private final Options options;
+    private final WireMock wireMock;
 
     public WireMockRule(Options options) {
         this.options = options;
+        this.wireMock = new WireMock("localhost", options.portNumber());
     }
 
     public WireMockRule(int port) {
@@ -69,5 +72,15 @@ public class WireMockRule implements MethodRule, TestRule {
 			
 		};
 	}
+
+    @Override
+    public void givenThat(MappingBuilder mappingBuilder) {
+        wireMock.register(mappingBuilder);
+    }
+
+    @Override
+    public void stubFor(MappingBuilder mappingBuilder) {
+        givenThat(mappingBuilder);
+    }
 
 }
