@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.junit.Verifying;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -93,6 +95,41 @@ public class WireMockJUnitRuleTest {
             WireMockTestClient testClient = new WireMockTestClient(8089);
             
             assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
+        }
+
+    }
+
+    public static class RuleStubbing {
+
+        @ClassRule
+        public static WireMockClassRule serviceOne = new WireMockClassRule(wireMockConfig().port(9091));
+        @ClassRule
+        public static WireMockClassRule serviceTwo = new WireMockClassRule(wireMockConfig().port(9092));
+        @Rule
+        public static WireMockRule serviceThree = new WireMockRule(wireMockConfig().port(9093));
+        @Rule
+        public static WireMockRule serviceFour = new WireMockRule(wireMockConfig().port(9094));
+
+        @Test
+        public void canStubAndVerifyMultipleWireMockRulesWithoutInterferenceBetweenRuleInstances() {
+            setupStubbing(serviceOne, "service one");
+            setupStubbing(serviceTwo, "service two");
+            setupStubbing(serviceThree, "service three");
+            setupStubbing(serviceFour, "service four");
+
+            stubIsCalledAndResponseIsCorrect(serviceOne, 9091, "service one");
+            stubIsCalledAndResponseIsCorrect(serviceTwo, 9092, "service two");
+            stubIsCalledAndResponseIsCorrect(serviceThree, 9093, "service three");
+            stubIsCalledAndResponseIsCorrect(serviceFour, 9094, "service four");
+        }
+
+        private void setupStubbing(Stubbing stubbing, String body) {
+            stubbing.stubFor(get(urlEqualTo("/test")).willReturn(aResponse().withBody(body)));
+        }
+
+        private void stubIsCalledAndResponseIsCorrect(Verifying verifying, int port, String expectedText) {
+            assertThat(new WireMockTestClient(port).get("/test").content(), is(expectedText));
+            verifying.verify(getRequestedFor(urlEqualTo("/test")));
         }
 
     }
