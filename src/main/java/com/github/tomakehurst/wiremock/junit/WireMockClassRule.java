@@ -31,7 +31,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockClassRule implements MethodRule, TestRule, Stubbing, Verifying, Delaying {
+public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
 
     private final Options options;
     private final WireMockServer wireMockServer;

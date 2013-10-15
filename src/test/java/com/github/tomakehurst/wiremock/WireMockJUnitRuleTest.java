@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.junit.Verifying;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -127,9 +126,9 @@ public class WireMockJUnitRuleTest {
             stubbing.stubFor(get(urlEqualTo("/test")).willReturn(aResponse().withBody(body)));
         }
 
-        private void stubIsCalledAndResponseIsCorrect(Verifying verifying, int port, String expectedText) {
+        private void stubIsCalledAndResponseIsCorrect(Stubbing stubbing, int port, String expectedText) {
             assertThat(new WireMockTestClient(port).get("/test").content(), is(expectedText));
-            verifying.verify(getRequestedFor(urlEqualTo("/test")));
+            stubbing.verify(getRequestedFor(urlEqualTo("/test")));
         }
 
     }
