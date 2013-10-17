@@ -28,6 +28,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -84,6 +85,14 @@ public class PortNumberTest {
         wireMockServer.stop();
         assertThat("server", wireMockServer, hasProperty("listeningHttpPort", equalTo(-1)));
         assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", equalTo(-1)));
+    }
+
+    @Test
+    public void configuringPortZeroPicksArbitraryPort() {
+        WireMockServer wireMockServer = createServer(wireMockConfig().port(0).httpsPort(0));
+        wireMockServer.start();
+        assertThat("server", wireMockServer, hasProperty("listeningHttpPort", greaterThan(0)));
+        assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", greaterThan(0)));
     }
 
     private WireMockServer createServer(WireMockConfiguration configuration) {
