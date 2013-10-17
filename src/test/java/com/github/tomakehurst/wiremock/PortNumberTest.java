@@ -63,7 +63,7 @@ public class PortNumberTest {
 
 
     @Test
-    public void configurePortIsReportedListeningPort() {
+    public void configuredPortIsReportedListeningPort() {
         WireMockServer wireMockServer = createServer(wireMockConfig().port(8091).httpsPort(8092));
         wireMockServer.start();
         assertThat("server", wireMockServer, hasProperty("listeningHttpPort", equalTo(8091)));
