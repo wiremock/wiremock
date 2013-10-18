@@ -120,4 +120,12 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
     public void addRequestProcessingDelay(int milliseconds) {
         wireMock.addDelayBeforeProcessingRequests(milliseconds);
     }
+
+    public int getListeningHttpPort() {
+        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpPort();
+    }
+
+    public int getListeningHttpsPort() {
+        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpsPort();
+    }
 }

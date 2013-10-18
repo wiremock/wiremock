@@ -28,6 +28,8 @@ import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -96,6 +98,35 @@ public class WireMockJUnitRuleTest {
             assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
         }
 
+    }
+
+    public static class PortNumbers {
+
+        @Rule
+        public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8060).httpsPort(8061));
+
+        @ClassRule
+        public static WireMockClassRule wireMockClassRule = new WireMockClassRule(wireMockConfig().port(8070).httpsPort(8071));
+
+        @Test
+        public void reportedPortIsAsConfiguredInRule() {
+            assertThat("rule", wireMockRule, hasProperty("listeningHttpPort", equalTo(8060)));
+        }
+
+        @Test
+        public void reportedPortIsAsConfiguredInClassRule() {
+            assertThat("class rule", wireMockClassRule, hasProperty("listeningHttpPort", equalTo(8070)));
+        }
+
+        @Test
+        public void reportedHttpsPortIsAsConfiguredInRule() {
+            assertThat("rule", wireMockRule, hasProperty("listeningHttpsPort", equalTo(8061)));
+        }
+
+        @Test
+        public void reportedHttpsPortIsAsConfiguredInClassRule() {
+            assertThat("class rule", wireMockClassRule, hasProperty("listeningHttpsPort", equalTo(8071)));
+        }
     }
 
     public static class RuleStubbing {
