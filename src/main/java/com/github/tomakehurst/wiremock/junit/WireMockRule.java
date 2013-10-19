@@ -36,6 +36,8 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
     private final Options options;
     private final WireMock wireMock;
 
+    private WireMockServer wireMockServer;
+
     public WireMockRule(Options options) {
         this.options = options;
         this.wireMock = new WireMock("localhost", options.portNumber());
@@ -64,7 +66,7 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
 			@Override
 			public void evaluate() throws Throwable {
-				WireMockServer wireMockServer = new WireMockServer(options);
+				wireMockServer = new WireMockServer(options);
 				wireMockServer.start();
 				WireMock.configureFor("localhost", options.portNumber());
 				try {
@@ -110,5 +112,19 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
     @Override
     public void addRequestProcessingDelay(int milliseconds) {
         wireMock.addDelayBeforeProcessingRequests(milliseconds);
+    }
+
+    /**
+     * @return the port the http connector is listening on, or -1 if it's not listening
+     */
+    public int getListeningHttpPort() {
+        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpPort();
+    }
+
+    /**
+     * @return the port the https connector is listening on, or -1 if it's not listening
+     */
+    public int getListeningHttpsPort() {
+        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpsPort();
     }
 }

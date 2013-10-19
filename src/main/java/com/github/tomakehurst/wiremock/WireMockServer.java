@@ -64,6 +64,8 @@ public class WireMockServer {
 	private final int port;
 
     private final Options options;
+    private DelayableSocketConnector httpConnector;
+    private DelayableSslSocketConnector httpsConnector;
 
     public WireMockServer(Options options) {
         this.options = options;
@@ -145,6 +147,8 @@ public class WireMockServer {
 	
 	public void stop() {
 		try {
+            httpConnector = null;
+            httpsConnector = null;
 			jettyServer.stop();
             jettyServer.join();
 		} catch (Exception e) {
@@ -155,10 +159,12 @@ public class WireMockServer {
 	public void start() {
 		try {
             jettyServer = new Server();
-            jettyServer.addConnector(createHttpConnector());
+            httpConnector = createHttpConnector();
+            jettyServer.addConnector(httpConnector);
 
             if (options.httpsSettings().enabled()) {
-                jettyServer.addConnector(createHttpsConnector());
+                httpsConnector = createHttpsConnector();
+                jettyServer.addConnector(httpsConnector);
             }
 
             addAdminContext();
@@ -168,6 +174,22 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
+
+    /**
+     * @return the port the http connector is listening on, or -1 if it's not listening
+     */
+    public int getListeningHttpPort() {
+        final DelayableSocketConnector con = httpConnector;
+        return con == null ? -1 : con.getLocalPort();
+    }
+
+    /**
+     * @return the port the https connector is listening on, or -1 if it's not listening
+     */
+    public int getListeningHttpsPort() {
+        final DelayableSslSocketConnector con = httpsConnector;
+        return con == null ? -1 : con.getLocalPort();
+    }
 
     private DelayableSocketConnector createHttpConnector() {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
