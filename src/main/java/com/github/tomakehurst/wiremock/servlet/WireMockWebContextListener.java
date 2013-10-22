@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.Log4jConfiguration;
+import com.github.tomakehurst.wiremock.common.Log4jNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
@@ -51,6 +53,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
+        context.setAttribute(Notifier.KEY, new Log4jNotifier());
     }
 
     @Override

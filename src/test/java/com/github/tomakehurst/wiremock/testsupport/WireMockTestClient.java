@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,6 +34,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
+import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_PORT;
+import static com.github.tomakehurst.wiremock.http.HttpClientFactory.createClientConnectionManagerWithSSLSettings;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -70,29 +74,35 @@ public class WireMockTestClient {
     }
 
 	public WireMockResponse get(String url, TestHttpHeader... headers) {
-		HttpUriRequest httpRequest = new HttpGet(mockServiceUrlFor(url));
+        String actualUrl = URI.create(url).isAbsolute() ? url : mockServiceUrlFor(url);
+		HttpUriRequest httpRequest = new HttpGet(actualUrl);
 		return executeMethodAndCovertExceptions(httpRequest, headers);
 	}
 	
 	public WireMockResponse getViaProxy(String url) {
-		URI targetUri = URI.create(url);
-		
-		HttpHost proxy = new HttpHost("localhost", 8080, "http");
+		return getViaProxy(url, DEFAULT_PORT);
+	}
 
-        DefaultHttpClient httpclient = new DefaultHttpClient();
+    public WireMockResponse getViaProxy(String url, int proxyPort) {
+        URI targetUri = URI.create(url);
+
+        HttpHost proxy = new HttpHost("localhost", proxyPort, targetUri.getScheme());
+
+        DefaultHttpClient httpclient = new DefaultHttpClient(createClientConnectionManagerWithSSLSettings());
         try {
             httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 
             HttpHost target = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
             HttpGet req = new HttpGet(targetUri.getPath());
+            req.removeHeaders("Host");
 
             System.out.println("executing request to " + target + " via " + proxy);
             HttpResponse httpResponse = httpclient.execute(target, req);
             return new WireMockResponse(httpResponse);
-		} catch (IOException ioe) {
-			throw new RuntimeException(ioe);
-		} 
-	}
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 	
 	public WireMockResponse put(String url, TestHttpHeader... headers) {
 		HttpUriRequest httpRequest = new HttpPut(mockServiceUrlFor(url));
