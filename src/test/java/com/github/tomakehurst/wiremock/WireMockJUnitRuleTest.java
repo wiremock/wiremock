@@ -29,7 +29,6 @@ import org.junit.runner.RunWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -110,22 +109,22 @@ public class WireMockJUnitRuleTest {
 
         @Test
         public void reportedPortIsAsConfiguredInRule() {
-            assertThat("rule", wireMockRule, hasProperty("listeningHttpPort", equalTo(8060)));
+            assertThat(wireMockRule.port(), equalTo(8060));
         }
 
         @Test
         public void reportedPortIsAsConfiguredInClassRule() {
-            assertThat("class rule", wireMockClassRule, hasProperty("listeningHttpPort", equalTo(8070)));
+            assertThat(wireMockClassRule.port(), equalTo(8070));
         }
 
         @Test
         public void reportedHttpsPortIsAsConfiguredInRule() {
-            assertThat("rule", wireMockRule, hasProperty("listeningHttpsPort", equalTo(8061)));
+            assertThat(wireMockRule.httpsPort(), equalTo(8061));
         }
 
         @Test
         public void reportedHttpsPortIsAsConfiguredInClassRule() {
-            assertThat("class rule", wireMockClassRule, hasProperty("listeningHttpsPort", equalTo(8071)));
+            assertThat(wireMockClassRule.httpsPort(), equalTo(8071));
         }
     }
 

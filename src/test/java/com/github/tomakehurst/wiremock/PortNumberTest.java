@@ -67,32 +67,27 @@ public class PortNumberTest {
     public void configuredPortIsReportedListeningPort() {
         WireMockServer wireMockServer = createServer(wireMockConfig().port(8091).httpsPort(8092));
         wireMockServer.start();
-        assertThat("server", wireMockServer, hasProperty("listeningHttpPort", equalTo(8091)));
-        assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", equalTo(8092)));
+
+        assertThat(wireMockServer.port(), is(8091));
+        assertThat(wireMockServer.httpsPort(), is(8092));
     }
 
-    @Test
-    public void unstartedServerReportsListeningOnNegativeOne() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(8091).httpsPort(8092));
-        assertThat("server", wireMockServer, hasProperty("listeningHttpPort", equalTo(-1)));
-        assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", equalTo(-1)));
+    @Test(expected = IllegalStateException.class)
+    public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
+        createServer(wireMockConfig().port(8091)).port();
     }
 
-    @Test
-    public void stoppedServerReportsListeningOnNegativeOne() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(8091).httpsPort(8092));
-        wireMockServer.start();
-        wireMockServer.stop();
-        assertThat("server", wireMockServer, hasProperty("listeningHttpPort", equalTo(-1)));
-        assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", equalTo(-1)));
+    @Test(expected = IllegalStateException.class)
+    public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
+        createServer(wireMockConfig().httpsPort(8091)).httpsPort();
     }
 
     @Test
     public void configuringPortZeroPicksArbitraryPort() {
         WireMockServer wireMockServer = createServer(wireMockConfig().port(0).httpsPort(0));
         wireMockServer.start();
-        assertThat("server", wireMockServer, hasProperty("listeningHttpPort", greaterThan(0)));
-        assertThat("server", wireMockServer, hasProperty("listeningHttpsPort", greaterThan(0)));
+        assertThat(wireMockServer.port(), greaterThan(0));
+        assertThat(wireMockServer.httpsPort(), greaterThan(0));
     }
 
     private WireMockServer createServer(WireMockConfiguration configuration) {

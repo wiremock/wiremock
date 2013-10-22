@@ -121,17 +121,11 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
         wireMock.addDelayBeforeProcessingRequests(milliseconds);
     }
 
-    /**
-     * @return the port the http connector is listening on, or -1 if it's not listening
-     */
-    public int getListeningHttpPort() {
-        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpPort();
+    public int port() {
+        return wireMockServer.port();
     }
 
-    /**
-     * @return the port the https connector is listening on, or -1 if it's not listening
-     */
-    public int getListeningHttpsPort() {
-        return wireMockServer == null ? -1 : wireMockServer.getListeningHttpsPort();
+    public int httpsPort() {
+        return wireMockServer.httpsPort();
     }
 }

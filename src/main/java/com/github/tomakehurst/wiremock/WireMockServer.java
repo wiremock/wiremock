@@ -45,6 +45,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class WireMockServer {
@@ -175,20 +176,14 @@ public class WireMockServer {
 		}
 	}
 
-    /**
-     * @return the port the http connector is listening on, or -1 if it's not listening
-     */
-    public int getListeningHttpPort() {
-        final DelayableSocketConnector con = httpConnector;
-        return con == null ? -1 : con.getLocalPort();
+    public int port() {
+        checkState(httpConnector != null, "Not listening on HTTP port. The WireMock server is most likely stopped");
+        return httpConnector.getLocalPort();
     }
 
-    /**
-     * @return the port the https connector is listening on, or -1 if it's not listening
-     */
-    public int getListeningHttpsPort() {
-        final DelayableSslSocketConnector con = httpsConnector;
-        return con == null ? -1 : con.getLocalPort();
+    public int httpsPort() {
+        checkState(httpsConnector != null, "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped.");
+        return httpsConnector.getLocalPort();
     }
 
     private DelayableSocketConnector createHttpConnector() {
