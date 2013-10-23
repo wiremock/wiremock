@@ -18,14 +18,14 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
+import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -38,10 +38,12 @@ import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
-	
-	private static final int MINUTES = 1000 * 60;
-	
-	private final HttpClient client;
+
+    private static final int MINUTES = 1000 * 60;
+    private static final String TRANSFER_ENCODING = "transfer-encoding";
+    private static final String CONTENT_LENGTH = "content-length";
+
+    private final HttpClient client;
 	
 	public ProxyResponseRenderer(ProxySettings proxySettings) {
         if (proxySettings != null) {
@@ -120,26 +122,27 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	}
 
     private static boolean headerShouldBeTransferred(String key) {
-        return !ImmutableList.of("content-length", "transfer-encoding").contains(key.toLowerCase());
+        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING).contains(key.toLowerCase());
     }
 
     private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
 		Request originalRequest = response.getOriginalRequest();
-		if (originalRequest.getMethod() == POST || originalRequest.getMethod() == PUT) {
+		if (originalRequest.getMethod().isOneOf(PUT, POST)) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
-            ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader();
-			String body = originalRequest.getBodyAsString();
-			
-			if (contentTypeHeader.isPresent()) {
-				requestWithEntity.setEntity(new StringEntity(body,
-                        contentTypeHeader.mimeTypePart(),
-                        contentTypeHeader.encodingPart().isPresent() ? contentTypeHeader.encodingPart().get() : "utf-8"));
-			} else {
-				requestWithEntity.setEntity(new StringEntity(body,
-						"text/plain",
-						"utf-8"));
-			}
+            requestWithEntity.setEntity(buildEntityFrom(originalRequest));
 		}
 	}
+
+    private static HttpEntity buildEntityFrom(Request originalRequest) {
+        ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader().or("text/plain");
+        ContentType contentType = ContentType.create(contentTypeHeader.mimeTypePart(), contentTypeHeader.encodingPart().or("utf-8"));
+
+        if (originalRequest.containsHeader(TRANSFER_ENCODING) &&
+                originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
+            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBodyAsString().getBytes()), -1, contentType);
+        }
+
+        return new StringEntity(originalRequest.getBodyAsString(), contentType);
+    }
 
 }

@@ -15,9 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,10 +25,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -121,15 +124,18 @@ public class WireMockTestClient {
 	}
 	
 	public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
-		HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
-		try {
-			httpPost.setEntity(new StringEntity(body, bodyMimeType, bodyEncoding));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-		
-		return executeMethodAndCovertExceptions(httpPost);
+        return post(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
 	}
+
+    public WireMockResponse postWithChunkedBody(String url, byte[] body) {
+        return post(url, new InputStreamEntity(new ByteArrayInputStream(body), -1));
+    }
+
+    public WireMockResponse post(String url, HttpEntity entity) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(entity);
+        return executeMethodAndCovertExceptions(httpPost);
+    }
 
 	public void addResponse(String responseSpecJson) {
 		int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
@@ -137,7 +143,7 @@ public class WireMockTestClient {
 			throw new RuntimeException("Returned status code was " + status);
 		}
 	}
-	
+
 	public void resetMappings() {
 		int status = postEmptyBodyAndReturnStatus(resetUrl());
 		if (status != HTTP_OK) {
@@ -166,7 +172,7 @@ public class WireMockTestClient {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private int postEmptyBodyAndReturnStatus(String url) {
 		return postJsonAndReturnStatus(url, null);
 	}
@@ -175,7 +181,7 @@ public class WireMockTestClient {
 		HttpClient client = HttpClientFactory.createClient();
 		HttpParams params = client.getParams();
 		params.setParameter("http.protocol.handle-redirects", false);
-		
+
 		try {
 			for (TestHttpHeader header: headers) {
 				httpRequest.addHeader(header.getName(), header.getValue());
@@ -186,5 +192,4 @@ public class WireMockTestClient {
 			throw new RuntimeException(ioe);
 		}
 	}
-
 }

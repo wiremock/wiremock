@@ -81,11 +81,11 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 	public void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
 		otherServiceClient.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
 				.willReturn(aResponse()
-				.withStatus(200)));
+                        .withStatus(200)));
 		
 		givenThat(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
-				.willReturn(aResponse()
-				.proxiedFrom("http://localhost:8087")));
+                .willReturn(aResponse()
+                        .proxiedFrom("http://localhost:8087")));
 		
 		WireMockResponse response = testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26");
 		
@@ -93,12 +93,24 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 	}
 
     @Test
-    public void sendsContentLengthHeaderWhenPosting() {
+    public void sendsContentLengthHeaderWhenPostingIfPresentInOriginalRequest() {
         otherServiceClient.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
         stubFor(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
         testClient.postWithBody("/with/length", "TEST", "application/x-www-form-urlencoded", "utf-8");
 
-        verify(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+        otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+    }
+
+    @Test
+    public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
+        otherServiceClient.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
+        stubFor(post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
+
+        otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
+                .withHeader("Transfer-Encoding", equalTo("chunked")));
+
     }
 }

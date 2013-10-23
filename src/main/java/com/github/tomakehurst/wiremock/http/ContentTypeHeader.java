@@ -36,6 +36,10 @@ public class ContentTypeHeader extends HttpHeader {
         return new ContentTypeHeader();
     }
 
+    public ContentTypeHeader or(String stringValue) {
+        return isPresent() ? this : new ContentTypeHeader(stringValue);
+    }
+
 	public String mimeTypePart() {
 		return parts[0];
 	}
