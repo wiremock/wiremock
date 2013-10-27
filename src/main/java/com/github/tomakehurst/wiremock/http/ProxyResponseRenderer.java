@@ -60,9 +60,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
 		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
-		addRequestHeaders(httpRequest, responseDefinition);
-		httpRequest.removeHeaders("Host");
-		
+        httpRequest.removeHeaders("Host");
+        addRequestHeaders(httpRequest, responseDefinition);
+
 		try {
 			addBodyIfPostOrPut(httpRequest, responseDefinition);
 			HttpResponse httpResponse = client.execute(httpRequest);

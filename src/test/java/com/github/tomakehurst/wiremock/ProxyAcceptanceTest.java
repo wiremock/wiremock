@@ -16,12 +16,14 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -111,6 +113,16 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 
         otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
                 .withHeader("Transfer-Encoding", equalTo("chunked")));
+    }
 
+    @Test
+    public void preservesHostHeaderWhenSpecified() {
+        otherServiceClient.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
+        stubFor(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.get("/host-header", withHeader("Host", "my.host"));
+
+        verify(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+        otherServiceClient.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
     }
 }

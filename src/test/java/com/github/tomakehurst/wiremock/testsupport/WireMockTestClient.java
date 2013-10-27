@@ -179,8 +179,7 @@ public class WireMockTestClient {
 
 	private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, TestHttpHeader... headers) {
 		HttpClient client = HttpClientFactory.createClient();
-		HttpParams params = client.getParams();
-		params.setParameter("http.protocol.handle-redirects", false);
+        client.getParams().setParameter("http.protocol.handle-redirects", false);
 
 		try {
 			for (TestHttpHeader header: headers) {
