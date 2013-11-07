@@ -135,9 +135,14 @@ public class WireMockJUnitRuleTest {
         @ClassRule
         public static WireMockClassRule serviceTwo = new WireMockClassRule(wireMockConfig().port(9092));
         @Rule
-        public static WireMockRule serviceThree = new WireMockRule(wireMockConfig().port(9093));
+        public WireMockRule serviceThree = new WireMockRule(wireMockConfig().port(9093));
         @Rule
-        public static WireMockRule serviceFour = new WireMockRule(wireMockConfig().port(9094));
+        public WireMockRule serviceFour = new WireMockRule(wireMockConfig().port(9094));
+
+        @Rule
+        public WireMockRule portZeroRule = new WireMockRule(wireMockConfig().port(0));
+        @Rule
+        public WireMockClassRule portZeroClassRule = new WireMockClassRule(wireMockConfig().port(0));
 
         @Test
         public void canStubAndVerifyMultipleWireMockRulesWithoutInterferenceBetweenRuleInstances() {
@@ -150,6 +155,15 @@ public class WireMockJUnitRuleTest {
             stubIsCalledAndResponseIsCorrect(serviceTwo, 9092, "service two");
             stubIsCalledAndResponseIsCorrect(serviceThree, 9093, "service three");
             stubIsCalledAndResponseIsCorrect(serviceFour, 9094, "service four");
+        }
+
+        @Test
+        public void canStubOnPortZero() {
+            setupStubbing(portZeroRule, "port zero rule");
+            setupStubbing(portZeroClassRule, "port zero class rule");
+
+            stubIsCalledAndResponseIsCorrect(portZeroRule, portZeroRule.port(), "port zero rule");
+            stubIsCalledAndResponseIsCorrect(portZeroClassRule, portZeroClassRule.port(), "port zero class rule");
         }
 
         private void setupStubbing(Stubbing stubbing, String body) {

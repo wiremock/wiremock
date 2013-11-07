@@ -35,12 +35,11 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
 
     private final Options options;
     private final WireMockServer wireMockServer;
-    private final WireMock wireMock;
+    private WireMock wireMock;
 
     public WireMockClassRule(Options options) {
         this.options = options;
         this.wireMockServer = new WireMockServer(options);
-        this.wireMock = new WireMock("localhost", options.portNumber());
     }
 
     public WireMockClassRule(int port, Integer httpsPort) {
@@ -74,7 +73,8 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
                     }
                 } else {
                     wireMockServer.start();
-                    WireMock.configureFor("localhost", options.portNumber());
+                    wireMock = new WireMock("localhost", port());
+                    WireMock.configureFor("localhost", port());
                     try {
                         base.evaluate();
                     } finally {
