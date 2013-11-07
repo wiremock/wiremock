@@ -34,13 +34,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
     private final Options options;
-    private final WireMock wireMock;
+    private WireMock wireMock;
 
     private WireMockServer wireMockServer;
 
     public WireMockRule(Options options) {
         this.options = options;
-        this.wireMock = new WireMock("localhost", options.portNumber());
     }
 
     public WireMockRule(int port) {
@@ -68,7 +67,8 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 			public void evaluate() throws Throwable {
 				wireMockServer = new WireMockServer(options);
 				wireMockServer.start();
-				WireMock.configureFor("localhost", options.portNumber());
+				WireMock.configureFor("localhost", port());
+                wireMock = new WireMock("localhost", port());
 				try {
                     base.evaluate();
                 } finally {
