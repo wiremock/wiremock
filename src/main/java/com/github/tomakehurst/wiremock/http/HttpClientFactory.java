@@ -47,8 +47,9 @@ public class HttpClientFactory {
     private static final String HTTPS_PROTOCOL = "https";
     private static final int HTTP_PORT = 80;
     private static final int HTTPS_PORT = 443;
-	
-	public static HttpClient createClient(
+    public static final int DEFAULT_MAX_CONNECTIONS = 50;
+
+    public static HttpClient createClient(
             int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings) {
         PoolingClientConnectionManager cm = createClientConnectionManagerWithSSLSettings(maxConnections);
 		HttpClient client = new DefaultHttpClient(cm);
@@ -70,14 +71,18 @@ public class HttpClientFactory {
     }
 	
 	public static HttpClient createClient(int timeoutMilliseconds) {
-		return createClient(50, timeoutMilliseconds);
+		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
 	
 	public static HttpClient createClient() {
 		return createClient(30000);
 	}
 
-    private static PoolingClientConnectionManager createClientConnectionManagerWithSSLSettings(int maxConnections) {
+    public static PoolingClientConnectionManager createClientConnectionManagerWithSSLSettings() {
+        return createClientConnectionManagerWithSSLSettings(DEFAULT_MAX_CONNECTIONS);
+    }
+
+    public static PoolingClientConnectionManager createClientConnectionManagerWithSSLSettings(int maxConnections) {
         try {
             X509HostnameVerifier hostnameVerifier = new AllowAllHostnameVerifier();
             SSLSocketFactory socketFactory = createSslSocketFactory(hostnameVerifier);

@@ -45,6 +45,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class WireMockServer {
@@ -65,6 +66,8 @@ public class WireMockServer {
 	private final String bindAddress;
 
     private final Options options;
+    private DelayableSocketConnector httpConnector;
+    private DelayableSslSocketConnector httpsConnector;
 
     public WireMockServer(Options options) {
         this.options = options;
@@ -147,6 +150,8 @@ public class WireMockServer {
 	
 	public void stop() {
 		try {
+            httpConnector = null;
+            httpsConnector = null;
 			jettyServer.stop();
             jettyServer.join();
 		} catch (Exception e) {
@@ -157,10 +162,12 @@ public class WireMockServer {
 	public void start() {
 		try {
             jettyServer = new Server();
-            jettyServer.addConnector(createHttpConnector());
+            httpConnector = createHttpConnector();
+            jettyServer.addConnector(httpConnector);
 
             if (options.httpsSettings().enabled()) {
-                jettyServer.addConnector(createHttpsConnector());
+                httpsConnector = createHttpsConnector();
+                jettyServer.addConnector(httpsConnector);
             }
 
             addAdminContext();
@@ -170,6 +177,16 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
+
+    public int port() {
+        checkState(httpConnector != null, "Not listening on HTTP port. The WireMock server is most likely stopped");
+        return httpConnector.getLocalPort();
+    }
+
+    public int httpsPort() {
+        checkState(httpsConnector != null, "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped.");
+        return httpsConnector.getLocalPort();
+    }
 
     private DelayableSocketConnector createHttpConnector() {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);

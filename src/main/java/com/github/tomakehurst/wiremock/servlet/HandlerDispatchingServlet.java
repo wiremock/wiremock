@@ -72,6 +72,8 @@ public class HandlerDispatchingServlet extends HttpServlet {
 		LocalNotifier.set(notifier);
 		
 		Request request = new HttpServletRequestAdapter(httpServletRequest);
+        notifier.info("Received request: " + httpServletRequest.toString());
+
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
 		    response.applyTo(httpServletResponse);
