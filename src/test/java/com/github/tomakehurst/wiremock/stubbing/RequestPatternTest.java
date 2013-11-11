@@ -195,6 +195,8 @@ public class RequestPatternTest {
 	
 	@Test
 	public void shouldMatchOnBodyPattern() {
+	    ignoringNotifier();
+	    
 		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
 		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
 		

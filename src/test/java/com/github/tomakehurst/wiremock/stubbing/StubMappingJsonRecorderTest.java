@@ -62,7 +62,10 @@ public class StubMappingJsonRecorderTest {
 		"{ 													             \n" +
 		"	\"request\": {									             \n" +
 		"		\"method\": \"GET\",						             \n" +
-		"		\"url\": \"/recorded/content\"				             \n" +
+		"		\"url\": \"/recorded/content\", 			             \n" +
+		"       \"bodyPatterns\" : [ {                                   \n" + 
+		"           \"equalTo\" : \"\"                                   \n" +
+		"       } ]                                                      \n" +
 		"	},												             \n" +
 		"	\"response\": {									             \n" +
 		"		\"status\": 200,							             \n" +
@@ -98,7 +101,10 @@ public class StubMappingJsonRecorderTest {
         "{                                                                  \n" +
         "   \"request\": {                                                  \n" +
         "       \"method\": \"GET\",                                        \n" +
-        "       \"url\": \"/headered/content\"                              \n" +
+        "       \"url\": \"/headered/content\",                             \n" +
+        "       \"bodyPatterns\" : [ {                                      \n" + 
+        "           \"equalTo\" : \"\"                                      \n" +
+        "       } ]                                                         \n" +        
         "   },                                                              \n" +
         "   \"response\": {                                                 \n" +
         "       \"status\": 200,                                            \n" +

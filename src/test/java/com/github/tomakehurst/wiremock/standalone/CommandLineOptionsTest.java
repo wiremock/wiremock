@@ -119,6 +119,12 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsCorrecteyParsedBindAddress(){
+        CommandLineOptions options = new CommandLineOptions("--bind-address", "127.0.0.1");
+        assertThat(options.bindAddress(), is("127.0.0.1"));
+    }
+    
+    @Test
     public void returnsNoProxyWhenNoProxyViaSpecified() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.proxyVia(), is(ProxySettings.NO_PROXY));

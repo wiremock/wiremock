@@ -149,6 +149,8 @@ public class RequestPattern {
 		
 		if (!matches) {
 			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));
+		} else {
+		    notifier().info(String.format("URL %s and body is match: %s", request.getUrl(), request.getBodyAsString()));
 		}
 		
 		return matches;

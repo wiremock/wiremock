@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -38,15 +39,21 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class WireMockTestClient {
 
-	private static final String LOCAL_WIREMOCK_ROOT = "http://localhost:%d%s";
-	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://localhost:%d/__admin/mappings/new";
-	private static final String LOCAL_WIREMOCK_RESET_URL = "http://localhost:%d/__admin/reset";
-	private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://localhost:%d/__admin/mappings/reset";
+	private static final String LOCAL_WIREMOCK_ROOT = "http://%s:%d%s";
+	private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
+	private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
+	private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
 
 	private int port;
+    private String address;
+	
+	public WireMockTestClient(int port, String address) {
+        this.port = port;
+        this.address = address;
+    }
 	
 	public WireMockTestClient(int port) {
-		this.port = port;
+		this(port, "localhost");
 	}
 	
 	public WireMockTestClient() {
@@ -54,19 +61,19 @@ public class WireMockTestClient {
 	}
 	
 	private String mockServiceUrlFor(String path) {
-		return String.format(LOCAL_WIREMOCK_ROOT, port, path);
+		return String.format(LOCAL_WIREMOCK_ROOT, address, port, path);
 	}
 	
 	private String newMappingUrl() {
-		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, port);
+		return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, address, port);
 	}
 	
 	private String resetUrl() {
-		return String.format(LOCAL_WIREMOCK_RESET_URL, port);
+		return String.format(LOCAL_WIREMOCK_RESET_URL, address, port);
 	}
 
     private String resetDefaultMappingsUrl() {
-        return String.format(LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL, port);
+        return String.format(LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL, address, port);
     }
 
 	public WireMockResponse get(String url, TestHttpHeader... headers) {
@@ -77,7 +84,7 @@ public class WireMockTestClient {
 	public WireMockResponse getViaProxy(String url) {
 		URI targetUri = URI.create(url);
 		
-		HttpHost proxy = new HttpHost("localhost", 8080, "http");
+		HttpHost proxy = new HttpHost(address, 8080, "http");
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
         try {

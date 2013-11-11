@@ -32,7 +32,7 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
-	private static final String BIDDING_ADDRESS = "bind-address";
+	private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
 	private static final String VERBOSE = "verbose";
@@ -48,7 +48,7 @@ public class CommandLineOptions implements Options {
 
 		OptionParser optionParser = new OptionParser();
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
-		optionParser.accepts(BIDDING_ADDRESS, "The IP to listen connections").withRequiredArg();
+		optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMoc k will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Must have a password of \"password\".").withRequiredArg();
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
@@ -113,8 +113,8 @@ public class CommandLineOptions implements Options {
 	}
 
 	public String bindAddress(){
-		if (optionSet.has(BIDDING_ADDRESS)) {
-            return (String) optionSet.valueOf(BIDDING_ADDRESS);
+		if (optionSet.has(BIND_ADDRESS)) {
+            return (String) optionSet.valueOf(BIND_ADDRESS);
         }
 
         return DEFAULT_BIDDINGADDRESS;
