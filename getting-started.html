@@ -79,7 +79,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#maven">Maven</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#junit-4-x">JUnit 4.x</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#other-rule-configurations">Other &#64;Rule configurations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-multiple-instances-with-rule">Running multiple instances with &#64;Rule</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#detailed-configuration">Detailed configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-on-a-random-free-port">Running on a random, free port</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#non-junit-and-general-java-usage">Non-JUnit and general Java usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
@@ -109,7 +111,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.33<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.36<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -174,6 +176,22 @@
 <p class="last"><tt class="docutils literal"><span class="pre">WireMockStaticRule</span></tt> is deprecated as the above usage isn&#8217;t permitted from JUnit 4.11 onwards</p>
 </div>
 </div>
+<div class="section" id="running-multiple-instances-with-rule">
+<h2>Running multiple instances with &#64;Rule<a class="headerlink" href="#running-multiple-instances-with-rule" title="Permalink to this headline">¶</a></h2>
+<p>More than one rule instance can be used in a test class to simulate multpile services on different ports e.g.</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">mockServiceOne</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8081</span><span class="o">);</span>
+
+<span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">mockServiceTwo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8082</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>To interact with a specific instance&#8217;s API, use the rule object as the entry point e.g.</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">mockServiceOne</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/one&quot;</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withBody</span><span class="o">(</span><span class="s">&quot;Service 1&quot;</span><span class="o">)));</span>
+<span class="n">mockServiceTwo</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/two&quot;</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withBody</span><span class="o">(</span><span class="s">&quot;Service 2&quot;</span><span class="o">)));</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="detailed-configuration">
 <h2>Detailed configuration<a class="headerlink" href="#detailed-configuration" title="Permalink to this headline">¶</a></h2>
 <p>For a bit more control over the settings of the WireMock server created by the rule you can pass a fluently built
@@ -183,6 +201,18 @@ Options object to either (non-deprecated) rule&#8217;s constructor:</p>
 
 <span class="nd">@Rule</span>
 <span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">).</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-on-a-random-free-port">
+<h2>Running on a random, free port<a class="headerlink" href="#running-on-a-random-free-port" title="Permalink to this headline">¶</a></h2>
+<p>Specifying a port number of 0 causes WireMock to choose an unused port at random:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+</pre></div>
+</div>
+<p>This can be retrieved by calling <tt class="docutils literal"><span class="pre">`port()`</span></tt> or <tt class="docutils literal"><span class="pre">`httpsPort()`</span></tt> on the rule object:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="n">wireMockRule</span><span class="o">.</span><span class="na">port</span><span class="o">();</span>
 </pre></div>
 </div>
 </div>
@@ -216,9 +246,9 @@ server directly:</p>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.33-standalone.jar
+$ java -jar wiremock-1.36-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.33-standalone.jar">download the standalone JAR from here</a>.</p>
+<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.36-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
 Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
