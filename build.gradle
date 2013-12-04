@@ -8,7 +8,7 @@ apply plugin: 'jdepend'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.36
+version = 1.37
 
 repositories {
 	mavenCentral()
@@ -200,8 +200,13 @@ uploadArchives {
     }
 }
 
+task addGitTag << {
+    println "git tag ${version}".execute().text
+    println "git push origin --tags".execute().text
+}
+
 task release {
-	dependsOn clean, jarAll, uploadArchives
+	dependsOn clean, jarAll, uploadArchives, addGitTag
 }
 
 task 'set-release-dir' << {
@@ -224,7 +229,7 @@ task 'set-release-dir' << {
 }
 
 task 'release-to' {
-	dependsOn 'set-release-dir', clean, jarAll, uploadArchives
+	dependsOn 'set-release-dir', clean, jarAll, uploadArchives, addGitTag
 }
 
 task 'bump-version' << {
