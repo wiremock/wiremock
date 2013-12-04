@@ -34,9 +34,9 @@ public class WireMockAltHostAndPortAcceptanceTest {
 	
 	@Before
 	public void init() {
-		defaultServer = new WireMockServer();
+		defaultServer = new WireMockServer(0);
 		defaultServer.start();
-		altServer = new WireMockServer(8081);
+		altServer = new WireMockServer(0);
 		altServer.start();
 	}
 	
@@ -48,11 +48,11 @@ public class WireMockAltHostAndPortAcceptanceTest {
 
 	@Test
 	public void useStaticSyntaxOnAlternativeHostAndPort() throws Exception {
-		WireMockTestClient defaultTestClient = new WireMockTestClient(8080);
-		WireMockTestClient altTestClient = new WireMockTestClient(8081);
+		WireMockTestClient defaultTestClient = new WireMockTestClient(defaultServer.port());
+		WireMockTestClient altTestClient = new WireMockTestClient(altServer.port());
 		
 		String thisHostName = InetAddress.getLocalHost().getHostName();
-		WireMock.configureFor(thisHostName, 8081);
+        WireMock.configureFor(thisHostName, altServer.port());
 		
 		givenThat(get(urlEqualTo("/resource/on/other/address"))
 				.willReturn(aResponse()

@@ -62,8 +62,7 @@ public class StubMappingJsonRecorder implements RequestListener {
       RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
       String body = request.getBodyAsString();
       if (!body.isEmpty()) {
-         ValuePattern bodyPattern = new ValuePattern();
-         bodyPattern.setEqualTo(request.getBodyAsString());
+         ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
          requestPattern.setBodyPatterns(asList(bodyPattern));
       }
 
