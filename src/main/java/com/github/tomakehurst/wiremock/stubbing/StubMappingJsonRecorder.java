@@ -25,7 +25,10 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import org.apache.commons.lang.StringUtils;
+import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -47,6 +50,12 @@ public class StubMappingJsonRecorder implements RequestListener {
 	@Override
 	public void requestReceived(Request request, Response response) {
 		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+
+        // store the json body to match if it exists in the request pattern
+        if(StringUtils.isNotEmpty(request.getBodyAsString())) {
+            ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
+            requestPattern.setBodyPatterns(Arrays.asList(bodyPattern));
+        }
 		
 		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
