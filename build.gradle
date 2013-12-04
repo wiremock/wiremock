@@ -200,13 +200,8 @@ uploadArchives {
     }
 }
 
-task addGitTag << {
-    println "git tag ${version}".execute().text
-    println "git push origin --tags".execute().text
-}
-
 task release {
-	dependsOn clean, jarAll, uploadArchives, addGitTag
+	dependsOn clean, jarAll, uploadArchives
 }
 
 task 'set-release-dir' << {
@@ -229,7 +224,7 @@ task 'set-release-dir' << {
 }
 
 task 'release-to' {
-	dependsOn 'set-release-dir', clean, jarAll, uploadArchives, addGitTag
+	dependsOn 'set-release-dir', clean, jarAll, uploadArchives
 }
 
 task 'bump-version' << {

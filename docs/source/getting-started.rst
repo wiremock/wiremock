@@ -90,29 +90,6 @@ Or if you're using JUnit 4.8:
     ``WireMockStaticRule`` is deprecated as the above usage isn't permitted from JUnit 4.11 onwards
 
 
-Running multiple instances with @Rule
-=====================================
-
-More than one rule instance can be used in a test class to simulate multpile services on different ports e.g.
-
-.. code-block:: java
-
-    @Rule
-    public WireMockRule mockServiceOne = new WireMockRule(wireMockConfig().port(8081);
-
-    @Rule
-    public WireMockRule mockServiceTwo = new WireMockRule(wireMockConfig().port(8082);
-
-
-To interact with a specific instance's API, use the rule object as the entry point e.g.
-
-.. code-block:: java
-
-    mockServiceOne.stubFor(get(urlEqualTo("/one")).willReturn(aResponse().withBody("Service 1")));
-    mockServiceTwo.stubFor(get(urlEqualTo("/two")).willReturn(aResponse().withBody("Service 2")));
-
-
-
 Detailed configuration
 ======================
 
@@ -127,22 +104,6 @@ Options object to either (non-deprecated) rule's constructor:
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).httpsPort(8443));
 
-
-Running on a random, free port
-==============================
-
-Specifying a port number of 0 causes WireMock to choose an unused port at random:
-
-.. code-block:: java
-
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(0));
-
-This can be retrieved by calling ```port()``` or ```httpsPort()``` on the rule object:
-
-.. code-block:: java
-
-    int port = wireMockRule.port();
 
 
 Non-JUnit and general Java usage
@@ -187,7 +148,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.36-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.34-standalone.jar>`_.
 
 Supported command line options are:
 

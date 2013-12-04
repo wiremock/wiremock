@@ -25,10 +25,12 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static java.util.Arrays.asList;
 
 public class StubMappingJsonRecorder implements RequestListener {
 	
@@ -46,7 +48,7 @@ public class StubMappingJsonRecorder implements RequestListener {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+        RequestPattern requestPattern = buildRequestPatternFrom(request);
 		
 		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
@@ -56,7 +58,19 @@ public class StubMappingJsonRecorder implements RequestListener {
 		}
 	}
 
-    private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
+   private RequestPattern buildRequestPatternFrom(Request request) {
+      RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+      String body = request.getBodyAsString();
+      if (!body.isEmpty()) {
+         ValuePattern bodyPattern = new ValuePattern();
+         bodyPattern.setEqualTo(request.getBodyAsString());
+         requestPattern.setBodyPatterns(asList(bodyPattern));
+      }
+
+      return requestPattern;
+   }
+
+   private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
         String fileId = idGenerator.generate();
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);

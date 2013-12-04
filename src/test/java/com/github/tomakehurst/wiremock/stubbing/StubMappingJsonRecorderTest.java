@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.base.Charsets.UTF_8;
@@ -170,6 +171,41 @@ public class StubMappingJsonRecorderTest {
                 .build(),
             response);
 	}
+
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_BODY =
+            "{ 													             \n" +
+            "	\"request\": {									             \n" +
+            "		\"method\": \"POST\",						             \n" +
+            "		\"url\": \"/body/content\",                              \n" +
+            "       \"bodyPatterns\": [                                      \n" +
+            "            { \"equalTo\": \"somebody\" }                       \n" +
+            "        ]				                                         \n" +
+            "	},												             \n" +
+            "	\"response\": {									             \n" +
+            "		\"status\": 200, 							             \n" +
+            "		\"bodyFileName\": \"body-body-content-1$2!3.json\"       \n" +
+            "	}												             \n" +
+            "}													               ";
+
+    @Test
+    public void includesBodyInRequestPatternIfInRequest() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(
+                    with(any(String.class)),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY)));
+            ignoring(filesFileSource);
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(POST)
+                .withUrl("/body/content")
+                .withBody("somebody")
+                .build();
+
+        listener.requestReceived(request,
+                response().status(200).body("anything").fromProxy(true).build());
+    }
 
 	private IdGenerator fixedIdGenerator(final String id) {
 	    return new IdGenerator() {
