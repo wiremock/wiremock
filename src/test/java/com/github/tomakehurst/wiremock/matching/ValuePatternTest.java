@@ -81,6 +81,20 @@ public class ValuePatternTest {
     }
 
     @Test
+    public void matchesOnIsEqualToJson() {
+        valuePattern.setEqualToJson("{\"x\":0}");
+        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0}"));
+        assertTrue("Expected number json match", valuePattern.isMatchFor("{\"x\":0.0}"));
+    }
+    
+    @Test
+    public void matchesOnIsEqualToJsonMoveFields() {
+        valuePattern.setEqualToJson("{\"x\":0,\"y\":1}");
+        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0,\"y\":1}"));
+        assertTrue("Expected move field json match", valuePattern.isMatchFor("{\"y\":1,\"x\":0.0}"));
+    }
+    
+    @Test
     public void matchesOnBasicJsonPaths() {
         valuePattern.setMatchesJsonPaths("$.one");
         assertTrue("Expected match when JSON attribute is present", valuePattern.isMatchFor("{ \"one\": 1 }"));
