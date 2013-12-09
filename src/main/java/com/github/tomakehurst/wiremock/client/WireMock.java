@@ -131,6 +131,12 @@ public class WireMock {
 		return headerStrategy;
 	}
 	
+    public static ValueMatchingStrategy equalToJson(String value) {
+        ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
+        headerStrategy.setEqualToJson(value);
+        return headerStrategy;
+    }
+    
 	public static ValueMatchingStrategy containing(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setContains(value);
