@@ -23,6 +23,7 @@ import java.util.List;
 public class ValueMatchingStrategy {
 
 	private String equalTo;
+	private String equalToJson;
 	private String matches;
 	private String doesNotMatch;
 	private String contains;
@@ -31,6 +32,7 @@ public class ValueMatchingStrategy {
 	public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
+		pattern.setEqualToJson(equalToJson);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
 		pattern.setContains(contains);
@@ -52,6 +54,14 @@ public class ValueMatchingStrategy {
 		}
 	};
 	
+	public String getEqualToJson() {
+        return equalToJson;
+    }
+
+    public void setEqualToJson(String equalToJson) {
+        this.equalToJson = equalToJson;
+    }
+
 	public String getEqualTo() {
 		return equalTo;
 	}

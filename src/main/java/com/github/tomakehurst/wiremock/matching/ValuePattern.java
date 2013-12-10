@@ -24,12 +24,18 @@ import net.minidev.json.JSONObject;
 
 import java.util.regex.Pattern;
 
+import org.json.JSONException;
+import org.skyscreamer.jsonassert.JSONCompare;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.JSONCompareResult;
+
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.regex.Pattern.DOTALL;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ValuePattern {
 
+    private String equalToJson;
 	private String equalTo;
 	private String contains;
 	private String matches;
@@ -43,6 +49,12 @@ public class ValuePattern {
 		return valuePattern;
 	}
 	
+    public static ValuePattern equalToJson(String value) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setEqualToJson(value);
+        return valuePattern;
+    }
+    
 	public static ValuePattern containing(String value) {
 		ValuePattern valuePattern = new ValuePattern();
 		valuePattern.setContains(value);
@@ -66,6 +78,8 @@ public class ValuePattern {
 
         if (absent != null) {
             return (absent && value == null);
+        } else if (equalToJson != null) {
+            return isEqualJson(value);
         } else if (equalTo != null) {
 			return value.equals(equalTo);
 		} else if (contains != null) {
@@ -88,6 +102,16 @@ public class ValuePattern {
 			}
 		};
 	}
+	
+    private boolean isEqualJson(String value) {
+        JSONCompareResult result;
+        try {
+            result = JSONCompare.compareJSON(equalToJson, value, JSONCompareMode.LENIENT);
+        } catch (JSONException e) {
+            return false;
+        }
+        return result.passed();
+    }
 	
 	private boolean isMatch(String regex, String value) {
 		Pattern pattern = Pattern.compile(regex, DOTALL);
@@ -138,7 +162,7 @@ public class ValuePattern {
 	}
 	
 	private int countAllAttributes() {
-		return count(equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
+		return count(equalToJson, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
 	}
 	
 	private int count(Object... objects) {
@@ -157,6 +181,11 @@ public class ValuePattern {
 		checkNoMoreThanOneMatchTypeSpecified();
 	}
 	
+    public void setEqualToJson(String equalToJson) {
+        this.equalToJson = equalToJson;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+    
 	public void setContains(String contains) {
 		this.contains = contains;
 		checkNoMoreThanOneMatchTypeSpecified();
@@ -186,6 +215,10 @@ public class ValuePattern {
 		return equalTo;
 	}
 	
+    public String getEqualToJson() {
+        return equalToJson;
+    }
+    
 	public String getContains() {
 		return contains;
 	}
@@ -212,7 +245,9 @@ public class ValuePattern {
 	
 	@Override
 	public String toString() {
-		if (equalTo != null) {
+	    if (equalToJson != null) {
+            return "equalJson " + equalToJson;
+	    } else if (equalTo != null) {
 			return "equal " + equalTo;
 		} else if (contains != null) {
 			return "contains " + contains;
@@ -238,6 +273,7 @@ public class ValuePattern {
         if (contains != null ? !contains.equals(that.contains) : that.contains != null) return false;
         if (doesNotMatch != null ? !doesNotMatch.equals(that.doesNotMatch) : that.doesNotMatch != null) return false;
         if (equalTo != null ? !equalTo.equals(that.equalTo) : that.equalTo != null) return false;
+        if (equalToJson != null ? !equalToJson.equals(that.equalToJson) : that.equalToJson != null) return false;
         if (matches != null ? !matches.equals(that.matches) : that.matches != null) return false;
         if (matchesJsonPath != null ? !matchesJsonPath.equals(that.matchesJsonPath) : that.matchesJsonPath != null)
             return false;
@@ -248,6 +284,7 @@ public class ValuePattern {
     @Override
     public int hashCode() {
         int result = equalTo != null ? equalTo.hashCode() : 0;
+        result = 31 * result + (equalToJson != null ? equalToJson.hashCode() : 0);
         result = 31 * result + (contains != null ? contains.hashCode() : 0);
         result = 31 * result + (matches != null ? matches.hashCode() : 0);
         result = 31 * result + (doesNotMatch != null ? doesNotMatch.hashCode() : 0);
