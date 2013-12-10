@@ -81,7 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#url-matching">URL matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#jsonpath-body-matching">JSONPath body matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-body-matching">JSON body matching</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#stub-priority">Stub priority</a></li>
@@ -232,9 +232,15 @@ function:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="section" id="jsonpath-body-matching">
-<h3>JSONPath body matching<a class="headerlink" href="#jsonpath-body-matching" title="Permalink to this headline">¶</a></h3>
-<p>Body content which is valid JSON can be specified via JSONPath expressions:</p>
+<div class="section" id="json-body-matching">
+<h3>JSON body matching<a class="headerlink" href="#json-body-matching" title="Permalink to this headline">¶</a></h3>
+<p>Body content which is valid JSON can be matched on semantically:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/with/json/body&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToJson</span><span class="o">(</span><span class="s">&quot;{ \&quot;houseNumber\&quot;: 4, \&quot;postcode\&quot;: \&quot;N1 1ZZ\&quot; }&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>JSONPath expressions can also be used:</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/with/json/body&quot;</span><span class="o">))</span>
     <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">&quot;$.status&quot;</span><span class="o">))</span>
     <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">&quot;$.things[$(@.name == &#39;RequiredThing&#39;)]&quot;</span><span class="o">))</span>
