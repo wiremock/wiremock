@@ -166,9 +166,18 @@ The JSON equivalent of the above example would be:
     	}
     }
 
-JSONPath body matching
------------------------
-Body content which is valid JSON can be specified via JSONPath expressions:
+JSON body matching
+------------------
+Body content which is valid JSON can be matched on semantically:
+
+.. code-block:: java
+
+    stubFor(post(urlEqualTo("/with/json/body"))
+        .withRequestBody(equalToJson("{ \"houseNumber\": 4, \"postcode\": \"N1 1ZZ\" }"))
+        .willReturn(aResponse().withStatus(200)));
+
+
+JSONPath expressions can also be used:
 
 .. code-block:: java
 
