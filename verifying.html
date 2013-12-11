@@ -41,6 +41,20 @@
             padding-left: 150px !important;
         }
     </style>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-36386229-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
 </head>
 <body>
     <a href="https://github.com/tomakehurst/wiremock">
@@ -67,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#checking-for-matching-requests">Checking for matching requests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#in-java">In Java</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#via-json-http">Via JSON + HTTP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#matching-on-header-absence">Matching on header absence</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#querying-request-details">Querying request details</a></li>
@@ -120,6 +135,25 @@ hood).</p>
 </div>
 <p>A response of this form will be returned:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span> <span class="s2">&quot;count&quot;</span><span class="o">:</span> <span class="mi">4</span> <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="matching-on-header-absence">
+<h3>Matching on header absence<a class="headerlink" href="#matching-on-header-absence" title="Permalink to this headline">¶</a></h3>
+<p>When verifying (unlike stubbing) it is possible to specify that a particular header is not present:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">verify</span><span class="o">(</span><span class="n">putRequestedFor</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/without/header&quot;</span><span class="o">)).</span><span class="na">withoutHeader</span><span class="o">(</span><span class="s">&quot;Content-Type&quot;</span><span class="o">));</span>
+</pre></div>
+</div>
+<p>Which is equivalent to:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span> <span class="o">:</span> <span class="s2">&quot;/without/header&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span> <span class="o">:</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;headers&quot;</span> <span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;Content-Type&quot;</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;absent&quot;</span> <span class="o">:</span> <span class="kc">true</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>

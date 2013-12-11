@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.25</version>
+        <version>1.38</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -28,25 +28,13 @@ To use WireMock's fluent API add the following import:
 
     import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-WireMock ships with two JUnit rules to manage the server's lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):
+WireMock ships with some JUnit rules to manage the server's lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):
 
 .. code-block:: java
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(8089); // No-args constructor defaults to port 8080
 
-
-Alternatively, if you want the server to continue to run between test cases:
-
-.. code-block:: java
-
-    @Rule
-    public static WireMockStaticRule wireMockRule = new WireMockStaticRule(8089);
-
-    @AfterClass
-    public static void stopWireMock() {
-        wireMockRule.stopServer();
-    }
 
 Now you're ready to write a test case like this:
 
@@ -74,6 +62,81 @@ For many more examples of JUnit tests look no further than `WireMock's own accep
 
 For more details on verifying requests and stubbing responses, see :ref:`stubbing` and :ref:`verifying`
 
+Other @Rule configurations
+==========================
+
+If you want the server to continue to run between test cases (JUnit 4.9 and newer):
+
+.. code-block:: java
+
+    @ClassRule
+    @Rule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
+
+
+Or if you're using JUnit 4.8:
+
+.. code-block:: java
+
+    @Rule
+    public static WireMockStaticRule wireMockRule = new WireMockStaticRule(8089);
+
+    @AfterClass
+    public static void stopWireMock() {
+        wireMockRule.stopServer();
+    }
+
+.. note::
+    ``WireMockStaticRule`` is deprecated as the above usage isn't permitted from JUnit 4.11 onwards
+
+
+Detailed configuration
+======================
+
+For a bit more control over the settings of the WireMock server created by the rule you can pass a fluently built
+Options object to either (non-deprecated) rule's constructor:
+
+.. code-block:: java
+
+    import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+    ...
+
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).httpsPort(8443));
+
+
+
+Non-JUnit and general Java usage
+================================
+
+If you're not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
+server directly:
+
+.. code-block:: java
+
+    WireMockServer wireMockServer = new WireMockServer(wireMockConfig().port(8089)); //No-args constructor will start on port 8080, no HTTPS
+    wireMockServer.start();
+
+    // Do some stuff
+
+    WireMock.reset();
+
+    // Finish doing stuff
+
+    wireMockServer.stop();
+
+If you've changed the port number and/or you're running the server on another host, you'll need to tell the client:
+
+.. code-block:: java
+
+    WireMock.configureFor("wiremock.host", 8089);
+
+And if you've deployed it into a servlet container under a path other than root you'll need to set that too:
+
+.. code-block:: java
+
+    WireMock.configureFor("tomcat.host", 8080, "/wiremock");
+
 Running standalone
 ==================
 
@@ -85,10 +148,20 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.38/wiremock-1.38-standalone.jar>`_.
+
 Supported command line options are:
 
 ``--port``:
-Set the port number e.g. ``--port 9999``
+Set the HTTP port number e.g. ``--port 9999``
+
+``--https-port``:
+If specified, enables HTTPS on the supplied port.
+
+``--https-keystore``:
+Path to a keystore file containing an SSL certificate to use with HTTPS. The keystore must have a password of "password".
+This option will only work if ``--https-port`` is specified. If this option isn't used WireMock will default to its
+own self-signed certificate.
 
 ``--verbose``:
 Turn on verbose logging to stdout
@@ -100,8 +173,21 @@ Record incoming requests as stub mappings. See :ref:`record-playback`.
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
 
+``--proxy-via``:
+When proxying requests (either by using --proxy-all or by creating stub mappings that proxy to other hosts), route via
+another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
+e.g.
+``--proxy-via webproxy.mycorp.com`` (defaults to port 80)
+or
+``--proxy-via webproxy.mycorp.com:8080``
+
 ``--enable-browser-proxying``:
 Run as a browser proxy. See :ref:`browser-proxying`.
+
+``--no-request-journal``:
+Disable the request journal, which records incoming requests for later verification. This allows WireMock to be run
+(and serve stubs) for long periods (without resetting) without exhausting the heap. The ``--record-mappings`` option isn't
+available if this one is specified.
 
 ``--help``:
 Show command line help
@@ -163,6 +249,12 @@ After restarting the server you should be able to do this:
 
 See :ref:`stubbing` and :ref:`verifying` for more on the JSON API.
 
+Fetching all of your stub mappings (and checking WireMock is working)
+---------------------------------------------------------------------
+A GET request to the root admin URL e.g ``http://localhost:8080/__admin`` will return all currently registered stub mappings. This is a useful way to check
+whether WireMock is running on the host and port you expect:
+
+
 
 Deploying into a servlet container
 ==================================
@@ -172,8 +264,5 @@ fault injection and browser proxying won't work, __files won't be treated as a d
 This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standalone is definitely the preferred option.
 
 The easiest way to create a WireMock WAR project is to clone the `sample app <https://github.com/tomakehurst/wiremock/tree/master/sample-war>`_
-
-
-
 
 

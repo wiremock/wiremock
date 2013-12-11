@@ -63,6 +63,29 @@ A response of this form will be returned:
     { "count": 4 }
 
 
+Matching on header absence
+--------------------------
+
+When verifying (unlike stubbing) it is possible to specify that a particular header is not present:
+
+.. code-block:: java
+
+    verify(putRequestedFor(urlEqualTo("/without/header")).withoutHeader("Content-Type"));
+
+Which is equivalent to:
+
+.. code-block:: javascript
+
+    {
+        "url" : "/without/header",
+        "method" : "PUT",
+        "headers" : {
+            "Content-Type" : {
+                "absent" : true
+            }
+        }
+    }
+
 .. _verifying-querying-request-details:
 
 Querying request details

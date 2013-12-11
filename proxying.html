@@ -41,6 +41,20 @@
             padding-left: 150px !important;
         }
     </style>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-36386229-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
 </head>
 <body>
     <a href="https://github.com/tomakehurst/wiremock">
@@ -71,6 +85,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running-as-a-browser-proxy">Running as a browser proxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proxying-via-another-proxy-server">Proxying via another proxy server</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
@@ -131,7 +146,7 @@ and any number of higher priority stub mappings e.g.</p>
 <h3>Standalone shortcut<a class="headerlink" href="#standalone-shortcut" title="Permalink to this headline">¶</a></h3>
 <p>It is possible to start the standalone running with the catch-all stub already configured:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.25-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
+$ java -jar wiremock-1.38-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
 </pre>
 <p>Then it&#8217;s simply a case of adding your stub mapping <tt class="docutils literal"><span class="pre">.json</span></tt> files under <tt class="docutils literal"><span class="pre">mappings</span></tt> as usual (see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a>).</p>
 </div>
@@ -142,8 +157,20 @@ $ java -jar wiremock-1.25-standalone.jar --proxy-all=&quot;<a class="reference e
 described above, allowing you to modify specific AJAX requests or swap out CSS/Javascript files.</p>
 <p>This currently only works in standalone mode:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.25-standalone.jar --enable-browser-proxying
+$ java -jar wiremock-1.38-standalone.jar --enable-browser-proxying
 </pre>
+</div>
+<div class="section" id="proxying-via-another-proxy-server">
+<h2>Proxying via another proxy server<a class="headerlink" href="#proxying-via-another-proxy-server" title="Permalink to this headline">¶</a></h2>
+<p>If you&#8217;re inside a network that only permits HTTP traffic out to the internet via an opaque proxy you might wish to
+set up proxy mappings that route via this server. This can be configured programmatically by passing a configuration
+object to the constructor of <tt class="docutils literal"><span class="pre">WireMockServer</span></tt> or the JUnit rules like this:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">WireMockConfiguration</span><span class="o">.</span><span class="na">wireMockConfig</span><span class="o">;</span>
+<span class="o">...</span>
+
+<span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">proxyVia</span><span class="o">(</span><span class="s">&quot;proxy.mycorp.com&quot;</span><span class="o">,</span> <span class="mi">8080</span><span class="o">);</span>
+</pre></div>
+</div>
 </div>
 </div>
 

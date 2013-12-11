@@ -40,6 +40,20 @@
             padding-left: 150px !important;
         }
     </style>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-36386229-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
 </head>
 <body>
     <a href="https://github.com/tomakehurst/wiremock">
@@ -67,10 +81,11 @@
 <li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Simulating Faults</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#delays">Delays</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#global-delays">Global delays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stub-delays">Stub delays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#global-stub-delays">Global stub delays</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#request-delays-and-socket-timeouts">Request delays (and socket timeouts)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bad-responses">Bad responses</a></li>
 </ul>
 </li>
@@ -84,8 +99,8 @@
 <p class="rubric">One of the main reasons it&#8217;s beneficial to use web service fakes when testing is to inject faulty behaviour that
 might be difficult to get the real service to produce on demand. In addition to being able to send back any HTTP
 response code indicating an error, WireMock is able to generate a few other types of problem.</p>
-<div class="section" id="delays">
-<span id="simulating-faults-delays"></span><h2>Delays<a class="headerlink" href="#delays" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="stub-delays">
+<span id="simulating-faults-stub-delays"></span><h2>Stub delays<a class="headerlink" href="#stub-delays" title="Permalink to this headline">¶</a></h2>
 <p>A stub response can have a fixed delay attached to it, such that the response will not be returned until after the
 specified number of milliseconds:</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/delayed&quot;</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span>
@@ -107,8 +122,8 @@ specified number of milliseconds:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="section" id="global-delays">
-<h3>Global delays<a class="headerlink" href="#global-delays" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="global-stub-delays">
+<h3>Global stub delays<a class="headerlink" href="#global-stub-delays" title="Permalink to this headline">¶</a></h3>
 <p>A fixed delay can be added to all stubs either by calling <tt class="docutils literal"><span class="pre">WireMock.setGlobalFixedDelay()</span></tt> or posting a JSON
 document of the following form to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/settings</span></tt>:</p>
 <div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
@@ -117,6 +132,21 @@ document of the following form to <tt class="docutils literal"><span class="pre"
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="request-delays-and-socket-timeouts">
+<span id="simulating-faults-request-delays"></span><h2>Request delays (and socket timeouts)<a class="headerlink" href="#request-delays-and-socket-timeouts" title="Permalink to this headline">¶</a></h2>
+<p>Adding stub delays by either of the above routes won&#8217;t allow you to create the conditions for a socket timeout.
+This is because data must be sent and received on the socket for WireMock to determine enough about the request (URL,
+headers etc.) to select an appropriate stub. To reliably create a socket timeout, or test client behaviour when there
+is latency in request handling it is possible to set a delay for all requests that occurs before any processing:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">addRequestProcessingDelay</span><span class="o">(</span><span class="mi">300</span><span class="o">);</span> <span class="c1">// Milliseconds</span>
+</pre></div>
+</div>
+<p>Or post the following to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/socket-delay</span></tt>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span> <span class="s2">&quot;milliseconds&quot;</span><span class="o">:</span> <span class="mi">300</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>Resetting WireMock removes this delay.</p>
 </div>
 <div class="section" id="bad-responses">
 <span id="simulating-faults-bad-responses"></span><h2>Bad responses<a class="headerlink" href="#bad-responses" title="Permalink to this headline">¶</a></h2>
