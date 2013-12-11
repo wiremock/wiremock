@@ -40,24 +40,6 @@ Here are some alternative JVM based libraries with similar goals:
 * `REST-driver <https://github.com/rest-driver/rest-driver>`_
 
 
-I couldn't possibly be seen using Java, I've got my image to think about!
--------------------------------------------------------------------------
-
-Luckily, `Rowan Hill <https://github.com/rowanhill>`_ has built a `PHP binding <https://github.com/rowanhill/wiremock-php>`_,
-so you can bring it to your next Shoreditch hackathon without fear of ridicule!
-
-
-Contributors
-------------
-
-Shouts to the following folks who've been kind enough to submit improvements:
-
-* `Tim Perry <https://github.com/pimterry>`_
-* `Dominic Tootell <https://github.com/tootedom>`_
-* `mangotang <https://github.com/mangotang>`_
-* `Rob Elliot <https://github.com/mahoney>`_
-* `Neil Green <https://github.com/neilg>`_
-
 
 Contents
 --------

@@ -41,20 +41,6 @@
             padding-left: 150px !important;
         }
     </style>
-
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-36386229-2']);
-        _gaq.push(['_trackPageview']);
-
-        (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-
-    </script>
 </head>
 <body>
     <a href="https://github.com/tomakehurst/wiremock">
@@ -78,13 +64,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#maven">Maven</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#junit-4-x">JUnit 4.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#other-rule-configurations">Other &#64;Rule configurations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#detailed-configuration">Detailed configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#non-junit-and-general-java-usage">Non-JUnit and general Java usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-standalone">Running standalone</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#file-serving">File serving</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuring-via-json">Configuring via JSON</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working">Fetching all of your stub mappings (and checking WireMock is working)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#deploying-into-a-servlet-container">Deploying into a servlet container</a></li>
@@ -109,7 +91,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.38<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.25<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -123,9 +105,19 @@
 <div class="highlight-java"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">WireMock</span><span class="o">.*;</span>
 </pre></div>
 </div>
-<p>WireMock ships with some JUnit rules to manage the server&#8217;s lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):</p>
+<p>WireMock ships with two JUnit rules to manage the server&#8217;s lifecycle and setup/tear-down tasks. To start and stop WireMock per-test case, add the following to your test class (or a superclass of it):</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
 <span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span> <span class="c1">// No-args constructor defaults to port 8080</span>
+</pre></div>
+</div>
+<p>Alternatively, if you want the server to continue to run between test cases:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="n">WireMockStaticRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockStaticRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span>
+
+<span class="nd">@AfterClass</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">stopWireMock</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">wireMockRule</span><span class="o">.</span><span class="na">stopServer</span><span class="o">();</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 <p>Now you&#8217;re ready to write a test case like this:</p>
@@ -151,83 +143,16 @@
 <p>For many more examples of JUnit tests look no further than <a class="reference external" href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/com/github/tomakehurst/wiremock">WireMock&#8217;s own acceptance tests</a></p>
 <p>For more details on verifying requests and stubbing responses, see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a></p>
 </div>
-<div class="section" id="other-rule-configurations">
-<h2>Other &#64;Rule configurations<a class="headerlink" href="#other-rule-configurations" title="Permalink to this headline">¶</a></h2>
-<p>If you want the server to continue to run between test cases (JUnit 4.9 and newer):</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="nd">@ClassRule</span>
-<span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="kd">static</span> <span class="n">WireMockClassRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockClassRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span>
-</pre></div>
-</div>
-<p>Or if you&#8217;re using JUnit 4.8:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="kd">static</span> <span class="n">WireMockStaticRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockStaticRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span>
-
-<span class="nd">@AfterClass</span>
-<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">stopWireMock</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">wireMockRule</span><span class="o">.</span><span class="na">stopServer</span><span class="o">();</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><tt class="docutils literal"><span class="pre">WireMockStaticRule</span></tt> is deprecated as the above usage isn&#8217;t permitted from JUnit 4.11 onwards</p>
-</div>
-</div>
-<div class="section" id="detailed-configuration">
-<h2>Detailed configuration<a class="headerlink" href="#detailed-configuration" title="Permalink to this headline">¶</a></h2>
-<p>For a bit more control over the settings of the WireMock server created by the rule you can pass a fluently built
-Options object to either (non-deprecated) rule&#8217;s constructor:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">WireMockConfiguration</span><span class="o">.</span><span class="na">wireMockConfig</span><span class="o">;</span>
-<span class="o">...</span>
-
-<span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">).</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="non-junit-and-general-java-usage">
-<h2>Non-JUnit and general Java usage<a class="headerlink" href="#non-junit-and-general-java-usage" title="Permalink to this headline">¶</a></h2>
-<p>If you&#8217;re not using JUnit or neither of the WireMock rules manage its lifecycle in a suitable way you can construct and start the
-server directly:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">));</span> <span class="c1">//No-args constructor will start on port 8080, no HTTPS</span>
-<span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-
-<span class="c1">// Do some stuff</span>
-
-<span class="n">WireMock</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
-
-<span class="c1">// Finish doing stuff</span>
-
-<span class="n">wireMockServer</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
-</pre></div>
-</div>
-<p>If you&#8217;ve changed the port number and/or you&#8217;re running the server on another host, you&#8217;ll need to tell the client:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">&quot;wiremock.host&quot;</span><span class="o">,</span> <span class="mi">8089</span><span class="o">);</span>
-</pre></div>
-</div>
-<p>And if you&#8217;ve deployed it into a servlet container under a path other than root you&#8217;ll need to set that too:</p>
-<div class="highlight-java"><div class="highlight"><pre><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">&quot;tomcat.host&quot;</span><span class="o">,</span> <span class="mi">8080</span><span class="o">,</span> <span class="s">&quot;/wiremock&quot;</span><span class="o">);</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="running-standalone">
 <h2>Running standalone<a class="headerlink" href="#running-standalone" title="Permalink to this headline">¶</a></h2>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.38-standalone.jar
+$ java -jar wiremock-1.25-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.33/wiremock-1.34-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
-Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
-<p><tt class="docutils literal"><span class="pre">--https-port</span></tt>:
-If specified, enables HTTPS on the supplied port.</p>
-<p><tt class="docutils literal"><span class="pre">--https-keystore</span></tt>:
-Path to a keystore file containing an SSL certificate to use with HTTPS. The keystore must have a password of &#8220;password&#8221;.
-This option will only work if <tt class="docutils literal"><span class="pre">--https-port</span></tt> is specified. If this option isn&#8217;t used WireMock will default to its
-own self-signed certificate.</p>
+Set the port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:
 Turn on verbose logging to stdout</p>
 <p><tt class="docutils literal"><span class="pre">--record-mappings</span></tt>:
@@ -235,19 +160,8 @@ Record incoming requests as stub mappings. See <a class="reference internal" hre
 <p><tt class="docutils literal"><span class="pre">--proxy-all</span></tt>:
 Proxy all requests through to another base URL e.g. <tt class="docutils literal"><span class="pre">--proxy-all=&quot;http://api.someservice.com&quot;</span></tt>
 Typically used in conjunction with <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> such that a session on another service can be recorded.</p>
-<p><tt class="docutils literal"><span class="pre">--proxy-via</span></tt>:
-When proxying requests (either by using &#8211;proxy-all or by creating stub mappings that proxy to other hosts), route via
-another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
-e.g.
-<tt class="docutils literal"><span class="pre">--proxy-via</span> <span class="pre">webproxy.mycorp.com</span></tt> (defaults to port 80)
-or
-<tt class="docutils literal"><span class="pre">--proxy-via</span> <span class="pre">webproxy.mycorp.com:8080</span></tt></p>
 <p><tt class="docutils literal"><span class="pre">--enable-browser-proxying</span></tt>:
 Run as a browser proxy. See <a class="reference internal" href="proxying.html#browser-proxying"><em>Running as a browser proxy</em></a>.</p>
-<p><tt class="docutils literal"><span class="pre">--no-request-journal</span></tt>:
-Disable the request journal, which records incoming requests for later verification. This allows WireMock to be run
-(and serve stubs) for long periods (without resetting) without exhausting the heap. The <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> option isn&#8217;t
-available if this one is specified.</p>
 <p><tt class="docutils literal"><span class="pre">--help</span></tt>:
 Show command line help</p>
 <div class="section" id="file-serving">
@@ -291,11 +205,6 @@ with the following content:</p>
 </div>
 <p>See <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a> and <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a> for more on the JSON API.</p>
 </div>
-<div class="section" id="fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working">
-<h3>Fetching all of your stub mappings (and checking WireMock is working)<a class="headerlink" href="#fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working" title="Permalink to this headline">¶</a></h3>
-<p>A GET request to the root admin URL e.g <tt class="docutils literal"><span class="pre">http://localhost:8080/__admin</span></tt> will return all currently registered stub mappings. This is a useful way to check
-whether WireMock is running on the host and port you expect:</p>
-</div>
 </div>
 <div class="section" id="deploying-into-a-servlet-container">
 <h2>Deploying into a servlet container<a class="headerlink" href="#deploying-into-a-servlet-container" title="Permalink to this headline">¶</a></h2>
@@ -313,7 +222,7 @@ This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standal
         <footer>
             &copy; Copyright 2012, Tom Akehurst.
             Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
-            1.2b1.
+            1.1.3.
         </footer>
     </div>
 </body>
