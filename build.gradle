@@ -8,7 +8,7 @@ apply plugin: 'jdepend'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.38
+version = 1.39
 
 repositories {
 	mavenCentral()
@@ -109,6 +109,10 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
                 rule pattern: "org.apache.commons.**", result: "wiremock.org.apache.commons.@1"
                 rule pattern: "joptsimple.**", result: "wiremock.joptsimple.@1"
+                rule pattern: "org.skyscreamer.**", result: "wiremock.org.skyscreamer.@1"
+                rule pattern: "org.json.**", result: "wiremock.org.json.@1"
+                rule pattern: "net.minidev.**", result: "wiremock.net.minidev.@1"
+                rule pattern: "com.jayway.**", result: "wiremock.com.jayway.@1"
             }
         }
         
