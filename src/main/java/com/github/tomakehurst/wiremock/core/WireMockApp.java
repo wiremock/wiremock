@@ -43,16 +43,19 @@ public class WireMockApp implements StubServer, Admin {
     private final boolean browserProxyingEnabled;
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
+    private final MappingsSaver mappingsSaver;
 
     public WireMockApp(
             RequestDelayControl requestDelayControl,
             boolean browserProxyingEnabled,
             MappingsLoader defaultMappingsLoader,
+            MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
+        this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal();
@@ -91,6 +94,11 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public ListStubMappingsResult listAllStubMappings() {
         return new ListStubMappingsResult(stubMappings.getAll());
+    }
+
+    @Override
+    public void saveMappings() {
+        mappingsSaver.saveMappings(stubMappings);
     }
 
     @Override

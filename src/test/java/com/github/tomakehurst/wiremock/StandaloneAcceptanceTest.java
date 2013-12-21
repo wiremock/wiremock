@@ -25,6 +25,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 import org.apache.http.conn.HttpHostConnectException;
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -66,9 +67,9 @@ public class StandaloneAcceptanceTest {
 	private File mappingsDirectory;
 	
 	@Before
-	public void init() {
+	public void init() throws Exception {
 		if (FILE_SOURCE_ROOT.exists()) {
-			deleteRecursively(FILE_SOURCE_ROOT);
+            FileUtils.deleteDirectory(FILE_SOURCE_ROOT);
 		}
 		
 		FILE_SOURCE_ROOT.mkdirs();
@@ -345,15 +346,6 @@ public class StandaloneAcceptanceTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static void deleteRecursively(File f) {
-        if (f.isDirectory()) {
-            for (File c : f.listFiles())
-                deleteRecursively(c);
-        }
-        if (!f.delete())
-            throw new RuntimeException("Failed to delete file: " + f);
     }
 
 	private void startRunner(String... args) {

@@ -27,6 +27,7 @@ public interface Admin {
 
 	void addStubMapping(StubMapping stubMapping);
     ListStubMappingsResult listAllStubMappings();
+    void saveMappings();
 	void resetMappings();
 	void resetScenarios();
     void resetToDefaultMappings();

@@ -79,6 +79,14 @@ public class WireMock {
 	public static void configure() {
 		defaultInstance = new WireMock();
 	}
+
+    public void saveMappings() {
+        admin.saveMappings();
+    }
+
+    public static void saveAllMappings() {
+        defaultInstance.saveMappings();
+    }
 	
 	public void resetMappings() {
 		admin.resetMappings();

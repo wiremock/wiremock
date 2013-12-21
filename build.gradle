@@ -46,6 +46,7 @@ dependencies {
 	}
 	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
 	testCompile "com.googlecode.jarjar:jarjar:1.3"
+    testCompile "commons-io:commons-io:2.4"
 
     jdepend group:'jdepend', name:'jdepend', version:'2.9.1'
     jdepend group:'org.apache.ant', name:'ant-jdepend', version:'1.7.1'

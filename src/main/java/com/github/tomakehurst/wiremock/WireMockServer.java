@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -52,6 +53,7 @@ import static com.google.common.collect.Maps.newHashMap;
 public class WireMockServer implements Container {
 
 	public static final String FILES_ROOT = "__files";
+    public static final String MAPPINGS_ROOT = "mappings";
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
 	
 	private final WireMockApp wireMockApp;
@@ -78,12 +80,15 @@ public class WireMockServer implements Container {
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
+        JsonFileMappingsSaver mappingsSaver = new JsonFileMappingsSaver(fileSource.child(MAPPINGS_ROOT));
         wireMockApp = new WireMockApp(
                 requestDelayControl,
                 options.browserProxyingEnabled(),
                 defaultMappingsLoader,
+                mappingsSaver,
                 options.requestJournalDisabled(),
-                this);
+                this
+        );
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,

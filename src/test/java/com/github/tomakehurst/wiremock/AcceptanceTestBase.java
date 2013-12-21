@@ -16,10 +16,13 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class AcceptanceTestBase {
 
@@ -28,10 +31,7 @@ public class AcceptanceTestBase {
 
 	@BeforeClass
 	public static void setupServer() {
-		wireMockServer = new WireMockServer();
-		wireMockServer.start();
-		testClient = new WireMockTestClient();
-		WireMock.configure();
+		setupServer(wireMockConfig());
 	}
 
 	@AfterClass
@@ -39,9 +39,16 @@ public class AcceptanceTestBase {
 		wireMockServer.stop();
 	}
 
+    public static void setupServer(Options options) {
+        wireMockServer = new WireMockServer(options);
+        wireMockServer.start();
+        testClient = new WireMockTestClient();
+        WireMock.configure();
+    }
+
 	@Before
 	public void init() throws InterruptedException {
 		WireMock.resetToDefault();
 	}
-	
+
 }

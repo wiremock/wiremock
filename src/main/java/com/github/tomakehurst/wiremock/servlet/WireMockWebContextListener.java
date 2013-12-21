@@ -18,12 +18,14 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -44,10 +46,12 @@ public class WireMockWebContextListener implements ServletContextListener {
         Log4jConfiguration.configureLogging(true);
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
+        MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();
         WireMockApp wireMockApp = new WireMockApp(
                 new NotImplementedRequestDelayControl(),
                 false,
                 defaultMappingsLoader,
+                mappingsSaver,
                 false,
                 new NotImplementedContainer());
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
