@@ -38,6 +38,7 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/requests/find"), FindRequestsTask.class)
                 .put(requestSpec(POST, "/socket-delay"), SocketDelayTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
+                .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
                 .build();
 
     public static AdminTask taskFor(RequestMethod method, String path) {

@@ -44,7 +44,12 @@ public class WireMockWebContextListener implements ServletContextListener {
         Log4jConfiguration.configureLogging(true);
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
-        WireMockApp wireMockApp = new WireMockApp(new NotImplementedRequestDelayControl(), false, defaultMappingsLoader, false);
+        WireMockApp wireMockApp = new WireMockApp(
+                new NotImplementedRequestDelayControl(),
+                false,
+                defaultMappingsLoader,
+                false,
+                new NotImplementedContainer());
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),

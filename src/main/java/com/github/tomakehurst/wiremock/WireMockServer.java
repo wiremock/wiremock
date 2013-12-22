@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -48,7 +49,7 @@ import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class WireMockServer {
+public class WireMockServer implements Container {
 
 	public static final String FILES_ROOT = "__files";
 	private static final String FILES_URL_MATCH = String.format("/%s/*", FILES_ROOT);
@@ -77,7 +78,12 @@ public class WireMockServer {
         requestDelayControl = new ThreadSafeRequestDelayControl();
 
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
-        wireMockApp = new WireMockApp(requestDelayControl, options.browserProxyingEnabled(), defaultMappingsLoader, options.requestJournalDisabled());
+        wireMockApp = new WireMockApp(
+                requestDelayControl,
+                options.browserProxyingEnabled(),
+                defaultMappingsLoader,
+                options.requestJournalDisabled(),
+                this);
 
         adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         stubRequestHandler = new StubRequestHandler(wireMockApp,
@@ -175,6 +181,31 @@ public class WireMockServer {
 			throw new RuntimeException(e);
 		}
 	}
+
+    /**
+     * Gracefully shutdown the server.
+     *
+     * This method assumes it is being called as the result of an incoming HTTP request.
+     */
+    @Override
+    public void shutdown() {
+        final WireMockServer server = this;
+        Thread shutdownThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // We have to sleep briefly to finish serving the shutdown request before stopping the server, as
+                    // there's no support in Jetty for shutting down after the current request.
+                    // See http://stackoverflow.com/questions/4650713
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                server.stop();
+            }
+        });
+        shutdownThread.start();
+    }
 
     public int port() {
         checkState(httpConnector != null, "Not listening on HTTP port. The WireMock server is most likely stopped");

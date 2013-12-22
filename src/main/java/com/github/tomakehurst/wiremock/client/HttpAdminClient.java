@@ -127,7 +127,12 @@ public class HttpAdminClient implements Admin {
                 HTTP_OK);
     }
 
-	private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
+    @Override
+    public void shutdownServer() {
+        postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
+    }
+
+    private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
 		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
