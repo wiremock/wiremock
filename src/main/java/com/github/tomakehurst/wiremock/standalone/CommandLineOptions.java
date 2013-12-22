@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import joptsimple.OptionParser;
@@ -29,6 +30,7 @@ public class CommandLineOptions implements Options {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
+	private static final String UNGZIP_RECORDED_RESPONSES = "ungzip-recorded-responses";
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
@@ -52,6 +54,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+		optionParser.accepts(UNGZIP_RECORDED_RESPONSES, "Decompresses all gzip responses when recording");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
@@ -96,6 +99,13 @@ public class CommandLineOptions implements Options {
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
+
+    public StubMappingJsonRecorder.DecompressionMode decompressionMode() {
+        if (optionSet.has(UNGZIP_RECORDED_RESPONSES)) {
+            return StubMappingJsonRecorder.DecompressionMode.DECOMPRESS_GZIP;
+        }
+        return StubMappingJsonRecorder.DecompressionMode.NO_DECOMPRESSION;
+    }
 	
 	private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);

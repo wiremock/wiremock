@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static com.google.common.base.Charsets.UTF_8;
@@ -125,6 +126,25 @@ public class Response {
 
     public boolean isFromProxy() {
         return fromProxy;
+    }
+
+    public boolean isGzipEncoded() {
+        HttpHeader encodingHeader = headers.getHeader("Content-Encoding");
+        return encodingHeader.isSingleValued() && encodingHeader.firstValue().equals("gzip");
+    }
+
+    public Response decompressGzip() {
+        // Remove encoding header
+        HttpHeader encodingHeader = headers.getHeader("Content-Encoding");
+        Collection<HttpHeader> allHeaders = headers.all();
+        allHeaders.remove(encodingHeader);
+        HttpHeaders newHeaders = new HttpHeaders(allHeaders);
+
+        // Decompress body
+        GzipDecompressor gzipDecompressor = new GzipDecompressor();
+        byte[] newResponseBody = gzipDecompressor.decompress(body);
+
+        return new Response(status, newResponseBody, newHeaders, configured, fault, fromProxy);
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
@@ -37,6 +38,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder.DecompressionMode.*;
 
 @RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {
@@ -55,7 +57,7 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin);
+		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, NO_DECOMPRESSION);
 		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
 	}
 	
@@ -205,6 +207,155 @@ public class StubMappingJsonRecorderTest {
 
         listener.requestReceived(request,
                 response().status(200).body("anything").fromProxy(true).build());
+    }
+
+    public static final String SAMPLE_REQUEST_MAPPING_WITH_COMPRESSED_BODY =
+                    "{                                                              \n" +
+                    "    \"request\": {                                             \n" +
+                    "        \"url\": \"/binary/content\",                          \n" +
+                    "        \"method\": \"GET\"                                    \n" +
+                    "    },                                                         \n" +
+                    "    \"response\": {                                            \n" +
+                    "        \"status\": 200,                                       \n" +
+                    "        \"bodyFileName\": \"body-binary-content-1$2!3.json\",  \n" +
+                    "        \"headers\": {                                         \n" +
+                    "            \"Content-Encoding\": \"gzip\"                     \n" +
+                    "       }                                                       \n" +
+                    "    }                                                          \n" +
+                    "}                                                              ";
+
+    @Test
+    public void writesCompressedContentToFileByDefault() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-binary-content-1$2!3.json")),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_COMPRESSED_BODY)));
+            one(filesFileSource).writeBinaryFile("body-binary-content-1$2!3.json", MappingJsonSamples.BINARY_COMPRESSED_CONTENT);
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/binary/content")
+                .build();
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)
+                .headers(new HttpHeaders(httpHeader("Content-Encoding", "gzip")))
+                .build();
+
+        listener.requestReceived(request, response);
+    }
+
+    public static final String SAMPLE_REQUEST_MAPPING_WITH_DECOMPRESSED_BODY =
+            "{                                                              \n" +
+                    "    \"request\": {                                             \n" +
+                    "        \"url\": \"/binary/content\",                          \n" +
+                    "        \"method\": \"GET\"                                    \n" +
+                    "    },                                                         \n" +
+                    "    \"response\": {                                            \n" +
+                    "        \"status\": 200,                                       \n" +
+                    "        \"bodyFileName\": \"body-binary-content-1$2!3.json\"   \n" +
+                    "    }                                                          \n" +
+                    "}                                                              ";
+
+    @Test
+    public void writesDecompressedContentsToFileAndRemovesContentEncodingHeaderWhenConfigured() {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, DECOMPRESS_GZIP);
+        listener.setIdGenerator(fixedIdGenerator("1$2!3"));
+
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-binary-content-1$2!3.json")),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_DECOMPRESSED_BODY)));
+            one(filesFileSource).writeBinaryFile("body-binary-content-1$2!3.json",
+                    MappingJsonSamples.BINARY_COMPRESSED_CONTENT_AS_STRING.getBytes(UTF_8));
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/binary/content")
+                .build();
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)
+                .headers(new HttpHeaders(httpHeader("Content-Encoding", "gzip")))
+                .build();
+
+        listener.requestReceived(request, response);
+    }
+
+    @Test
+    public void doesNotDecompressUnencodedResponses() {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, DECOMPRESS_GZIP);
+        listener.setIdGenerator(fixedIdGenerator("1$2!3"));
+
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING)));
+            one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
+                    with(equal("Recorded body content".getBytes(UTF_8))));
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/recorded/content")
+                .build();
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body("Recorded body content")
+                .build();
+
+        listener.requestReceived(request, response);
+    }
+    
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_CUSTOM_ZIP_ENCODING =
+                    "{                                                                \n" +
+                    "    \"request\": {                                               \n" +
+                    "        \"method\": \"GET\",                                     \n" +
+                    "        \"url\": \"/customzip/content\"                          \n" +
+                    "    },                                                           \n" +
+                    "    \"response\": {                                              \n" +
+                    "        \"status\": 200,                                         \n" +
+                    "        \"bodyFileName\": \"body-customzip-content-1$2!3.json\", \n" +
+                    "        \"headers\": {                                           \n" +
+                    "            \"Content-Encoding\": \"custom-zip\"                 \n" +
+                    "       }                                                         \n" +
+                    "    }                                                            \n" +
+                    "}                                                                ";
+    
+    @Test
+    public void doesNotDecompressResponsesEncodedByDifferentScheme() {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, DECOMPRESS_GZIP);
+        listener.setIdGenerator(fixedIdGenerator("1$2!3"));
+
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-customzip-content-1$2!3.json")),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_CUSTOM_ZIP_ENCODING)));
+            one(filesFileSource).writeBinaryFile(with(equal("body-customzip-content-1$2!3.json")),
+                    with(equal("Recorded body content".getBytes(UTF_8))));
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(RequestMethod.GET)
+                .withUrl("/customzip/content")
+                .build();
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .body("Recorded body content")
+                .headers(new HttpHeaders(httpHeader("Content-Encoding", "custom-zip")))
+                .build();
+
+        listener.requestReceived(request, response);
     }
 
 	private IdGenerator fixedIdGenerator(final String id) {

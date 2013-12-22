@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -40,6 +41,18 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--record-mappings");
 		assertThat(options.recordMappingsEnabled(), is(true));
 	}
+
+    @Test
+    public void returnsDecompressGzipWhenUngzipOptionPresent() {
+        CommandLineOptions options = new CommandLineOptions("--ungzip-recorded-responses");
+        assertThat(options.decompressionMode(), is(StubMappingJsonRecorder.DecompressionMode.DECOMPRESS_GZIP));
+    }
+
+    @Test
+    public void returnsNoDecompressionWhenUngzipOptionNotPresent() {
+        CommandLineOptions options = new CommandLineOptions("");
+        assertThat(options.decompressionMode(), is(StubMappingJsonRecorder.DecompressionMode.NO_DECOMPRESSION));
+    }
 	
 	@Test
 	public void returnsRecordMappingsFalseWhenOptionNotPresent() {
