@@ -32,6 +32,16 @@ for the body content.
 .. note::
     The WireMock recorder will ignore a request with a method and URL identical to those of a stub already recorded.
 
+GZip decompressing
+------------------
+
+WireMock can be configured to decompress any gzipped responses it receives when recording, making editing the resulting
+body files much easier. WireMock also removes the ``Content-Encoding: gzip`` header when playing back the response. To
+enable gzip decompression, add the ``--ungzip-recorded-responses`` argument when starting the standalone runner, e.g.:
+
+.. parsed-literal::
+
+    $ java -jar wiremock-|version|-standalone.jar --proxy-all="http://search.twitter.com" --record-mappings --ungzip-recorded-responses --verbose
 
 Playback
 ========

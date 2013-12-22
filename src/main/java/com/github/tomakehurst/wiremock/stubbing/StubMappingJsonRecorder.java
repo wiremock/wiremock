@@ -33,22 +33,34 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.Arrays.asList;
 
 public class StubMappingJsonRecorder implements RequestListener {
+    public enum DecompressionMode {
+        NO_DECOMPRESSION,
+        DECOMPRESS_GZIP
+    }
 	
 	private final FileSource mappingsFileSource;
 	private final FileSource filesFileSource;
 	private final Admin admin;
+    private final DecompressionMode decompressionMode;
 	private IdGenerator idGenerator;
 	
-	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin) {
+	public StubMappingJsonRecorder(
+            FileSource mappingsFileSource,
+            FileSource filesFileSource,
+            Admin admin,
+            DecompressionMode decompressionMode
+    ) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
 		this.admin = admin;
+        this.decompressionMode = decompressionMode;
 		idGenerator = new VeryShortIdGenerator();
 	}
 
 	@Override
 	public void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
+        response = decompressResponseIfNecessary(response);
 		
 		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
 		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
@@ -97,4 +109,10 @@ public class StubMappingJsonRecorder implements RequestListener {
         this.idGenerator = idGenerator;
     }
 
+    private Response decompressResponseIfNecessary(Response response) {
+        if (decompressionMode == DecompressionMode.DECOMPRESS_GZIP && response.isGzipEncoded()) {
+            return response.decompressGzip();
+        }
+        return response;
+    }
 }
