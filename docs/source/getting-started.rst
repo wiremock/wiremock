@@ -260,7 +260,8 @@ Deploying into a servlet container
 ==================================
 
 WireMock can be packaged up as a WAR and deployed into a servlet container, with some caveats:
-fault injection and browser proxying won't work, __files won't be treated as a docroot as with standalone, and the container must be configured to explode the WAR on deployment.
+fault injection and browser proxying won't work, __files won't be treated as a docroot as with standalone,
+the server cannot be remotely shutdown, and the container must be configured to explode the WAR on deployment.
 This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standalone is definitely the preferred option.
 
 The easiest way to create a WireMock WAR project is to clone the `sample app <https://github.com/tomakehurst/wiremock/tree/master/sample-war>`_
