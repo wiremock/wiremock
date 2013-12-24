@@ -51,6 +51,29 @@ public class WireMockJUnitRuleTest {
     	}
     	
     }
+
+    /**
+     * Tests that WireMockRule run as a @Rule resets the WireMock server between tests. If it doesn't do so, one of
+     * the two tests will fail (probably 'B', but that's not guaranteed, as JUnit doesn't guarantee the order of test
+     * execution).
+     */
+    public static class WireMockJournalIsResetBetweenMultipleTests {
+
+        @Rule
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089));
+
+        @Test
+        public void noPreviousRequestsUntilOneMadeA() {
+            assertNoPreviousRequestsReceived();
+            assertCanRegisterStubAndFetchOnCorrectPort();
+        }
+
+        @Test
+        public void noPreviousRequestsUntilOneMadeB() {
+            assertNoPreviousRequestsReceived();
+            assertCanRegisterStubAndFetchOnCorrectPort();
+        }
+    }
     
     public static class WireMockRuleFailThenPass {
         
@@ -75,26 +98,14 @@ public class WireMockJUnitRuleTest {
         
         @Test
         public void testStubAndFetchOnce() {
-            assertNoReviousRequestsReceived();
+            assertNoPreviousRequestsReceived();
             assertCanRegisterStubAndFetchOnCorrectPort();
         }
         
         @Test
         public void testStubAndFetchAgain() {
-            assertNoReviousRequestsReceived(); // Will fail if reset() not called after the previous test case
+            assertNoPreviousRequestsReceived(); // Will fail if reset() not called after the previous test case
             assertCanRegisterStubAndFetchOnCorrectPort();
-        }
-
-        private void assertNoReviousRequestsReceived() {
-            verify(0, getRequestedFor(urlMatching(".*")));
-        }
-    
-        public void assertCanRegisterStubAndFetchOnCorrectPort() {
-            givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
-            
-            WireMockTestClient testClient = new WireMockTestClient(8089);
-            
-            assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
         }
 
     }
@@ -175,5 +186,17 @@ public class WireMockJUnitRuleTest {
             stubbing.verify(getRequestedFor(urlEqualTo("/test")));
         }
 
+    }
+
+    private static void assertNoPreviousRequestsReceived() {
+        verify(0, getRequestedFor(urlMatching(".*")));
+    }
+
+    public static void assertCanRegisterStubAndFetchOnCorrectPort() {
+        givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
+
+        WireMockTestClient testClient = new WireMockTestClient(8089);
+
+        assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
     }
 }
