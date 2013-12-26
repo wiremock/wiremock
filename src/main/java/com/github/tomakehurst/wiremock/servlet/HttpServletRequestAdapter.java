@@ -42,22 +42,22 @@ public class HttpServletRequestAdapter implements Request {
 	@Override
 	public String getUrl() {
 		String url = request.getRequestURI();
-		
+
 		if (!isNullOrEmpty(request.getContextPath())) {
 			url = url.replace(request.getContextPath(), "");
 		}
-		
-		if (!isNullOrEmpty(request.getQueryString())) {
-			url = url + "?" + request.getQueryString();
-		}
-		
-		return url;
+
+		return withQueryStringIfPresent(url);
 	}
 	
 	@Override
 	public String getAbsoluteUrl() {
-		return request.getRequestURL().toString();
+		return withQueryStringIfPresent(request.getRequestURL().toString());
 	}
+
+    private String withQueryStringIfPresent(String url) {
+        return url + (isNullOrEmpty(request.getQueryString()) ? "" : "?" + request.getQueryString());
+    }
 
 	@Override
 	public RequestMethod getMethod() {

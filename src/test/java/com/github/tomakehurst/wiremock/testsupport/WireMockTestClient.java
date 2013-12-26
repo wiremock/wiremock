@@ -40,6 +40,7 @@ import java.net.URI;
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_PORT;
 import static com.github.tomakehurst.wiremock.http.HttpClientFactory.createClientConnectionManagerWithSSLSettings;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -96,10 +97,11 @@ public class WireMockTestClient {
             httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 
             HttpHost target = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
-            HttpGet req = new HttpGet(targetUri.getPath());
+            HttpGet req = new HttpGet(targetUri.getPath() +
+                    (isNullOrEmpty(targetUri.getQuery()) ? "" : "?" + targetUri.getQuery()));
             req.removeHeaders("Host");
 
-            System.out.println("executing request to " + target + " via " + proxy);
+            System.out.println("executing request to " + targetUri + "(" + target + ") via " + proxy);
             HttpResponse httpResponse = httpclient.execute(target, req);
             return new WireMockResponse(httpResponse);
         } catch (IOException ioe) {

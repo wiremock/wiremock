@@ -28,15 +28,19 @@ public class BrowserProxyAcceptanceTest {
 
     @ClassRule
     @Rule
-    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(8080).httpsPort(8081));
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(0));
 
     private WireMockServer proxy;
     private WireMockTestClient testClient;
 
     @Before
     public void addAResourceToProxy() {
-        stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
-        testClient = new WireMockTestClient();
+        testClient = new WireMockTestClient(wireMockRule.port());
+
+        proxy = new WireMockServer(wireMockConfig()
+                .port(0)
+                .enableBrowserProxying(true));
+        proxy.start();
     }
 
     @After
@@ -48,14 +52,20 @@ public class BrowserProxyAcceptanceTest {
 
     @Test
     public void canProxyHttp() {
-        proxy = new WireMockServer(wireMockConfig()
-                .port(9090)
-                .enableBrowserProxying(true));
-        proxy.start();
-
         stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
-        assertThat(testClient.getViaProxy("http://localhost:8080/whatever", proxy.port()).content(), is("Got it"));
+        assertThat(testClient.getViaProxy(url("/whatever"), proxy.port()).content(), is("Got it"));
+    }
+
+    @Test
+    public void passesQueryParameters() {
+        stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.getViaProxy(url("/search?q=things&limit=10"), proxy.port()).statusCode(), is(200));
+    }
+
+    private String url(String pathAndQuery) {
+        return "http://localhost:" + wireMockRule.port() + pathAndQuery;
     }
 
 }
