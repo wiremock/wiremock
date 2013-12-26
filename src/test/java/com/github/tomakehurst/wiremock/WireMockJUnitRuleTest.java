@@ -90,18 +90,20 @@ public class WireMockJUnitRuleTest {
         
     }
     
-    public static class WireMockRuleAsClassRule {
-        
+    public static class WireMockRuleAsJUnit411ClassRule {
+
         @ClassRule
+        public static WireMockClassRule classRule = new WireMockClassRule(wireMockConfig().port(8089));
+
         @Rule
-        public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(8089));
-        
+        public WireMockClassRule instanceRule = classRule;
+
         @Test
         public void testStubAndFetchOnce() {
             assertNoPreviousRequestsReceived();
             assertCanRegisterStubAndFetchOnCorrectPort();
         }
-        
+
         @Test
         public void testStubAndFetchAgain() {
             assertNoPreviousRequestsReceived(); // Will fail if reset() not called after the previous test case
@@ -113,7 +115,7 @@ public class WireMockJUnitRuleTest {
     public static class PortNumbers {
 
         @Rule
-        public static WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8060).httpsPort(8061));
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8060).httpsPort(8061));
 
         @ClassRule
         public static WireMockClassRule wireMockClassRule = new WireMockClassRule(wireMockConfig().port(8070).httpsPort(8071));

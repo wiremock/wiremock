@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.39</version>
+        <version>1.40</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -65,7 +65,8 @@ For more details on verifying requests and stubbing responses, see :ref:`stubbin
 Other @Rule configurations
 ==========================
 
-If you want the server to continue to run between test cases (JUnit 4.9 and newer):
+With a bit more effort you can make the WireMock server continue to run between test cases.
+This is easiest in JUnit 4.10:
 
 .. code-block:: java
 
@@ -74,7 +75,18 @@ If you want the server to continue to run between test cases (JUnit 4.9 and newe
     public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
 
 
-Or if you're using JUnit 4.8:
+Unfortunately JUnit 4.11 prohibits ``@Rule`` on static members so a slightly more verbose form is required:
+
+.. code-block:: java
+
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
+
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
+
+
+And if you're still using JUnit 4.8:
 
 .. code-block:: java
 
@@ -148,7 +160,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.38/wiremock-1.39-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.38/wiremock-1.40-standalone.jar>`_.
 
 Supported command line options are:
 

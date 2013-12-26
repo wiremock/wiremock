@@ -27,8 +27,10 @@ import static org.junit.Assert.assertThat;
 public class BrowserProxyAcceptanceTest {
 
     @ClassRule
-    @Rule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(0));
+
+    @Rule
+    public WireMockClassRule instanceRule = wireMockRule;
 
     private WireMockServer proxy;
     private WireMockTestClient testClient;
