@@ -78,6 +78,10 @@ public class WireMockServerRunner {
 		wireMockServer.stop();
 	}
 
+    public boolean isRunning() {
+        return wireMockServer.isRunning();
+    }
+
 	public static void main(String... args) {
 		new WireMockServerRunner().run(new SingleRootFileSource("."), args);
 	}
