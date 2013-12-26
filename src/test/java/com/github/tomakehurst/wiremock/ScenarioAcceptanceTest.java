@@ -89,4 +89,24 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(testClient.get("/stateful/resource").content(), is("Expected content"));
 	}
+
+    @Test
+    public void scenarioStateRequirementsAreIgnoredIfScenarioIsNotNamed() {
+        givenThat(get(urlEqualTo("/some/resource"))
+                .willReturn(aResponse().withBody("Initial"))
+                .whenScenarioStateIs(STARTED));
+
+        givenThat(put(urlEqualTo("/some/resource"))
+                .willReturn(aResponse().withStatus(HTTP_OK))
+                .willSetStateTo("BodyModified")
+                .whenScenarioStateIs(STARTED));
+
+        givenThat(get(urlEqualTo("/some/resource"))
+                .willReturn(aResponse().withBody("Modified"))
+                .whenScenarioStateIs("BodyModified"));
+
+        assertThat(testClient.get("/some/resource").content(), is("Modified"));
+        testClient.put("/some/resource");
+        assertThat(testClient.get("/some/resource").content(), is("Modified"));
+    }
 }
