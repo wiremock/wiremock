@@ -280,4 +280,12 @@ public class WireMock {
     public static void addRequestProcessingDelay(int milliseconds) {
         defaultInstance.addDelayBeforeProcessingRequests(milliseconds);
     }
+
+    public void shutdown() {
+        admin.shutdownServer();
+    }
+
+    public static void shutdownServer() {
+        defaultInstance.shutdown();
+    }
 }

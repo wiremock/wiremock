@@ -24,12 +24,15 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
+import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -48,12 +51,14 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class StandaloneAcceptanceTest {
-	
 	private static final String FILES = "__files";
 	private static final String MAPPINGS = "mappings";
 
     private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
-	
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
 	private WireMockServerRunner runner;
 	private WireMockTestClient testClient;
 	
@@ -268,6 +273,21 @@ public class StandaloneAcceptanceTest {
 	    assertThat(mappingsDirectory, doesNotContainAFileWithNameContaining("try-to-record"));
 	}
 
+    @Test
+    public void canBeShutDownRemotely() {
+        startRunner();
+
+        WireMock.shutdownServer();
+
+        // Keep trying the server until it shuts down, at which point an exception will be thrown. If the server does
+        // not shut down, no exception will be thrown, and the test will fail.
+        expectedException.expect(causedByHttpHostConnectException());
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < 5000) {
+            testClient.get("/__admin");
+        }
+    }
+
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
         return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
     }
@@ -398,6 +418,24 @@ public class StandaloneAcceptanceTest {
                 });
             }
             
+        };
+    }
+
+    private Matcher<Exception> causedByHttpHostConnectException() {
+        return new TypeSafeMatcher<Exception>() {
+            @Override
+            public boolean matchesSafely(Exception o) {
+                if (!(o instanceof RuntimeException)) {
+                    return false;
+                }
+                RuntimeException re = (RuntimeException)o;
+                return re.getCause() instanceof HttpHostConnectException;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Expected RuntimeException with nested HttpHostConnectException");
+            }
         };
     }
 
