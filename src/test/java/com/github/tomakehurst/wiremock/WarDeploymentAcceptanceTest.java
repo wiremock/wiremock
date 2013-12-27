@@ -74,6 +74,18 @@ public class WarDeploymentAcceptanceTest {
 	}
 
     @Test
+    public void tryingToAddSocketAcceptDelayGives500() {
+        expectVerificationExceptionFor500();
+        addRequestProcessingDelay(1000);
+    }
+
+    @Test
+    public void tryingToShutDownGives500() {
+        expectVerificationExceptionFor500();
+        shutdownServer();
+    }
+
+    @Test
     public void tryingToSaveMappingsGives500() {
         expectVerificationExceptionFor500();
         saveAllMappings();
