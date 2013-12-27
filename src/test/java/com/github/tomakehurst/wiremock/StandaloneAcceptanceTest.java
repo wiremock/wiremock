@@ -32,7 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -55,9 +54,6 @@ public class StandaloneAcceptanceTest {
 	private static final String MAPPINGS = "mappings";
 
     private static final File FILE_SOURCE_ROOT = new File("build/standalone-files");
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
 	private WireMockServerRunner runner;
 	private WireMockTestClient testClient;
@@ -279,13 +275,14 @@ public class StandaloneAcceptanceTest {
 
         WireMock.shutdownServer();
 
-        // Keep trying the server until it shuts down, at which point an exception will be thrown. If the server does
-        // not shut down, no exception will be thrown, and the test will fail.
-        expectedException.expect(causedByHttpHostConnectException());
+        // Keep trying the server until it shuts down.
         long startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < 5000) {
-            testClient.get("/__admin");
+            if (!runner.isRunning()) {
+                return;
+            }
         }
+        fail("WireMock did not shut down");
     }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {

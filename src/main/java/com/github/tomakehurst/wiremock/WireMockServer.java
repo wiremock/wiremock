@@ -197,7 +197,7 @@ public class WireMockServer implements Container {
                     // We have to sleep briefly to finish serving the shutdown request before stopping the server, as
                     // there's no support in Jetty for shutting down after the current request.
                     // See http://stackoverflow.com/questions/4650713
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
