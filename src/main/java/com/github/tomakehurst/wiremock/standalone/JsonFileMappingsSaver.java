@@ -6,12 +6,11 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.sun.istack.internal.Nullable;
 
 import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
+import static com.google.common.collect.Collections2.filter;
 
 public class JsonFileMappingsSaver implements MappingsSaver {
     private final FileSource mappingsFileSource;
@@ -23,9 +22,8 @@ public class JsonFileMappingsSaver implements MappingsSaver {
     }
 
     public void saveMappings(StubMappings stubMappings) {
-        Collection<StubMapping> transientStubs = Collections2.filter(stubMappings.getAll(), new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(@Nullable StubMapping input) {
+        Collection<StubMapping> transientStubs = filter(stubMappings.getAll(), new Predicate<StubMapping>() {
+            public boolean apply(StubMapping input) {
                 return input != null && input.isTransient();
             }
         });
