@@ -71,7 +71,6 @@ This is easiest in JUnit 4.10:
 .. code-block:: java
 
     @ClassRule
-    @Rule
     public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
 
 
