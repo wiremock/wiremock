@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
 
@@ -31,6 +34,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class WarDeploymentAcceptanceTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
 	private Server jetty;
 	
@@ -66,4 +72,27 @@ public class WarDeploymentAcceptanceTest {
 		
 		assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
 	}
+
+    @Test
+    public void tryingToAddSocketAcceptDelayGives500() {
+        expectVerificationExceptionFor500();
+        addRequestProcessingDelay(1000);
+    }
+
+    @Test
+    public void tryingToShutDownGives500() {
+        expectVerificationExceptionFor500();
+        shutdownServer();
+    }
+
+    @Test
+    public void tryingToSaveMappingsGives500() {
+        expectVerificationExceptionFor500();
+        saveAllMappings();
+    }
+
+    private void expectVerificationExceptionFor500() {
+        expectedException.expect(VerificationException.class);
+        expectedException.expectMessage(containsString("500"));
+    }
 }

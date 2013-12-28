@@ -79,6 +79,11 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public void saveMappings() {
+        postJsonAssertOkAndReturnBody(urlFor(SaveMappingsTask.class), null, HTTP_OK);
+    }
+
+    @Override
 	public void resetMappings() {
 		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
 	}

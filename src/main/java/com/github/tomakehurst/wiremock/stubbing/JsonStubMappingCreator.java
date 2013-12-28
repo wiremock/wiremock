@@ -26,6 +26,7 @@ public class JsonStubMappingCreator {
 	
 	public void addMappingFrom(String mappingSpecJson) {
 		StubMapping mapping = StubMapping.buildFrom(mappingSpecJson);
+        mapping.setTransient(false);
 		stubMappings.addMapping(mapping);
 	}
 }

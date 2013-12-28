@@ -78,6 +78,22 @@ public class AdminRequestHandlerTest {
 		
 		assertThat(response.getStatus(), is(HTTP_CREATED));
 	}
+
+    @Test
+    public void shouldSaveMappingsWhenSaveCalled() {
+        Request request = aRequest(context)
+                .withUrl("/mappings/save")
+                .withMethod(POST)
+                .build();
+
+        context.checking(new Expectations() {{
+            one(admin).saveMappings();
+        }});
+
+        Response response = handler.handle(request);
+
+        assertThat(response.getStatus(), is(HTTP_OK));
+    }
 	
 	@Test
 	public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {

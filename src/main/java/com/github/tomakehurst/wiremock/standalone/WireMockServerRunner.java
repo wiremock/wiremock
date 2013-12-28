@@ -24,14 +24,12 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
+import static com.github.tomakehurst.wiremock.WireMockServer.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.WireMockServer.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.lang.System.out;
 
 public class WireMockServerRunner {
-	
-	public static final String FILES_ROOT = "__files";
-	public static final String MAPPINGS_ROOT = "mappings";
-	
 	private WireMockServer wireMockServer;
 	
 	public void run(FileSource fileSource, String... args) {

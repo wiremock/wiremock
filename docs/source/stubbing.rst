@@ -369,6 +369,16 @@ The JSON API accepts this as a base64 string (to avoid stupidly long JSON docume
         }
     }
 
+.. _stubbing-saving-stubs:
+
+Saving stubs
+============
+
+Stub mappings which have been created can be persisted to the ``mappings`` directory via a call to ``WireMock.saveAllMappings``
+in Java or posting a request with an empty body to ``http://<host>:<port>/__admin/mappings/save``.
+
+Note that this feature is not available when running WireMock from a servlet container.
+
 .. _stubbing-reset:
 
 Reset
