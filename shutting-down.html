@@ -1,15 +1,14 @@
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>Index | WireMock</title>
+    <title>Shutting down | WireMock</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
     <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
     <link rel="top" title="WireMock" href="index.html"/>
+    <link rel="prev" title="Simulating Faults" href="simulating-faults.html"/>
     <style lang="text/css">
         #top-bar, #top-bar small, #top-bar a {
             text-shadow: 0px 0px 0px #8CA8BB;
@@ -74,7 +73,7 @@
     <div class="container-fluid">
         <div class="row-fluid">
             <div class="span3" id="sidebar">
-                <ul>
+                <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
@@ -82,17 +81,20 @@
 <li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shutting-down.html">Shutting down</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Shutting down</a></li>
 </ul>
 
             </div>
             <div class="span9" id="body">
                 
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- 
+  <div class="section" id="shutting-down">
+<span id="id1"></span><h1>Shutting down<a class="headerlink" href="#shutting-down" title="Permalink to this headline">¶</a></h1>
+<p class="rubric">WireMock can be shut down remotely. This can be useful to terminate a standalone WireMock instance created from a
+language other than Java.</p>
+<p>To shutdown the server, either call <tt class="docutils literal"><span class="pre">WireMock.shutdownServer()</span></tt> or post a request with an empty body to
+<tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/shutdown</span></tt>.</p>
+<p>When using WireMock in Java, use of this feature is not typically necessary. See <a class="reference internal" href="getting-started.html#getting-started"><em>Getting Started</em></a> for more details.</p>
+<p>Note that this feature is not available when running WireMock from a servlet container.</p>
 </div>
 
 

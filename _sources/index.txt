@@ -72,6 +72,7 @@ Contents
    record-playback
    stateful-behaviour
    simulating-faults
+   shutting-down
 
 
 
