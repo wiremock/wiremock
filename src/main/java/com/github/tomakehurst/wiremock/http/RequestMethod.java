@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import static java.util.Arrays.asList;
 
 public enum RequestMethod {
-	GET, POST, PUT, DELETE, OPTIONS, HEAD, TRACE, ANY;
+	GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY;
 
     @JsonCreator
     public static RequestMethod fromString(String value) {

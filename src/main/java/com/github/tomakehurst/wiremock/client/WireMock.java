@@ -185,6 +185,10 @@ public class WireMock {
 		return new MappingBuilder(RequestMethod.DELETE, urlMatchingStrategy);
 	}
 	
+	public static MappingBuilder patch(UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.PATCH, urlMatchingStrategy);
+	}
+	
 	public static MappingBuilder head(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.HEAD, urlMatchingStrategy);
 	}
@@ -196,7 +200,7 @@ public class WireMock {
 	public static MappingBuilder trace(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder any(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
 	}

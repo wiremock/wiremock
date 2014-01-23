@@ -82,6 +82,14 @@ public class WireMockClientTest {
 	}
 	
 	@Test
+	public void shouldAddBasicPatchMapping() {
+		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.BASIC_PATCH);
+		wireMock.register(
+				patch(urlEqualTo("/basic/mapping/resource"))
+				.willReturn(aResponse().withStatus(304)));
+	}
+	
+	@Test
 	public void shouldAddBasicHeadMapping() {
 		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.BASIC_HEAD);
 		wireMock.register(
