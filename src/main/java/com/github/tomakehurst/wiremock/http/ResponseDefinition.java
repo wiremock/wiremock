@@ -63,22 +63,12 @@ public class ResponseDefinition {
         newResponseDef.status = original.status;
         if(original.isDynamicResponse){
             JSONObject dictionary = new JSONObject();
-            try {
-                if(original.originalRequest.getBodyAsString().trim().charAt(0)=='['){
-                    dictionary.put("requestBody", new JSONArray(original.originalRequest.getBodyAsString()));
-                }  else if(original.originalRequest.getBodyAsString().trim().charAt(0)=='{') {
-                    dictionary.put("requestBody", new JSONObject(original.originalRequest.getBodyAsString()));
-                }  else {
-                    dictionary.put("requestBody", original.originalRequest.getBodyAsString());
-                }
-                putUrlParametersOnDictionary(dictionary, original.originalRequest);
-                putHeadersOnDictionary(dictionary, original.originalRequest);
-                putQueryParametersOnDictionay(dictionary, original.originalRequest);
-                String resp =  original.template.expand(convertObject(dictionary));
-                newResponseDef.body = resp.getBytes();
-            } catch (JSONException je) {
-                je.printStackTrace();
-            }
+            putRequestBodyOnDictionary(dictionary, original.originalRequest);
+            putUrlParametersOnDictionary(dictionary, original.originalRequest);
+            putHeadersOnDictionary(dictionary, original.originalRequest);
+            putQueryParametersOnDictionay(dictionary, original.originalRequest);
+            String resp =  original.template.expand(convertObject(dictionary));
+            newResponseDef.body = resp.getBytes();
         }  else {
             newResponseDef.body = original.body;
         }
@@ -272,9 +262,7 @@ public class ResponseDefinition {
     }
     public void setIsDynamicResponse(boolean dynamicResponse) {
         isDynamicResponse = dynamicResponse;
-        System.out.println("calling this setter");
         if(this.isDynamicResponse){
-            System.out.println("setting up template");
             this.options = new TemplateCompileOptions();
             this.template = new Template(this.getBody(), null, options);
         }
@@ -425,11 +413,37 @@ public class ResponseDefinition {
         return result;
     }
 
+    public static void putRequestBodyOnDictionary(JSONObject dictionary, Request request){
+        try {
+            if(request.getBodyAsString()==null || request.getBodyAsString().equals(""))  {
+                dictionary.put("requestBody", "");
+            } else {
+                if(request.getBodyAsString().trim().charAt(0)=='['){
+                    dictionary.put("requestBody", new JSONArray(request.getBodyAsString()));
+                }  else if(request.getBodyAsString().trim().charAt(0)=='{') {
+                    dictionary.put("requestBody", new JSONObject(request.getBodyAsString()));
+                }  else {
+                    dictionary.put("requestBody", request.getBodyAsString());
+                }
+            }
+        } catch (JSONException je){
+            je.printStackTrace();
+        }
+    }
+
     public static void putQueryParametersOnDictionay(JSONObject dictionary, Request request) {
-        if(!request.getAbsoluteUrl().contains("?")) return;
+        JSONObject tmp = new JSONObject();
+        if(!request.getAbsoluteUrl().contains("?")){
+            try {
+                dictionary.put("queryParameter", tmp);
+            } catch (JSONException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+            return;
+        }
         String queryString = request.getAbsoluteUrl().split("\\?")[1];
         String[] queryParams = queryString.split("&");
-        JSONObject tmp = new JSONObject();
+
         for(String s: queryParams){
             if(!s.equals("")){
                 String[] keyValue = s.split("=");
@@ -444,7 +458,7 @@ public class ResponseDefinition {
             }
         }
         try {
-            dictionary.put("queryParameter", tmp);
+            dictionary.put("queryParameters", tmp);
         } catch (JSONException je){
             je.printStackTrace();
         }
@@ -470,8 +484,8 @@ public class ResponseDefinition {
 
     public static void putUrlParametersOnDictionary(JSONObject dictionary, Request request){
         String[] urlParams = request.getAbsoluteUrl().split("/");
+        JSONObject tmp = new JSONObject();
         if(urlParams.length>3){
-            JSONObject tmp = new JSONObject();
             int cnt = 0;
             for(int index=3;index<urlParams.length;index++){
                 try {
@@ -484,11 +498,11 @@ public class ResponseDefinition {
                 }
                 cnt++;
             }
-            try{
-                dictionary.put("urlParameters", tmp);
-            } catch (JSONException je){
-                je.printStackTrace();
-            }
+        }
+        try{
+            dictionary.put("urlParameters", tmp);
+        } catch (JSONException je){
+            je.printStackTrace();
         }
     }
 }
