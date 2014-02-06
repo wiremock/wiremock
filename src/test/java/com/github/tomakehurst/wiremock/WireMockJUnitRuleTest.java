@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -25,6 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -186,6 +192,30 @@ public class WireMockJUnitRuleTest {
         private void stubIsCalledAndResponseIsCorrect(Stubbing stubbing, int port, String expectedText) {
             assertThat(new WireMockTestClient(port).get("/test").content(), is(expectedText));
             stubbing.verify(getRequestedFor(urlEqualTo("/test")));
+        }
+
+    }
+
+    public static class ListenerTest {
+
+        @Rule
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089));
+
+        @Test
+        public void requestReceivedByListener() {
+            final List<String> urls = new ArrayList<String>();
+            wireMockRule.addMockServiceRequestListener(new RequestListener() {
+                @Override
+                public void requestReceived(Request request, Response response) {
+                    urls.add(request.getUrl());
+                }
+            });
+            wireMockRule.stubFor(get(urlEqualTo("/test/listener")).willReturn(aResponse().withBody("Listener")));
+
+            WireMockTestClient testClient = new WireMockTestClient(8089);
+            assertThat(testClient.get("/test/listener").content(), is("Listener"));
+            assertThat(urls.size(), is(1));
+            assertThat(urls.get(0), is("/test/listener"));
         }
 
     }
