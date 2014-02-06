@@ -146,15 +146,15 @@ e.g. with the JUnit rule:
 
 .. code-block:: java
 
-    final List<Request> requests = new ArrayList<Request>();
+    List<Request> requests = new ArrayList<Request>();
     rule.addMockServiceRequestListener(new RequestListener() {
          @Override
          public void requestReceived(Request request, Response response) {
-               requests.add(LoggedRequest.createFrom(request));
+             requests.add(LoggedRequest.createFrom(request));
          }
     });
 
-    for (Request request : requests) {
-        assertNotNull(request.getUrl());
+    for (Request request: requests) {
+        assertThat(request.getUrl(), containsString("docId=92837592847"));
     }
 
