@@ -80,28 +80,6 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 		};
 	}
 
-    /**
-     * <p>Add a {@link RequestListener} to the tests {@link WireMockServer}.
-     *
-     * <p><strong>WARNING:</strong> The Request passed to the listener will be scoped within the request and any
-     * information in the request (for example the url) will not exist outside the context of the listener call. What
-     * this means is you can't save the request for later inspection. If this is your intention then 'clone' the
-     * Request using something like:
-     *
-     * <pre><code>
-     *    final List&lt;Request> requests = new ArrayList&lt;Request>();
-     *    rule.addMockServiceRequestListener(new RequestListener() {
-     *       {@code @}Override
-     *        public void requestReceived(Request request, Response response) {
-     *            requests.add(LoggedRequest.createFrom(request));
-     *        }
-     *    });
-     *    // later, after doing the request
-     *    for (Request request : requests) {
-     *        assertNotNull(request.getUrl()); // should pass.
-     *    }
-     * </code></pre>
-     */
     public void addMockServiceRequestListener(RequestListener requestListener) {
         wireMockServer.addMockServiceRequestListener(requestListener);
     }
