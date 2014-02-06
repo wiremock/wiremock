@@ -136,5 +136,25 @@ And in JSON + HTTP by posting a criteria document (of the same form as for reque
     }
 
 
+Listening for requests
+======================
 
+If you're using the JUnit rule or you've started ``WireMockServer`` programmatically, you can register listeners to be
+called when a request is received.
+
+e.g. with the JUnit rule:
+
+.. code-block:: java
+
+    List<Request> requests = new ArrayList<Request>();
+    rule.addMockServiceRequestListener(new RequestListener() {
+         @Override
+         public void requestReceived(Request request, Response response) {
+             requests.add(LoggedRequest.createFrom(request));
+         }
+    });
+
+    for (Request request: requests) {
+        assertThat(request.getUrl(), containsString("docId=92837592847"));
+    }
 
