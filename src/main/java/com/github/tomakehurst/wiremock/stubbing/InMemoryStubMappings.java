@@ -43,8 +43,7 @@ public class InMemoryStubMappings implements StubMappings {
 		
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
-        matchingMapping.getResponse().setOriginalRequest(request);
-        return copyOf(matchingMapping.getResponse());
+		return copyOf(matchingMapping.getResponse());
 	}
 
 	private void notifyIfResponseNotConfigured(Request request, StubMapping matchingMapping) {

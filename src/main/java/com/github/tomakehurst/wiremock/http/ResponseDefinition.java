@@ -21,17 +21,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.jsontemplate.Template;
-import com.github.tomakehurst.wiremock.jsontemplate.TemplateCompileOptions;
-import com.github.tomakehurst.wiremock.jsontemplate.JSONArray;
-import com.github.tomakehurst.wiremock.jsontemplate.JSONException;
-import com.github.tomakehurst.wiremock.jsontemplate.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.*;
@@ -41,81 +33,67 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
-    private int status;
-    private byte[] body;
+	private int status;
+	private byte[] body;
     private boolean isBinaryBody = false;
-    private String bodyFileName;
-    private HttpHeaders headers;
-    private Integer fixedDelayMilliseconds;
-    private String proxyBaseUrl;
-    private String browserProxyUrl;
-    private Fault fault;
-    private boolean isDynamicResponse = false;
-
-    private boolean wasConfigured = true;
-    private Request originalRequest;
-
-    private Template template;
-    private TemplateCompileOptions options;
-
-    public static ResponseDefinition copyOf(ResponseDefinition original) {
-        ResponseDefinition newResponseDef = new ResponseDefinition();
-        newResponseDef.status = original.status;
-        if(original.isDynamicResponse){
-            JSONObject dictionary = new JSONObject();
-            putRequestBodyOnDictionary(dictionary, original.originalRequest);
-            putUrlParametersOnDictionary(dictionary, original.originalRequest);
-            putHeadersOnDictionary(dictionary, original.originalRequest);
-            putQueryParametersOnDictionay(dictionary, original.originalRequest);
-            String resp =  original.template.expand(convertObject(dictionary));
-            newResponseDef.body = resp.getBytes();
-        }  else {
-            newResponseDef.body = original.body;
-        }
+	private String bodyFileName;
+	private HttpHeaders headers;
+	private Integer fixedDelayMilliseconds;
+	private String proxyBaseUrl;
+	private String browserProxyUrl;
+	private Fault fault;
+	
+	private boolean wasConfigured = true;
+	private Request originalRequest;
+	
+	public static ResponseDefinition copyOf(ResponseDefinition original) {
+	    ResponseDefinition newResponseDef = new ResponseDefinition();
+	    newResponseDef.status = original.status;
+	    newResponseDef.body = original.body;
         newResponseDef.isBinaryBody = original.isBinaryBody;
-        newResponseDef.bodyFileName = original.bodyFileName;
-        newResponseDef.headers = original.headers;
-        newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
-        newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
-        newResponseDef.fault = original.fault;
-        newResponseDef.wasConfigured = original.wasConfigured;
-        return newResponseDef;
-    }
+	    newResponseDef.bodyFileName = original.bodyFileName;
+	    newResponseDef.headers = original.headers;
+	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
+	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
+	    newResponseDef.fault = original.fault;
+	    newResponseDef.wasConfigured = original.wasConfigured;
+	    return newResponseDef;
+	}
+	
+	public HttpHeaders getHeaders() {
+		return headers;
+	}
 
-    public HttpHeaders getHeaders() {
-        return headers;
-    }
+	public void setHeaders(final HttpHeaders headers) {
+		this.headers = headers;
+	}
 
-    public void setHeaders(final HttpHeaders headers) {
-        this.headers = headers;
-    }
-
-    public ResponseDefinition(final int statusCode, final String bodyContent) {
-        this.status = statusCode;
-        this.body = (bodyContent==null) ? null : bodyContent.getBytes(Charset.forName(UTF_8.name()));
-    }
+	public ResponseDefinition(final int statusCode, final String bodyContent) {
+		this.status = statusCode;
+		this.body = (bodyContent==null) ? null : bodyContent.getBytes(Charset.forName(UTF_8.name()));
+	}
 
     public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
         this.status = statusCode;
         this.body = bodyContent;
         isBinaryBody = true;
     }
+	
+	public ResponseDefinition() {
+		this.status = HTTP_OK;
+	}
 
-    public ResponseDefinition() {
-        this.status = HTTP_OK;
-    }
-
-    public static ResponseDefinition notFound() {
-        return new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
-    }
-
-    public static ResponseDefinition ok() {
-        return new ResponseDefinition(HTTP_OK, (byte[])null);
-    }
-
-    public static ResponseDefinition created() {
-        return new ResponseDefinition(HTTP_CREATED, (byte[])null);
-    }
+	public static ResponseDefinition notFound() {
+		return new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
+	}
+	
+	public static ResponseDefinition ok() {
+		return new ResponseDefinition(HTTP_OK, (byte[])null);
+	}
+	
+	public static ResponseDefinition created() {
+		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
+	}
 
     public static ResponseDefinition redirectTo(String path) {
         return new ResponseDefinitionBuilder()
@@ -123,26 +101,26 @@ public class ResponseDefinition {
                 .withStatus(HTTP_MOVED_TEMP)
                 .build();
     }
+	
+	public static ResponseDefinition notConfigured() {
+	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
+	    response.wasConfigured = false;
+	    return response;
+	}
+	
+	public static ResponseDefinition browserProxy(Request originalRequest) {
+		final ResponseDefinition response = new ResponseDefinition();
+	    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
+	    return response;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
 
-    public static ResponseDefinition notConfigured() {
-        final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
-        response.wasConfigured = false;
-        return response;
-    }
-
-    public static ResponseDefinition browserProxy(Request originalRequest) {
-        final ResponseDefinition response = new ResponseDefinition();
-        response.browserProxyUrl = originalRequest.getAbsoluteUrl();
-        return response;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public String getBody() {
-        return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
-    }
+	public String getBody() {
+		return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
+	}
 
     @JsonIgnore
     public byte[] getByteBody() {
@@ -165,10 +143,10 @@ public class ResponseDefinition {
     // Needs to be explicitly marked as a property, since an overloaded setter with the same
     // name is marked as ignored (see currently open JACKSON-783 bug)
     @JsonProperty
-    public void setBody(final String body) {
-        this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
+	public void setBody(final String body) {
+		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
         isBinaryBody = false;
-    }
+	}
 
     @JsonIgnore
     public void setBody(final byte[] body) {
@@ -184,170 +162,159 @@ public class ResponseDefinition {
         }
     }
 
-    public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
-        this.fixedDelayMilliseconds = fixedDelayMilliseconds;
-    }
+	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
+	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
+	}
 
-    public String getBodyFileName() {
-        return bodyFileName;
-    }
+	public String getBodyFileName() {
+		return bodyFileName;
+	}
 
-    public void setBodyFileName(final String bodyFileName) {
-        this.bodyFileName = bodyFileName;
-    }
-
-    public boolean wasConfigured() {
+	public void setBodyFileName(final String bodyFileName) {
+		this.bodyFileName = bodyFileName;
+	}
+	
+	public boolean wasConfigured() {
         return wasConfigured;
     }
 
     public Integer getFixedDelayMilliseconds() {
         return fixedDelayMilliseconds;
     }
-
+    
     @JsonIgnore
     public String getProxyUrl() {
-        if (browserProxyUrl != null) {
-            return browserProxyUrl;
-        }
-
-        return proxyBaseUrl + originalRequest.getUrl();
+    	if (browserProxyUrl != null) {
+    		return browserProxyUrl;
+    	}
+    	
+    	return proxyBaseUrl + originalRequest.getUrl();
     }
 
-    public String getProxyBaseUrl() {
-        return proxyBaseUrl;
-    }
+	public String getProxyBaseUrl() {
+		return proxyBaseUrl;
+	}
 
-    public void setProxyBaseUrl(final String proxyBaseUrl) {
-        this.proxyBaseUrl = proxyBaseUrl;
-    }
-
-    @JsonIgnore
-    public boolean specifiesBodyFile() {
-        return bodyFileName != null;
-    }
-
-    @JsonIgnore
-    public boolean specifiesBodyContent() {
-        return body != null;
-    }
+	public void setProxyBaseUrl(final String proxyBaseUrl) {
+		this.proxyBaseUrl = proxyBaseUrl;
+	}
+	
+	@JsonIgnore
+	public boolean specifiesBodyFile() {
+		return bodyFileName != null;
+	}
+	
+	@JsonIgnore
+	public boolean specifiesBodyContent() {
+		return body != null;
+	}
 
     @JsonIgnore
     public boolean specifiesBinaryBodyContent() {
         return (body!=null && isBinaryBody);
     }
 
-    @JsonIgnore
-    public boolean isProxyResponse() {
-        return browserProxyUrl != null || proxyBaseUrl != null;
-    }
+	@JsonIgnore
+	public boolean isProxyResponse() {
+		return browserProxyUrl != null || proxyBaseUrl != null;
+	}
 
-    public Request getOriginalRequest() {
-        return originalRequest;
-    }
+	public Request getOriginalRequest() {
+		return originalRequest;
+	}
 
-    public void setOriginalRequest(final Request originalRequest) {
-        this.originalRequest = originalRequest;
-    }
+	public void setOriginalRequest(final Request originalRequest) {
+		this.originalRequest = originalRequest;
+	}
 
-    public Fault getFault() {
-        return fault;
-    }
+	public Fault getFault() {
+		return fault;
+	}
 
-    public void setFault(final Fault fault) {
-        this.fault = fault;
-    }
+	public void setFault(final Fault fault) {
+		this.fault = fault;
+	}
 
-    public boolean getIsDynamicResponse() {
-        return isDynamicResponse;
-    }
-    public void setIsDynamicResponse(boolean dynamicResponse) {
-        isDynamicResponse = dynamicResponse;
-        if(this.isDynamicResponse){
-            this.options = new TemplateCompileOptions();
-            this.template = new Template(this.getBody(), null, options);
-        }
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result
+				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
+		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
+		result = prime
+				* result
+				+ ((fixedDelayMilliseconds == null) ? 0
+						: fixedDelayMilliseconds.hashCode());
+		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
+		result = prime * result
+				+ ((originalRequest == null) ? 0 : originalRequest.hashCode());
+		result = prime * result
+				+ ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
+		result = prime * result + status;
+		result = prime * result + (wasConfigured ? 1231 : 1237);
+		return result;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((body == null) ? 0 : body.hashCode());
-        result = prime * result
-                + ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
-        result = prime * result + ((fault == null) ? 0 : fault.hashCode());
-        result = prime
-                * result
-                + ((fixedDelayMilliseconds == null) ? 0
-                : fixedDelayMilliseconds.hashCode());
-        result = prime * result + ((headers == null) ? 0 : headers.hashCode());
-        result = prime * result
-                + ((originalRequest == null) ? 0 : originalRequest.hashCode());
-        result = prime * result
-                + ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
-        result = prime * result + status;
-        result = prime * result + (wasConfigured ? 1231 : 1237);
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final ResponseDefinition other = (ResponseDefinition) obj;
-        if (body == null) {
-            if (other.body != null) {
-                return false;
-            }
-        } else if (!byteBodyEquals(body, other.body)) {
-            return false;
-        }
-        if (bodyFileName == null) {
-            if (other.bodyFileName != null) {
-                return false;
-            }
-        } else if (!bodyFileName.equals(other.bodyFileName)) {
-            return false;
-        }
-        if (fault != other.fault) {
-            return false;
-        }
-        if (fixedDelayMilliseconds == null) {
-            if (other.fixedDelayMilliseconds != null) {
-                return false;
-            }
-        } else if (!fixedDelayMilliseconds.equals(other.fixedDelayMilliseconds)) {
-            return false;
-        }
-        if (headers == null) {
-            if (other.headers != null) {
-                return false;
-            }
-        } else if (!headers.equals(other.headers)) {
-            return false;
-        }
-        if (proxyBaseUrl == null) {
-            if (other.proxyBaseUrl != null) {
-                return false;
-            }
-        } else if (!proxyBaseUrl.equals(other.proxyBaseUrl)) {
-            return false;
-        }
-        if (status != other.status) {
-            return false;
-        }
-        if (wasConfigured != other.wasConfigured) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ResponseDefinition other = (ResponseDefinition) obj;
+		if (body == null) {
+			if (other.body != null) {
+				return false;
+			}
+		} else if (!byteBodyEquals(body, other.body)) {
+			return false;
+		}
+		if (bodyFileName == null) {
+			if (other.bodyFileName != null) {
+				return false;
+			}
+		} else if (!bodyFileName.equals(other.bodyFileName)) {
+			return false;
+		}
+		if (fault != other.fault) {
+			return false;
+		}
+		if (fixedDelayMilliseconds == null) {
+			if (other.fixedDelayMilliseconds != null) {
+				return false;
+			}
+		} else if (!fixedDelayMilliseconds.equals(other.fixedDelayMilliseconds)) {
+			return false;
+		}
+		if (headers == null) {
+			if (other.headers != null) {
+				return false;
+			}
+		} else if (!headers.equals(other.headers)) {
+			return false;
+		}
+		if (proxyBaseUrl == null) {
+			if (other.proxyBaseUrl != null) {
+				return false;
+			}
+		} else if (!proxyBaseUrl.equals(other.proxyBaseUrl)) {
+			return false;
+		}
+		if (status != other.status) {
+			return false;
+		}
+		if (wasConfigured != other.wasConfigured) {
+			return false;
+		}
+		return true;
+	}
 
     private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
     {
@@ -369,140 +336,7 @@ public class ResponseDefinition {
     }
 
     @Override
-    public String toString() {
-        return Json.write(this);
-    }
-
-    private static HashMap<String, Object> jsonObjectToHash(JSONObject obj) {
-        HashMap<String, Object> dictionaryMap = new HashMap<String, Object>();
-        for (Iterator iterator = obj.keys(); iterator.hasNext();) {
-            String key = (String) iterator.next();
-            Object value;
-            try {
-                value = obj.get(key);
-                dictionaryMap.put(key, convertObject(value));
-            } catch (JSONException e) {
-            }
-        }
-        return dictionaryMap;
-    }
-
-    private static Object convertObject(Object value) {
-        if (value instanceof JSONArray) {
-            return jsonArrayToList((JSONArray) value);
-        } else if (JSONObject.NULL.equals(value)) {
-            return null;
-        }
-        else if (value instanceof JSONObject) {
-            return jsonObjectToHash((JSONObject) value);
-        }
-        else {
-            return value;
-        }
-    }
-
-    private static List<Object> jsonArrayToList(JSONArray value) {
-        int length = value.length();
-        ArrayList<Object> result = new ArrayList<Object>(length);
-        for (int i = 0; i < length; i++) {
-            try {
-                result.add(convertObject(value.get(i)));
-            } catch (JSONException e) {
-            }
-        }
-        return result;
-    }
-
-    public static void putRequestBodyOnDictionary(JSONObject dictionary, Request request){
-        try {
-            if(request.getBodyAsString()==null || request.getBodyAsString().equals(""))  {
-                dictionary.put("requestBody", "");
-            } else {
-                if(request.getBodyAsString().trim().charAt(0)=='['){
-                    dictionary.put("requestBody", new JSONArray(request.getBodyAsString()));
-                }  else if(request.getBodyAsString().trim().charAt(0)=='{') {
-                    dictionary.put("requestBody", new JSONObject(request.getBodyAsString()));
-                }  else {
-                    dictionary.put("requestBody", request.getBodyAsString());
-                }
-            }
-        } catch (JSONException je){
-            je.printStackTrace();
-        }
-    }
-
-    public static void putQueryParametersOnDictionay(JSONObject dictionary, Request request) {
-        JSONObject tmp = new JSONObject();
-        if(!request.getAbsoluteUrl().contains("?")){
-            try {
-                dictionary.put("queryParameter", tmp);
-            } catch (JSONException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-            return;
-        }
-        String queryString = request.getAbsoluteUrl().split("\\?")[1];
-        String[] queryParams = queryString.split("&");
-
-        for(String s: queryParams){
-            if(!s.equals("")){
-                String[] keyValue = s.split("=");
-                try{
-                    tmp.put(keyValue[0], keyValue[1]);
-                    if(keyValue[1].contains(",")){
-                        tmp.put(keyValue[0] + "s", new JSONArray(keyValue[1].split(",")));
-                    }
-                } catch (JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        }
-        try {
-            dictionary.put("queryParameters", tmp);
-        } catch (JSONException je){
-            je.printStackTrace();
-        }
-
-    }
-
-    public static void putHeadersOnDictionary(JSONObject dictionary, Request request){
-        HttpHeaders headers = request.getHeaders();
-        JSONObject tmp = new JSONObject();
-        for(HttpHeader header: headers.all()){
-            try {
-                tmp.put(header.key(), new JSONArray(header.values()));
-            } catch (JSONException je){
-                je.printStackTrace();
-            }
-        }
-        try{
-            dictionary.put("requestHeaders", tmp);
-        }  catch (JSONException je){
-            je.printStackTrace();
-        }
-    }
-
-    public static void putUrlParametersOnDictionary(JSONObject dictionary, Request request){
-        String[] urlParams = request.getAbsoluteUrl().split("/");
-        JSONObject tmp = new JSONObject();
-        if(urlParams.length>3){
-            int cnt = 0;
-            for(int index=3;index<urlParams.length;index++){
-                try {
-                    tmp.put("urlParameter" + cnt, urlParams[index]);
-                    if(urlParams[index].contains(",")){
-                        tmp.put("urlParameters" + cnt, new JSONArray(urlParams[index].split(",")));
-                    }
-                } catch(JSONException je){
-                    je.printStackTrace();
-                }
-                cnt++;
-            }
-        }
-        try{
-            dictionary.put("urlParameters", tmp);
-        } catch (JSONException je){
-            je.printStackTrace();
-        }
-    }
+	public String toString() {
+		return Json.write(this);
+	}
 }
