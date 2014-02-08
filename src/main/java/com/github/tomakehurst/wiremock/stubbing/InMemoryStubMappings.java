@@ -53,19 +53,28 @@ public class InMemoryStubMappings implements StubMappings {
 	}
 
 	@Override
-	public void addMapping(StubMapping mapping) {
+	public Long addMapping(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
 			Scenario scenario = scenarioMap.get(mapping.getScenarioName());
 			mapping.setScenario(scenario);
 		}
-		
 		mappings.add(mapping);
+        return mapping.getInsertionIndex();
 	}
 
     @Override
     public boolean removeMapping(Long stubId) {
-        return mappings.remove(stubId);
+        StubMapping mapping = mappings.remove(stubId);
+        if(mapping==null) return false;
+        if(mapping.isInScenario()){
+            if(scenarioMap.containsKey(mapping.getScenarioName())){
+                scenarioMap.remove(mapping.getScenarioName());
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
 	@Override

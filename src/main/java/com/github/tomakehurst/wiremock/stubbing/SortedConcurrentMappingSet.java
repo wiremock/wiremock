@@ -57,10 +57,11 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
         idStubMappingMap.put(mapping.getInsertionIndex(), mapping);
 	}
 
-    public boolean remove(Long stubId) {
+    public StubMapping remove(Long stubId) {
         StubMapping mapping = idStubMappingMap.get(stubId);
-        if(mapping==null) return false;
-        return mappingSet.remove(mapping);
+        if(mapping==null) return null;
+        mappingSet.remove(mapping);
+        return mapping;
     }
 	
 	public void clear() {

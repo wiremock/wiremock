@@ -24,7 +24,7 @@ import java.util.List;
 public interface StubMappings {
 
 	ResponseDefinition serveFor(Request request);
-	void addMapping(StubMapping mapping);
+	Long addMapping(StubMapping mapping);
 	void reset();
 	void resetScenarios();
     boolean removeMapping(Long stubId);

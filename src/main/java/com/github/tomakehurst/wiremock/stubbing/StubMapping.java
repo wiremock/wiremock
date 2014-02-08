@@ -214,34 +214,27 @@ public class StubMapping {
 		}
 		StubMapping other = (StubMapping) obj;
 		if (insertionIndex != other.insertionIndex) {
-            System.out.println("index don't match");
 			return false;
 		}
 		if (newScenarioState == null) {
 			if (other.newScenarioState != null) {
-                System.out.println("scenario don't match");
                 return false;
             }
 		} else if (!newScenarioState.equals(other.newScenarioState)) {
-            System.out.println("scenario don't match 2");
             return false;
 		}
 		if (priority == null) {
 			if (other.priority != null) {
-                System.out.println("priority don't match");
                 return false;
 			}
 		} else if (!priority.equals(other.priority)) {
-            System.out.println("priority2 don't match");
             return false;
 		}
 		if (request == null) {
 			if (other.request != null) {
-                System.out.println("req don't match");
                 return false;
 			}
 		} else if (!request.equals(other.request)) {
-            System.out.println("req don't match2");
             return false;
 		}
 		if (requiredScenarioState == null) {
@@ -253,11 +246,9 @@ public class StubMapping {
 		}
 		if (response == null) {
 			if (other.response != null) {
-                System.out.println("resp don't match");
                 return false;
 			}
 		} else if (!response.equals(other.response)) {
-            System.out.println("resp don't match2");
             return false;
 		}
 		if (scenarioName == null) {
@@ -267,7 +258,6 @@ public class StubMapping {
 		} else if (!scenarioName.equals(other.scenarioName)) {
 			return false;
 		}
-        System.out.println("match");
         return true;
 	}
 
