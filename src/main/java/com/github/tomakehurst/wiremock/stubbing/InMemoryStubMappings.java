@@ -33,7 +33,7 @@ public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
-	
+
 	@Override
 	public ResponseDefinition serveFor(Request request) {
 		StubMapping matchingMapping = find(
@@ -62,6 +62,11 @@ public class InMemoryStubMappings implements StubMappings {
 		
 		mappings.add(mapping);
 	}
+
+    @Override
+    public boolean removeMapping(Long stubId) {
+        return mappings.remove(stubId);
+    }
 
 	@Override
 	public void reset() {

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,10 +25,12 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
 	private AtomicLong insertionCount;
 	private ConcurrentSkipListSet<StubMapping> mappingSet;
+    private ConcurrentHashMap<Long, StubMapping> idStubMappingMap;
 	
 	public SortedConcurrentMappingSet() {
 		insertionCount = new AtomicLong();
 		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
+        idStubMappingMap = new ConcurrentHashMap<Long, StubMapping>();
 	}
 	
 	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
@@ -37,7 +40,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 				if (priorityComparison != 0) {
 					return priorityComparison;
 				}
-				
+				if(two.getInsertionIndex()==one.getInsertionIndex()) return 0;
 				return (two.getInsertionIndex() > one.getInsertionIndex()) ? 1 : -1;
 			}
 		};
@@ -51,7 +54,14 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	public void add(StubMapping mapping) {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
+        idStubMappingMap.put(mapping.getInsertionIndex(), mapping);
 	}
+
+    public boolean remove(Long stubId) {
+        StubMapping mapping = idStubMappingMap.get(stubId);
+        if(mapping==null) return false;
+        return mappingSet.remove(mapping);
+    }
 	
 	public void clear() {
 		mappingSet.clear();

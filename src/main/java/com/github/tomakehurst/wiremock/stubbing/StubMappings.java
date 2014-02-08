@@ -27,6 +27,7 @@ public interface StubMappings {
 	void addMapping(StubMapping mapping);
 	void reset();
 	void resetScenarios();
+    boolean removeMapping(Long stubId);
 
     List<StubMapping> getAll();
 }

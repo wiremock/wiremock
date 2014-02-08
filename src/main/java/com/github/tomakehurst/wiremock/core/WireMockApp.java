@@ -87,8 +87,9 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public void addStubMapping(StubMapping stubMapping) {
+    public Long addStubMapping(StubMapping stubMapping) {
         stubMappings.addMapping(stubMapping);
+        return stubMapping.getInsertionIndex();
     }
 
     @Override
@@ -151,6 +152,11 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void shutdownServer() {
         container.shutdown();
+    }
+
+    @Override
+    public boolean removeMapping(Long stubId) {
+        return  stubMappings.removeMapping(stubId);
     }
 
 }
