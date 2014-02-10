@@ -218,24 +218,24 @@ public class StubMapping {
 		}
 		if (newScenarioState == null) {
 			if (other.newScenarioState != null) {
-				return false;
-			}
+                return false;
+            }
 		} else if (!newScenarioState.equals(other.newScenarioState)) {
-			return false;
+            return false;
 		}
 		if (priority == null) {
 			if (other.priority != null) {
-				return false;
+                return false;
 			}
 		} else if (!priority.equals(other.priority)) {
-			return false;
+            return false;
 		}
 		if (request == null) {
 			if (other.request != null) {
-				return false;
+                return false;
 			}
 		} else if (!request.equals(other.request)) {
-			return false;
+            return false;
 		}
 		if (requiredScenarioState == null) {
 			if (other.requiredScenarioState != null) {
@@ -246,10 +246,10 @@ public class StubMapping {
 		}
 		if (response == null) {
 			if (other.response != null) {
-				return false;
+                return false;
 			}
 		} else if (!response.equals(other.response)) {
-			return false;
+            return false;
 		}
 		if (scenarioName == null) {
 			if (other.scenarioName != null) {
@@ -258,7 +258,7 @@ public class StubMapping {
 		} else if (!scenarioName.equals(other.scenarioName)) {
 			return false;
 		}
-		return true;
+        return true;
 	}
 
 	

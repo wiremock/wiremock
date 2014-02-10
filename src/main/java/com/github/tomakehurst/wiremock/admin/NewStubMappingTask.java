@@ -25,7 +25,9 @@ public class NewStubMappingTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
-        admin.addStubMapping(newMapping);
-        return ResponseDefinition.created();
+        Long id = admin.addStubMapping(newMapping);
+        ResponseDefinition resp = ResponseDefinition.created();
+        resp.setBody("{\"id\":" + id + "}");
+        return resp;
     }
 }

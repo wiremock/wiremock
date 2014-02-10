@@ -21,8 +21,7 @@ import com.google.common.collect.ImmutableBiMap;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 public class AdminTasks {
 
@@ -40,6 +39,7 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/socket-delay"), SocketDelayTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
                 .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
+                .put(requestSpec(DELETE, "/mappings/remove"), RemoveMappingTask.class)
                 .build();
 
     public static AdminTask taskFor(RequestMethod method, String path) {
