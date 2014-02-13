@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public interface Admin {
 
-	void addStubMapping(StubMapping stubMapping);
+	Long addStubMapping(StubMapping stubMapping);
     ListStubMappingsResult listAllStubMappings();
     void saveMappings();
 	void resetMappings();
@@ -36,4 +36,5 @@ public interface Admin {
 	void updateGlobalSettings(GlobalSettings settings);
     void addSocketAcceptDelay(RequestDelaySpec spec);
     void shutdownServer();
+    boolean removeMapping(Long stubId);
 }
