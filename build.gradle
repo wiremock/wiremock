@@ -294,6 +294,10 @@ task 'bump-version-down' << {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
 task 'add-copyright-headers' << {
 	def copyrightNotice = """/*
  * Copyright (C) 2011 Thomas Akehurst
