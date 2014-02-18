@@ -176,6 +176,33 @@ Body content which is valid JSON can be matched on semantically:
         .withRequestBody(equalToJson("{ \"houseNumber\": 4, \"postcode\": \"N1 1ZZ\" }"))
         .willReturn(aResponse().withStatus(200)));
 
+This uses `JSONAssert <http://jsonassert.skyscreamer.org/>`_ internally. The default compare mode is ```NON_EXTENSIBLE```
+by default, but this can be overridden:
+
+.. code-block:: java
+
+        .withRequestBody(equalToJson("{ \"houseNumber\": 4, \"postcode\": \"N1 1ZZ\" }", LENIENT))
+
+See `JSONCompareMode <http://jsonassert.skyscreamer.org/apidocs/org/skyscreamer/jsonassert/JSONCompareMode.html>`_ for
+more details.
+
+The JSON equivalent of the above example is:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "POST",
+            "url": "/with/json/body",
+            "bodyPatterns" : [
+              	{ "equalToJson" : "{ \"houseNumber\": 4, \"postcode\": \"N1 1ZZ\" }", "jsonCompareMode": "LENIENT" }
+            ]
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
 
 JSONPath expressions can also be used:
 
