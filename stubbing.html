@@ -242,6 +242,28 @@ function:</p>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
 </pre></div>
 </div>
+<p>This uses <a class="reference external" href="http://jsonassert.skyscreamer.org/">JSONAssert</a> internally. The default compare mode is <tt class="docutils literal"><span class="pre">`NON_EXTENSIBLE`</span></tt>
+by default, but this can be overridden:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToJson</span><span class="o">(</span><span class="s">&quot;{ \&quot;houseNumber\&quot;: 4, \&quot;postcode\&quot;: \&quot;N1 1ZZ\&quot; }&quot;</span><span class="o">,</span> <span class="n">LENIENT</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="http://jsonassert.skyscreamer.org/apidocs/org/skyscreamer/jsonassert/JSONCompareMode.html">JSONCompareMode</a> for
+more details.</p>
+<p>The JSON equivalent of the above example is:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/with/json/body&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bodyPatterns&quot;</span> <span class="o">:</span> <span class="p">[</span>
+            <span class="p">{</span> <span class="s2">&quot;equalToJson&quot;</span> <span class="o">:</span> <span class="s2">&quot;{ \&quot;houseNumber\&quot;: 4, \&quot;postcode\&quot;: \&quot;N1 1ZZ\&quot; }&quot;</span><span class="p">,</span> <span class="s2">&quot;jsonCompareMode&quot;</span><span class="o">:</span> <span class="s2">&quot;LENIENT&quot;</span> <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <p>JSONPath expressions can also be used:</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/with/json/body&quot;</span><span class="o">))</span>
     <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">&quot;$.status&quot;</span><span class="o">))</span>
