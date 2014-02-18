@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
@@ -31,11 +32,15 @@ import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.regex.Pattern.DOTALL;
+import static org.skyscreamer.jsonassert.JSONCompare.compareJSON;
+import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
+import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ValuePattern {
 
     private String equalToJson;
+    private JSONCompareMode jsonCompareMode;
 	private String equalTo;
 	private String contains;
 	private String matches;
@@ -106,7 +111,7 @@ public class ValuePattern {
     private boolean isEqualJson(String value) {
         JSONCompareResult result;
         try {
-            result = JSONCompare.compareJSON(equalToJson, value, JSONCompareMode.LENIENT);
+            result = compareJSON(equalToJson, value, Optional.fromNullable(jsonCompareMode).or(NON_EXTENSIBLE));
         } catch (JSONException e) {
             return false;
         }
@@ -218,8 +223,16 @@ public class ValuePattern {
     public String getEqualToJson() {
         return equalToJson;
     }
-    
-	public String getContains() {
+
+    public JSONCompareMode getJsonCompareMode() {
+        return jsonCompareMode;
+    }
+
+    public void setJsonCompareMode(JSONCompareMode jsonCompareMode) {
+        this.jsonCompareMode = jsonCompareMode;
+    }
+
+    public String getContains() {
 		return contains;
 	}
 

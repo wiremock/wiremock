@@ -104,6 +104,13 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
+        public void verifiesWithBodyEquallingJson() {
+            testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
+            verify(postRequestedFor(urlEqualTo("/body/json"))
+                    .withRequestBody(equalToJson(SAMPLE_JSON)));
+        }
+
+        @Test
         public void verifiesWithBodyContaining() {
             testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json"))

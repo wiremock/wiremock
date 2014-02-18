@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -92,6 +93,19 @@ public class ValuePatternTest {
         valuePattern.setEqualToJson("{\"x\":0,\"y\":1}");
         assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0,\"y\":1}"));
         assertTrue("Expected move field json match", valuePattern.isMatchFor("{\"y\":1,\"x\":0.0}"));
+    }
+
+    @Test
+    public void permitsExtraFieldsWhenJsonCompareModeIsLENIENT() {
+        valuePattern.setEqualToJson("{ \"x\": 0 }");
+        valuePattern.setJsonCompareMode(JSONCompareMode.LENIENT);
+        assertTrue("Expected match when unknown field is present in LENIENT mode", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }"));
+    }
+
+    @Test
+    public void doesNotMatchOnEqualToJsonWhenFieldMissing() {
+        valuePattern.setEqualToJson("{ \"x\": 0 }");
+        assertFalse("Expected no match when unknown field is present", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }"));
     }
     
     @Test
