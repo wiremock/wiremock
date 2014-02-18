@@ -23,12 +23,16 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
+import org.xml.sax.SAXException;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.regex.Pattern.DOTALL;
@@ -40,6 +44,7 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 public class ValuePattern {
 
     private String equalToJson;
+    private String equalToXML;
     private JSONCompareMode jsonCompareMode;
 	private String equalTo;
 	private String contains;
@@ -57,6 +62,12 @@ public class ValuePattern {
     public static ValuePattern equalToJson(String value) {
         ValuePattern valuePattern = new ValuePattern();
         valuePattern.setEqualToJson(value);
+        return valuePattern;
+    }
+
+    public static ValuePattern equalToXML(String value) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setEqualToXML(value);
         return valuePattern;
     }
 
@@ -92,6 +103,8 @@ public class ValuePattern {
             return (absent && value == null);
         } else if (equalToJson != null) {
             return isEqualJson(value);
+        } else if (equalToXML != null) {
+            return isEqualXML(value);
         } else if (equalTo != null) {
 			return value.equals(equalTo);
 		} else if (contains != null) {
@@ -123,6 +136,20 @@ public class ValuePattern {
             return false;
         }
         return result.passed();
+    }
+	
+    private boolean isEqualXML(String value) {
+        boolean result = false;
+        try {
+            XMLUnit.setIgnoreWhitespace(true);
+            Diff diff = XMLUnit.compareXML(equalToXML, value);
+            result = diff.similar();
+        } catch (SAXException e) {
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+        return result;
     }
 	
 	private boolean isMatch(String regex, String value) {
@@ -174,7 +201,7 @@ public class ValuePattern {
 	}
 	
 	private int countAllAttributes() {
-		return count(equalToJson, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
+		return count(equalToJson, equalToXML, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
 	}
 	
 	private int count(Object... objects) {
@@ -195,6 +222,11 @@ public class ValuePattern {
 	
     public void setEqualToJson(String equalToJson) {
         this.equalToJson = equalToJson;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+    
+    public void setEqualToXML(String equalToXML) {
+        this.equalToXML = equalToXML;
         checkNoMoreThanOneMatchTypeSpecified();
     }
     
@@ -229,6 +261,10 @@ public class ValuePattern {
 	
     public String getEqualToJson() {
         return equalToJson;
+    }
+
+    public String getEqualToXML() {
+        return equalToXML;
     }
 
     public JSONCompareMode getJsonCompareMode() {
@@ -267,6 +303,8 @@ public class ValuePattern {
 	public String toString() {
 	    if (equalToJson != null) {
             return "equalJson " + equalToJson;
+        } else if (equalToXML != null) {
+            return "equalXML " + equalToXML;
 	    } else if (equalTo != null) {
 			return "equal " + equalTo;
 		} else if (contains != null) {
@@ -294,6 +332,7 @@ public class ValuePattern {
         if (doesNotMatch != null ? !doesNotMatch.equals(that.doesNotMatch) : that.doesNotMatch != null) return false;
         if (equalTo != null ? !equalTo.equals(that.equalTo) : that.equalTo != null) return false;
         if (equalToJson != null ? !equalToJson.equals(that.equalToJson) : that.equalToJson != null) return false;
+        if (equalToXML != null ? !equalToXML.equals(that.equalToXML) : that.equalToXML != null) return false;
         if (matches != null ? !matches.equals(that.matches) : that.matches != null) return false;
         if (matchesJsonPath != null ? !matchesJsonPath.equals(that.matchesJsonPath) : that.matchesJsonPath != null)
             return false;
@@ -305,6 +344,7 @@ public class ValuePattern {
     public int hashCode() {
         int result = equalTo != null ? equalTo.hashCode() : 0;
         result = 31 * result + (equalToJson != null ? equalToJson.hashCode() : 0);
+        result = 31 * result + (equalToXML != null ? equalToXML.hashCode() : 0);
         result = 31 * result + (contains != null ? contains.hashCode() : 0);
         result = 31 * result + (matches != null ? matches.hashCode() : 0);
         result = 31 * result + (doesNotMatch != null ? doesNotMatch.hashCode() : 0);

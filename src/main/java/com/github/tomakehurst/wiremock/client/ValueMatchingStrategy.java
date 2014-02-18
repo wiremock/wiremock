@@ -25,6 +25,7 @@ public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String equalToJson;
+	private String equalToXML;
     private JSONCompareMode jsonCompareMode;
     private String matches;
     private String doesNotMatch;
@@ -35,6 +36,7 @@ public class ValueMatchingStrategy {
 		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
 		pattern.setEqualToJson(equalToJson);
+		pattern.setEqualToXML(equalToXML);
         pattern.setJsonCompareMode(jsonCompareMode);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
@@ -67,6 +69,14 @@ public class ValueMatchingStrategy {
 
     public void setJsonCompareMode(JSONCompareMode jsonCompareMode) {
         this.jsonCompareMode = jsonCompareMode;
+    }
+
+    public String getEqualToXML() {
+        return equalToXML;
+    }
+
+    public void setEqualToXML(String equalToXML) {
+        this.equalToXML = equalToXML;
     }
 
 	public String getEqualTo() {
