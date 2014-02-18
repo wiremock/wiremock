@@ -59,6 +59,13 @@ public class ValuePattern {
         valuePattern.setEqualToJson(value);
         return valuePattern;
     }
+
+    public static ValuePattern equalToJson(String value, JSONCompareMode jsonCompareMode) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setEqualToJson(value);
+        valuePattern.setJsonCompareMode(jsonCompareMode);
+        return valuePattern;
+    }
     
 	public static ValuePattern containing(String value) {
 		ValuePattern valuePattern = new ValuePattern();

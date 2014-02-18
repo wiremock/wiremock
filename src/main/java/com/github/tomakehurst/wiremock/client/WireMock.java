@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
 
@@ -144,7 +145,14 @@ public class WireMock {
         headerStrategy.setEqualToJson(value);
         return headerStrategy;
     }
-    
+
+    public static ValueMatchingStrategy equalToJson(String value, JSONCompareMode jsonCompareMode) {
+        ValueMatchingStrategy valueMatchingStrategy = new ValueMatchingStrategy();
+        valueMatchingStrategy.setJsonCompareMode(jsonCompareMode);
+        valueMatchingStrategy.setEqualToJson(value);
+        return valueMatchingStrategy;
+    }
+
 	public static ValueMatchingStrategy containing(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setContains(value);

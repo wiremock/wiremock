@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.base.Function;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
 
@@ -24,15 +25,17 @@ public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String equalToJson;
-	private String matches;
-	private String doesNotMatch;
-	private String contains;
+    private JSONCompareMode jsonCompareMode;
+    private String matches;
+    private String doesNotMatch;
+    private String contains;
     private String matchesJsonPath;
-	
-	public ValuePattern asValuePattern() {
+
+    public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
 		pattern.setEqualTo(equalTo);
 		pattern.setEqualToJson(equalToJson);
+        pattern.setJsonCompareMode(jsonCompareMode);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
 		pattern.setContains(contains);
@@ -62,31 +65,39 @@ public class ValueMatchingStrategy {
         this.equalToJson = equalToJson;
     }
 
+    public void setJsonCompareMode(JSONCompareMode jsonCompareMode) {
+        this.jsonCompareMode = jsonCompareMode;
+    }
+
 	public String getEqualTo() {
 		return equalTo;
 	}
-	
+
 	public void setEqualTo(String equalTo) {
 		this.equalTo = equalTo;
 	}
-	
+
 	public String getMatches() {
 		return matches;
 	}
-	
+
 	public void setMatches(String matches) {
 		this.matches = matches;
 	}
-	
+
 	public String getDoesNotMatch() {
 		return doesNotMatch;
 	}
-	
+
 	public void setDoesNotMatch(String doesNotMatch) {
 		this.doesNotMatch = doesNotMatch;
 	}
 
     public void setJsonMatchesPath(String jsonPaths) {
         this.matchesJsonPath = jsonPaths;
+    }
+
+    public JSONCompareMode getJsonCompareMode() {
+        return jsonCompareMode;
     }
 }

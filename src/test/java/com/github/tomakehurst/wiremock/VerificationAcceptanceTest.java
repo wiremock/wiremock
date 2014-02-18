@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -31,6 +32,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 @RunWith(Enclosed.class)
 public class VerificationAcceptanceTest {
@@ -108,6 +110,13 @@ public class VerificationAcceptanceTest {
             testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json"))
                     .withRequestBody(equalToJson(SAMPLE_JSON)));
+        }
+
+        @Test
+        public void verifiesWithBodyEquallingJsonWithCompareMode() {
+            testClient.postWithBody("/body/json/lenient", "{ \"message\": \"Hello\", \"key\": \"welcome.message\" }", "application/json", "utf-8");
+            verify(postRequestedFor(urlEqualTo("/body/json/lenient"))
+                    .withRequestBody(equalToJson("{ \"message\": \"Hello\" }", LENIENT)));
         }
 
         @Test
