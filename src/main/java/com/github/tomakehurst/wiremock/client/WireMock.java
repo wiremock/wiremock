@@ -170,35 +170,35 @@ public class WireMock {
     }
 	
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder post(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.POST, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.POST, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder put(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.PUT, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.PUT, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder delete(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.DELETE, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.DELETE, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder head(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.HEAD, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.HEAD, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder options(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder trace(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
 	
 	public static MappingBuilder any(UrlMatchingStrategy urlMatchingStrategy) {
-		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
+		return new ScenarioMappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
 	}
 	
 	public static ResponseDefinitionBuilder aResponse() {

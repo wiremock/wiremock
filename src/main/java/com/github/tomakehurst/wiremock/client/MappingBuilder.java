@@ -20,58 +20,45 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class MappingBuilder {
+public class MappingBuilder<T extends MappingBuilder> {
 	
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
-	private String requiredScenarioState;
-	private String newScenarioState;
+	protected String requiredScenarioState;
+	protected String newScenarioState;
 	
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
 	}
 
-	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
+	public T willReturn(ResponseDefinitionBuilder responseDefBuilder) {
 		this.responseDefBuilder = responseDefBuilder;
-		return this;
+		return (T)this;
 	}
 	
-	public MappingBuilder atPriority(Integer priority) {
+	public T atPriority(Integer priority) {
 		this.priority = priority;
-		return this;
+		return (T)this;
 	}
 	
-	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
+	public T withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
-		return this;
+		return (T)this;
 	}
 	
-	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
+	public T withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
-		return this;
+		return (T)this;
 	}
 	
-	public MappingBuilder inScenario(String scenarioName) {
+	public ScenarioMappingBuilder inScenario(String scenarioName) {
 		this.scenarioName = scenarioName;
-		return this;
-	}
-	
-	public MappingBuilder whenScenarioStateIs(String stateName) {
-		this.requiredScenarioState = stateName;
-		return this;
-	}
-	
-	public MappingBuilder willSetStateTo(String stateName) {
-		this.newScenarioState = stateName;
-		return this;
+		return (ScenarioMappingBuilder) this;
 	}
 	
 	public StubMapping build() {
-		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
-			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
-		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
