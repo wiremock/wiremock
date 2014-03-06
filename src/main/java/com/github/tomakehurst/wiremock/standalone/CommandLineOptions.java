@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.google.common.base.Joiner;
@@ -37,14 +38,12 @@ public class CommandLineOptions implements Options {
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
+    private static final String RECORDINGS_PATH = "recordings-path";
 
-    private final FileSource fileSource;
-	private final OptionSet optionSet;
+    private final OptionSet optionSet;
 	private String helpText;
 
-    public CommandLineOptions(FileSource fileSource, String... args) {
-        this.fileSource = fileSource;
-
+    public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
@@ -52,6 +51,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+		optionParser.accepts(RECORDINGS_PATH, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
@@ -70,10 +70,6 @@ public class CommandLineOptions implements Options {
         if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
             throw new IllegalArgumentException("Request journal must be enabled to record stubs");
         }
-    }
-
-    public CommandLineOptions(String... args) {
-        this(new SingleRootFileSource("."), args);
     }
 
     private void captureHelpTextIfRequested(OptionParser optionParser) {
@@ -160,7 +156,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public FileSource filesRoot() {
-        return fileSource;
+        return new SingleRootFileSource((String) optionSet.valueOf(RECORDINGS_PATH));
     }
 
     @Override
