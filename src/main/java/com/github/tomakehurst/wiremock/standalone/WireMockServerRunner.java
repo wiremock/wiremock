@@ -69,7 +69,7 @@ public class WireMockServerRunner {
 				responseDef.setProxyBaseUrl(baseUrl);
 
 				StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-				proxyBasedMapping.setPriority(StubMapping.DEFAULT_PRIORITY + 100);
+				proxyBasedMapping.setPriority(10); // Make it low priority so that existing stubs will take precedence
 				stubMappings.addMapping(proxyBasedMapping);
 			}
 		});
