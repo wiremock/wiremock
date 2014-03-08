@@ -88,9 +88,16 @@ public class ValuePatternTest {
     }
     
     @Test
-    public void matchesOnIsEqualToXmlMoveFields() {
+    public void ignoresSubElementOrderWhenMatchingXml() {
         valuePattern.setEqualToXml("<H><J>111</J><X>222</X></H>");
         assertTrue("Expected similar match", valuePattern.isMatchFor("<H><X>222</X><J>111</J></H>\n"));
+    }
+
+    @Test
+    public void ignoresAttributeOrderWhenMatchingXml() {
+        valuePattern.setEqualToXml("<thing attr1=\"one\" attr2=\"two\" attr3=\"three\" />");
+        assertTrue("Expected similar match", valuePattern.isMatchFor(
+                "<thing attr3=\"three\" attr1=\"one\" attr2=\"two\"  />"));
     }
     
     @Test

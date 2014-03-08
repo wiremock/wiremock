@@ -41,6 +41,10 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ValuePattern {
 
+    static {
+        XMLUnit.setIgnoreWhitespace(true);
+    }
+
     private String equalToJson;
     private String equalToXml;
     private JSONCompareMode jsonCompareMode;
@@ -137,17 +141,14 @@ public class ValuePattern {
     }
 	
     private boolean isEqualXml(String value) {
-        boolean result = false;
         try {
-            XMLUnit.setIgnoreWhitespace(true);
             Diff diff = XMLUnit.compareXML(equalToXml, value);
-            result = diff.similar();
+            return diff.similar();
         } catch (SAXException e) {
             return false;
         } catch (IOException e) {
             return false;
         }
-        return result;
     }
 	
 	private boolean isMatch(String regex, String value) {
