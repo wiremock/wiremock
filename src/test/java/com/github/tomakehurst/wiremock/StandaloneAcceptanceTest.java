@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -31,12 +30,13 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -46,6 +46,7 @@ import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -111,12 +112,20 @@ public class StandaloneAcceptanceTest {
 		"}													";
 	
 	@Test
-	public void readsMapppingFromMappingsDir() {
+	public void readsMappingFromMappingsDir() {
 		writeMappingFile("test-mapping-1.json", MAPPING_REQUEST);
 		startRunner();
 		assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
 	}
 	
+	@Test
+	public void readsMappingFromSpecifiedRecordingsPath() {
+		String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
+		writeFile(differentRoot + separator + underMappings("test-mapping-1.json"), MAPPING_REQUEST);
+		startRunner("--recordings-path", differentRoot);
+		assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
+	}
+
 	@Test
 	public void servesFileFromFilesDir() {
 		writeFileToFilesDir("test-1.xml", "<content>Blah</content>");
@@ -127,6 +136,17 @@ public class StandaloneAcceptanceTest {
 		assertThat(response.header("Content-Type"), is("application/xml"));
 	}
 	
+	@Test
+	public void servesFileFromSpecifiedRecordingsPath() {
+		String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
+		writeFile(differentRoot + separator + underFiles("test-1.xml"), "<content>Blah</content>");
+		startRunner("--recordings-path", differentRoot);
+		WireMockResponse response = testClient.get("/test-1.xml");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.content(), is("<content>Blah</content>"));
+		assertThat(response.header("Content-Type"), is("application/xml"));
+	}
+
 	@Test
 	public void servesFileAsJsonWhenNoFileExtension() {
 		writeFileToFilesDir("json/12345", "{ \"key\": \"value\" }");
@@ -330,48 +350,63 @@ public class StandaloneAcceptanceTest {
     }
 	
 	private void writeFileToFilesDir(String name, String contents) {
-		writeFileUnderFileSourceRoot(FILES + separator + name, contents);
-	}
+		writeFile(underFileSourceRoot(underFiles(name)), contents);
+    }
 
     private void writeFileToFilesDir(String name, byte[] contents) {
-        writeFileUnderFileSourceRoot(FILES + separator + name, contents);
-    }
-	
-	private void writeMappingFile(String name, String contents) {
-		writeFileUnderFileSourceRoot(MAPPINGS + separator + name, contents);
-	}
-	
-	private void writeFileUnderFileSourceRoot(String relativePath, String contents) {
 		try {
-			String filePath = FILE_SOURCE_ROOT + separator + relativePath;
+			String filePath = underFileSourceRoot(underFiles(name));
 			File file = new File(filePath);
 			createParentDirs(file);
-			write(contents, file, Charsets.UTF_8);
+			write(contents, file);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-    private void writeFileUnderFileSourceRoot(String relativePath, byte[] contents) {
+	private void writeMappingFile(String name, String contents) {
+		writeFile(underFileSourceRoot(underMappings(name)), contents);
+	}
+
+	private void writeFile(String absolutePath, String contents) {
         try {
-            String filePath = FILE_SOURCE_ROOT + separator + relativePath;
-            File file = new File(filePath);
+			File file = new File(absolutePath);
             createParentDirs(file);
-            write(contents, file);
+			write(contents, file, Charsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-	private void startRunner(String... args) {
-		runner.run(new SingleRootFileSource(FILE_SOURCE_ROOT.getPath()), args);
+	private String underFiles(String name) {
+		return FILES + separator + name;
 	}
-	
+
+	private String underMappings(String name) {
+		return MAPPINGS + separator + name;
+	}
+
+	private String underFileSourceRoot(String relativePath) {
+		return FILE_SOURCE_ROOT + separator + relativePath;
+	}
+
+	private void startRunner(String... args) {
+		runner.run(argsWithRecordingsPath(args));
+	}
+
+	private String[] argsWithRecordingsPath(String[] args) {
+		List<String> argsAsList = new ArrayList<String>(asList(args));
+		if (!argsAsList.contains("--recordings-path")) {
+			argsAsList.addAll(asList("--recordings-path", FILE_SOURCE_ROOT.getPath()));
+		}
+		return argsAsList.toArray(new String[]{});
+	}
+
 	private void startRecordingSystemOut() {
 		out = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(out));
 	}
-	
+
 	private String systemOutText() {
 		return new String(out.toByteArray());
 	}
