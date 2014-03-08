@@ -82,14 +82,14 @@ public class ValuePatternTest {
     }
 
     @Test
-    public void matchesOnIsEqualToXML() {
-        valuePattern.setEqualToXML("<H><J>111</J></H>");
+    public void matchesOnIsEqualToXml() {
+        valuePattern.setEqualToXml("<H><J>111</J></H>");
         assertTrue("Expected exact match", valuePattern.isMatchFor("<H><J>111</J></H>\n"));
     }
     
     @Test
-    public void matchesOnIsEqualToXMLMoveFields() {
-        valuePattern.setEqualToXML("<H><J>111</J><X>222</X></H>");
+    public void matchesOnIsEqualToXmlMoveFields() {
+        valuePattern.setEqualToXml("<H><J>111</J><X>222</X></H>");
         assertTrue("Expected similar match", valuePattern.isMatchFor("<H><X>222</X><J>111</J></H>\n"));
     }
     

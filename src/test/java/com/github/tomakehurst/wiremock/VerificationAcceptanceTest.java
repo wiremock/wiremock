@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -82,13 +81,13 @@ public class VerificationAcceptanceTest {
                     .withHeader("Encoding", notMatching("LATIN-1")));
         }
 
-
         private static final String SAMPLE_JSON =
             "{ 													\n" +
             "	\"thing\": {									\n" +
             "		\"importantKey\": \"Important value\",		\n" +
             "	}												\n" +
             "}													";
+
 
         @Test
         public void verifiesWithBody() {
@@ -120,7 +119,14 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
-        public void verifiesWithBodyContaining() {
+        public void verifiesWithBodyEquallingXml() {
+            testClient.postWithBody("/body/xml", "<thing><subThing>The stuff</subThing></thing>", "application/xml", "utf-8");
+            verify(postRequestedFor(urlEqualTo("/body/xml"))
+                    .withRequestBody(equalToXml("<thing>     <subThing>The stuff\n</subThing>\n\n    </thing>")));
+        }
+
+        @Test
+        public void verifiesWithBodyContainingString() {
             testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json"))
                     .withRequestBody(containing("Important value")));
