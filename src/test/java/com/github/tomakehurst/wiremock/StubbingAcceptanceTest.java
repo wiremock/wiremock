@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -269,6 +268,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(mapping2.getRequest().getMethod(), is(GET));
         assertThat(mapping2.getRequest().getUrl(), is("/stub/one"));
         assertThat(mapping2.getResponse().getBody(), is("One"));
+    }
+
+    @Test
+    public void stubbingPatch() {
+        stubFor(patch(urlEqualTo("/a/registered/resource")).withRequestBody(equalTo("some body"))
+                .willReturn(aResponse().withStatus(204)));
+
+        WireMockResponse response = testClient.patchWithBody("/a/registered/resource", "some body", "text/plain");
+
+        assertThat(response.statusCode(), is(204));
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

@@ -201,6 +201,13 @@ public class VerificationAcceptanceTest {
                         containsString("/some/request")));
             }
         }
+
+        @Test
+        public void verifiesPatchRequests() {
+            testClient.patchWithBody("/patch/this", SAMPLE_JSON, "application/json");
+            verify(patchRequestedFor(urlEqualTo("/patch/this"))
+                    .withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
+        }
     }
 
     public static class JournalDisabled {
