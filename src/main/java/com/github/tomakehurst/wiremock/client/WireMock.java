@@ -153,6 +153,12 @@ public class WireMock {
         return valueMatchingStrategy;
     }
 
+    public static ValueMatchingStrategy equalToXML(String value) {
+        ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
+        headerStrategy.setEqualToXML(value);
+        return headerStrategy;
+    }
+
 	public static ValueMatchingStrategy containing(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setContains(value);
