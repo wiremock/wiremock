@@ -235,9 +235,29 @@ The JSON equivalent of the above example would be:
     	}
     }
 
+
+XML body matching
+-----------------
+As with JSON, XML bodies can be matched on semantically.
+
+In Java:
+
+.. code-block:: java
+
+    .withRequestBody(equalToXml("<thing>value</thing>"))
+
+
+and in JSON:
+
+.. code-block:: javascript
+
+    "bodyPatterns" : [
+        { "equalToXml" : "<thing>value</thing>" }
+    ]
+
+
 .. note::
     All of the request matching options described here can also be used for :ref:`verifying`.
-
 
 .. _stubbing-stub-priority:
 

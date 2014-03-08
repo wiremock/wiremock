@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.43</version>
+        <version>1.44</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -160,7 +160,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.43/wiremock-1.43-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.44/wiremock-1.44-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -177,6 +177,9 @@ own self-signed certificate.
 
 ``--verbose``:
 Turn on verbose logging to stdout
+
+``--root-dir``:
+Sets the root directory, under which ``mappings`` and ``__files`` reside. This defaults to the current directory.
 
 ``--record-mappings``:
 Record incoming requests as stub mappings. See :ref:`record-playback`.

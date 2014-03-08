@@ -82,6 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#json-body-matching">JSON body matching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml-body-matching">XML body matching</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#stub-priority">Stub priority</a></li>
@@ -288,6 +289,20 @@ or a non-empty object or array.</p>
             <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">201</span>
     <span class="p">}</span>
 <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="xml-body-matching">
+<h3>XML body matching<a class="headerlink" href="#xml-body-matching" title="Permalink to this headline">¶</a></h3>
+<p>As with JSON, XML bodies can be matched on semantically.</p>
+<p>In Java:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">&quot;&lt;thing&gt;value&lt;/thing&gt;&quot;</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>and in JSON:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s2">&quot;bodyPatterns&quot;</span> <span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="s2">&quot;equalToXml&quot;</span> <span class="o">:</span> <span class="s2">&quot;&lt;thing&gt;value&lt;/thing&gt;&quot;</span> <span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 <div class="admonition note">

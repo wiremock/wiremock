@@ -110,7 +110,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.43<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.44<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -226,9 +226,9 @@ server directly:</p>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.43-standalone.jar
+$ java -jar wiremock-1.44-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.43/wiremock-1.43-standalone.jar">download the standalone JAR from here</a>.</p>
+<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.44/wiremock-1.44-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
 Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
@@ -240,6 +240,8 @@ This option will only work if <tt class="docutils literal"><span class="pre">--h
 own self-signed certificate.</p>
 <p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:
 Turn on verbose logging to stdout</p>
+<p><tt class="docutils literal"><span class="pre">--root-dir</span></tt>:
+Sets the root directory, under which <tt class="docutils literal"><span class="pre">mappings</span></tt> and <tt class="docutils literal"><span class="pre">__files</span></tt> reside. This defaults to the current directory.</p>
 <p><tt class="docutils literal"><span class="pre">--record-mappings</span></tt>:
 Record incoming requests as stub mappings. See <a class="reference internal" href="record-playback.html#record-playback"><em>Record and Playback</em></a>.</p>
 <p><tt class="docutils literal"><span class="pre">--proxy-all</span></tt>:
