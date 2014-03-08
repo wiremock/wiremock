@@ -178,6 +178,9 @@ own self-signed certificate.
 ``--verbose``:
 Turn on verbose logging to stdout
 
+``--root-dir``:
+Sets the root directory, under which ``mappings`` and ``__files`` reside. This defaults to the current directory.
+
 ``--record-mappings``:
 Record incoming requests as stub mappings. See :ref:`record-playback`.
 

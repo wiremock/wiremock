@@ -122,7 +122,7 @@ public class StandaloneAcceptanceTest {
 	public void readsMappingFromSpecifiedRecordingsPath() {
 		String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
 		writeFile(differentRoot + separator + underMappings("test-mapping-1.json"), MAPPING_REQUEST);
-		startRunner("--recordings-path", differentRoot);
+		startRunner("--root-dir", differentRoot);
 		assertThat(testClient.get("/resource/from/file").content(), is("Body from mapping file"));
 	}
 
@@ -140,7 +140,7 @@ public class StandaloneAcceptanceTest {
 	public void servesFileFromSpecifiedRecordingsPath() {
 		String differentRoot = FILE_SOURCE_ROOT + separator + "differentRoot";
 		writeFile(differentRoot + separator + underFiles("test-1.xml"), "<content>Blah</content>");
-		startRunner("--recordings-path", differentRoot);
+		startRunner("--root-dir", differentRoot);
 		WireMockResponse response = testClient.get("/test-1.xml");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<content>Blah</content>"));
@@ -396,8 +396,8 @@ public class StandaloneAcceptanceTest {
 
 	private String[] argsWithRecordingsPath(String[] args) {
 		List<String> argsAsList = new ArrayList<String>(asList(args));
-		if (!argsAsList.contains("--recordings-path")) {
-			argsAsList.addAll(asList("--recordings-path", FILE_SOURCE_ROOT.getPath()));
+		if (!argsAsList.contains("--root-dir")) {
+			argsAsList.addAll(asList("--root-dir", FILE_SOURCE_ROOT.getPath()));
 		}
 		return argsAsList.toArray(new String[]{});
 	}
