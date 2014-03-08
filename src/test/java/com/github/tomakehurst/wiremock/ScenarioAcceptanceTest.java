@@ -89,4 +89,18 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(testClient.get("/stateful/resource").content(), is("Expected content"));
 	}
+
+    @Test(expected = IllegalStateException.class)
+    public void scenarioStateCannotBeSetIfScenarioIsNotNamed() {
+        givenThat(get(urlEqualTo("/some/resource"))
+                .willReturn(aResponse().withBody("Initial"))
+                .whenScenarioStateIs(STARTED));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void scenarioStateTransitionCannotBeSetIfScenarioIsNotNamed() {
+        givenThat(put(urlEqualTo("/some/resource"))
+                .willReturn(aResponse().withStatus(HTTP_OK))
+                .willSetStateTo("BodyModified"));
+    }
 }

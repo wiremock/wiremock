@@ -69,6 +69,9 @@ public class MappingBuilder {
 	}
 	
 	public StubMapping build() {
+		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
+			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
+		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
