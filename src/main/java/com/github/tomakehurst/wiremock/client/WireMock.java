@@ -270,6 +270,10 @@ public class WireMock {
 	public static RequestPatternBuilder deleteRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.DELETE, urlMatchingStrategy);
 	}
+
+	public static RequestPatternBuilder patchRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
+		return new RequestPatternBuilder(RequestMethod.PATCH, urlMatchingStrategy);
+	}
 	
 	public static RequestPatternBuilder headRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.HEAD, urlMatchingStrategy);

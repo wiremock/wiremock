@@ -20,17 +20,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -116,13 +111,23 @@ public class WireMockTestClient {
 	
 	public WireMockResponse putWithBody(String url, String body, String contentType, TestHttpHeader... headers) {
 		HttpPut httpPut = new HttpPut(mockServiceUrlFor(url));
+		return requestWithBody(httpPut, body, contentType, headers);
+	}
+
+	public WireMockResponse patchWithBody(String url, String body, String contentType, TestHttpHeader... headers) {
+		HttpPatch httpPatch = new HttpPatch(mockServiceUrlFor(url));
+		return requestWithBody(httpPatch, body, contentType, headers);
+	}
+
+	private WireMockResponse requestWithBody(
+			HttpEntityEnclosingRequestBase request, String body, String contentType, TestHttpHeader... headers) {
 		try {
-			httpPut.setEntity(new StringEntity(body, contentType, "utf-8"));
+			request.setEntity(new StringEntity(body, contentType, "utf-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
-		
-		return executeMethodAndCovertExceptions(httpPut, headers);
+
+		return executeMethodAndCovertExceptions(request, headers);
 	}
 	
 	public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {

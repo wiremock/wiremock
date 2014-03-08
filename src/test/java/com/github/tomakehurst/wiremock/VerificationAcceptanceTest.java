@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -194,6 +193,13 @@ public class VerificationAcceptanceTest {
                         containsString("Requests received: "),
                         containsString("/some/request")));
             }
+        }
+
+        @Test
+        public void verifiesPatchRequests() {
+            testClient.patchWithBody("/patch/this", SAMPLE_JSON, "application/json");
+            verify(patchRequestedFor(urlEqualTo("/patch/this"))
+                    .withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
         }
     }
 
