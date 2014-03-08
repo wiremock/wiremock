@@ -236,6 +236,21 @@ public class StandaloneAcceptanceTest {
 	}
 
 	@Test
+	public void respondsWithPreExistingRecordingInProxyMode() {
+		writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
+		writeFileToFilesDir("body-test.xml", "Existing recorded body");
+
+		WireMock otherServerClient = start8084ServerAndCreateClient();
+		otherServerClient.register(
+                get(urlEqualTo("/body/file"))
+                        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+
+		startRunner("--proxy-all", "http://localhost:8084");
+
+		assertThat(testClient.get("/body/file").content(), is("Existing recorded body"));
+	}
+
+	@Test
 	public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
 	    WireMock otherServerClient = start8084ServerAndCreateClient();
 		startRunner("--record-mappings");
