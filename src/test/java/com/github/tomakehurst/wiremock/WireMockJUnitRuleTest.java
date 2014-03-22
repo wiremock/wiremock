@@ -118,7 +118,55 @@ public class WireMockJUnitRuleTest {
 
     }
 
-    public static class PortNumbers {
+  /**
+   * Tests that WireMockClassRule run as a @Rule resets the WireMock server between tests. If it doesn't do so, one of
+   * the two tests will fail (probably 'B', but that's not guaranteed, as JUnit doesn't guarantee the order of test
+   * execution).
+   */
+  public static class WireMockJournalIsResetBetweenMultipleTestsWithWireMockRuleAsJUnit411ClassRule {
+
+    @ClassRule
+    public static WireMockClassRule wireMockRule1 = new WireMockClassRule(wireMockConfig().port(8089));
+    @Rule
+    public WireMockClassRule instancewireMockRule1 = wireMockRule1;
+
+    @ClassRule
+    public static WireMockClassRule wireMockRule2 = new WireMockClassRule(wireMockConfig().port(8090));
+    @Rule
+    public WireMockClassRule instancewireMockRule2 = wireMockRule2;
+
+    @Test
+    public void noPreviousRequestsUntilOneMadeA() {
+      assertNoPreviousRequestsReceived(instancewireMockRule1);
+      assertNoPreviousRequestsReceived(instancewireMockRule2);
+
+      assertCanRegisterStubAndFetchOnCorrectPort(instancewireMockRule1);
+      assertCanRegisterStubAndFetchOnCorrectPort(instancewireMockRule2);
+    }
+
+    @Test
+    public void noPreviousRequestsUntilOneMadeB() {
+      assertNoPreviousRequestsReceived(instancewireMockRule1);
+      assertNoPreviousRequestsReceived(instancewireMockRule2);
+
+      assertCanRegisterStubAndFetchOnCorrectPort(instancewireMockRule1);
+      assertCanRegisterStubAndFetchOnCorrectPort(instancewireMockRule2);
+    }
+
+    private static void assertNoPreviousRequestsReceived(WireMockClassRule wireMockRule) {
+      wireMockRule.verify(0, getRequestedFor(urlMatching(".*")));
+    }
+
+    private static void assertCanRegisterStubAndFetchOnCorrectPort(WireMockClassRule wireMockRule) {
+      wireMockRule.givenThat(get(urlEqualTo("/rule/test")).willReturn(aResponse().withBody("Rule test body")));
+
+      WireMockTestClient testClient = new WireMockTestClient(wireMockRule.port());
+
+      assertThat(testClient.get("/rule/test").content(), is("Rule test body"));
+    }
+  }
+
+  public static class PortNumbers {
 
         @Rule
         public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8060).httpsPort(8061));

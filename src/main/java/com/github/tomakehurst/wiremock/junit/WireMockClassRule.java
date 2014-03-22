@@ -69,7 +69,7 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
                     try {
                         base.evaluate();
                     } finally {
-                        WireMock.reset();
+                        wireMock.resetMappings();
                     }
                 } else {
                     wireMockServer.start();
