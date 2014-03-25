@@ -66,6 +66,7 @@ public class WireMockServer implements Container {
 	private final FileSource fileSource;
 	private final Notifier notifier;
 	private final int port;
+	private final String bindAddress;
 
     private final Options options;
     private DelayableSocketConnector httpConnector;
@@ -75,6 +76,7 @@ public class WireMockServer implements Container {
         this.options = options;
         this.fileSource = options.filesRoot();
         this.port = options.portNumber();
+        this.bindAddress = options.bindAddress();
         this.notifier = options.notifier();
 
         requestDelayControl = new ThreadSafeRequestDelayControl();
@@ -224,6 +226,7 @@ public class WireMockServer implements Container {
 
     private DelayableSocketConnector createHttpConnector() {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
+        connector.setHost(bindAddress);
         connector.setPort(port);
         connector.setHeaderBufferSize(8192);
         return connector;

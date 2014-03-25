@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 public interface Options {
 
     public static final int DEFAULT_PORT = 8080;
+    public static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
     HttpsSettings httpsSettings();
@@ -31,5 +32,6 @@ public interface Options {
     FileSource filesRoot();
     Notifier notifier();
     boolean requestJournalDisabled();
+    public String bindAddress();
 
 }

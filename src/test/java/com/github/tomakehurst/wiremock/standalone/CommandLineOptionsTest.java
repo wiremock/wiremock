@@ -75,7 +75,13 @@ public class CommandLineOptionsTest {
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
 		new CommandLineOptions("--port");
 	}
-	
+    
+    @Test
+    public void returnsCorrecteyParsedBindAddress(){
+        CommandLineOptions options = new CommandLineOptions("--bind-address", "127.0.0.1");
+        assertThat(options.bindAddress(), is("127.0.0.1"));
+    }
+    
 	@Test
 	public void setsProxyAllRootWhenOptionPresent() {
 		CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://someotherhost.com/site");
