@@ -66,6 +66,14 @@ public class ContentTypeHeaderTest {
 		ContentTypeHeader header = new ContentTypeHeader("text/plain");
 		assertFalse(header.encodingPart().isPresent());
 	}
+
+    @Test
+    public void stripsDoubleQuotesFromEncodingPart() {
+        ContentTypeHeader header = new ContentTypeHeader("application/json;charset=\"UTF-8\"");
+        Optional<String> encoding = header.encodingPart();
+        assertTrue(encoding.isPresent());
+        assertThat(encoding.get(), is("UTF-8"));
+    }
 	
 	@Test
 	public void fetchesFromRequest() {
@@ -76,7 +84,7 @@ public class ContentTypeHeaderTest {
 		ContentTypeHeader contentTypeHeader = request.contentTypeHeader();
 		assertThat(contentTypeHeader.mimeTypePart(), is("text/xml"));
 	}
-	
+
 	@Test(expected=NullPointerException.class)
 	public void throwsExceptionOnAttemptToSetNullHeaderValue() {
 		Request request = new MockRequestBuilder(context)
