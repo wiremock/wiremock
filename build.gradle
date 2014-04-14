@@ -296,7 +296,7 @@ task 'bump-version-down' << {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.11'
 }
 
 task 'add-copyright-headers' << {
