@@ -17,10 +17,13 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.ServletContainerUtils;
-import com.google.common.io.CharStreams;
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,9 +34,25 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.list;
 
 public class HttpServletRequestAdapter implements Request {
+    
+    public static final String __ISO_8859_1;
+    static
+    {
+        String iso = System.getProperty("ISO_8859_1");
+        if (iso == null) {
+            try {
+                new String(new byte[]{(byte)20}, "ISO-8859-1");
+                iso = "ISO-8859-1";
+            } catch (java.io.UnsupportedEncodingException e) {
+                iso = "ISO8859_1";
+            }        
+        }
+        __ISO_8859_1 = iso;
+    }
 	
 	private final HttpServletRequest request;
 	private String cachedBody;
+	private byte[] cachedByteArrayBody;
 	
 	public HttpServletRequestAdapter(HttpServletRequest request) {
 		this.request = request;
@@ -67,15 +86,34 @@ public class HttpServletRequestAdapter implements Request {
 	@Override
 	public String getBodyAsString() {
 		if (cachedBody == null) {
-			try {
-				cachedBody = CharStreams.toString(request.getReader());
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
+			readBody();
 		}
 		
 		return cachedBody;
 	}
+	
+	@Override
+	public byte[] getBodyAsByteArray() {
+        if (cachedByteArrayBody == null) {
+            readBody();
+        }
+        
+        return cachedByteArrayBody;
+	}
+
+    private void readBody() {
+        try {
+            String encoding = request.getCharacterEncoding();
+            if (Strings.isNullOrEmpty(encoding)) {
+                encoding = __ISO_8859_1;
+            }
+            
+            cachedByteArrayBody = ByteStreams.toByteArray(request.getInputStream());
+            cachedBody = new String(cachedByteArrayBody, Charset.forName(encoding));
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 
 	@SuppressWarnings("unchecked")
 	@Override

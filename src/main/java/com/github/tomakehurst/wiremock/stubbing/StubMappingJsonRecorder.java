@@ -38,11 +38,13 @@ public class StubMappingJsonRecorder implements RequestListener {
 	private final FileSource filesFileSource;
 	private final Admin admin;
 	private IdGenerator idGenerator;
+    private boolean recordBinaryEqual;
 	
-	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin) {
+	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, boolean recordBinaryEqual) {
 		this.mappingsFileSource = mappingsFileSource;
 		this.filesFileSource = filesFileSource;
 		this.admin = admin;
+        this.recordBinaryEqual = recordBinaryEqual;
 		idGenerator = new VeryShortIdGenerator();
 	}
 
@@ -60,10 +62,20 @@ public class StubMappingJsonRecorder implements RequestListener {
 
    private RequestPattern buildRequestPatternFrom(Request request) {
       RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
-      String body = request.getBodyAsString();
-      if (!body.isEmpty()) {
-         ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
-         requestPattern.setBodyPatterns(asList(bodyPattern));
+      ValuePattern bodyPattern = null;
+      if (recordBinaryEqual) {
+          byte[] body = request.getBodyAsByteArray();
+          if (body != null && body.length > 0) {
+              bodyPattern = ValuePattern.equalToByteArray(body);
+          }
+      } else {
+          String body = request.getBodyAsString();
+          if (!body.isEmpty()) {
+             bodyPattern = ValuePattern.equalTo(body);
+          }
+      }
+      if (bodyPattern != null) {
+          requestPattern.setBodyPatterns(asList(bodyPattern));
       }
 
       return requestPattern;

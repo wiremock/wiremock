@@ -55,7 +55,7 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin);
+		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, false);
 		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
 	}
 	

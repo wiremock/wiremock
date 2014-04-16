@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -135,11 +136,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     private static HttpEntity buildEntityFrom(Request originalRequest) {
         ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader().or("text/plain");
-        ContentType contentType = ContentType.create(contentTypeHeader.mimeTypePart(), contentTypeHeader.encodingPart().or("utf-8"));
+        Optional<String> encodingPart = contentTypeHeader.encodingPart();
+        ContentType contentType = ContentType.create(contentTypeHeader.mimeTypePart(), encodingPart.isPresent() ? encodingPart.get() : null);
 
         if (originalRequest.containsHeader(TRANSFER_ENCODING) &&
                 originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
-            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBodyAsString().getBytes()), -1, contentType);
+            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBodyAsByteArray()), -1, contentType);
         }
 
         return new StringEntity(originalRequest.getBodyAsString(), contentType);
