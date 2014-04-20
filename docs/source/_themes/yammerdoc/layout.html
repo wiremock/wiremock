@@ -119,7 +119,7 @@
             {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a>
             {{ copyright }}.{% endtrans %}
             {%- else %}
-            {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
+            {% trans copyright=copyright|e %}&copy; Copyright 2014, <a href="http://www.tomakehurst.com/about">Tom Akehurst</a>.{% endtrans %}
             {%- endif %}
             {%- endif %}
             {%- if last_updated %}
