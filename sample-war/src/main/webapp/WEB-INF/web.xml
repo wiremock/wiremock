@@ -14,6 +14,11 @@
   	<param-name>WireMockFileSourceRoot</param-name>
   	<param-value>/WEB-INF/wiremock</param-value>
   </context-param>
+
+  <context-param>
+    <param-name>verboseLoggingEnabled</param-name>
+    <param-value>false</param-value>
+  </context-param>
   
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
