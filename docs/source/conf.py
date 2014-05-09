@@ -105,6 +105,7 @@ html_theme_options = {
     'gradient_text': u'#333',
     'gradient_bg': u'#363F45',
     'github_page': u'https://github.com/tomakehurst/wiremock',
+    'mailing_list': u'https://groups.google.com/forum/#!forum/wiremock-user'
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

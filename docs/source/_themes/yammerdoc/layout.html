@@ -105,6 +105,10 @@
             {%- if title != "Home" %}
             <div class="span3" id="sidebar">
                 {{ toctree(maxdepth=-1) }}
+                <hr/>
+                <ul>
+                    <li><a href="{{theme_mailing_list}}">Mailing List</a><img style="margin-left: 0.5em; margin-bottom: -6px" src="{{ pathto('_static/new.png', 1) }}"/></li>
+                </ul>
             </div>
             {%- endif %}
             {%- endblock %}
