@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import org.mortbay.jetty.bio.SocketConnector;
+
+import org.eclipse.jetty.server.bio.SocketConnector;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -42,7 +43,7 @@ public class DelayableSocketConnector extends SocketConnector {
         }
 
         configure(socket);
-        Connection connection = new Connection(socket) {
+        ConnectorEndPoint connection=new ConnectorEndPoint(socket)  {
             @Override
             public void run() {
                 ActiveSocket.set(socket);
