@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import junit.framework.Assert;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -98,6 +100,42 @@ public class ValuePatternTest {
         valuePattern.setEqualToXml("<thing attr1=\"one\" attr2=\"two\" attr3=\"three\" />");
         assertTrue("Expected similar match", valuePattern.isMatchFor(
                 "<thing attr3=\"three\" attr1=\"one\" attr2=\"two\"  />"));
+    }
+
+    @Test
+    public void matchesOnEqualToXPath() {
+        valuePattern.setEqualToXPath("//J[.='111']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<H><J>111</J><X>222</X></H>"));
+    }
+
+    @Test
+    public void matchesOnEqualToXPathWithNamespace() {
+        valuePattern.setEqualToXPath("//*[local-name() = 'J'][.='111']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://schemas.xmlsoap.org/soap/envelope/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void doesNotMatchesOnEqualToXPath() {
+        valuePattern.setEqualToXPath("//J[.='222']");
+        assertFalse("Expected XPath match", valuePattern.isMatchFor("<H><J>111</J><X>222</X></H>"));
+    }
+
+    @Test
+    public void matchesOnEqualToXPathProperty() {
+        String mySolarSystemXML = "<solar-system>"
+                + "<planet name='Earth' position='3' supportsLife='yes'/>"
+                + "<planet name='Venus' position='4'/></solar-system>";
+        valuePattern.setEqualToXPath("//planet[@name='Earth']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor(mySolarSystemXML));
+    }
+
+    @Test
+    public void doesNotMatchesOnEqualToXPathProperty() {
+        String mySolarSystemXML = "<solar-system>"
+                + "<planet name='Earth' position='3' supportsLife='yes'/>"
+                + "<planet name='Venus' position='4'/></solar-system>";
+        valuePattern.setEqualToXPath("//star[@name='alpha centauri']");
+        assertFalse("Expected XPath non-match", valuePattern.isMatchFor(mySolarSystemXML));
     }
     
     @Test
