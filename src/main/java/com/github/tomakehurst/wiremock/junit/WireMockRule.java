@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
+import com.github.tomakehurst.wiremock.IgnoreWireMockRule;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
@@ -22,17 +23,15 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule implements MethodRule, TestRule, Stubbing {
+public class WireMockRule implements TestRule, Stubbing {
 
     private final Options options;
     private WireMock wireMock;
@@ -56,29 +55,33 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 	}
 
     @Override
-    public Statement apply(final Statement base, Description description) {
-        return apply(base, null, null);
-    }
+    public Statement apply(final Statement base, final Description description) {
+        return new Statement() {
 
-	@Override
-	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-		return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
 
-			@Override
-			public void evaluate() throws Throwable {
-				wireMockServer = new WireMockServer(options);
-				wireMockServer.start();
-				WireMock.configureFor("localhost", port());
+                if (ruleIsIgnored()) {
+                    base.evaluate();
+                    return;
+                }
+
+                wireMockServer = new WireMockServer(options);
+                wireMockServer.start();
+                WireMock.configureFor("localhost", port());
                 wireMock = new WireMock("localhost", port());
-				try {
+                try {
                     base.evaluate();
                 } finally {
                     wireMockServer.stop();
                 }
-			}
-			
-		};
-	}
+            }
+
+            private boolean ruleIsIgnored() {
+                return description.getAnnotation(IgnoreWireMockRule.class) != null;
+            }
+        };
+    }
 
     public void addMockServiceRequestListener(RequestListener requestListener) {
         wireMockServer.addMockServiceRequestListener(requestListener);

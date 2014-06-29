@@ -22,11 +22,9 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -266,6 +265,25 @@ public class WireMockJUnitRuleTest {
             assertThat(urls.get(0), is("/test/listener"));
         }
 
+    }
+
+    public static class IgnoreWireMockRuleAnnotationTest {
+
+        @Rule
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089));
+        @Rule
+        public ExpectedException expectedException = ExpectedException.none();
+
+        @Test
+        @IgnoreWireMockRule
+        public void wireMockServerDoesntStartUp_WhenTestIsMarkedWithIgnoreRule() {
+            expectedException.expect(RuntimeException.class);
+            expectedException.expectMessage(containsString("Connection to http://localhost:8089 refused"));
+
+            WireMockTestClient testClient = new WireMockTestClient(8089);
+
+            testClient.get("/whatever-url");
+        }
     }
 
     private static void assertNoPreviousRequestsReceived() {
