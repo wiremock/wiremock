@@ -51,12 +51,22 @@ public class WireMockStaticRule implements MethodRule {
 			@Override
 			public void evaluate() throws Throwable {
 				try {
+                    before();
                     base.evaluate();
                 } finally {
+                    after();
                     WireMock.reset();
                 }
 			}
 			
 		};
 	}
+
+    protected void before() {
+        // NOOP
+    }
+
+    protected void after() {
+        // NOOP
+    }
 }
