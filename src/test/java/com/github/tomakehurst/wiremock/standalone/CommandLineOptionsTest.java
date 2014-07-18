@@ -41,6 +41,12 @@ public class CommandLineOptionsTest {
 		assertThat(options.recordMappingsEnabled(), is(true));
 	}
 	
+    @Test
+    public void returnsHeaderMatchingEnabledWhenOptionPresent() {
+    	CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept,Content-Type");
+    	assertThat(options.matchHeaders(), hasItems("Accept", "Content-Type"));
+    }
+	
 	@Test
 	public void returnsRecordMappingsFalseWhenOptionNotPresent() {
 		CommandLineOptions options = new CommandLineOptions("");
@@ -140,4 +146,6 @@ public class CommandLineOptionsTest {
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
     }
+    
+
 }
