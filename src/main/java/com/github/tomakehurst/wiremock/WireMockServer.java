@@ -89,6 +89,8 @@ public class WireMockServer implements Container {
                 defaultMappingsLoader,
                 mappingsSaver,
                 options.requestJournalDisabled(),
+                options.matchingHeadersEnabled(),
+                options.matchingHeaders(),
                 this
         );
 

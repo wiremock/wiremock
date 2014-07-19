@@ -44,7 +44,7 @@ public class CommandLineOptionsTest {
     @Test
     public void returnsHeaderMatchingEnabledWhenOptionPresent() {
     	CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept,Content-Type");
-    	assertThat(options.matchHeaders(), hasItems("Accept", "Content-Type"));
+    	assertThat(options.matchingHeaders(), hasItems("Accept", "Content-Type"));
     }
 	
 	@Test

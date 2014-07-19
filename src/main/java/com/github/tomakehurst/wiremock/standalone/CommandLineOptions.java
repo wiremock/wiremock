@@ -100,13 +100,18 @@ public class CommandLineOptions implements Options {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
 	
-	public boolean specifiesMatchHeaders() {
+	@Override
+	public boolean matchingHeadersEnabled() {
 		return optionSet.has(MATCH_HEADERS);
 	}
 	
-	public List<String> matchHeaders() {
-		String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
-		return Arrays.asList(headerSpec.split(","));
+	@Override
+	public List<String> matchingHeaders() {
+		if (matchingHeadersEnabled()) {
+			String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
+			return Arrays.asList(headerSpec.split(","));
+		}
+		return null;
 	}
 	
 	private boolean specifiesPortNumber() {

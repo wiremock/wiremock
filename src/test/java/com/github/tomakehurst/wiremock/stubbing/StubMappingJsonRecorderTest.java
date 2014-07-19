@@ -206,7 +206,7 @@ public class StubMappingJsonRecorderTest {
         listener.requestReceived(request,
                 response().status(200).body("anything").fromProxy(true).build());
     }
-
+    
 	private IdGenerator fixedIdGenerator(final String id) {
 	    return new IdGenerator() {
             public String generate() {
