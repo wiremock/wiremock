@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import java.util.List;
+
 import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -26,6 +28,7 @@ import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -137,6 +140,16 @@ public class HttpAdminClient implements Admin {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
     }
 
+    @Override
+    public boolean matchingHeadersEnabled() {
+    	return false;
+    }
+    
+    @Override
+    public List<String> matchingHeaders() {
+    	return null;
+    }
+    
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
 		HttpPost post = new HttpPost(url);
 		try {
