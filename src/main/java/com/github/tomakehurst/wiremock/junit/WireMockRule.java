@@ -63,7 +63,6 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 	@Override
 	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
 		return new Statement() {
-
 			@Override
 			public void evaluate() throws Throwable {
 				wireMockServer = new WireMockServer(options);
@@ -71,14 +70,24 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 				WireMock.configureFor("localhost", port());
                 wireMock = new WireMock("localhost", port());
 				try {
+                    before();
                     base.evaluate();
                 } finally {
+                    after();
                     wireMockServer.stop();
                 }
 			}
-			
+
 		};
 	}
+
+    protected void before() {
+        // NOOP
+    }
+
+    protected void after() {
+        // NOOP
+    }
 
     public void addMockServiceRequestListener(RequestListener requestListener) {
         wireMockServer.addMockServiceRequestListener(requestListener);
