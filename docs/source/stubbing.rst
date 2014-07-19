@@ -227,7 +227,7 @@ The JSON equivalent of the above example would be:
             "url": "/with/json/body",
             "bodyPatterns" : [
               	{ "matchesJsonPath" : "$.status"},
-              	{ "matchesJsonPath" : "$.things[$(@.name == 'RequiredThing')]" }
+              	{ "matchesJsonPath" : "$.things[?(@.name == 'RequiredThing')]" }
             ]
     	},
     	"response": {
