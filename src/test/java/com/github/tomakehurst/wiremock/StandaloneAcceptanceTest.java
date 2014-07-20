@@ -18,11 +18,13 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
+
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
@@ -285,6 +287,23 @@ public class StandaloneAcceptanceTest {
 		assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
 		assertThat(contentsOfFirstFileNamedLike("please-record-this"),
 		        containsString("bodyFileName\" : \"body-please-record-this"));
+	}
+	
+	@Test
+	public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
+	    WireMock otherServerClient = start8084ServerAndCreateClient();
+		startRunner("--record-mappings", "--match-headers", "Accept");
+		givenThat(get(urlEqualTo("/please/record-this"))
+		        .willReturn(aResponse().proxiedFrom("http://localhost:8084")));
+		otherServerClient.register(
+		        get(urlEqualTo("/please/record-this"))
+		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+		
+		testClient.get("/please/record-this", TestHttpHeader.withHeader("Accept", "application/json"));
+		
+		assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
+		assertThat(contentsOfFirstFileNamedLike("please-record-this"),
+		        containsString("headers\" :"));
 	}
 	
 	@Test
