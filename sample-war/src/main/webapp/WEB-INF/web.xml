@@ -19,7 +19,8 @@
     <param-name>verboseLoggingEnabled</param-name>
     <param-value>false</param-value>
   </context-param>
-  
+
+
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
   	<servlet-class>com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet</servlet-class>
@@ -27,6 +28,14 @@
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.StubRequestHandler</param-value>
   	</init-param>
+    <init-param>
+     <!-- A servlet mapping path may be specified to allow a mapping of wiremock to a different path.
+     This has to be equal to the servlet mappings (e.g. if the wiremock servlet is mapped under /wiremock and
+     the wiremock admin servlet is mapped under /wiremock/__admin then the correct value for this setting would be
+     /wiremock) -->
+      <param-name>mappedUnder</param-name>
+      <param-value>/</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
@@ -40,6 +49,14 @@
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.AdminRequestHandler</param-value>
   	</init-param>
+    <init-param>
+      <!-- A servlet mapping path may be specified to allow a mapping of wiremock to a different path.
+      This has to be equal to the servlet mappings (e.g. if the wiremock servlet is mapped under /wiremock and
+      the wiremock admin servlet is mapped under /wiremock/__admin then the correct value for this setting would be
+      /wiremock) -->
+      <param-name>mappedUnder</param-name>
+      <param-value>/__admin</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
   	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
