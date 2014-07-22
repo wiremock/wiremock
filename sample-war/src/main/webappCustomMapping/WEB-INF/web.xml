@@ -3,11 +3,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <!-- This is a way of integrating the wiremock servlet and mounting it under a path which is different
+     from the root path. For reference please use the version in the webapp folder. This version is stripped
+     down. -->
   
   <listener>
   	<display-name>wiremock-startup-listener</display-name>
   	<listener-class>com.github.tomakehurst.wiremock.servlet.WireMockWebContextListener</listener-class>
-  	<description>Loads WireMock and populates the servlet context with its services</description>
   </listener>
   
   <context-param>
@@ -28,10 +31,18 @@
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.StubRequestHandler</param-value>
   	</init-param>
+    <init-param>
+     <!-- A servlet mapping path may be specified to allow a mapping of wiremock to a different path.
+     This has to be equal to the servlet mappings (e.g. if the wiremock servlet is mapped under /mapping and
+     the wiremock admin servlet is mapped under /mapping/__admin then the correct value for this setting would be
+     /mapping) -->
+      <param-name>mappedUnder</param-name>
+      <param-value>/mapping</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
-  	<url-pattern>/*</url-pattern>
+  	<url-pattern>/mapping/*</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -41,34 +52,17 @@
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.AdminRequestHandler</param-value>
   	</init-param>
+    <init-param>
+      <!-- A servlet mapping path may be specified to allow a mapping of wiremock to a different path.
+      This has to be equal to the servlet mappings (e.g. if the wiremock servlet is mapped under /mapping and
+      the wiremock admin servlet is mapped under /mapping/__admin then the correct value for this setting would be
+      /mapping) -->
+      <param-name>mappedUnder</param-name>
+      <param-value>/mapping/__admin</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
   	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
-  	<url-pattern>/__admin/*</url-pattern>
+  	<url-pattern>/mapping/__admin/*</url-pattern>
   </servlet-mapping>
-  
-  <welcome-file-list>
-  	<welcome-file>index.json</welcome-file>
-  	<welcome-file>index.xml</welcome-file>
-  	<welcome-file>index.html</welcome-file>
-  	<welcome-file>index.txt</welcome-file>
-  </welcome-file-list>
-  
-  <mime-mapping>
-  	<extension>json</extension>
-  	<mime-type>application/json</mime-type>
-  </mime-mapping>
-  <mime-mapping>
-  	<extension>xml</extension>
-  	<mime-type>application/xml</mime-type>
-  </mime-mapping>
-  <mime-mapping>
-  	<extension>html</extension>
-  	<mime-type>text/html</mime-type>
-  </mime-mapping>
-  <mime-mapping>
-  	<extension>txt</extension>
-  	<mime-type>text/plain</mime-type>
-  </mime-mapping>
-  
 </web-app>

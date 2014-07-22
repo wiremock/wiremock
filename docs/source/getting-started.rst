@@ -288,4 +288,10 @@ This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standal
 
 The easiest way to create a WireMock WAR project is to clone the `sample app <https://github.com/tomakehurst/wiremock/tree/master/sample-war>`_
 
+Deploying under a sub-path of the context root
+----------------------------------------------
+If you want WireMock's servlet to have a non-root path, the additional init param ``mappedUnder`` must be set with the sub-path
+web.xml (in addition to configuring the servlet mapping appropriately).
+
+See `the custom mapped WAR example <https://github.com/tomakehurst/wiremock/blob/master/sample-war/src/main/webappCustomMapping/WEB-INF/web.xml>`_ for details.
 

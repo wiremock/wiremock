@@ -39,10 +39,12 @@ import static java.net.URLDecoder.decode;
 public class HandlerDispatchingServlet extends HttpServlet {
 
 	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
+	public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
 	private static final long serialVersionUID = -6602042274260495538L;
 	
 	private RequestHandler requestHandler;
+	private String mappedUnder;
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
@@ -57,9 +59,26 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	    }
 		
 		String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
-		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName);
+		mappedUnder = getNormalizedMappedUnder(config);
+		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
+			". Normlized mapped under returned '" + mappedUnder + "'");
 		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
+	}
+	
+	/**
+	 * @param config Servlet configuration to read
+	 * @return Normalized mappedUnder attribute without trailing slash
+	*/
+	private String getNormalizedMappedUnder(ServletConfig config) {
+		String mappedUnder = config.getInitParameter(MAPPED_UNDER_KEY);
+		if(mappedUnder == null) {
+			return null;
+		}
+		if (mappedUnder.endsWith("/")) {
+			mappedUnder = mappedUnder.substring(0, mappedUnder.length() - 1);
+		}
+		return mappedUnder;
 	}
 	
 	private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
@@ -71,7 +90,7 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new HttpServletRequestAdapter(httpServletRequest);
+		Request request = new HttpServletRequestAdapter(httpServletRequest, mappedUnder);
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
