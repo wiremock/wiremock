@@ -106,6 +106,8 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 			return new HttpOptions(url);
 		case TRACE:
 			return new HttpTrace(url);
+		case PATCH:
+			return new HttpPatch(url);
 		default:
 			throw new RuntimeException("Cannot create HttpMethod for " + method);
 		}
