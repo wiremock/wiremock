@@ -126,6 +126,13 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
+        public void verifiesWithBodyEquallingXpath() {
+            testClient.postWithBody("/body/xml", "<thing><subThing>The stuff</subThing></thing>", "application/xml", "utf-8");
+            verify(postRequestedFor(urlEqualTo("/body/xml"))
+                    .withRequestBody(matchingXPath("//subThing[.='The stuff']")));
+        }
+
+        @Test
         public void verifiesWithBodyContainingString() {
             testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json"))

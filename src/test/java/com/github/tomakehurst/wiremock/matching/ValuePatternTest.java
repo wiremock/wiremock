@@ -99,7 +99,59 @@ public class ValuePatternTest {
         assertTrue("Expected similar match", valuePattern.isMatchFor(
                 "<thing attr3=\"three\" attr1=\"one\" attr2=\"two\"  />"));
     }
-    
+
+    @Test
+    public void matchesXPath() {
+        valuePattern.setMatchesXPath("//J[.='111']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<H><J>111</J><X>222</X></H>"));
+    }
+
+    @Test
+    public void matchesXPathWithNamespace() {
+        valuePattern.setMatchesXPath("//*[local-name() = 'J'][.='111']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://schemas.xmlsoap.org/soap/envelope/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void doesNotMatchOnXPathWhenElementDoesNotExist() {
+        valuePattern.setMatchesXPath("//J[.='222']");
+        assertFalse("Expected XPath match", valuePattern.isMatchFor("<H><J>111</J><X>222</X></H>"));
+    }
+
+    @Test
+    public void matchesOnXPathProperty() {
+        String mySolarSystemXML = "<solar-system>"
+                + "<planet name='Earth' position='3' supportsLife='yes'/>"
+                + "<planet name='Venus' position='4'/></solar-system>";
+        valuePattern.setMatchesXPath("//planet[@name='Earth']");
+        assertTrue("Expected XPath match", valuePattern.isMatchFor(mySolarSystemXML));
+    }
+
+    @Test
+    public void doesNotMatchOnXPathPropertyWhenPropertyDoesNotExist() {
+        String mySolarSystemXML = "<solar-system>"
+                + "<planet name='Earth' position='3' supportsLife='yes'/>"
+                + "<planet name='Venus' position='4'/></solar-system>";
+        valuePattern.setMatchesXPath("//star[@name='alpha centauri']");
+        assertFalse("Expected XPath non-match", valuePattern.isMatchFor(mySolarSystemXML));
+    }
+
+    @Test
+    public void reportsMeaningfulErrorWhenMatchingXPathAndXMLDocIsInvalid() {
+        expectInfoNotification("Warning: failed to parse the XML document. Reason: XML document structures must start and end within the same entity.\nXML: <something>whatever</something");
+
+        valuePattern.setMatchesXPath("/something");
+        valuePattern.isMatchFor("<something>whatever</something");
+    }
+
+    @Test
+    public void reportsMeaningfulErrorWhenMatchingXPathAndXPathExpressionIsInvalid() {
+        expectInfoNotification("Warning: failed to evaluate the XPath expression ///!");
+
+        valuePattern.setMatchesXPath("///!");
+        valuePattern.isMatchFor("<something>whatever</something>");
+    }
+
     @Test
     public void matchesOnIsEqualToJson() {
         valuePattern.setEqualToJson("{\"x\":0}");

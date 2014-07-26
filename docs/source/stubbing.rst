@@ -256,8 +256,39 @@ and in JSON:
     ]
 
 
+XPath body matching
+-------------------
+Similar to matching on JSONPath, XPath can be used with XML bodies. An XML document will be considered to match if any
+elements are returned by the XPath evaluation.
+
+.. code-block:: java
+
+    stubFor(put(urlEqualTo("/xpath"))
+        .withRequestBody(matchingXPath("/todo-list[count(todo-item) = 3]"))
+        .willReturn(aResponse().withStatus(200)));
+
+
+The JSON equivalent of which would be:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "PUT",
+            "url": "/xpath",
+            "bodyPatterns" : [
+              	{ "matchesXPath" : "/todo-list[count(todo-item) = 3]" },
+            ]
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
+
 .. note::
     All of the request matching options described here can also be used for :ref:`verifying`.
+
 
 .. _stubbing-stub-priority:
 
