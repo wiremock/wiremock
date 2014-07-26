@@ -35,20 +35,23 @@ import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.MimeTypes;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.ServletHolder;
 
-import java.util.Map;
+import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.DispatcherType;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+
+import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Maps.newHashMap;
+
 
 public class WireMockServer implements Container {
 
@@ -228,14 +231,14 @@ public class WireMockServer implements Container {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
         connector.setHost(bindAddress);
         connector.setPort(port);
-        connector.setHeaderBufferSize(8192);
+        connector.setResponseHeaderSize(8192);
         return connector;
     }
 
     private DelayableSslSocketConnector createHttpsConnector() {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
         connector.setPort(options.httpsSettings().port());
-        connector.setHeaderBufferSize(8192);
+        connector.setResponseHeaderSize(8192);
         connector.setKeystore(options.httpsSettings().keyStorePath());
         connector.setKeyPassword("password");
         return connector;
@@ -247,44 +250,52 @@ public class WireMockServer implements Container {
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     private void addMockServiceContext() {
-        Context mockServiceContext = new Context(jettyServer, "/");
+        ServletContextHandler mockServiceContext = new ServletContextHandler();
+        mockServiceContext.setContextPath("/");
         
-        Map initParams = newHashMap();
-        initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
-        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
-        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
-        mockServiceContext.setInitParams(initParams);
-        
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.DefaultServlet.maxCacheSize", "0");
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.DefaultServlet.resourceBase", fileSource.getPath());
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.DefaultServlet.dirAllowed", "false");
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
         
-		mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
-		mockServiceContext.setAttribute(Notifier.KEY, notifier);
-		ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
-		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
-		servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
-		
-		MimeTypes mimeTypes = new MimeTypes();
-		mimeTypes.addMimeMapping("json", "application/json");
-		mimeTypes.addMimeMapping("html", "text/html");
-		mimeTypes.addMimeMapping("xml", "application/xml");
-		mimeTypes.addMimeMapping("txt", "text/plain");
-		mockServiceContext.setMimeTypes(mimeTypes);
-		
-		mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
-		
-		mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, Handler.FORWARD);
-		mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, Handler.ALL);
-		
-		jettyServer.addHandler(mockServiceContext);
+        mockServiceContext.setResourceBase(fileSource.getPath());
+        
+        mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
+        mockServiceContext.setAttribute(Notifier.KEY, notifier);
+        ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+        servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
+        servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
+
+        MimeTypes mimeTypes = new MimeTypes();
+        mimeTypes.addMimeMapping("json", "application/json");
+        mimeTypes.addMimeMapping("html", "text/html");
+        mimeTypes.addMimeMapping("xml", "application/xml");
+        mimeTypes.addMimeMapping("txt", "text/plain");
+        mockServiceContext.setMimeTypes(mimeTypes);
+
+        mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
+
+        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
+        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.INCLUDE));
+        
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(new Handler[] { mockServiceContext });
+        jettyServer.setHandler(contexts);
     }
 
     private void addAdminContext() {
-        Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
-		ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
-		servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
-		adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
-		adminContext.setAttribute(Notifier.KEY, notifier);
-		jettyServer.addHandler(adminContext);
+        ServletContextHandler adminContext = new ServletContextHandler();
+        adminContext.setContextPath(ADMIN_CONTEXT_ROOT);
+        
+        ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+        servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
+        adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
+        adminContext.setAttribute(Notifier.KEY, notifier);
+
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(new Handler[] { adminContext });
+
+        jettyServer.setHandler(adminContext);
     }
 
 

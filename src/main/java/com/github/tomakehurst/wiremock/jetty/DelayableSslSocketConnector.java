@@ -16,14 +16,19 @@
 package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.log.Log;
+
+import org.eclipse.jetty.server.ssl.SslSocketConnector;
+
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 
 import javax.net.ssl.SSLException;
+
 import java.io.IOException;
 import java.net.Socket;
 
 public class DelayableSslSocketConnector extends SslSocketConnector {
+    private static final Logger log = Log.getLogger("DelayableSslSocketConnector");
 
     private final RequestDelayControl requestDelayControl;
 
@@ -47,7 +52,7 @@ public class DelayableSslSocketConnector extends SslSocketConnector {
             }
 
             configure(socket);
-            Connection connection = new SslConnection(socket) {
+            SslConnectorEndPoint connection = new SslConnectorEndPoint(socket) {
                 @Override
                 public void run() {
                     ActiveSocket.set(socket);
@@ -59,14 +64,14 @@ public class DelayableSslSocketConnector extends SslSocketConnector {
         }
         catch(SSLException e)
         {
-            Log.warn(e);
+            log.warn(e);
             try
             {
                 stop();
             }
             catch(Exception e2)
             {
-                Log.warn(e2);
+                log.warn(e2);
                 throw new IllegalStateException(e2.getMessage());
             }
         }

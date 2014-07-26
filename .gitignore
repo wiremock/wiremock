@@ -59,3 +59,6 @@ wiremock.iws
 copy-admin.sh
 .DS_Store
 **/.DS_Store
+/target/
+pom.xml
+src/test/resources/log4j.xml
