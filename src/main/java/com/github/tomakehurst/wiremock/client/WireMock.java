@@ -159,9 +159,9 @@ public class WireMock {
         return headerStrategy;
     }
 
-    public static ValueMatchingStrategy equalToXPath(String value) {
+    public static ValueMatchingStrategy matchingXPath(String value) {
         ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
-        headerStrategy.setEqualToXPath(value);
+        headerStrategy.setMatchingXPath(value);
         return headerStrategy;
     }
 

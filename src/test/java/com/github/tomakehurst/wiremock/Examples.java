@@ -191,4 +191,11 @@ public class Examples extends AcceptanceTestBase {
                 .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
     }
 
+    @Test
+    public void xpath() {
+        stubFor(put(urlEqualTo("/xpath"))
+            .withRequestBody(matchingXPath("/todo-list[count(todo-item) = 3]"))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
 }

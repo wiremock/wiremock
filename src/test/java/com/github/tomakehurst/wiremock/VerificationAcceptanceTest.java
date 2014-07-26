@@ -129,7 +129,7 @@ public class VerificationAcceptanceTest {
         public void verifiesWithBodyEquallingXpath() {
             testClient.postWithBody("/body/xml", "<thing><subThing>The stuff</subThing></thing>", "application/xml", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/xml"))
-                    .withRequestBody(equalToXPath("//subThing[.='The stuff']")));
+                    .withRequestBody(matchingXPath("//subThing[.='The stuff']")));
         }
 
         @Test
