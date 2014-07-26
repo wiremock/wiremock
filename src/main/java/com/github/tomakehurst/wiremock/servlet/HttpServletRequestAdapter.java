@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.ServletContainerUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,8 +28,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
 public class HttpServletRequestAdapter implements Request {
@@ -68,7 +72,7 @@ public class HttpServletRequestAdapter implements Request {
 	public String getBodyAsString() {
 		if (cachedBody == null) {
 			try {
-				cachedBody = CharStreams.toString(request.getReader());
+                cachedBody = new String(toByteArray(request.getInputStream()), UTF_8);
 			} catch (IOException ioe) {
 				throw new RuntimeException(ioe);
 			}
