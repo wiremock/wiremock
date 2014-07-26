@@ -73,6 +73,7 @@ public class LoggedRequestTest {
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
             "      \"body\" : \"some text\",\n" +
+            "      \"bodyAsByteArray\" : \"\",\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
             "      \"loggedDateString\" : \"" + DATE + "\"\n" +
@@ -90,6 +91,7 @@ public class LoggedRequestTest {
                 RequestMethod.GET,
                 headers,
                 "some text",
+                new byte[] {},
                 true,
                 loggedDate);
 

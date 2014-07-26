@@ -145,7 +145,7 @@ public class RequestPattern {
 			return true;
 		}
 		
-		boolean matches = all(bodyPatterns, matching(request.getBodyAsString()));
+		boolean matches = all(bodyPatterns, matching(request.getBodyAsString(), request.getBodyAsByteArray()));
 		
 		if (!matches) {
 			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));

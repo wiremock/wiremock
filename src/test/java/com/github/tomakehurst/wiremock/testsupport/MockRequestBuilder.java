@@ -103,6 +103,7 @@ public class MockRequestBuilder {
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keys())));
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
 			allowing(request).getBodyAsString(); will(returnValue(body));
+			allowing(request).getBodyAsByteArray(); will(returnValue(null));
 			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
 			allowing(request).isBrowserProxyRequest(); will(returnValue(browserProxyRequest));
 		}});

@@ -153,9 +153,9 @@ public class WireMockServer implements Container {
 		stubRequestHandler.addRequestListener(listener);
 	}
 	
-	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
+	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource, boolean recordBinaryEqual) {
 	    addMockServiceRequestListener(
-                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp));
+                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, recordBinaryEqual));
 	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 	

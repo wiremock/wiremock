@@ -30,6 +30,7 @@ public class CommandLineOptions implements Options {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
+	private static final String RECORD_BINARY_EQUAL = "record-binary-equal";
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
@@ -53,6 +54,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+		optionParser.accepts(RECORD_BINARY_EQUAL, "Enable binary request comparison strategy while recording of all (non-admin) requests as mapping files is turned on");
 		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
@@ -71,6 +73,10 @@ public class CommandLineOptions implements Options {
 
         if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
             throw new IllegalArgumentException("Request journal must be enabled to record stubs");
+        }
+        
+        if (!optionSet.has(RECORD_MAPPINGS) && optionSet.has(RECORD_BINARY_EQUAL)) {
+            throw new IllegalArgumentException("Recording mappings must be enabled to use binary equal strategy");
         }
     }
 
@@ -94,6 +100,10 @@ public class CommandLineOptions implements Options {
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
+    
+    public boolean recordBinaryEqualEnabled() {
+        return optionSet.has(RECORD_BINARY_EQUAL);
+    }
 	
 	private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);

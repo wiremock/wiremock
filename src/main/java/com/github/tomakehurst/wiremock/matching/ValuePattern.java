@@ -24,6 +24,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import org.custommonkey.xmlunit.Diff;
@@ -54,6 +55,7 @@ public class ValuePattern {
 	private String doesNotMatch;
     private Boolean absent;
     private String matchesJsonPath;
+    private byte[] equalToByteArray;
 
 	public static ValuePattern equalTo(String value) {
 		ValuePattern valuePattern = new ValuePattern();
@@ -97,8 +99,14 @@ public class ValuePattern {
         valuePattern.absent = true;
         return valuePattern;
     }
+    
+    public static ValuePattern equalToByteArray(byte[] value) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.equalToByteArray = value;
+        return valuePattern;
+    }
 	
-	public boolean isMatchFor(String value) {
+	public boolean isMatchFor(String value, byte[] orArray) {
 		checkOneMatchTypeSpecified();
 
         if (absent != null) {
@@ -117,15 +125,17 @@ public class ValuePattern {
 			return !isMatch(doesNotMatch, value);
 		} else if (matchesJsonPath != null) {
             return isJsonPathMatch(value);
+        } else if (orArray != null && equalToByteArray != null) {
+            return Arrays.equals(this.equalToByteArray, orArray);
         }
 		
 		return false;
 	}
 	
-	public static Predicate<ValuePattern> matching(final String value) {
+	public static Predicate<ValuePattern> matching(final String value, final byte[] orArray) {
 		return new Predicate<ValuePattern>() {
 			public boolean apply(ValuePattern input) {
-				return input.isMatchFor(value);
+				return input.isMatchFor(value, orArray);
 			}
 		};
 	}
@@ -200,7 +210,7 @@ public class ValuePattern {
 	}
 	
 	private int countAllAttributes() {
-		return count(equalToJson, equalToXml, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
+		return count(equalToJson, equalToXml, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath, equalToByteArray);
 	}
 	
 	private int count(Object... objects) {
@@ -254,6 +264,10 @@ public class ValuePattern {
         checkNoMoreThanOneMatchTypeSpecified();
     }
 
+    public void setEqualToByteArray(byte[] equalToByteArray) {
+        this.equalToByteArray = equalToByteArray;
+    }
+
 	public String getEqualTo() {
 		return equalTo;
 	}
@@ -297,6 +311,10 @@ public class ValuePattern {
     public boolean nullSafeIsAbsent() {
         return (absent != null && absent);
     }
+    
+    public byte[] getEqualToByteArray() {
+        return equalToByteArray;
+    }
 	
 	@Override
 	public String toString() {
@@ -314,6 +332,8 @@ public class ValuePattern {
 			return "not match " + doesNotMatch;
         } else if (matchesJsonPath != null) {
             return "matches JSON path " + matchesJsonPath;
+        } else if (equalToByteArray != null) {
+            return "equalToByteArray " + Arrays.toString(equalToByteArray);
 		} else {
             return "is absent";
         }
@@ -335,6 +355,8 @@ public class ValuePattern {
         if (matches != null ? !matches.equals(that.matches) : that.matches != null) return false;
         if (matchesJsonPath != null ? !matchesJsonPath.equals(that.matchesJsonPath) : that.matchesJsonPath != null)
             return false;
+        if (equalToByteArray != null ? !equalToByteArray.equals(that.equalToByteArray) : that.equalToByteArray != null)
+            return false;
 
         return true;
     }
@@ -349,6 +371,7 @@ public class ValuePattern {
         result = 31 * result + (doesNotMatch != null ? doesNotMatch.hashCode() : 0);
         result = 31 * result + (absent != null ? absent.hashCode() : 0);
         result = 31 * result + (matchesJsonPath != null ? matchesJsonPath.hashCode() : 0);
+        result = 31 * result + (equalToByteArray != null ? equalToByteArray.hashCode() : 0);
         return result;
     }
 }

@@ -49,102 +49,103 @@ public class ValuePatternTest {
 	@Test
 	public void matchesOnEqualTo() {
 		valuePattern.setEqualTo("text/plain");
-		assertTrue(valuePattern.isMatchFor("text/plain"));
+		assertTrue(valuePattern.isMatchFor("text/plain", null));
 	}
 	
 	@Test
 	public void matchesOnRegex() {
 		valuePattern.setMatches("[0-9]{6}");
-		assertTrue(valuePattern.isMatchFor("938475"));
-		assertFalse(valuePattern.isMatchFor("abcde"));
+		assertTrue(valuePattern.isMatchFor("938475", null));
+		assertFalse(valuePattern.isMatchFor("abcde", null));
 	}
 	
 	@Test
 	public void matchesOnNegativeRegex() {
 		valuePattern.setDoesNotMatch("[0-9]{6}");
-		assertFalse(valuePattern.isMatchFor("938475"));
-		assertTrue(valuePattern.isMatchFor("abcde"));
+		assertFalse(valuePattern.isMatchFor("938475", null));
+		assertTrue(valuePattern.isMatchFor("abcde", null));
 	}
 	
 	@Test
 	public void matchesOnContains() {
 		valuePattern.setContains("some text");
-		assertFalse(valuePattern.isMatchFor("Nothing to see here"));
-		assertTrue(valuePattern.isMatchFor("There's some text here"));
+		assertFalse(valuePattern.isMatchFor("Nothing to see here", null));
+		assertTrue(valuePattern.isMatchFor("There's some text here", null));
 	}
 
     @Test
     public void matchesOnAbsent() {
         valuePattern = ValuePattern.absent();
-        assertFalse("Absent value should not be a match for a string", valuePattern.isMatchFor("Something"));
-        assertTrue("Absent value should be match for null", valuePattern.isMatchFor(null));
+        assertFalse("Absent value should not be a match for a string", valuePattern.isMatchFor("Something", null));
+        assertTrue("Absent value should be match for null", valuePattern.isMatchFor(null, null));
         assertTrue("isAbsent() should be true", valuePattern.isAbsent());
     }
 
     @Test
     public void matchesOnIsEqualToXml() {
         valuePattern.setEqualToXml("<H><J>111</J></H>");
-        assertTrue("Expected exact match", valuePattern.isMatchFor("<H><J>111</J></H>\n"));
+        assertTrue("Expected exact match", valuePattern.isMatchFor("<H><J>111</J></H>\n", null));
     }
     
     @Test
     public void ignoresSubElementOrderWhenMatchingXml() {
         valuePattern.setEqualToXml("<H><J>111</J><X>222</X></H>");
-        assertTrue("Expected similar match", valuePattern.isMatchFor("<H><X>222</X><J>111</J></H>\n"));
+        assertTrue("Expected similar match", valuePattern.isMatchFor("<H><X>222</X><J>111</J></H>\n", null));
     }
 
     @Test
     public void ignoresAttributeOrderWhenMatchingXml() {
         valuePattern.setEqualToXml("<thing attr1=\"one\" attr2=\"two\" attr3=\"three\" />");
         assertTrue("Expected similar match", valuePattern.isMatchFor(
-                "<thing attr3=\"three\" attr1=\"one\" attr2=\"two\"  />"));
+                "<thing attr3=\"three\" attr1=\"one\" attr2=\"two\"  />",
+                null));
     }
     
     @Test
     public void matchesOnIsEqualToJson() {
         valuePattern.setEqualToJson("{\"x\":0}");
-        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0}"));
-        assertTrue("Expected number json match", valuePattern.isMatchFor("{\"x\":0.0}"));
+        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0}", null));
+        assertTrue("Expected number json match", valuePattern.isMatchFor("{\"x\":0.0}", null));
     }
     
     @Test
     public void matchesOnIsEqualToJsonMoveFields() {
         valuePattern.setEqualToJson("{\"x\":0,\"y\":1}");
-        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0,\"y\":1}"));
-        assertTrue("Expected move field json match", valuePattern.isMatchFor("{\"y\":1,\"x\":0.0}"));
+        assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0,\"y\":1}", null));
+        assertTrue("Expected move field json match", valuePattern.isMatchFor("{\"y\":1,\"x\":0.0}", null));
     }
 
     @Test
     public void permitsExtraFieldsWhenJsonCompareModeIsLENIENT() {
         valuePattern.setEqualToJson("{ \"x\": 0 }");
         valuePattern.setJsonCompareMode(JSONCompareMode.LENIENT);
-        assertTrue("Expected match when unknown field is present in LENIENT mode", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }"));
+        assertTrue("Expected match when unknown field is present in LENIENT mode", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }", null));
     }
 
     @Test
     public void doesNotMatchOnEqualToJsonWhenFieldMissing() {
         valuePattern.setEqualToJson("{ \"x\": 0 }");
-        assertFalse("Expected no match when unknown field is present", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }"));
+        assertFalse("Expected no match when unknown field is present", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }", null));
     }
     
     @Test
     public void matchesOnBasicJsonPaths() {
         valuePattern.setMatchesJsonPaths("$.one");
-        assertTrue("Expected match when JSON attribute is present", valuePattern.isMatchFor("{ \"one\": 1 }"));
-        assertFalse("Expected no match when JSON attribute is absent", valuePattern.isMatchFor("{ \"two\": 2 }"));
+        assertTrue("Expected match when JSON attribute is present", valuePattern.isMatchFor("{ \"one\": 1 }", null));
+        assertFalse("Expected no match when JSON attribute is absent", valuePattern.isMatchFor("{ \"two\": 2 }", null));
     }
 
     @Test
     public void matchesOnJsonPathsWithFilters() {
         valuePattern.setMatchesJsonPaths("$.numbers[?(@.number == '2')]");
-        assertTrue("Expected match when JSON attribute is present", valuePattern.isMatchFor("{ \"numbers\": [ {\"number\": 1}, {\"number\": 2} ]}"));
-        assertFalse("Expected no match when JSON attribute is absent", valuePattern.isMatchFor("{ \"numbers\": [{\"number\": 7} ]}"));
+        assertTrue("Expected match when JSON attribute is present", valuePattern.isMatchFor("{ \"numbers\": [ {\"number\": 1}, {\"number\": 2} ]}", null));
+        assertFalse("Expected no match when JSON attribute is absent", valuePattern.isMatchFor("{ \"numbers\": [{\"number\": 7} ]}", null));
     }
 
     @Test
     public void matchesOnJsonPathsWithFiltersOnNestedObjects() {
         valuePattern.setMatchesJsonPaths("$..*[?(@.innerOne == 11)]");
-        assertTrue("Expected match", valuePattern.isMatchFor("{ \"things\": { \"thingOne\": { \"innerOne\": 11 }, \"thingTwo\": 2 }}"));
+        assertTrue("Expected match", valuePattern.isMatchFor("{ \"things\": { \"thingOne\": { \"innerOne\": 11 }, \"thingTwo\": 2 }}", null));
     }
 
     @Test
@@ -152,7 +153,7 @@ public class ValuePatternTest {
         expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because the JSON document couldn't be parsed");
 
         valuePattern.setMatchesJsonPaths("$.something");
-        assertFalse("Expected the match to fail", valuePattern.isMatchFor("Not a JSON document"));
+        assertFalse("Expected the match to fail", valuePattern.isMatchFor("Not a JSON document", null));
     }
 
     @Test
@@ -160,7 +161,7 @@ public class ValuePatternTest {
         expectInfoNotification("Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because the JSON path didn't match the document structure");
 
         valuePattern.setMatchesJsonPaths("$.something");
-        assertFalse("Expected the match to fail", valuePattern.isMatchFor("{ \"nothing\": 1 }"));
+        assertFalse("Expected the match to fail", valuePattern.isMatchFor("{ \"nothing\": 1 }", null));
     }
 
     @Test(expected=IllegalStateException.class)
@@ -183,7 +184,7 @@ public class ValuePatternTest {
 
 	@Test(expected=IllegalStateException.class)
 	public void doesNotPermitZeroMatchTypes() {
-		valuePattern.isMatchFor("blah");
+		valuePattern.isMatchFor("blah", null);
 	}
 
     private void expectInfoNotification(final String message) {

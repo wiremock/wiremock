@@ -29,6 +29,7 @@ public class ValueMatchingStrategy {
     private String doesNotMatch;
     private String contains;
     private String matchesJsonPath;
+    private byte[] equalToByteArray;
 
     public ValuePattern asValuePattern() {
 		ValuePattern pattern = new ValuePattern();
@@ -40,6 +41,7 @@ public class ValueMatchingStrategy {
 		pattern.setDoesNotMatch(doesNotMatch);
 		pattern.setContains(contains);
         pattern.setMatchesJsonPaths(matchesJsonPath);
+        pattern.setEqualToByteArray(equalToByteArray);
 		return pattern;
 	}
 	

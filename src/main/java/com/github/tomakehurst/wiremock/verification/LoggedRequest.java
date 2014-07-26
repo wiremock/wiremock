@@ -37,6 +37,7 @@ public class LoggedRequest implements Request {
 	private final RequestMethod method;
 	private final HttpHeaders headers;
 	private final String body;
+	private final byte[] bodyAsByteArray;
 	private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
 	
@@ -46,6 +47,7 @@ public class LoggedRequest implements Request {
                 request.getMethod(),
                 copyOf(request.getHeaders()),
                 request.getBodyAsString(),
+                request.getBodyAsByteArray(),
                 request.isBrowserProxyRequest(),
                 new Date());
 	}
@@ -56,6 +58,7 @@ public class LoggedRequest implements Request {
                          @JsonProperty("method") RequestMethod method,
                          @JsonProperty("headers") HttpHeaders headers,
                          @JsonProperty("body") String body,
+                         @JsonProperty("bodyAsByteArray") byte[] bodyAsByteArray,
                          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
                          @JsonProperty("loggedDate") Date loggedDate) {
 
@@ -63,6 +66,7 @@ public class LoggedRequest implements Request {
         this.absoluteUrl = absoluteUrl;
         this.method = method;
         this.body = body;
+        this.bodyAsByteArray = bodyAsByteArray;
         this.headers = headers;
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
@@ -114,6 +118,12 @@ public class LoggedRequest implements Request {
 	public String getBodyAsString() {
 		return body;
 	}
+
+    @Override
+    @JsonProperty("bodyAsByteArray")
+    public byte[] getBodyAsByteArray() {
+        return bodyAsByteArray;
+    }
 
 	@Override
     @JsonIgnore
