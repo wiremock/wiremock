@@ -29,8 +29,15 @@ Now if you look under ``mappings`` and ``__files`` (under the current directory 
 you'll see that a new file has been one created under each, the former for the stub mapping and the latter
 for the body content.
 
+Capturing request headers
+-------------------------
+Optionally, you can record request headers so that your stub mappings will match on those in addition to URL, method
+and body (if a POST or PUT). This is done by adding an extra parameter to the command line
+e.g. ``--match-headers="Accept,Content-Type"``
+
+
 .. note::
-    The WireMock recorder will ignore a request with a method and URL identical to those of a stub already recorded.
+    The recorder will ignore any request matching one it has already captured.
 
 
 Playback
