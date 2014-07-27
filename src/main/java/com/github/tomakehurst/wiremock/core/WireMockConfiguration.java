@@ -18,6 +18,9 @@ package com.github.tomakehurst.wiremock.core;
 import java.util.List;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+
+import static com.google.common.collect.Lists.transform;
 
 public class WireMockConfiguration implements Options {
 
@@ -30,8 +33,7 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Log4jNotifier();
     private boolean requestJournalDisabled = false;
-    private boolean matchingHeadersEnabled = false;
-    private List<String> matchingHeaders;
+    private List<CaseInsensitiveKey> matchingHeaders;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -92,15 +94,8 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration enableHeaderMatching(List<String> headers) {
-    	this.matchingHeaders = headers;
-    	this.matchingHeadersEnabled = true;
-    	return this;
-    }
-    
-    public WireMockConfiguration disableHeaderMatching() {
-    	this.matchingHeaders = null;
-    	this.matchingHeadersEnabled = false;
+    public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
+    	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
     	return this;
     }
     
@@ -152,12 +147,7 @@ public class WireMockConfiguration implements Options {
     }
     
     @Override
-    public boolean matchingHeadersEnabled() {
-    	return matchingHeadersEnabled;
-    }
-    
-    @Override
-    public List<String>matchingHeaders() {
+    public List<CaseInsensitiveKey>matchingHeaders() {
     	return matchingHeaders;
     }
 }

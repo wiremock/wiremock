@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.createParentDirs;
@@ -293,17 +294,16 @@ public class StandaloneAcceptanceTest {
 	public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
 	    WireMock otherServerClient = start8084ServerAndCreateClient();
 		startRunner("--record-mappings", "--match-headers", "Accept");
-		givenThat(get(urlEqualTo("/please/record-this"))
+		givenThat(get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().proxiedFrom("http://localhost:8084")));
 		otherServerClient.register(
-		        get(urlEqualTo("/please/record-this"))
+		        get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 		
-		testClient.get("/please/record-this", TestHttpHeader.withHeader("Accept", "application/json"));
+		testClient.get("/please/record-headers", withHeader("accept", "application/json"));
 		
-		assertThat(mappingsDirectory, containsAFileContaining("/please/record-this"));
-		assertThat(contentsOfFirstFileNamedLike("please-record-this"),
-		        containsString("headers\" :"));
+		assertThat(mappingsDirectory, containsAFileContaining("/please/record-headers"));
+		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept\" : {"));
 	}
 	
 	@Test

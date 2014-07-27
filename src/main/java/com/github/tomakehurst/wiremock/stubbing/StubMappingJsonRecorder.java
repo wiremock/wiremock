@@ -20,63 +20,65 @@ import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.Arrays.asList;
 
 public class StubMappingJsonRecorder implements RequestListener {
-	
-	private final FileSource mappingsFileSource;
-	private final FileSource filesFileSource;
-	private final Admin admin;
-	private IdGenerator idGenerator;
-	
-	public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin) {
-		this.mappingsFileSource = mappingsFileSource;
-		this.filesFileSource = filesFileSource;
-		this.admin = admin;
-		idGenerator = new VeryShortIdGenerator();
-	}
 
-	@Override
-	public void requestReceived(Request request, Response response) {
+    private final FileSource mappingsFileSource;
+    private final FileSource filesFileSource;
+    private final Admin admin;
+    private final List<CaseInsensitiveKey> headersToMatch;
+    private IdGenerator idGenerator;
+
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
+        this.mappingsFileSource = mappingsFileSource;
+        this.filesFileSource = filesFileSource;
+        this.admin = admin;
+        this.headersToMatch = headersToMatch;
+        idGenerator = new VeryShortIdGenerator();
+    }
+
+    @Override
+    public void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
-		
-		if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
-		    notifier().info(String.format("Recording mappings for %s", request.getUrl()));
-		    writeToMappingAndBodyFile(request, response, requestPattern);
-		} else {
-		    notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
-		}
-	}
 
-   private RequestPattern buildRequestPatternFrom(Request request) {
-      RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
-      if (admin.matchingHeadersEnabled()) {
-    	  for (HttpHeader header : request.getHeaders().all()) {
-    		 if (admin.matchingHeaders().contains(header.key()))
-    			requestPattern.addHeader(header.key(), ValuePattern.equalTo(header.firstValue()));
-    	  }
-      }
-      String body = request.getBodyAsString();
-      if (!body.isEmpty()) {
-         ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
-         requestPattern.setBodyPatterns(asList(bodyPattern));
-      }
+        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+            notifier().info(String.format("Recording mappings for %s", request.getUrl()));
+            writeToMappingAndBodyFile(request, response, requestPattern);
+        } else {
+            notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
+        }
+    }
 
-      return requestPattern;
-   }
+    private RequestPattern buildRequestPatternFrom(Request request) {
+        RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+        if (!headersToMatch.isEmpty()) {
+            for (HttpHeader header: request.getHeaders().all()) {
+                if (headersToMatch.contains(header.caseInsensitiveKey())) {
+                    requestPattern.addHeader(header.key(), ValuePattern.equalTo(header.firstValue()));
+                }
+            }
+        }
 
-   private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
+        String body = request.getBodyAsString();
+        if (!body.isEmpty()) {
+            ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
+            requestPattern.setBodyPatterns(asList(bodyPattern));
+        }
+
+        return requestPattern;
+    }
+
+    private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
         String fileId = idGenerator.generate();
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
@@ -89,7 +91,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         }
 
         StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
-        
+
         filesFileSource.writeBinaryFile(bodyFileName, response.getBody());
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }

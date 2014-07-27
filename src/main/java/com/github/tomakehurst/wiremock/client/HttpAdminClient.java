@@ -140,16 +140,6 @@ public class HttpAdminClient implements Admin {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
     }
 
-    @Override
-    public boolean matchingHeadersEnabled() {
-    	return false;
-    }
-    
-    @Override
-    public List<String> matchingHeaders() {
-    	return null;
-    }
-    
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
 		HttpPost post = new HttpPost(url);
 		try {

@@ -17,15 +17,13 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
@@ -37,12 +35,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Lists.transform;
 
 @RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {
@@ -61,11 +61,15 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-		listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin);
-		listener.setIdGenerator(fixedIdGenerator("1$2!3"));
+        constructRecordingListener(Collections.<String>emptyList());
 	}
-	
-	private static final String SAMPLE_REQUEST_MAPPING =
+
+    private void constructRecordingListener(List<String> headersToRecord) {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+        listener.setIdGenerator(fixedIdGenerator("1$2!3"));
+    }
+
+    private static final String SAMPLE_REQUEST_MAPPING =
 		"{ 													             \n" +
 		"	\"request\": {									             \n" +
 		"		\"method\": \"GET\",						             \n" +
@@ -81,7 +85,6 @@ public class StubMappingJsonRecorderTest {
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
 		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-		    allowing(admin).matchingHeadersEnabled(); will(returnValue(false));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 			        with(equalToJson(SAMPLE_REQUEST_MAPPING)));
 			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
@@ -122,7 +125,6 @@ public class StubMappingJsonRecorderTest {
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
 	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
-	        allowing(admin).matchingHeadersEnabled(); will(returnValue(false));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.json", "Recorded body content".getBytes(UTF_8));
@@ -149,7 +151,6 @@ public class StubMappingJsonRecorderTest {
 	public void doesNotWriteFileIfRequestAlreadyReceived() {
 	    context.checking(new Expectations() {{
             atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(2)));
-            allowing(admin).matchingHeadersEnabled(); will(returnValue(false));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -165,7 +166,6 @@ public class StubMappingJsonRecorderTest {
 	public void doesNotWriteFileIfResponseNotFromProxy() {
 	    context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-            allowing(admin).matchingHeadersEnabled(); will(returnValue(false));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -201,7 +201,6 @@ public class StubMappingJsonRecorderTest {
     public void includesBodyInRequestPatternIfInRequest() {
         context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-            allowing(admin).matchingHeadersEnabled(); will(returnValue(false));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY)));
@@ -250,15 +249,14 @@ public class StubMappingJsonRecorderTest {
             "	}												             \n" +
             "}													               ";
     
-    private static final List<String> MATCHING_REQUEST_HEADERS = 
-    		new ArrayList<String>(Arrays.asList("Accept"));
+    private static final List<String> MATCHING_REQUEST_HEADERS = new ArrayList<String>(Arrays.asList("Accept"));
     
     @Test
     public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {
+        constructRecordingListener(MATCHING_REQUEST_HEADERS);
+
         context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-            allowing(admin).matchingHeadersEnabled(); will(returnValue(true));
-            allowing(admin).matchingHeaders(); will(returnValue(MATCHING_REQUEST_HEADERS));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1)));
