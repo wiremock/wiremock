@@ -184,6 +184,9 @@ Sets the root directory, under which ``mappings`` and ``__files`` reside. This d
 ``--record-mappings``:
 Record incoming requests as stub mappings. See :ref:`record-playback`.
 
+``--match-headers``:
+When in record mode, capture request headers with the keys specified. See :ref:`record-playback`.
+
 ``--proxy-all``:
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
