@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 
 public interface Options {
 
@@ -35,6 +36,5 @@ public interface Options {
     Notifier notifier();
     boolean requestJournalDisabled();
     public String bindAddress();
-    boolean matchingHeadersEnabled();
-    List<String> matchingHeaders();
+    List<CaseInsensitiveKey> matchingHeaders();
 }

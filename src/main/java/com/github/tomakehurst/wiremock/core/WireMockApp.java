@@ -44,8 +44,6 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
     private final MappingsSaver mappingsSaver;
-    private final boolean matchingHeadersEnabled;
-    private final List<String> matchingHeaders;
 
     public WireMockApp(
             RequestDelayControl requestDelayControl,
@@ -53,8 +51,6 @@ public class WireMockApp implements StubServer, Admin {
             MappingsLoader defaultMappingsLoader,
             MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
-            boolean matchingHeadersEnabled,
-            List<String> matchingHeaders,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
@@ -65,8 +61,6 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal();
         this.container = container;
         loadDefaultMappings();
-        this.matchingHeadersEnabled = matchingHeadersEnabled;
-        this.matchingHeaders = matchingHeaders;
     }
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
@@ -144,16 +138,6 @@ public class WireMockApp implements StubServer, Admin {
         }
     }
 
-    @Override
-    public boolean matchingHeadersEnabled() {
-    	return matchingHeadersEnabled;
-    }
-    
-    @Override
-    public List<String> matchingHeaders() {
-    	return matchingHeaders;
-    }
-    
     @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         globalSettingsHolder.replaceWith(newSettings);

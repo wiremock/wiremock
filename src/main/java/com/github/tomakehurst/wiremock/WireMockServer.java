@@ -89,8 +89,6 @@ public class WireMockServer implements Container {
                 defaultMappingsLoader,
                 mappingsSaver,
                 options.requestJournalDisabled(),
-                options.matchingHeadersEnabled(),
-                options.matchingHeaders(),
                 this
         );
 
@@ -157,7 +155,7 @@ public class WireMockServer implements Container {
 	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
-                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp));
+                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
 	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 	

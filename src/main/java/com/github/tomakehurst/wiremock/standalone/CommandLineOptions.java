@@ -18,16 +18,21 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.Iterators;
+import com.google.common.collect.UnmodifiableIterator;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
 	
@@ -101,17 +106,14 @@ public class CommandLineOptions implements Options {
 	}
 	
 	@Override
-	public boolean matchingHeadersEnabled() {
-		return optionSet.has(MATCH_HEADERS);
-	}
-	
-	@Override
-	public List<String> matchingHeaders() {
-		if (matchingHeadersEnabled()) {
+	public List<CaseInsensitiveKey> matchingHeaders() {
+		if (optionSet.hasArgument(MATCH_HEADERS)) {
 			String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
-			return Arrays.asList(headerSpec.split(","));
+            UnmodifiableIterator<String> headerKeys = Iterators.forArray(headerSpec.split(","));
+            return ImmutableList.copyOf(Iterators.transform(headerKeys, TO_CASE_INSENSITIVE_KEYS));
 		}
-		return null;
+
+		return Collections.emptyList();
 	}
 	
 	private boolean specifiesPortNumber() {

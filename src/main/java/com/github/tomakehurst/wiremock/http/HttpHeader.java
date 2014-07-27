@@ -35,6 +35,15 @@ public class HttpHeader {
         this.values = newArrayList(values);
     }
 
+    public HttpHeader(CaseInsensitiveKey key, Collection<String> values) {
+        this.key = key.value();
+        this.values = newArrayList(values);
+    }
+
+    public static HttpHeader httpHeader(CaseInsensitiveKey key, String... values) {
+        return new HttpHeader(key.value(), values);
+    }
+
     public HttpHeader(String key, Collection<String> values) {
         this.key = key;
         this.values = newArrayList(values);
@@ -58,6 +67,10 @@ public class HttpHeader {
 
     public String key() {
         return key;
+    }
+
+    public CaseInsensitiveKey caseInsensitiveKey() {
+        return CaseInsensitiveKey.from(key);
     }
 
     public String firstValue() {
