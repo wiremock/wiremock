@@ -20,16 +20,20 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 
 public class CommandLineOptions implements Options {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
+	private static final String MATCH_HEADERS = "match-headers";
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
@@ -53,6 +57,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
 		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
@@ -93,6 +98,20 @@ public class CommandLineOptions implements Options {
 	
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
+	}
+	
+	@Override
+	public boolean matchingHeadersEnabled() {
+		return optionSet.has(MATCH_HEADERS);
+	}
+	
+	@Override
+	public List<String> matchingHeaders() {
+		if (matchingHeadersEnabled()) {
+			String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
+			return Arrays.asList(headerSpec.split(","));
+		}
+		return null;
 	}
 	
 	private boolean specifiesPortNumber() {

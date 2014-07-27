@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -60,6 +61,12 @@ public class StubMappingJsonRecorder implements RequestListener {
 
    private RequestPattern buildRequestPatternFrom(Request request) {
       RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+      if (admin.matchingHeadersEnabled()) {
+    	  for (HttpHeader header : request.getHeaders().all()) {
+    		 if (admin.matchingHeaders().contains(header.key()))
+    			requestPattern.addHeader(header.key(), ValuePattern.equalTo(header.firstValue()));
+    	  }
+      }
       String body = request.getBodyAsString();
       if (!body.isEmpty()) {
          ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());

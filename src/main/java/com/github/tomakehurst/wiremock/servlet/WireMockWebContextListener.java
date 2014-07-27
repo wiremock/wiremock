@@ -58,7 +58,10 @@ public class WireMockWebContextListener implements ServletContextListener {
                 defaultMappingsLoader,
                 mappingsSaver,
                 false,
-                new NotImplementedContainer());
+                false,
+                null,
+                new NotImplementedContainer()
+        );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
