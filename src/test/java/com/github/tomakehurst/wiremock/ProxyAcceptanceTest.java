@@ -125,4 +125,14 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
         verify(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
         otherServiceClient.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
     }
+
+    @Test
+    public void proxiesPatchRequestsWithBody() {
+        otherServiceClient.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
+        stubFor(patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.patchWithBody("/patch", "Patch body", "text/plain", "utf-8");
+
+        otherServiceClient.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
+    }
 }
