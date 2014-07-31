@@ -99,7 +99,7 @@ To match stubs according to request headers:
         .withHeader("Content-Type", equalTo("text/xml"))
         .withHeader("Accept", matching("text/.*"))
         .withHeader("etag", notMatching("abcd.*"))
-        .withHeader("etag", containing("2134"))
+        .withHeader("X-Custom-Header", containing("2134"))
             .willReturn(aResponse().withStatus(200)));
 
 Or
@@ -120,7 +120,7 @@ Or
                 "etag": {
                     "doesNotMatch": "abcd.*"
                 },
-                "etag": {
+                "X-Custom-Header": {
                     "contains": "2134"
                 }
             }
