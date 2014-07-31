@@ -150,6 +150,16 @@ public class WireMockTestClient {
         return executeMethodAndCovertExceptions(httpPost);
     }
 
+    public WireMockResponse patchWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
+        return patch(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
+    }
+
+    public WireMockResponse patch(String url, HttpEntity entity) {
+        HttpPatch httpPatch = new HttpPatch(mockServiceUrlFor(url));
+        httpPatch.setEntity(entity);
+        return executeMethodAndCovertExceptions(httpPatch);
+    }
+
 	public void addResponse(String responseSpecJson) {
 		int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
 		if (status != HTTP_CREATED) {

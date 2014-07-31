@@ -33,6 +33,7 @@ import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAs
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
@@ -64,7 +65,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         addRequestHeaders(httpRequest, responseDefinition);
 
 		try {
-			addBodyIfPostOrPut(httpRequest, responseDefinition);
+			addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
 			HttpResponse httpResponse = client.execute(httpRequest);
 
             return response()
@@ -127,9 +128,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING).contains(key.toLowerCase());
     }
 
-    private static void addBodyIfPostOrPut(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
+    private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
 		Request originalRequest = response.getOriginalRequest();
-		if (originalRequest.getMethod().isOneOf(PUT, POST)) {
+		if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
 			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
             requestWithEntity.setEntity(buildEntityFrom(originalRequest));
 		}
