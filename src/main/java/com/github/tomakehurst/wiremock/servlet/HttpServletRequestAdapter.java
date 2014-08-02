@@ -49,11 +49,12 @@ public class HttpServletRequestAdapter implements Request {
 	public String getUrl() {
 		String url = request.getRequestURI();
 
-		if (!isNullOrEmpty(request.getContextPath())) {
-			url = url.replace(request.getContextPath(), "");
+		String contextPath = request.getContextPath();
+		if (!isNullOrEmpty(contextPath) && url.startsWith(contextPath)) {
+			url = url.substring(contextPath.length());
 		}
-		if(urlPrefixToRemove!=null && url.startsWith(urlPrefixToRemove)) {
-			url = url.replaceFirst(urlPrefixToRemove, "");
+		if(!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
+			url = url.substring(urlPrefixToRemove.length());
 		}
 
 		return withQueryStringIfPresent(url);
