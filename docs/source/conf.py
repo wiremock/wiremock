@@ -48,7 +48,7 @@ copyright = u'2012, Tom Akehurst'
 # built documents.
 #
 # The short X.Y version.
-version = '1.46'
+version = '1.47'
 # The full version, including alpha/beta/rc tags.
 release = version
 

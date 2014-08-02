@@ -7,7 +7,7 @@ apply plugin: 'project-report'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.46
+version = 1.47
 
 repositories {
 	mavenCentral()
