@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.46</version>
+        <version>1.47</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -160,7 +160,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.46/wiremock-1.46-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.47/wiremock-1.47-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -183,6 +183,9 @@ Sets the root directory, under which ``mappings`` and ``__files`` reside. This d
 
 ``--record-mappings``:
 Record incoming requests as stub mappings. See :ref:`record-playback`.
+
+``--match-headers``:
+When in record mode, capture request headers with the keys specified. See :ref:`record-playback`.
 
 ``--proxy-all``:
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``

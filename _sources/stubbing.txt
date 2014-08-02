@@ -99,7 +99,7 @@ To match stubs according to request headers:
         .withHeader("Content-Type", equalTo("text/xml"))
         .withHeader("Accept", matching("text/.*"))
         .withHeader("etag", notMatching("abcd.*"))
-        .withHeader("etag", containing("2134"))
+        .withHeader("X-Custom-Header", containing("2134"))
             .willReturn(aResponse().withStatus(200)));
 
 Or
@@ -120,7 +120,7 @@ Or
                 "etag": {
                     "doesNotMatch": "abcd.*"
                 },
-                "etag": {
+                "X-Custom-Header": {
                     "contains": "2134"
                 }
             }
@@ -227,7 +227,7 @@ The JSON equivalent of the above example would be:
             "url": "/with/json/body",
             "bodyPatterns" : [
               	{ "matchesJsonPath" : "$.status"},
-              	{ "matchesJsonPath" : "$.things[$(@.name == 'RequiredThing')]" }
+              	{ "matchesJsonPath" : "$.things[?(@.name == 'RequiredThing')]" }
             ]
     	},
     	"response": {
@@ -256,8 +256,39 @@ and in JSON:
     ]
 
 
+XPath body matching
+-------------------
+Similar to matching on JSONPath, XPath can be used with XML bodies. An XML document will be considered to match if any
+elements are returned by the XPath evaluation.
+
+.. code-block:: java
+
+    stubFor(put(urlEqualTo("/xpath"))
+        .withRequestBody(matchingXPath("/todo-list[count(todo-item) = 3]"))
+        .willReturn(aResponse().withStatus(200)));
+
+
+The JSON equivalent of which would be:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "PUT",
+            "url": "/xpath",
+            "bodyPatterns" : [
+              	{ "matchesXPath" : "/todo-list[count(todo-item) = 3]" },
+            ]
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
+
 .. note::
     All of the request matching options described here can also be used for :ref:`verifying`.
+
 
 .. _stubbing-stub-priority:
 
