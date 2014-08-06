@@ -15,20 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import org.apache.http.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -38,11 +24,38 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpTrace;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
+
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+
 public class ProxyResponseRenderer implements ResponseRenderer {
 
     private static final int MINUTES = 1000 * 60;
     private static final String TRANSFER_ENCODING = "transfer-encoding";
     private static final String CONTENT_LENGTH = "content-length";
+    private static final String HOST = "host";
 
     private final HttpClient client;
 	
@@ -125,7 +138,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	}
 
     private static boolean headerShouldBeTransferred(String key) {
-        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING).contains(key.toLowerCase());
+        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, HOST).contains(key.toLowerCase());
     }
 
     private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
