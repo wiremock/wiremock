@@ -82,6 +82,13 @@ public class PortNumberTest {
         createServer(wireMockConfig().httpsPort(8091)).httpsPort();
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void serverWithoutHttpsThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
+        WireMockServer wireMockServer = createServer(wireMockConfig().port(8090));
+        wireMockServer.start();
+        wireMockServer.httpsPort();
+    }
+
     @Test
     public void configuringPortZeroPicksArbitraryPort() {
         WireMockServer wireMockServer = createServer(wireMockConfig().port(0).httpsPort(0));

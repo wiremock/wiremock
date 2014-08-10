@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.google.common.base.Preconditions.checkState;
 
 public class WireMockServer implements Container {
 
@@ -40,13 +41,10 @@ public class WireMockServer implements Container {
     public static final String MAPPINGS_ROOT = "mappings";
 
 	private final WireMockApp wireMockApp;
-    private final AdminRequestHandler adminRequestHandler;
     private final StubRequestHandler stubRequestHandler;
 
-	
 	private final HttpServer httpServer;
-    private final RequestDelayControl requestDelayControl;
-	private final FileSource fileSource;
+    private final FileSource fileSource;
 	private final Notifier notifier;
 
     private final Options options;
@@ -56,10 +54,10 @@ public class WireMockServer implements Container {
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
 
-        requestDelayControl = new ThreadSafeRequestDelayControl();
-
+        RequestDelayControl requestDelayControl = new ThreadSafeRequestDelayControl();
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
         JsonFileMappingsSaver mappingsSaver = new JsonFileMappingsSaver(fileSource.child(MAPPINGS_ROOT));
+
         wireMockApp = new WireMockApp(
                 requestDelayControl,
                 options.browserProxyingEnabled(),
@@ -69,17 +67,25 @@ public class WireMockServer implements Container {
                 this
         );
 
-        adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
-        stubRequestHandler = new StubRequestHandler(wireMockApp,
-                new StubResponseRenderer(fileSource.child(FILES_ROOT),
+        AdminRequestHandler adminRequestHandler = new AdminRequestHandler(
+                wireMockApp,
+                new BasicResponseRenderer()
+        );
+        stubRequestHandler = new StubRequestHandler(
+                wireMockApp,
+                new StubResponseRenderer(
+                        fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(options.proxyVia())));
+                        new ProxyResponseRenderer(options.proxyVia())
+                )
+        );
         HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,
                 adminRequestHandler,
                 stubRequestHandler,
-                requestDelayControl);
+                requestDelayControl
+        );
     }
 
     private MappingsLoader makeDefaultMappingsLoader() {
@@ -176,10 +182,18 @@ public class WireMockServer implements Container {
     }
 
     public int port() {
+        checkState(
+                isRunning(),
+                "Not listening on HTTP port. The WireMock server is most likely stopped"
+        );
         return httpServer.port();
     }
 
     public int httpsPort() {
+        checkState(
+                isRunning() && options.httpsSettings().enabled(),
+                "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped."
+        );
         return httpServer.httpsPort();
     }
 

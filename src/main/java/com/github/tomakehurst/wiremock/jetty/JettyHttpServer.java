@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock.jetty;
 
 import com.github.tomakehurst.wiremock.HttpServer;
@@ -23,60 +38,57 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
 class JettyHttpServer implements HttpServer {
 
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockServer.FILES_ROOT);
 
-    private final Notifier notifier;
-    private final String bindAddress;
-    private final int port;
-    private final FileSource fileSource;
-    private final int httpsPort;
-    private final String keystorePath;
-    private final boolean httpsEnabled;
-
-    private final AdminRequestHandler adminRequestHandler;
-    private final StubRequestHandler stubRequestHandler;
-    private final RequestDelayControl requestDelayControl;
-
-    private Server jettyServer;
-    private DelayableSocketConnector httpConnector;
-    private DelayableSslSocketConnector httpsConnector;
+    private final Server jettyServer;
+    private final DelayableSocketConnector httpConnector;
+    private final DelayableSslSocketConnector httpsConnector;
 
     JettyHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler,
-            RequestDelayControl requestDelayControl) {
-        this.adminRequestHandler = adminRequestHandler;
-        this.stubRequestHandler = stubRequestHandler;
-        this.requestDelayControl = requestDelayControl;
-        this.fileSource = options.filesRoot();
-        this.port = options.portNumber();
-        this.bindAddress = options.bindAddress();
-        this.notifier = options.notifier();
-        this.httpsPort = options.httpsSettings().port();
-        this.keystorePath = options.httpsSettings().keyStorePath();
-        this.httpsEnabled = options.httpsSettings().enabled();
+            RequestDelayControl requestDelayControl
+    ) {
+
+    	jettyServer = new Server();
+        httpConnector = createHttpConnector(
+                requestDelayControl,
+                options.bindAddress(),
+                options.portNumber()
+        );
+        jettyServer.addConnector(httpConnector);
+
+        if (options.httpsSettings().enabled()) {
+            httpsConnector = createHttpsConnector(
+                    requestDelayControl,
+                    options.httpsSettings().port(),
+                    options.httpsSettings().keyStorePath()
+            );
+            jettyServer.addConnector(httpsConnector);
+        } else {
+            httpsConnector = null;
+        }
+
+        Notifier notifier = options.notifier();
+        addAdminContext(
+                adminRequestHandler,
+                notifier
+        );
+        addMockServiceContext(
+                stubRequestHandler,
+                options.filesRoot(),
+                notifier
+        );
     }
 
     @Override
     public void start() {
         try {
-            jettyServer = new Server();
-            httpConnector = createHttpConnector(requestDelayControl);
-            jettyServer.addConnector(httpConnector);
-
-            if (httpsEnabled) {
-                httpsConnector = createHttpsConnector(requestDelayControl);
-                jettyServer.addConnector(httpsConnector);
-            }
-
-            addAdminContext(adminRequestHandler);
-            addMockServiceContext(stubRequestHandler);
             jettyServer.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -86,8 +98,6 @@ class JettyHttpServer implements HttpServer {
     @Override
     public void stop() {
         try {
-            httpConnector = null;
-            httpsConnector = null;
             jettyServer.stop();
             jettyServer.join();
         } catch (Exception e) {
@@ -102,17 +112,19 @@ class JettyHttpServer implements HttpServer {
 
     @Override
     public int port() {
-        checkState(httpConnector != null, "Not listening on HTTP port. The WireMock server is most likely stopped");
         return httpConnector.getLocalPort();
     }
 
     @Override
     public int httpsPort() {
-        checkState(httpsConnector != null, "Not listening on HTTPS port. Either HTTPS is not enabled or the WireMock server is stopped.");
         return httpsConnector.getLocalPort();
     }
 
-    private DelayableSocketConnector createHttpConnector(RequestDelayControl requestDelayControl) {
+    private DelayableSocketConnector createHttpConnector(
+            RequestDelayControl requestDelayControl,
+            String bindAddress,
+            int port
+    ) {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
         connector.setHost(bindAddress);
         connector.setPort(port);
@@ -120,7 +132,11 @@ class JettyHttpServer implements HttpServer {
         return connector;
     }
 
-    private DelayableSslSocketConnector createHttpsConnector(RequestDelayControl requestDelayControl) {
+    private DelayableSslSocketConnector createHttpsConnector(
+            RequestDelayControl requestDelayControl,
+            int httpsPort,
+            String keystorePath
+    ) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
         connector.setPort(httpsPort);
         connector.setHeaderBufferSize(8192);
@@ -130,7 +146,11 @@ class JettyHttpServer implements HttpServer {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
-    private void addMockServiceContext(StubRequestHandler stubRequestHandler) {
+    private void addMockServiceContext(
+            StubRequestHandler stubRequestHandler,
+            FileSource fileSource,
+            Notifier notifier
+    ) {
         Context mockServiceContext = new Context(jettyServer, "/");
 
         Map initParams = newHashMap();
@@ -162,7 +182,10 @@ class JettyHttpServer implements HttpServer {
         jettyServer.addHandler(mockServiceContext);
     }
 
-    private void addAdminContext(AdminRequestHandler adminRequestHandler) {
+    private void addAdminContext(
+            AdminRequestHandler adminRequestHandler,
+            Notifier notifier
+    ) {
         Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
         ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
