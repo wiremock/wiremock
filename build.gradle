@@ -155,14 +155,21 @@ signing {
     sign configurations.archives
 }
 
-if (!this.hasProperty('sonatypeUser')) sonatypeUser = 'default';
-if (!this.hasProperty('sonatypePassword')) sonatypePassword = 'default';
+if (!this.hasProperty('sonatypeUser'))
+    user = 'default'
+else
+    user = sonatypeUser
+
+if (!this.hasProperty('sonatypePassword'))
+    password = 'default'
+else
+    password = sonatypePassword
 
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-            	authentication(userName: sonatypeUser , password: sonatypePassword)
+            	authentication(userName: user , password: password)
         	};
         	beforeDeployment { deployment -> signPom(deployment) };
             pom.artifactId = 'wiremock'
