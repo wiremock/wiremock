@@ -21,11 +21,11 @@ import org.mortbay.jetty.bio.SocketConnector;
 import java.io.IOException;
 import java.net.Socket;
 
-public class DelayableSocketConnector extends SocketConnector {
+class DelayableSocketConnector extends SocketConnector {
 
     private final RequestDelayControl requestDelayControl;
 
-    public DelayableSocketConnector(RequestDelayControl requestDelayControl) {
+    DelayableSocketConnector(RequestDelayControl requestDelayControl) {
         this.requestDelayControl = requestDelayControl;
     }
 
