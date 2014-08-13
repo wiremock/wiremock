@@ -195,6 +195,14 @@ public class WireMockClientTest {
 		urlStrategy.setUrl("/wrong/url");
 		wireMock.verifyThat(new RequestPatternBuilder(RequestMethod.DELETE, urlStrategy));
 	}
+
+    @Test
+    public void shouldRegisterStubMapping() {
+        expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.WITH_RESPONSE_BODY);
+        StubMapping mapping = StubMapping.buildFrom(MappingJsonSamples.SPEC_WITH_RESPONSE_BODY);
+
+        wireMock.register(mapping);
+    }
 	
 	public void expectExactlyOneAddResponseCallWithJson(final String json) {
         final StubMapping stubMapping = Json.read(json, StubMapping.class);
