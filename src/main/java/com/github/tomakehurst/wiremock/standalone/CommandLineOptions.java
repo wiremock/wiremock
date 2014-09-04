@@ -40,6 +40,7 @@ public class CommandLineOptions implements Options {
 	private static final String RECORD_MAPPINGS = "record-mappings";
 	private static final String MATCH_HEADERS = "match-headers";
 	private static final String PROXY_ALL = "proxy-all";
+    private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
         private static final String BIND_ADDRESS = "bind-address";
@@ -60,6 +61,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Must have a password of \"password\".").withRequiredArg();
 		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
+        optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
@@ -162,14 +164,20 @@ public class CommandLineOptions implements Options {
 	public String helpText() {
 		return helpText;
 	}
-	
+
 	public boolean specifiesProxyUrl() {
 		return optionSet.has(PROXY_ALL);
 	}
-	
+
+    @Override
 	public String proxyUrl() {
 		return (String) optionSet.valueOf(PROXY_ALL);
 	}
+
+    @Override
+    public boolean preserveHostHeader() {
+        return optionSet.has(PRESERVE_HOST_HEADER);
+    }
 	
 	@Override
     public boolean browserProxyingEnabled() {

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import java.net.URI;
 import java.util.List;
 
 import com.github.tomakehurst.wiremock.common.*;
@@ -34,6 +35,28 @@ public class WireMockConfiguration implements Options {
     private Notifier notifier = new Log4jNotifier();
     private boolean requestJournalDisabled = false;
     private List<CaseInsensitiveKey> matchingHeaders;
+    private String proxyUrl;
+    private boolean preserveHostHeader;
+    private String proxyUrlBasedHostHeader;
+
+    private static WireMockConfiguration instance;
+
+    public static void init(Options options) {
+        instance = new WireMockConfiguration()
+                .withPreserveHostHeader(options.preserveHostHeader())
+                .withProxyUrl(options.proxyUrl());
+
+        if (options.proxyUrl() != null && !options.preserveHostHeader()) {
+           instance.withProxyUrlBasedHostHeader((URI.create(options.proxyUrl()).getHost()));
+        }
+    }
+
+    public static WireMockConfiguration getInstance() {
+        if (instance == null) {
+            instance = new WireMockConfiguration();
+        }
+        return instance;
+    }
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -98,6 +121,21 @@ public class WireMockConfiguration implements Options {
     	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
     	return this;
     }
+
+    public WireMockConfiguration withProxyUrl(String proxyUrl) {
+        this.proxyUrl = proxyUrl;
+        return this;
+    }
+
+    public WireMockConfiguration withPreserveHostHeader(boolean preserveHostHeader) {
+        this.preserveHostHeader = preserveHostHeader;
+        return this;
+    }
+
+    public WireMockConfiguration withProxyUrlBasedHostHeader(String hostHeaderValue) {
+        this.proxyUrlBasedHostHeader = hostHeaderValue;
+        return this;
+    }
     
     @Override
     public int portNumber() {
@@ -149,5 +187,19 @@ public class WireMockConfiguration implements Options {
     @Override
     public List<CaseInsensitiveKey>matchingHeaders() {
     	return matchingHeaders;
+    }
+
+    @Override
+    public String proxyUrl() {
+        return proxyUrl;
+    }
+
+    @Override
+    public boolean preserveHostHeader() {
+        return preserveHostHeader;
+    }
+
+    public String proxyUrlBasedHostHeader() {
+        return proxyUrlBasedHostHeader;
     }
 }

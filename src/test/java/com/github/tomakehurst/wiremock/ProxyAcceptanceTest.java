@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.standalone.CommandLineOptions;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.After;
 import org.junit.Before;
@@ -117,6 +118,9 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void preservesHostHeaderWhenSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://localhost:8087", "--preserve-host-header");
+        WireMockConfiguration.init(options);
+
         otherServiceClient.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
         stubFor(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
@@ -124,6 +128,20 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 
         verify(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
         otherServiceClient.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+    }
+
+    @Test
+    public void usesProxyUrlBasedHostHeader() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://localhost:8087");
+        WireMockConfiguration.init(options);
+
+        otherServiceClient.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
+        stubFor(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.get("/host-header", withHeader("Host", "my.host"));
+
+        verify(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+        otherServiceClient.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost")));
     }
 
     @Test

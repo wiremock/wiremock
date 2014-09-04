@@ -191,6 +191,10 @@ When in record mode, capture request headers with the keys specified. See :ref:`
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
 
+``--preserve-host-header``: When in proxy mode, it passes the Host header as it comes from the client through to the
+proxied service. When this option is not present, the Host header value is deducted from the proxy URL. This option is
+only available if the ``--proxy-all`` option is specified.
+
 ``--proxy-via``:
 When proxying requests (either by using --proxy-all or by creating stub mappings that proxy to other hosts), route via
 another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
