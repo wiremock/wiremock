@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -79,7 +78,7 @@ public class WireMockServer implements Container {
                         new ProxyResponseRenderer(options.proxyVia())
                 )
         );
-        HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
+        HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,
                 adminRequestHandler,

@@ -18,7 +18,10 @@ configurations {
 }
 
 dependencies {
-	compile "org.mortbay.jetty:jetty:6.1.26"
+//    compile "org.mortbay.jetty:jetty:6.1.26"
+	compile "org.eclipse.jetty:jetty-server:9.2.2.v20140723"
+	compile "org.eclipse.jetty:jetty-servlet:9.2.2.v20140723"
+    compile "org.eclipse.jetty:jetty-webapp:9.2.2.v20140723"
 	compile "com.google.guava:guava:13.0.1"
 	compile "com.fasterxml.jackson.core:jackson-core:2.1.2", 
         	"com.fasterxml.jackson.core:jackson-annotations:2.1.2", 
@@ -28,6 +31,9 @@ dependencies {
     compile "xmlunit:xmlunit:1.5"
     compile "com.jayway.jsonpath:json-path:0.8.1"
 	compile "log4j:log4j:1.2.16"
+	compile "org.slf4j:slf4j-api:1.7.7"
+	compile "org.slf4j:slf4j-log4j12:1.7.7"
+
 	compile "net.sf.jopt-simple:jopt-simple:4.3"
 	compile ("junit:junit-dep:4.10") {
         exclude group: "org.hamcrest", module: "hamcrest-core"

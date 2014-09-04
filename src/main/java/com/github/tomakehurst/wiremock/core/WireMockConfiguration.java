@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.core;
 
 import java.util.List;
 
+import com.github.tomakehurst.wiremock.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 
 import static com.google.common.collect.Lists.transform;
 
@@ -34,6 +36,7 @@ public class WireMockConfiguration implements Options {
     private Notifier notifier = new Log4jNotifier();
     private boolean requestJournalDisabled = false;
     private List<CaseInsensitiveKey> matchingHeaders;
+    private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -149,5 +152,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public List<CaseInsensitiveKey>matchingHeaders() {
     	return matchingHeaders;
+    }
+
+    @Override
+    public HttpServerFactory httpServerFactory() {
+        return httpServerFactory;
     }
 }

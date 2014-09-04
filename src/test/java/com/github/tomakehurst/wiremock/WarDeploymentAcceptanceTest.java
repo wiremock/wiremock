@@ -19,13 +19,14 @@ import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -46,7 +47,7 @@ public class WarDeploymentAcceptanceTest {
 	public void init() throws Exception {
 		jetty = new Server(8085);
 		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
-		jetty.addHandler(context);
+		jetty.setHandler(context);
 		jetty.start();
 		
 		WireMock.configureFor("localhost", 8085, "/wiremock");
