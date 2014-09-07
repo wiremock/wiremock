@@ -38,5 +38,6 @@ public interface Options {
     public String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
     public String proxyUrl();
-    public boolean preserveHostHeader();
+    public boolean shouldPreserveHostHeader();
+    String proxyHostHeader();
 }

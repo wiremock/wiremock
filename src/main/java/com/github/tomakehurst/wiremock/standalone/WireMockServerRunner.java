@@ -39,7 +39,6 @@ public class WireMockServerRunner {
 			return;
 		}
         Log4jConfiguration.configureLogging(options.verboseLoggingEnabled());
-        WireMockConfiguration.init(options);
 
 		FileSource fileSource = options.filesRoot();
 		fileSource.createIfNecessary();

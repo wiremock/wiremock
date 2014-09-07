@@ -29,6 +29,7 @@ import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -175,11 +176,16 @@ public class CommandLineOptions implements Options {
 	}
 
     @Override
-    public boolean preserveHostHeader() {
+    public boolean shouldPreserveHostHeader() {
         return optionSet.has(PRESERVE_HOST_HEADER);
     }
-	
-	@Override
+
+    @Override
+    public String proxyHostHeader() {
+       return optionSet.hasArgument(PROXY_ALL) ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getHost() : null;
+    }
+
+    @Override
     public boolean browserProxyingEnabled() {
 		return optionSet.has(ENABLE_BROWSER_PROXYING);
 	}

@@ -15,11 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import java.net.URI;
-import java.util.List;
-
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+
+import java.util.List;
 
 import static com.google.common.collect.Lists.transform;
 
@@ -37,26 +36,7 @@ public class WireMockConfiguration implements Options {
     private List<CaseInsensitiveKey> matchingHeaders;
     private String proxyUrl;
     private boolean preserveHostHeader;
-    private String proxyUrlBasedHostHeader;
-
-    private static WireMockConfiguration instance;
-
-    public static void init(Options options) {
-        instance = new WireMockConfiguration()
-                .withPreserveHostHeader(options.preserveHostHeader())
-                .withProxyUrl(options.proxyUrl());
-
-        if (options.proxyUrl() != null && !options.preserveHostHeader()) {
-           instance.withProxyUrlBasedHostHeader((URI.create(options.proxyUrl()).getHost()));
-        }
-    }
-
-    public static WireMockConfiguration getInstance() {
-        if (instance == null) {
-            instance = new WireMockConfiguration();
-        }
-        return instance;
-    }
+    private String proxyHostHeader;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -127,13 +107,13 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration withPreserveHostHeader(boolean preserveHostHeader) {
+    public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
         this.preserveHostHeader = preserveHostHeader;
         return this;
     }
 
-    public WireMockConfiguration withProxyUrlBasedHostHeader(String hostHeaderValue) {
-        this.proxyUrlBasedHostHeader = hostHeaderValue;
+    public WireMockConfiguration proxyHostHeader(String hostHeaderValue) {
+        this.proxyHostHeader = hostHeaderValue;
         return this;
     }
     
@@ -195,11 +175,11 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public boolean preserveHostHeader() {
+    public boolean shouldPreserveHostHeader() {
         return preserveHostHeader;
     }
 
-    public String proxyUrlBasedHostHeader() {
-        return proxyUrlBasedHostHeader;
+    public String proxyHostHeader() {
+        return proxyHostHeader;
     }
 }

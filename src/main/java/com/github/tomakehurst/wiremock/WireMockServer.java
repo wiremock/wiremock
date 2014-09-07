@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.google.common.base.Optional;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
@@ -42,6 +43,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
+import java.net.URI;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -96,7 +98,10 @@ public class WireMockServer implements Container {
         stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(options.proxyVia())));
+                        new ProxyResponseRenderer(options.proxyVia(),
+                                                  options.shouldPreserveHostHeader(),
+                                                  options.proxyHostHeader())));
+
     }
 
     private MappingsLoader makeDefaultMappingsLoader() {

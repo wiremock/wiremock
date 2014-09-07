@@ -147,13 +147,13 @@ public class CommandLineOptionsTest {
     @Test
     public void returnPreserveHostHeaderTrueWhenPresent() {
         CommandLineOptions options = new CommandLineOptions("--preserve-host-header");
-        assertThat(options.preserveHostHeader(), is(true));
+        assertThat(options.shouldPreserveHostHeader(), is(true));
     }
 
     @Test
     public void returnPreserveHostHeaderFalseWhenNotPresent() {
         CommandLineOptions options = new CommandLineOptions("--port", "8080");
-        assertThat(options.preserveHostHeader(), is(false));
+        assertThat(options.shouldPreserveHostHeader(), is(false));
     }
 
     @Test(expected=IllegalArgumentException.class)
