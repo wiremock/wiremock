@@ -115,8 +115,12 @@ public class WireMock {
 
 	public void register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
-		admin.addStubMapping(mapping);
+		register(mapping);
 	}
+
+    public void register(StubMapping mapping) {
+        admin.addStubMapping(mapping);
+    }
 
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
