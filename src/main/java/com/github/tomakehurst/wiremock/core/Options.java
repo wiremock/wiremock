@@ -37,4 +37,7 @@ public interface Options {
     boolean requestJournalDisabled();
     public String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
+    public String proxyUrl();
+    public boolean shouldPreserveHostHeader();
+    String proxyHostHeader();
 }

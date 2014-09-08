@@ -38,17 +38,27 @@ public class HttpServletRequestAdapter implements Request {
 	
 	private final HttpServletRequest request;
 	private String cachedBody;
-	
+	private String urlPrefixToRemove;
+
 	public HttpServletRequestAdapter(HttpServletRequest request) {
 		this.request = request;
+	}
+
+	public HttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
+		this.request = request;
+		this.urlPrefixToRemove = urlPrefixToRemove;
 	}
 
 	@Override
 	public String getUrl() {
 		String url = request.getRequestURI();
 
-		if (!isNullOrEmpty(request.getContextPath())) {
-			url = url.replace(request.getContextPath(), "");
+		String contextPath = request.getContextPath();
+		if (!isNullOrEmpty(contextPath) && url.startsWith(contextPath)) {
+			url = url.substring(contextPath.length());
+		}
+		if(!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
+			url = url.substring(urlPrefixToRemove.length());
 		}
 
 		return withQueryStringIfPresent(url);

@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>1.47</version>
+        <version>1.48</version>
 
         <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
         <classifier>standalone</classifier>
@@ -160,7 +160,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.47/wiremock-1.47-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.48/wiremock-1.48-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -190,6 +190,10 @@ When in record mode, capture request headers with the keys specified. See :ref:`
 ``--proxy-all``:
 Proxy all requests through to another base URL e.g. ``--proxy-all="http://api.someservice.com"``
 Typically used in conjunction with ``--record-mappings`` such that a session on another service can be recorded.
+
+``--preserve-host-header``: When in proxy mode, it passes the Host header as it comes from the client through to the
+proxied service. When this option is not present, the Host header value is deducted from the proxy URL. This option is
+only available if the ``--proxy-all`` option is specified.
 
 ``--proxy-via``:
 When proxying requests (either by using --proxy-all or by creating stub mappings that proxy to other hosts), route via
@@ -284,4 +288,10 @@ This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standal
 
 The easiest way to create a WireMock WAR project is to clone the `sample app <https://github.com/tomakehurst/wiremock/tree/master/sample-war>`_
 
+Deploying under a sub-path of the context root
+----------------------------------------------
+If you want WireMock's servlet to have a non-root path, the additional init param ``mappedUnder`` must be set with the sub-path
+web.xml (in addition to configuring the servlet mapping appropriately).
+
+See `the custom mapped WAR example <https://github.com/tomakehurst/wiremock/blob/master/sample-war/src/main/webappCustomMapping/WEB-INF/web.xml>`_ for details.
 

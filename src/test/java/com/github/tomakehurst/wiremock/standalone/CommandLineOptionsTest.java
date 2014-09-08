@@ -144,6 +144,18 @@ public class CommandLineOptionsTest {
         assertThat(options.requestJournalDisabled(), is(true));
     }
 
+    @Test
+    public void returnPreserveHostHeaderTrueWhenPresent() {
+        CommandLineOptions options = new CommandLineOptions("--preserve-host-header");
+        assertThat(options.shouldPreserveHostHeader(), is(true));
+    }
+
+    @Test
+    public void returnPreserveHostHeaderFalseWhenNotPresent() {
+        CommandLineOptions options = new CommandLineOptions("--port", "8080");
+        assertThat(options.shouldPreserveHostHeader(), is(false));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
