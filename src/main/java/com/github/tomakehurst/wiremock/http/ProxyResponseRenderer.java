@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
@@ -28,6 +29,7 @@ import org.apache.http.entity.StringEntity;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -43,25 +45,30 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private static final int MINUTES = 1000 * 60;
     private static final String TRANSFER_ENCODING = "transfer-encoding";
     private static final String CONTENT_LENGTH = "content-length";
+    private static final String HOST_HEADER = "host";
 
     private final HttpClient client;
+    private final boolean preserveHostHeader;
+    private final String hostHeaderValue;
 	
-	public ProxyResponseRenderer(ProxySettings proxySettings) {
+	public ProxyResponseRenderer(ProxySettings proxySettings, boolean preserveHostHeader, String hostHeaderValue) {
         if (proxySettings != null) {
             client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings);
         } else {
             client = HttpClientFactory.createClient(1000, 5 * MINUTES);
         }
+
+        this.preserveHostHeader = preserveHostHeader;
+        this.hostHeaderValue = hostHeaderValue;
 	}
 
     public ProxyResponseRenderer() {
-        this(ProxySettings.NO_PROXY);
+        this(ProxySettings.NO_PROXY, false, null);
     }
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
 		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
-        httpRequest.removeHeaders("Host");
         addRequestHeaders(httpRequest, responseDefinition);
 
 		try {
@@ -114,12 +121,20 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 	
-	private static void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
+	private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest(); 
 		for (String key: originalRequest.getAllHeaderKeys()) {
 			if (headerShouldBeTransferred(key)) {
-				String value = originalRequest.getHeader(key);
-				httpRequest.addHeader(key, value);
+                if (!HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
+                    String value = originalRequest.getHeader(key);
+                    httpRequest.addHeader(key, value);
+                } else {
+                    if (hostHeaderValue != null) {
+                        httpRequest.addHeader(key, hostHeaderValue);
+                    } else if (response.getProxyBaseUrl() != null) {
+                        httpRequest.addHeader(key, URI.create(response.getProxyBaseUrl()).getHost());
+                    }
+                }
 			}
 		}
 	}

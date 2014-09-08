@@ -16,44 +16,62 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ProxyAcceptanceTest extends AcceptanceTestBase {
+public class ProxyAcceptanceTest {
 
-	private WireMockServer otherService;
-	private WireMock otherServiceClient;
+	WireMockServer targetService;
+	WireMock targetServiceAdmin;
+
+    WireMockServer proxyingService;
+    WireMock proxyingServiceAdmin;
+
+    WireMockTestClient testClient;
 	
-	@Override
-	@Before
-	public void init() {
-		otherService = new WireMockServer(8087);
-		otherService.start();
-		otherServiceClient = new WireMock("localhost", 8087);
+	void init(Options proxyingServiceOptions) {
+		targetService = new WireMockServer(8087);
+		targetService.start();
+		targetServiceAdmin = new WireMock("localhost", 8087);
+
+        proxyingService = new WireMockServer(proxyingServiceOptions);
+        proxyingService.start();
+        proxyingServiceAdmin = new WireMock();
+        testClient = new WireMockTestClient();
+        WireMock.configure();
 	}
+
+    void initWithDefaultConfig() {
+        init(wireMockConfig());
+    }
 	
 	@After
 	public void stop() {
-		otherService.stop();
+		targetService.stop();
+        proxyingService.stop();
 	}
 	
 	@Test
 	public void successfullyGetsResponseFromOtherServiceViaProxy() {
-		otherServiceClient.register(get(urlEqualTo("/proxied/resource?param=value"))
-				.willReturn(aResponse()
-				.withStatus(200)
-				.withHeader("Content-Type", "text/plain")
-				.withBody("Proxied content")));
-		
-		givenThat(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
+        initWithDefaultConfig();
+
+		targetServiceAdmin.register(get(urlEqualTo("/proxied/resource?param=value"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("Proxied content")));
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom("http://localhost:8087")));
 		
@@ -65,27 +83,31 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 	
 	@Test
 	public void successfullyPostsResponseToOtherServiceViaProxy() {
-		otherServiceClient.register(post(urlEqualTo("/proxied/resource"))
-				.willReturn(aResponse()
-				.withStatus(204)));
-		
-		givenThat(any(urlEqualTo("/proxied/resource")).atPriority(10)
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(post(urlEqualTo("/proxied/resource"))
+                .willReturn(aResponse()
+                        .withStatus(204)));
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom("http://localhost:8087")));
 		
 		WireMockResponse response = testClient.postWithBody("/proxied/resource", "Post content", "text/plain", "utf-8");
 		
 		assertThat(response.statusCode(), is(204));
-		otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/proxied/resource")).withRequestBody(matching("Post content")));
+		targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/proxied/resource")).withRequestBody(matching("Post content")));
 	}
 	
 	@Test
 	public void successfullyGetsResponseFromOtherServiceViaProxyWithEscapeCharsInUrl() {
-		otherServiceClient.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
-				.willReturn(aResponse()
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26"))
+                .willReturn(aResponse()
                         .withStatus(200)));
-		
-		givenThat(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).atPriority(10)
                 .willReturn(aResponse()
                         .proxiedFrom("http://localhost:8087")));
 		
@@ -96,43 +118,64 @@ public class ProxyAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void sendsContentLengthHeaderWhenPostingIfPresentInOriginalRequest() {
-        otherServiceClient.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
-        stubFor(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(post(urlEqualTo("/with/length")).willReturn(aResponse().withStatus(201)));
+        proxyingServiceAdmin.register(post(urlEqualTo("/with/length")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
         testClient.postWithBody("/with/length", "TEST", "application/x-www-form-urlencoded", "utf-8");
 
-        otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
+        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/with/length")).withHeader("Content-Length", equalTo("4")));
     }
 
     @Test
     public void sendsTransferEncodingChunkedWhenPostingIfPresentInOriginalRequest() {
-        otherServiceClient.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
-        stubFor(post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(post(urlEqualTo("/chunked")).willReturn(aResponse().withStatus(201)));
+        proxyingServiceAdmin.register(post(urlEqualTo("/chunked")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
         testClient.postWithChunkedBody("/chunked", "TEST".getBytes());
 
-        otherServiceClient.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
+        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/chunked"))
                 .withHeader("Transfer-Encoding", equalTo("chunked")));
     }
 
     @Test
     public void preservesHostHeaderWhenSpecified() {
-        otherServiceClient.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
-        stubFor(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+        init(wireMockConfig().preserveHostHeader(true));
+
+        targetServiceAdmin.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().withStatus(200)));
+        proxyingServiceAdmin.register(get(urlEqualTo("/preserve-host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+
+        testClient.get("/preserve-host-header", withHeader("Host", "my.host"));
+
+        proxyingServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
+        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/preserve-host-header")).withHeader("Host", equalTo("my.host")));
+    }
+
+    @Test
+    public void usesProxyUrlBasedHostHeaderWhenPreserveHostHeaderNotSpecified() {
+        init(wireMockConfig().preserveHostHeader(false));
+
+        targetServiceAdmin.register(get(urlEqualTo("/host-header")).willReturn(aResponse().withStatus(200)));
+        proxyingServiceAdmin.register(get(urlEqualTo("/host-header")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
         testClient.get("/host-header", withHeader("Host", "my.host"));
 
-        verify(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
-        otherServiceClient.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+        proxyingServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
+        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost")));
     }
 
     @Test
     public void proxiesPatchRequestsWithBody() {
-        otherServiceClient.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
-        stubFor(patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(patch(urlEqualTo("/patch")).willReturn(aResponse().withStatus(200)));
+        proxyingServiceAdmin.register(patch(urlEqualTo("/patch")).willReturn(aResponse().proxiedFrom("http://localhost:8087")));
 
         testClient.patchWithBody("/patch", "Patch body", "text/plain", "utf-8");
 
-        otherServiceClient.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
+        targetServiceAdmin.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
     }
 }

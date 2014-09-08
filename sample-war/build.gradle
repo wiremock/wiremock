@@ -15,5 +15,5 @@ repositories {
 dependencies {
 	compile "javax.servlet:servlet-api:2.4"
 	compile "log4j:log4j:1.2.16"
-	compile "com.github.tomakehurst:wiremock:1.47"
+	compile "com.github.tomakehurst:wiremock:1.48"
 }

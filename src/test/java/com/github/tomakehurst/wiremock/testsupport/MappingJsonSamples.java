@@ -67,6 +67,18 @@ public class MappingJsonSamples {
 		"		\"body\": \"Some content\"					\n" +
 		"	}												\n" +
 		"}													";
+
+    public static final String SPEC_WITH_RESPONSE_BODY =
+        "{                                                  \n" +
+        "   \"request\": {                                  \n" +
+        "      \"url\": \"/with/body\",                     \n" +
+        "       \"method\": \"GET\"                         \n" +
+        "   },                                              \n" +
+        "   \"response\": {                                 \n" +
+        "       \"body\": \"Some content\",                 \n" +
+        "       \"status\": 200                             \n" +
+        "   }                                               \n" +
+        "}                                                  ";
 	
 	public static final String BASIC_GET =
 		"{ 													\n" +

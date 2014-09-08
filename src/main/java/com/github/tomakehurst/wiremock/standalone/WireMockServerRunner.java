@@ -17,7 +17,9 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -55,9 +57,14 @@ public class WireMockServerRunner {
 		if (options.specifiesProxyUrl()) {
 			addProxyMapping(options.proxyUrl());
 		}
-		
-		wireMockServer.start();
-	}
+
+        try {
+            wireMockServer.start();
+        } catch (FatalStartupException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
 	
 	private void addProxyMapping(final String baseUrl) {
 		wireMockServer.loadMappingsUsing(new MappingsLoader() {
