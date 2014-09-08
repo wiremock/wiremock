@@ -87,7 +87,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#fetching-all-of-your-stub-mappings-and-checking-wiremock-is-working">Fetching all of your stub mappings (and checking WireMock is working)</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#deploying-into-a-servlet-container">Deploying into a servlet container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deploying-into-a-servlet-container">Deploying into a servlet container</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deploying-under-a-sub-path-of-the-context-root">Deploying under a sub-path of the context root</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
@@ -114,7 +117,7 @@
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>1.47<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.48<span class="nt">&lt;/version&gt;</span>
 
     <span class="c">&lt;!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client --&gt;</span>
     <span class="nt">&lt;classifier&gt;</span>standalone<span class="nt">&lt;/classifier&gt;</span>
@@ -230,9 +233,9 @@ server directly:</p>
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.47-standalone.jar
+$ java -jar wiremock-1.48-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.47/wiremock-1.47-standalone.jar">download the standalone JAR from here</a>.</p>
+<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.48/wiremock-1.48-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
 Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
@@ -253,6 +256,9 @@ When in record mode, capture request headers with the keys specified. See <a cla
 <p><tt class="docutils literal"><span class="pre">--proxy-all</span></tt>:
 Proxy all requests through to another base URL e.g. <tt class="docutils literal"><span class="pre">--proxy-all=&quot;http://api.someservice.com&quot;</span></tt>
 Typically used in conjunction with <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> such that a session on another service can be recorded.</p>
+<p><tt class="docutils literal"><span class="pre">--preserve-host-header</span></tt>: When in proxy mode, it passes the Host header as it comes from the client through to the
+proxied service. When this option is not present, the Host header value is deducted from the proxy URL. This option is
+only available if the <tt class="docutils literal"><span class="pre">--proxy-all</span></tt> option is specified.</p>
 <p><tt class="docutils literal"><span class="pre">--proxy-via</span></tt>:
 When proxying requests (either by using &#8211;proxy-all or by creating stub mappings that proxy to other hosts), route via
 another proxy server (useful when inside a corporate network that only permits internet access via an opaque proxy).
@@ -322,6 +328,12 @@ fault injection and browser proxying won&#8217;t work, __files won&#8217;t be tr
 the server cannot be remotely shutdown, and the container must be configured to explode the WAR on deployment.
 This has only really been tested in Tomcat 6 and Jetty, so YMMV. Running standalone is definitely the preferred option.</p>
 <p>The easiest way to create a WireMock WAR project is to clone the <a class="reference external" href="https://github.com/tomakehurst/wiremock/tree/master/sample-war">sample app</a></p>
+<div class="section" id="deploying-under-a-sub-path-of-the-context-root">
+<h3>Deploying under a sub-path of the context root<a class="headerlink" href="#deploying-under-a-sub-path-of-the-context-root" title="Permalink to this headline">¶</a></h3>
+<p>If you want WireMock&#8217;s servlet to have a non-root path, the additional init param <tt class="docutils literal"><span class="pre">mappedUnder</span></tt> must be set with the sub-path
+web.xml (in addition to configuring the servlet mapping appropriately).</p>
+<p>See <a class="reference external" href="https://github.com/tomakehurst/wiremock/blob/master/sample-war/src/main/webappCustomMapping/WEB-INF/web.xml">the custom mapped WAR example</a> for details.</p>
+</div>
 </div>
 </div>
 
