@@ -77,6 +77,15 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration usingFilesUnderDirectory(String path) {
+        return withRootDirectory(path);
+    }
+
+    public WireMockConfiguration usingFilesUnderClasspath(String path) {
+        this.filesRoot = new ClasspathFileSource(path);
+        return this;
+    }
+
     public WireMockConfiguration fileSource(FileSource fileSource) {
         this.filesRoot = fileSource;
         return this;

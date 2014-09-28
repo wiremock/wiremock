@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -24,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -34,8 +36,6 @@ public class MappingsLoaderAcceptanceTest {
 
 	@Before
 	public void init() {
-		constructWireMock();
-		wireMockServer.start();
 		testClient = new WireMockTestClient();
 	}
 
@@ -43,19 +43,27 @@ public class MappingsLoaderAcceptanceTest {
 	public void stopWireMock() {
 		wireMockServer.stop();
 	}
-	
-	private void constructWireMock() {
-		wireMockServer = new WireMockServer();
-		MappingsLoader mappingsLoader = new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests"));
-		wireMockServer.loadMappingsUsing(mappingsLoader);
-	}
-	
-	@Test
+
+    private void buildWireMock(Options options) {
+        wireMockServer = new WireMockServer(options);
+        wireMockServer.start();
+    }
+
+    @Test
 	public void mappingsLoadedFromJsonFiles() {
+        buildWireMock(wireMockConfig());
+        wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests")));
+
 		WireMockResponse response = testClient.get("/canned/resource/1");
 		assertThat(response.statusCode(), is(200));
-		
+
 		response = testClient.get("/canned/resource/2");
 		assertThat(response.statusCode(), is(401));
 	}
+
+    @Test
+    public void mappingsLoadedViaClasspath() {
+        buildWireMock(wireMockConfig().usingFilesUnderClasspath("classpath-filesource"));
+        assertThat(testClient.get("/test").content(), is("THINGS!"));
+    }
 }
