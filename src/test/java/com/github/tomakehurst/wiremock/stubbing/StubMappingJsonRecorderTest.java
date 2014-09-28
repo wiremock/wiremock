@@ -210,6 +210,7 @@ public class StubMappingJsonRecorderTest {
         Request request = new MockRequestBuilder(context)
                 .withMethod(POST)
                 .withUrl("/body/content")
+                .withHeader("Content-Type", "text/plain")
                 .withBody("somebody")
                 .build();
 
@@ -282,6 +283,79 @@ public class StubMappingJsonRecorderTest {
                 response().status(200).fromProxy(true).build());
         listener.requestReceived(request2,
                 response().status(200).fromProxy(true).build());
+    }
+
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY =
+            "{                                                          \n" +
+            "  \"request\" : {                                          \n" +
+            "    \"url\" : \"/json/content\",                           \n" +
+            "    \"method\" : \"POST\",                                 \n" +
+            "    \"bodyPatterns\" : [ {                                 \n" +
+            "      \"equalToJson\" : \"{}\",                            \n" +
+            "      \"jsonCompareMode\" : \"LENIENT\"                    \n" +
+            "    } ]                                                    \n" +
+            "  },                                                       \n" +
+            "  \"response\" : {                                         \n" +
+            "    \"status\" : 200,                                      \n" +
+            "    \"bodyFileName\" : \"body-json-content-1$2!3.json\"    \n" +
+            "  }                                                        \n" +
+            "}";
+
+    @Test
+    public void matchesBodyOnEqualToJsonIfJsonInRequestContentTypeHeader() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(
+                    with(any(String.class)),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY)));
+            ignoring(filesFileSource);
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(POST)
+                .withUrl("/json/content")
+                .withHeader("Content-Type", "application/json ")
+                .withBody("{}")
+                .build();
+
+        listener.requestReceived(request,
+                response().status(200).body("anything").fromProxy(true).build());
+    }
+
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_XML_BODY =
+            "{                                                                  \n" +
+            "  \"request\" : {                                                  \n" +
+            "    \"url\" : \"/xml/content\",                                    \n" +
+            "    \"method\" : \"POST\",                                         \n" +
+            "    \"bodyPatterns\" : [ {                                         \n" +
+            "      \"equalToXml\" : \"<stuff />\"                               \n" +
+            "    } ]                                                            \n" +
+            "  },                                                               \n" +
+            "  \"response\" : {                                                 \n" +
+            "    \"status\" : 200,                                              \n" +
+            "    \"bodyFileName\" : \"body-xml-content-1$2!3.json\"             \n" +
+            "  }                                                                \n" +
+            "}";
+
+    @Test
+    public void matchesBodyOnEqualToXmlIfXmlInRequestContentTypeHeader() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(
+                    with(any(String.class)),
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY)));
+            ignoring(filesFileSource);
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withMethod(POST)
+                .withUrl("/xml/content")
+                .withHeader("Content-Type", "text/xml; content-type=utf-8")
+                .withBody("<stuff />")
+                .build();
+
+        listener.requestReceived(request,
+                response().status(200).body("anything").fromProxy(true).build());
     }
     
 	private IdGenerator fixedIdGenerator(final String id) {
