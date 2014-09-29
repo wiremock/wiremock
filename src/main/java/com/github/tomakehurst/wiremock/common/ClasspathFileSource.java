@@ -109,7 +109,7 @@ public class ClasspathFileSource implements FileSource {
             public TextFile apply(ZipEntry jarEntry) {
                 return new TextFile(getUriFor(jarEntry));
             }
-        }).toImmutableList();
+        }).toList();
     }
 
     private URI getUriFor(ZipEntry jarEntry) {

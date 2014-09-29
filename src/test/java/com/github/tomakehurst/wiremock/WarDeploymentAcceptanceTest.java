@@ -32,6 +32,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class WarDeploymentAcceptanceTest {
 
@@ -75,24 +76,32 @@ public class WarDeploymentAcceptanceTest {
 
     @Test
     public void tryingToAddSocketAcceptDelayGives500() {
-        expectVerificationExceptionFor500();
-        addRequestProcessingDelay(1000);
+        try {
+            addRequestProcessingDelay(1000);
+            fail("Expected a VerificationException");
+        } catch (VerificationException e) {
+            assertThat(e.getMessage(), containsString("500"));
+        }
     }
 
     @Test
     public void tryingToShutDownGives500() {
-        expectVerificationExceptionFor500();
-        shutdownServer();
+        try {
+            shutdownServer();
+            fail("Expected a VerificationException");
+        } catch (VerificationException e) {
+            assertThat(e.getMessage(), containsString("500"));
+        }
+
     }
 
     @Test
     public void tryingToSaveMappingsGives500() {
-        expectVerificationExceptionFor500();
-        saveAllMappings();
-    }
-
-    private void expectVerificationExceptionFor500() {
-        expectedException.expect(VerificationException.class);
-        expectedException.expectMessage(containsString("500"));
+        try {
+            saveAllMappings();
+            fail("Expected a VerificationException");
+        } catch (VerificationException e) {
+            assertThat(e.getMessage(), containsString("500"));
+        }
     }
 }
