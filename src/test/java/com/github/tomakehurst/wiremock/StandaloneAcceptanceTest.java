@@ -25,7 +25,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
-import org.apache.http.conn.HttpHostConnectException;
+import com.belladati.httpclientandroidlib.conn.HttpHostConnectException;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

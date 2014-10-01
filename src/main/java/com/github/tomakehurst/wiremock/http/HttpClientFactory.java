@@ -16,18 +16,18 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import org.apache.http.HttpHost;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import com.belladati.httpclientandroidlib.HttpHost;
+import com.belladati.httpclientandroidlib.client.HttpClient;
+import com.belladati.httpclientandroidlib.conn.scheme.PlainSocketFactory;
+import com.belladati.httpclientandroidlib.conn.scheme.Scheme;
+import com.belladati.httpclientandroidlib.conn.scheme.SchemeRegistry;
+import com.belladati.httpclientandroidlib.conn.ssl.AllowAllHostnameVerifier;
+import com.belladati.httpclientandroidlib.conn.ssl.SSLSocketFactory;
+import com.belladati.httpclientandroidlib.conn.ssl.X509HostnameVerifier;
+import com.belladati.httpclientandroidlib.impl.client.DefaultHttpClient;
+import com.belladati.httpclientandroidlib.impl.conn.PoolingClientConnectionManager;
+import com.belladati.httpclientandroidlib.params.HttpConnectionParams;
+import com.belladati.httpclientandroidlib.params.HttpParams;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -38,8 +38,8 @@ import java.security.SecureRandom;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
-import static org.apache.http.client.params.ClientPNames.HANDLE_REDIRECTS;
-import static org.apache.http.conn.params.ConnRoutePNames.DEFAULT_PROXY;
+import static com.belladati.httpclientandroidlib.client.params.ClientPNames.HANDLE_REDIRECTS;
+import static com.belladati.httpclientandroidlib.conn.params.ConnRoutePNames.DEFAULT_PROXY;
 
 public class HttpClientFactory {
 

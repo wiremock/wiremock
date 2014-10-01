@@ -19,12 +19,12 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
+import com.belladati.httpclientandroidlib.*;
+import com.belladati.httpclientandroidlib.client.HttpClient;
+import com.belladati.httpclientandroidlib.client.methods.*;
+import com.belladati.httpclientandroidlib.entity.ContentType;
+import com.belladati.httpclientandroidlib.entity.InputStreamEntity;
+import com.belladati.httpclientandroidlib.entity.StringEntity;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

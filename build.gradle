@@ -23,7 +23,7 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-core:2.4.2",
         	"com.fasterxml.jackson.core:jackson-annotations:2.4.2",
         	"com.fasterxml.jackson.core:jackson-databind:2.4.2"
-	compile "org.apache.httpcomponents:httpclient:4.3.5"
+    compile "com.belladati:httpclientandroidlib:4.3.0"
     compile "org.skyscreamer:jsonassert:1.2.3"
     compile "xmlunit:xmlunit:1.5"
     compile "com.jayway.jsonpath:json-path:0.8.1"
@@ -32,7 +32,7 @@ dependencies {
 	compile ("junit:junit:4.11") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
-	
+
     testCompile "org.hamcrest:hamcrest-all:1.3"
 	testCompile ("org.jmock:jmock:2.5.1") {
         exclude group: "junit", module: "junit-dep"
@@ -99,7 +99,7 @@ task jarAll(type: Jar, dependsOn: jar) {
             taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.testCompile.asPath
             jarjar(jarfile: jarFile, manifest: "${metaInfDir}/MANIFEST.MF") {
                 zipfileset(src: jar.archivePath)
-                
+
                 configurations.compile.files.findAll { !it.name.contains("junit") }.each {
                 	zipfileset(src: it)
                 }
@@ -115,7 +115,7 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "com.jayway.**", result: "wiremock.com.jayway.@1"
             }
         }
-        
+
         Date date = new Date()
 		String name = jar.baseName
         project.artifacts.add('archives',
@@ -172,9 +172,9 @@ uploadArchives {
             	packaging 'jar'
             	name 'WireMock'
             	description 'A web service test double for all occasions'
-            	
+
             	url 'https://github.com/tomakehurst/wiremock'
-            	
+
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -182,13 +182,13 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
-                
+
                 scm {
 					connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 					developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 					url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
 				}
-				
+
 				developers {
 					developer {
 						id 'tomakehurst'
@@ -196,7 +196,7 @@ uploadArchives {
 					}
 				}
             }
-            
+
             pom.whenConfigured { thepom ->
             	println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
             	thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
@@ -220,9 +220,9 @@ task 'set-release-dir' << {
 		if (!releaseDirUrl.endsWith('/')) {
 			releaseDirUrl = releaseDirUrl + '/';
 		}
-		
+
 		tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
-		
+
 		println 'Release dir set to: ' + releaseDirUrl
 	} else {
 		logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
