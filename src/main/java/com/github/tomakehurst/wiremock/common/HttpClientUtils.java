@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import com.belladati.httpclientandroidlib.HttpEntity;
+import com.belladati.httpclientandroidlib.HttpResponse;
+import com.belladati.httpclientandroidlib.util.EntityUtils;
 
 import java.io.IOException;
 

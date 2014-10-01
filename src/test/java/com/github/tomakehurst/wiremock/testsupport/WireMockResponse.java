@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+import com.belladati.httpclientandroidlib.Header;
+import com.belladati.httpclientandroidlib.HttpResponse;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;

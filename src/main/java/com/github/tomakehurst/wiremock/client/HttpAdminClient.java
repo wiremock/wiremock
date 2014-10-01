@@ -29,19 +29,19 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
+import com.belladati.httpclientandroidlib.HttpResponse;
+import com.belladati.httpclientandroidlib.client.HttpClient;
+import com.belladati.httpclientandroidlib.client.methods.HttpGet;
+import com.belladati.httpclientandroidlib.client.methods.HttpPost;
+import com.belladati.httpclientandroidlib.entity.ContentType;
+import com.belladati.httpclientandroidlib.entity.StringEntity;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static com.belladati.httpclientandroidlib.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
 	

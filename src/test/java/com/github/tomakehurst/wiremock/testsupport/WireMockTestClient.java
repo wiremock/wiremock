@@ -16,16 +16,16 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.*;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import com.belladati.httpclientandroidlib.HttpEntity;
+import com.belladati.httpclientandroidlib.HttpHost;
+import com.belladati.httpclientandroidlib.HttpResponse;
+import com.belladati.httpclientandroidlib.client.HttpClient;
+import com.belladati.httpclientandroidlib.client.methods.*;
+import com.belladati.httpclientandroidlib.conn.params.ConnRoutePNames;
+import com.belladati.httpclientandroidlib.entity.ContentType;
+import com.belladati.httpclientandroidlib.entity.InputStreamEntity;
+import com.belladati.httpclientandroidlib.entity.StringEntity;
+import com.belladati.httpclientandroidlib.impl.client.DefaultHttpClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

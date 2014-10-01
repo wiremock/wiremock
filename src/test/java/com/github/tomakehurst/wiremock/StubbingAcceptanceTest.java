@@ -19,9 +19,9 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.ClientProtocolException;
+import com.belladati.httpclientandroidlib.MalformedChunkCodingException;
+import com.belladati.httpclientandroidlib.NoHttpResponseException;
+import com.belladati.httpclientandroidlib.client.ClientProtocolException;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
