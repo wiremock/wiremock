@@ -51,6 +51,16 @@ public class ClasspathFileSourceTest {
     }
 
     @Test
+    public void readsBinaryFileFromZip() {
+        classpathFileSource = new ClasspathFileSource("zippeddir");
+
+        BinaryFile binaryFile = classpathFileSource.getBinaryFileNamed("zippedfile.txt");
+
+        String contents = new String(binaryFile.readContents());
+        assertThat(contents, containsString("zip"));
+    }
+
+    @Test
     public void readsBinaryFileFromFileSystem() {
         initForFileSystem();
 

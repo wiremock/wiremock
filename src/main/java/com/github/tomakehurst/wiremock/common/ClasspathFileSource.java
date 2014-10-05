@@ -1,7 +1,6 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
@@ -18,24 +17,28 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Iterators.find;
 import static com.google.common.collect.Iterators.forEnumeration;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
 
 public class ClasspathFileSource implements FileSource {
 
     private final String path;
-    private ZipFile jarFile;
+    private ZipFile zipFile;
     private File rootDirectory;
 
     public ClasspathFileSource(String path) {
         this.path = path;
 
         try {
-            URL resource = Objects.firstNonNull(
-                    Thread.currentThread().getContextClassLoader(),
-                    Resources.class.getClassLoader()).getResource(path);
+            URL resource = firstNonNull(
+                    currentThread().getContextClassLoader(),
+                    Resources.class.getClassLoader())
+                        .getResource(path);
             if (resource == null) {
                 rootDirectory = new File(path);
                 return;
@@ -43,10 +46,10 @@ public class ClasspathFileSource implements FileSource {
 
             URI pathUri = resource.toURI();
 
-            if (pathUri.getScheme().equals("jar")) {
+            if (asList("jar", "war", "ear", "zip").contains(pathUri.getScheme())) {
                 String jarFileUri = pathUri.getSchemeSpecificPart().split("!")[0];
                 File file = new File(URI.create(jarFileUri));
-                jarFile = new ZipFile(file);
+                zipFile = new ZipFile(file);
             } else if (pathUri.getScheme().equals("file")) {
                 rootDirectory = new File(pathUri);
             } else {
@@ -68,7 +71,7 @@ public class ClasspathFileSource implements FileSource {
             return new BinaryFile(new File(rootDirectory, name).toURI());
         }
 
-        ZipEntry zipEntry = find(forEnumeration(jarFile.entries()), new Predicate<ZipEntry>() {
+        ZipEntry zipEntry = find(forEnumeration(zipFile.entries()), new Predicate<ZipEntry>() {
             public boolean apply(ZipEntry input) {
                 return input.getName().equals(path + "/" + name);
             }
@@ -101,7 +104,7 @@ public class ClasspathFileSource implements FileSource {
             return toTextFileList(fileList);
         }
 
-        return FluentIterable.from(toIterable(jarFile.entries())).filter(new Predicate<ZipEntry>() {
+        return FluentIterable.from(toIterable(zipFile.entries())).filter(new Predicate<ZipEntry>() {
             public boolean apply(ZipEntry jarEntry) {
                 return !jarEntry.isDirectory() && jarEntry.getName().startsWith(path);
             }

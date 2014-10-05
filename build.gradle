@@ -49,6 +49,7 @@ dependencies {
     testCompile "commons-io:commons-io:2.4"
 
     testRuntime 'org.slf4j:slf4j-simple:1.7.7'
+    testRuntime files('src/test/resources/classpathfiles.zip')
 }
 
 test {
