@@ -16,8 +16,6 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -30,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -37,8 +37,6 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 import static com.github.tomakehurst.wiremock.http.Response.response;
-import static com.google.common.collect.Iterables.transform;
-import static java.util.Arrays.asList;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
@@ -77,7 +75,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
-                    .headers(headersFrom(httpResponse))
+                    .headers(headersFrom(httpResponse, responseDefinition))
                     .body(getEntityAsByteArrayAndCloseStream(httpResponse))
                     .fromProxy(true)
                     .build();
@@ -86,12 +84,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 
-    private HttpHeaders headersFrom(HttpResponse httpResponse) {
-        return new HttpHeaders(transform(asList(httpResponse.getAllHeaders()), new Function<Header, HttpHeader>() {
-            public HttpHeader apply(Header header) {
-                return new HttpHeader(header.getName(), header.getValue());
-            }
-        }));
+    private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
+	    List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
+	    for (Header header : httpResponse.getAllHeaders()) {
+		    httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
+	    }
+	    httpHeaders.addAll(responseDefinition.getHeaders().all());
+	    return new HttpHeaders(httpHeaders);
     }
 
     private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
