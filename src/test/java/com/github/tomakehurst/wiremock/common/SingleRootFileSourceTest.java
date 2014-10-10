@@ -15,29 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
 import static org.junit.Assert.assertThat;
 
 public class SingleRootFileSourceTest {
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void listsTextFilesAtTopLevelIgnoringDirectories() {
-		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
-		
-		List<TextFile> files = fileSource.listFiles();
-		
-		assertThat(files, hasExactlyIgnoringOrder(
-				fileNamed("one"), fileNamed("two"), fileNamed("three")));
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void listsTextFilesRecursively() {
@@ -48,13 +35,7 @@ public class SingleRootFileSourceTest {
 		assertThat(files, hasExactlyIgnoringOrder(
 				fileNamed("one"), fileNamed("two"), fileNamed("three"), 
 				fileNamed("four"), fileNamed("five"), fileNamed("six"), 
-				fileNamed("seven"), fileNamed("eight")));
-	}
-	
-	@Test(expected=RuntimeException.class)
-	public void listFilesThrowsExceptionWhenRootIsNotDir() {
-		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
-		fileSource.listFiles();
+				fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
 	}
 	
 	@Test(expected=RuntimeException.class)
@@ -67,20 +48,5 @@ public class SingleRootFileSourceTest {
 	public void writehrowsExceptionWhenRootIsNotDir() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
 		fileSource.writeTextFile("thing", "stuff");
-	}
-
-	private Matcher<TextFile> fileNamed(final String name) {
-		return new TypeSafeMatcher<TextFile>() {
-
-			@Override
-			public void describeTo(Description desc) {
-			}
-
-			@Override
-			public boolean matchesSafely(TextFile textFile) {
-				return textFile.name().equals(name);
-			}
-			
-		};
 	}
 }

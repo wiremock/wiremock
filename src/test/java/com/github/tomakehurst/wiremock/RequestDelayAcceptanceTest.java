@@ -28,7 +28,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -64,11 +66,11 @@ public class RequestDelayAcceptanceTest {
         long delayMillis = SOCKET_TIMEOUT_MILLISECONDS / 2;
         WireMock.addRequestProcessingDelay((int) delayMillis);
 
-        Stopwatch stopwatch = new Stopwatch().start();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         executeGetRequest(protocol);
         stopwatch.stop();
 
-        assertThat(stopwatch.elapsedMillis(), greaterThanOrEqualTo(delayMillis));
+        assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(delayMillis));
     }
 
     @Test(expected=SocketTimeoutException.class)
