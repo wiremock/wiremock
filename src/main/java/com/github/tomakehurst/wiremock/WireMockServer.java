@@ -41,6 +41,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.thread.QueuedThreadPool;
 
 import java.util.Map;
 
@@ -176,6 +177,11 @@ public class WireMockServer implements Container {
 	public void start() {
 		try {
             jettyServer = new Server();
+
+            int threads = Integer.valueOf(System.getProperty("override.threads.max", "500"));
+            QueuedThreadPool threadPool = new QueuedThreadPool(threads);
+            jettyServer.setThreadPool(threadPool);
+
             httpConnector = createHttpConnector();
             jettyServer.addConnector(httpConnector);
 
