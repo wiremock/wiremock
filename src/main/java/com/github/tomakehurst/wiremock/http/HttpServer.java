@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock;
+package com.github.tomakehurst.wiremock.http;
 
 public interface HttpServer {
     void start();

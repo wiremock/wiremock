@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.servlet;
+package com.github.tomakehurst.wiremock.jetty6;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -36,7 +37,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 
-public class HandlerDispatchingServlet extends HttpServlet {
+public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 
 	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
 	public static final String MAPPED_UNDER_KEY = "mappedUnder";
@@ -90,18 +91,42 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new HttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new Jetty6HttpServletRequestAdapter(httpServletRequest, mappedUnder);
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
-		    response.applyTo(httpServletResponse);
+		    applyResponse(response, httpServletResponse);
 		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);
 		}
 	}
+
+    public static void applyResponse(Response response, HttpServletResponse httpServletResponse) {
+        if (response.getFault() != null) {
+            response.getFault().apply(new Jetty6FaultInjector(httpServletResponse));
+            return;
+        }
+
+        httpServletResponse.setStatus(response.getStatus());
+        for (HttpHeader header: response.getHeaders().all()) {
+            for (String value: header.values()) {
+                httpServletResponse.addHeader(header.key(), value);
+            }
+        }
+
+        writeAndTranslateExceptions(httpServletResponse, response.getBody());
+    }
+
+    private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
+        try {
+            httpServletResponse.getOutputStream().write(content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {

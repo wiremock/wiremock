@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty6;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;

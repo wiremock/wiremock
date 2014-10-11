@@ -1,9 +1,7 @@
-package com.github.tomakehurst.wiremock;
+package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
 public interface HttpServerFactory {
 

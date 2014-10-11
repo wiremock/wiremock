@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty6;
 
-import com.github.tomakehurst.wiremock.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
@@ -37,10 +36,10 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 import static com.google.common.collect.Maps.newHashMap;
 
-class JettyHttpServer implements HttpServer {
+class Jetty6HttpServer implements HttpServer {
 
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockServer.FILES_ROOT);
 
@@ -48,7 +47,7 @@ class JettyHttpServer implements HttpServer {
     private final DelayableSocketConnector httpConnector;
     private final DelayableSslSocketConnector httpsConnector;
 
-    JettyHttpServer(
+    Jetty6HttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler,
@@ -163,7 +162,7 @@ class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
-        ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = mockServiceContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
@@ -187,7 +186,7 @@ class JettyHttpServer implements HttpServer {
             Notifier notifier
     ) {
         Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
-        ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = adminContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);

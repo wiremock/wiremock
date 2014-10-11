@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.jetty6;
 
-import com.github.tomakehurst.wiremock.HttpServer;
-import com.github.tomakehurst.wiremock.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
-public class JettyHttpServerFactory implements HttpServerFactory {
+public class Jetty6HttpServerFactory implements HttpServerFactory {
     @Override
     public HttpServer buildHttpServer(
             Options options,
@@ -30,7 +30,7 @@ public class JettyHttpServerFactory implements HttpServerFactory {
             StubRequestHandler stubRequestHandler,
             RequestDelayControl requestDelayControl
     ) {
-        return new JettyHttpServer(
+        return new Jetty6HttpServer(
                 options,
                 adminRequestHandler,
                 stubRequestHandler,
