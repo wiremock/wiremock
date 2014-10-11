@@ -22,13 +22,6 @@ dependencies {
 	compile "org.eclipse.jetty:jetty-server:9.2.2.v20140723"
 	compile "org.eclipse.jetty:jetty-servlet:9.2.2.v20140723"
     compile "org.eclipse.jetty:jetty-webapp:9.2.2.v20140723"
-	compile "com.google.guava:guava:13.0.1"
-	compile "com.fasterxml.jackson.core:jackson-core:2.1.2", 
-        	"com.fasterxml.jackson.core:jackson-annotations:2.1.2", 
-        	"com.fasterxml.jackson.core:jackson-databind:2.1.2"
-	compile "org.apache.httpcomponents:httpclient:4.2.3"
-    compile "org.skyscreamer:jsonassert:1.2.1"
-	compile "org.mortbay.jetty:jetty:6.1.26"
 	compile "com.google.guava:guava:18.0"
 	compile "com.fasterxml.jackson.core:jackson-core:2.4.2",
         	"com.fasterxml.jackson.core:jackson-annotations:2.4.2",
