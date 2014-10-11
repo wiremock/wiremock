@@ -15,40 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.io.Files;
-
-import java.io.File;
-import java.io.IOException;
+import java.net.URI;
 
 import static com.google.common.base.Charsets.UTF_8;
 
-public class TextFile {
+public class TextFile extends BinaryFile {
 
-	private final File file;
-	
-	public TextFile(final String filePath) {
-		file = new File(filePath);
+	public TextFile(URI uri) {
+        super(uri);
 	}
 	
-	public TextFile(final File file) {
-		this.file = file;
-	}
-	
-	public String readContents() {
-		try {
-			final String json = Files.toString(file, UTF_8);
-			return json;
-		} catch (final IOException ioe) {
-			throw new RuntimeException(ioe);
-		}
-	}
-	
-	public String name() {
-		return file.getName();
-	}
-	
-	@Override
-	public String toString() {
-		return file.getName();
+	public String readContentsAsString() {
+        return new String(super.readContents(), UTF_8);
 	}
 }

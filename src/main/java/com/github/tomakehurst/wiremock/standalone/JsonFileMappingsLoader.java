@@ -36,7 +36,7 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 		JsonStubMappingCreator jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
-			jsonStubMappingCreator.addMappingFrom(mappingFile.readContents());
+			jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString());
 		}
 	}
 	

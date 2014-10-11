@@ -15,38 +15,37 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import com.google.common.primitives.Bytes;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 
 public class BinaryFile {
 
-	private final File file;
+    private URI uri;
 
-	public BinaryFile(final String filePath) {
-		file = new File(filePath);
-	}
-
-	public BinaryFile(final File file) {
-		this.file = file;
-	}
+    public BinaryFile(URI uri) {
+        this.uri = uri;
+    }
 	
 	public byte[] readContents() {
 		try {
-			final byte[] contents = Files.toByteArray(file);
-			return contents;
-		} catch (final IOException ioe) {
+            return ByteStreams.toByteArray(uri.toURL().openStream());
+        } catch (final IOException ioe) {
 			throw new RuntimeException(ioe);
 		}
 	}
 	
 	public String name() {
-		return file.getName();
+		return uri.toString();
 	}
 	
 	@Override
 	public String toString() {
-		return file.getName();
+		return name();
 	}
 }
