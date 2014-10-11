@@ -23,11 +23,11 @@ import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.Socket;
 
-public class DelayableSslSocketConnector extends SslSocketConnector {
+class DelayableSslSocketConnector extends SslSocketConnector {
 
     private final RequestDelayControl requestDelayControl;
 
-    public DelayableSslSocketConnector(RequestDelayControl requestDelayControl) {
+    DelayableSslSocketConnector(RequestDelayControl requestDelayControl) {
         this.requestDelayControl = requestDelayControl;
     }
 
