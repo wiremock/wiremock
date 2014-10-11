@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty.DelayableSocketConnector;
 import com.github.tomakehurst.wiremock.jetty.DelayableSslSocketConnector;
+import com.github.tomakehurst.wiremock.jetty.LoggerAdapter;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
@@ -41,6 +42,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.log.Log;
 
 import java.util.Map;
 
@@ -100,6 +102,7 @@ public class WireMockServer implements Container {
                                                   options.shouldPreserveHostHeader(),
                                                   options.proxyHostHeader())));
 
+        Log.setLog(new LoggerAdapter(notifier));
     }
 
     private MappingsLoader makeDefaultMappingsLoader() {

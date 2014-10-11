@@ -15,10 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.Log4jConfiguration;
-import com.github.tomakehurst.wiremock.common.Log4jNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
@@ -47,7 +46,6 @@ public class WireMockWebContextListener implements ServletContextListener {
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
                 fromNullable(sce.getServletContext().getInitParameter("verboseLoggingEnabled"))
                         .or("true"));
-        Log4jConfiguration.configureLogging(verboseLoggingEnabled);
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
         MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();
@@ -67,7 +65,7 @@ public class WireMockWebContextListener implements ServletContextListener {
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
-        context.setAttribute(Notifier.KEY, new Log4jNotifier());
+        context.setAttribute(Notifier.KEY, new Slf4jNotifier(verboseLoggingEnabled));
     }
 
     @Override

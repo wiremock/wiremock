@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
@@ -67,7 +66,9 @@ public class StandaloneAcceptanceTest {
 	
 	private final PrintStream stdOut = System.out;
 	private ByteArrayOutputStream out;
-	
+    private final PrintStream stdErr = System.err;
+    private ByteArrayOutputStream err;
+
 	private File mappingsDirectory;
 	
 	@Before
@@ -93,6 +94,7 @@ public class StandaloneAcceptanceTest {
 			otherServer.stop();
 		}
 		System.setOut(stdOut);
+        System.setErr(stdErr);
 	}
 
 	@Test
@@ -229,14 +231,14 @@ public class StandaloneAcceptanceTest {
 
 	@Test
 	public void logsVerboselyWhenVerboseSetInCommandLine() {
-		startRecordingSystemOut();
+		startRecordingSystemOutAndErr();
 		startRunner("--verbose");
 		assertThat(systemOutText(), containsString("Verbose logging enabled"));
 	}
 	
 	@Test
 	public void doesNotLogVerboselyWhenVerboseNotSetInCommandLine() {
-		startRecordingSystemOut();
+		startRecordingSystemOutAndErr();
 		startRunner();
 		assertThat(systemOutText(), not(containsString("Verbose logging enabled")));
 	}
@@ -421,14 +423,21 @@ public class StandaloneAcceptanceTest {
 		return argsAsList.toArray(new String[]{});
 	}
 
-	private void startRecordingSystemOut() {
+	private void startRecordingSystemOutAndErr() {
 		out = new ByteArrayOutputStream();
+        err = new ByteArrayOutputStream();
+
 		System.setOut(new PrintStream(out));
+        System.setErr(new PrintStream(err));
 	}
 
 	private String systemOutText() {
 		return new String(out.toByteArray());
 	}
+
+    private String systemErrText() {
+        return new String(err.toByteArray());
+    }
 	
 	private Matcher<File> containsAFileContaining(final String expectedContents) {
 		return new TypeSafeMatcher<File>() {
