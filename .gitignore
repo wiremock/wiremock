@@ -16,10 +16,7 @@
 *.dmg
 *.gz
 *.iso
-*.jar
 *.rar
-*.tar
-*.zip
 
 # Logs and databases #
 ######################
@@ -59,3 +56,5 @@ wiremock.iws
 copy-admin.sh
 .DS_Store
 **/.DS_Store
+
+gradle/wrapper
