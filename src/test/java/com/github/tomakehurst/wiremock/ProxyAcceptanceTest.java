@@ -178,4 +178,25 @@ public class ProxyAcceptanceTest {
 
         targetServiceAdmin.verifyThat(patchRequestedFor(urlEqualTo("/patch")).withRequestBody(equalTo("Patch body")));
     }
+
+    @Test
+    public void addsSpecifiedHeadersToResponse() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get(urlEqualTo("/extra/headers"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("Proxied content")));
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/extra/headers"))
+                .willReturn(aResponse()
+                        .withHeader("X-Additional-Header", "Yep")
+                        .proxiedFrom("http://localhost:8087")));
+
+        WireMockResponse response = testClient.get("/extra/headers");
+
+        assertThat(response.header("Content-Type"), is("text/plain"));
+        assertThat(response.header("X-Additional-Header"), is("Yep"));
+    }
 }

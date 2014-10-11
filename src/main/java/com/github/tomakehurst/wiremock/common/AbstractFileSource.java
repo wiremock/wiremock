@@ -40,12 +40,7 @@ public abstract class AbstractFileSource implements FileSource {
 
     @Override
     public BinaryFile getBinaryFileNamed(final String name) {
-        return new BinaryFile(new File(rootDirectory, name));
-    }
-
-    @Override
-    public TextFile getTextFileNamed(final String name) {
-    	return new TextFile(new File(rootDirectory, name));
+        return new BinaryFile(new File(rootDirectory, name).toURI());
     }
 
     @Override
@@ -61,13 +56,6 @@ public abstract class AbstractFileSource implements FileSource {
     @Override
     public String getPath() {
     	return rootDirectory.getPath();
-    }
-
-    @Override
-    public List<TextFile> listFiles() {
-    	assertExistsAndIsDirectory();
-    	List<File> fileList = asList(rootDirectory.listFiles(filesOnly()));
-    	return toTextFileList(fileList);
     }
 
     @Override
@@ -92,7 +80,7 @@ public abstract class AbstractFileSource implements FileSource {
     private List<TextFile> toTextFileList(List<File> fileList) {
     	return newArrayList(transform(fileList, new Function<File, TextFile>() {
     		public TextFile apply(File input) {
-    			return new TextFile(input.getPath());
+    			return new TextFile(input.toURI());
     		}
     	}));
     }

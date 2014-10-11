@@ -30,7 +30,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
-        notifier().info("Received request to " + request.getUrl());
+        notifier().info("Request received:\n" + request);
 
 		ResponseDefinition responseDef = stubServer.serveStubFor(request);
 

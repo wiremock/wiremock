@@ -24,12 +24,14 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.Arrays.asList;
+import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 public class StubMappingJsonRecorder implements RequestListener {
 
@@ -71,11 +73,24 @@ public class StubMappingJsonRecorder implements RequestListener {
 
         String body = request.getBodyAsString();
         if (!body.isEmpty()) {
-            ValuePattern bodyPattern = ValuePattern.equalTo(request.getBodyAsString());
+            ValuePattern bodyPattern = valuePatternForContentType(request);
             requestPattern.setBodyPatterns(asList(bodyPattern));
         }
 
         return requestPattern;
+    }
+
+    private ValuePattern valuePatternForContentType(Request request) {
+        String contentType = request.getHeader("Content-Type");
+        if (contentType != null) {
+            if (contentType.contains("json")) {
+                return ValuePattern.equalToJson(request.getBodyAsString(), LENIENT);
+            } else if (contentType.contains("xml")) {
+                return ValuePattern.equalToXml(request.getBodyAsString());
+            }
+        }
+
+        return ValuePattern.equalTo(request.getBodyAsString());
     }
 
     private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {

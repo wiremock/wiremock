@@ -44,22 +44,13 @@ public class ServletContextFileSourceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void listsTextFilesAtTopLevelIgnoringDirectories() {
-        List<TextFile> files = fileSource.listFiles();
-        
-        assertThat(files, hasExactlyIgnoringOrder(
-                fileNamed("one"), fileNamed("two"), fileNamed("three")));
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Test
     public void listsTextFilesRecursively() {
         List<TextFile> files = fileSource.listFilesRecursively();
         
         assertThat(files, hasExactlyIgnoringOrder(
                 fileNamed("one"), fileNamed("two"), fileNamed("three"), 
                 fileNamed("four"), fileNamed("five"), fileNamed("six"), 
-                fileNamed("seven"), fileNamed("eight")));
+                fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
     }
     
     @Test(expected=UnsupportedOperationException.class)

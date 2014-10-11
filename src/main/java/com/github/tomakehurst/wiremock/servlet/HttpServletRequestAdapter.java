@@ -153,4 +153,9 @@ public class HttpServletRequestAdapter implements Request {
 	public boolean isBrowserProxyRequest() {
 		return ServletContainerUtils.isBrowserProxyRequest(request);
 	}
+
+    @Override
+    public String toString() {
+        return request.toString() + getBodyAsString();
+    }
 }

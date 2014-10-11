@@ -132,11 +132,12 @@ public class WireMatchers {
 
             @Override
             public void describeTo(Description desc) {
+                desc.appendText("a text file named " + name);
             }
 
             @Override
             public boolean matchesSafely(TextFile textFile) {
-                return textFile.name().equals(name);
+                return textFile.name().endsWith(name);
             }
             
         };
