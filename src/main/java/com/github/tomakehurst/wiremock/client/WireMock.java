@@ -137,6 +137,12 @@ public class WireMock {
 		urlStrategy.setUrlPattern(url);
 		return urlStrategy;
 	}
+
+    public static UrlMatchingStrategy urlPathEqualTo(String urlPath) {
+        UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
+        urlStrategy.setUrlPath(urlPath);
+        return urlStrategy;
+    }
 	
 	public static ValueMatchingStrategy equalTo(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();

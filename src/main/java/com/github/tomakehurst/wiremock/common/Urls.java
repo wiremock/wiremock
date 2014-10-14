@@ -13,11 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.core;
+package com.github.tomakehurst.wiremock.common;
 
-public interface FaultInjector {
+import com.google.common.base.Splitter;
 
-    void emptyResponseAndCloseConnection();
-    void malformedResponseChunk();
-    void randomDataAndCloseConnection();
+import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
+
+public class Urls {
+
+    public static Map<String, String> splitQuery(String query) {
+        if (query == null) {
+            return Collections.emptyMap();
+        }
+
+        return Splitter.on('&').withKeyValueSeparator("=").split(query);
+    }
+
+    public static Map<String, String> splitQuery(URI uri) {
+        if (uri == null) {
+            return Collections.emptyMap();
+        }
+
+        return splitQuery(uri.getQuery());
+    }
 }

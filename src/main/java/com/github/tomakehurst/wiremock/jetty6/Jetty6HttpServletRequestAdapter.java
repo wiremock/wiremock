@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.jetty6;
 
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.google.common.base.Splitter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
@@ -148,7 +151,12 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 		return headerKeys;
 	}
 
-	@Override
+    @Override
+    public String queryParameter(String key) {
+        return splitQuery(request.getQueryString()).get(key);
+    }
+
+    @Override
 	public boolean isBrowserProxyRequest() {
         if (request instanceof org.mortbay.jetty.Request) {
             org.mortbay.jetty.Request jettyRequest = (org.mortbay.jetty.Request) request;

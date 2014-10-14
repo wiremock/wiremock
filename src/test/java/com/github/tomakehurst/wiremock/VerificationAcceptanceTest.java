@@ -139,6 +139,18 @@ public class VerificationAcceptanceTest {
                     .withRequestBody(containing("Important value")));
         }
 
+        @Test
+        public void verifiesWithQueryParam() {
+            testClient.get("/query?param=my-value");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void verifyIsFalseWithQueryParamNotMatched() {
+            testClient.get("/query?param=my-value");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("wrong-value")));
+        }
+
         @Test(expected=VerificationException.class)
         public void resetErasesCounters() {
             testClient.get("/count/this");
