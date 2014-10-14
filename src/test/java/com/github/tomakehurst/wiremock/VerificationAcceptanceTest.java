@@ -145,6 +145,12 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
         }
 
+        @Test
+        public void queryParameterMatchingCopesWithSpaces() {
+            testClient.get("/spacey-query?param=My%20Value");
+            verify(getRequestedFor(urlPathEqualTo("/spacey-query")).withQueryParam("param", equalTo("My Value")));
+        }
+
         @Test(expected=VerificationException.class)
         public void verifyIsFalseWithQueryParamNotMatched() {
             testClient.get("/query?param=my-value");
