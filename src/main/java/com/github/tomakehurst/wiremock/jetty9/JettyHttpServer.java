@@ -136,9 +136,12 @@ class JettyHttpServer implements HttpServer {
     private ServerConnector createHttpConnector(
             RequestDelayControl requestDelayControl,
             String bindAddress,
-            int port
-    ) {
-        ServerConnector connector = new ServerConnector(jettyServer, new HttpConnectionFactory());
+            int port) {
+
+        ServerConnector connector = new ServerConnector(
+                jettyServer,
+                new FaultInjectingHttpConnectionFactory(requestDelayControl)
+        );
         connector.setHost(bindAddress);
         connector.setPort(port);
         return connector;
@@ -148,14 +151,20 @@ class JettyHttpServer implements HttpServer {
             RequestDelayControl requestDelayControl,
             int port,
             String keyStorePath) {
+
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setKeyStorePath(keyStorePath);
         sslContextFactory.setKeyStorePassword("password");
+
         HttpConfiguration https_config = new HttpConfiguration();
         https_config.addCustomizer(new SecureRequestCustomizer());
+
         ServerConnector https = new ServerConnector(jettyServer,
-                new SslConnectionFactory(sslContextFactory,"http/1.1"),
-                new HttpConnectionFactory(https_config)
+                new SslConnectionFactory(
+                        sslContextFactory,
+                        "http/1.1"
+                ),
+                new FaultInjectingHttpConnectionFactory(https_config, requestDelayControl)
         );
         https.setPort(port);
         return https;

@@ -87,8 +87,7 @@ public class Response {
 	
 	public void applyTo(HttpServletResponse httpServletResponse) {
 		if (fault != null) {
-            Socket socket = ActiveSocket.get();
-			fault.apply(httpServletResponse, socket);
+            httpServletResponse.addHeader(Fault.class.getName(), fault.name());
 			return;
 		}
 		

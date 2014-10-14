@@ -19,5 +19,5 @@ public interface RequestDelayControl {
 
     void setDelay(int milliseconds);
     void clearDelay();
-    void delayIfRequired() throws InterruptedException;
+    void delayIfRequired();
 }
