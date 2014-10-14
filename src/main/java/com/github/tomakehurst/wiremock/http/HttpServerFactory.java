@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
+package com.github.tomakehurst.wiremock.http;
 
-import java.net.Socket;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 
-public class ActiveSocket {
+public interface HttpServerFactory {
 
-    private static final ThreadLocal<Socket> threadLocalSocket = new ThreadLocal<Socket>();
-
-    public static Socket get() {
-        return threadLocalSocket.get();
-    }
-
-    public static void clear() {
-        threadLocalSocket.remove();
-    }
-
-    public static void set(Socket socket) {
-        threadLocalSocket.set(socket);
-    }
+    HttpServer buildHttpServer(
+            Options options,
+            AdminRequestHandler adminRequestHandler,
+            StubRequestHandler stubRequestHandler,
+            RequestDelayControl requestDelayControl
+    );
 }

@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.core;
 
-import java.util.Set;
+public interface FaultInjector {
 
-public interface Request {
-
-	String getUrl();
-	String getAbsoluteUrl();
-	RequestMethod getMethod();
-	String getHeader(String key);
-    HttpHeader header(String key);
-    ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
-	boolean containsHeader(String key);
-	Set<String> getAllHeaderKeys();
-    String queryParameter(String key);
-    String getBodyAsString();
-	boolean isBrowserProxyRequest();
+    void emptyResponseAndCloseConnection();
+    void malformedResponseChunk();
+    void randomDataAndCloseConnection();
 }

@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import com.github.tomakehurst.wiremock.HttpServer;
-import com.github.tomakehurst.wiremock.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;

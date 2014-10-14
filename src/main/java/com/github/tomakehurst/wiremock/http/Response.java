@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.jetty.ActiveSocket;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -84,30 +79,10 @@ public class Response {
 	public HttpHeaders getHeaders() {
 		return headers;
 	}
-	
-	public void applyTo(HttpServletResponse httpServletResponse) {
-		if (fault != null) {
-            httpServletResponse.addHeader(Fault.class.getName(), fault.name());
-			return;
-		}
-		
-		httpServletResponse.setStatus(status);
-		for (HttpHeader header: headers.all()) {
-            for (String value: header.values()) {
-                httpServletResponse.addHeader(header.key(), value);
-            }
-		}
-		
-		writeAndTranslateExceptions(httpServletResponse, body);
-	}
-	
-	private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
-		try {	
-			httpServletResponse.getOutputStream().write(content);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+
+    public Fault getFault() {
+        return fault;
+    }
 
     private Charset encodingFromContentTypeHeaderOrUtf8() {
         ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();

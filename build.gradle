@@ -30,11 +30,7 @@ dependencies {
     compile "org.skyscreamer:jsonassert:1.2.3"
     compile "xmlunit:xmlunit:1.5"
     compile "com.jayway.jsonpath:json-path:0.8.1"
-	compile "log4j:log4j:1.2.16"
-	compile "org.slf4j:slf4j-api:1.7.7"
-	compile "org.slf4j:slf4j-log4j12:1.7.7"
-
-	compile "net.sf.jopt-simple:jopt-simple:4.3"
+	compile "org.slf4j:slf4j-api:1.7.6"
 	compile "net.sf.jopt-simple:jopt-simple:4.7"
 	compile ("junit:junit:4.11") {
         exclude group: "org.hamcrest", module: "hamcrest-core"

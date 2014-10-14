@@ -18,9 +18,11 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.jetty9.JettyHttpServletRequestAdapter;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -90,18 +92,38 @@ public class HandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new HttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new JettyHttpServletRequestAdapter(httpServletRequest, mappedUnder);
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
 		if (response.wasConfigured()) {
-		    response.applyTo(httpServletResponse);
+		    applyResponse(response, httpServletResponse);
 		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);
 		}
 	}
+
+    public static void applyResponse(Response response, HttpServletResponse httpServletResponse) {
+
+        httpServletResponse.setStatus(response.getStatus());
+        for (HttpHeader header: response.getHeaders().all()) {
+            for (String value: header.values()) {
+                httpServletResponse.addHeader(header.key(), value);
+            }
+        }
+
+        writeAndTranslateExceptions(httpServletResponse, response.getBody());
+    }
+
+    private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
+        try {
+            httpServletResponse.getOutputStream().write(content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {

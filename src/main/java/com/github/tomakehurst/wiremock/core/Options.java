@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import java.util.List;
 
-import com.github.tomakehurst.wiremock.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;

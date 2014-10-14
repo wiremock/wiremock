@@ -15,12 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
@@ -33,8 +34,10 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
@@ -46,7 +49,7 @@ public class CommandLineOptions implements Options {
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
 	private static final String PORT = "port";
-        private static final String BIND_ADDRESS = "bind-address";
+    private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
 	private static final String VERBOSE = "verbose";
@@ -212,7 +215,7 @@ public class CommandLineOptions implements Options {
             return ProxySettings.fromString(proxyVia);
         }
 
-        return ProxySettings.NO_PROXY;
+        return NO_PROXY;
     }
 
     @Override
@@ -222,7 +225,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public Notifier notifier() {
-        return new Log4jNotifier();
+        return new ConsoleNotifier(verboseLoggingEnabled());
     }
 
     @Override
@@ -232,15 +235,44 @@ public class CommandLineOptions implements Options {
 
     @Override
     public String toString() {
-        return Joiner.on(", ").withKeyValueSeparator("=").join(
-                ImmutableMap.builder()
-                        .put("port", portNumber())
-                        .put("https", httpsSettings())
-                        .put("fileSource", filesRoot())
-                        .put("proxyVia", nullToString(proxyVia()))
-                        .put("proxyUrl", nullToString(proxyUrl()))
-                        .put("recordMappingsEnabled", recordMappingsEnabled())
-                        .build());
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        builder.put(PORT, portNumber());
+
+        if (httpsSettings().enabled()) {
+            builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
+                   .put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+        }
+
+        if (!(proxyVia() == NO_PROXY)) {
+            builder.put(PROXY_VIA, proxyVia());
+        }
+        if (proxyUrl() != null) {
+            builder.put(PROXY_ALL, nullToString(proxyUrl()))
+                   .put(PRESERVE_HOST_HEADER, shouldPreserveHostHeader());
+        }
+
+        builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+
+        if (recordMappingsEnabled()) {
+            builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
+                    .put(MATCH_HEADERS, matchingHeaders());
+        }
+
+        builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
+               .put(VERBOSE, verboseLoggingEnabled());
+
+
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> param: builder.build().entrySet()) {
+            int paddingLength = 29 - param.getKey().length();
+            sb.append(param.getKey())
+                    .append(":")
+                    .append(Strings.repeat(" ", paddingLength))
+                    .append(nullToString(param.getValue()))
+                    .append("\n");
+        }
+
+        return sb.toString();
     }
 
     private String nullToString(Object value) {

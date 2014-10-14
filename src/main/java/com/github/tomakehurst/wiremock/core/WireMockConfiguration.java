@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
@@ -33,7 +33,7 @@ public class WireMockConfiguration implements Options {
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
-    private Notifier notifier = new Log4jNotifier();
+    private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
     private List<CaseInsensitiveKey> matchingHeaders;
     private String proxyUrl;

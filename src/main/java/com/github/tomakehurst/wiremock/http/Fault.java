@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.core.FaultInjector;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Socket;
@@ -23,42 +25,24 @@ public enum Fault {
 
 	EMPTY_RESPONSE {
 		@Override
-		public void apply(HttpServletResponse response, Socket socket) {
-			try {
-				socket.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+		public void apply(FaultInjector faultInjector) {
+			faultInjector.emptyResponseAndCloseConnection();
 		}
 	},
 	
 	MALFORMED_RESPONSE_CHUNK {
 		@Override
-		public void apply(HttpServletResponse response, Socket socket) {
-			try {
-				response.setStatus(200);
-				response.flushBuffer();
-				socket.getOutputStream().write("lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes());
-				socket.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			
+		public void apply(FaultInjector faultInjector) {
+			faultInjector.malformedResponseChunk();
 		}
 	},
 	
 	RANDOM_DATA_THEN_CLOSE {
 		@Override
-		public void apply(HttpServletResponse response, Socket socket) {
-			try {
-				socket.getOutputStream().write("lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes());
-				socket.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			
+		public void apply(FaultInjector faultInjector) {
+			faultInjector.randomDataAndCloseConnection();
 		}
 	};
 	
-	public abstract void apply(HttpServletResponse response, Socket socket);
+	public abstract void apply(FaultInjector faultInjector);
 }

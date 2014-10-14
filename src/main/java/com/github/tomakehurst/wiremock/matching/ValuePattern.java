@@ -236,7 +236,7 @@ public class ValuePattern {
 		return count(equalToJson, equalToXml, matchesXPath, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
 	}
 	
-	private int count(Object... objects) {
+	public static int count(Object... objects) {
 		int counter = 0;
 		for (Object obj: objects) {
 			if (obj != null) {

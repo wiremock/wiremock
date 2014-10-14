@@ -15,11 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.Log4jConfiguration;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -31,6 +29,20 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.lang.System.out;
 
 public class WireMockServerRunner {
+
+    private static final String BANNER = " /$$      /$$ /$$                     /$$      /$$                     /$$      \n" +
+            "| $$  /$ | $$|__/                    | $$$    /$$$                    | $$      \n" +
+            "| $$ /$$$| $$ /$$  /$$$$$$   /$$$$$$ | $$$$  /$$$$  /$$$$$$   /$$$$$$$| $$   /$$\n" +
+            "| $$/$$ $$ $$| $$ /$$__  $$ /$$__  $$| $$ $$/$$ $$ /$$__  $$ /$$_____/| $$  /$$/\n" +
+            "| $$$$_  $$$$| $$| $$  \\__/| $$$$$$$$| $$  $$$| $$| $$  \\ $$| $$      | $$$$$$/ \n" +
+            "| $$$/ \\  $$$| $$| $$      | $$_____/| $$\\  $ | $$| $$  | $$| $$      | $$_  $$ \n" +
+            "| $$/   \\  $$| $$| $$      |  $$$$$$$| $$ \\/  | $$|  $$$$$$/|  $$$$$$$| $$ \\  $$\n" +
+            "|__/     \\__/|__/|__/       \\_______/|__/     |__/ \\______/  \\_______/|__/  \\__/";
+
+    static {
+        System.setProperty("org.mortbay.log.class", "com.github.tomakehurst.wiremock.jetty.LoggerAdapter");
+    }
+
 	private WireMockServer wireMockServer;
 	
 	public void run(String... args) {
@@ -39,7 +51,6 @@ public class WireMockServerRunner {
 			out.println(options.helpText());
 			return;
 		}
-        Log4jConfiguration.configureLogging(options.verboseLoggingEnabled());
 
 		FileSource fileSource = options.filesRoot();
 		fileSource.createIfNecessary();
@@ -60,6 +71,9 @@ public class WireMockServerRunner {
 
         try {
             wireMockServer.start();
+            out.println(BANNER);
+            out.println();
+            out.println(options);
         } catch (FatalStartupException e) {
             System.err.println(e.getMessage());
             System.exit(1);

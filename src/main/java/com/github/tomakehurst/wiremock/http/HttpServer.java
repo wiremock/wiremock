@@ -15,20 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.Set;
-
-public interface Request {
-
-	String getUrl();
-	String getAbsoluteUrl();
-	RequestMethod getMethod();
-	String getHeader(String key);
-    HttpHeader header(String key);
-    ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
-	boolean containsHeader(String key);
-	Set<String> getAllHeaderKeys();
-    String queryParameter(String key);
-    String getBodyAsString();
-	boolean isBrowserProxyRequest();
+public interface HttpServer {
+    void start();
+    void stop();
+    boolean isRunning();
+    int port();
+    int httpsPort();
 }

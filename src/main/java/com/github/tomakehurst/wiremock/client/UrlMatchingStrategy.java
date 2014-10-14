@@ -21,10 +21,12 @@ public class UrlMatchingStrategy {
 
 	private String url;
 	private String urlPattern;
-	
-	public void contributeTo(RequestPattern requestPattern) {
+    private String urlPath;
+
+    public void contributeTo(RequestPattern requestPattern) {
 		requestPattern.setUrl(url);
 		requestPattern.setUrlPattern(urlPattern);
+        requestPattern.setUrlPath(urlPath);
 	}
 	
 	public void setUrl(String url) {
@@ -34,6 +36,9 @@ public class UrlMatchingStrategy {
 	public void setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
 	}
-	
-	
+
+
+    public void setUrlPath(String urlPath) {
+        this.urlPath = urlPath;
+    }
 }

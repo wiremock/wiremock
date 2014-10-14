@@ -15,26 +15,27 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import org.apache.log4j.Logger;
+import com.google.common.base.Splitter;
 
-public class Log4jNotifier implements Notifier {
-	
-	private static final Logger log = Logger.getLogger(Log4jNotifier.class);
+import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
 
-	@Override
-	public void info(String message) {
-		log.info(message);
-		
-	}
+public class Urls {
 
-	@Override
-	public void error(String message) {
-		log.error(message);
-		
-	}
+    public static Map<String, String> splitQuery(String query) {
+        if (query == null) {
+            return Collections.emptyMap();
+        }
 
-	@Override
-	public void error(String message, Throwable t) {
-		log.error(message, t);
-	}
+        return Splitter.on('&').withKeyValueSeparator("=").split(query);
+    }
+
+    public static Map<String, String> splitQuery(URI uri) {
+        if (uri == null) {
+            return Collections.emptyMap();
+        }
+
+        return splitQuery(uri.getQuery());
+    }
 }
