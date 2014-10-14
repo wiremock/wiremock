@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 
 public class FaultInjectingHttpConnection extends HttpConnection {
 
-
     public FaultInjectingHttpConnection(
             HttpConfiguration config,
             Connector connector,
@@ -34,18 +33,21 @@ public class FaultInjectingHttpConnection extends HttpConnection {
 //    }
 
     public void send(HttpGenerator.ResponseInfo info, ByteBuffer content, boolean lastContent, Callback callback) {
-        if (info.getHttpFields().contains(Fault.class.getName(), Fault.EMPTY_RESPONSE.name())) {
-            close();
-            callback.succeeded();
-//        } else if (info.getHttpFields().contains("InjectFault", Fault.RANDOM_DATA_THEN_CLOSE.name())) {
-        } else {
-            super.send(
-                    info,
-                    content,
-                    lastContent,
-                    callback
+        String faultName = info.getHttpFields().get(Fault.class.getName());
+        if (faultName != null) {
+            Fault.valueOf(faultName).apply(
+                    new JettyFaultInjector(
+                            this,
+                            callback
+                    )
             );
         }
+        super.send(
+                info,
+                content,
+                lastContent,
+                callback
+        );
     }
 
 //    public class FaultInjectingHttpChannelOverHttp extends HttpConnection.HttpChannelOverHttp {
