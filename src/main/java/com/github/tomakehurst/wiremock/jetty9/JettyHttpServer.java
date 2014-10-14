@@ -19,7 +19,6 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
-import com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -46,7 +45,7 @@ import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.servlet.HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+import static com.github.tomakehurst.wiremock.jetty9.JettyHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 
 class JettyHttpServer implements HttpServer {
 
@@ -185,7 +184,7 @@ class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
-        ServletHolder servletHolder = mockServiceContext.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = mockServiceContext.addServlet(JettyHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
@@ -209,7 +208,7 @@ class JettyHttpServer implements HttpServer {
             Notifier notifier
     ) {
         ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
-        ServletHolder servletHolder = adminContext.addServlet(HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = adminContext.addServlet(JettyHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
