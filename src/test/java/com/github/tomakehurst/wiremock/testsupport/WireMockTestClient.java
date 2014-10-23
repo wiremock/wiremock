@@ -15,26 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_PORT;
-import static com.github.tomakehurst.wiremock.http.HttpClientFactory.createClientConnectionManagerWithSSLSettings;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -91,20 +86,23 @@ public class WireMockTestClient {
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {
         URI targetUri = URI.create(url);
-
         HttpHost proxy = new HttpHost(address, proxyPort, targetUri.getScheme());
+        HttpClient httpClientUsingProxy = HttpClientBuilder.create()
+                .disableAuthCaching()
+                .disableAutomaticRetries()
+                .disableCookieManagement()
+                .disableRedirectHandling()
+                .setProxy(proxy)
+                .build();
 
-        DefaultHttpClient httpclient = new DefaultHttpClient(createClientConnectionManagerWithSSLSettings());
         try {
-            httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-
             HttpHost target = new HttpHost(targetUri.getHost(), targetUri.getPort(), targetUri.getScheme());
             HttpGet req = new HttpGet(targetUri.getPath() +
                     (isNullOrEmpty(targetUri.getQuery()) ? "" : "?" + targetUri.getQuery()));
             req.removeHeaders("Host");
 
             System.out.println("executing request to " + targetUri + "(" + target + ") via " + proxy);
-            HttpResponse httpResponse = httpclient.execute(target, req);
+            HttpResponse httpResponse = httpClientUsingProxy.execute(target, req);
             return new WireMockResponse(httpResponse);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
@@ -127,13 +125,8 @@ public class WireMockTestClient {
     }
 
     private WireMockResponse requestWithBody(
-            HttpEntityEnclosingRequestBase request, String body, String contentType, TestHttpHeader... headers) {
-        try {
-            request.setEntity(new StringEntity(body, contentType, "utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
+        HttpEntityEnclosingRequestBase request, String body, String contentType, TestHttpHeader... headers) {
+        request.setEntity(new StringEntity(body, ContentType.create(contentType, "utf-8")));
         return executeMethodAndCovertExceptions(request, headers);
     }
 
@@ -186,9 +179,9 @@ public class WireMockTestClient {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                post.setEntity(new StringEntity(json, JSON.toString(), "utf-8"));
+                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), "utf-8")));
             }
-            HttpResponse httpResponse = new DefaultHttpClient().execute(post);
+            HttpResponse httpResponse = httpClient().execute(post);
             return httpResponse.getStatusLine().getStatusCode();
         } catch (RuntimeException re) {
             throw re;
@@ -202,22 +195,23 @@ public class WireMockTestClient {
     }
 
     private WireMockResponse executeMethodAndCovertExceptions(HttpUriRequest httpRequest, TestHttpHeader... headers) {
-        HttpClient client = HttpClientBuilder.create()
+        try {
+            for (TestHttpHeader header : headers) {
+                httpRequest.addHeader(header.getName(), header.getValue());
+            }
+            HttpResponse httpResponse = httpClient().execute(httpRequest);
+            return new WireMockResponse(httpResponse);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
+
+    private static HttpClient httpClient() {
+        return HttpClientBuilder.create()
                 .disableAuthCaching()
                 .disableAutomaticRetries()
                 .disableCookieManagement()
                 .disableRedirectHandling()
                 .build();
-
-
-        try {
-            for (TestHttpHeader header : headers) {
-                httpRequest.addHeader(header.getName(), header.getValue());
-            }
-            HttpResponse httpResponse = client.execute(httpRequest);
-            return new WireMockResponse(httpResponse);
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
     }
 }
