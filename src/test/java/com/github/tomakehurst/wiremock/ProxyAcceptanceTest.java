@@ -224,6 +224,7 @@ public class ProxyAcceptanceTest {
         assertThat(lastRequest.getHeaders().getHeader("Cookie").values().size(), is(1));
     }
 
+    //TODO: This is passing even when it probably shouldn't - investigate
     @Test
     public void doesNotDuplicateConnectionHeader() {
         initWithDefaultConfig();

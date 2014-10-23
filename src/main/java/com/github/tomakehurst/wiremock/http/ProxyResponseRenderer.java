@@ -143,7 +143,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	}
 
     private static boolean headerShouldBeTransferred(String key) {
-        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING).contains(key.toLowerCase());
+        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection").contains(key.toLowerCase());
     }
 
     private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
