@@ -18,13 +18,13 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.conn.ssl.*;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -33,6 +33,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
@@ -51,20 +52,32 @@ public class HttpClientFactory {
 
     public static HttpClient createClient(
             int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings) {
-        PoolingClientConnectionManager cm = createClientConnectionManagerWithSSLSettings(maxConnections);
-		HttpClient client = new DefaultHttpClient(cm);
-        HttpParams params = client.getParams();
-        params.setParameter(HANDLE_REDIRECTS, false);
-        HttpConnectionParams.setConnectionTimeout(params, timeoutMilliseconds);
-        HttpConnectionParams.setSoTimeout(params, timeoutMilliseconds);
+
+        HttpClientBuilder builder = HttpClientBuilder.create()
+                .disableAuthCaching()
+                .disableAutomaticRetries()
+                .disableCookieManagement()
+                .disableRedirectHandling()
+                .setMaxConnTotal(maxConnections)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
+                .setSslcontext(buildAllowAnythingSSLContext())
+                .setHostnameVerifier(new AllowAllHostnameVerifier());
 
         if (proxySettings != NO_PROXY) {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
-            params.setParameter(DEFAULT_PROXY, proxyHost);
+            builder.setProxy(proxyHost);
         }
 
-        return client;
+        return builder.build();
 	}
+
+    private static SSLContext buildAllowAnythingSSLContext() {
+        try {
+            return new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+        } catch (Exception e) {
+            return throwUnchecked(e, SSLContext.class);
+        }
+    }
 
     public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY);

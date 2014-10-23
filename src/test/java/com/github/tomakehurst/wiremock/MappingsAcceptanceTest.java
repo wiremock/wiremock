@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.*;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
@@ -35,7 +35,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(401));
 		assertThat(response.content(), is("Not allowed!"));
-		assertThat(response.header("Content-Type"), is("text/plain"));
+		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
 	}
 	
 	@Test
