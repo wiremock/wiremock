@@ -16,15 +16,11 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.google.common.base.Charsets.UTF_8;
@@ -32,8 +28,8 @@ import static com.google.common.collect.Iterables.getFirst;
 
 public class WireMockResponse {
 	
-	private HttpResponse httpResponse;
-	private byte[] content;
+	private final HttpResponse httpResponse;
+	private final byte[] content;
 	
 	public WireMockResponse(HttpResponse httpResponse) {
 		this.httpResponse = httpResponse;

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -247,7 +248,7 @@ public class WireMockJUnitRuleTest {
     public static class ListenerTest {
 
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089));
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).notifier(new ConsoleNotifier(true)));
 
         @Test
         public void requestReceivedByListener() {

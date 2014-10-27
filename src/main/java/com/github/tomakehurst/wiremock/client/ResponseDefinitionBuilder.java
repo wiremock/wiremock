@@ -30,7 +30,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class ResponseDefinitionBuilder {
 
-	private int status;
+	private int status = HTTP_OK;
 	private byte[] bodyContent;
     private boolean isBinaryBody = false;
     private String bodyFileName;

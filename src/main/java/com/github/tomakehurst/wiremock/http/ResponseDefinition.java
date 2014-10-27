@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 
 import static com.google.common.base.Charsets.UTF_8;

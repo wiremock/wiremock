@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -27,17 +30,21 @@ import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty6.Jetty6HttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty6.LoggerAdapter;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.mortbay.log.Log;
+
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
 
-public class WireMockServer implements Container {
+public class WireMockServer implements Container, Stubbing {
 
 	public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -50,6 +57,8 @@ public class WireMockServer implements Container {
 	private final Notifier notifier;
 
     private final Options options;
+
+    private final WireMock client;
 
     public WireMockServer(Options options) {
         this.options = options;
@@ -93,6 +102,8 @@ public class WireMockServer implements Container {
         );
 
         Log.setLog(new LoggerAdapter(notifier));
+
+        client = new WireMock(wireMockApp);
     }
 
     private MappingsLoader makeDefaultMappingsLoader() {
@@ -210,6 +221,41 @@ public class WireMockServer implements Container {
 
     public boolean isRunning() {
         return httpServer.isRunning();
+    }
+
+    @Override
+    public void givenThat(MappingBuilder mappingBuilder) {
+        client.register(mappingBuilder);
+    }
+
+    @Override
+    public void stubFor(MappingBuilder mappingBuilder) {
+        givenThat(mappingBuilder);
+    }
+
+    @Override
+    public void verify(RequestPatternBuilder requestPatternBuilder) {
+        client.verifyThat(requestPatternBuilder);
+    }
+
+    @Override
+    public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
+        client.verifyThat(count, requestPatternBuilder);
+    }
+
+    @Override
+    public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
+        return client.find(requestPatternBuilder);
+    }
+
+    @Override
+    public void setGlobalFixedDelay(int milliseconds) {
+        client.setGlobalFixedDelayVariable(milliseconds);
+    }
+
+    @Override
+    public void addRequestProcessingDelay(int milliseconds) {
+        client.addDelayBeforeProcessingRequests(milliseconds);
     }
 
     private static class NoOpMappingsLoader implements MappingsLoader {

@@ -45,8 +45,7 @@ public class WireMockClientTest {
 	public void init() {
 		context = new Mockery();
 		admin = context.mock(Admin.class);
-		wireMock = new WireMock();
-		wireMock.setAdmin(admin);
+		wireMock = new WireMock(admin);
 	}
 	
 	@Test

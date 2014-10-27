@@ -35,8 +35,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
     private final Options options;
-    private WireMock wireMock;
-
     private WireMockServer wireMockServer;
 
     public WireMockRule(Options options) {
@@ -68,7 +66,6 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 				wireMockServer = new WireMockServer(options);
 				wireMockServer.start();
 				WireMock.configureFor("localhost", port());
-                wireMock = new WireMock("localhost", port());
 				try {
                     before();
                     base.evaluate();
@@ -95,37 +92,37 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
     @Override
     public void givenThat(MappingBuilder mappingBuilder) {
-        wireMock.register(mappingBuilder);
+        wireMockServer.givenThat(mappingBuilder);
     }
 
     @Override
     public void stubFor(MappingBuilder mappingBuilder) {
-        givenThat(mappingBuilder);
+        wireMockServer.stubFor(mappingBuilder);
     }
 
     @Override
     public void verify(RequestPatternBuilder requestPatternBuilder) {
-        wireMock.verifyThat(requestPatternBuilder);
+        wireMockServer.verify(requestPatternBuilder);
     }
 
     @Override
     public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
-        wireMock.verifyThat(count, requestPatternBuilder);
+        wireMockServer.verify(count, requestPatternBuilder);
     }
 
     @Override
     public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
-        return wireMock.find(requestPatternBuilder);
+        return wireMockServer.findAll(requestPatternBuilder);
     }
 
     @Override
     public void setGlobalFixedDelay(int milliseconds) {
-        wireMock.setGlobalFixedDelayVariable(milliseconds);
+        wireMockServer.setGlobalFixedDelay(milliseconds);
     }
 
     @Override
     public void addRequestProcessingDelay(int milliseconds) {
-        wireMock.addDelayBeforeProcessingRequests(milliseconds);
+        wireMockServer.addRequestProcessingDelay(milliseconds);
     }
 
     public int port() {
