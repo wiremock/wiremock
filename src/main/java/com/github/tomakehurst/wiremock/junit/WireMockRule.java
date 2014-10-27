@@ -32,13 +32,10 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockRule implements MethodRule, TestRule, Stubbing {
-
-    private final Options options;
-    private WireMockServer wireMockServer;
+public class WireMockRule extends WireMockServer implements MethodRule, TestRule {
 
     public WireMockRule(Options options) {
-        this.options = options;
+        super(options);
     }
 
     public WireMockRule(int port) {
@@ -63,15 +60,14 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
-				wireMockServer = new WireMockServer(options);
-				wireMockServer.start();
+				start();
 				WireMock.configureFor("localhost", port());
 				try {
                     before();
                     base.evaluate();
                 } finally {
                     after();
-                    wireMockServer.stop();
+                    stop();
                 }
 			}
 
@@ -84,52 +80,5 @@ public class WireMockRule implements MethodRule, TestRule, Stubbing {
 
     protected void after() {
         // NOOP
-    }
-
-    public void addMockServiceRequestListener(RequestListener requestListener) {
-        wireMockServer.addMockServiceRequestListener(requestListener);
-    }
-
-    @Override
-    public void givenThat(MappingBuilder mappingBuilder) {
-        wireMockServer.givenThat(mappingBuilder);
-    }
-
-    @Override
-    public void stubFor(MappingBuilder mappingBuilder) {
-        wireMockServer.stubFor(mappingBuilder);
-    }
-
-    @Override
-    public void verify(RequestPatternBuilder requestPatternBuilder) {
-        wireMockServer.verify(requestPatternBuilder);
-    }
-
-    @Override
-    public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
-        wireMockServer.verify(count, requestPatternBuilder);
-    }
-
-    @Override
-    public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
-        return wireMockServer.findAll(requestPatternBuilder);
-    }
-
-    @Override
-    public void setGlobalFixedDelay(int milliseconds) {
-        wireMockServer.setGlobalFixedDelay(milliseconds);
-    }
-
-    @Override
-    public void addRequestProcessingDelay(int milliseconds) {
-        wireMockServer.addRequestProcessingDelay(milliseconds);
-    }
-
-    public int port() {
-        return wireMockServer.port();
-    }
-
-    public int httpsPort() {
-        return wireMockServer.httpsPort();
     }
 }

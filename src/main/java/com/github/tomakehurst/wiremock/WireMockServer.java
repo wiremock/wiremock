@@ -58,7 +58,7 @@ public class WireMockServer implements Container, Stubbing {
 
     private final Options options;
 
-    private final WireMock client;
+    protected final WireMock client;
 
     public WireMockServer(Options options) {
         this.options = options;
