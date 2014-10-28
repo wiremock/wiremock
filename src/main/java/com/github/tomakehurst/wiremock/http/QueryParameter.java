@@ -15,20 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.Set;
+import java.util.List;
 
-public interface Request {
+public class QueryParameter extends MultiValue {
 
-	String getUrl();
-	String getAbsoluteUrl();
-	RequestMethod getMethod();
-	String getHeader(String key);
-    HttpHeader header(String key);
-    ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
-	boolean containsHeader(String key);
-	Set<String> getAllHeaderKeys();
-    QueryParameter queryParameter(String key);
-    String getBodyAsString();
-	boolean isBrowserProxyRequest();
+    public QueryParameter(String key, List<String> values) {
+        super(key, values);
+    }
+
 }

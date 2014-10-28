@@ -15,11 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty6;
 
-import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Splitter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -152,7 +148,7 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 	}
 
     @Override
-    public String queryParameter(String key) {
+    public QueryParameter queryParameter(String key) {
         return splitQuery(request.getQueryString()).get(key);
     }
 

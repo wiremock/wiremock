@@ -40,7 +40,7 @@ public class LoggedRequest implements Request {
 	private final String absoluteUrl;
 	private final RequestMethod method;
 	private final HttpHeaders headers;
-    private final Map<String, String> queryParams;
+    private final Map<String, QueryParameter> queryParams;
 	private final String body;
 	private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
@@ -128,7 +128,7 @@ public class LoggedRequest implements Request {
 	}
 
     @Override
-    public String queryParameter(String key) {
+    public QueryParameter queryParameter(String key) {
         return queryParams.get(key);
     }
 

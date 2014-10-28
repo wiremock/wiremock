@@ -37,7 +37,7 @@ import static com.github.tomakehurst.wiremock.matching.ValuePattern.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
-import static junit.framework.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
