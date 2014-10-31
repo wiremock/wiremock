@@ -35,6 +35,7 @@ public interface Options {
     FileSource filesRoot();
     Notifier notifier();
     boolean requestJournalDisabled();
+    Integer maxEntriesRequestJournal();
     public String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
     public String proxyUrl();

@@ -211,6 +211,12 @@ Disable the request journal, which records incoming requests for later verificat
 (and serve stubs) for long periods (without resetting) without exhausting the heap. The ``--record-mappings`` option isn't
 available if this one is specified.
 
+``--max-entries-request-journal``:
+Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. If
+this parameter is not specified no entries are discarded. If the request log size has been changed dynamically via
+the admin interface then a reset causes the request size to be set to this number until it is set to a different value
+again dynamically.
+
 ``--help``:
 Show command line help
 

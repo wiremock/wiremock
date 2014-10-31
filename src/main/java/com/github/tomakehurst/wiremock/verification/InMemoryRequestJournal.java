@@ -23,16 +23,30 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
 
-public class InMemoryRequestJournal implements RequestListener, RequestJournal {
+public class InMemoryRequestJournal implements RequestListener, RotatingRequestJournal {
 	
-	private ConcurrentLinkedQueue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+	private Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
-	@Override
+    private Integer maxEntries;
+
+    private Integer initialMaxEntries;
+
+    /**
+     * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
+     *                          maximum number of entries is reset to this value.
+     */
+    public InMemoryRequestJournal(Integer initialMaxEntries) {
+        this.initialMaxEntries = initialMaxEntries;
+        setMaxEntries(initialMaxEntries);
+    }
+
+    @Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
 		return size(filter(requests, matchedBy(requestPattern))); 
 	}
@@ -53,6 +67,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	@Override
 	public void requestReceived(Request request, Response response) {
 		requests.add(LoggedRequest.createFrom(request));
+        removeOldEntries();
 	}
 
     @Override
@@ -63,6 +78,30 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	@Override
 	public void reset() {
 		requests.clear();
+        setMaxEntries(initialMaxEntries);
 	}
 
+    private void removeOldEntries() {
+        if(maxEntries != null) {
+            while (requests.size() > maxEntries) {
+                // Remove entries from the journal until we reach the desired number. In general this will only be
+                // maximum one entry if we add one entry in requestReceived.
+                requests.poll();
+            }
+        }
+    }
+
+    @Override
+    public void setMaxEntries(Integer maxEntries) {
+        if(maxEntries!=null && maxEntries <0) {
+            throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
+        }
+        this.maxEntries = maxEntries;
+        removeOldEntries();
+    }
+
+    @Override
+    public Integer getMaxEntries() {
+        return this.maxEntries;
+    }
 }

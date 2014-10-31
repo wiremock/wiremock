@@ -33,6 +33,7 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
+    private Integer maxEntriesRequestJournal = null;
     private List<CaseInsensitiveKey> matchingHeaders;
     private String proxyUrl;
     private boolean preserveHostHeader;
@@ -106,6 +107,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration maxEntriesRequestJournal(Integer maxEntriesRequestJournal) {
+        this.maxEntriesRequestJournal = maxEntriesRequestJournal;
+        return this;
+    }
+
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
     	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
     	return this;
@@ -164,8 +170,14 @@ public class WireMockConfiguration implements Options {
         return notifier;
     }
 
+    @Override
     public boolean requestJournalDisabled() {
         return requestJournalDisabled;
+    }
+
+    @Override
+    public Integer maxEntriesRequestJournal() {
+        return maxEntriesRequestJournal;
     }
 
     @Override
@@ -188,6 +200,7 @@ public class WireMockConfiguration implements Options {
         return preserveHostHeader;
     }
 
+    @Override
     public String proxyHostHeader() {
         return proxyHostHeader;
     }

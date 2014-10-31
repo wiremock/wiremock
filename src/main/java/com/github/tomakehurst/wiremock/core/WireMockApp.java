@@ -51,6 +51,7 @@ public class WireMockApp implements StubServer, Admin {
             MappingsLoader defaultMappingsLoader,
             MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
+            Integer maxEntriesRequestJournal,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
@@ -58,7 +59,7 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         stubMappings = new InMemoryStubMappings();
-        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal();
+        requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxEntriesRequestJournal);
         this.container = container;
         loadDefaultMappings();
     }

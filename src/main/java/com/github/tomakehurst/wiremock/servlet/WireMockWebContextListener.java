@@ -43,8 +43,9 @@ public class WireMockWebContextListener implements ServletContextListener {
 
         ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
 
+        Integer maxEntriesRequestJournal = readMaxEntriesRequestJournal(context);
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
-                fromNullable(sce.getServletContext().getInitParameter("verboseLoggingEnabled"))
+                fromNullable(context.getInitParameter("verboseLoggingEnabled"))
                         .or("true"));
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
@@ -55,6 +56,7 @@ public class WireMockWebContextListener implements ServletContextListener {
                 defaultMappingsLoader,
                 mappingsSaver,
                 false,
+                maxEntriesRequestJournal,
                 new NotImplementedContainer()
         );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
@@ -66,6 +68,18 @@ public class WireMockWebContextListener implements ServletContextListener {
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         context.setAttribute(Notifier.KEY, new Slf4jNotifier(verboseLoggingEnabled));
+    }
+
+    /**
+     * @param context Servlet context for parameter reading
+     * @return Maximum number of entries or null
+     */
+    private Integer readMaxEntriesRequestJournal(ServletContext context) {
+        String str = context.getInitParameter("maxEntriesRequestJournal");
+        if(str == null) {
+            return null;
+        }
+        return Integer.parseInt(str);
     }
 
     @Override

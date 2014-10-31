@@ -145,6 +145,14 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsMaxEntriesRequestJournal() {
+        CommandLineOptions options = new CommandLineOptions("--max-entries-request-journal", "2");
+        assertThat(options.maxEntriesRequestJournal(), is(2));
+        CommandLineOptions optionsNoMax = new CommandLineOptions("");
+        assertThat(optionsNoMax.maxEntriesRequestJournal(), nullValue());
+    }
+
+    @Test
     public void returnPreserveHostHeaderTrueWhenPresent() {
         CommandLineOptions options = new CommandLineOptions("--preserve-host-header");
         assertThat(options.shouldPreserveHostHeader(), is(true));
