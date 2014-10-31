@@ -23,43 +23,43 @@ import java.net.URI;
 
 public class BinaryFile {
 
-    private URI uri;
+	private URI uri;
 
-    public BinaryFile(URI uri) {
-        this.uri = uri;
-    }
+	public BinaryFile(URI uri) {
+		this.uri = uri;
+	}
 
-    public byte[] readContents() {
-        InputStream stream = null;
-        try {
-            stream = uri.toURL().openStream();
-            return ByteStreams.toByteArray(stream);
-        } catch (final IOException ioe) {
-            throw new RuntimeException(ioe);
-        } finally {
-            closeStream(stream);
-        }
-    }
+	public byte[] readContents() {
+		InputStream stream = null;
+		try {
+			stream = uri.toURL().openStream();
+			return ByteStreams.toByteArray(stream);
+		} catch (final IOException ioe) {
+			throw new RuntimeException(ioe);
+		} finally {
+			closeStream(stream);
+		}
+	}
 
-    /**
-     * @param stream Stream to close, may be null
-     */
-    private void closeStream(InputStream stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException ioe) {
-                throw new RuntimeException(ioe);
-            }
-        }
-    }
+	/**
+	 * @param stream Stream to close, may be null
+	 */
+	private void closeStream(InputStream stream) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException ioe) {
+				throw new RuntimeException(ioe);
+			}
+		}
+	}
 
-    public String name() {
-        return uri.toString();
-    }
+	public String name() {
+		return uri.toString();
+	}
 
-    @Override
-    public String toString() {
-        return name();
-    }
+	@Override
+	public String toString() {
+		return name();
+	}
 }
