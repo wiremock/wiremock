@@ -18,12 +18,18 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Optional;
+import com.google.common.io.BaseEncoding;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
-	
+
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
@@ -41,7 +47,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 		if (!responseDefinition.wasConfigured()) {
 			return Response.notConfigured();
 		}
-		
+
 		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
 		if (responseDefinition.isProxyResponse()) {
 	    	return proxyResponseRenderer.render(responseDefinition);
@@ -49,7 +55,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 	    	return renderDirectly(responseDefinition);
 	    }
 	}
-	
+
 	private Response renderDirectly(ResponseDefinition responseDefinition) {
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
@@ -65,8 +71,17 @@ public class StubResponseRenderer implements ResponseRenderer {
             } else {
                 responseBuilder.body(responseDefinition.getBody());
             }
+		} else if (responseDefinition.specifiesScript()) {
+			ScriptEngineManager factory = new ScriptEngineManager();
+			ScriptEngine scriptEngine = factory.getEngineByName("JavaScript");
+			scriptEngine.put("request", responseDefinition.getOriginalRequest().getUrl());
+			try {
+				String javaScript = new String(BaseEncoding.base64().decode(CharMatcher.WHITESPACE.removeFrom(responseDefinition.getScript())));
+				responseBuilder.body(scriptEngine.eval(javaScript).toString());
+			} catch (ScriptException e) {
+				throw new RuntimeException("Unable to generate response body from base64-encoded JavaScript", e);
+			}
 		}
-
         return responseBuilder.build();
 	}
 	

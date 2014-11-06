@@ -41,14 +41,16 @@ public class ResponseDefinition {
 	private String proxyBaseUrl;
 	private String browserProxyUrl;
 	private Fault fault;
-	
+	private String script;
+
 	private boolean wasConfigured = true;
 	private Request originalRequest;
-	
+
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
 	    newResponseDef.body = original.body;
+		newResponseDef.script = original.script;
         newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
@@ -58,7 +60,7 @@ public class ResponseDefinition {
 	    newResponseDef.wasConfigured = original.wasConfigured;
 	    return newResponseDef;
 	}
-	
+
 	public HttpHeaders getHeaders() {
 		return headers;
 	}
@@ -77,7 +79,7 @@ public class ResponseDefinition {
         this.body = bodyContent;
         isBinaryBody = true;
     }
-	
+
 	public ResponseDefinition() {
 		this.status = HTTP_OK;
 	}
@@ -85,11 +87,11 @@ public class ResponseDefinition {
 	public static ResponseDefinition notFound() {
 		return new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	}
-	
+
 	public static ResponseDefinition ok() {
 		return new ResponseDefinition(HTTP_OK, (byte[])null);
 	}
-	
+
 	public static ResponseDefinition created() {
 		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
@@ -100,19 +102,19 @@ public class ResponseDefinition {
                 .withStatus(HTTP_MOVED_TEMP)
                 .build();
     }
-	
+
 	public static ResponseDefinition notConfigured() {
 	    final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[])null);
 	    response.wasConfigured = false;
 	    return response;
 	}
-	
+
 	public static ResponseDefinition browserProxy(Request originalRequest) {
 		final ResponseDefinition response = new ResponseDefinition();
 	    response.browserProxyUrl = originalRequest.getAbsoluteUrl();
 	    return response;
 	}
-	
+
 	public int getStatus() {
 		return status;
 	}
@@ -172,7 +174,7 @@ public class ResponseDefinition {
 	public void setBodyFileName(final String bodyFileName) {
 		this.bodyFileName = bodyFileName;
 	}
-	
+
 	public boolean wasConfigured() {
         return wasConfigured;
     }
@@ -180,13 +182,13 @@ public class ResponseDefinition {
     public Integer getFixedDelayMilliseconds() {
         return fixedDelayMilliseconds;
     }
-    
+
     @JsonIgnore
     public String getProxyUrl() {
     	if (browserProxyUrl != null) {
     		return browserProxyUrl;
     	}
-    	
+
     	return proxyBaseUrl + originalRequest.getUrl();
     }
 
@@ -197,12 +199,17 @@ public class ResponseDefinition {
 	public void setProxyBaseUrl(final String proxyBaseUrl) {
 		this.proxyBaseUrl = proxyBaseUrl;
 	}
-	
+
+	@JsonIgnore
+	public boolean specifiesScript() {
+		return script != null;
+	}
+
 	@JsonIgnore
 	public boolean specifiesBodyFile() {
 		return bodyFileName != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean specifiesBodyContent() {
 		return body != null;
@@ -234,11 +241,20 @@ public class ResponseDefinition {
 		this.fault = fault;
 	}
 
+	public String getScript() {
+		return script;
+	}
+
+	public void setScript(String script) {
+		this.script = script;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result + ((script == null) ? 0 : script.hashCode());
 		result = prime * result
 				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
 		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
@@ -280,6 +296,13 @@ public class ResponseDefinition {
 				return false;
 			}
 		} else if (!bodyFileName.equals(other.bodyFileName)) {
+			return false;
+		}
+		if (script == null) {
+			if (other.script != null) {
+				return false;
+			}
+		} else if (!script.equals(other.script)) {
 			return false;
 		}
 		if (fault != other.fault) {
