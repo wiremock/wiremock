@@ -61,7 +61,20 @@ and any number of higher priority stub mappings e.g.
     // High priority stub will send a Service Unavailable response
     // if the specified URL is requested
     stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
-            .willReturn(aResponse().withStatus(503)));
+            .willReturn(aResponse().withStatus(503)));            
+            
+Header injection
+===============
+
+It is possibly to configure the proxy to inject headers before forwarding the request to the destination:
+
+.. code-block:: java
+
+    // Inject user agent to trigger rendering of mobile version of website
+    stubFor(get(urlMatching(".*"))
+            .willReturn(aResponse()
+            	.proxiedFrom("http://otherhost.com")
+            	.withInjectedHeader("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone)"));            
 
 
 Standalone shortcut

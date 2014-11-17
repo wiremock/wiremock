@@ -35,6 +35,7 @@ public class ResponseDefinitionBuilder {
     private boolean isBinaryBody = false;
     private String bodyFileName;
     private List<HttpHeader> headers = newArrayList();
+    private List<HttpHeader> injectedHeaders = newArrayList();
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private Fault fault;
@@ -54,6 +55,11 @@ public class ResponseDefinitionBuilder {
 	
 	public ResponseDefinitionBuilder withHeader(String key, String value) {
 		headers.add(new HttpHeader(key, value));
+		return this;
+	}
+	
+	public ResponseDefinitionBuilder withInjectedHeader(String key, String value) {
+		injectedHeaders.add(new HttpHeader(key, value));		
 		return this;
 	}
 	
@@ -106,6 +112,10 @@ public class ResponseDefinitionBuilder {
             response.setHeaders(new HttpHeaders(headers));
         }
 		
+        if (!injectedHeaders.isEmpty()) {
+            response.setInjectedheaders(new HttpHeaders(injectedHeaders));
+        }		
+        
         response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
