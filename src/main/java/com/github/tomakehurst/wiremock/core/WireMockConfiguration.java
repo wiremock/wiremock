@@ -15,12 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-
 import java.util.List;
 
-import static com.google.common.collect.Lists.transform;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+
+import static com.google.common.collect.Lists.*;
 
 public class WireMockConfiguration implements Options {
 
@@ -37,6 +43,8 @@ public class WireMockConfiguration implements Options {
     private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
+    private String trustStorePath;
+    private boolean needClientAuth;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -54,6 +62,16 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration truststorePath(String truststorePath) {
+        this.trustStorePath = truststorePath;
+        return this;
+    }
+
+    public WireMockConfiguration needClientAuth(boolean gottaHaveIt) {
+        this.needClientAuth=gottaHaveIt;
         return this;
     }
 
@@ -137,11 +155,11 @@ public class WireMockConfiguration implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        if (keyStorePath == null) {
+        if (keyStorePath == null && trustStorePath == null) {
             return new HttpsSettings(httpsPort);
         }
 
-        return new HttpsSettings(httpsPort, keyStorePath);
+        return new HttpsSettings(httpsPort, keyStorePath, trustStorePath, needClientAuth);
     }
 
     @Override
@@ -191,4 +209,5 @@ public class WireMockConfiguration implements Options {
     public String proxyHostHeader() {
         return proxyHostHeader;
     }
+
 }

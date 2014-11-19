@@ -21,10 +21,21 @@ public class HttpsSettings {
 
     private final int port;
     private final String keyStorePath;
+    private final String trustStorePath;
+    private final boolean needClientAuth;
 
     public HttpsSettings(int port, String keyStorePath) {
         this.port = port;
         this.keyStorePath = keyStorePath;
+        this.trustStorePath = null;
+        this.needClientAuth = false;
+    }
+
+    public HttpsSettings(int port, String keyStorePath, String trustStorePath, boolean needClientAuth) {
+        this.port = port;
+        this.keyStorePath = keyStorePath;
+        this.trustStorePath = trustStorePath;
+        this.needClientAuth = needClientAuth;
     }
 
     public HttpsSettings(int port) {
@@ -52,4 +63,8 @@ public class HttpsSettings {
                 ", keystorePath='" + keyStorePath + '\'' +
                 '}';
     }
+
+    public String trustStorePath() { return trustStorePath; }
+
+    public boolean needClientAuth() { return needClientAuth; }
 }

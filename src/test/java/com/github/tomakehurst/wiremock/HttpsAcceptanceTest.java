@@ -15,6 +15,16 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -26,16 +36,21 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Test;
+import org.mortbay.log.Log;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.*;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class HttpsAcceptanceTest {
 
@@ -43,6 +58,24 @@ public class HttpsAcceptanceTest {
 
     private WireMockServer wireMockServer;
     private HttpClient httpClient;
+
+    private void startServerEnforcingClientCert(String keystorePath, String truststorePath) {
+        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
+        if (keystorePath != null) {
+            config.keystorePath(keystorePath);
+        }
+        if (truststorePath != null) {
+            config.truststorePath(truststorePath);
+            config.needClientAuth(true);
+        }
+        config.bindAddress("localhost");
+
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configure();
+
+        httpClient = HttpClientFactory.createClient();
+    }
 
     private void startServerWithKeystore(String keystorePath) {
         WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
@@ -120,6 +153,43 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 
+    @Test(expected=SSLHandshakeException.class)
+    public void rejectsWithoutClientCertificate() throws Exception {
+        String testTrustStorePath = Resources.getResource("test-clientstore").toString();
+        String testKeystorePath = Resources.getResource("test-keystore").toString();
+        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        contentFor(url("/https-test")); // this lacks the required client certificate
+    }
+
+    @Test
+    public void acceptWithClientCertificate() throws Exception {
+        String testTrustStorePath = Resources.getResource("test-clientstore").toString();
+        String testKeystorePath = Resources.getResource("test-keystore").toString();
+        String testClientCertPath = Resources.getResource("test-clientstore").toString();
+
+        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+
+        assertThat(secureContentFor(url("/https-test"), testKeystorePath, testClientCertPath), is("HTTPS content"));
+    }
+
+
+    @Test
+    public void testClientCertificate() throws Exception {
+        String testTrustStorePath = Resources.getResource("test-clientstore").toString();
+        String testKeystorePath = Resources.getResource("test-keystore").toString();
+        String testClientCertPath = Resources.getResource("test-clientstore").toString();
+
+        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
+        //stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+
+        assertThat(secureContentFor("https://dmtest2.intranet.dev.int.devlab.redhat.com:8443/", testKeystorePath, testClientCertPath), is("protected\n"));
+    }
+
     private String url(String path) {
         return String.format("https://localhost:%d%s", HTTPS_PORT, path);
     }
@@ -147,5 +217,48 @@ public class HttpsAcceptanceTest {
         HttpResponse response = httpClient.execute(get);
         String content = EntityUtils.toString(response.getEntity());
         return content;
+    }
+
+    private String secureContentFor(String url, String clientKeyStore, String clientTrustStore) throws Exception {
+        KeyStore trustStore = readKeyStore(clientTrustStore);
+        KeyStore keyStore = readKeyStore(clientKeyStore);
+
+        // Trust own CA and all self-signed certs
+        SSLContext sslcontext = SSLContexts.custom()
+                .loadTrustMaterial(trustStore, new TrustSelfSignedStrategy())
+                .loadKeyMaterial(keyStore, "password".toCharArray())
+                .loadKeyMaterial(trustStore, "password".toCharArray())
+                .useTLS()
+                .build();
+
+        // Allow TLSv1 protocol only
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                sslcontext,
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        /*
+                        new String[] { "TLSv1" }, // supported protocols
+                null, //new String[] { "TLS_DHE_RSA_WITH_AES_128_CBC_SHA" }, // supported cipher suites
+         */
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .build();
+
+        HttpGet get = new HttpGet(url);
+        Log.warn("test A");
+        HttpResponse response = httpClient.execute(get);
+        Log.warn("test B");
+        String content = EntityUtils.toString(response.getEntity());
+        return content;
+    }
+
+    private KeyStore readKeyStore(String resourceURL) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
+        FileInputStream instream = new FileInputStream(new URL(resourceURL).getFile());
+        try {
+            trustStore.load(instream, "password".toCharArray());
+        } finally {
+            instream.close();
+        }
+        return trustStore;
     }
 }

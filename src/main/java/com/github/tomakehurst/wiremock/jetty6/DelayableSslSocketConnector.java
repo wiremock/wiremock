@@ -15,13 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.jetty6;
 
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.log.Log;
-
 import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.Socket;
+
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import org.mortbay.jetty.security.SslSocketConnector;
+import org.mortbay.log.Log;
 
 class DelayableSslSocketConnector extends SslSocketConnector {
 
@@ -51,7 +51,9 @@ class DelayableSslSocketConnector extends SslSocketConnector {
                 @Override
                 public void run() {
                     ActiveSocket.set(socket);
+                    Log.warn("in run 1");
                     super.run();
+                    Log.warn("in run 2");
                     ActiveSocket.clear();
                 }
             };
