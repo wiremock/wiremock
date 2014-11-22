@@ -15,8 +15,50 @@ To add WireMock to your Java project, put the following in the dependencies sect
         <artifactId>wiremock</artifactId>
         <version>1.52</version>
 
-        <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
+        <!-- Include everything below here if you have dependency conflicts -->
         <classifier>standalone</classifier>
+        <exclusions>
+            <exclusion>
+              <groupId>org.mortbay.jetty</groupId>
+              <artifactId>jetty</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.guava</groupId>
+              <artifactId>guava</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-databind</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.apache.httpcomponents</groupId>
+              <artifactId>httpclient</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.skyscreamer</groupId>
+              <artifactId>jsonassert</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>xmlunit</groupId>
+              <artifactId>xmlunit</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.jayway.jsonpath</groupId>
+              <artifactId>json-path</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>net.sf.jopt-simple</groupId>
+              <artifactId>jopt-simple</artifactId>
+            </exclusion>
+         </exclusions>
     </dependency>
 
 
