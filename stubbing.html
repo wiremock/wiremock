@@ -80,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#basic-stubbing">Basic stubbing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#url-matching">URL matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#query-parameter-matching">Query parameter matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#json-body-matching">JSON body matching</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#xml-body-matching">XML body matching</a></li>
@@ -156,7 +157,7 @@ want the stub mapping to match on any request method.</p>
 </div>
 <div class="section" id="url-matching">
 <span id="stubbing-url-matching"></span><h2>URL matching<a class="headerlink" href="#url-matching" title="Permalink to this headline">¶</a></h2>
-<p>URLs can be matched exactly (as in the example above) or via a regular expression. In Java this is done with the <tt class="docutils literal"><span class="pre">urlMatching()</span></tt>
+<p>Entire URLs can be matched exactly (as in the example above) or via a regular expression. In Java this is done with the <tt class="docutils literal"><span class="pre">urlMatching()</span></tt>
 function:</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">put</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">&quot;/thing/matching/[0-9]+&quot;</span><span class="o">))</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
@@ -167,6 +168,24 @@ function:</p>
     <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span>
         <span class="s2">&quot;urlPattern&quot;</span><span class="o">:</span> <span class="s2">&quot;/thing/matching/[0-9]+&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Alternatively, just the path part of the URL can be matched exactly, which is most useful when combined with query parameter
+matching (<a class="reference internal" href="#stubbing-query-parameter-matching"><em>Query parameter matching</em></a>):</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">&quot;/query&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>And in JSON via the <tt class="docutils literal"><span class="pre">urlPath</span></tt> attribute:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;urlPath&quot;</span><span class="o">:</span> <span class="s2">&quot;/query&quot;</span>
     <span class="p">},</span>
     <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
         <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
@@ -203,6 +222,32 @@ function:</p>
             <span class="p">},</span>
             <span class="s2">&quot;X-Custom-Header&quot;</span><span class="o">:</span> <span class="p">{</span>
                 <span class="s2">&quot;contains&quot;</span><span class="o">:</span> <span class="s2">&quot;2134&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="query-parameter-matching">
+<span id="stubbing-query-parameter-matching"></span><h2>Query parameter matching<a class="headerlink" href="#query-parameter-matching" title="Permalink to this headline">¶</a></h2>
+<p>Query parameters can be matched in a similar fashion to headers:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">&quot;/with/query&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">&quot;search&quot;</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">&quot;Some text&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>And in JSON:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;urlPath&quot;</span><span class="o">:</span> <span class="s2">&quot;/with/query&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;queryParameters&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;search&quot;</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s2">&quot;contains&quot;</span><span class="o">:</span> <span class="s2">&quot;Some text&quot;</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">},</span>

@@ -63,7 +63,7 @@ want the stub mapping to match on any request method.
 URL matching
 ============
 
-URLs can be matched exactly (as in the example above) or via a regular expression. In Java this is done with the ``urlMatching()``
+Entire URLs can be matched exactly (as in the example above) or via a regular expression. In Java this is done with the ``urlMatching()``
 function:
 
 .. code-block:: java
@@ -85,6 +85,32 @@ And in JSON via the ``urlPattern`` attribute:
             "status": 200
         }
     }
+
+
+Alternatively, just the path part of the URL can be matched exactly, which is most useful when combined with query parameter
+matching (:ref:`stubbing-query-parameter-matching`):
+
+.. code-block:: java
+
+    stubFor(get(urlPathEqualTo("/query"))
+        .willReturn(aResponse().withStatus(200)));
+
+
+And in JSON via the ``urlPath`` attribute:
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "urlPath": "/query"
+        },
+        "response": {
+            "status": 200
+        }
+    }
+
+
 
 .. _stubbing-request-header-matching:
 
@@ -129,6 +155,39 @@ Or
     		"status": 200
     	}
     }
+
+.. _stubbing-query-parameter-matching:
+
+Query parameter matching
+========================
+
+Query parameters can be matched in a similar fashion to headers:
+
+.. code-block:: java
+
+    stubFor(get(urlPathEqualTo("/with/query"))
+        .withQueryParam("search", containing("Some text"))
+            .willReturn(aResponse().withStatus(200)));
+
+And in JSON:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "GET",
+            "urlPath": "/with/query",
+            "queryParameters": {
+                "search": {
+                    "contains": "Some text"
+                }
+            }
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
 
 .. _stubbing-request-body-matching:
 
