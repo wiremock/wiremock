@@ -63,10 +63,10 @@ and any number of higher priority stub mappings e.g.
     stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
             .willReturn(aResponse().withStatus(503)));            
             
-Header injection
-===============
+Additional headers
+==================
 
-It is possibly to configure the proxy to inject headers before forwarding the request to the destination:
+It is possible to configure the proxy to add headers before forwarding the request to the destination:
 
 .. code-block:: java
 
@@ -74,7 +74,26 @@ It is possibly to configure the proxy to inject headers before forwarding the re
     stubFor(get(urlMatching(".*"))
             .willReturn(aResponse()
             	.proxiedFrom("http://otherhost.com")
-            	.withInjectedHeader("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone)"));            
+            	.withAdditionalRequestHeader("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone)"));
+
+or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "urlPattern": ".*"
+        },
+        "response": {
+            "proxyBaseUrl" : "http://otherhost.com",
+            "additionalProxyRequestHeaders": {
+                "User-Agent": "Mozilla/5.0 (iPhone; U; CPU iPhone)",
+            }
+        }
+    }
+
+You can also add response headers via the same method as for non-proxy responses (see :ref:`stubbing`).
 
 
 Standalone shortcut
