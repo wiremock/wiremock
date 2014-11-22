@@ -68,7 +68,8 @@ public class ProxyAcceptanceTest {
 		targetService.stop();
         proxyingService.stop();
 	}
-	
+
+    @Test
 	public void successfullyGetsResponseFromOtherServiceViaProxy() {
         initWithDefaultConfig();
 
@@ -89,25 +90,20 @@ public class ProxyAcceptanceTest {
 	}
 	
 	@Test
-	public void successfullyGetsResponseFromOtherServiceViaProxyInjectingHeaders() {
+	public void successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
         initWithDefaultConfig();
 
-		targetServiceAdmin.register(get(urlEqualTo("/proxied/resource?param=value"))
-				.withHeader("a", equalTo("b"))
-				.withHeader("c", equalTo("d"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody("Proxied content")));
-
-        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
+        proxyingServiceAdmin.register(any(urlEqualTo("/additional/headers")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(TARGET_SERVICE_BASE_URL)
-				.withInjectedHeader("a", "b")
-				.withInjectedHeader("c", "d")));
+                        .withAdditionalRequestHeader("a", "b")
+                        .withAdditionalRequestHeader("c", "d")));
+
+        testClient.get("/additional/headers");
 		
-		WireMockResponse response = testClient.get("/proxied/resource?param=value");
-		
-		assertThat(response.content(), is("Proxied content"));
+		targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/additional/headers"))
+                .withHeader("a", equalTo("b"))
+                .withHeader("c", equalTo("d")));
 	}
 	
 	@Test
@@ -123,7 +119,7 @@ public class ProxyAcceptanceTest {
         proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
 				.willReturn(aResponse()
 				.proxiedFrom(TARGET_SERVICE_BASE_URL)
-				.withInjectedHeader("a", "b")));
+				.withAdditionalRequestHeader("a", "b")));
 		
 		WireMockResponse response = testClient.get("/proxied/resource?param=value", 
 				TestHttpHeader.withHeader("a", "doh"));

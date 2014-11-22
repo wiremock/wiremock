@@ -37,7 +37,7 @@ public class ResponseDefinition {
     private boolean isBinaryBody = false;
 	private String bodyFileName;
 	private HttpHeaders headers;
-	private HttpHeaders injectedheaders;
+	private HttpHeaders additionalProxyRequestHeaders;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private String browserProxyUrl;
@@ -53,7 +53,7 @@ public class ResponseDefinition {
         newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
-	    newResponseDef.injectedheaders = original.injectedheaders;
+	    newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
 	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
 	    newResponseDef.fault = original.fault;
@@ -69,12 +69,12 @@ public class ResponseDefinition {
 		this.headers = headers;
 	}
 
-	public HttpHeaders getInjectedheaders() {
-		return injectedheaders;
+	public HttpHeaders getAdditionalProxyRequestHeaders() {
+		return additionalProxyRequestHeaders;
 	}
 
-	public void setInjectedheaders(final HttpHeaders injectedheaders) {
-		this.injectedheaders = injectedheaders;
+	public void setAdditionalProxyRequestHeaders(final HttpHeaders additionalProxyRequestHeaders) {
+		this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
