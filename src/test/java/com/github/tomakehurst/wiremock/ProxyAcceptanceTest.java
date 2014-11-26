@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -67,8 +68,8 @@ public class ProxyAcceptanceTest {
 		targetService.stop();
         proxyingService.stop();
 	}
-	
-	@Test
+
+    @Test
 	public void successfullyGetsResponseFromOtherServiceViaProxy() {
         initWithDefaultConfig();
 
@@ -86,6 +87,44 @@ public class ProxyAcceptanceTest {
 		
 		assertThat(response.content(), is("Proxied content"));
 		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+	}
+	
+	@Test
+	public void successfullyGetsResponseFromOtherServiceViaProxyWhenInjectingAddtionalRequestHeaders() {
+        initWithDefaultConfig();
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/additional/headers")).atPriority(10)
+				.willReturn(aResponse()
+				.proxiedFrom(TARGET_SERVICE_BASE_URL)
+                        .withAdditionalRequestHeader("a", "b")
+                        .withAdditionalRequestHeader("c", "d")));
+
+        testClient.get("/additional/headers");
+		
+		targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/additional/headers"))
+                .withHeader("a", equalTo("b"))
+                .withHeader("c", equalTo("d")));
+	}
+	
+	@Test
+	public void successfullyGetsResponseFromOtherServiceViaProxyInjectingHeadersOverridingSentHeaders() {
+        initWithDefaultConfig();
+
+		targetServiceAdmin.register(get(urlEqualTo("/proxied/resource?param=value"))
+				.withHeader("a", equalTo("b"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("Proxied content")));
+
+        proxyingServiceAdmin.register(any(urlEqualTo("/proxied/resource?param=value")).atPriority(10)
+				.willReturn(aResponse()
+				.proxiedFrom(TARGET_SERVICE_BASE_URL)
+				.withAdditionalRequestHeader("a", "b")));
+		
+		WireMockResponse response = testClient.get("/proxied/resource?param=value", 
+				TestHttpHeader.withHeader("a", "doh"));
+		
+		assertThat(response.content(), is("Proxied content"));
 	}
 	
 	@Test

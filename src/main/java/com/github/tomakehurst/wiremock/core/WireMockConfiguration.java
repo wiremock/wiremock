@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import java.util.List;
 
 import static com.google.common.collect.Lists.transform;
+import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
@@ -34,7 +35,8 @@ public class WireMockConfiguration implements Options {
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
     private Integer maxEntriesRequestJournal = null;
-    private List<CaseInsensitiveKey> matchingHeaders;
+    private List<CaseInsensitiveKey> matchingHeaders = emptyList();
+
     private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
@@ -186,7 +188,7 @@ public class WireMockConfiguration implements Options {
     }
     
     @Override
-    public List<CaseInsensitiveKey>matchingHeaders() {
+    public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;
     }
 
