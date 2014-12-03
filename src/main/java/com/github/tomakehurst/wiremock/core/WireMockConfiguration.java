@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.io.Resources;
 
 import java.util.List;
 
@@ -29,6 +30,10 @@ public class WireMockConfiguration implements Options {
     private String bindAddress = DEFAULT_BIND_ADDRESS;
     private Integer httpsPort = null;
     private String keyStorePath = null;
+    private String keyStorePassword = "password";
+    private String trustStorePath = null;
+    private String trustStorePassword = "password";
+    private boolean needClientAuth = false;
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
@@ -56,6 +61,26 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration keystorePass(String path) {
+        this.keyStorePassword = path;
+        return this;
+    }
+
+    public WireMockConfiguration truststorePath(String path) {
+        this.trustStorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration truststorePass(String path) {
+        this.trustStorePassword = path;
+        return this;
+    }
+
+    public WireMockConfiguration needClientAuth(boolean needClientAuth) {
+        this.needClientAuth = needClientAuth;
         return this;
     }
 
@@ -140,10 +165,10 @@ public class WireMockConfiguration implements Options {
         }
 
         if (keyStorePath == null) {
-            return new HttpsSettings(httpsPort);
+            return new HttpsSettings(httpsPort, Resources.getResource("keystore").toString(), "password");
         }
 
-        return new HttpsSettings(httpsPort, keyStorePath);
+        return new HttpsSettings(httpsPort, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
     }
 
     @Override
