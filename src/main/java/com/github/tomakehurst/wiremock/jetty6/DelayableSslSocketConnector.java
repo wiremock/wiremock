@@ -51,9 +51,7 @@ class DelayableSslSocketConnector extends SslSocketConnector {
                 @Override
                 public void run() {
                     ActiveSocket.set(socket);
-                    Log.warn("in run 1");
                     super.run();
-                    Log.warn("in run 2");
                     ActiveSocket.clear();
                 }
             };
