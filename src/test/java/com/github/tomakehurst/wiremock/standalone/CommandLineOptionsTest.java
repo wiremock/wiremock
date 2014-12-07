@@ -71,7 +71,7 @@ public class CommandLineOptionsTest {
     @Test
     public void setsKeyStorePath() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
-        assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+        assertThat(options.httpsSettings().keystore(), is("/my/keystore"));
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -160,6 +160,42 @@ public class CommandLineOptionsTest {
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
     }
-    
 
+    @Test
+    public void returnKeystorePwdWhenPresent() {
+        final CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore-pass", "password");
+        assertThat(options.httpsSettings().keyPassword(), is("password"));
+    }
+
+    @Test
+    public void returnKeystorePathWhenPresent() {
+        final CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "keystore_path");
+        assertThat(options.httpsSettings().keystore(), is("keystore_path"));
+    }
+
+    @Test
+    public void returnTruststorePwdWhenPresent() {
+        final CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "keystore_path",
+                "--https-truststore-pass", "password");
+        assertThat(options.httpsSettings().keyPassword(), is("password"));
+    }
+
+    @Test
+    public void returnTruststorePathWhenPresent() {
+        final CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "keystore_path",
+                "--https-truststore", "truststore_path");
+        assertThat(options.httpsSettings().truststore(), is("truststore_path"));
+    }
+
+    @Test
+    public void returnNeedsClientAuthWhenPresent() {
+        final CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "keystore_path",
+                "--https-need-client-auth", "true");
+        assertThat(options.httpsSettings().needClientAuth(), is(true));
+    }
 }

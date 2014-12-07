@@ -54,7 +54,6 @@ class Jetty6HttpServer implements HttpServer {
             StubRequestHandler stubRequestHandler,
             RequestDelayControl requestDelayControl
     ) {
-
     	jettyServer = new Server();
         httpConnector = createHttpConnector(
                 requestDelayControl,
@@ -138,12 +137,12 @@ class Jetty6HttpServer implements HttpServer {
         connector.setHost(bindAddress);
         connector.setPort(httpsSettings.port());
         connector.setHeaderBufferSize(8192);
-        connector.setKeystore(httpsSettings.keyStorePath());
-        connector.setKeyPassword(httpsSettings.getKeyStorePassword());
+        connector.setKeystore(httpsSettings.keystore());
+        connector.setKeyPassword(httpsSettings.keyPassword());
 
-        connector.setTruststore(httpsSettings.getTrustStorePath());
-        if (httpsSettings.getTrustStorePassword() != null) {
-            connector.setTrustPassword(httpsSettings.getTrustStorePassword());
+        connector.setTruststore(httpsSettings.truststore());
+        if (httpsSettings.trustPassword() != null) {
+            connector.setTrustPassword(httpsSettings.trustPassword());
         }
 
         connector.setNeedClientAuth(httpsSettings.needClientAuth());

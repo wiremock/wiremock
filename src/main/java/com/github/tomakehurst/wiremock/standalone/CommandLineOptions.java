@@ -27,6 +27,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.io.Resources;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -158,16 +159,19 @@ public class CommandLineOptions implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        if (optionSet.has(HTTPS_KEYSTORE)) {
-            return new HttpsSettings(httpsPortNumber(),
-                    (String) optionSet.valueOf(HTTPS_KEYSTORE),
-                    (String) optionSet.valueOf(HTTPS_KEYSTORE_PASS),
-                    (String) optionSet.valueOf(HTTPS_TRUSTSTORE),
-                    (String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASS),
-                    Boolean.valueOf( (String) optionSet.valueOf(HTTPS_NEED_CLIENT_AUTH)));
+        final String keyStorePath = optionSet.has(HTTPS_KEYSTORE) ? (String) optionSet.valueOf(HTTPS_KEYSTORE) : Resources.getResource("keystore").toString();
+        final String keyStorePassword = optionSet.has(HTTPS_KEYSTORE_PASS) ? (String) optionSet.valueOf(HTTPS_KEYSTORE_PASS) : "password";
+
+        if (StringUtils.isEmpty(keyStorePath)) {
+            throw new IllegalArgumentException("Try to enable HTTPS port but missing a valid Keystore. " +
+                    "Please either specify keystore path with --https-keystore argument, " +
+                    "or put the keystore in resource with name 'keystore'");
         }
 
-        return new HttpsSettings(httpsPortNumber(), Resources.getResource("keystore").toString(), "password");
+        return new HttpsSettings(httpsPortNumber(), keyStorePath, keyStorePassword,
+                (String) optionSet.valueOf(HTTPS_TRUSTSTORE),
+                (String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASS),
+                Boolean.valueOf((String) optionSet.valueOf(HTTPS_NEED_CLIENT_AUTH)));
     }
 
     private int httpsPortNumber() {
@@ -238,7 +242,7 @@ public class CommandLineOptions implements Options {
 
         if (httpsSettings().enabled()) {
             builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
-                    .put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+                    .put(HTTPS_KEYSTORE, nullToString(httpsSettings().keystore()));
         }
 
         if (!(proxyVia() == NO_PROXY)) {

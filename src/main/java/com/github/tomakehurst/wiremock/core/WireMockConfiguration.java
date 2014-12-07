@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.io.Resources;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -59,23 +60,23 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration keystorePath(String path) {
-        this.keyStorePath = path;
+    public WireMockConfiguration keystore(String keystore) {
+        this.keyStorePath = keystore;
         return this;
     }
 
-    public WireMockConfiguration keystorePass(String path) {
-        this.keyStorePassword = path;
+    public WireMockConfiguration keyPassword(String password) {
+        this.keyStorePassword = password;
         return this;
     }
 
-    public WireMockConfiguration truststorePath(String path) {
-        this.trustStorePath = path;
+    public WireMockConfiguration truststore(String truststore) {
+        this.trustStorePath = truststore;
         return this;
     }
 
-    public WireMockConfiguration truststorePass(String path) {
-        this.trustStorePassword = path;
+    public WireMockConfiguration trustPassword(String password) {
+        this.trustStorePassword = password;
         return this;
     }
 
@@ -164,11 +165,31 @@ public class WireMockConfiguration implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        if (keyStorePath == null) {
-            return new HttpsSettings(httpsPort, Resources.getResource("keystore").toString(), "password");
+        final String keyStorePath;
+        if (StringUtils.isEmpty(this.keyStorePath)) {
+            keyStorePath = Resources.getResource("keystore").toString();
+        } else {
+            keyStorePath = this.keyStorePath;
         }
 
-        return new HttpsSettings(httpsPort, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
+
+        final String keyStorePassword;
+        if (StringUtils.isEmpty(this.keyStorePassword)) {
+            keyStorePassword = "password";
+        } else {
+            keyStorePassword = this.keyStorePassword;
+        }
+
+        if (StringUtils.isEmpty(keyStorePath)) {
+            throw new IllegalArgumentException("Try to enable HTTPS port but missing a valid Keystore. " +
+                    "Please either specify a valid keystore path, " +
+                    "or put the keystore in resource with name 'keystore'");
+        }
+
+        return new HttpsSettings(httpsPort,
+                keyStorePath, keyStorePassword,
+                trustStorePath, trustStorePassword,
+                needClientAuth);
     }
 
     @Override
