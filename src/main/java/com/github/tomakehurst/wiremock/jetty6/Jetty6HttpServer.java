@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty6;
 
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -53,7 +54,6 @@ class Jetty6HttpServer implements HttpServer {
             StubRequestHandler stubRequestHandler,
             RequestDelayControl requestDelayControl
     ) {
-
     	jettyServer = new Server();
         httpConnector = createHttpConnector(
                 requestDelayControl,
@@ -65,9 +65,8 @@ class Jetty6HttpServer implements HttpServer {
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
                     requestDelayControl,
-                    options.httpsSettings().port(),
-                    options.httpsSettings().keyStorePath()
-            );
+                    options.bindAddress(),
+                    options.httpsSettings());
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -132,15 +131,21 @@ class Jetty6HttpServer implements HttpServer {
     }
 
     private DelayableSslSocketConnector createHttpsConnector(
-            RequestDelayControl requestDelayControl,
-            int httpsPort,
-            String keystorePath
+            RequestDelayControl requestDelayControl, String bindAddress, HttpsSettings httpsSettings
     ) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
-        connector.setPort(httpsPort);
+        connector.setHost(bindAddress);
+        connector.setPort(httpsSettings.port());
         connector.setHeaderBufferSize(8192);
-        connector.setKeystore(keystorePath);
-        connector.setKeyPassword("password");
+        connector.setKeystore(httpsSettings.keystore());
+        connector.setKeyPassword(httpsSettings.keyPassword());
+
+        connector.setTruststore(httpsSettings.truststore());
+        if (httpsSettings.trustPassword() != null) {
+            connector.setTrustPassword(httpsSettings.trustPassword());
+        }
+
+        connector.setNeedClientAuth(httpsSettings.needClientAuth());
         return connector;
     }
 

@@ -46,15 +46,15 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class WireMockServer implements Container, Stubbing {
 
-	public static final String FILES_ROOT = "__files";
+    public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
 
-	private final WireMockApp wireMockApp;
+    private final WireMockApp wireMockApp;
     private final StubRequestHandler stubRequestHandler;
 
-	private final HttpServer httpServer;
+    private final HttpServer httpServer;
     private final FileSource fileSource;
-	private final Notifier notifier;
+    private final Notifier notifier;
 
     private final Options options;
 
@@ -125,13 +125,13 @@ public class WireMockServer implements Container, Stubbing {
                 .notifier(notifier));
     }
 
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
+    public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
         this(wireMockConfig()
                 .port(port)
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying)
                 .proxyVia(proxySettings));
-	}
+    }
 
     public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
         this(wireMockConfig()
@@ -139,44 +139,44 @@ public class WireMockServer implements Container, Stubbing {
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying));
     }
-	
-	public WireMockServer(int port) {
-		this(wireMockConfig().port(port));
-	}
+    
+    public WireMockServer(int port) {
+        this(wireMockConfig().port(port));
+    }
 
     public WireMockServer(int port, Integer httpsPort) {
         this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
-	
-	public WireMockServer() {
-		this(wireMockConfig());
-	}
-	
-	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		wireMockApp.loadMappingsUsing(mappingsLoader);
-	}
-	
-	public void addMockServiceRequestListener(RequestListener listener) {
-		stubRequestHandler.addRequestListener(listener);
-	}
-	
-	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
-	    addMockServiceRequestListener(
+    
+    public WireMockServer() {
+        this(wireMockConfig());
+    }
+    
+    public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
+        wireMockApp.loadMappingsUsing(mappingsLoader);
+    }
+    
+    public void addMockServiceRequestListener(RequestListener listener) {
+        stubRequestHandler.addRequestListener(listener);
+    }
+    
+    public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
+        addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
-	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
-	}
-	
-	public void stop() {
+        notifier.info("Recording mappings to " + mappingsFileSource.getPath());
+    }
+    
+    public void stop() {
         httpServer.stop();
-	}
-	
-	public void start() {
+    }
+    
+    public void start() {
         try {
-		    httpServer.start();
+            httpServer.start();
         } catch (Exception e) {
             throw new FatalStartupException(e);
         }
-	}
+    }
 
     /**
      * Gracefully shutdown the server.

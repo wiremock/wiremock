@@ -15,41 +15,68 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.io.Resources;
-
 public class HttpsSettings {
 
     private final int port;
-    private final String keyStorePath;
+    private final String keystore;
+    private final String keyPassword;
+    private final String truststore;
+    private final String trustPassword;
 
-    public HttpsSettings(int port, String keyStorePath) {
+    private final boolean needClientAuth;
+
+    public HttpsSettings(int port, String keystore, String keyPassword, String truststore, String trustPassword, boolean needClientAuth) {
         this.port = port;
-        this.keyStorePath = keyStorePath;
+        this.keystore = keystore;
+        this.keyPassword = keyPassword;
+        this.truststore = truststore;
+        this.trustPassword = trustPassword;
+        this.needClientAuth = needClientAuth;
     }
 
-    public HttpsSettings(int port) {
-        this(port, Resources.getResource("keystore").toString());
+    public HttpsSettings(int port, String keystore, String keyPassword) {
+        this(port, keystore, keyPassword, null, null, false);
     }
 
-    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null);
+    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null, null);
 
     public int port() {
         return port;
     }
 
-    public String keyStorePath() {
-        return keyStorePath;
+    public String keystore() {
+        return keystore;
     }
 
     public boolean enabled() {
         return this != NO_HTTPS;
     }
 
+    public String keyPassword() {
+        return keyPassword;
+    }
+
+    public String truststore() {
+        return truststore;
+    }
+
+    public String trustPassword() {
+        return trustPassword;
+    }
+
+    public boolean needClientAuth() {
+        return needClientAuth;
+    }
+
     @Override
     public String toString() {
         return "HttpsSettings{" +
                 "port=" + port +
-                ", keystorePath='" + keyStorePath + '\'' +
+                ", keystore='" + keystore + '\'' +
+                ", keyPassword='" + keyPassword + '\'' +
+                ", truststore='" + truststore + '\'' +
+                ", trustPassword='" + trustPassword + '\'' +
+                ", needClientAuth=" + needClientAuth +
                 '}';
     }
 }
