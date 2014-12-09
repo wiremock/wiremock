@@ -208,64 +208,16 @@ public class HttpsAcceptanceTest {
     }
 
     static String secureContentFor(String url, String  clientKeyStore, String clientTrustStore) throws Exception {
-        // This is a horrible hack to get around a bug in Apache HTTP client or the underlying SSLSocketImpl.
-        // It appears to randomly omit the requested client certificate from the information sent to the server
-        // about half the time on Fedora 20 Sun JDK 1.6 through 1.8.
-        // This would not be an acceptable hack for production code, but for a test, it should work until the bug
-        // can be resolved.  Expect a false failure once every few billion runs.
-        // https://issues.apache.org/jira/browse/HTTPCLIENT-1585
-        Map<Exception,Integer> whoops=new TreeMap<Exception, Integer>(new Comparator<Exception>() {
-
-            @Override
-            public int compare(Exception e1, Exception e2) {
-                if (e1.getStackTrace()==null) {
-                    if (e2.getStackTrace()==null) {
-                        return 0;
-                    } else {
-                        return 1;
-                    }
-                }
-                if (e2.getStackTrace()==null) {
-                    return -1;
-                }
-                return e1.getStackTrace()[0].toString().compareTo(e2.getStackTrace()[0].toString());
-            }
-        });
-        Exception minEe = null;
-        int minEc = Integer.MAX_VALUE;
-        try {
-            for (int i = 0; i < 64; i++) {
-                try {
-                    return secureContentFor0(url, clientKeyStore, clientTrustStore);
-                } catch (SSLHandshakeException e) {
-                    int c = 0;
-                    if (whoops.containsKey(e)) {
-                        c = (int) whoops.get(e);
-                    }
-                    whoops.put(e, c + 1);
-                }
-            }
-        } finally {
-            for (Map.Entry<Exception, Integer> me : whoops.entrySet()) {
-                System.err.println("The following exception happened " + me.getValue() + " times.");
-                me.getKey().printStackTrace();
-                if (minEc > me.getValue()) {
-                    minEc = me.getValue();
-                    minEe = me.getKey();
-                }
-            }
-        }
-        throw minEe;
+        return secureContentFor0(url, clientTrustStore);
     }
 
-    static String secureContentFor0(String url, String clientKeyStore, String clientTrustStore) throws Exception {
+    // Sort out mess with trust / key material
+    static String secureContentFor0(String url, String clientTrustStore) throws Exception {
         KeyStore trustStore = readKeyStore(clientTrustStore);
-        KeyStore keyStore = readKeyStore(clientKeyStore);
 
         // Trust own CA and all self-signed certs
         SSLContext sslcontext = SSLContexts.custom()
-                .loadTrustMaterial(trustStore, new TrustSelfSignedStrategy())
-                .loadKeyMaterial(keyStore, "password".toCharArray())
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
                 .loadKeyMaterial(trustStore, "password".toCharArray())
                 .useTLS()
                 .build();
