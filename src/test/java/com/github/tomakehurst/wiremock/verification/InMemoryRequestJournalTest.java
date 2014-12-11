@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.verification;
 
+import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class InMemoryRequestJournalTest {
 
     @Test
     public void testRequestsMatching() {
-        RequestJournal journal = new InMemoryRequestJournal(null);
+        RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent());
 
         // Add request 1 twice + request 2 and check if they are queried correctly
         journal.requestReceived(request1);
@@ -42,11 +43,11 @@ public class InMemoryRequestJournalTest {
     @Test
     public void testResetMaxEntries() throws Exception {
         // When we reset the size of the journal is reset to the initial max length
-        RotatingRequestJournal journal = new InMemoryRequestJournal(1);
-        journal.setMaxEntries(2);
-        assertThat(journal.getMaxEntries(), is(2));
+        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
+        journal.setMaxEntries(Optional.of(2));
+        assertThat(journal.getMaxEntries(), is(Optional.of(2)));
         journal.reset();
-        assertThat(journal.getMaxEntries(), is(1));
+        assertThat(journal.getMaxEntries(), is(Optional.of(1)));
     }
 
     @Test
@@ -57,7 +58,7 @@ public class InMemoryRequestJournalTest {
                 .withUrl("/for/logging")
                 .build());
 
-        RotatingRequestJournal journal = new InMemoryRequestJournal(1);
+        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
         journal.requestReceived(loggedRequest);
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
@@ -67,7 +68,7 @@ public class InMemoryRequestJournalTest {
     @Test
     public void testJournalRotation() throws Exception {
         // When we add more entries to the journal than it can take old requests are removed
-        RotatingRequestJournal journal = new InMemoryRequestJournal(2);
+        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(2));
         // First add the first two requests and verify that they are there
         journal.requestReceived(request1);
         journal.requestReceived(request2);
@@ -84,14 +85,14 @@ public class InMemoryRequestJournalTest {
     public void testSetMaxEntriesCutsRequestLog() throws Exception {
         // When the request journal has three entries and no max requests and then we set the maximum number of requests#
         // the journal is cut
-        RotatingRequestJournal journal = new InMemoryRequestJournal(10);
+        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(10));
         // Add the requests
         journal.requestReceived(request1);
         journal.requestReceived(request2);
         journal.requestReceived(request3);
 
         // Cut the journal
-        journal.setMaxEntries(2);
+        journal.setMaxEntries(Optional.of(2));
         assertOnlyLastTwoRequestsLeft(journal);
     }
 

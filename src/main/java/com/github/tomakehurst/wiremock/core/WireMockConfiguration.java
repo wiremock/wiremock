@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
-    private Integer maxEntriesRequestJournal = null;
+    private Optional<Integer> maxEntriesRequestJournal = Optional.absent();
     private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
     private String proxyUrl;
@@ -109,7 +110,7 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration maxEntriesRequestJournal(Integer maxEntriesRequestJournal) {
+    public WireMockConfiguration maxEntriesRequestJournal(Optional<Integer> maxEntriesRequestJournal) {
         this.maxEntriesRequestJournal = maxEntriesRequestJournal;
         return this;
     }
@@ -178,7 +179,7 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public Integer maxEntriesRequestJournal() {
+    public Optional<Integer> maxEntriesRequestJournal() {
         return maxEntriesRequestJournal;
     }
 

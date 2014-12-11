@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.google.common.base.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -43,7 +44,7 @@ public class WireMockWebContextListener implements ServletContextListener {
 
         ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
 
-        Integer maxEntriesRequestJournal = readMaxEntriesRequestJournal(context);
+        Optional<Integer> maxEntriesRequestJournal = readMaxEntriesRequestJournal(context);
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
                 fromNullable(context.getInitParameter("verboseLoggingEnabled"))
                         .or("true"));
@@ -72,14 +73,14 @@ public class WireMockWebContextListener implements ServletContextListener {
 
     /**
      * @param context Servlet context for parameter reading
-     * @return Maximum number of entries or null
+     * @return Maximum number of entries or absent
      */
-    private Integer readMaxEntriesRequestJournal(ServletContext context) {
+    private Optional<Integer> readMaxEntriesRequestJournal(ServletContext context) {
         String str = context.getInitParameter("maxEntriesRequestJournal");
         if(str == null) {
-            return null;
+            return Optional.absent();
         }
-        return Integer.parseInt(str);
+        return Optional.of(Integer.parseInt(str));
     }
 
     @Override

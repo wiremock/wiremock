@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class WireMockApp implements StubServer, Admin {
             MappingsLoader defaultMappingsLoader,
             MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
-            Integer maxEntriesRequestJournal,
+            Optional<Integer> maxEntriesRequestJournal,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;

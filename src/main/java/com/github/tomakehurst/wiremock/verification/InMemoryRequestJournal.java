@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -33,15 +34,15 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 	
 	private Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
-    private Integer maxEntries;
+    private Optional<Integer> maxEntries;
 
-    private Integer initialMaxEntries;
+    private Optional<Integer> initialMaxEntries;
 
     /**
      * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
      *                          maximum number of entries is reset to this value.
      */
-    public InMemoryRequestJournal(Integer initialMaxEntries) {
+    public InMemoryRequestJournal(Optional<Integer> initialMaxEntries) {
         this.initialMaxEntries = initialMaxEntries;
         setMaxEntries(initialMaxEntries);
     }
@@ -82,8 +83,8 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 	}
 
     private void removeOldEntries() {
-        if(maxEntries != null) {
-            while (requests.size() > maxEntries) {
+        if(maxEntries.isPresent()) {
+            while (requests.size() > maxEntries.get()) {
                 // Remove entries from the journal until we reach the desired number. In general this will only be
                 // maximum one entry if we add one entry in requestReceived.
                 requests.poll();
@@ -92,8 +93,8 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
     }
 
     @Override
-    public void setMaxEntries(Integer maxEntries) {
-        if(maxEntries!=null && maxEntries <0) {
+    public void setMaxEntries(Optional<Integer> maxEntries) {
+        if(maxEntries.isPresent() && maxEntries.get() <0) {
             throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
         }
         this.maxEntries = maxEntries;
@@ -101,7 +102,7 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
     }
 
     @Override
-    public Integer getMaxEntries() {
+    public Optional<Integer> getMaxEntries() {
         return this.maxEntries;
     }
 }

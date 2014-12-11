@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 
 /**
  * Options for running wiremock. More information on most options can be found in the manual (Stand-Alone operation)
@@ -59,7 +60,7 @@ public interface Options {
     /**
      * @return Maximum size of request journal (see manual)
      */
-    Integer maxEntriesRequestJournal();
+    Optional<Integer> maxEntriesRequestJournal();
 
     /**
      * @return Address to bind to. Determines from which hosts wiremock accepts connection requests.

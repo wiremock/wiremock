@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -224,11 +225,11 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-    public Integer maxEntriesRequestJournal() {
+    public Optional<Integer> maxEntriesRequestJournal() {
         if (specifiesMaxEntriesRequestJournal()) {
-            return Integer.parseInt((String) optionSet.valueOf(MAX_ENTRIES_REQUEST_JOURNAL));
+            return Optional.of(Integer.parseInt((String) optionSet.valueOf(MAX_ENTRIES_REQUEST_JOURNAL)));
         }
-        return null;
+        return Optional.absent();
     }
 
     @Override

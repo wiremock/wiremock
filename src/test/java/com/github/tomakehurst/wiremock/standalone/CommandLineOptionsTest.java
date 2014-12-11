@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
@@ -147,9 +148,9 @@ public class CommandLineOptionsTest {
     @Test
     public void returnsMaxEntriesRequestJournal() {
         CommandLineOptions options = new CommandLineOptions("--max-entries-request-journal", "2");
-        assertThat(options.maxEntriesRequestJournal(), is(2));
+        assertThat(options.maxEntriesRequestJournal(), is(Optional.of(2)));
         CommandLineOptions optionsNoMax = new CommandLineOptions("");
-        assertThat(optionsNoMax.maxEntriesRequestJournal(), nullValue());
+        assertThat(optionsNoMax.maxEntriesRequestJournal().isPresent(), is(false));
     }
 
     @Test
