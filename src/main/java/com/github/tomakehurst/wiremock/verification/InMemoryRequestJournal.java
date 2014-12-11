@@ -31,33 +31,33 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
 
 public class InMemoryRequestJournal implements RequestListener, RotatingRequestJournal {
-	
+
 	private Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
-    private Optional<Integer> maxEntries;
+	private Optional<Integer> maxEntries;
 
-    private Optional<Integer> initialMaxEntries;
+	private Optional<Integer> initialMaxEntries;
 
-    /**
-     * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
-     *                          maximum number of entries is reset to this value.
-     */
-    public InMemoryRequestJournal(Optional<Integer> initialMaxEntries) {
-        this.initialMaxEntries = initialMaxEntries;
-        setMaxEntries(initialMaxEntries);
-    }
-
-    @Override
-	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(requests, matchedBy(requestPattern))); 
+	/**
+	 * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
+	 *                          maximum number of entries is reset to this value.
+	 */
+	public InMemoryRequestJournal(Optional<Integer> initialMaxEntries) {
+		this.initialMaxEntries = initialMaxEntries;
+		setMaxEntries(initialMaxEntries);
 	}
 
-    @Override
-    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-        return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
-    }
+	@Override
+	public int countRequestsMatching(RequestPattern requestPattern) {
+		return size(filter(requests, matchedBy(requestPattern)));
+	}
 
-    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+	@Override
+	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+		return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+	}
+
+	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
 				return requestPattern.isMatchedBy(input);
@@ -68,41 +68,44 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 	@Override
 	public void requestReceived(Request request, Response response) {
 		requests.add(LoggedRequest.createFrom(request));
-        removeOldEntries();
+		removeOldEntries();
 	}
 
-    @Override
-    public void requestReceived(Request request) {
-        requestReceived(request, null);
-    }
+	@Override
+	public void requestReceived(Request request) {
+		requestReceived(request, null);
+	}
 
 	@Override
 	public void reset() {
 		requests.clear();
-        setMaxEntries(initialMaxEntries);
+		setMaxEntries(initialMaxEntries);
 	}
 
-    private void removeOldEntries() {
-        if(maxEntries.isPresent()) {
-            while (requests.size() > maxEntries.get()) {
-                // Remove entries from the journal until we reach the desired number. In general this will only be
-                // maximum one entry if we add one entry in requestReceived.
-                requests.poll();
-            }
-        }
-    }
+	private void removeOldEntries() {
+		// Prevent race conditions when maxEntries is updated by copying the value before reading it (race condition
+		// between isPresent and get)
+		Optional<Integer> maxEnt = maxEntries;
+		if (maxEnt.isPresent()) {
+			while (requests.size() > maxEnt.get()) {
+				// Remove entries from the journal until we reach the desired number. In general this will only be
+				// maximum one entry if we add one entry in requestReceived.
+				requests.poll();
+			}
+		}
+	}
 
-    @Override
-    public void setMaxEntries(Optional<Integer> maxEntries) {
-        if(maxEntries.isPresent() && maxEntries.get() <0) {
-            throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
-        }
-        this.maxEntries = maxEntries;
-        removeOldEntries();
-    }
+	@Override
+	public void setMaxEntries(Optional<Integer> maxEntries) {
+		if (maxEntries.isPresent() && maxEntries.get() < 0) {
+			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
+		}
+		this.maxEntries = maxEntries;
+		removeOldEntries();
+	}
 
-    @Override
-    public Optional<Integer> getMaxEntries() {
-        return this.maxEntries;
-    }
+	@Override
+	public Optional<Integer> getMaxEntries() {
+		return this.maxEntries;
+	}
 }
