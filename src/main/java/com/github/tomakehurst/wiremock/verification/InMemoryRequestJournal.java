@@ -39,7 +39,7 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	private Optional<Integer> maxEntries;
 
-	private Optional<Integer> initialMaxEntries;
+	private final Optional<Integer> initialMaxEntries;
 
 	/**
 	 * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
@@ -52,16 +52,12 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		synchronized (requests) {
-			return size(filter(requests, matchedBy(requestPattern)));
-		}
+		return size(filter(requests, matchedBy(requestPattern)));
 	}
 
 	@Override
 	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		synchronized (requests) {
-			return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
-		}
+		return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
 	}
 
 	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
@@ -74,9 +70,7 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		synchronized (requests) {
-			requests.add(LoggedRequest.createFrom(request));
-		}
+		requests.add(LoggedRequest.createFrom(request));
 		removeOldEntries();
 	}
 
@@ -87,9 +81,7 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public void reset() {
-		synchronized (requests) {
-			requests.clear();
-		}
+		requests.clear();
 		setMaxEntries(initialMaxEntries);
 	}
 
@@ -98,12 +90,10 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 		// between isPresent and get)
 		Optional<Integer> maxEnt = maxEntries;
 		if (maxEnt.isPresent()) {
-			synchronized (requests) {
-				while (requests.size() > maxEnt.get()) {
-					// Remove entries from the journal until we reach the desired number. In general this will only be
-					// maximum one entry if we add one entry in requestReceived.
-					requests.poll();
-				}
+			while (requests.size() > maxEnt.get()) {
+				// Remove entries from the journal until we reach the desired number. In general this will only be
+				// maximum one entry if we add one entry in requestReceived.
+				requests.poll();
 			}
 		}
 	}
