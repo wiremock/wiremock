@@ -30,9 +30,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
 
+/**
+ * Maintains a request journal. Is thread safe.
+ */
 public class InMemoryRequestJournal implements RequestListener, RotatingRequestJournal {
 
-	private Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+	private final Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
 	private Optional<Integer> maxEntries;
 
@@ -49,12 +52,16 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(requests, matchedBy(requestPattern)));
+		synchronized (requests) {
+			return size(filter(requests, matchedBy(requestPattern)));
+		}
 	}
 
 	@Override
 	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+		synchronized (requests) {
+			return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+		}
 	}
 
 	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
@@ -67,7 +74,9 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		requests.add(LoggedRequest.createFrom(request));
+		synchronized (requests) {
+			requests.add(LoggedRequest.createFrom(request));
+		}
 		removeOldEntries();
 	}
 
@@ -78,7 +87,9 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	@Override
 	public void reset() {
-		requests.clear();
+		synchronized (requests) {
+			requests.clear();
+		}
 		setMaxEntries(initialMaxEntries);
 	}
 
@@ -87,10 +98,12 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 		// between isPresent and get)
 		Optional<Integer> maxEnt = maxEntries;
 		if (maxEnt.isPresent()) {
-			while (requests.size() > maxEnt.get()) {
-				// Remove entries from the journal until we reach the desired number. In general this will only be
-				// maximum one entry if we add one entry in requestReceived.
-				requests.poll();
+			synchronized (requests) {
+				while (requests.size() > maxEnt.get()) {
+					// Remove entries from the journal until we reach the desired number. In general this will only be
+					// maximum one entry if we add one entry in requestReceived.
+					requests.poll();
+				}
 			}
 		}
 	}
