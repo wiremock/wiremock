@@ -26,7 +26,8 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 
-import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Lists.transform;
+import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
@@ -39,7 +40,8 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
-    private List<CaseInsensitiveKey> matchingHeaders;
+    private List<CaseInsensitiveKey> matchingHeaders = emptyList();
+
     private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
@@ -192,7 +194,7 @@ public class WireMockConfiguration implements Options {
     }
     
     @Override
-    public List<CaseInsensitiveKey>matchingHeaders() {
+    public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;
     }
 

@@ -140,6 +140,12 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                 }
 			}
 		}
+				
+		if (response.getAdditionalProxyRequestHeaders() != null) {
+			for (String key: response.getAdditionalProxyRequestHeaders().keys()) {
+				httpRequest.setHeader(key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
+			}			
+		}
 	}
 
     private static boolean headerShouldBeTransferred(String key) {

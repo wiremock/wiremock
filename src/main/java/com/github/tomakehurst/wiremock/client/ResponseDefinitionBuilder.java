@@ -30,14 +30,14 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class ResponseDefinitionBuilder {
 
-	private int status = HTTP_OK;
-	private byte[] bodyContent;
-    private boolean isBinaryBody = false;
-    private String bodyFileName;
-    private List<HttpHeader> headers = newArrayList();
-	private Integer fixedDelayMilliseconds;
-	private String proxyBaseUrl;
-	private Fault fault;
+	protected int status = HTTP_OK;
+	protected byte[] bodyContent;
+	protected boolean isBinaryBody = false;
+	protected String bodyFileName;
+	protected List<HttpHeader> headers = newArrayList();
+	protected Integer fixedDelayMilliseconds;
+	protected String proxyBaseUrl;
+	protected Fault fault;
 
     public static ResponseDefinition jsonResponse(Object body) {
         return new ResponseDefinitionBuilder()
@@ -79,9 +79,41 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 	
-	public ResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
+	public ProxyResponseDefinitionBuilder proxiedFrom(String proxyBaseUrl) {
 		this.proxyBaseUrl = proxyBaseUrl;
-		return this;
+		return new ProxyResponseDefinitionBuilder(this);
+	}
+
+	public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
+
+		private List<HttpHeader> additionalRequestHeaders = newArrayList();
+
+		public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
+			this.status = from.status;
+			this.headers = from.headers;
+			this.bodyContent = from.bodyContent;
+			this.bodyFileName = from.bodyFileName;
+			this.fault = from.fault;
+			this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
+			this.isBinaryBody = from.isBinaryBody;
+			this.proxyBaseUrl = from.proxyBaseUrl;
+		}
+
+		public ProxyResponseDefinitionBuilder withAdditionalRequestHeader(String key, String value) {
+			additionalRequestHeaders.add(new HttpHeader(key, value));
+			return this;
+		}
+
+		@Override
+		public ResponseDefinition build() {
+			ResponseDefinition response = super.build();
+
+			if (!additionalRequestHeaders.isEmpty()) {
+				response.setAdditionalProxyRequestHeaders(new HttpHeaders(additionalRequestHeaders));
+			}
+
+			return response;
+		}
 	}
 	
 	public ResponseDefinitionBuilder withFault(Fault fault) {
