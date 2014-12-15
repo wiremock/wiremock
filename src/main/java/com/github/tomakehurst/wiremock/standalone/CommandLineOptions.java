@@ -15,11 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -28,15 +39,8 @@ import com.google.common.collect.UnmodifiableIterator;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.*;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.*;
 
 public class CommandLineOptions implements Options {
 	
@@ -50,6 +54,8 @@ public class CommandLineOptions implements Options {
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
+    private static final String HTTPS_TRUSTSTORE = "https-truststore";
+    private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
 	private static final String VERBOSE = "verbose";
 	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
@@ -63,8 +69,10 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
-        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Must have a password of \"password\".").withRequiredArg();
-		optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
+        optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
+        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Must have a password of \"password\".").requiredIf(HTTPS_TRUSTSTORE).withRequiredArg();
+        optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
@@ -150,8 +158,13 @@ public class CommandLineOptions implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        if (optionSet.has(HTTPS_KEYSTORE)) {
+        if (optionSet.has(HTTPS_KEYSTORE) && !(optionSet.has(HTTPS_TRUSTSTORE))) {
             return new HttpsSettings(httpsPortNumber(), (String) optionSet.valueOf(HTTPS_KEYSTORE));
+        }
+
+        if (optionSet.has(HTTPS_TRUSTSTORE)) {
+            return new HttpsSettings(httpsPortNumber(),(String) optionSet.valueOf(HTTPS_KEYSTORE),
+                    (String) optionSet.valueOf(HTTPS_TRUSTSTORE), optionSet.has(REQUIRE_CLIENT_CERT));
         }
 
         return new HttpsSettings(httpsPortNumber());

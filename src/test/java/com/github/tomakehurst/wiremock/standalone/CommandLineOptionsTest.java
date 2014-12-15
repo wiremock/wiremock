@@ -69,6 +69,23 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void setsRequireClientCert() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore",
+                "--https-require-client-cert");
+        assertThat(options.httpsSettings().needClientAuth(), is(true));
+    }
+
+    @Test
+    public void setsTrustStorePath() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore");
+        assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
+    }
+
+    @Test
     public void setsKeyStorePath() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
