@@ -24,9 +24,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -174,7 +171,7 @@ public class HttpsAcceptanceTest {
         startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
-        assertThat(secureContentFor(url("/https-test"), testKeystorePath, testClientCertPath), is("HTTPS content"));
+        assertThat(secureContentFor(url("/https-test"), testClientCertPath), is("HTTPS content"));
     }
 
 
@@ -207,12 +204,8 @@ public class HttpsAcceptanceTest {
         return content;
     }
 
-    static String secureContentFor(String url, String  clientKeyStore, String clientTrustStore) throws Exception {
-        return secureContentFor0(url, clientTrustStore);
-    }
 
-    // Sort out mess with trust / key material
-    static String secureContentFor0(String url, String clientTrustStore) throws Exception {
+    static String secureContentFor(String url, String clientTrustStore) throws Exception {
         KeyStore trustStore = readKeyStore(clientTrustStore);
 
         // Trust own CA and all self-signed certs
