@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ import static java.util.Arrays.asList;
 public class RequestPattern {
 
     private String urlPattern;
+	private String groovyPattern;
 	private String url;
     private String urlPath;
     private RequestMethod method;
@@ -66,7 +69,11 @@ public class RequestPattern {
 	public RequestPattern(RequestMethod method) {
 		this.method = method;
 	}
-	
+
+	public RequestPattern(String groovyPattern) {
+		this.groovyPattern = groovyPattern;
+	}
+
 	public RequestPattern(RequestMethod method, String url) {
 		this.url = url;
 		this.method = method;
@@ -86,12 +93,15 @@ public class RequestPattern {
     }
 
     private void assertIsInValidState() {
-        if (from(asList(url, urlPath, urlPattern)).filter(notNull()).size() > 1) {
-			throw new IllegalStateException("Only one of url, urlPattern or urlPath may be set");
+        if (from(asList(url, urlPath, urlPattern, groovyPattern)).filter(notNull()).size() > 1) {
+			throw new IllegalStateException("Only one of url, urlPattern, groovyPattern or urlPath may be set");
 		}
 	}
 
 	public boolean isMatchedBy(Request request) {
+		if (groovyPattern != null) {
+			return groovyMatches(request);
+		}
 		return (urlIsMatch(request) &&
 				methodMatches(request) &&
                 requiredAbsentHeadersAreNotPresentIn(request) &&
@@ -100,7 +110,24 @@ public class RequestPattern {
 				bodyMatches(request));
 	}
 
-    private boolean urlIsMatch(Request request) {
+	private boolean groovyMatches(Request request) {
+		Binding binding = createBinding(request);
+		GroovyShell shell = new GroovyShell(binding);
+		return Boolean.parseBoolean(String.valueOf(shell.evaluate(groovyPattern)));
+	}
+
+	private Binding createBinding(Request request) {
+		Binding binding = new Binding();
+		binding.setVariable("absoluteUrl", request.getAbsoluteUrl());
+		binding.setVariable("allHeaderKeys", request.getAllHeaderKeys());
+		binding.setVariable("body", request.getBodyAsString());
+		binding.setVariable("headers", request.getHeaders());
+		binding.setVariable("method", request.getMethod().value());
+		binding.setVariable("url", request.getUrl());
+		return binding;
+	}
+
+	private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
 		boolean matched;
 		if (url != null) {
@@ -250,12 +277,21 @@ public class RequestPattern {
 		this.bodyPatterns = bodyPatterns;
 	}
 
+	public String getGroovyPattern() {
+		return groovyPattern;
+	}
+
+	public void setGroovyPattern(String groovyPattern) {
+		this.groovyPattern = groovyPattern;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ ((bodyPatterns == null) ? 0 : bodyPatterns.hashCode());
+		result = prime * result + ((groovyPattern == null) ? 0 : groovyPattern.hashCode());
 		result = prime * result + ((headerPatterns == null) ? 0 : headerPatterns.hashCode());
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -281,6 +317,13 @@ public class RequestPattern {
 				return false;
 			}
 		} else if (!bodyPatterns.equals(other.bodyPatterns)) {
+			return false;
+		}
+		if (groovyPattern == null) {
+			if (other.groovyPattern != null) {
+				return false;
+			}
+		} else if (!groovyPattern.equals(other.groovyPattern)) {
 			return false;
 		}
 		if (headerPatterns == null) {

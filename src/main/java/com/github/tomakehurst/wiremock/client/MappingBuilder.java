@@ -33,6 +33,10 @@ public class MappingBuilder {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
 	}
 
+	public MappingBuilder(String groovyPattern) {
+		requestPatternBuilder = new RequestPatternBuilder(groovyPattern);
+	}
+
 	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
 		this.responseDefBuilder = responseDefBuilder;
 		return this;

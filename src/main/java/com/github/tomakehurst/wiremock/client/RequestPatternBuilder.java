@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
-import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class RequestPatternBuilder {
 
+	private String groovyPattern;
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
@@ -44,7 +44,11 @@ public class RequestPatternBuilder {
 		this.method = method;
 		this.urlMatchingStrategy = urlMatchingStrategy;
 	}
-	
+
+	public RequestPatternBuilder(String groovyPattern) {
+		this.groovyPattern = groovyPattern;
+	}
+
 	public RequestPatternBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		headers.put(key, headerMatchingStrategy);
 		return this;
@@ -73,24 +77,28 @@ public class RequestPatternBuilder {
 
 	public RequestPattern build() {
 		RequestPattern requestPattern = new RequestPattern();
-		requestPattern.setMethod(method);
-		urlMatchingStrategy.contributeTo(requestPattern);
-		for (Map.Entry<String, ValueMatchingStrategy> header: headers.entrySet()) {
-			requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
+		if (groovyPattern != null) {
+			requestPattern.setGroovyPattern(groovyPattern);
 		}
+		else {
+			requestPattern.setMethod(method);
+			urlMatchingStrategy.contributeTo(requestPattern);
+			for (Map.Entry<String, ValueMatchingStrategy> header: headers.entrySet()) {
+				requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
+			}
 
-        for (String key: withoutHeaders) {
-            requestPattern.addHeader(key, ValuePattern.absent());
-        }
+			for (String key: withoutHeaders) {
+				requestPattern.addHeader(key, ValuePattern.absent());
+			}
 
-        for (Map.Entry<String, ValueMatchingStrategy> queryParam: queryParameters.entrySet()) {
-            requestPattern.addQueryParam(queryParam.getKey(), queryParam.getValue().asValuePattern());
-        }
+			for (Map.Entry<String, ValueMatchingStrategy> queryParam: queryParameters.entrySet()) {
+				requestPattern.addQueryParam(queryParam.getKey(), queryParam.getValue().asValuePattern());
+			}
 
-		if (!bodyPatterns.isEmpty()) {
-			requestPattern.setBodyPatterns(newArrayList(transform(bodyPatterns, toValuePattern)));
+			if (!bodyPatterns.isEmpty()) {
+				requestPattern.setBodyPatterns(newArrayList(transform(bodyPatterns, toValuePattern)));
+			}
 		}
-
 		return requestPattern;
 	}
 

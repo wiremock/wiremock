@@ -158,6 +158,21 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
 	}
+
+	@Test
+	public void matchingOnRequestBodyByGroovyPattern() {
+		stubFor(groovy("method == 'PUT' && url == '/match/this/body' && body.matches('.*Blah.*') && body.matches('.*@[0-9]{5}@.*')")
+				.willReturn(aResponse()
+						.withStatus(HTTP_OK)));
+
+        WireMockResponse response = testClient.putWithBody("/match/this/body", "Blah...but not the rest", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+        response = testClient.putWithBody("/match/this/body", "@12345@...but not the rest", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+        response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
+        assertThat(response.statusCode(), is(HTTP_OK));
+	}
 	
 	@Test
     public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
