@@ -28,6 +28,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.velocity.VelocityContext;
+
 import static com.google.common.base.Optional.fromNullable;
 
 public class WireMockWebContextListener implements ServletContextListener {
@@ -58,10 +60,13 @@ public class WireMockWebContextListener implements ServletContextListener {
                 new NotImplementedContainer()
         );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
+        final VelocityContext velocityContext = new VelocityContext();
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer()));
+                        new ProxyResponseRenderer(),
+                        velocityContext),
+                        velocityContext);
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);

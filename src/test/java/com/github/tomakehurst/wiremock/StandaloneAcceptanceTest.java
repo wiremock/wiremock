@@ -341,6 +341,11 @@ public class StandaloneAcceptanceTest {
         }
         fail("WireMock did not shut down");
     }
+    
+    @Test
+    public void templateIsRenderedWithRequestParamters() {
+    	
+    }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
         return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);

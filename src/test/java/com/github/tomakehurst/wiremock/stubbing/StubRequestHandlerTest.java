@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.http.*;
+
+import org.apache.velocity.VelocityContext;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -28,6 +30,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
@@ -39,12 +42,15 @@ public class StubRequestHandlerTest {
 	
 	private StubRequestHandler requestHandler;
 	
+	private VelocityContext velocityContext;
+	
 	@Before
 	public void init() {
 		context = new Mockery();
         stubServer = context.mock(StubServer.class);
 		responseRenderer = context.mock(ResponseRenderer.class);
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer);
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer,
+		velocityContext = new VelocityContext());
 	}
 	
 	@Test
@@ -79,5 +85,27 @@ public class StubRequestHandlerTest {
 		}});
 		
 		requestHandler.handle(request);
+	}
+	
+	@Test
+	public void velocityContextContainsRequest() {
+		Request request = aRequest(context)
+				.withUrl("/the/required/resource")
+				.withMethod(GET)
+				.build();		
+		context.checking(new Expectations() {{
+			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+
+            Response response = response().status(200).body("Body content").build();
+			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
+		}});		
+		final ResponseDefinition response = requestHandler.handleRequest(request);
+		final String requestMethod = velocityContext.get("requestMethod").toString();
+		final String requestAbsoluteURL = velocityContext.get("requestAbsoluteUrl").toString();
+		final String requestUrl = velocityContext.get("requestUrl").toString();
+		assertThat(response,notNullValue());
+		assertThat(requestAbsoluteURL,is("http://localhost:8080/the/required/resource"));
+		assertThat(requestUrl,is("/the/required/resource"));
+		assertThat(requestMethod,is("GET"));
 	}
 }

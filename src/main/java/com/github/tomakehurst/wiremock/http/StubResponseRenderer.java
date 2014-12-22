@@ -15,6 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import java.io.StringWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -27,13 +35,16 @@ public class StubResponseRenderer implements ResponseRenderer {
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
+	private final VelocityContext velocityContext;
 
     public StubResponseRenderer(FileSource fileSource,
                                 GlobalSettingsHolder globalSettingsHolder,
-                                ProxyResponseRenderer proxyResponseRenderer) {
+                                ProxyResponseRenderer proxyResponseRenderer,
+                                VelocityContext velocityContext) {
         this.fileSource = fileSource;
         this.globalSettingsHolder = globalSettingsHolder;
         this.proxyResponseRenderer = proxyResponseRenderer;
+        this.velocityContext = velocityContext;
     }
 
 	@Override
@@ -55,10 +66,21 @@ public class StubResponseRenderer implements ResponseRenderer {
                 .status(responseDefinition.getStatus())
                 .headers(responseDefinition.getHeaders())
                 .fault(responseDefinition.getFault());
-
 		if (responseDefinition.specifiesBodyFile()) {
-			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            responseBuilder.body(bodyFile.readContents());
+	        Pattern velocityFileExtension = Pattern.compile(".vm$");
+	        final String bodyFileName = responseDefinition.getBodyFileName();
+	        Matcher matcher = velocityFileExtension.matcher(bodyFileName);
+	        if(matcher.find() == true) {
+	        	final String templatePath = fileSource.getPath().concat("/" + bodyFileName);
+	        	final Template template = Velocity.getTemplate(templatePath);
+	        	StringWriter writer = new StringWriter();
+	        	template.merge( velocityContext, writer );
+	        	final byte[] fileBytes = String.valueOf(writer.getBuffer()).getBytes();
+	        	responseBuilder.body(fileBytes);
+	        } else {
+				BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
+	            responseBuilder.body(bodyFile.readContents());
+	        }
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
@@ -66,7 +88,6 @@ public class StubResponseRenderer implements ResponseRenderer {
                 responseBuilder.body(responseDefinition.getBody());
             }
 		}
-
         return responseBuilder.build();
 	}
 	
