@@ -58,41 +58,6 @@ public class HttpsAcceptanceTest {
     private WireMockServer wireMockServer;
     private HttpClient httpClient;
 
-    private void startServerEnforcingClientCert(String keystorePath, String truststorePath) {
-        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
-        if (keystorePath != null) {
-            config.keystorePath(keystorePath);
-        }
-        if (truststorePath != null) {
-            config.truststorePath(truststorePath);
-            config.needClientAuth(true);
-        }
-        config.bindAddress("localhost");
-
-        wireMockServer = new WireMockServer(config);
-        wireMockServer.start();
-        WireMock.configure();
-
-        httpClient = HttpClientFactory.createClient();
-    }
-
-    private void startServerWithKeystore(String keystorePath) {
-        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
-        if (keystorePath != null) {
-            config.keystorePath(keystorePath);
-        }
-
-        wireMockServer = new WireMockServer(config);
-        wireMockServer.start();
-        WireMock.configure();
-
-        httpClient = HttpClientFactory.createClient();
-    }
-
-    private void startServerWithDefaultKeystore() {
-        startServerWithKeystore(null);
-    }
-
     @After
     public void serverShutdown() {
         wireMockServer.stop();
@@ -152,6 +117,15 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 
+    @Test
+    public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
+        String keystorePath = Resources.getResource("test-keystore-pwd").toString();
+        startServerWithKeystore(keystorePath, "anotherpassword");
+        stubFor(get(urlEqualTo("/alt-password-https")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
+    }
+
     @Test(expected=SSLHandshakeException.class)
     public void rejectsWithoutClientCertificate() throws Exception {
         String testTrustStorePath = Resources.getResource("test-clientstore").toString();
@@ -174,10 +148,10 @@ public class HttpsAcceptanceTest {
         assertThat(secureContentFor(url("/https-test"), testClientCertPath), is("HTTPS content"));
     }
 
-
     private String url(String path) {
         return String.format("https://localhost:%d%s", HTTPS_PORT, path);
     }
+
 
     private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
         boolean thrown = false;
@@ -204,6 +178,45 @@ public class HttpsAcceptanceTest {
         return content;
     }
 
+    private void startServerEnforcingClientCert(String keystorePath, String truststorePath) {
+        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
+        if (keystorePath != null) {
+            config.keystorePath(keystorePath);
+        }
+        if (truststorePath != null) {
+            config.truststorePath(truststorePath);
+            config.needClientAuth(true);
+        }
+        config.bindAddress("localhost");
+
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configure();
+
+        httpClient = HttpClientFactory.createClient();
+    }
+
+    private void startServerWithKeystore(String keystorePath, String keystorePassword) {
+        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
+        if (keystorePath != null) {
+            config.keystorePath(keystorePath);
+            config.keystorePassword(keystorePassword);
+        }
+
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configure();
+
+        httpClient = HttpClientFactory.createClient();
+    }
+
+    private void startServerWithKeystore(String keystorePath) {
+        startServerWithKeystore(keystorePath, "password");
+    }
+
+    private void startServerWithDefaultKeystore() {
+        startServerWithKeystore(null);
+    }
 
     static String secureContentFor(String url, String clientTrustStore) throws Exception {
         KeyStore trustStore = readKeyStore(clientTrustStore);

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
@@ -65,11 +66,7 @@ class Jetty6HttpServer implements HttpServer {
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
                     requestDelayControl,
-                    options.httpsSettings().port(),
-                    options.httpsSettings().keyStorePath(),
-                    options.httpsSettings().trustStorePath(),
-                    options.httpsSettings().needClientAuth()
-            );
+                    options.httpsSettings());
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -146,19 +143,16 @@ class Jetty6HttpServer implements HttpServer {
 
     private DelayableSslSocketConnector createHttpsConnector(
             RequestDelayControl requestDelayControl,
-            int httpsPort,
-            String keystorePath,
-            String truststorePath,
-            boolean needClientAuth
+            HttpsSettings httpsSettings
     ) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
-        connector.setPort(httpsPort);
+        connector.setPort(httpsSettings.port());
         connector.setHeaderBufferSize(8192);
-        connector.setKeystore(keystorePath);
-        connector.setKeyPassword("password");
-        connector.setTruststore(truststorePath);
+        connector.setKeystore(httpsSettings.keyStorePath());
+        connector.setKeyPassword(httpsSettings.keyStorePassword());
+        connector.setTruststore(httpsSettings.trustStorePath());
         connector.setTrustPassword("password");
-        connector.setNeedClientAuth(needClientAuth);
+        connector.setNeedClientAuth(httpsSettings.needClientAuth());
         return connector;
     }
 

@@ -35,6 +35,7 @@ public class WireMockConfiguration implements Options {
     private String bindAddress = DEFAULT_BIND_ADDRESS;
     private Integer httpsPort = null;
     private String keyStorePath = null;
+    private String keyStorePassword = "password";
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
@@ -64,6 +65,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration keystorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
         return this;
     }
 
@@ -161,7 +167,7 @@ public class WireMockConfiguration implements Options {
             return new HttpsSettings(httpsPort);
         }
 
-        return new HttpsSettings(httpsPort, keyStorePath, trustStorePath, needClientAuth);
+        return new HttpsSettings(httpsPort, keyStorePath, keyStorePassword, trustStorePath, needClientAuth);
     }
 
     @Override
@@ -211,5 +217,4 @@ public class WireMockConfiguration implements Options {
     public String proxyHostHeader() {
         return proxyHostHeader;
     }
-
 }

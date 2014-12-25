@@ -86,9 +86,10 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsKeyStorePath() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
+    public void setsKeyStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd");
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+        assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
     }
 
     @Test(expected=IllegalArgumentException.class)

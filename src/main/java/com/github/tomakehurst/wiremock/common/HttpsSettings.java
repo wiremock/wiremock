@@ -15,25 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 
 public class HttpsSettings {
 
     private final int port;
     private final String keyStorePath;
+    private final String keyStorePassword;
     private final String trustStorePath;
     private final boolean needClientAuth;
 
-    public HttpsSettings(int port, String keyStorePath) {
-        this.port = port;
-        this.keyStorePath = keyStorePath;
-        this.trustStorePath = null;
-        this.needClientAuth = false;
-    }
+    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null);
 
-    public HttpsSettings(int port, String keyStorePath, String trustStorePath, boolean needClientAuth) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
+        this.keyStorePassword = keyStorePassword;
         this.trustStorePath = trustStorePath;
         this.needClientAuth = needClientAuth;
     }
@@ -42,7 +40,9 @@ public class HttpsSettings {
         this(port, Resources.getResource("keystore").toString());
     }
 
-    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null);
+    private HttpsSettings(int port, String keyStorePath) {
+        this(port, keyStorePath, "password", null, false);
+    }
 
     public int port() {
         return port;
@@ -52,19 +52,29 @@ public class HttpsSettings {
         return keyStorePath;
     }
 
+    public String keyStorePassword() {
+        return keyStorePassword;
+    }
+
     public boolean enabled() {
         return this != NO_HTTPS;
+    }
+
+    public String trustStorePath() {
+        return trustStorePath;
+    }
+
+    public boolean needClientAuth() {
+        return needClientAuth;
     }
 
     @Override
     public String toString() {
         return "HttpsSettings{" +
                 "port=" + port +
-                ", keystorePath='" + keyStorePath + '\'' +
+                ", keyStorePath='" + keyStorePath + '\'' +
+                ", trustStorePath='" + trustStorePath + '\'' +
+                ", needClientAuth=" + needClientAuth +
                 '}';
     }
-
-    public String trustStorePath() { return trustStorePath; }
-
-    public boolean needClientAuth() { return needClientAuth; }
 }
