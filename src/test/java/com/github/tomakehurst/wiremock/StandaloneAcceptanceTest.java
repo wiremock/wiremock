@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
@@ -67,7 +66,9 @@ public class StandaloneAcceptanceTest {
 	
 	private final PrintStream stdOut = System.out;
 	private ByteArrayOutputStream out;
-	
+    private final PrintStream stdErr = System.err;
+    private ByteArrayOutputStream err;
+
 	private File mappingsDirectory;
 	
 	@Before
@@ -93,6 +94,7 @@ public class StandaloneAcceptanceTest {
 			otherServer.stop();
 		}
 		System.setOut(stdOut);
+        System.setErr(stdErr);
 	}
 
 	@Test
@@ -136,7 +138,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/test-1.xml");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<content>Blah</content>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 	
 	@Test
@@ -147,7 +149,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/test-1.xml");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<content>Blah</content>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 
 	@Test
@@ -157,7 +159,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/12345");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("{ \"key\": \"value\" }"));
-		assertThat(response.header("Content-Type"), is("application/json"));
+		assertThat(response.firstHeader("Content-Type"), is("application/json"));
 	}
 	
 	@Test
@@ -176,7 +178,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/23456/");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("{ \"key\": \"new value\" }"));
-		assertThat(response.header("Content-Type"), is("application/json"));
+		assertThat(response.firstHeader("Content-Type"), is("application/json"));
 	}
 	
 	@Test
@@ -186,7 +188,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/34567/");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<blob>BLAB</blob>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 	
 	@Test
@@ -229,14 +231,14 @@ public class StandaloneAcceptanceTest {
 
 	@Test
 	public void logsVerboselyWhenVerboseSetInCommandLine() {
-		startRecordingSystemOut();
+		startRecordingSystemOutAndErr();
 		startRunner("--verbose");
 		assertThat(systemOutText(), containsString("Verbose logging enabled"));
 	}
 	
 	@Test
 	public void doesNotLogVerboselyWhenVerboseNotSetInCommandLine() {
-		startRecordingSystemOut();
+		startRecordingSystemOutAndErr();
 		startRunner();
 		assertThat(systemOutText(), not(containsString("Verbose logging enabled")));
 	}
@@ -421,14 +423,21 @@ public class StandaloneAcceptanceTest {
 		return argsAsList.toArray(new String[]{});
 	}
 
-	private void startRecordingSystemOut() {
+	private void startRecordingSystemOutAndErr() {
 		out = new ByteArrayOutputStream();
+        err = new ByteArrayOutputStream();
+
 		System.setOut(new PrintStream(out));
+        System.setErr(new PrintStream(err));
 	}
 
 	private String systemOutText() {
 		return new String(out.toByteArray());
 	}
+
+    private String systemErrText() {
+        return new String(err.toByteArray());
+    }
 	
 	private Matcher<File> containsAFileContaining(final String expectedContents) {
 		return new TypeSafeMatcher<File>() {

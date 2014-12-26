@@ -21,17 +21,19 @@ public class HttpsSettings {
 
     private final int port;
     private final String keyStorePath;
+    private final String keyStorePassword;
+    private final String trustStorePath;
+    private final String trustStorePassword;
+    private final boolean needClientAuth;
 
-    public HttpsSettings(int port, String keyStorePath) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
+        this.keyStorePassword = keyStorePassword;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
+        this.needClientAuth = needClientAuth;
     }
-
-    public HttpsSettings(int port) {
-        this(port, Resources.getResource("keystore").toString());
-    }
-
-    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null);
 
     public int port() {
         return port;
@@ -41,15 +43,87 @@ public class HttpsSettings {
         return keyStorePath;
     }
 
+    public String keyStorePassword() {
+        return keyStorePassword;
+    }
+
     public boolean enabled() {
-        return this != NO_HTTPS;
+        return port > -1;
+    }
+
+    public String trustStorePath() {
+        return trustStorePath;
+    }
+
+    public String trustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public boolean needClientAuth() {
+        return needClientAuth;
+    }
+
+    public boolean hasTrustStore() {
+        return trustStorePath != null;
+    }
+
+    public KeyStoreSettings trustStore() {
+        return trustStorePath != null ?
+                new KeyStoreSettings(trustStorePath, trustStorePassword) :
+                KeyStoreSettings.NO_STORE;
     }
 
     @Override
     public String toString() {
         return "HttpsSettings{" +
                 "port=" + port +
-                ", keystorePath='" + keyStorePath + '\'' +
+                ", keyStorePath='" + keyStorePath + '\'' +
+                ", trustStorePath='" + trustStorePath + '\'' +
+                ", needClientAuth=" + needClientAuth +
                 '}';
+    }
+
+    public static class Builder {
+
+        private int port;
+        private String keyStorePath = Resources.getResource("keystore").toString();
+        private String keyStorePassword = "password";
+        private String trustStorePath = null;
+        private String trustStorePassword = "password";
+        private boolean needClientAuth = false;
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder keyStorePath(String keyStorePath) {
+            this.keyStorePath = keyStorePath;
+            return this;
+        }
+
+        public Builder keyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+            return this;
+        }
+
+        public Builder trustStorePath(String trustStorePath) {
+            this.trustStorePath = trustStorePath;
+            return this;
+        }
+
+        public Builder trustStorePassword(String trustStorePassword) {
+            this.trustStorePassword = trustStorePassword;
+            return this;
+        }
+
+        public Builder needClientAuth(boolean needClientAuth) {
+            this.needClientAuth = needClientAuth;
+            return this;
+        }
+
+        public HttpsSettings build() {
+            return new HttpsSettings(port, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
+        }
     }
 }

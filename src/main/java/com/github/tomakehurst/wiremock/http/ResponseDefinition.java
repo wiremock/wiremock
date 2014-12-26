@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -38,6 +37,7 @@ public class ResponseDefinition {
     private boolean isBinaryBody = false;
 	private String bodyFileName;
 	private HttpHeaders headers;
+	private HttpHeaders additionalProxyRequestHeaders;
 	private Integer fixedDelayMilliseconds;
 	private String proxyBaseUrl;
 	private String browserProxyUrl;
@@ -53,6 +53,7 @@ public class ResponseDefinition {
         newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
+	    newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
 	    newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
 	    newResponseDef.fault = original.fault;
@@ -66,6 +67,14 @@ public class ResponseDefinition {
 
 	public void setHeaders(final HttpHeaders headers) {
 		this.headers = headers;
+	}
+
+	public HttpHeaders getAdditionalProxyRequestHeaders() {
+		return additionalProxyRequestHeaders;
+	}
+
+	public void setAdditionalProxyRequestHeaders(final HttpHeaders additionalProxyRequestHeaders) {
+		this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {

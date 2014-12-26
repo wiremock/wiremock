@@ -20,11 +20,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Splitter;
 
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -36,6 +40,7 @@ public class LoggedRequest implements Request {
 	private final String absoluteUrl;
 	private final RequestMethod method;
 	private final HttpHeaders headers;
+    private final Map<String, QueryParameter> queryParams;
 	private final String body;
 	private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
@@ -64,6 +69,7 @@ public class LoggedRequest implements Request {
         this.method = method;
         this.body = body;
         this.headers = headers;
+        this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
     }
@@ -120,6 +126,11 @@ public class LoggedRequest implements Request {
 	public Set<String> getAllHeaderKeys() {
 		return headers.keys();
 	}
+
+    @Override
+    public QueryParameter queryParameter(String key) {
+        return queryParams.get(key);
+    }
 
     public HttpHeaders getHeaders() {
         return headers;

@@ -47,27 +47,32 @@ public class MappingBuilder {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
 		return this;
 	}
-	
+
+    public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
+        requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
+        return this;
+    }
+
 	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
 		return this;
 	}
-	
+
 	public MappingBuilder inScenario(String scenarioName) {
 		this.scenarioName = scenarioName;
 		return this;
 	}
-	
+
 	public MappingBuilder whenScenarioStateIs(String stateName) {
 		this.requiredScenarioState = stateName;
 		return this;
 	}
-	
+
 	public MappingBuilder willSetStateTo(String stateName) {
 		this.newScenarioState = stateName;
 		return this;
 	}
-	
+
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");

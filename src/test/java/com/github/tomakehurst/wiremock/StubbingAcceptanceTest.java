@@ -31,9 +31,9 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	
@@ -49,7 +49,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(401));
 		assertThat(response.content(), is("Not allowed!"));
-		assertThat(response.header("Content-Type"), is("text/plain"));
+		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
 	}
 	
 	@Test
@@ -118,8 +118,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(response.statusCode(), is(200));
     }
-	
-	@Test
+
+    @Test
+    public void matchesOnUrlPathAndQueryParameters() {
+        stubFor(get(urlPathEqualTo("/path-and-query/match"))
+                .withQueryParam("search", containing("WireMock"))
+                .withQueryParam("since", equalTo("2014-10-14"))
+                .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
+    }
+
+    @Test
 	public void responseBodyLoadedFromFile() {
 		stubFor(get(urlEqualTo("/my/file")).willReturn(
 				aResponse()

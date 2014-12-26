@@ -31,15 +31,10 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
-public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
-
-    private final Options options;
-    private final WireMockServer wireMockServer;
-    private WireMock wireMock;
+public class WireMockClassRule extends WireMockServer implements MethodRule, TestRule {
 
     public WireMockClassRule(Options options) {
-        this.options = options;
-        this.wireMockServer = new WireMockServer(options);
+        super(options);
     }
 
     public WireMockClassRule(int port, Integer httpsPort) {
@@ -64,24 +59,23 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                if (wireMockServer.isRunning()) {
+                if (isRunning()) {
                     try {
                         before();
                         base.evaluate();
                     } finally {
                         after();
-                        wireMock.resetMappings();
+                        client.resetMappings();
                     }
                 } else {
-                    wireMockServer.start();
-                    wireMock = new WireMock("localhost", port());
+                    start();
                     WireMock.configureFor("localhost", port());
                     try {
                         before();
                         base.evaluate();
                     } finally {
                         after();
-                        wireMockServer.stop();
+                        stop();
                     }
                 }
             }
@@ -95,48 +89,5 @@ public class WireMockClassRule implements MethodRule, TestRule, Stubbing {
 
     protected void after() {
         // NOOP
-    }
-
-    @Override
-    public void givenThat(MappingBuilder mappingBuilder) {
-        wireMock.register(mappingBuilder);
-    }
-
-    @Override
-    public void stubFor(MappingBuilder mappingBuilder) {
-        givenThat(mappingBuilder);
-    }
-
-    @Override
-    public void verify(RequestPatternBuilder requestPatternBuilder) {
-        wireMock.verifyThat(requestPatternBuilder);
-    }
-
-    @Override
-    public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
-        wireMock.verifyThat(count, requestPatternBuilder);
-    }
-
-    @Override
-    public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
-        return wireMock.find(requestPatternBuilder);
-    }
-
-    @Override
-    public void setGlobalFixedDelay(int milliseconds) {
-        wireMock.setGlobalFixedDelayVariable(milliseconds);
-    }
-
-    @Override
-    public void addRequestProcessingDelay(int milliseconds) {
-        wireMock.addDelayBeforeProcessingRequests(milliseconds);
-    }
-
-    public int port() {
-        return wireMockServer.port();
-    }
-
-    public int httpsPort() {
-        return wireMockServer.httpsPort();
     }
 }

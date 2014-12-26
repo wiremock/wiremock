@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty;
-
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import org.mortbay.jetty.security.SslSocketConnector;
-import org.mortbay.log.Log;
+package com.github.tomakehurst.wiremock.jetty6;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.Socket;
 
-public class DelayableSslSocketConnector extends SslSocketConnector {
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import org.mortbay.jetty.security.SslSocketConnector;
+import org.mortbay.log.Log;
+
+class DelayableSslSocketConnector extends SslSocketConnector {
 
     private final RequestDelayControl requestDelayControl;
 
-    public DelayableSslSocketConnector(RequestDelayControl requestDelayControl) {
+    DelayableSslSocketConnector(RequestDelayControl requestDelayControl) {
         this.requestDelayControl = requestDelayControl;
     }
 
     @Override
-    public void accept(int acceptorID) throws IOException, InterruptedException
-    {
-        try
-        {
+    public void accept(int acceptorID) throws IOException, InterruptedException {
+        try {
             final Socket socket = _serverSocket.accept();
 
             try {
@@ -56,16 +54,11 @@ public class DelayableSslSocketConnector extends SslSocketConnector {
                 }
             };
             connection.dispatch();
-        }
-        catch(SSLException e)
-        {
+        } catch (SSLException e) {
             Log.warn(e);
-            try
-            {
+            try {
                 stop();
-            }
-            catch(Exception e2)
-            {
+            } catch (Exception e2) {
                 Log.warn(e2);
                 throw new IllegalStateException(e2.getMessage());
             }

@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.http;
 
-import org.apache.log4j.Logger;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 
-public class Log4jNotifier implements Notifier {
-	
-	private static final Logger log = Logger.getLogger(Log4jNotifier.class);
+public interface HttpServerFactory {
 
-	@Override
-	public void info(String message) {
-		log.info(message);
-		
-	}
-
-	@Override
-	public void error(String message) {
-		log.error(message);
-		
-	}
-
-	@Override
-	public void error(String message, Throwable t) {
-		log.error(message, t);
-	}
+    HttpServer buildHttpServer(
+            Options options,
+            AdminRequestHandler adminRequestHandler,
+            StubRequestHandler stubRequestHandler,
+            RequestDelayControl requestDelayControl
+    );
 }

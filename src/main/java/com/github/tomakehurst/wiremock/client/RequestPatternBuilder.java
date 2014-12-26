@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class RequestPatternBuilder {
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
+    private Map<String, ValueMatchingStrategy> queryParameters = newLinkedHashMap();
     private Set<String> withoutHeaders = newHashSet();
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 	
@@ -48,11 +50,16 @@ public class RequestPatternBuilder {
 		return this;
 	}
 
+    public RequestPatternBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
+        queryParameters.put(key, queryParamMatchingStrategy);
+        return this;
+    }
+
     public RequestPatternBuilder withoutHeader(String key) {
         withoutHeaders.add(key);
         return this;
     }
-	
+
 	public RequestPatternBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		bodyPatterns.add(bodyMatchingStrategy);
 		return this;
@@ -63,7 +70,7 @@ public class RequestPatternBuilder {
         matchAllUrls.setUrlPattern(".*");
         return new RequestPatternBuilder(RequestMethod.ANY, matchAllUrls);
     }
-	
+
 	public RequestPattern build() {
 		RequestPattern requestPattern = new RequestPattern();
 		requestPattern.setMethod(method);
@@ -75,11 +82,17 @@ public class RequestPatternBuilder {
         for (String key: withoutHeaders) {
             requestPattern.addHeader(key, ValuePattern.absent());
         }
-		
+
+        for (Map.Entry<String, ValueMatchingStrategy> queryParam: queryParameters.entrySet()) {
+            requestPattern.addQueryParam(queryParam.getKey(), queryParam.getValue().asValuePattern());
+        }
+
 		if (!bodyPatterns.isEmpty()) {
 			requestPattern.setBodyPatterns(newArrayList(transform(bodyPatterns, toValuePattern)));
 		}
-		
+
 		return requestPattern;
 	}
+
+
 }

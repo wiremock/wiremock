@@ -15,25 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-
 import java.util.List;
 
+import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.io.Resources;
+
 import static com.google.common.collect.Lists.transform;
+import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
-    private Integer httpsPort = null;
-    private String keyStorePath = null;
+
+    private int httpsPort = -1;
+    private String keyStorePath = Resources.getResource("keystore").toString();
+    private String keyStorePassword = "password";
+    private String trustStorePath;
+    private String trustStorePassword = "password";
+    private boolean needClientAuth;
+
     private boolean browserProxyingEnabled = false;
-    private ProxySettings proxySettings;
+    private ProxySettings proxySettings = ProxySettings.NO_PROXY;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
-    private Notifier notifier = new Log4jNotifier();
+    private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
-    private List<CaseInsensitiveKey> matchingHeaders;
+    private List<CaseInsensitiveKey> matchingHeaders = emptyList();
+
     private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
@@ -54,6 +63,26 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration keystorePath(String path) {
         this.keyStorePath = path;
+        return this;
+    }
+
+    public WireMockConfiguration keystorePassword(String keyStorePassword) {
+        this.keyStorePassword = keyStorePassword;
+        return this;
+    }
+
+    public WireMockConfiguration trustStorePath(String truststorePath) {
+        this.trustStorePath = truststorePath;
+        return this;
+    }
+
+    public WireMockConfiguration trustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+        return this;
+    }
+
+    public WireMockConfiguration needClientAuth(boolean gottaHaveIt) {
+        this.needClientAuth=gottaHaveIt;
         return this;
     }
 
@@ -95,7 +124,7 @@ public class WireMockConfiguration implements Options {
         this.notifier = notifier;
         return this;
     }
-    
+
     public WireMockConfiguration bindAddress(String bindAddress){
         this.bindAddress = bindAddress;
         return this;
@@ -125,7 +154,7 @@ public class WireMockConfiguration implements Options {
         this.proxyHostHeader = hostHeaderValue;
         return this;
     }
-    
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -133,15 +162,14 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public HttpsSettings httpsSettings() {
-        if (httpsPort == null) {
-            return HttpsSettings.NO_HTTPS;
-        }
-
-        if (keyStorePath == null) {
-            return new HttpsSettings(httpsPort);
-        }
-
-        return new HttpsSettings(httpsPort, keyStorePath);
+        return new HttpsSettings.Builder()
+                .port(httpsPort)
+                .keyStorePath(keyStorePath)
+                .keyStorePassword(keyStorePassword)
+                .trustStorePath(trustStorePath)
+                .trustStorePassword(trustStorePassword)
+                .needClientAuth(needClientAuth)
+                .build();
     }
 
     @Override
@@ -172,9 +200,9 @@ public class WireMockConfiguration implements Options {
     public String bindAddress() {
         return bindAddress;
     }
-    
+
     @Override
-    public List<CaseInsensitiveKey>matchingHeaders() {
+    public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;
     }
 
