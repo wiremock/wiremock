@@ -52,7 +52,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
 		for (WiremockExtension extension : extensions) {
 			if (extension.isGlobal()) {
-				extension.filter(request, responseDef);
+				extension.transform(request, responseDef);
 			}
 		}
 

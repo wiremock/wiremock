@@ -9,7 +9,7 @@ public class TestExtensionStub implements WiremockExtension {
     private static int calls = 0;
 
     @Override
-    public ResponseDefinition filter(Request request, ResponseDefinition responseDefinition) {
+    public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
         calls++;
         return responseDefinition;
     }
