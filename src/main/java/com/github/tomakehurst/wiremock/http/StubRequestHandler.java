@@ -16,16 +16,32 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
+import org.reflections.Reflections;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	
 	private final StubServer stubServer;
+	private final Set<WiremockExtension> extensions = new HashSet<WiremockExtension>();
 
 	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
 		this.stubServer = stubServer;
+
+		Reflections reflections = new Reflections();
+		Set<Class<? extends WiremockExtension>> extensionsClasses = reflections.getSubTypesOf(WiremockExtension.class);
+		for (Class<? extends WiremockExtension> extension : extensionsClasses) {
+			try {
+				this.extensions.add(extension.newInstance());
+			} catch (Exception e) {
+				notifier().error("Unable to load extension: " + extension, e);
+			}
+		}
+
 	}
 	
 	@Override
@@ -33,6 +49,10 @@ public class StubRequestHandler extends AbstractRequestHandler {
         notifier().info("Request received:\n" + request);
 
 		ResponseDefinition responseDef = stubServer.serveStubFor(request);
+
+		for (WiremockExtension extension : extensions) {
+			extension.filter(request, responseDef);
+		}
 
 		return responseDef;
 	}

@@ -28,6 +28,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
@@ -79,5 +80,17 @@ public class StubRequestHandlerTest {
 		}});
 		
 		requestHandler.handle(request);
+	}
+
+	@Test
+	public void shouldCallAllExtensionsOnClassPath() throws Exception {
+		final Request request = aRequest(context).build();
+		context.checking(new Expectations() {{
+			allowing(stubServer).serveStubFor(request); will(returnValue(ResponseDefinition.notConfigured()));
+		}});
+
+		requestHandler.handleRequest(request);
+
+		assertEquals("Expected the TestExtensionStub to be called once", 1, TestExtensionStub.getCalls());
 	}
 }
