@@ -26,11 +26,6 @@ public class HttpsSettings {
     private final String trustStorePassword;
     private final boolean needClientAuth;
 
-    public static final HttpsSettings NO_HTTPS = new Builder()
-            .port(0)
-            .keyStorePath(null)
-            .build();
-
     public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
@@ -53,7 +48,7 @@ public class HttpsSettings {
     }
 
     public boolean enabled() {
-        return this != NO_HTTPS;
+        return port > -1;
     }
 
     public String trustStorePath() {
@@ -70,6 +65,12 @@ public class HttpsSettings {
 
     public boolean hasTrustStore() {
         return trustStorePath != null;
+    }
+
+    public KeyStoreSettings trustStore() {
+        return trustStorePath != null ?
+                new KeyStoreSettings(trustStorePath, trustStorePassword) :
+                KeyStoreSettings.NO_STORE;
     }
 
     @Override

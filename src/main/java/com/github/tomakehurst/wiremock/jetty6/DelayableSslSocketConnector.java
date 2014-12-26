@@ -32,10 +32,8 @@ class DelayableSslSocketConnector extends SslSocketConnector {
     }
 
     @Override
-    public void accept(int acceptorID) throws IOException, InterruptedException
-    {
-        try
-        {
+    public void accept(int acceptorID) throws IOException, InterruptedException {
+        try {
             final Socket socket = _serverSocket.accept();
 
             try {
@@ -56,16 +54,11 @@ class DelayableSslSocketConnector extends SslSocketConnector {
                 }
             };
             connection.dispatch();
-        }
-        catch(SSLException e)
-        {
+        } catch (SSLException e) {
             Log.warn(e);
-            try
-            {
+            try {
                 stop();
-            }
-            catch(Exception e2)
-            {
+            } catch (Exception e2) {
                 Log.warn(e2);
                 throw new IllegalStateException(e2.getMessage());
             }

@@ -153,10 +153,6 @@ public class CommandLineOptions implements Options {
 
     @Override
     public HttpsSettings httpsSettings() {
-        if (!optionSet.has(HTTPS_PORT)) {
-            return HttpsSettings.NO_HTTPS;
-        }
-
         return new HttpsSettings.Builder()
                 .port(httpsPortNumber())
                 .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
@@ -167,7 +163,9 @@ public class CommandLineOptions implements Options {
     }
 
     private int httpsPortNumber() {
-        return Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT));
+        return optionSet.has(HTTPS_PORT) ?
+                Integer.parseInt((String) optionSet.valueOf(HTTPS_PORT)) :
+                -1;
     }
 
     public boolean help() {

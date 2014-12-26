@@ -15,18 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.net.ssl.SSLContext;
+import java.security.KeyStore;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 
 public class HttpClientFactory {
@@ -34,7 +38,7 @@ public class HttpClientFactory {
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
 
     public static HttpClient createClient(
-            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings) {
+            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -43,7 +47,6 @@ public class HttpClientFactory {
                 .disableRedirectHandling()
                 .setMaxConnTotal(maxConnections)
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
-                .setSslcontext(buildAllowAnythingSSLContext())
                 .setHostnameVerifier(new AllowAllHostnameVerifier());
 
         if (proxySettings != NO_PROXY) {
@@ -51,19 +54,38 @@ public class HttpClientFactory {
             builder.setProxy(proxyHost);
         }
 
+        if (trustStoreSettings != NO_STORE) {
+            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings));
+        } else {
+            builder.setSslcontext(buildAllowAnythingSSLContext());
+        }
+
         return builder.build();
 	}
 
+    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings) {
+        try {
+            KeyStore trustStore = trustStoreSettings.loadStore();
+            return SSLContexts.custom()
+                    .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                    .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
+                    .useTLS()
+                    .build();
+        } catch (Exception e) {
+            return throwUnchecked(e, SSLContext.class);
+        }
+    }
+
     private static SSLContext buildAllowAnythingSSLContext() {
         try {
-            return new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+            return SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);
         }
     }
 
     public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
-        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY);
+        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
     }
 	
 	public static HttpClient createClient(int timeoutMilliseconds) {

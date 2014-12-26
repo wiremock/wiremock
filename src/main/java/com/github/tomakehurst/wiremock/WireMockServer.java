@@ -87,7 +87,9 @@ public class WireMockServer implements Container, Stubbing {
                 new StubResponseRenderer(
                         fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(options.proxyVia(),
+                        new ProxyResponseRenderer(
+                                options.proxyVia(),
+                                options.httpsSettings().trustStore(),
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
                         )

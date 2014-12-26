@@ -15,16 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -45,22 +35,41 @@ import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Test;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.*;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class HttpsAcceptanceTest {
 
     private static final int HTTPS_PORT = 8443;
+    private static final String TRUST_STORE_PATH = toPath("test-clientstore");
+    private static final String KEY_STORE_PATH = toPath("test-keystore");
+    private static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
 
     private WireMockServer wireMockServer;
+    private WireMockServer proxy;
     private HttpClient httpClient;
 
     @After
     public void serverShutdown() {
         wireMockServer.stop();
+        if (proxy != null) {
+            proxy.shutdown();
+        }
     }
 
     @Test
@@ -128,9 +137,7 @@ public class HttpsAcceptanceTest {
 
     @Test(expected = SSLHandshakeException.class)
     public void rejectsWithoutClientCertificate() throws Exception {
-        String testTrustStorePath = Resources.getResource("test-clientstore").toString();
-        String testKeystorePath = Resources.getResource("test-keystore").toString();
-        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath, "mytruststorepassword");
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         contentFor(url("/https-test")); // this lacks the required client certificate
@@ -138,20 +145,57 @@ public class HttpsAcceptanceTest {
 
     @Test
     public void acceptWithClientCertificate() throws Exception {
-        String testTrustStorePath = Resources.getResource("test-clientstore").toString();
-        String testKeystorePath = Resources.getResource("test-keystore").toString();
-        String testClientCertPath = Resources.getResource("test-clientstore").toString();
+        String testTrustStorePath = TRUST_STORE_PATH;
+        String testClientCertPath = TRUST_STORE_PATH;
 
-        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath, "mytruststorepassword");
+        startServerEnforcingClientCert(KEY_STORE_PATH, testTrustStorePath, TRUST_STORE_PASSWORD);
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
-        assertThat(secureContentFor(url("/https-test"), testClientCertPath, "mytruststorepassword"), is("HTTPS content"));
+        assertThat(secureContentFor(url("/https-test"), testClientCertPath, TRUST_STORE_PASSWORD), is("HTTPS content"));
+    }
+
+    @Test
+    public void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
+
+        proxy = new WireMockServer(wireMockConfig()
+                .port(0)
+                .trustStorePath(TRUST_STORE_PATH)
+                .trustStorePassword(TRUST_STORE_PASSWORD));
+        proxy.start();
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+
+        HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy");
+        HttpResponse response = httpClient.execute(get);
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
+    }
+
+    @Test
+    public void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend() throws Exception {
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().withStatus(200)));
+
+        proxy = new WireMockServer(wireMockConfig().port(0));
+        proxy.start();
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+
+        HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
+        HttpResponse response = httpClient.execute(get);
+        assertThat(response.getStatusLine().getStatusCode(), is(500));
     }
 
     private String url(String path) {
         return String.format("https://localhost:%d%s", HTTPS_PORT, path);
     }
 
+    private static String toPath(String resourcePath) {
+        try {
+            return new File(Resources.getResource(resourcePath).toURI()).getCanonicalPath();
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
 
     private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
         boolean thrown = false;
@@ -246,9 +290,9 @@ public class HttpsAcceptanceTest {
         return content;
     }
 
-    static KeyStore readKeyStore(String resourceURL, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+    static KeyStore readKeyStore(String path, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
-        FileInputStream instream = new FileInputStream(new URL(resourceURL).getFile());
+        FileInputStream instream = new FileInputStream(path);
         try {
             trustStore.load(instream, password.toCharArray());
         } finally {

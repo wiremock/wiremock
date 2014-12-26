@@ -29,7 +29,7 @@ public class WireMockConfiguration implements Options {
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
 
-    private Integer httpsPort = null;
+    private int httpsPort = -1;
     private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
     private String trustStorePath;
@@ -37,7 +37,7 @@ public class WireMockConfiguration implements Options {
     private boolean needClientAuth;
 
     private boolean browserProxyingEnabled = false;
-    private ProxySettings proxySettings;
+    private ProxySettings proxySettings = ProxySettings.NO_PROXY;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
@@ -162,10 +162,6 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public HttpsSettings httpsSettings() {
-        if (httpsPort == null) {
-            return HttpsSettings.NO_HTTPS;
-        }
-
         return new HttpsSettings.Builder()
                 .port(httpsPort)
                 .keyStorePath(keyStorePath)
