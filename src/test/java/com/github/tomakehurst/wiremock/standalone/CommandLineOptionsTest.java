@@ -78,11 +78,13 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsTrustStorePath() {
+    public void setsTrustStorePathAndPassword() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
                 "--https-keystore", "/my/keystore",
-                "--https-truststore", "/my/truststore");
+                "--https-truststore", "/my/truststore",
+                "--truststore-password", "sometrustpwd");
         assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
+        assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
     }
 
     @Test

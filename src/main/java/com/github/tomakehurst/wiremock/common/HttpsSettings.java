@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 
 public class HttpsSettings {
@@ -24,24 +23,21 @@ public class HttpsSettings {
     private final String keyStorePath;
     private final String keyStorePassword;
     private final String trustStorePath;
+    private final String trustStorePassword;
     private final boolean needClientAuth;
 
-    public static final HttpsSettings NO_HTTPS = new HttpsSettings(0, null);
+    public static final HttpsSettings NO_HTTPS = new Builder()
+            .port(0)
+            .keyStorePath(null)
+            .build();
 
-    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, boolean needClientAuth) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
         this.keyStorePassword = keyStorePassword;
         this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
         this.needClientAuth = needClientAuth;
-    }
-
-    public HttpsSettings(int port) {
-        this(port, Resources.getResource("keystore").toString());
-    }
-
-    private HttpsSettings(int port, String keyStorePath) {
-        this(port, keyStorePath, "password", null, false);
     }
 
     public int port() {
@@ -64,8 +60,16 @@ public class HttpsSettings {
         return trustStorePath;
     }
 
+    public String trustStorePassword() {
+        return trustStorePassword;
+    }
+
     public boolean needClientAuth() {
         return needClientAuth;
+    }
+
+    public boolean hasTrustStore() {
+        return trustStorePath != null;
     }
 
     @Override
@@ -76,5 +80,49 @@ public class HttpsSettings {
                 ", trustStorePath='" + trustStorePath + '\'' +
                 ", needClientAuth=" + needClientAuth +
                 '}';
+    }
+
+    public static class Builder {
+
+        private int port;
+        private String keyStorePath = Resources.getResource("keystore").toString();
+        private String keyStorePassword = "password";
+        private String trustStorePath = null;
+        private String trustStorePassword = "password";
+        private boolean needClientAuth = false;
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder keyStorePath(String keyStorePath) {
+            this.keyStorePath = keyStorePath;
+            return this;
+        }
+
+        public Builder keyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+            return this;
+        }
+
+        public Builder trustStorePath(String trustStorePath) {
+            this.trustStorePath = trustStorePath;
+            return this;
+        }
+
+        public Builder trustStorePassword(String trustStorePassword) {
+            this.trustStorePassword = trustStorePassword;
+            return this;
+        }
+
+        public Builder needClientAuth(boolean needClientAuth) {
+            this.needClientAuth = needClientAuth;
+            return this;
+        }
+
+        public HttpsSettings build() {
+            return new HttpsSettings(port, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
+        }
     }
 }

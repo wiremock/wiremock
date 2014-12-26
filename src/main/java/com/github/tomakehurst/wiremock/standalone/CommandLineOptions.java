@@ -23,12 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Strings;
@@ -56,9 +51,10 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_KEYSTORE = "https-keystore";
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
     private static final String HTTPS_TRUSTSTORE = "https-truststore";
+    private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
-	private static final String VERBOSE = "verbose";
-	private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String VERBOSE = "verbose";
+    private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String ROOT_DIR = "root-dir";
 
@@ -71,6 +67,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
+        optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
         optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg();
@@ -160,11 +157,13 @@ public class CommandLineOptions implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        return new HttpsSettings(httpsPortNumber(),
-                (String) optionSet.valueOf(HTTPS_KEYSTORE),
-                (String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD),
-                (String) optionSet.valueOf(HTTPS_TRUSTSTORE),
-                optionSet.has(REQUIRE_CLIENT_CERT));
+        return new HttpsSettings.Builder()
+                .port(httpsPortNumber())
+                .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
+                .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
+                .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
+                .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
+                .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
     }
 
     private int httpsPortNumber() {

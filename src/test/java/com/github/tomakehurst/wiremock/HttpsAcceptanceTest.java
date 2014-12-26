@@ -126,11 +126,11 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
     }
 
-    @Test(expected=SSLHandshakeException.class)
+    @Test(expected = SSLHandshakeException.class)
     public void rejectsWithoutClientCertificate() throws Exception {
         String testTrustStorePath = Resources.getResource("test-clientstore").toString();
         String testKeystorePath = Resources.getResource("test-keystore").toString();
-        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
+        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath, "mytruststorepassword");
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         contentFor(url("/https-test")); // this lacks the required client certificate
@@ -142,10 +142,10 @@ public class HttpsAcceptanceTest {
         String testKeystorePath = Resources.getResource("test-keystore").toString();
         String testClientCertPath = Resources.getResource("test-clientstore").toString();
 
-        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath);
+        startServerEnforcingClientCert(testKeystorePath, testTrustStorePath, "mytruststorepassword");
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
-        assertThat(secureContentFor(url("/https-test"), testClientCertPath), is("HTTPS content"));
+        assertThat(secureContentFor(url("/https-test"), testClientCertPath, "mytruststorepassword"), is("HTTPS content"));
     }
 
     private String url(String path) {
@@ -178,13 +178,14 @@ public class HttpsAcceptanceTest {
         return content;
     }
 
-    private void startServerEnforcingClientCert(String keystorePath, String truststorePath) {
+    private void startServerEnforcingClientCert(String keystorePath, String truststorePath, String trustStorePassword) {
         WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
         if (keystorePath != null) {
             config.keystorePath(keystorePath);
         }
         if (truststorePath != null) {
-            config.truststorePath(truststorePath);
+            config.trustStorePath(truststorePath);
+            config.trustStorePassword(trustStorePassword);
             config.needClientAuth(true);
         }
         config.bindAddress("localhost");
@@ -218,13 +219,13 @@ public class HttpsAcceptanceTest {
         startServerWithKeystore(null);
     }
 
-    static String secureContentFor(String url, String clientTrustStore) throws Exception {
-        KeyStore trustStore = readKeyStore(clientTrustStore);
+    static String secureContentFor(String url, String clientTrustStore, String trustStorePassword) throws Exception {
+        KeyStore trustStore = readKeyStore(clientTrustStore, trustStorePassword);
 
         // Trust own CA and all self-signed certs
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-                .loadKeyMaterial(trustStore, "password".toCharArray())
+                .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
                 .useTLS()
                 .build();
 
@@ -245,11 +246,11 @@ public class HttpsAcceptanceTest {
         return content;
     }
 
-    static KeyStore readKeyStore(String resourceURL) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+    static KeyStore readKeyStore(String resourceURL, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream instream = new FileInputStream(new URL(resourceURL).getFile());
         try {
-            trustStore.load(instream, "password".toCharArray());
+            trustStore.load(instream, password.toCharArray());
         } finally {
             instream.close();
         }

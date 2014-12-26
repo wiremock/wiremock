@@ -17,14 +17,9 @@ package com.github.tomakehurst.wiremock.core;
 
 import java.util.List;
 
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.io.Resources;
 
 import static com.google.common.collect.Lists.transform;
 import static java.util.Collections.emptyList;
@@ -33,9 +28,14 @@ public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
+
     private Integer httpsPort = null;
-    private String keyStorePath = null;
+    private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
+    private String trustStorePath;
+    private String trustStorePassword = "password";
+    private boolean needClientAuth;
+
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
@@ -46,8 +46,6 @@ public class WireMockConfiguration implements Options {
     private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
-    private String trustStorePath;
-    private boolean needClientAuth;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -73,8 +71,13 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration truststorePath(String truststorePath) {
+    public WireMockConfiguration trustStorePath(String truststorePath) {
         this.trustStorePath = truststorePath;
+        return this;
+    }
+
+    public WireMockConfiguration trustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
         return this;
     }
 
@@ -121,7 +124,7 @@ public class WireMockConfiguration implements Options {
         this.notifier = notifier;
         return this;
     }
-    
+
     public WireMockConfiguration bindAddress(String bindAddress){
         this.bindAddress = bindAddress;
         return this;
@@ -151,7 +154,7 @@ public class WireMockConfiguration implements Options {
         this.proxyHostHeader = hostHeaderValue;
         return this;
     }
-    
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -163,11 +166,14 @@ public class WireMockConfiguration implements Options {
             return HttpsSettings.NO_HTTPS;
         }
 
-        if (keyStorePath == null && trustStorePath == null) {
-            return new HttpsSettings(httpsPort);
-        }
-
-        return new HttpsSettings(httpsPort, keyStorePath, keyStorePassword, trustStorePath, needClientAuth);
+        return new HttpsSettings.Builder()
+                .port(httpsPort)
+                .keyStorePath(keyStorePath)
+                .keyStorePassword(keyStorePassword)
+                .trustStorePath(trustStorePath)
+                .trustStorePassword(trustStorePassword)
+                .needClientAuth(needClientAuth)
+                .build();
     }
 
     @Override
@@ -198,7 +204,7 @@ public class WireMockConfiguration implements Options {
     public String bindAddress() {
         return bindAddress;
     }
-    
+
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;

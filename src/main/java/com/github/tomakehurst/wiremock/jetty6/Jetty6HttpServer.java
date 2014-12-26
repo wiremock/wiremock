@@ -150,8 +150,12 @@ class Jetty6HttpServer implements HttpServer {
         connector.setHeaderBufferSize(8192);
         connector.setKeystore(httpsSettings.keyStorePath());
         connector.setKeyPassword(httpsSettings.keyStorePassword());
-        connector.setTruststore(httpsSettings.trustStorePath());
-        connector.setTrustPassword("password");
+
+        if (httpsSettings.hasTrustStore()) {
+            connector.setTruststore(httpsSettings.trustStorePath());
+            connector.setTrustPassword(httpsSettings.trustStorePassword());
+        }
+
         connector.setNeedClientAuth(httpsSettings.needClientAuth());
         return connector;
     }
