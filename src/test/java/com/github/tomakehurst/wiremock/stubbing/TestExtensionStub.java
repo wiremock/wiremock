@@ -14,6 +14,16 @@ public class TestExtensionStub implements WiremockExtension {
         return responseDefinition;
     }
 
+    @Override
+    public String getName() {
+        return "Test Extension";
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return true;
+    }
+
     public static int getCalls() {
         return calls;
     }

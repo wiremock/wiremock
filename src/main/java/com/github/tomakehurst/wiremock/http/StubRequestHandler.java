@@ -51,7 +51,9 @@ public class StubRequestHandler extends AbstractRequestHandler {
 		ResponseDefinition responseDef = stubServer.serveStubFor(request);
 
 		for (WiremockExtension extension : extensions) {
-			extension.filter(request, responseDef);
+			if (extension.isGlobal()) {
+				extension.filter(request, responseDef);
+			}
 		}
 
 		return responseDef;

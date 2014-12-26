@@ -5,4 +5,6 @@ package com.github.tomakehurst.wiremock.http;
  */
 public interface WiremockExtension {
     ResponseDefinition filter(Request request, ResponseDefinition responseDefinition);
+    String getName();
+    boolean isGlobal();
 }
