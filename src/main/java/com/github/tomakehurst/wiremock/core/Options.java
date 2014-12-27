@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 
 public interface Options {
@@ -40,4 +41,5 @@ public interface Options {
     public String proxyUrl();
     public boolean shouldPreserveHostHeader();
     String proxyHostHeader();
+    <T extends Extension> List<T> extensionsOfType(Class<T> extensionType);
 }

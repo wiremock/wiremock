@@ -25,6 +25,7 @@ import java.util.Map;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -193,6 +194,11 @@ public class CommandLineOptions implements Options {
     @Override
     public String proxyHostHeader() {
        return optionSet.hasArgument(PROXY_ALL) ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getHost() : null;
+    }
+
+    @Override
+    public <T extends Extension> List<T> extensionsOfType(Class<T> extensionType) {
+        return Collections.emptyList();
     }
 
     @Override
