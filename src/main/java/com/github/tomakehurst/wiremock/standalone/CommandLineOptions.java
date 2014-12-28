@@ -197,8 +197,8 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-    public <T extends Extension> List<T> extensionsOfType(Class<T> extensionType) {
-        return Collections.emptyList();
+    public <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType) {
+        return Collections.emptyMap();
     }
 
     @Override

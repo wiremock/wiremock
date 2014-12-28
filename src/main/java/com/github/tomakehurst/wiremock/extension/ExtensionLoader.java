@@ -16,8 +16,9 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
-import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,17 +27,25 @@ import static java.util.Arrays.asList;
 
 public class ExtensionLoader {
 
-    public static List<Extension> load(String... classNames) {
-        return from(asList(classNames))
-                .transform(toClasses())
-                .transform(toExtensions())
-                .toList();
+    public static Map<String, Extension> load(String... classNames) {
+        return asMap(
+                from(asList(classNames))
+                        .transform(toClasses())
+                        .transform(toExtensions()));
     }
 
-    public static List<Extension> load(Class<? extends Extension>... classes) {
-        return from(asList(classes))
-                .transform(toExtensions())
-                .toList();
+    public static Map<String, Extension> asMap(Iterable<Extension> extensions) {
+        return Maps.uniqueIndex(
+                extensions,
+                new Function<Extension, String>() {
+                    public String apply(Extension extension) {
+                        return extension.name();
+                    }
+                });
+    }
+
+    public static Map<String, Extension> load(Class<? extends Extension>... classes) {
+        return asMap(from(asList(classes)).transform(toExtensions()));
     }
 
     private static Function<Class<? extends Extension>, Extension> toExtensions() {

@@ -19,15 +19,17 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
 import java.util.List;
+import java.util.Map;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -54,7 +56,7 @@ public class WireMockConfiguration implements Options {
     private boolean preserveHostHeader;
     private String proxyHostHeader;
 
-    private List<Extension> extensions = newArrayList();
+    private Map<String, Extension> extensions = newLinkedHashMap();
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -165,17 +167,17 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration extensions(String... classNames) {
-        extensions.addAll(ExtensionLoader.load(classNames));
+        extensions.putAll(ExtensionLoader.load(classNames));
         return this;
     }
 
     public WireMockConfiguration extensions(Extension... extensionInstances) {
-        extensions.addAll(asList(extensionInstances));
+        extensions.putAll(ExtensionLoader.asMap(asList(extensionInstances)));
         return this;
     }
 
     public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
-        extensions.addAll(ExtensionLoader.load(classes));
+        extensions.putAll(ExtensionLoader.load(classes));
         return this;
     }
 
@@ -246,7 +248,11 @@ public class WireMockConfiguration implements Options {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Extension> List<T> extensionsOfType(Class<T> extensionType) {
-        return ImmutableList.copyOf((Iterable<T>) filter(extensions, Predicates.instanceOf(extensionType)));
+    public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
+        return (Map<String, T>) Maps.filterEntries(extensions, new Predicate<Map.Entry<String, Extension>>() {
+            public boolean apply(Map.Entry<String, Extension> input) {
+                return extensionType.isAssignableFrom(input.getValue().getClass());
+            }
+        });
     }
 }
