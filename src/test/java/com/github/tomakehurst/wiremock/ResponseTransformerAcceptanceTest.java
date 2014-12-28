@@ -90,6 +90,20 @@ public class ResponseTransformerAcceptanceTest {
         assertThat(response.content(), is("Expect this"));
     }
 
+    @Test
+    public void doesNotApplyNonGlobalExtensionsWhenNotExplicitlySpecfiedByStub() {
+        wm = new WireMockServer(wireMockConfig()
+                .port(0)
+                .extensions(new ExampleTransformer(), new NonGlobalTransformer()));
+        wm.start();
+        client = new WireMockTestClient(wm.port());
+        createStub("/non-global-transform");
+
+        WireMockResponse response = client.get("/non-global-transform");
+        assertThat(response.content(), is("Transformed body"));
+
+    }
+
     private void startWithExtensions(String... extensions) {
         wm = new WireMockServer(wireMockConfig()
                 .port(0)
@@ -105,7 +119,7 @@ public class ResponseTransformerAcceptanceTest {
                 .withBody("Should not see this")));
     }
 
-    public static class ExampleTransformer implements ResponseTransformer {
+    public static class ExampleTransformer extends ResponseTransformer {
 
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
@@ -122,7 +136,7 @@ public class ResponseTransformerAcceptanceTest {
         }
     }
 
-    public static class MultiTransformer1 implements ResponseTransformer {
+    public static class MultiTransformer1 extends ResponseTransformer {
 
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
@@ -138,7 +152,7 @@ public class ResponseTransformerAcceptanceTest {
         }
     }
 
-    public static class MultiTransformer2 implements ResponseTransformer {
+    public static class MultiTransformer2 extends ResponseTransformer {
 
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
@@ -153,4 +167,27 @@ public class ResponseTransformerAcceptanceTest {
             return "multi2";
         }
     }
+
+    public static class NonGlobalTransformer extends ResponseTransformer {
+
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+            return ResponseDefinitionBuilder
+                    .like(responseDefinition).but()
+                    .withBody("Non global so shouldn't see this")
+                    .build();
+        }
+
+        @Override
+        public boolean applyGlobally() {
+            return false;
+        }
+
+        @Override
+        public String name() {
+            return "multi2";
+        }
+    }
+
+
 }

@@ -105,7 +105,10 @@ public class WireMockApp implements StubServer, Admin {
         }
 
         ResponseTransformer transformer = transformers.get(0);
-        ResponseDefinition newResponseDef = transformer.transform(request, responseDefinition);
+        ResponseDefinition newResponseDef = transformer.applyGlobally() ?
+                transformer.transform(request, responseDefinition) :
+                responseDefinition;
+
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
     }
 

@@ -18,7 +18,11 @@ package com.github.tomakehurst.wiremock.extension;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-public interface ResponseTransformer extends Extension {
+public abstract class ResponseTransformer implements Extension {
 
-    ResponseDefinition transform(Request request, ResponseDefinition responseDefinition);
+    public abstract ResponseDefinition transform(Request request, ResponseDefinition responseDefinition);
+
+    public boolean applyGlobally() {
+        return true;
+    }
 }
