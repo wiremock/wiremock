@@ -15,23 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import java.util.List;
-
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.Preconditions.checkArgument;
+import java.util.List;
+
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 public class WireMockConfiguration implements Options {
@@ -57,7 +54,7 @@ public class WireMockConfiguration implements Options {
     private boolean preserveHostHeader;
     private String proxyHostHeader;
 
-    private List<? super Extension> extensions = newArrayList();
+    private List<Extension> extensions = newArrayList();
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -168,20 +165,17 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration extensions(String... classNames) {
-        try {
-            for (String className: classNames) {
-                Class<?> extensionClass = Class.forName(className);
-                checkArgument(ResponseTransformer.class.isAssignableFrom(extensionClass), "Extension classes must implement ResponseTransformer");
-                ResponseTransformer responseTransformer = (ResponseTransformer) extensionClass.newInstance();
-                extensions.add(responseTransformer);
-            }
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            return throwUnchecked(e, WireMockConfiguration.class);
-        }
+        extensions.addAll(ExtensionLoader.load(classNames));
+        return this;
+    }
 
+    public WireMockConfiguration extensions(Extension... extensionInstances) {
+        extensions.addAll(asList(extensionInstances));
+        return this;
+    }
+
+    public WireMockConfiguration extensions(Class<? extends Extension>... classes) {
+        extensions.addAll(ExtensionLoader.load(classes));
         return this;
     }
 
@@ -251,7 +245,8 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Extension> List<T> extensionsOfType(Class<T> extensionType) {
-        return ImmutableList.copyOf((Iterable<T>) filter((List<?>) extensions, Predicates.instanceOf(extensionType)));
+        return ImmutableList.copyOf((Iterable<T>) filter(extensions, Predicates.instanceOf(extensionType)));
     }
 }

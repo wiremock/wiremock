@@ -39,6 +39,19 @@ public class ResponseDefinitionBuilder {
 	protected String proxyBaseUrl;
 	protected Fault fault;
 
+	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
+		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
+		builder.status = responseDefinition.getStatus();
+		builder.headers = newArrayList(responseDefinition.getHeaders().all());
+		builder.bodyContent = responseDefinition.getByteBody();
+		builder.isBinaryBody = responseDefinition.specifiesBinaryBodyContent();
+		builder.bodyFileName = responseDefinition.getBodyFileName();
+		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
+		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
+		builder.fault = responseDefinition.getFault();
+		return builder;
+	}
+
     public static ResponseDefinition jsonResponse(Object body) {
         return new ResponseDefinitionBuilder()
                 .withBody(Json.write(body))
@@ -46,6 +59,10 @@ public class ResponseDefinitionBuilder {
                 .withHeader("Content-Type", "application/json")
                 .build();
     }
+
+	public ResponseDefinitionBuilder but() {
+		return this;
+	}
 	
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
