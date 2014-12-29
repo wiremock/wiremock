@@ -15,13 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.jetty6;
 
-import com.github.tomakehurst.wiremock.http.HttpServer;
+import java.util.Map;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
@@ -33,11 +36,9 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.*;
+import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.*;
+import static com.google.common.collect.Maps.*;
 
 class Jetty6HttpServer implements HttpServer {
 
@@ -65,9 +66,7 @@ class Jetty6HttpServer implements HttpServer {
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
                     requestDelayControl,
-                    options.httpsSettings().port(),
-                    options.httpsSettings().keyStorePath()
-            );
+                    options.httpsSettings());
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -91,6 +90,17 @@ class Jetty6HttpServer implements HttpServer {
             jettyServer.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+        long timeout=System.currentTimeMillis()+30000;
+        while (!jettyServer.isStarted()) {
+            try {
+                Thread.currentThread().sleep(100);
+            } catch (InterruptedException e) {
+                // no-op
+            }
+            if (System.currentTimeMillis()>timeout) {
+                throw new RuntimeException("Server took too long to start up.");
+            }
         }
     }
 
@@ -133,14 +143,20 @@ class Jetty6HttpServer implements HttpServer {
 
     private DelayableSslSocketConnector createHttpsConnector(
             RequestDelayControl requestDelayControl,
-            int httpsPort,
-            String keystorePath
+            HttpsSettings httpsSettings
     ) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
-        connector.setPort(httpsPort);
+        connector.setPort(httpsSettings.port());
         connector.setHeaderBufferSize(8192);
-        connector.setKeystore(keystorePath);
-        connector.setKeyPassword("password");
+        connector.setKeystore(httpsSettings.keyStorePath());
+        connector.setKeyPassword(httpsSettings.keyStorePassword());
+
+        if (httpsSettings.hasTrustStore()) {
+            connector.setTruststore(httpsSettings.trustStorePath());
+            connector.setTrustPassword(httpsSettings.trustStorePassword());
+        }
+
+        connector.setNeedClientAuth(httpsSettings.needClientAuth());
         return connector;
     }
 

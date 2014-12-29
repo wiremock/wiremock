@@ -70,9 +70,29 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsKeyStorePath() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
+    public void setsRequireClientCert() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore",
+                "--https-require-client-cert");
+        assertThat(options.httpsSettings().needClientAuth(), is(true));
+    }
+
+    @Test
+    public void setsTrustStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore",
+                "--truststore-password", "sometrustpwd");
+        assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
+        assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
+    }
+
+    @Test
+    public void setsKeyStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd");
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+        assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
     }
 
     @Test(expected=IllegalArgumentException.class)

@@ -26,44 +26,50 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Test;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class HttpsAcceptanceTest {
 
     private static final int HTTPS_PORT = 8443;
+    private static final String TRUST_STORE_PATH = toPath("test-clientstore");
+    private static final String KEY_STORE_PATH = toPath("test-keystore");
+    private static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
 
     private WireMockServer wireMockServer;
+    private WireMockServer proxy;
     private HttpClient httpClient;
-
-    private void startServerWithKeystore(String keystorePath) {
-        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
-        if (keystorePath != null) {
-            config.keystorePath(keystorePath);
-        }
-
-        wireMockServer = new WireMockServer(config);
-        wireMockServer.start();
-        WireMock.configure();
-
-        httpClient = HttpClientFactory.createClient();
-    }
-
-    private void startServerWithDefaultKeystore() {
-        startServerWithKeystore(null);
-    }
 
     @After
     public void serverShutdown() {
         wireMockServer.stop();
+        if (proxy != null) {
+            proxy.shutdown();
+        }
     }
 
     @Test
@@ -120,8 +126,75 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 
+    @Test
+    public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
+        String keystorePath = Resources.getResource("test-keystore-pwd").toString();
+        startServerWithKeystore(keystorePath, "anotherpassword");
+        stubFor(get(urlEqualTo("/alt-password-https")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
+    }
+
+    @Test(expected = SSLHandshakeException.class)
+    public void rejectsWithoutClientCertificate() throws Exception {
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        contentFor(url("/https-test")); // this lacks the required client certificate
+    }
+
+    @Test
+    public void acceptWithClientCertificate() throws Exception {
+        String testTrustStorePath = TRUST_STORE_PATH;
+        String testClientCertPath = TRUST_STORE_PATH;
+
+        startServerEnforcingClientCert(KEY_STORE_PATH, testTrustStorePath, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(secureContentFor(url("/https-test"), testClientCertPath, TRUST_STORE_PASSWORD), is("HTTPS content"));
+    }
+
+    @Test
+    public void supportsProxyingWhenTargetRequiresClientCert() throws Exception {
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
+
+        proxy = new WireMockServer(wireMockConfig()
+                .port(0)
+                .trustStorePath(TRUST_STORE_PATH)
+                .trustStorePassword(TRUST_STORE_PASSWORD));
+        proxy.start();
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+
+        HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy");
+        HttpResponse response = httpClient.execute(get);
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
+    }
+
+    @Test
+    public void proxyingFailsWhenTargetServiceRequiresClientCertificatesAndProxyDoesNotSend() throws Exception {
+        startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
+        stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().withStatus(200)));
+
+        proxy = new WireMockServer(wireMockConfig().port(0));
+        proxy.start();
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+
+        HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
+        HttpResponse response = httpClient.execute(get);
+        assertThat(response.getStatusLine().getStatusCode(), is(500));
+    }
+
     private String url(String path) {
         return String.format("https://localhost:%d%s", HTTPS_PORT, path);
+    }
+
+    private static String toPath(String resourcePath) {
+        try {
+            return new File(Resources.getResource(resourcePath).toURI()).getCanonicalPath();
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
     }
 
     private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
@@ -147,5 +220,84 @@ public class HttpsAcceptanceTest {
         HttpResponse response = httpClient.execute(get);
         String content = EntityUtils.toString(response.getEntity());
         return content;
+    }
+
+    private void startServerEnforcingClientCert(String keystorePath, String truststorePath, String trustStorePassword) {
+        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
+        if (keystorePath != null) {
+            config.keystorePath(keystorePath);
+        }
+        if (truststorePath != null) {
+            config.trustStorePath(truststorePath);
+            config.trustStorePassword(trustStorePassword);
+            config.needClientAuth(true);
+        }
+        config.bindAddress("localhost");
+
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configure();
+
+        httpClient = HttpClientFactory.createClient();
+    }
+
+    private void startServerWithKeystore(String keystorePath, String keystorePassword) {
+        WireMockConfiguration config = wireMockConfig().httpsPort(HTTPS_PORT);
+        if (keystorePath != null) {
+            config.keystorePath(keystorePath);
+            config.keystorePassword(keystorePassword);
+        }
+
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configure();
+
+        httpClient = HttpClientFactory.createClient();
+    }
+
+    private void startServerWithKeystore(String keystorePath) {
+        startServerWithKeystore(keystorePath, "password");
+    }
+
+    private void startServerWithDefaultKeystore() {
+        startServerWithKeystore(null);
+    }
+
+    static String secureContentFor(String url, String clientTrustStore, String trustStorePassword) throws Exception {
+        KeyStore trustStore = readKeyStore(clientTrustStore, trustStorePassword);
+
+        // Trust own CA and all self-signed certs
+        SSLContext sslcontext = SSLContexts.custom()
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
+                .useTLS()
+                .build();
+
+        // Allow TLSv1 protocol only
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                sslcontext,
+                new String[] { "TLSv1" }, // supported protocols
+                null,  // supported cipher suites
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .build();
+
+        HttpGet get = new HttpGet(url);
+        HttpResponse response = httpClient.execute(get);
+        String content = EntityUtils.toString(response.getEntity());
+        return content;
+    }
+
+    static KeyStore readKeyStore(String path, String password) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
+        FileInputStream instream = new FileInputStream(path);
+        try {
+            trustStore.load(instream, password.toCharArray());
+        } finally {
+            instream.close();
+        }
+        return trustStore;
     }
 }
