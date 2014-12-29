@@ -8,11 +8,6 @@ import com.google.common.base.Optional;
  */
 public interface RotatingRequestJournal extends RequestJournal {
     /**
-     * @param maxEntries {@link #getMaxEntries()}
-     */
-    void setMaxEntries(Optional<Integer> maxEntries);
-
-    /**
      * @return New maximum number of entries. May be absent to disable discarding of old entries.
      */
     Optional<Integer> getMaxEntries();

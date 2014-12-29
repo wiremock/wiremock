@@ -41,16 +41,6 @@ public class InMemoryRequestJournalTest {
     }
 
     @Test
-    public void testResetMaxEntries() throws Exception {
-        // When we reset the size of the journal is reset to the initial max length
-        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.setMaxEntries(Optional.of(2));
-        assertThat(journal.getMaxEntries(), is(Optional.of(2)));
-        journal.reset();
-        assertThat(journal.getMaxEntries(), is(Optional.of(1)));
-    }
-
-    @Test
     public void testResetJournalContent() throws Exception {
         // When we reset the journal it is cleared
         Mockery context = new Mockery();
@@ -78,21 +68,6 @@ public class InMemoryRequestJournalTest {
 
         // Then add third one and verify that only 2 and 3 are there
         journal.requestReceived(request3);
-        assertOnlyLastTwoRequestsLeft(journal);
-    }
-
-    @Test
-    public void testSetMaxEntriesCutsRequestLog() throws Exception {
-        // When the request journal has three entries and no max requests and then we set the maximum number of requests#
-        // the journal is cut
-        RotatingRequestJournal journal = new InMemoryRequestJournal(Optional.of(10));
-        // Add the requests
-        journal.requestReceived(request1);
-        journal.requestReceived(request2);
-        journal.requestReceived(request3);
-
-        // Cut the journal
-        journal.setMaxEntries(Optional.of(2));
         assertOnlyLastTwoRequestsLeft(journal);
     }
 

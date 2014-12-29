@@ -39,15 +39,11 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 
 	private Optional<Integer> maxEntries;
 
-	private final Optional<Integer> initialMaxEntries;
-
 	/**
-	 * @param initialMaxEntries Initial value for the size of the request journal. When the journal is reset the
-	 *                          maximum number of entries is reset to this value.
+	 * @param maxEntries Maximum number of entries that are kept in the request journal
 	 */
-	public InMemoryRequestJournal(Optional<Integer> initialMaxEntries) {
-		this.initialMaxEntries = initialMaxEntries;
-		setMaxEntries(initialMaxEntries);
+	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
+		setMaxEntries(maxEntries);
 	}
 
 	@Override
@@ -82,7 +78,6 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 	@Override
 	public void reset() {
 		requests.clear();
-		setMaxEntries(initialMaxEntries);
 	}
 
 	private void removeOldEntries() {
@@ -98,8 +93,7 @@ public class InMemoryRequestJournal implements RequestListener, RotatingRequestJ
 		}
 	}
 
-	@Override
-	public void setMaxEntries(Optional<Integer> maxEntries) {
+	private void setMaxEntries(Optional<Integer> maxEntries) {
 		if (maxEntries.isPresent() && maxEntries.get() < 0) {
 			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
 		}
