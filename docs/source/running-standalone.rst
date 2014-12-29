@@ -63,6 +63,9 @@ Disable the request journal, which records incoming requests for later verificat
 (and serve stubs) for long periods (without resetting) without exhausting the heap. The ``--record-mappings`` option isn't
 available if this one is specified.
 
+``--container-threads``:
+The number of threads created for incoming requests. Defaults to 200.
+
 ``--help``:
 Show command line help
 

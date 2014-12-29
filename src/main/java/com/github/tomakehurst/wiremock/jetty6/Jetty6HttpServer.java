@@ -35,6 +35,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.thread.QueuedThreadPool;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.*;
 import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.*;
@@ -56,6 +57,10 @@ class Jetty6HttpServer implements HttpServer {
     ) {
 
     	jettyServer = new Server();
+
+        QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
+        jettyServer.setThreadPool(threadPool);
+
         httpConnector = createHttpConnector(
                 requestDelayControl,
                 options.bindAddress(),

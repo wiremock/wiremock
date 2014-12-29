@@ -29,6 +29,8 @@ public class WireMockConfiguration implements Options {
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
 
+    private int containerThreads = DEFAULT_CONTAINER_THREADS;
+
     private int httpsPort = -1;
     private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
@@ -58,6 +60,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration httpsPort(Integer httpsPort) {
         this.httpsPort = httpsPort;
+        return this;
+    }
+
+    public WireMockConfiguration containerThreads(Integer containerThreads) {
+        this.containerThreads = containerThreads;
         return this;
     }
 
@@ -158,6 +165,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public int portNumber() {
         return portNumber;
+    }
+
+    @Override
+    public int containerThreads() {
+        return containerThreads;
     }
 
     @Override
