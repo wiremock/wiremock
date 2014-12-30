@@ -60,6 +60,7 @@ public class CommandLineOptions implements Options {
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String EXTENSIONS = "extensions";
     private static final String ROOT_DIR = "root-dir";
+    private static final String CONTAINER_THREADS = "container-threads";
 
     private final OptionSet optionSet;
 	private String helpText;
@@ -69,6 +70,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
+        optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
         optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
@@ -237,6 +239,15 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
+    }
+
+    @Override
+    public int containerThreads() {
+        if (optionSet.has(CONTAINER_THREADS)) {
+            return Integer.parseInt((String) optionSet.valueOf(CONTAINER_THREADS));
+        }
+
+        return DEFAULT_CONTAINER_THREADS;
     }
 
     @Override

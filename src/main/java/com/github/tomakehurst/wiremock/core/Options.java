@@ -28,10 +28,12 @@ import java.util.Map;
 public interface Options {
 
     public static final int DEFAULT_PORT = 8080;
+    public static final int DEFAULT_CONTAINER_THREADS = 200;
     public static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
     HttpsSettings httpsSettings();
+    int containerThreads();
     boolean browserProxyingEnabled();
     ProxySettings proxyVia();
     FileSource filesRoot();
