@@ -21,8 +21,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.google.common.collect.ImmutableList;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.*;
@@ -45,7 +49,8 @@ public class ResponseDefinition {
 	
 	private boolean wasConfigured = true;
 	private Request originalRequest;
-	
+	private List<String> responseTransformers;
+
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
@@ -58,6 +63,7 @@ public class ResponseDefinition {
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
 	    newResponseDef.fault = original.fault;
 	    newResponseDef.wasConfigured = original.wasConfigured;
+		newResponseDef.responseTransformers = original.responseTransformers;
 	    return newResponseDef;
 	}
 	
@@ -244,88 +250,66 @@ public class ResponseDefinition {
 		this.fault = fault;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((body == null) ? 0 : body.hashCode());
-		result = prime * result
-				+ ((bodyFileName == null) ? 0 : bodyFileName.hashCode());
-		result = prime * result + ((fault == null) ? 0 : fault.hashCode());
-		result = prime
-				* result
-				+ ((fixedDelayMilliseconds == null) ? 0
-						: fixedDelayMilliseconds.hashCode());
-		result = prime * result + ((headers == null) ? 0 : headers.hashCode());
-		result = prime * result
-				+ ((originalRequest == null) ? 0 : originalRequest.hashCode());
-		result = prime * result
-				+ ((proxyBaseUrl == null) ? 0 : proxyBaseUrl.hashCode());
-		result = prime * result + status;
-		result = prime * result + (wasConfigured ? 1231 : 1237);
-		return result;
+	public List<String> getResponseTransformers() {
+		return responseTransformers;
+	}
+
+	public void setResponseTransformers(List<String> responseTransformers) {
+		this.responseTransformers = responseTransformers;
+	}
+
+	public boolean hasTransformer(ResponseTransformer transformer) {
+		return responseTransformers != null && responseTransformers.contains(transformer.name());
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ResponseDefinition that = (ResponseDefinition) o;
+
+		if (isBinaryBody != that.isBinaryBody) return false;
+		if (status != that.status) return false;
+		if (wasConfigured != that.wasConfigured) return false;
+		if (additionalProxyRequestHeaders != null ? !additionalProxyRequestHeaders.equals(that.additionalProxyRequestHeaders) : that.additionalProxyRequestHeaders != null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (!Arrays.equals(body, that.body)) return false;
+		if (bodyFileName != null ? !bodyFileName.equals(that.bodyFileName) : that.bodyFileName != null) return false;
+		if (browserProxyUrl != null ? !browserProxyUrl.equals(that.browserProxyUrl) : that.browserProxyUrl != null)
 			return false;
-		}
-		final ResponseDefinition other = (ResponseDefinition) obj;
-		if (body == null) {
-			if (other.body != null) {
-				return false;
-			}
-		} else if (!byteBodyEquals(body, other.body)) {
+		if (fault != that.fault) return false;
+		if (fixedDelayMilliseconds != null ? !fixedDelayMilliseconds.equals(that.fixedDelayMilliseconds) : that.fixedDelayMilliseconds != null)
 			return false;
-		}
-		if (bodyFileName == null) {
-			if (other.bodyFileName != null) {
-				return false;
-			}
-		} else if (!bodyFileName.equals(other.bodyFileName)) {
+		if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
+		if (originalRequest != null ? !originalRequest.equals(that.originalRequest) : that.originalRequest != null)
 			return false;
-		}
-		if (fault != other.fault) {
+		if (proxyBaseUrl != null ? !proxyBaseUrl.equals(that.proxyBaseUrl) : that.proxyBaseUrl != null) return false;
+		if (responseTransformers != null ? !responseTransformers.equals(that.responseTransformers) : that.responseTransformers != null)
 			return false;
-		}
-		if (fixedDelayMilliseconds == null) {
-			if (other.fixedDelayMilliseconds != null) {
-				return false;
-			}
-		} else if (!fixedDelayMilliseconds.equals(other.fixedDelayMilliseconds)) {
-			return false;
-		}
-		if (headers == null) {
-			if (other.headers != null) {
-				return false;
-			}
-		} else if (!headers.equals(other.headers)) {
-			return false;
-		}
-		if (proxyBaseUrl == null) {
-			if (other.proxyBaseUrl != null) {
-				return false;
-			}
-		} else if (!proxyBaseUrl.equals(other.proxyBaseUrl)) {
-			return false;
-		}
-		if (status != other.status) {
-			return false;
-		}
-		if (wasConfigured != other.wasConfigured) {
-			return false;
-		}
+
 		return true;
 	}
 
-    private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
+	@Override
+	public int hashCode() {
+		int result = status;
+		result = 31 * result + (body != null ? Arrays.hashCode(body) : 0);
+		result = 31 * result + (isBinaryBody ? 1 : 0);
+		result = 31 * result + (bodyFileName != null ? bodyFileName.hashCode() : 0);
+		result = 31 * result + (headers != null ? headers.hashCode() : 0);
+		result = 31 * result + (additionalProxyRequestHeaders != null ? additionalProxyRequestHeaders.hashCode() : 0);
+		result = 31 * result + (fixedDelayMilliseconds != null ? fixedDelayMilliseconds.hashCode() : 0);
+		result = 31 * result + (proxyBaseUrl != null ? proxyBaseUrl.hashCode() : 0);
+		result = 31 * result + (browserProxyUrl != null ? browserProxyUrl.hashCode() : 0);
+		result = 31 * result + (fault != null ? fault.hashCode() : 0);
+		result = 31 * result + (wasConfigured ? 1 : 0);
+		result = 31 * result + (originalRequest != null ? originalRequest.hashCode() : 0);
+		result = 31 * result + (responseTransformers != null ? responseTransformers.hashCode() : 0);
+		return result;
+	}
+
+	private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
     {
         if (expecteds == actuals) return true;
         if (expecteds == null) return false;

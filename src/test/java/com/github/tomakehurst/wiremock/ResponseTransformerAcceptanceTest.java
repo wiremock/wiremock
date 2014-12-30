@@ -101,7 +101,23 @@ public class ResponseTransformerAcceptanceTest {
 
         WireMockResponse response = client.get("/non-global-transform");
         assertThat(response.content(), is("Transformed body"));
+    }
 
+    @Test
+    public void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
+        wm = new WireMockServer(wireMockConfig()
+                .port(0)
+                .extensions(new NonGlobalTransformer()));
+        wm.start();
+        client = new WireMockTestClient(wm.port());
+
+        wm.stubFor(get(urlEqualTo("/local-transform")).willReturn(aResponse()
+                .withStatus(200)
+                .withBody("Should not see this")
+                .withTransform("local")));
+
+        WireMockResponse response = client.get("/local-transform");
+        assertThat(response.content(), is("Non-global transformed body"));
     }
 
     private void startWithExtensions(String... extensions) {
@@ -174,7 +190,7 @@ public class ResponseTransformerAcceptanceTest {
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
             return ResponseDefinitionBuilder
                     .like(responseDefinition).but()
-                    .withBody("Non global so shouldn't see this")
+                    .withBody("Non-global transformed body")
                     .build();
         }
 
@@ -185,7 +201,7 @@ public class ResponseTransformerAcceptanceTest {
 
         @Override
         public String name() {
-            return "multi2";
+            return "local";
         }
     }
 
