@@ -34,11 +34,6 @@ public class ResponseTransformerAcceptanceTest {
     WireMockServer wm;
     WireMockTestClient client;
 
-    @After
-    public void cleanup() {
-        wm.stop();
-    }
-
     @Test
     public void transformerSpecifiedByClassTransformsHeadersStatusAndBody() {
         startWithExtensions("com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$ExampleTransformer");
@@ -120,12 +115,26 @@ public class ResponseTransformerAcceptanceTest {
         assertThat(response.content(), is("Non-global transformed body"));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
+        new WireMockServer(wireMockConfig()
+                .port(0)
+                .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
+    }
+
     private void startWithExtensions(String... extensions) {
         wm = new WireMockServer(wireMockConfig()
                 .port(0)
                 .extensions(extensions));
         wm.start();
         client = new WireMockTestClient(wm.port());
+    }
+
+    @After
+    public void cleanup() {
+        if (wm != null) {
+            wm.stop();
+        }
     }
 
     private void createStub(String url) {
@@ -205,5 +214,17 @@ public class ResponseTransformerAcceptanceTest {
         }
     }
 
+    public static class AnotherExampleTransformer extends ResponseTransformer {
+
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+            return responseDefinition;
+        }
+
+        @Override
+        public String name() {
+            return "example";
+        }
+    }
 
 }
