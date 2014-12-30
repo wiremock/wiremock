@@ -16,8 +16,14 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -180,6 +186,30 @@ public class CommandLineOptionsTest {
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
     }
-    
 
+    @Test
+    public void returnsExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--extensions",
+                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext2");
+        Map<String, ResponseTransformer> extensions = options.extensionsOfType(ResponseTransformer.class);
+        assertThat(extensions.get("one"), instanceOf(Ext1.class));
+        assertThat(extensions.get("two"), instanceOf(Ext2.class));
+    }
+    
+    public static class Ext1 extends ResponseTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) { return null; }
+
+        @Override
+        public String name() { return "one"; }
+    }
+
+    public static class Ext2 extends ResponseTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) { return null; }
+
+        @Override
+        public String name() { return "two"; }
+    }
 }

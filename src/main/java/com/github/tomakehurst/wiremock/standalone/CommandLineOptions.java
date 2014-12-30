@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -57,6 +58,7 @@ public class CommandLineOptions implements Options {
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
+    private static final String EXTENSIONS = "extensions";
     private static final String ROOT_DIR = "root-dir";
 
     private final OptionSet optionSet;
@@ -81,6 +83,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
+        optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -198,6 +201,11 @@ public class CommandLineOptions implements Options {
 
     @Override
     public <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType) {
+        if (optionSet.has(EXTENSIONS)) {
+            String classNames = (String) optionSet.valueOf(EXTENSIONS);
+            return ExtensionLoader.loadExtension(classNames.split(","));
+        }
+
         return Collections.emptyMap();
     }
 

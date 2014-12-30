@@ -27,11 +27,16 @@ import static java.util.Arrays.asList;
 
 public class ExtensionLoader {
 
-    public static Map<String, Extension> load(String... classNames) {
-        return asMap(
+    @SuppressWarnings("unchecked")
+    public static <T> Map<String, T> loadExtension(String... classNames) {
+        return (Map<String, T>) asMap(
                 from(asList(classNames))
                         .transform(toClasses())
                         .transform(toExtensions()));
+    }
+
+    public static Map<String, Extension> load(String... classNames) {
+        return loadExtension(classNames);
     }
 
     public static Map<String, Extension> asMap(Iterable<Extension> extensions) {
