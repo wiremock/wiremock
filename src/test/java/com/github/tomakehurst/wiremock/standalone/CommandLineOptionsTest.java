@@ -176,6 +176,18 @@ public class CommandLineOptionsTest {
         assertThat(options.shouldPreserveHostHeader(), is(false));
     }
 
+    @Test
+    public void returnsCorrectlyParsedNumberOfThreads() {
+        CommandLineOptions options = new CommandLineOptions("--container-threads", "300");
+        assertThat(options.containerThreads(), is(300));
+    }
+
+    @Test
+    public void defaultsContainerThreadsTo200() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.containerThreads(), is(200));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
