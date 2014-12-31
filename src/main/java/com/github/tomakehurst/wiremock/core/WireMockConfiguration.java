@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 
 import static com.google.common.collect.Lists.transform;
@@ -43,6 +44,7 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
+    private Optional<Integer> maxRequestJournalEntries = Optional.absent();
     private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
     private String proxyUrl;
@@ -142,6 +144,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration maxRequestJournalEntries(Optional<Integer> maxRequestJournalEntries) {
+        this.maxRequestJournalEntries = maxRequestJournalEntries;
+        return this;
+    }
+
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
     	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
     	return this;
@@ -204,8 +211,14 @@ public class WireMockConfiguration implements Options {
         return notifier;
     }
 
+    @Override
     public boolean requestJournalDisabled() {
         return requestJournalDisabled;
+    }
+
+    @Override
+    public Optional<Integer> maxRequestJournalEntries() {
+        return maxRequestJournalEntries;
     }
 
     @Override
@@ -228,6 +241,7 @@ public class WireMockConfiguration implements Options {
         return preserveHostHeader;
     }
 
+    @Override
     public String proxyHostHeader() {
         return proxyHostHeader;
     }
