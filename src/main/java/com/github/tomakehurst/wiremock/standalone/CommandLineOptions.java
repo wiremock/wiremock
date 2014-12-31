@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -59,6 +60,7 @@ public class CommandLineOptions implements Options {
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String EXTENSIONS = "extensions";
+    private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
 
@@ -86,6 +88,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
+        optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -186,7 +189,6 @@ public class CommandLineOptions implements Options {
 		return optionSet.has(PROXY_ALL);
 	}
 
-    @Override
 	public String proxyUrl() {
 		return (String) optionSet.valueOf(PROXY_ALL);
 	}
@@ -239,6 +241,18 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
+    }
+
+    private boolean specifiesMaxRequestJournalEntries() {
+        return optionSet.has(MAX_ENTRIES_REQUEST_JOURNAL);
+    }
+
+    @Override
+    public Optional<Integer> maxRequestJournalEntries() {
+        if (specifiesMaxRequestJournalEntries()) {
+            return Optional.of(Integer.parseInt((String) optionSet.valueOf(MAX_ENTRIES_REQUEST_JOURNAL)));
+        }
+        return Optional.absent();
     }
 
     @Override

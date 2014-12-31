@@ -66,6 +66,9 @@ available if this one is specified.
 ``--container-threads``:
 The number of threads created for incoming requests. Defaults to 200.
 
+``--max-request-journal-entries``:
+Set maximum number of entries in request journal (if enabled). When this limit is reached oldest entries will be discarded.
+
 ``--help``:
 Show command line help
 

@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.google.common.base.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -45,8 +46,9 @@ public class WireMockWebContextListener implements ServletContextListener {
 
         ServletContextFileSource fileSource = new ServletContextFileSource(context, fileSourceRoot);
 
+        Optional<Integer> maxRequestJournalEntries = readMaxRequestJournalEntries(context);
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
-                fromNullable(sce.getServletContext().getInitParameter("verboseLoggingEnabled"))
+                fromNullable(context.getInitParameter("verboseLoggingEnabled"))
                         .or("true"));
 
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
@@ -57,6 +59,7 @@ public class WireMockWebContextListener implements ServletContextListener {
                 defaultMappingsLoader,
                 mappingsSaver,
                 false,
+                maxRequestJournalEntries,
                 Collections.<String, ResponseTransformer>emptyMap(),
                 fileSource,
                 new NotImplementedContainer()
@@ -70,6 +73,18 @@ public class WireMockWebContextListener implements ServletContextListener {
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         context.setAttribute(Notifier.KEY, new Slf4jNotifier(verboseLoggingEnabled));
+    }
+
+    /**
+     * @param context Servlet context for parameter reading
+     * @return Maximum number of entries or absent
+     */
+    private Optional<Integer> readMaxRequestJournalEntries(ServletContext context) {
+        String str = context.getInitParameter("maxRequestJournalEntries");
+        if(str == null) {
+            return Optional.absent();
+        }
+        return Optional.of(Integer.parseInt(str));
     }
 
     @Override

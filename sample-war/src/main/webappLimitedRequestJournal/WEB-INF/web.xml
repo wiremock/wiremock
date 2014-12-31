@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <!-- This is an example on how the request log size can be restricted in the web.xml configuration of a deployed
+    wiremock. -->
+  
+  <listener>
+  	<display-name>wiremock-startup-listener</display-name>
+  	<listener-class>com.github.tomakehurst.wiremock.servlet.WireMockWebContextListener</listener-class>
+  </listener>
+  
+  <context-param>
+  	<param-name>WireMockFileSourceRoot</param-name>
+  	<param-value>/WEB-INF/wiremock</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>verboseLoggingEnabled</param-name>
+    <param-value>false</param-value>
+  </context-param>
+  <!-- Restrict size of request journal -->
+  <context-param>
+    <param-name>maxRequestJournalEntries</param-name>
+    <param-value>2</param-value>
+  </context-param>
+
+  <servlet>
+  	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
+  	<servlet-class>com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet</servlet-class>
+  	<init-param>
+  		<param-name>RequestHandlerClass</param-name>
+  		<param-value>com.github.tomakehurst.wiremock.http.StubRequestHandler</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
+  	<url-pattern>/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
+  	<servlet-class>com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet</servlet-class>
+  	<init-param>
+  		<param-name>RequestHandlerClass</param-name>
+  		<param-value>com.github.tomakehurst.wiremock.http.AdminRequestHandler</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
+  	<url-pattern>/__admin/*</url-pattern>
+  </servlet-mapping>
+</web-app>

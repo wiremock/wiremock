@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 
 import java.util.List;
@@ -50,9 +51,9 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
+    private Optional<Integer> maxRequestJournalEntries = Optional.absent();
     private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
-    private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
 
@@ -151,14 +152,14 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration maxRequestJournalEntries(Optional<Integer> maxRequestJournalEntries) {
+        this.maxRequestJournalEntries = maxRequestJournalEntries;
+        return this;
+    }
+
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
     	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
     	return this;
-    }
-
-    public WireMockConfiguration withProxyUrl(String proxyUrl) {
-        this.proxyUrl = proxyUrl;
-        return this;
     }
 
     public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
@@ -228,8 +229,14 @@ public class WireMockConfiguration implements Options {
         return notifier;
     }
 
+    @Override
     public boolean requestJournalDisabled() {
         return requestJournalDisabled;
+    }
+
+    @Override
+    public Optional<Integer> maxRequestJournalEntries() {
+        return maxRequestJournalEntries;
     }
 
     @Override
@@ -243,15 +250,11 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
-    public String proxyUrl() {
-        return proxyUrl;
-    }
-
-    @Override
     public boolean shouldPreserveHostHeader() {
         return preserveHostHeader;
     }
 
+    @Override
     public String proxyHostHeader() {
         return proxyHostHeader;
     }

@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.hamcrest.Matchers.array;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

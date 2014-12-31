@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
 
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,9 @@ public interface Options {
     FileSource filesRoot();
     Notifier notifier();
     boolean requestJournalDisabled();
+    Optional<Integer> maxRequestJournalEntries();
     public String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
-    public String proxyUrl();
     public boolean shouldPreserveHostHeader();
     String proxyHostHeader();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);

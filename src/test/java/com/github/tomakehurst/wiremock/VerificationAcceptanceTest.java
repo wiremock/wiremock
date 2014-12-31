@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
+import com.google.common.base.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -248,6 +250,22 @@ public class VerificationAcceptanceTest {
         @Test(expected=RequestJournalDisabledException.class)
         public void findAllThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
             findAll(getRequestedFor(urlEqualTo("/whatever")));
+        }
+    }
+
+    public static class JournalMaxEntriesRestricted {
+        @Rule
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().maxRequestJournalEntries(Optional.of(2)));
+
+        @Test
+        public void maxLengthIs2() {
+            WireMockTestClient testClient = new WireMockTestClient();
+            testClient.get("/request1");
+            testClient.get("/request2");
+            testClient.get("/request3");
+            verify(0, getRequestedFor(urlEqualTo("/request1")));
+            verify(1, getRequestedFor(urlEqualTo("/request2")));
+            verify(1, getRequestedFor(urlEqualTo("/request3")));
         }
     }
 }
