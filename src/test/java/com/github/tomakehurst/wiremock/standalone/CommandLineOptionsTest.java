@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -211,7 +212,7 @@ public class CommandLineOptionsTest {
     
     public static class Ext1 extends ResponseTransformer {
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) { return null; }
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
 
         @Override
         public String name() { return "one"; }
@@ -219,7 +220,7 @@ public class CommandLineOptionsTest {
 
     public static class Ext2 extends ResponseTransformer {
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) { return null; }
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
 
         @Override
         public String name() { return "two"; }

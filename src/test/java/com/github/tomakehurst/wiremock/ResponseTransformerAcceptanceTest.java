@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -122,6 +123,16 @@ public class ResponseTransformerAcceptanceTest {
                 .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
     }
 
+    @Test
+    public void supportsAccessingTheFilesFileSource() {
+        startWithExtensions(
+                "com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$FileAccessTransformer");
+        createStub("/files-access-transform");
+
+        WireMockResponse response = client.get("/files-access-transform");
+        assertThat(response.content(), is("Some example test from a file"));
+    }
+
     private void startWithExtensions(String... extensions) {
         wm = new WireMockServer(wireMockConfig()
                 .port(0)
@@ -147,7 +158,7 @@ public class ResponseTransformerAcceptanceTest {
     public static class ExampleTransformer extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
             return new ResponseDefinitionBuilder()
                     .withHeader("MyHeader", "Transformed")
                     .withStatus(200)
@@ -164,7 +175,7 @@ public class ResponseTransformerAcceptanceTest {
     public static class MultiTransformer1 extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
             return ResponseDefinitionBuilder
                     .like(responseDefinition).but()
                     .withStatus(201)
@@ -180,7 +191,7 @@ public class ResponseTransformerAcceptanceTest {
     public static class MultiTransformer2 extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
             return ResponseDefinitionBuilder
                     .like(responseDefinition).but()
                     .withBody("Expect this")
@@ -196,7 +207,7 @@ public class ResponseTransformerAcceptanceTest {
     public static class NonGlobalTransformer extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
             return ResponseDefinitionBuilder
                     .like(responseDefinition).but()
                     .withBody("Non-global transformed body")
@@ -217,7 +228,7 @@ public class ResponseTransformerAcceptanceTest {
     public static class AnotherExampleTransformer extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition) {
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
             return responseDefinition;
         }
 
@@ -227,4 +238,17 @@ public class ResponseTransformerAcceptanceTest {
         }
     }
 
+    public static class FileAccessTransformer extends ResponseTransformer {
+
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
+            return ResponseDefinitionBuilder.like(responseDefinition).but()
+                    .withBody(files.getBinaryFileNamed("plain-example.txt").readContents()).build();
+        }
+
+        @Override
+        public String name() {
+            return "filesource";
+        }
+    }
 }

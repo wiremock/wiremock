@@ -58,6 +58,7 @@ public class WireMockWebContextListener implements ServletContextListener {
                 mappingsSaver,
                 false,
                 Collections.<String, ResponseTransformer>emptyMap(),
+                fileSource,
                 new NotImplementedContainer()
         );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());

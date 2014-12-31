@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -48,6 +49,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final Map<String, ResponseTransformer> transformers;
+    private final FileSource rootFileSource;
 
     public WireMockApp(
             RequestDelayControl requestDelayControl,
@@ -56,6 +58,7 @@ public class WireMockApp implements StubServer, Admin {
             MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
             Map<String, ResponseTransformer> transformers,
+            FileSource rootFileSource,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
@@ -65,6 +68,7 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal();
         this.transformers = transformers;
+        this.rootFileSource = rootFileSource;
         this.container = container;
         loadDefaultMappings();
     }
@@ -107,7 +111,7 @@ public class WireMockApp implements StubServer, Admin {
         ResponseTransformer transformer = transformers.get(0);
         ResponseDefinition newResponseDef =
                 transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition) :
+                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT)) :
                 responseDefinition;
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));

@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.google.common.collect.ImmutableList;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;

@@ -77,6 +77,7 @@ public class WireMockServer implements Container, Stubbing {
                 mappingsSaver,
                 options.requestJournalDisabled(),
                 options.extensionsOfType(ResponseTransformer.class),
+                fileSource,
                 this
         );
 
