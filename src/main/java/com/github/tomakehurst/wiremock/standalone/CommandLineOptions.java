@@ -59,6 +59,7 @@ public class CommandLineOptions implements Options {
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
     private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
+    private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
 
@@ -87,6 +88,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
+        optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -171,9 +173,17 @@ public class CommandLineOptions implements Options {
 
     @Override
     public JettySettings jettySettings() {
-        return JettySettings.Builder.aJettySettings()
-                .withAcceptors(Integer.parseInt((String) optionSet.valueOf(JETTY_ACCEPTOR_THREAD_COUNT)))
-                .build();
+        JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
+
+        if (optionSet.hasArgument(JETTY_ACCEPTOR_THREAD_COUNT)) {
+            builder = builder.withAcceptors(Integer.parseInt((String) optionSet.valueOf(JETTY_ACCEPTOR_THREAD_COUNT)));
+        }
+
+        if (optionSet.hasArgument(JETTY_ACCEPT_QUEUE_SIZE)) {
+            builder = builder.withAcceptQueueSize(Integer.parseInt((String) optionSet.valueOf(JETTY_ACCEPT_QUEUE_SIZE)));
+        }
+
+        return builder.build();
     }
 
     private int httpsPortNumber() {

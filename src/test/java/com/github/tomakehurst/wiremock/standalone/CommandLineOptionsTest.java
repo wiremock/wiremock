@@ -203,6 +203,12 @@ public class CommandLineOptionsTest {
         assertThat(options.jettySettings().getAcceptors(), is(400));
     }
 
+    @Test
+    public void returnsCorrectlyParsedJettyAcceptQueueSize() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
+        assertThat(options.jettySettings().getAcceptQueueSize(), is(10));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
