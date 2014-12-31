@@ -200,13 +200,25 @@ public class CommandLineOptionsTest {
     @Test
     public void returnsCorrectlyParsedJettyAcceptorThreads() {
         CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
-        assertThat(options.jettySettings().getAcceptors(), is(400));
+        assertThat(options.jettySettings().getAcceptors().get(), is(400));
     }
 
     @Test
     public void returnsCorrectlyParsedJettyAcceptQueueSize() {
         CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
-        assertThat(options.jettySettings().getAcceptQueueSize(), is(10));
+        assertThat(options.jettySettings().getAcceptQueueSize().get(), is(10));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyAcceptorsNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
     }
 
     @Test(expected=IllegalArgumentException.class)

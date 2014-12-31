@@ -1,22 +1,24 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Optional;
+
 /**
  * Exposed Jetty tuning options. See: http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/server/AbstractConnector.html
  */
 public class JettySettings {
-    private final int acceptors;
-    private final int acceptQueueSize;
+    private final Optional<Integer> acceptors;
+    private final Optional<Integer> acceptQueueSize;
 
-    public JettySettings(int acceptors, int acceptQueueSize) {
+    private JettySettings(Optional<Integer> acceptors, Optional<Integer> acceptQueueSize) {
         this.acceptors = acceptors;
         this.acceptQueueSize = acceptQueueSize;
     }
 
-    public int getAcceptors() {
+    public Optional<Integer> getAcceptors() {
         return acceptors;
     }
 
-    public int getAcceptQueueSize() {
+    public Optional<Integer> getAcceptQueueSize() {
         return acceptQueueSize;
     }
 
@@ -29,8 +31,8 @@ public class JettySettings {
     }
 
     public static class Builder {
-        private int acceptors;
-        private int acceptQueueSize;
+        private Integer acceptors;
+        private Integer acceptQueueSize;
 
         private Builder() {
         }
@@ -39,18 +41,18 @@ public class JettySettings {
             return new Builder();
         }
 
-        public Builder withAcceptors(int acceptors) {
+        public Builder withAcceptors(Integer acceptors) {
             this.acceptors = acceptors;
             return this;
         }
 
-        public Builder withAcceptQueueSize(int acceptQueueSize) {
+        public Builder withAcceptQueueSize(Integer acceptQueueSize) {
             this.acceptQueueSize = acceptQueueSize;
             return this;
         }
 
         public JettySettings build() {
-            JettySettings jettySettings = new JettySettings(acceptors, acceptQueueSize);
+            JettySettings jettySettings = new JettySettings(Optional.fromNullable(acceptors), Optional.fromNullable(acceptQueueSize));
             return jettySettings;
         }
     }

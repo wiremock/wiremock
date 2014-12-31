@@ -49,8 +49,8 @@ public class WireMockConfiguration implements Options {
 
     private boolean preserveHostHeader;
     private String proxyHostHeader;
-    private int jettyAcceptors;
-    private int jettyAcceptQueueSize;
+    private Integer jettyAcceptors;
+    private Integer jettyAcceptQueueSize;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
