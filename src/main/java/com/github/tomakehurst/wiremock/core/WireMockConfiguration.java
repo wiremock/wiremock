@@ -47,7 +47,6 @@ public class WireMockConfiguration implements Options {
     private Optional<Integer> maxRequestJournalEntries = Optional.absent();
     private List<CaseInsensitiveKey> matchingHeaders = emptyList();
 
-    private String proxyUrl;
     private boolean preserveHostHeader;
     private String proxyHostHeader;
 
@@ -154,11 +153,6 @@ public class WireMockConfiguration implements Options {
     	return this;
     }
 
-    public WireMockConfiguration withProxyUrl(String proxyUrl) {
-        this.proxyUrl = proxyUrl;
-        return this;
-    }
-
     public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
         this.preserveHostHeader = preserveHostHeader;
         return this;
@@ -229,11 +223,6 @@ public class WireMockConfiguration implements Options {
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;
-    }
-
-    @Override
-    public String proxyUrl() {
-        return proxyUrl;
     }
 
     @Override

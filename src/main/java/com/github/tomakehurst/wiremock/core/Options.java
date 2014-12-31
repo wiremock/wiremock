@@ -41,7 +41,6 @@ public interface Options {
     Optional<Integer> maxRequestJournalEntries();
     public String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
-    public String proxyUrl();
     public boolean shouldPreserveHostHeader();
     String proxyHostHeader();
 }

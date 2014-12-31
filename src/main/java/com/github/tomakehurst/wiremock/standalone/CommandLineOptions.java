@@ -185,7 +185,6 @@ public class CommandLineOptions implements Options {
 		return optionSet.has(PROXY_ALL);
 	}
 
-    @Override
 	public String proxyUrl() {
 		return (String) optionSet.valueOf(PROXY_ALL);
 	}
