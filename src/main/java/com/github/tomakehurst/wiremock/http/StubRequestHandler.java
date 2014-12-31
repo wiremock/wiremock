@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import org.apache.velocity.VelocityContext;
+
 import com.github.tomakehurst.wiremock.core.StubServer;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -22,19 +24,35 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 public class StubRequestHandler extends AbstractRequestHandler {
 	
 	private final StubServer stubServer;
+	
+	private final VelocityContext velocityContext;
 
-	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer) {
+	public StubRequestHandler(StubServer stubServer, ResponseRenderer responseRenderer,
+			VelocityContext velocityContext) {
 		super(responseRenderer);
 		this.stubServer = stubServer;
+		this.velocityContext = velocityContext;
 	}
 	
 	@Override
 	public ResponseDefinition handleRequest(Request request) {
-        notifier().info("Request received:\n" + request);
-
+        notifier().info("Request received:\n" + request);       
+        updateTemplateContext(request);
 		ResponseDefinition responseDef = stubServer.serveStubFor(request);
-
 		return responseDef;
 	}
-
+	
+	private void updateTemplateContext(final Request request) {
+		velocityContext.put("requestAbsoluteUrl",request.getAbsoluteUrl());
+		velocityContext.put("requestUrl",request.getUrl());
+		final String requestBody = request.getBodyAsString();
+		if(!requestBody.isEmpty() && requestBody != null) {
+			velocityContext.put("requestBody",requestBody);
+		}        
+        velocityContext.put("requestMethod",request.getMethod());
+        for(HttpHeader header : request.getHeaders().all()) {
+            velocityContext.put("requestHeader".concat(header.key()),
+            		header.values().toString());
+        }
+	}
 }

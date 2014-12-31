@@ -37,6 +37,9 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.mortbay.log.Log;
 
 import java.util.List;
@@ -57,6 +60,8 @@ public class WireMockServer implements Container, Stubbing {
 	private final Notifier notifier;
 
     private final Options options;
+    
+    private final VelocityContext velocityContext;
 
     protected final WireMock client;
 
@@ -64,6 +69,10 @@ public class WireMockServer implements Container, Stubbing {
         this.options = options;
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
+        
+        Velocity.init();
+        velocityContext = new VelocityContext();
+        velocityContext.put( "name", new String("Wiremock Request Context") );
 
         RequestDelayControl requestDelayControl = new ThreadSafeRequestDelayControl();
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
@@ -93,8 +102,10 @@ public class WireMockServer implements Container, Stubbing {
                                 options.httpsSettings().trustStore(),
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
-                        )
-                )
+                        ),
+                        velocityContext
+                ),
+                velocityContext
         );
         HttpServerFactory httpServerFactory = new Jetty6HttpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(

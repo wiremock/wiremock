@@ -24,6 +24,7 @@ dependencies {
         	"com.fasterxml.jackson.core:jackson-annotations:2.4.2",
         	"com.fasterxml.jackson.core:jackson-databind:2.4.2"
 	compile "org.apache.httpcomponents:httpclient:4.3.5"
+	compile "org.apache.velocity:velocity:1.7"
     compile "org.skyscreamer:jsonassert:1.2.3"
     compile "xmlunit:xmlunit:1.5"
     compile "com.jayway.jsonpath:json-path:0.8.1"

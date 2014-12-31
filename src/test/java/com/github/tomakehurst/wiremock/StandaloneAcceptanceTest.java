@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -32,11 +33,13 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mortbay.util.ajax.JSON;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -211,12 +214,55 @@ public class StandaloneAcceptanceTest {
 		"	}												\n" +
 		"}													";
 	
+	private static final String BODY_FILE_TEMPLATE_MAPPING_REQUEST =
+			"{ 																\n" +
+			"	\"request\": {												\n" +
+			"		\"method\": \"GET\",									\n" +
+			"		\"url\": \"/body/file?param1=value&param2=value2\"		\n" +
+			"	},															\n" +
+			"	\"response\": {												\n" +
+			"		\"status\": 200,										\n" +
+			"		\"bodyFileName\": \"body-template-test.vm\"				\n" +
+			"	}															\n" +
+			"}																";
+	
+	private static final String BODY_FILE_TEMPLATE_RESPONSE = 
+			"{																			\n" +
+		    "	\"stdProp\":\"stdValue\", 												\n" +
+		    "	\"requestAbsoluteUrl\" : \"$requestAbsoluteUrl.split('/')[2]\", 		\n" +
+		    "	\"requestMethod\" : \"$requestMethod\",									\n" +
+		    "	\"requestHeaderHost\" : \"$requestHeaderHost\",							\n" +
+		    "	\"requestHeaderUser-Agent\" : \"$requestHeaderUser-Agent\",				\n" +
+		    "	\"requestHeaderAccept-Encoding\" : \"$requestHeaderAccept-Encoding\",	\n" +
+		    "	\"requestHeaderConnection\" : \"$requestHeaderConnection\"				\n" +
+		    "}																			";
+	
 	@Test
 	public void readsBodyFileFromFilesDir() {
 		writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
 		writeFileToFilesDir("body-test.xml", "<body>Content</body>");
 		startRunner();
 		assertThat(testClient.get("/body/file").content(), is("<body>Content</body>"));
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void readsBodyFileTemplateFromFilesDir() {
+		writeMappingFile("test-template-mapping.json", BODY_FILE_TEMPLATE_MAPPING_REQUEST);
+		writeFileToFilesDir("body-template-test.vm", BODY_FILE_TEMPLATE_RESPONSE);
+		startRunner();
+		final WireMockResponse response = testClient.get("/body/file?param1=value&param2=value2");
+		LinkedHashMap<String,String> map = Json.read(response.content(), LinkedHashMap.class);
+		final String requestAbsoluteUrl = map.get("requestAbsoluteUrl");
+		final String requestMethod = map.get("requestMethod");
+		final String requestHeaderHost = map.get("requestHeaderHost");
+		final String requestHeaderAcceptEncoding = map.get("requestHeaderAccept-Encoding");
+		final String requestHeaderConnection = map.get("requestHeaderConnection");
+		assertThat(requestAbsoluteUrl, is("localhost:8080"));
+		assertThat(requestMethod, is("GET"));
+		assertThat(requestHeaderHost, is("[localhost:8080]"));
+		assertThat(requestHeaderAcceptEncoding, is("[gzip,deflate]"));
+		assertThat(requestHeaderConnection, is("[Keep-Alive]"));
 	}
 
     @Test
@@ -341,7 +387,7 @@ public class StandaloneAcceptanceTest {
         }
         fail("WireMock did not shut down");
     }
-
+    
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
         return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
     }
