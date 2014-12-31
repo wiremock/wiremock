@@ -197,6 +197,12 @@ public class CommandLineOptionsTest {
         assertThat(options.containerThreads(), is(200));
     }
 
+    @Test
+    public void returnsCorrectlyParsedJettyAcceptorThreads() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
+        assertThat(options.jettySettings().getAcceptors(), is(400));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");

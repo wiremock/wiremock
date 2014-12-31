@@ -186,6 +186,11 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
+    public JettySettings jettySettings() {
+        return null;
+    }
+
+    @Override
     public boolean browserProxyingEnabled() {
         return browserProxyingEnabled;
     }

@@ -58,6 +58,7 @@ public class CommandLineOptions implements Options {
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
+    private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
 
@@ -85,6 +86,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
+        optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
 		optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -165,6 +167,13 @@ public class CommandLineOptions implements Options {
                 .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
                 .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
                 .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
+    }
+
+    @Override
+    public JettySettings jettySettings() {
+        return JettySettings.Builder.aJettySettings()
+                .withAcceptors(Integer.parseInt((String) optionSet.valueOf(JETTY_ACCEPTOR_THREAD_COUNT)))
+                .build();
     }
 
     private int httpsPortNumber() {
