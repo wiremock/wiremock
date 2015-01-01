@@ -212,6 +212,7 @@ public class WireMockTestClient {
                 .disableAutomaticRetries()
                 .disableCookieManagement()
                 .disableRedirectHandling()
+                .disableContentCompression()
                 .build();
     }
 }

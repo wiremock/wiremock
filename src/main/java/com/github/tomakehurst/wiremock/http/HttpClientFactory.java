@@ -24,7 +24,9 @@ import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpProcessorBuilder;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
@@ -45,6 +47,7 @@ public class HttpClientFactory {
                 .disableAutomaticRetries()
                 .disableCookieManagement()
                 .disableRedirectHandling()
+                .disableContentCompression()
                 .setMaxConnTotal(maxConnections)
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
                 .setHostnameVerifier(new AllowAllHostnameVerifier());

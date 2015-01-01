@@ -30,6 +30,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class ProxyAcceptanceTest {
@@ -267,8 +268,7 @@ public class ProxyAcceptanceTest {
     @Test
     public void doesNotDuplicateConnectionHeader() {
         initWithDefaultConfig();
-        targetServiceAdmin.register(get(urlEqualTo("/duplicate/connection-header")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo("/duplicate/connection-header")).willReturn(aResponse().proxiedFrom(TARGET_SERVICE_BASE_URL)));
+        register200StubOnProxyAndTarget("/duplicate/connection-header");
 
         testClient.get("/duplicate/connection-header");
         LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/duplicate/connection-header"))));
@@ -278,8 +278,7 @@ public class ProxyAcceptanceTest {
     @Test
     public void acceptsSelfSignedSslCertFromProxyTarget() {
         initWithDefaultConfig();
-        targetServiceAdmin.register(get(urlEqualTo("/ssl-cert")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo("/ssl-cert")).willReturn(aResponse().proxiedFrom(TARGET_SERVICE_BASE_HTTPS_URL)));
+        register200StubOnProxyAndTarget("/ssl-cert");
 
         assertThat(testClient.get("/ssl-cert").statusCode(), is(200));
     }
@@ -290,9 +289,24 @@ public class ProxyAcceptanceTest {
         forwardProxy.start();
         init(wireMockConfig().proxyVia(new ProxySettings("localhost", 8187)));
 
-        targetServiceAdmin.register(get(urlEqualTo("/proxy-via")).willReturn(aResponse().withStatus(200)));
-        proxyingServiceAdmin.register(get(urlEqualTo("/proxy-via")).willReturn(aResponse().proxiedFrom(TARGET_SERVICE_BASE_URL)));
+        register200StubOnProxyAndTarget("/proxy-via");
 
         assertThat(testClient.get("/proxy-via").statusCode(), is(200));
+    }
+
+    @Test
+    public void doesNotAddAcceptEncodingHeaderToProxyRequest() {
+        initWithDefaultConfig();
+        register200StubOnProxyAndTarget("/no-accept-encoding-header");
+
+        testClient.get("/no-accept-encoding-header");
+        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/no-accept-encoding-header"))));
+        assertFalse("Accept-Encoding header should not be present",
+                lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent());
+    }
+
+    private void register200StubOnProxyAndTarget(String url) {
+        targetServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
+        proxyingServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(TARGET_SERVICE_BASE_URL)));
     }
 }
