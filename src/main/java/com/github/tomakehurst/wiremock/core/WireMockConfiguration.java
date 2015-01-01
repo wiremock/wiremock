@@ -56,6 +56,8 @@ public class WireMockConfiguration implements Options {
 
     private boolean preserveHostHeader;
     private String proxyHostHeader;
+    private Integer jettyAcceptors;
+    private Integer jettyAcceptQueueSize;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
 
@@ -75,6 +77,16 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration containerThreads(Integer containerThreads) {
         this.containerThreads = containerThreads;
+        return this;
+    }
+
+    public WireMockConfiguration jettyAcceptors(Integer jettyAcceptors) {
+        this.jettyAcceptors = jettyAcceptors;
+        return this;
+    }
+
+    public WireMockConfiguration jettyAcceptQueueSize(Integer jettyAcceptQueueSize) {
+        this.jettyAcceptQueueSize = jettyAcceptQueueSize;
         return this;
     }
 
@@ -206,6 +218,14 @@ public class WireMockConfiguration implements Options {
                 .trustStorePath(trustStorePath)
                 .trustStorePassword(trustStorePassword)
                 .needClientAuth(needClientAuth)
+                .build();
+    }
+
+    @Override
+    public JettySettings jettySettings() {
+        return JettySettings.Builder.aJettySettings()
+                .withAcceptors(jettyAcceptors)
+                .withAcceptQueueSize(jettyAcceptQueueSize)
                 .build();
     }
 

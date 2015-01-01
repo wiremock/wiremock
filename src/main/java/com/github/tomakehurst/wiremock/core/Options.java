@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.google.common.base.Optional;
@@ -34,6 +31,7 @@ public interface Options {
 
     int portNumber();
     HttpsSettings httpsSettings();
+    JettySettings jettySettings();
     int containerThreads();
     boolean browserProxyingEnabled();
     ProxySettings proxyVia();

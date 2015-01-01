@@ -20,6 +20,7 @@ import java.util.Map;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
@@ -32,6 +33,7 @@ import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -64,14 +66,16 @@ class Jetty6HttpServer implements HttpServer {
         httpConnector = createHttpConnector(
                 requestDelayControl,
                 options.bindAddress(),
-                options.portNumber()
+                options.portNumber(),
+                options.jettySettings()
         );
         jettyServer.addConnector(httpConnector);
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
                     requestDelayControl,
-                    options.httpsSettings());
+                    options.httpsSettings(),
+                    options.jettySettings());
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -137,19 +141,20 @@ class Jetty6HttpServer implements HttpServer {
     private DelayableSocketConnector createHttpConnector(
             RequestDelayControl requestDelayControl,
             String bindAddress,
-            int port
-    ) {
+            int port,
+            JettySettings jettySettings) {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
         connector.setHost(bindAddress);
         connector.setPort(port);
         connector.setHeaderBufferSize(8192);
+        setJettySettings(jettySettings, connector);
         return connector;
     }
 
     private DelayableSslSocketConnector createHttpsConnector(
             RequestDelayControl requestDelayControl,
-            HttpsSettings httpsSettings
-    ) {
+            HttpsSettings httpsSettings,
+            JettySettings jettySettings) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
         connector.setPort(httpsSettings.port());
         connector.setHeaderBufferSize(8192);
@@ -162,7 +167,18 @@ class Jetty6HttpServer implements HttpServer {
         }
 
         connector.setNeedClientAuth(httpsSettings.needClientAuth());
+
+        setJettySettings(jettySettings, connector);
         return connector;
+    }
+
+    private void setJettySettings(JettySettings jettySettings, SocketConnector connector) {
+        if (jettySettings.getAcceptors().isPresent()) {
+            connector.setAcceptors(jettySettings.getAcceptors().get());
+        }
+        if (jettySettings.getAcceptQueueSize().isPresent()) {
+            connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
