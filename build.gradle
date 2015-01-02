@@ -247,6 +247,7 @@ task 'bump-version' << {
         'build.gradle': { "version = 1.${it}" },
         'docs/source/conf.py': { "version = '1.${it}'" },
         'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
+        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
         'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
     ]
 
@@ -277,6 +278,7 @@ task 'bump-version-down' << {
         'build.gradle': { "version = 1.${it}" },
         'docs/source/conf.py': { "version = '1.${it}'" },
         'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
+        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
         'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
     ]
 
