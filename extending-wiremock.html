@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Extending WireMock | WireMock</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
+    <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
+    <link rel="top" title="WireMock" href="index.html"/>
+    <link rel="prev" title="Simulating Faults" href="simulating-faults.html"/>
+    <style lang="text/css">
+        #top-bar, #top-bar small, #top-bar a {
+            text-shadow: 0px 0px 0px #8CA8BB;
+            color: #333;
+        }
+        
+        #top-bar {
+            background-color: #363F45;
+            background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -ms-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#CCC), to(#8CA8BB));
+            background-image: -webkit-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: -o-linear-gradient(top, #CCC, #8CA8BB);
+            background-image: linear-gradient(top, #CCC, #8CA8BB);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#CCC', endColorstr = '#8CA8BB', GradientType = 0);
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+
+        .hero-unit {
+            background-image: url("_static/logo.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: 30px 50px;
+        }
+
+        .hero-unit div.section {
+            padding-left: 150px !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-36386229-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body>
+    <a href="https://github.com/tomakehurst/wiremock">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+             alt="Fork me on GitHub"></a>
+    <div class="navbar">
+        <div class="navbar-inner container-fluid" id="top-bar">
+            <header class="row-fluid">
+                <h1 class="span12" id="title">
+                    <a href="index.html">WireMock</a>
+                    <small>A web service test double for all occasions</small>
+                </h1>
+            </header>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3" id="sidebar">
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running-standalone.html">Running as a Standalone Process</a></li>
+<li class="toctree-l1"><a class="reference internal" href="https.html">HTTPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="junit-rule.html">The JUnit 4.x Rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="java-usage.html">Java (Non-JUnit) Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Extending WireMock</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#transforming-responses">Transforming Responses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#non-global-transformations">Non-global transformations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                <hr/>
+                <ul>
+                    <li><a href="https://groups.google.com/forum/#!forum/wiremock-user">Mailing List</a><img style="margin-left: 0.5em; margin-bottom: -6px" src="_static/new.png"/></li>
+                </ul>
+            </div>
+            <div class="span9" id="body">
+                
+  <div class="section" id="extending-wiremock">
+<span id="id1"></span><h1>Extending WireMock<a class="headerlink" href="#extending-wiremock" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="transforming-responses">
+<h2>Transforming Responses<a class="headerlink" href="#transforming-responses" title="Permalink to this headline">¶</a></h2>
+<p>If you want to dynamically alter stub responses sent by WireMock e.g. to render bodies from a template or add generate
+additional headers you can do so by adding response transformers via the extensions mechanism.</p>
+<p>A response transformer is a single class that extends the <tt class="docutils literal"><span class="pre">ResponseTransformer</span></tt> abstract class:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">MyTransformer</span> <span class="kd">extends</span> <span class="n">ResponseTransformer</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">ResponseDefinition</span> <span class="nf">transform</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">ResponseDefinition</span> <span class="n">responseDefinition</span><span class="o">,</span> <span class="n">FileSource</span> <span class="n">files</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">ResponseDefinitionBuilder</span>
+                    <span class="o">.</span><span class="na">like</span><span class="o">(</span><span class="n">responseDefinition</span><span class="o">).</span><span class="na">but</span><span class="o">()</span>
+                    <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="n">responseDefinition</span><span class="o">.</span><span class="na">getBody</span><span class="o">().</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;Hello&quot;</span><span class="o">,</span> <span class="s">&quot;Goodbye&quot;</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="nf">name</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">&quot;my-transformer&quot;</span><span class="o">;</span> <span class="c1">// For reference from stub mappings</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+<p>Response transformers must have a no-args constructor (unless you only intend to register them via an instance,
+as described below).</p>
+<p>You can register the extension programmatically via its class name, class or an instance:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="k">new</span> <span class="nf">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="s">&quot;com.mycorp.BodyContentTransformer&quot;</span><span class="o">,</span> <span class="s">&quot;com.mycorp.HeaderMangler&quot;</span><span class="o">));</span>
+
+<span class="k">new</span> <span class="nf">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="n">BodyContentTransformer</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">HeaderMangler</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+
+<span class="k">new</span> <span class="nf">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">BodyContentTransformer</span><span class="o">(),</span> <span class="k">new</span> <span class="n">HeaderMangler</span><span class="o">()));</span>
+</pre></div>
+</div>
+<div class="section" id="non-global-transformations">
+<h3>Non-global transformations<a class="headerlink" href="#non-global-transformations" title="Permalink to this headline">¶</a></h3>
+<p>By default transformations will be applied globally. If you only want them to apply in certain cases you can refer to
+make them non-global by adding this to your transformer class:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">applyGlobally</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Then you add the transformation to specific stubs via its name:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">wireMock</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/local-transform&quot;</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">&quot;Original body&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">&quot;my-transformer&quot;</span><span class="o">,</span> <span class="s">&quot;other-transformer&quot;</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>Or:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/local-transform&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;body&quot;</span><span class="o">:</span> <span class="s2">&quot;Original body&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transformers&quot;</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;my-transformer&quot;</span><span class="p">,</span> <span class="s2">&quot;other-transformer&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="running-standalone.html#running-standalone"><em>Running as a Standalone Process</em></a> for the equivalent command line parameter.</p>
+</div>
+</div>
+</div>
+
+
+            </div>
+        </div>
+        <hr/>
+        <footer>
+            &copy; Copyright 2014, <a href="http://www.tomakehurst.com/about">Tom Akehurst</a>.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>
+            1.2.2.
+        </footer>
+    </div>
+</body>
+</html>
+
+

@@ -4,12 +4,12 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Record and Playback | WireMock</title>
+    <title>HTTPS | WireMock</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
     <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
     <link rel="top" title="WireMock" href="index.html"/>
-    <link rel="next" title="Stateful Behaviour" href="stateful-behaviour.html"/>
-    <link rel="prev" title="Proxying" href="proxying.html"/>
+    <link rel="next" title="The JUnit 4.x Rule" href="junit-rule.html"/>
+    <link rel="prev" title="Running as a Standalone Process" href="running-standalone.html"/>
     <style lang="text/css">
         #top-bar, #top-bar small, #top-bar a {
             text-shadow: 0px 0px 0px #8CA8BB;
@@ -77,19 +77,17 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running-standalone.html">Running as a Standalone Process</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">HTTPS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#handling-https-requests">Handling HTTPS requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requiring-client-certificates">Requiring client certificates</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="junit-rule.html">The JUnit 4.x Rule</a></li>
 <li class="toctree-l1"><a class="reference internal" href="java-usage.html">Java (Non-JUnit) Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="verifying.html">Verifying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Record and Playback</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#recording">Recording</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#capturing-request-headers">Capturing request headers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#playback">Playback</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
 </ul>
@@ -101,40 +99,37 @@
             </div>
             <div class="span9" id="body">
                 
-  <div class="section" id="record-and-playback">
-<span id="record-playback"></span><h1>Record and Playback<a class="headerlink" href="#record-and-playback" title="Permalink to this headline">¶</a></h1>
-<p class="rubric">WireMock has the ability to create stub mappings by recording them while you send requests. This can be used to
-quickly capture a collection of responses from a real service then use them offline in your tests.</p>
-<div class="section" id="recording">
-<span id="record-playback-recording"></span><h2>Recording<a class="headerlink" href="#recording" title="Permalink to this headline">¶</a></h2>
-<p>Recording is done by starting the standalone runner like this:</p>
-<pre class="literal-block">
-$ java -jar wiremock-1.53-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
-</pre>
-<p>Once it&#8217;s started you send requests to it as if it was the remote service:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ curl &quot;http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1&quot;
+  <div class="section" id="https">
+<span id="id1"></span><h1>HTTPS<a class="headerlink" href="#https" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="handling-https-requests">
+<h2>Handling HTTPS requests<a class="headerlink" href="#handling-https-requests" title="Permalink to this headline">¶</a></h2>
+<p>To enable HTTPS using WireMock&#8217;s self-signed certificate just specify an HTTPS port:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
 </pre></div>
 </div>
-<p>Now if you look under <tt class="docutils literal"><span class="pre">mappings</span></tt> and <tt class="docutils literal"><span class="pre">__files</span></tt> (under the current directory you&#8217;re running WireMock in)
-you&#8217;ll see that a new file has been one created under each, the former for the stub mapping and the latter
-for the body content.</p>
-<div class="section" id="capturing-request-headers">
-<h3>Capturing request headers<a class="headerlink" href="#capturing-request-headers" title="Permalink to this headline">¶</a></h3>
-<p>Optionally, you can record request headers so that your stub mappings will match on those in addition to URL, method
-and body (if a POST or PUT). This is done by adding an extra parameter to the command line
-e.g. <tt class="docutils literal"><span class="pre">--match-headers=&quot;Accept,Content-Type&quot;</span></tt></p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The recorder will ignore any request matching one it has already captured.</p>
+<p>To use your own keystore you can specify its path and optionally its password:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">keystorePath</span><span class="o">(</span><span class="s">&quot;/path/to/keystore.jks&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">keystorePassword</span><span class="o">(</span><span class="s">&quot;verysecret&quot;</span><span class="o">));</span> <span class="c1">// Defaults to &quot;password&quot; if omitted</span>
+</pre></div>
 </div>
 </div>
+<div class="section" id="requiring-client-certificates">
+<h2>Requiring client certificates<a class="headerlink" href="#requiring-client-certificates" title="Permalink to this headline">¶</a></h2>
+<p>To make WireMock require clients to authenticate via a certificate you need to supply a trust store containing the certs
+to trust and enable client auth:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">needClientAuth</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">trustStorePath</span><span class="o">(</span><span class="s">&quot;/path/to/truststore.jks&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">trustStorePassword</span><span class="o">(</span><span class="s">&quot;mostsecret&quot;</span><span class="o">));</span> <span class="c1">// Defaults to &quot;password&quot; if omitted</span>
+</pre></div>
 </div>
-<div class="section" id="playback">
-<h2>Playback<a class="headerlink" href="#playback" title="Permalink to this headline">¶</a></h2>
-<p>If you start the standlone runner again without the extra commandline options it will automatically load the newly
-created stub mappings and start serving them.</p>
-<p>Alternatively you can copy the files created under <tt class="docutils literal"><span class="pre">src/test/resources/mappings</span></tt> and <tt class="docutils literal"><span class="pre">src/test/resources/__files</span></tt>
-in your Java project, or the equivalents under <tt class="docutils literal"><span class="pre">WEB-INF/wiremock</span></tt> in your WAR project.</p>
+<p>See <a class="reference internal" href="running-standalone.html#running-standalone"><em>Running as a Standalone Process</em></a> for command line equivalents.</p>
 </div>
 </div>
 

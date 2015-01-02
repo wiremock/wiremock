@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="_static/pygments.css" type="text/css"/>
     <link rel="stylesheet" href="_static/yammerdoc.css" type="text/css"/>
     <link rel="top" title="WireMock" href="index.html"/>
-    <link rel="next" title="The JUnit 4.x Rule" href="junit-rule.html"/>
+    <link rel="next" title="HTTPS" href="https.html"/>
     <link rel="prev" title="Getting Started" href="getting-started.html"/>
     <style lang="text/css">
         #top-bar, #top-bar small, #top-bar a {
@@ -84,6 +84,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="https.html">HTTPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="junit-rule.html">The JUnit 4.x Rule</a></li>
 <li class="toctree-l1"><a class="reference internal" href="java-usage.html">Java (Non-JUnit) Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stubbing.html">Stubbing</a></li>
@@ -92,6 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="record-playback.html">Record and Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="stateful-behaviour.html">Stateful Behaviour</a></li>
 <li class="toctree-l1"><a class="reference internal" href="simulating-faults.html">Simulating Faults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending-wiremock.html">Extending WireMock</a></li>
 </ul>
 
                 <hr/>
@@ -106,7 +108,7 @@
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.52-standalone.jar
+$ java -jar wiremock-1.53-standalone.jar
 </pre>
 <p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.52/wiremock-1.52-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
@@ -118,6 +120,14 @@ If specified, enables HTTPS on the supplied port.</p>
 Path to a keystore file containing an SSL certificate to use with HTTPS. The keystore must have a password of &#8220;password&#8221;.
 This option will only work if <tt class="docutils literal"><span class="pre">--https-port</span></tt> is specified. If this option isn&#8217;t used WireMock will default to its
 own self-signed certificate.</p>
+<p><tt class="docutils literal"><span class="pre">--keystore-password</span></tt>:
+Password to the keystore, if something other than &#8220;password&#8221;.</p>
+<p><tt class="docutils literal"><span class="pre">--https-truststore</span></tt>:
+Path to a keystore file containing client certificates. See <a class="reference internal" href="https.html#https"><em>HTTPS</em></a> and <a class="reference internal" href="proxying.html#proxy-client-certs"><em>Proxying to a target server that requires client certificate authentication</em></a> for details.</p>
+<p><tt class="docutils literal"><span class="pre">--truststore-password</span></tt>:
+Optional password to the trust store. Defaults to &#8220;password&#8221; if not specified.</p>
+<p><tt class="docutils literal"><span class="pre">--https-require-client-cert</span></tt>:
+Force clients to authenticate with a client certificate. See <a class="reference internal" href="https.html#https"><em>HTTPS</em></a> for details.</p>
 <p><tt class="docutils literal"><span class="pre">--verbose</span></tt>:
 Turn on verbose logging to stdout</p>
 <p><tt class="docutils literal"><span class="pre">--root-dir</span></tt>:
@@ -145,6 +155,16 @@ Run as a browser proxy. See <a class="reference internal" href="proxying.html#br
 Disable the request journal, which records incoming requests for later verification. This allows WireMock to be run
 (and serve stubs) for long periods (without resetting) without exhausting the heap. The <tt class="docutils literal"><span class="pre">--record-mappings</span></tt> option isn&#8217;t
 available if this one is specified.</p>
+<p><tt class="docutils literal"><span class="pre">--container-threads</span></tt>:
+The number of threads created for incoming requests. Defaults to 200.</p>
+<p><tt class="docutils literal"><span class="pre">--max-request-journal-entries</span></tt>:
+Set maximum number of entries in request journal (if enabled). When this limit is reached oldest entries will be discarded.</p>
+<p><tt class="docutils literal"><span class="pre">--jetty-acceptor-threads</span></tt>:
+The number of threads Jetty uses for accepting requests.</p>
+<p><tt class="docutils literal"><span class="pre">--jetty-accept-queue-size</span></tt>:
+The Jetty queue size for accepted requests.</p>
+<p><tt class="docutils literal"><span class="pre">--extensions</span></tt>:
+Extension class names e.g. com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See <a class="reference internal" href="extending-wiremock.html#extending-wiremock"><em>Extending WireMock</em></a>.</p>
 <p><tt class="docutils literal"><span class="pre">--help</span></tt>:
 Show command line help</p>
 <div class="section" id="file-serving">
