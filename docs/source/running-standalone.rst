@@ -69,6 +69,12 @@ The number of threads created for incoming requests. Defaults to 200.
 ``--max-request-journal-entries``:
 Set maximum number of entries in request journal (if enabled). When this limit is reached oldest entries will be discarded.
 
+``--jetty-acceptor-threads``:
+The number of threads Jetty uses for accepting requests.
+
+``--jetty-accept-queue-size``:
+The Jetty queue size for accepted requests.
+
 ``--help``:
 Show command line help
 
