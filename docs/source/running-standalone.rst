@@ -87,6 +87,9 @@ The number of threads Jetty uses for accepting requests.
 ``--jetty-accept-queue-size``:
 The Jetty queue size for accepted requests.
 
+``--extensions``:
+Extension class names e.g. com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See :ref:`extending-wiremock`.
+
 ``--help``:
 Show command line help
 

@@ -48,7 +48,7 @@ public class ResponseDefinition {
 	
 	private boolean wasConfigured = true;
 	private Request originalRequest;
-	private List<String> responseTransformers;
+	private List<String> transformers;
 
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
@@ -62,7 +62,7 @@ public class ResponseDefinition {
 	    newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
 	    newResponseDef.fault = original.fault;
 	    newResponseDef.wasConfigured = original.wasConfigured;
-		newResponseDef.responseTransformers = original.responseTransformers;
+		newResponseDef.transformers = original.transformers;
 	    return newResponseDef;
 	}
 	
@@ -249,16 +249,16 @@ public class ResponseDefinition {
 		this.fault = fault;
 	}
 
-	public List<String> getResponseTransformers() {
-		return responseTransformers;
+	public List<String> getTransformers() {
+		return transformers;
 	}
 
-	public void setResponseTransformers(List<String> responseTransformers) {
-		this.responseTransformers = responseTransformers;
+	public void setTransformers(List<String> transformers) {
+		this.transformers = transformers;
 	}
 
 	public boolean hasTransformer(ResponseTransformer transformer) {
-		return responseTransformers != null && responseTransformers.contains(transformer.name());
+		return transformers != null && transformers.contains(transformer.name());
 	}
 
 	@Override
@@ -284,7 +284,7 @@ public class ResponseDefinition {
 		if (originalRequest != null ? !originalRequest.equals(that.originalRequest) : that.originalRequest != null)
 			return false;
 		if (proxyBaseUrl != null ? !proxyBaseUrl.equals(that.proxyBaseUrl) : that.proxyBaseUrl != null) return false;
-		if (responseTransformers != null ? !responseTransformers.equals(that.responseTransformers) : that.responseTransformers != null)
+		if (transformers != null ? !transformers.equals(that.transformers) : that.transformers != null)
 			return false;
 
 		return true;
@@ -304,7 +304,7 @@ public class ResponseDefinition {
 		result = 31 * result + (fault != null ? fault.hashCode() : 0);
 		result = 31 * result + (wasConfigured ? 1 : 0);
 		result = 31 * result + (originalRequest != null ? originalRequest.hashCode() : 0);
-		result = 31 * result + (responseTransformers != null ? responseTransformers.hashCode() : 0);
+		result = 31 * result + (transformers != null ? transformers.hashCode() : 0);
 		return result;
 	}
 

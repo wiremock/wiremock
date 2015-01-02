@@ -54,7 +54,7 @@ public class ResponseDefinitionBuilder {
 		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
-		builder.responseTransformerNames = responseDefinition.getResponseTransformers();
+		builder.responseTransformerNames = responseDefinition.getTransformers();
 		return builder;
 	}
 
@@ -102,7 +102,7 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 
-	public ResponseDefinitionBuilder withTransform(String... responseTransformerNames) {
+	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
 		this.responseTransformerNames = asList(responseTransformerNames);
 		return this;
 	}
@@ -171,7 +171,7 @@ public class ResponseDefinitionBuilder {
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);
-		response.setResponseTransformers(responseTransformerNames);
+		response.setTransformers(responseTransformerNames);
 		return response;
 	}
 }

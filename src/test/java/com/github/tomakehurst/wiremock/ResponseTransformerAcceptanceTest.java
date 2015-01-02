@@ -110,7 +110,7 @@ public class ResponseTransformerAcceptanceTest {
         wm.stubFor(get(urlEqualTo("/local-transform")).willReturn(aResponse()
                 .withStatus(200)
                 .withBody("Should not see this")
-                .withTransform("local")));
+                .withTransformers("local")));
 
         WireMockResponse response = client.get("/local-transform");
         assertThat(response.content(), is("Non-global transformed body"));

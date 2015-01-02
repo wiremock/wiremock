@@ -86,6 +86,7 @@ Contents
    record-playback
    stateful-behaviour
    simulating-faults
+   extending-wiremock
 
 
 
