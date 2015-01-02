@@ -110,8 +110,8 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration needClientAuth(boolean gottaHaveIt) {
-        this.needClientAuth=gottaHaveIt;
+    public WireMockConfiguration needClientAuth(boolean needClientAuth) {
+        this.needClientAuth = needClientAuth;
         return this;
     }
 

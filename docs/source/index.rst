@@ -77,6 +77,7 @@ Contents
 
    getting-started
    running-standalone
+   https
    junit-rule
    java-usage
    stubbing

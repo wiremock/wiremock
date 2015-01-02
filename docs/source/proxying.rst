@@ -136,3 +136,21 @@ object to the constructor of ``WireMockServer`` or the JUnit rules like this:
     ...
 
     WireMockServer wireMockServer = new WireMockServer(wireMockConfig().proxyVia("proxy.mycorp.com", 8080);
+
+
+.. _proxy-client-certs:
+
+Proxying to a target server that requires client certificate authentication
+===========================================================================
+
+WireMock's proxy client will send a client certificate if the target service requires it and a trust store containing
+the certificate is configured:
+
+.. code-block:: java
+
+     @Rule
+     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
+         .trustStorePath("/path/to/truststore.jks")
+         .trustStorePassword("mostsecret")); // Defaults to "password" if omitted
+
+See :ref:`running-standalone` for command line equivalent.

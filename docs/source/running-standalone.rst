@@ -27,6 +27,18 @@ Path to a keystore file containing an SSL certificate to use with HTTPS. The key
 This option will only work if ``--https-port`` is specified. If this option isn't used WireMock will default to its
 own self-signed certificate.
 
+``--keystore-password``:
+Password to the keystore, if something other than "password".
+
+``--https-truststore``:
+Path to a keystore file containing client certificates. See :ref:`https` and :ref:`proxy-client-certs` for details.
+
+``--truststore-password``:
+Optional password to the trust store. Defaults to "password" if not specified.
+
+``--https-require-client-cert``:
+Force clients to authenticate with a client certificate. See :ref:`https` for details.
+
 ``--verbose``:
 Turn on verbose logging to stdout
 
