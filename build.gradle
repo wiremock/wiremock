@@ -7,7 +7,7 @@ apply plugin: 'project-report'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.51
+version = 1.53
 
 repositories {
 	mavenCentral()
@@ -51,7 +51,7 @@ dependencies {
 	testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
 
-    testRuntime 'org.slf4j:slf4j-simple:1.7.7'
+    testRuntime 'org.slf4j:slf4j-log4j12:1.7.7'
     testRuntime files('src/test/resources/classpathfiles.zip')
 }
 
@@ -250,6 +250,7 @@ task 'bump-version' << {
         'build.gradle': { "version = 1.${it}" },
         'docs/source/conf.py': { "version = '1.${it}'" },
         'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
+        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
         'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
     ]
 
@@ -280,6 +281,7 @@ task 'bump-version-down' << {
         'build.gradle': { "version = 1.${it}" },
         'docs/source/conf.py': { "version = '1.${it}'" },
         'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
+        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
         'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
     ]
 

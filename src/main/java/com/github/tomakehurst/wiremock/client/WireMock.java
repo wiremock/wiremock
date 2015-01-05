@@ -37,11 +37,15 @@ public class WireMock {
 	private static final int DEFAULT_PORT = 8080;
 	private static final String DEFAULT_HOST = "localhost";
 
-	private Admin admin;
+	private final Admin admin;
 	
 	private static WireMock defaultInstance = new WireMock();
-	
-	public WireMock(String host, int port) {
+
+    public WireMock(Admin admin) {
+        this.admin = admin;
+    }
+
+    public WireMock(String host, int port) {
 		admin = new HttpAdminClient(host, port);
 	}
 	
@@ -51,10 +55,6 @@ public class WireMock {
 	
 	public WireMock() {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
-	}
-	
-	void setAdmin(Admin admin) {
-		this.admin = admin;
 	}
 	
 	public static void givenThat(MappingBuilder mappingBuilder) {

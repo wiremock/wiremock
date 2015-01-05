@@ -61,7 +61,39 @@ and any number of higher priority stub mappings e.g.
     // High priority stub will send a Service Unavailable response
     // if the specified URL is requested
     stubFor(get(urlEqualTo("/api/override/123")).atPriority(1)
-            .willReturn(aResponse().withStatus(503)));
+            .willReturn(aResponse().withStatus(503)));            
+            
+Additional headers
+==================
+
+It is possible to configure the proxy to add headers before forwarding the request to the destination:
+
+.. code-block:: java
+
+    // Inject user agent to trigger rendering of mobile version of website
+    stubFor(get(urlMatching(".*"))
+            .willReturn(aResponse()
+            	.proxiedFrom("http://otherhost.com")
+            	.withAdditionalRequestHeader("User-Agent", "Mozilla/5.0 (iPhone; U; CPU iPhone)"));
+
+or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "urlPattern": ".*"
+        },
+        "response": {
+            "proxyBaseUrl" : "http://otherhost.com",
+            "additionalProxyRequestHeaders": {
+                "User-Agent": "Mozilla/5.0 (iPhone; U; CPU iPhone)",
+            }
+        }
+    }
+
+You can also add response headers via the same method as for non-proxy responses (see :ref:`stubbing`).
 
 
 Standalone shortcut
@@ -104,3 +136,21 @@ object to the constructor of ``WireMockServer`` or the JUnit rules like this:
     ...
 
     WireMockServer wireMockServer = new WireMockServer(wireMockConfig().proxyVia("proxy.mycorp.com", 8080);
+
+
+.. _proxy-client-certs:
+
+Proxying to a target server that requires client certificate authentication
+===========================================================================
+
+WireMock's proxy client will send a client certificate if the target service requires it and a trust store containing
+the certificate is configured:
+
+.. code-block:: java
+
+     @Rule
+     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
+         .trustStorePath("/path/to/truststore.jks")
+         .trustStorePassword("mostsecret")); // Defaults to "password" if omitted
+
+See :ref:`running-standalone` for command line equivalent.

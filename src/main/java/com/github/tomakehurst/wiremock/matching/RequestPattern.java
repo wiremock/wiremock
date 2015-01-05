@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
@@ -354,8 +355,8 @@ public class RequestPattern {
             public boolean apply(Map.Entry<String, ValuePattern> entry) {
                 ValuePattern valuePattern = entry.getValue();
                 String key = entry.getKey();
-                String queryParam = request.queryParameter(key);
-                boolean match = valuePattern.isMatchFor(queryParam);
+                QueryParameter queryParam = request.queryParameter(key);
+                boolean match = queryParam.hasValueMatching(valuePattern);
 
                 if (!match) {
                     notifier().info(String.format(

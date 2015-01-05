@@ -19,30 +19,41 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
-	
-	private ConcurrentLinkedQueue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+
+	private final Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+
+	private final Optional<Integer> maxEntries;
+
+	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
+		if (maxEntries.isPresent() && maxEntries.get() < 0) {
+			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
+		}
+		this.maxEntries = maxEntries;
+	}
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(requests, matchedBy(requestPattern))); 
+		return size(filter(requests, matchedBy(requestPattern)));
 	}
 
-    @Override
-    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-        return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
-    }
+	@Override
+	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+		return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+	}
 
-    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
 				return requestPattern.isMatchedBy(input);
@@ -53,16 +64,25 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	@Override
 	public void requestReceived(Request request, Response response) {
 		requests.add(LoggedRequest.createFrom(request));
+		removeOldEntries();
 	}
 
-    @Override
-    public void requestReceived(Request request) {
-        requestReceived(request, null);
-    }
+	@Override
+	public void requestReceived(Request request) {
+		requestReceived(request, null);
+	}
 
 	@Override
 	public void reset() {
 		requests.clear();
+	}
+
+	private void removeOldEntries() {
+		if (maxEntries.isPresent()) {
+			while (requests.size() > maxEntries.get()) {
+				requests.poll();
+			}
+		}
 	}
 
 }

@@ -138,7 +138,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/test-1.xml");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<content>Blah</content>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 	
 	@Test
@@ -149,7 +149,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/test-1.xml");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<content>Blah</content>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/12345");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("{ \"key\": \"value\" }"));
-		assertThat(response.header("Content-Type"), is("application/json"));
+		assertThat(response.firstHeader("Content-Type"), is("application/json"));
 	}
 	
 	@Test
@@ -178,7 +178,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/23456/");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("{ \"key\": \"new value\" }"));
-		assertThat(response.header("Content-Type"), is("application/json"));
+		assertThat(response.firstHeader("Content-Type"), is("application/json"));
 	}
 	
 	@Test
@@ -188,7 +188,7 @@ public class StandaloneAcceptanceTest {
 		WireMockResponse response = testClient.get("/json/34567/");
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("<blob>BLAB</blob>"));
-		assertThat(response.header("Content-Type"), is("application/xml"));
+		assertThat(response.firstHeader("Content-Type"), is("application/xml"));
 	}
 	
 	@Test

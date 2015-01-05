@@ -58,6 +58,8 @@ Here are some alternative JVM based libraries with similar goals:
 
 * `Betamax <http://freeside.co/betamax/>`_
 * `REST-driver <https://github.com/rest-driver/rest-driver>`_
+* `MockServer <http://www.mock-server.com/>`_
+* `Moco <https://github.com/dreamhead/moco>`_
 
 
 I couldn't possibly be seen using Java, I've got my image to think about!
@@ -74,13 +76,17 @@ Contents
    :maxdepth: 1
 
    getting-started
+   running-standalone
+   https
+   junit-rule
+   java-usage
    stubbing
    verifying
    proxying
    record-playback
    stateful-behaviour
    simulating-faults
-   shutting-down
+   extending-wiremock
 
 
 

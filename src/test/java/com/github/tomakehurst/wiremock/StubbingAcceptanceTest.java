@@ -49,7 +49,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		
 		assertThat(response.statusCode(), is(401));
 		assertThat(response.content(), is("Not allowed!"));
-		assertThat(response.header("Content-Type"), is("text/plain"));
+		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
 	}
 	
 	@Test

@@ -15,9 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -69,9 +77,29 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void setsKeyStorePath() {
-        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore");
+    public void setsRequireClientCert() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore",
+                "--https-require-client-cert");
+        assertThat(options.httpsSettings().needClientAuth(), is(true));
+    }
+
+    @Test
+    public void setsTrustStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--https-truststore", "/my/truststore",
+                "--truststore-password", "sometrustpwd");
+        assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
+        assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
+    }
+
+    @Test
+    public void setsKeyStorePathAndPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443", "--https-keystore", "/my/keystore", "--keystore-password", "someotherpwd");
         assertThat(options.httpsSettings().keyStorePath(), is("/my/keystore"));
+        assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -145,6 +173,14 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsMaxRequestJournalEntries() {
+        CommandLineOptions options = new CommandLineOptions("--max-request-journal-entries", "2");
+        assertThat(options.maxRequestJournalEntries(), is(Optional.of(2)));
+        CommandLineOptions optionsNoMax = new CommandLineOptions("");
+        assertThat(optionsNoMax.maxRequestJournalEntries().isPresent(), is(false));
+    }
+
+    @Test
     public void returnPreserveHostHeaderTrueWhenPresent() {
         CommandLineOptions options = new CommandLineOptions("--preserve-host-header");
         assertThat(options.shouldPreserveHostHeader(), is(true));
@@ -156,10 +192,70 @@ public class CommandLineOptionsTest {
         assertThat(options.shouldPreserveHostHeader(), is(false));
     }
 
+    @Test
+    public void returnsCorrectlyParsedNumberOfThreads() {
+        CommandLineOptions options = new CommandLineOptions("--container-threads", "300");
+        assertThat(options.containerThreads(), is(300));
+    }
+
+    @Test
+    public void defaultsContainerThreadsTo200() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.containerThreads(), is(200));
+    }
+
+    @Test
+    public void returnsCorrectlyParsedJettyAcceptorThreads() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-acceptor-threads", "400");
+        assertThat(options.jettySettings().getAcceptors().get(), is(400));
+    }
+
+    @Test
+    public void returnsCorrectlyParsedJettyAcceptQueueSize() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-accept-queue-size", "10");
+        assertThat(options.jettySettings().getAcceptQueueSize().get(), is(10));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyAcceptorsNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void preventsRecordingWhenRequestJournalDisabled() {
         new CommandLineOptions("--no-request-journal", "--record-mappings");
     }
-    
 
+    @Test
+    public void returnsExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions(
+                "--extensions",
+                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext2");
+        Map<String, ResponseTransformer> extensions = options.extensionsOfType(ResponseTransformer.class);
+        assertThat(extensions.get("one"), instanceOf(Ext1.class));
+        assertThat(extensions.get("two"), instanceOf(Ext2.class));
+    }
+    
+    public static class Ext1 extends ResponseTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
+
+        @Override
+        public String name() { return "one"; }
+    }
+
+    public static class Ext2 extends ResponseTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
+
+        @Override
+        public String name() { return "two"; }
+    }
 }

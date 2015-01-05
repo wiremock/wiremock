@@ -23,12 +23,12 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 import static net.sf.json.test.JSONAssert.assertJsonEquals;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ResponseDefinitionTest {
 

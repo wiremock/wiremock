@@ -15,14 +15,20 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WireMockServerTests {
 
@@ -42,5 +48,17 @@ public class WireMockServerTests {
                 wireMockServer.stop();
             }
         }
+    }
+
+    // https://github.com/tomakehurst/wiremock/issues/193
+    @Test
+    public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
+        WireMockServer wireMockServer = new WireMockServer(8064, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", 8064));
+        wireMockServer.start();
+        wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
+        wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
+
+        WireMockTestClient client = new WireMockTestClient(8064);
+        assertThat(client.get("http://localhost:8064/something").statusCode(), is(200));
     }
 }

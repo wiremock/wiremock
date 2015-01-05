@@ -17,9 +17,9 @@ public class FaultInjectingHttpConnectionFactory extends HttpConnectionFactory {
     }
 
     public FaultInjectingHttpConnectionFactory(
-            HttpConfiguration https_config,
+            HttpConfiguration httpConfig,
             RequestDelayControl requestDelayControl) {
-        super(https_config);
+        super(httpConfig);
         this.requestDelayControl = requestDelayControl;
     }
 

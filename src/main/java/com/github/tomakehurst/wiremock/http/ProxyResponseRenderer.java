@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
@@ -49,19 +50,15 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
 	
-	public ProxyResponseRenderer(ProxySettings proxySettings, boolean preserveHostHeader, String hostHeaderValue) {
-        if (proxySettings != null) {
-            client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings);
-        } else {
-            client = HttpClientFactory.createClient(1000, 5 * MINUTES);
-        }
+	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue) {
+		client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
 	}
 
     public ProxyResponseRenderer() {
-        this(ProxySettings.NO_PROXY, false, null);
+        this(ProxySettings.NO_PROXY, KeyStoreSettings.NO_STORE, false, null);
     }
 
 	@Override
@@ -140,10 +137,16 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                 }
 			}
 		}
+				
+		if (response.getAdditionalProxyRequestHeaders() != null) {
+			for (String key: response.getAdditionalProxyRequestHeaders().keys()) {
+				httpRequest.setHeader(key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
+			}			
+		}
 	}
 
     private static boolean headerShouldBeTransferred(String key) {
-        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING).contains(key.toLowerCase());
+        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection").contains(key.toLowerCase());
     }
 
     private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {

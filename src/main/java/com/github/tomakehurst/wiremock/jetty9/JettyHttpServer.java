@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -31,10 +32,13 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
@@ -62,20 +66,22 @@ class JettyHttpServer implements HttpServer {
             RequestDelayControl requestDelayControl
     ) {
 
-    	jettyServer = new Server();
+        QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
+        jettyServer = new Server(threadPool);
+
         httpConnector = createHttpConnector(
                 requestDelayControl,
                 options.bindAddress(),
-                options.portNumber()
+                options.portNumber(),
+                options.jettySettings()
         );
         jettyServer.addConnector(httpConnector);
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
                     requestDelayControl,
-                    options.httpsSettings().port(),
-                    options.httpsSettings().keyStorePath()
-            );
+                    options.httpsSettings(),
+                    options.jettySettings());
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -104,6 +110,17 @@ class JettyHttpServer implements HttpServer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        long timeout=System.currentTimeMillis()+30000;
+        while (!jettyServer.isStarted()) {
+            try {
+                Thread.currentThread().sleep(100);
+            } catch (InterruptedException e) {
+                // no-op
+            }
+            if (System.currentTimeMillis()>timeout) {
+                throw new RuntimeException("Server took too long to start up.");
+            }
+        }
     }
 
     @Override
@@ -118,7 +135,7 @@ class JettyHttpServer implements HttpServer {
 
     @Override
     public boolean isRunning() {
-        return jettyServer != null && jettyServer.isRunning();
+        return jettyServer.isRunning();
     }
 
     @Override
@@ -134,38 +151,75 @@ class JettyHttpServer implements HttpServer {
     private ServerConnector createHttpConnector(
             RequestDelayControl requestDelayControl,
             String bindAddress,
-            int port) {
+            int port,
+            JettySettings jettySettings) {
 
-        ServerConnector connector = new ServerConnector(
-                jettyServer,
-                new FaultInjectingHttpConnectionFactory(requestDelayControl)
+        ServerConnector connector = createServerConnector(
+                jettySettings,
+                port,
+                new FaultInjectingHttpConnectionFactory(
+                        new HttpConfiguration(),
+                        requestDelayControl
+                )
         );
         connector.setHost(bindAddress);
-        connector.setPort(port);
         return connector;
     }
 
     private ServerConnector createHttpsConnector(
             RequestDelayControl requestDelayControl,
-            int port,
-            String keyStorePath) {
+            HttpsSettings httpsSettings,
+            JettySettings jettySettings) {
 
         SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setKeyStorePath(keyStorePath);
-        sslContextFactory.setKeyStorePassword("password");
+        sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
+        if (httpsSettings.hasTrustStore()) {
+            sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
+            sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
+        }
+        sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
-        HttpConfiguration https_config = new HttpConfiguration();
-        https_config.addCustomizer(new SecureRequestCustomizer());
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.addCustomizer(new SecureRequestCustomizer());
 
-        ServerConnector https = new ServerConnector(jettyServer,
+        final int port = httpsSettings.port();
+
+
+        return createServerConnector(
+                jettySettings,
+                port,
                 new SslConnectionFactory(
                         sslContextFactory,
                         "http/1.1"
                 ),
-                new FaultInjectingHttpConnectionFactory(https_config, requestDelayControl)
+                new FaultInjectingHttpConnectionFactory(
+                        httpConfig,
+                        requestDelayControl
+                )
         );
-        https.setPort(port);
-        return https;
+    }
+
+    private ServerConnector createServerConnector(JettySettings jettySettings, int port, ConnectionFactory... connectionFactories) {
+        int acceptors = jettySettings.getAcceptors().or(-1);
+        ServerConnector connector = new ServerConnector(
+                jettyServer,
+                null,
+                null,
+                null,
+                acceptors,
+                -1,
+                connectionFactories
+        );
+        connector.setPort(port);
+        setJettySettings(jettySettings, connector);
+        return connector;
+    }
+
+    private void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
+        if (jettySettings.getAcceptQueueSize().isPresent()) {
+            connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })

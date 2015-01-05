@@ -15,20 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Iterables.getFirst;
 
 public class WireMockResponse {
 	
-	private HttpResponse httpResponse;
-	private byte[] content;
+	private final HttpResponse httpResponse;
+	private final byte[] content;
 	
 	public WireMockResponse(HttpResponse httpResponse) {
 		this.httpResponse = httpResponse;
@@ -50,18 +51,18 @@ public class WireMockResponse {
         return content;
     }
 	
-	public String header(String key) {
-		return headers().get(key);
+	public String firstHeader(String key) {
+		return getFirst(headers().get(key), null);
 	}
 	
-	public Map<String, String> headers() {
-		Header[] headers = httpResponse.getAllHeaders();
-		Map<String, String> headerMap = new HashMap<String, String>();
-		for (Header header: headers) {
-			headerMap.put(header.getName(), header.getValue());
+	public Multimap<String, String> headers() {
+        ImmutableListMultimap.Builder<String, String> builder = ImmutableListMultimap.builder();
+
+		for (Header header: httpResponse.getAllHeaders()) {
+			builder.put(header.getName(), header.getValue());
 		}
 		
-		return headerMap;
+		return builder.build();
 	}
 
 }
