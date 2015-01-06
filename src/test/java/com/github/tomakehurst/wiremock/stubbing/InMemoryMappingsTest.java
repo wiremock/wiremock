@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -66,6 +67,19 @@ public class InMemoryMappingsTest {
 		
 		assertThat(response.getStatus(), is(204));
 	}
+
+    @Test
+    public void createAndRemoveMapping(){
+        Long stubId = mappings.addMapping(new StubMapping(new RequestPattern(POST, "/some/willdelete"),
+                new ResponseDefinition(201, "Testing delete")));
+        Request request = aRequest(context).withMethod(POST).withUrl("/some/willdelete").build();
+        ResponseDefinition response = mappings.serveFor(request);
+        assertThat(response.getStatus(), is(HTTP_CREATED));
+        boolean deleted = mappings.removeMapping(stubId);
+        assertThat(deleted, is(true));
+        response = mappings.serveFor(request);
+        assertThat(response.getStatus(), is(HTTP_NOT_FOUND));
+    }
 	
 	@Test
 	public void returnsNotFoundWhenMethodIncorrect() {

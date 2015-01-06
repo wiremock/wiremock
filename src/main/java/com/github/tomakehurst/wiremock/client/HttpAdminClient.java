@@ -61,11 +61,12 @@ public class HttpAdminClient implements Admin {
 	}
 
 	@Override
-	public void addStubMapping(StubMapping stubMapping) {
+	public Long addStubMapping(StubMapping stubMapping) {
         postJsonAssertOkAndReturnBody(
                 urlFor(NewStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_CREATED);
+        return stubMapping.getInsertionIndex();
 	}
 
     @Override
@@ -133,6 +134,13 @@ public class HttpAdminClient implements Admin {
     @Override
     public void shutdownServer() {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
+    }
+
+    @Override
+    public boolean removeMapping(Long stubId) {
+        String body = "{\"id\":" + stubId + "}";
+        postJsonAssertOkAndReturnBody(urlFor(RemoveMappingTask.class),body, HTTP_OK);
+        return true;
     }
 
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
