@@ -135,6 +135,10 @@ public class HttpAdminClient implements Admin {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
     }
 
+    public int port() {
+        return port;
+    }
+
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
 		HttpPost post = new HttpPost(url);
 		try {

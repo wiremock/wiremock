@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 
 public class AcceptanceTestBase {
 
@@ -42,14 +41,14 @@ public class AcceptanceTestBase {
 	}
 
     public static void setupServer(WireMockConfiguration options) {
-        if(options.portNumber() == WireMockConfiguration.DEFAULT_PORT) {
-            options.port(findFreePort());
+        if(options.portNumber() == Options.DEFAULT_PORT) {
+            options.dynamicPort();
         }
 
         wireMockServer = new WireMockServer(options);
         wireMockServer.start();
-        testClient = new WireMockTestClient(options.portNumber());
-        WireMock.configureFor(options.portNumber());
+        testClient = new WireMockTestClient(wireMockServer.port());
+        WireMock.configureFor(wireMockServer.port());
     }
 
 	@Before

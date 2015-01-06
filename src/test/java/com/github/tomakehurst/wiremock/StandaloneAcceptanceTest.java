@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -255,10 +256,9 @@ public class StandaloneAcceptanceTest {
 	
 	@Test
 	public void proxiesToHostSpecifiedOnCommandLine() throws Exception {
-        int port = findFreePort();
-		WireMock otherServerClient = startOtherServerAndClient(port);
+		WireMock otherServerClient = startOtherServerAndClient();
 		otherServerClient.register(get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
-		startRunner("--proxy-all", "http://localhost:" + port);
+		startRunner("--proxy-all", "http://localhost:" + otherServerClient.port());
 		
 		WireMockResponse response = testClient.get("/proxy/ok?working=yes");
 		assertThat(response.statusCode(), is(HTTP_OK));
@@ -269,24 +269,22 @@ public class StandaloneAcceptanceTest {
 		writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
 		writeFileToFilesDir("body-test.xml", "Existing recorded body");
 
-        int port = findFreePort();
-		WireMock otherServerClient = startOtherServerAndClient(port);
+		WireMock otherServerClient = startOtherServerAndClient();
 		otherServerClient.register(
                 get(urlEqualTo("/body/file"))
                         .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		startRunner("--proxy-all", "http://localhost:" + port);
+		startRunner("--proxy-all", "http://localhost:" + otherServerClient.port());
 
 		assertThat(testClient.get("/body/file").content(), is("Existing recorded body"));
 	}
 
 	@Test
 	public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
-        int port = findFreePort();
-	    WireMock otherServerClient = startOtherServerAndClient(port);
+	    WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--record-mappings");
 		givenThat(get(urlEqualTo("/please/record-this"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:" + port)));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServerClient.port())));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-this"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -300,11 +298,10 @@ public class StandaloneAcceptanceTest {
 	
 	@Test
 	public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
-        int port = findFreePort();
-	    WireMock otherServerClient = startOtherServerAndClient(port);
+	    WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--record-mappings", "--match-headers", "Accept");
 		givenThat(get(urlEqualTo("/please/record-headers"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:" + port)));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServerClient.port())));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -317,14 +314,13 @@ public class StandaloneAcceptanceTest {
 	
 	@Test
 	public void performsBrowserProxyingWhenEnabled() throws Exception {
-        int port = findFreePort();
-		WireMock otherServerClient = startOtherServerAndClient(port);
+		WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--enable-browser-proxying");
 		otherServerClient.register(
 		        get(urlEqualTo("/from/browser/proxy"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		assertThat(testClient.getViaProxy("http://localhost:" + port + "/from/browser/proxy").content(), is("Proxied body"));
+		assertThat(testClient.getViaProxy("http://localhost:" + otherServerClient.port() + "/from/browser/proxy").content(), is("Proxied body"));
 	}
 	
 	@Test
@@ -372,10 +368,10 @@ public class StandaloneAcceptanceTest {
         };
 	}
 	
-	private WireMock startOtherServerAndClient(int port) {
-        otherServer = new WireMockServer(port);
+	private WireMock startOtherServerAndClient() {
+        otherServer = new WireMockServer(Options.DYNAMIC_PORT);
         otherServer.start();
-        return new WireMock(port);
+        return new WireMock(otherServer.port());
     }
 	
 	private void writeFileToFilesDir(String name, String contents) {
@@ -439,7 +435,7 @@ public class StandaloneAcceptanceTest {
     private String[] argsWithPort(String[] args) {
         List<String> argsAsList = new ArrayList<String>(asList(args));
         if (!argsAsList.contains("--port")) {
-            argsAsList.addAll(asList("--port", "0"));
+            argsAsList.addAll(asList("--port", "" + Options.DYNAMIC_PORT));
         }
         return argsAsList.toArray(new String[]{});
     }

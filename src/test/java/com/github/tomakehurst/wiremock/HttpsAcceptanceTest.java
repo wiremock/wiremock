@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
@@ -60,8 +61,6 @@ public class HttpsAcceptanceTest {
     private static final String KEY_STORE_PATH = toPath("test-keystore");
     private static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
 
-    private int httpPort = findFreePort();
-    private int httpsPort = findFreePort();
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
     private HttpClient httpClient;
@@ -162,11 +161,11 @@ public class HttpsAcceptanceTest {
         stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().withStatus(200)));
 
         proxy = new WireMockServer(wireMockConfig()
-                .port(0)
+                .port(Options.DYNAMIC_PORT)
                 .trustStorePath(TRUST_STORE_PATH)
                 .trustStorePassword(TRUST_STORE_PASSWORD));
         proxy.start();
-        proxy.stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().proxiedFrom("https://localhost:" + httpsPort)));
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy")).willReturn(aResponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
 
         HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy");
         HttpResponse response = httpClient.execute(get);
@@ -178,7 +177,7 @@ public class HttpsAcceptanceTest {
         startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
         stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().withStatus(200)));
 
-        proxy = new WireMockServer(wireMockConfig().port(0));
+        proxy = new WireMockServer(wireMockConfig().port(Options.DYNAMIC_PORT));
         proxy.start();
         proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
 
@@ -188,7 +187,7 @@ public class HttpsAcceptanceTest {
     }
 
     private String url(String path) {
-        return String.format("https://localhost:%d%s", httpsPort, path);
+        return String.format("https://localhost:%d%s", wireMockServer.httpsPort(), path);
     }
 
     private static String toPath(String resourcePath) {
@@ -225,7 +224,7 @@ public class HttpsAcceptanceTest {
     }
 
     private void startServerEnforcingClientCert(String keystorePath, String truststorePath, String trustStorePassword) {
-        WireMockConfiguration config = wireMockConfig().port(httpPort).httpsPort(httpsPort);
+        WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
         if (keystorePath != null) {
             config.keystorePath(keystorePath);
         }
@@ -238,13 +237,13 @@ public class HttpsAcceptanceTest {
 
         wireMockServer = new WireMockServer(config);
         wireMockServer.start();
-        WireMock.configureFor(httpPort);
+        WireMock.configureFor(wireMockServer.port());
 
         httpClient = HttpClientFactory.createClient();
     }
 
     private void startServerWithKeystore(String keystorePath, String keystorePassword) {
-        WireMockConfiguration config = wireMockConfig().port(httpPort).httpsPort(httpsPort);
+        WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
         if (keystorePath != null) {
             config.keystorePath(keystorePath);
             config.keystorePassword(keystorePassword);
@@ -252,7 +251,7 @@ public class HttpsAcceptanceTest {
 
         wireMockServer = new WireMockServer(config);
         wireMockServer.start();
-        WireMock.configureFor(httpPort);
+        WireMock.configureFor(wireMockServer.port());
 
         httpClient = HttpClientFactory.createClient();
     }

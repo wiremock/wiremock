@@ -37,5 +37,6 @@ public interface Admin {
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
     void addSocketAcceptDelay(RequestDelaySpec spec);
+    int port();
     void shutdownServer();
 }

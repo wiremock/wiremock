@@ -39,9 +39,7 @@ public class MappingsLoaderAcceptanceTest {
 
 	@Before
 	public void init() {
-        int port = findFreePort();
-        configuration = wireMockConfig().port(port);
-        testClient = new WireMockTestClient(port);
+        configuration = wireMockConfig().dynamicPort();
 	}
 
 	@After
@@ -52,6 +50,7 @@ public class MappingsLoaderAcceptanceTest {
     private void buildWireMock(Options options) {
         wireMockServer = new WireMockServer(options);
         wireMockServer.start();
+        testClient = new WireMockTestClient(wireMockServer.port());
     }
 
     @Test

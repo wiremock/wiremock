@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.base.Stopwatch;
@@ -40,13 +41,10 @@ public class RequestDelayAcceptanceTest {
     private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
     private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
 
-    private int httpPort = findFreePort();
-    private int httpsPort = findFreePort();
-
     private HttpClient httpClient;
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(httpPort, httpsPort);
+    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
 
     @Before
     public void init() {
@@ -111,7 +109,7 @@ public class RequestDelayAcceptanceTest {
     }
 
     private void executeGetRequest(String protocol) throws IOException {
-        int port = protocol.equals("https") ? httpsPort : httpPort;
+        int port = protocol.equals("https") ? wireMockRule.httpsPort() : wireMockRule.port();
         String url = String.format("%s://localhost:%d/anything", protocol, port);
         HttpGet get = new HttpGet(url);
         httpClient.execute(get);

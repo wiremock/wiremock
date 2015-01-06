@@ -241,7 +241,7 @@ public class VerificationAcceptanceTest {
     public static class JournalDisabled {
 
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(findFreePort()).disableRequestJournal());
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().disableRequestJournal());
 
         @Test(expected=RequestJournalDisabledException.class)
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
@@ -256,7 +256,7 @@ public class VerificationAcceptanceTest {
 
     public static class JournalMaxEntriesRestricted {
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(findFreePort()).maxRequestJournalEntries(Optional.of(2)));
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().maxRequestJournalEntries(Optional.of(2)));
 
         @Test
         public void maxLengthIs2() {

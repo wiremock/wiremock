@@ -70,8 +70,18 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration dynamicPort() {
+        this.portNumber = DYNAMIC_PORT;
+        return this;
+    }
+
     public WireMockConfiguration httpsPort(Integer httpsPort) {
         this.httpsPort = httpsPort;
+        return this;
+    }
+
+    public WireMockConfiguration dynamicHttpsPort() {
+        this.httpsPort = DYNAMIC_PORT;
         return this;
     }
 

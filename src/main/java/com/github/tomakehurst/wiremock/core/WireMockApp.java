@@ -182,6 +182,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public int port() {
+        return container.port();
+    }
+
+    @Override
     public void shutdownServer() {
         container.shutdown();
     }

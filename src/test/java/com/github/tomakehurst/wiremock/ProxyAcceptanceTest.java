@@ -49,22 +49,20 @@ public class ProxyAcceptanceTest {
     WireMockTestClient testClient;
 
 	void init(WireMockConfiguration proxyingServiceOptions) {
-        int targetServicePort = findFreePort();
-        int targetServiceHttpsPort = findFreePort();
-        targetServiceBaseUrl = "http://localhost:" + targetServicePort;
-        targetServiceBaseHttpsUrl = "https://localhost:" + targetServiceHttpsPort;
-
-		targetService = new WireMockServer(wireMockConfig().port(targetServicePort).httpsPort(targetServiceHttpsPort));
+		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
 		targetService.start();
-		targetServiceAdmin = new WireMock("localhost", targetServicePort);
+		targetServiceAdmin = new WireMock("localhost", targetService.port());
 
-        int proxyPort = findFreePort();
-        proxyingServiceOptions.port(proxyPort);
+        targetServiceBaseUrl = "http://localhost:" + targetService.port();
+        targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
+
+        proxyingServiceOptions.dynamicPort();
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
-        proxyingServiceAdmin = new WireMock(proxyPort);
-        testClient = new WireMockTestClient(proxyPort);
-        WireMock.configure();
+        proxyingServiceAdmin = new WireMock(proxyingService.port());
+        testClient = new WireMockTestClient(proxyingService.port());
+
+        WireMock.configureFor(targetService.port());
 	}
 
     void initWithDefaultConfig() {
@@ -292,12 +290,9 @@ public class ProxyAcceptanceTest {
 
     @Test
     public void canProxyViaAForwardProxy() throws Exception {
-        int proxyPort = findFreePort();
-        int wireMockPort = findFreePort();
-
-        WireMockServer forwardProxy = new WireMockServer(wireMockConfig().port(proxyPort).enableBrowserProxying(true));
+        WireMockServer forwardProxy = new WireMockServer(wireMockConfig().dynamicPort().enableBrowserProxying(true));
         forwardProxy.start();
-        init(wireMockConfig().proxyVia(new ProxySettings("localhost", proxyPort)));
+        init(wireMockConfig().proxyVia(new ProxySettings("localhost", forwardProxy.port())));
 
         register200StubOnProxyAndTarget("/proxy-via");
 

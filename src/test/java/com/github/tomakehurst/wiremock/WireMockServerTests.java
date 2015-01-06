@@ -38,7 +38,7 @@ public class WireMockServerTests {
 
     @Test
     public void instantiationWithEmptyFileSource() throws IOException {
-        Options options = new WireMockConfiguration().port(findFreePort()).fileSource(new SingleRootFileSource(tempDir.getRoot()));
+        Options options = new WireMockConfiguration().dynamicPort().fileSource(new SingleRootFileSource(tempDir.getRoot()));
 
         WireMockServer wireMockServer = null;
         try {
@@ -54,14 +54,13 @@ public class WireMockServerTests {
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
-        int port = findFreePort();
-        WireMockServer wireMockServer = new WireMockServer(port, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", port));
+        WireMockServer wireMockServer = new WireMockServer(Options.DYNAMIC_PORT, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", Options.DYNAMIC_PORT));
         wireMockServer.start();
         wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
         wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
 
-        WireMockTestClient client = new WireMockTestClient(port);
-        assertThat(client.get("http://localhost:" + port + "/something").statusCode(), is(200));
+        WireMockTestClient client = new WireMockTestClient(wireMockServer.port());
+        assertThat(client.get("http://localhost:" + wireMockServer.port() + "/something").statusCode(), is(200));
     }
 
 }

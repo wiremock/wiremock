@@ -19,6 +19,11 @@ import com.github.tomakehurst.wiremock.core.Container;
 
 public class NotImplementedContainer implements Container {
     @Override
+    public int port() {
+        throw new UnsupportedOperationException("Server port number cannot be retrieved");
+    }
+
+    @Override
     public void shutdown() {
         throw new UnsupportedOperationException("Stopping the server is not supported");
     }
