@@ -27,6 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,7 +38,7 @@ public class WireMockServerTests {
 
     @Test
     public void instantiationWithEmptyFileSource() throws IOException {
-        Options options = new WireMockConfiguration().fileSource(new SingleRootFileSource(tempDir.getRoot()));
+        Options options = new WireMockConfiguration().port(findFreePort()).fileSource(new SingleRootFileSource(tempDir.getRoot()));
 
         WireMockServer wireMockServer = null;
         try {
@@ -53,12 +54,14 @@ public class WireMockServerTests {
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
-        WireMockServer wireMockServer = new WireMockServer(8064, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", 8064));
+        int port = findFreePort();
+        WireMockServer wireMockServer = new WireMockServer(port, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", port));
         wireMockServer.start();
         wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
         wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
 
-        WireMockTestClient client = new WireMockTestClient(8064);
-        assertThat(client.get("http://localhost:8064/something").statusCode(), is(200));
+        WireMockTestClient client = new WireMockTestClient(port);
+        assertThat(client.get("http://localhost:" + port + "/something").statusCode(), is(200));
     }
+
 }

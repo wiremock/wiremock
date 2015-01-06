@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -30,13 +31,16 @@ public class WireMockClientAcceptanceTest {
 	
 	private WireMockServer wireMockServer;
 	private WireMockTestClient testClient;
-	
+
+    private int port;
+
 	@Before
 	public void init() {
-		wireMockServer = new WireMockServer();
+        port = findFreePort();
+		wireMockServer = new WireMockServer(port);
 		wireMockServer.start();
-		WireMock.configure();
-		testClient = new WireMockTestClient();
+		WireMock.configureFor(port);
+		testClient = new WireMockTestClient(port);
 	}
 	
 	@After
@@ -46,7 +50,7 @@ public class WireMockClientAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = new WireMock();
+		WireMock wireMock = new WireMock(port);
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(

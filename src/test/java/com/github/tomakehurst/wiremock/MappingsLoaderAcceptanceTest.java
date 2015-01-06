@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -26,17 +27,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class MappingsLoaderAcceptanceTest {
-	
+
+    private WireMockConfiguration configuration;
 	private WireMockServer wireMockServer;
 	private WireMockTestClient testClient;
 
 	@Before
 	public void init() {
-		testClient = new WireMockTestClient();
+        int port = findFreePort();
+        configuration = wireMockConfig().port(port);
+        testClient = new WireMockTestClient(port);
 	}
 
 	@After
@@ -51,7 +56,7 @@ public class MappingsLoaderAcceptanceTest {
 
     @Test
 	public void mappingsLoadedFromJsonFiles() {
-        buildWireMock(wireMockConfig());
+        buildWireMock(configuration);
         wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests")));
 
 		WireMockResponse response = testClient.get("/canned/resource/1");
@@ -63,7 +68,7 @@ public class MappingsLoaderAcceptanceTest {
 
     @Test
     public void mappingsLoadedViaClasspath() {
-        buildWireMock(wireMockConfig().usingFilesUnderClasspath("classpath-filesource"));
+        buildWireMock(configuration.usingFilesUnderClasspath("classpath-filesource"));
         assertThat(testClient.get("/test").content(), is("THINGS!"));
     }
 }

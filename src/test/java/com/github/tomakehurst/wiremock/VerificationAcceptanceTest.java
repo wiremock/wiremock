@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -240,7 +241,7 @@ public class VerificationAcceptanceTest {
     public static class JournalDisabled {
 
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().disableRequestJournal());
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(findFreePort()).disableRequestJournal());
 
         @Test(expected=RequestJournalDisabledException.class)
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
@@ -255,11 +256,11 @@ public class VerificationAcceptanceTest {
 
     public static class JournalMaxEntriesRestricted {
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().maxRequestJournalEntries(Optional.of(2)));
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(findFreePort()).maxRequestJournalEntries(Optional.of(2)));
 
         @Test
         public void maxLengthIs2() {
-            WireMockTestClient testClient = new WireMockTestClient();
+            WireMockTestClient testClient = new WireMockTestClient(wireMockRule.port());
             testClient.get("/request1");
             testClient.get("/request2");
             testClient.get("/request3");

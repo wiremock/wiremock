@@ -28,8 +28,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.concurrent.TimeUnit;
 
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -39,13 +39,14 @@ public class RequestDelayAcceptanceTest {
 
     private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
     private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
-    private static final int HTTP_PORT = 8080;
-    private static final int HTTPS_PORT = 8443;
+
+    private int httpPort = findFreePort();
+    private int httpsPort = findFreePort();
 
     private HttpClient httpClient;
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(HTTP_PORT, HTTPS_PORT);
+    public WireMockRule wireMockRule = new WireMockRule(httpPort, httpsPort);
 
     @Before
     public void init() {
@@ -110,7 +111,7 @@ public class RequestDelayAcceptanceTest {
     }
 
     private void executeGetRequest(String protocol) throws IOException {
-        int port = protocol.equals("https") ? HTTPS_PORT : HTTP_PORT;
+        int port = protocol.equals("https") ? httpsPort : httpPort;
         String url = String.format("%s://localhost:%d/anything", protocol, port);
         HttpGet get = new HttpGet(url);
         httpClient.execute(get);

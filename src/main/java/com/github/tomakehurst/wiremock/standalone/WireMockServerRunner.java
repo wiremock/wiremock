@@ -104,6 +104,8 @@ public class WireMockServerRunner {
         return wireMockServer.isRunning();
     }
 
+    public int port() { return wireMockServer.port(); }
+
 	public static void main(String... args) {
 		new WireMockServerRunner().run(args);
 	}

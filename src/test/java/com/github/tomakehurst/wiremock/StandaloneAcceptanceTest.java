@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,8 @@ import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
+
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.createParentDirs;
@@ -82,8 +85,7 @@ public class StandaloneAcceptanceTest {
 		mappingsDirectory = new File(FILE_SOURCE_ROOT, MAPPINGS);
 		
 		runner = new WireMockServerRunner();
-		testClient = new WireMockTestClient();
-		
+
 		WireMock.configure();
 	}
 	
@@ -244,43 +246,47 @@ public class StandaloneAcceptanceTest {
 	}
 	
 	@Test
-	public void startsOnPortSpecifiedOnCommandLine() {
-		startRunner("--port", "8086");
-		WireMock client = new WireMock("localhost", 8086);
+	public void startsOnPortSpecifiedOnCommandLine() throws Exception {
+        int port = findFreePort();
+		startRunner("--port", "" + port);
+		WireMock client = new WireMock("localhost", port);
 		client.verifyThat(0, getRequestedFor(urlEqualTo("/bling/blang/blong"))); //Would throw an exception if couldn't connect
 	}
 	
 	@Test
-	public void proxiesToHostSpecifiedOnCommandLine() {
-		WireMock otherServerClient = start8084ServerAndCreateClient();
+	public void proxiesToHostSpecifiedOnCommandLine() throws Exception {
+        int port = findFreePort();
+		WireMock otherServerClient = startOtherServerAndClient(port);
 		otherServerClient.register(get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
-		startRunner("--proxy-all", "http://localhost:8084");
+		startRunner("--proxy-all", "http://localhost:" + port);
 		
 		WireMockResponse response = testClient.get("/proxy/ok?working=yes");
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
 	@Test
-	public void respondsWithPreExistingRecordingInProxyMode() {
+	public void respondsWithPreExistingRecordingInProxyMode() throws Exception {
 		writeMappingFile("test-mapping-2.json", BODY_FILE_MAPPING_REQUEST);
 		writeFileToFilesDir("body-test.xml", "Existing recorded body");
 
-		WireMock otherServerClient = start8084ServerAndCreateClient();
+        int port = findFreePort();
+		WireMock otherServerClient = startOtherServerAndClient(port);
 		otherServerClient.register(
                 get(urlEqualTo("/body/file"))
                         .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		startRunner("--proxy-all", "http://localhost:8084");
+		startRunner("--proxy-all", "http://localhost:" + port);
 
 		assertThat(testClient.get("/body/file").content(), is("Existing recorded body"));
 	}
 
 	@Test
 	public void recordsProxiedRequestsWhenSpecifiedOnCommandLine() throws Exception {
-	    WireMock otherServerClient = start8084ServerAndCreateClient();
+        int port = findFreePort();
+	    WireMock otherServerClient = startOtherServerAndClient(port);
 		startRunner("--record-mappings");
 		givenThat(get(urlEqualTo("/please/record-this"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:8084")));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + port)));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-this"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -294,10 +300,11 @@ public class StandaloneAcceptanceTest {
 	
 	@Test
 	public void recordsRequestHeadersWhenSpecifiedOnCommandLine() throws Exception {
-	    WireMock otherServerClient = start8084ServerAndCreateClient();
+        int port = findFreePort();
+	    WireMock otherServerClient = startOtherServerAndClient(port);
 		startRunner("--record-mappings", "--match-headers", "Accept");
 		givenThat(get(urlEqualTo("/please/record-headers"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:8084")));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + port)));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -309,14 +316,15 @@ public class StandaloneAcceptanceTest {
 	}
 	
 	@Test
-	public void performsBrowserProxyingWhenEnabled() {
-		WireMock otherServerClient = start8084ServerAndCreateClient();
+	public void performsBrowserProxyingWhenEnabled() throws Exception {
+        int port = findFreePort();
+		WireMock otherServerClient = startOtherServerAndClient(port);
 		startRunner("--enable-browser-proxying");
 		otherServerClient.register(
 		        get(urlEqualTo("/from/browser/proxy"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		assertThat(testClient.getViaProxy("http://localhost:8084/from/browser/proxy").content(), is("Proxied body"));
+		assertThat(testClient.getViaProxy("http://localhost:" + port + "/from/browser/proxy").content(), is("Proxied body"));
 	}
 	
 	@Test
@@ -364,10 +372,10 @@ public class StandaloneAcceptanceTest {
         };
 	}
 	
-	private WireMock start8084ServerAndCreateClient() {
-        otherServer = new WireMockServer(8084);
+	private WireMock startOtherServerAndClient(int port) {
+        otherServer = new WireMockServer(port);
         otherServer.start();
-        return new WireMock("localhost", 8084);
+        return new WireMock(port);
     }
 	
 	private void writeFileToFilesDir(String name, String contents) {
@@ -412,7 +420,12 @@ public class StandaloneAcceptanceTest {
 	}
 
 	private void startRunner(String... args) {
-		runner.run(argsWithRecordingsPath(args));
+        runner = new WireMockServerRunner();
+		runner.run(argsWithPort(argsWithRecordingsPath(args)));
+
+        int port = runner.port();
+        testClient = new WireMockTestClient(port);
+        WireMock.configureFor(port);
 	}
 
 	private String[] argsWithRecordingsPath(String[] args) {
@@ -422,6 +435,14 @@ public class StandaloneAcceptanceTest {
 		}
 		return argsAsList.toArray(new String[]{});
 	}
+
+    private String[] argsWithPort(String[] args) {
+        List<String> argsAsList = new ArrayList<String>(asList(args));
+        if (!argsAsList.contains("--port")) {
+            argsAsList.addAll(asList("--port", "0"));
+        }
+        return argsAsList.toArray(new String[]{});
+    }
 
 	private void startRecordingSystemOutAndErr() {
 		out = new ByteArrayOutputStream();
@@ -537,4 +558,6 @@ public class StandaloneAcceptanceTest {
             }
         }
     }
+
+
 }

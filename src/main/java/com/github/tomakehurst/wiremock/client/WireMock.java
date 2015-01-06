@@ -45,6 +45,10 @@ public class WireMock {
         this.admin = admin;
     }
 
+    public WireMock(int port) {
+        this(DEFAULT_HOST, port);
+    }
+
     public WireMock(String host, int port) {
 		admin = new HttpAdminClient(host, port);
 	}
@@ -68,7 +72,11 @@ public class WireMock {
     public static ListStubMappingsResult listAllStubMappings() {
         return defaultInstance.allStubMappings();
     }
-	
+
+    public static void configureFor(int port) {
+        defaultInstance = new WireMock(port);
+    }
+
 	public static void configureFor(String host, int port) {
 		defaultInstance = new WireMock(host, port);
 	}

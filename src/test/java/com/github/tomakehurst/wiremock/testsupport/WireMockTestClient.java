@@ -81,7 +81,7 @@ public class WireMockTestClient {
     }
 
     public WireMockResponse getViaProxy(String url) {
-        return getViaProxy(url, DEFAULT_PORT);
+        return getViaProxy(url, port);
     }
 
     public WireMockResponse getViaProxy(String url, int proxyPort) {

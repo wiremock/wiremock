@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 
 public class AcceptanceTestBase {
 
@@ -39,11 +41,15 @@ public class AcceptanceTestBase {
 		wireMockServer.stop();
 	}
 
-    public static void setupServer(Options options) {
+    public static void setupServer(WireMockConfiguration options) {
+        if(options.portNumber() == WireMockConfiguration.DEFAULT_PORT) {
+            options.port(findFreePort());
+        }
+
         wireMockServer = new WireMockServer(options);
         wireMockServer.start();
-        testClient = new WireMockTestClient();
-        WireMock.configure();
+        testClient = new WireMockTestClient(options.portNumber());
+        WireMock.configureFor(options.portNumber());
     }
 
 	@Before
