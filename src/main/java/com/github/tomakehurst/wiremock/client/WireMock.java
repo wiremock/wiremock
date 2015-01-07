@@ -199,6 +199,10 @@ public class WireMock {
         return matchingStrategy;
     }
 	
+	public static MappingBuilder groovy(String groovyPattern) {
+		return new MappingBuilder(groovyPattern);
+	}
+
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}

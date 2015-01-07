@@ -321,6 +321,82 @@ public class RequestPatternTest {
 		requestPattern.isMatchedBy(request);
 	}
 
+	@Test
+	public void shouldParseGroovyExpressionFromPattern() {
+		String groovyPattern = "[1,2].every {it > 0}";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithUrlBinding() {
+		String groovyPattern = "url == 'someUrl'";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).withUrl("someUrl").build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithAbsoluteUrlBinding() {
+		String groovyPattern = "absoluteUrl.endsWith('someUrl')";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).withUrl("/someUrl").build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithAllHeaderKeysBinding() {
+		String groovyPattern = "allHeaderKeys.containsAll(['key','key2'])";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).
+							withHeader("key", "value").
+							withHeader("key2", "value").
+							build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithHeadersBinding() {
+		String groovyPattern = "headers.contentTypeHeader.containsValue('application/json')";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).
+							withHeader("key", "value").
+							withHeader("Content-Type", "application/json").
+							build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithBodyAsStringBinding() {
+		String groovyPattern = "body == 'someBody'";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).withBody("someBody").build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
+	@Test
+	public void shouldParseGroovyExpressionFromPatternWithMethodBinding() {
+		String groovyPattern = "method == 'DELETE'";
+		RequestPattern requestPattern = new RequestPattern(groovyPattern);
+
+		Request request = aRequest(context).withMethod(DELETE).build();
+
+		requestPattern.isMatchedBy(request);
+	}
+
     private void ignoringNotifier() {
         context.checking(new Expectations() {{
             ignoring(notifier);
