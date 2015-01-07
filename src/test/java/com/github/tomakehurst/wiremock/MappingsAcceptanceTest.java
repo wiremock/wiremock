@@ -124,7 +124,42 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
         testClient.addResponse(MAPPING_REQUEST_FOR_BINARY_BYTE_BODY);
         assertThat(testClient.get("/bytecompressed/resource/from/file").binaryContent(), is(BINARY_COMPRESSED_CONTENT));
     }
-	
+
+	@Test
+	public void testRemoveMapping() {
+		String pathToDelete = "/resource/11";
+		String otherPath = "/resource/22";
+
+		add200ResponseFor(pathToDelete);
+		add200ResponseFor(otherPath);
+
+		testClient.removeMapping(pathToDelete, MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE);
+
+		getResponseAndAssert404Status(pathToDelete);
+		getResponseAndAssert200Status(otherPath);
+	}
+
+	@Test
+	public void testRemoveMapping_WithDiffResponseForSamePath() {
+		String pathToRemove = "/resource";
+
+		String postResponseTemplate = MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE.replace("GET", "POST");
+		testClient.addResponse(String.format(postResponseTemplate, pathToRemove));
+
+		String getResponseTemplate = MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE;
+		testClient.addResponse(String.format(getResponseTemplate, pathToRemove));
+
+		testClient.removeMapping(pathToRemove, getResponseTemplate);
+
+		getResponseAndAssert404Status(pathToRemove);
+		postResponseAndAssert200Status(pathToRemove);
+	}
+
+	private void postResponseAndAssert200Status(String pathToRemove) {
+		WireMockResponse response = testClient.post(pathToRemove, null);
+		assertThat(response.statusCode(), is(200));
+	}
+
 	private void getResponseAndAssert200Status(String url) {
 		WireMockResponse response = testClient.get(url);
 		assertThat(response.statusCode(), is(200));

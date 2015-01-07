@@ -142,6 +142,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public void removeStubMapping(StubMapping stubMapping) {
+        stubMappings.removeMapping(stubMapping);
+    }
+
+    @Override
     public void resetToDefaultMappings() {
         resetMappings();
         loadDefaultMappings();

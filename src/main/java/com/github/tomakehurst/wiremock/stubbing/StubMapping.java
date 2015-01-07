@@ -203,6 +203,26 @@ public class StubMapping {
 
 	@Override
 	public boolean equals(Object obj) {
+		if (this.equalsIgnorePriorityAndInsertionCount(obj)) {
+			StubMapping other = (StubMapping) obj;
+			if (insertionIndex != other.insertionIndex) {
+				return false;
+			}
+
+			if (priority == null) {
+				if (other.priority != null) {
+					return false;
+				}
+			} else if (!priority.equals(other.priority)) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean equalsIgnorePriorityAndInsertionCount(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -213,21 +233,12 @@ public class StubMapping {
 			return false;
 		}
 		StubMapping other = (StubMapping) obj;
-		if (insertionIndex != other.insertionIndex) {
-			return false;
-		}
+
 		if (newScenarioState == null) {
 			if (other.newScenarioState != null) {
 				return false;
 			}
 		} else if (!newScenarioState.equals(other.newScenarioState)) {
-			return false;
-		}
-		if (priority == null) {
-			if (other.priority != null) {
-				return false;
-			}
-		} else if (!priority.equals(other.priority)) {
 			return false;
 		}
 		if (request == null) {
@@ -260,7 +271,5 @@ public class StubMapping {
 		}
 		return true;
 	}
-
-	
 	
 }

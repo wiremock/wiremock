@@ -41,6 +41,7 @@ public class WireMockTestClient {
     private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
     private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
     private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
+    private static final String LOCAL_WIREMOCK_REMOVE_MAPPING = "http://%s:%d/__admin/mappings/remove";
 
     private int port;
     private String address;
@@ -163,16 +164,12 @@ public class WireMockTestClient {
 
     public void resetMappings() {
         int status = postEmptyBodyAndReturnStatus(resetUrl());
-        if (status != HTTP_OK) {
-            throw new RuntimeException("Returned status code was " + status);
-        }
+        verifyOkStatus(status);
     }
 
     public void resetDefaultMappings() {
         int status = postEmptyBodyAndReturnStatus(resetDefaultMappingsUrl());
-        if (status != HTTP_OK) {
-            throw new RuntimeException("Returned status code was " + status);
-        }
+        verifyOkStatus(status);
     }
 
     private int postJsonAndReturnStatus(String url, String json) {
@@ -214,5 +211,17 @@ public class WireMockTestClient {
                 .disableRedirectHandling()
                 .disableContentCompression()
                 .build();
+    }
+
+    public void removeMapping(String url, String responseTemplate) {
+        String resetUrl = String.format(LOCAL_WIREMOCK_REMOVE_MAPPING, address, port);
+        int status = postJsonAndReturnStatus(resetUrl, String.format(responseTemplate, url));
+        verifyOkStatus(status);
+    }
+
+    private void verifyOkStatus(int status) {
+        if (status != HTTP_OK) {
+            throw new RuntimeException("Returned status code was " + status);
+        }
     }
 }

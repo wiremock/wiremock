@@ -37,7 +37,11 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 				if (priorityComparison != 0) {
 					return priorityComparison;
 				}
-				
+
+				if (one.getInsertionIndex() == two.getInsertionIndex()) {
+					return 0;
+				}
+
 				return (two.getInsertionIndex() > one.getInsertionIndex()) ? 1 : -1;
 			}
 		};
@@ -60,5 +64,15 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	@Override
 	public String toString() {
 		return mappingSet.toString();
+	}
+
+	public void remove(StubMapping mappingToDelete) {
+		Iterator<StubMapping> mappings = mappingSet.iterator();
+		while(mappings.hasNext()) {
+			StubMapping mapping = mappings.next();
+			if (mapping.equalsIgnorePriorityAndInsertionCount(mappingToDelete)) {
+				mappingSet.remove(mapping);
+			}
+		}
 	}
 }

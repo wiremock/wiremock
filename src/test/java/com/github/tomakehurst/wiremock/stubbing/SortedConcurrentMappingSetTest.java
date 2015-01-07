@@ -23,6 +23,9 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.Iterator;
+
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static org.hamcrest.Matchers.is;
@@ -79,10 +82,56 @@ public class SortedConcurrentMappingSetTest {
 		mappingSet.add(aMapping(1, "/priority1/1"));
 		
 		mappingSet.clear();
-		
-		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
+
+		assertSetIsEmpty(mappingSet);
 	}
-	
+
+	@Test
+	public void testRemoveMappingWithDifferentPriority() {
+		String pathToRemove = "/path_to_remove";
+		mappingSet.add(aMapping(1, pathToRemove));
+		mappingSet.remove(aMapping(2, pathToRemove));
+
+		mappingSet.remove(aMapping(null, pathToRemove));
+
+		assertSetIsEmpty(mappingSet);
+	}
+
+	@Test
+	public void testRemoveMappingWithDifferentInsertionIndex() {
+		String pathToRemove = "/path_to_remove";
+		StubMapping mapping1 = aMapping(null, pathToRemove);
+		mapping1.setInsertionIndex(1);
+		StubMapping mapping2 = aMapping(null, pathToRemove);
+		mapping2.setInsertionIndex(2);
+		mappingSet.add(mapping1);
+		mappingSet.add(mapping2);
+
+		mappingSet.remove(aMapping(null, pathToRemove));
+
+		assertSetIsEmpty(mappingSet);
+	}
+
+	@Test
+	public void testRemoveMappingWithDifferentResponse() {
+		String pathToRemove = "/path_to_remove";
+
+		StubMapping mapping1 = aMapping(1, pathToRemove);
+		mapping1.setResponse(ResponseDefinition.ok());
+
+		StubMapping mapping2 = aMapping(1, pathToRemove);
+		mapping2.setResponse(ResponseDefinition.created());
+
+		mappingSet.add(mapping1);
+		mappingSet.add(mapping2);
+
+		mappingSet.remove(mapping1);
+
+		Iterator<StubMapping> mappings = mappingSet.iterator();
+		assertThat(mappings.next(), is(mapping2));
+		assertThat(mappings.hasNext(), is(false));
+	}
+
 	private StubMapping aMapping(Integer priority, String url) {
 		RequestPattern requestPattern = new RequestPattern(ANY, url);
 		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
@@ -103,5 +152,9 @@ public class SortedConcurrentMappingSetTest {
 			}
 			
 		};
+	}
+
+	private void assertSetIsEmpty(SortedConcurrentMappingSet mappingSet) {
+		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
 	}
 }

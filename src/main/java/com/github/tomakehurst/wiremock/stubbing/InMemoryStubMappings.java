@@ -64,6 +64,11 @@ public class InMemoryStubMappings implements StubMappings {
 	}
 
 	@Override
+	public void removeMapping(StubMapping mapping) {
+		mappings.remove(mapping);
+	}
+
+	@Override
 	public void reset() {
 		mappings.clear();
         scenarioMap.clear();

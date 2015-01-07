@@ -294,6 +294,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public void removeStubMapping(StubMapping stubMapping) {
+        wireMockApp.removeStubMapping(stubMapping);
+    }
+
+    @Override
     public void resetToDefaultMappings() {
         wireMockApp.resetToDefaultMappings();
     }
