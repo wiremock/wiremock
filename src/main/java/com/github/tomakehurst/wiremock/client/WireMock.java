@@ -335,10 +335,6 @@ public class WireMock {
         defaultInstance.addDelayBeforeProcessingRequests(milliseconds);
     }
 
-    public int port() {
-        return admin.port();
-    }
-
     public void shutdown() {
         admin.shutdownServer();
     }

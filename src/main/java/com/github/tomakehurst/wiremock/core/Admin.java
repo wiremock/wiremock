@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import java.util.List;
-
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -37,6 +35,5 @@ public interface Admin {
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 	void updateGlobalSettings(GlobalSettings settings);
     void addSocketAcceptDelay(RequestDelaySpec spec);
-    int port();
     void shutdownServer();
 }

@@ -181,7 +181,6 @@ public class WireMockApp implements StubServer, Admin {
         requestDelayControl.setDelay(delaySpec.milliseconds());
     }
 
-    @Override
     public int port() {
         return container.port();
     }

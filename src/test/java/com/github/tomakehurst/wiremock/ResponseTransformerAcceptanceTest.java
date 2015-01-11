@@ -117,6 +117,7 @@ public class ResponseTransformerAcceptanceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("unchecked")
     public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
         new WireMockServer(wireMockConfig()
                 .port(0)

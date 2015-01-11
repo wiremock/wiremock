@@ -255,7 +255,7 @@ public class StandaloneAcceptanceTest {
 	public void proxiesToHostSpecifiedOnCommandLine() throws Exception {
 		WireMock otherServerClient = startOtherServerAndClient();
 		otherServerClient.register(get(urlEqualTo("/proxy/ok?working=yes")).willReturn(aResponse().withStatus(HTTP_OK)));
-		startRunner("--proxy-all", "http://localhost:" + otherServerClient.port());
+		startRunner("--proxy-all", "http://localhost:" + otherServer.port());
 		
 		WireMockResponse response = testClient.get("/proxy/ok?working=yes");
 		assertThat(response.statusCode(), is(HTTP_OK));
@@ -271,7 +271,7 @@ public class StandaloneAcceptanceTest {
                 get(urlEqualTo("/body/file"))
                         .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		startRunner("--proxy-all", "http://localhost:" + otherServerClient.port());
+		startRunner("--proxy-all", "http://localhost:" + otherServer.port());
 
 		assertThat(testClient.get("/body/file").content(), is("Existing recorded body"));
 	}
@@ -281,7 +281,7 @@ public class StandaloneAcceptanceTest {
 	    WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--record-mappings");
 		givenThat(get(urlEqualTo("/please/record-this"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServerClient.port())));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-this"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -298,7 +298,7 @@ public class StandaloneAcceptanceTest {
 	    WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--record-mappings", "--match-headers", "Accept");
 		givenThat(get(urlEqualTo("/please/record-headers"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServerClient.port())));
+		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
 		otherServerClient.register(
 		        get(urlEqualTo("/please/record-headers"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
@@ -317,7 +317,7 @@ public class StandaloneAcceptanceTest {
 		        get(urlEqualTo("/from/browser/proxy"))
 		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
-		assertThat(testClient.getViaProxy("http://localhost:" + otherServerClient.port() + "/from/browser/proxy").content(), is("Proxied body"));
+		assertThat(testClient.getViaProxy("http://localhost:" + otherServer.port() + "/from/browser/proxy").content(), is("Proxied body"));
 	}
 	
 	@Test

@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class JsonTest {
