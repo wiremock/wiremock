@@ -28,8 +28,6 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
-
 import static com.google.common.collect.Iterables.getLast;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;

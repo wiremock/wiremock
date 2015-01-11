@@ -24,9 +24,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
-
-import org.apache.http.conn.HttpHostConnectException;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -35,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,9 +41,8 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
-
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.io.Files.createParentDirs;

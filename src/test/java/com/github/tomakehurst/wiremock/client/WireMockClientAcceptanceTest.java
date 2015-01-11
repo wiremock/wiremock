@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

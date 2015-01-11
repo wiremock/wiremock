@@ -30,7 +30,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
-import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
