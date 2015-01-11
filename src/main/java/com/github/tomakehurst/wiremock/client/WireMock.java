@@ -104,7 +104,7 @@ public class WireMock {
 	public static void reset() {
 		defaultInstance.resetMappings();
 	}
-	
+
 	public void resetScenarios() {
 		admin.resetScenarios();
 	}
@@ -130,7 +130,11 @@ public class WireMock {
         admin.addStubMapping(mapping);
     }
 
-    public ListStubMappingsResult allStubMappings() {
+	public static void removeMapping(MappingBuilder mappingBuilder) {
+		defaultInstance.admin.removeStubMapping(mappingBuilder.build());
+	}
+
+	public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
     }
 	

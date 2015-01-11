@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -198,4 +199,16 @@ public class Examples extends AcceptanceTestBase {
             .willReturn(aResponse().withStatus(200)));
     }
 
+    @Test
+    public void removeSingleMapping() {
+        String path = "/whatever";
+        MappingBuilder mapping = get(urlEqualTo(path))
+                                .willReturn(aResponse().withStatus(200));
+        stubFor(mapping);
+
+        assertThat(testClient.get(path).statusCode(), is(200));
+
+        removeMapping(mapping);
+        assertThat(testClient.get(path).statusCode(), is(404));
+    }
 }

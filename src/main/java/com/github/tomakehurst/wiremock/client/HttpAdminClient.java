@@ -69,6 +69,14 @@ public class HttpAdminClient implements Admin {
 	}
 
     @Override
+    public void removeStubMapping(StubMapping stubMapping) {
+        postJsonAssertOkAndReturnBody(
+                urlFor(RemoveStubMappingTask.class),
+                Json.write(stubMapping),
+                HTTP_OK);
+    }
+
+    @Override
     public ListStubMappingsResult listAllStubMappings() {
         String body = getJsonAssertOkAndReturnBody(
                 urlFor(RootTask.class),
@@ -85,8 +93,8 @@ public class HttpAdminClient implements Admin {
 	public void resetMappings() {
 		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
 	}
-	
-	@Override
+
+    @Override
 	public void resetScenarios() {
         postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
 	}
