@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -72,12 +73,13 @@ public class WarDeploymentParameterAcceptanceTest {
      * @param mappingPath Path where wiremock is mapped
      */
     private void init(String webInfPath, String mappingPath) throws Exception {
-        jetty = new Server(8085);
+        int port = Network.findFreePort();
+        jetty = new Server(port);
         WebAppContext context = new WebAppContext(webInfPath, "/wiremock");
         jetty.addHandler(context);
         jetty.start();
 
-        WireMock.configureFor("localhost", 8085, "/wiremock" + mappingPath);
-        testClient = new WireMockTestClient(8085);
+        WireMock.configureFor("localhost", port, "/wiremock" + mappingPath);
+        testClient = new WireMockTestClient(port);
     }
 }

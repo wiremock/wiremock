@@ -61,7 +61,7 @@ public class ResponseTransformerAcceptanceTest {
     @Test
     public void supportsSpecifiyingExtensionsByClass() {
         wm = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(ExampleTransformer.class, MultiTransformer1.class));
         wm.start();
         client = new WireMockTestClient(wm.port());
@@ -75,7 +75,7 @@ public class ResponseTransformerAcceptanceTest {
     @Test
     public void supportsSpecifiyingExtensionsByInstance() {
         wm = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(new ExampleTransformer(), new MultiTransformer2()));
         wm.start();
         client = new WireMockTestClient(wm.port());
@@ -89,7 +89,7 @@ public class ResponseTransformerAcceptanceTest {
     @Test
     public void doesNotApplyNonGlobalExtensionsWhenNotExplicitlySpecfiedByStub() {
         wm = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(new ExampleTransformer(), new NonGlobalTransformer()));
         wm.start();
         client = new WireMockTestClient(wm.port());
@@ -102,7 +102,7 @@ public class ResponseTransformerAcceptanceTest {
     @Test
     public void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
         wm = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(new NonGlobalTransformer()));
         wm.start();
         client = new WireMockTestClient(wm.port());
@@ -120,7 +120,7 @@ public class ResponseTransformerAcceptanceTest {
     @SuppressWarnings("unchecked")
     public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
         new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
     }
 
@@ -136,7 +136,7 @@ public class ResponseTransformerAcceptanceTest {
 
     private void startWithExtensions(String... extensions) {
         wm = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .extensions(extensions));
         wm.start();
         client = new WireMockTestClient(wm.port());

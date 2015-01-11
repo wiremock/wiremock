@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,7 +38,6 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
 public class BindAddressTest {
 
-    private final int port = 8090;
     private String localhost = "127.0.0.1";
     private String nonBindAddress;
     private WireMockServer wireMockServer;
@@ -60,11 +60,7 @@ public class BindAddressTest {
                     + localhost + "]");
         }
 
-        WireMockConfiguration cfg = new WireMockConfiguration();
-        cfg.bindAddress(localhost);
-        cfg.port(port);
-
-        wireMockServer = new WireMockServer(cfg);
+        wireMockServer = new WireMockServer(wireMockConfig().bindAddress(localhost).dynamicPort());
         wireMockServer.start();
     }
 
@@ -76,7 +72,7 @@ public class BindAddressTest {
     }
 
     private void executeGetIn(String address) {
-        WireMockTestClient wireMockClient = new WireMockTestClient(port, address);
+        WireMockTestClient wireMockClient = new WireMockTestClient(wireMockServer.port(), address);
         wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
         WireMockResponse response = wireMockClient.get("/a/registered/resource");
         assertThat(response.statusCode(), is(401));

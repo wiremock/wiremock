@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
@@ -45,13 +46,14 @@ public class WarDeploymentAcceptanceTest {
 	
 	@Before
 	public void init() throws Exception {
-		jetty = new Server(8085);
+        int port = Network.findFreePort();
+		jetty = new Server(port);
 		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
 		jetty.addHandler(context);
 		jetty.start();
 		
-		WireMock.configureFor("localhost", 8085, "/wiremock");
-		testClient = new WireMockTestClient(8085);
+		WireMock.configureFor("localhost", port, "/wiremock");
+		testClient = new WireMockTestClient(port);
 	}
 	
 	@After
@@ -92,7 +94,6 @@ public class WarDeploymentAcceptanceTest {
         } catch (VerificationException e) {
             assertThat(e.getMessage(), containsString("500"));
         }
-
     }
 
     @Test

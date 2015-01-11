@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
+import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
@@ -53,9 +54,10 @@ public class PortNumberTest {
 
     @Test
     public void canRunOnAnotherPortThan8080() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(8090));
+        int port = Network.findFreePort();
+        WireMockServer wireMockServer = createServer(wireMockConfig().port(port));
         wireMockServer.start();
-        WireMockTestClient wireMockClient = new WireMockTestClient(8090);
+        WireMockTestClient wireMockClient = new WireMockTestClient(port);
 
         wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
         WireMockResponse response = wireMockClient.get("/a/registered/resource");
@@ -65,26 +67,28 @@ public class PortNumberTest {
 
     @Test
     public void configuredPortIsReportedListeningPort() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(8091).httpsPort(8092));
+        int port = Network.findFreePort();
+        int httpsPort = Network.findFreePort();
+        WireMockServer wireMockServer = createServer(wireMockConfig().port(port).httpsPort(httpsPort));
         wireMockServer.start();
 
-        assertThat(wireMockServer.port(), is(8091));
-        assertThat(wireMockServer.httpsPort(), is(8092));
+        assertThat(wireMockServer.port(), is(port));
+        assertThat(wireMockServer.httpsPort(), is(httpsPort));
     }
 
     @Test(expected = IllegalStateException.class)
     public void unstartedServerThrowsExceptionWhenAttemptingToRetrievePort() {
-        createServer(wireMockConfig().port(8091)).port();
+        createServer(wireMockConfig().port(Network.findFreePort())).port();
     }
 
     @Test(expected = IllegalStateException.class)
     public void unstartedServerThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
-        createServer(wireMockConfig().httpsPort(8091)).httpsPort();
+        createServer(wireMockConfig().httpsPort(Network.findFreePort())).httpsPort();
     }
 
     @Test(expected = IllegalStateException.class)
     public void serverWithoutHttpsThrowsExceptionWhenAttemptingToRetrieveHttpsPort() {
-        WireMockServer wireMockServer = createServer(wireMockConfig().port(8090));
+        WireMockServer wireMockServer = createServer(wireMockConfig().port(Network.findFreePort()));
         wireMockServer.start();
         wireMockServer.httpsPort();
     }
