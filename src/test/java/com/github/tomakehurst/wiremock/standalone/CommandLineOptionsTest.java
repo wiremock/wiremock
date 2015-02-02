@@ -19,10 +19,9 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import org.hamcrest.Matchers;
+import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.Map;
@@ -74,6 +73,12 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
         assertThat(options.httpsSettings().enabled(), is(true));
         assertThat(options.httpsSettings().port(), is(8443));
+    }
+
+    @Test
+    public void defaultsKeystorePathIfNotSpecifiedWhenHttpsEnabled() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
+        assertThat(options.httpsSettings().keyStorePath(), endsWith("/keystore"));
     }
 
     @Test
