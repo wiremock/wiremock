@@ -23,7 +23,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.ByteArrayEntity;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -163,10 +163,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
         if (originalRequest.containsHeader(TRANSFER_ENCODING) &&
                 originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
-            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBodyAsString().getBytes()), -1, contentType);
+            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBody()), -1, contentType);
         }
 
-        return new StringEntity(originalRequest.getBodyAsString(), contentType);
+        return new ByteArrayEntity(originalRequest.getBody());
     }
 
 }
