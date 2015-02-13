@@ -157,6 +157,7 @@ artifacts {
 }
 
 signing {
+    required { !version.toString().contains("SNAPSHOT") && gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 
