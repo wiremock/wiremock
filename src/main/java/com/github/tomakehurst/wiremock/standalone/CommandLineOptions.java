@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -40,6 +41,10 @@ import joptsimple.OptionSet;
 
 import static com.github.tomakehurst.wiremock.common.ProxySettings.*;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.*;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
 	
@@ -142,8 +147,21 @@ public class CommandLineOptions implements Options {
 
 		return Collections.emptyList();
 	}
-	
-	private boolean specifiesPortNumber() {
+
+    @Override
+    public HttpServerFactory httpServerFactory() {
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            Class<?> cls = loader.loadClass(
+                    "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
+            );
+            return (HttpServerFactory) cls.newInstance();
+        } catch (Exception e) {
+            return throwUnchecked(e, null);
+        }
+    }
+
+    private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
 	}
 	

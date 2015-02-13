@@ -39,11 +39,15 @@ public class ThreadSafeRequestDelayControl implements RequestDelayControl {
     }
 
     @Override
-    public void delayIfRequired() throws InterruptedException {
+    public void delayIfRequired() {
         int millis = delayMilliseconds.get();
         if (millis != 0) {
             threadsBeingDelayed.put(Thread.currentThread(), new Object());
-            Thread.sleep(millis);
+            try {
+                Thread.sleep(millis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 

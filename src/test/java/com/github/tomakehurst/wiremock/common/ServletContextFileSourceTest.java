@@ -18,15 +18,24 @@ package com.github.tomakehurst.wiremock.common;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.descriptor.JspConfigDescriptor;
+
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.EventListener;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
@@ -79,6 +88,16 @@ public class ServletContextFileSourceTest {
         @Override
         public int getMinorVersion() {
             return 0;
+        }
+
+        @Override
+        public int getEffectiveMajorVersion() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public int getEffectiveMinorVersion() {
+            throw new UnsupportedOperationException("not yet implemented");
         }
 
         @Override
@@ -164,6 +183,11 @@ public class ServletContextFileSourceTest {
         }
 
         @Override
+        public boolean setInitParameter(String name, String value) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
         public Object getAttribute(String name) {
             return null;
         }
@@ -185,6 +209,126 @@ public class ServletContextFileSourceTest {
         @Override
         public String getServletContextName() {
             return null;
+        }
+
+        @Override
+        public ServletRegistration.Dynamic addServlet(String servletName, String className) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public ServletRegistration getServletRegistration(String servletName) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, String className) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public FilterRegistration getFilterRegistration(String filterName) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public SessionCookieConfig getSessionCookieConfig() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public void addListener(String className) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public <T extends EventListener> void addListener(T t) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public void addListener(Class<? extends EventListener> listenerClass) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public JspConfigDescriptor getJspConfigDescriptor() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public void declareRoles(String... roleNames) {
+            throw new UnsupportedOperationException("not yet implemented");
+        }
+
+        @Override
+        public String getVirtualServerName() {
+            throw new UnsupportedOperationException("not yet implemented");
         }
 
         @Override

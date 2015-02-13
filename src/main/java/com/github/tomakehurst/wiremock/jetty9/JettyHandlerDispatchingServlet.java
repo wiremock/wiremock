@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.*;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -37,7 +34,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 
-public class Jetty6HandlerDispatchingServlet extends HttpServlet {
+public class JettyHandlerDispatchingServlet extends HttpServlet {
 
 	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
 	public static final String MAPPED_UNDER_KEY = "mappedUnder";
@@ -91,7 +88,7 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new Jetty6HttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new JettyHttpServletRequestAdapter(httpServletRequest, mappedUnder);
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
@@ -105,8 +102,10 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 	}
 
     public static void applyResponse(Response response, HttpServletResponse httpServletResponse) {
-        if (response.getFault() != null) {
-            response.getFault().apply(new Jetty6FaultInjector(httpServletResponse));
+
+        Fault fault = response.getFault();
+        if (fault != null) {
+            httpServletResponse.addHeader(Fault.class.getName(), fault.name());
             return;
         }
 

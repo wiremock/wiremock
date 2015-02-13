@@ -37,10 +37,10 @@ import org.junit.After;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.SocketException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -135,7 +135,7 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test(expected = SocketException.class)
     public void rejectsWithoutClientCertificate() throws Exception {
         startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
