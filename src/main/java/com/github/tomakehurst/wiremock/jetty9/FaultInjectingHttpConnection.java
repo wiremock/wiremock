@@ -6,7 +6,6 @@ import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.Callback;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class FaultInjectingHttpConnection extends HttpConnection {
@@ -33,15 +32,16 @@ public class FaultInjectingHttpConnection extends HttpConnection {
 //    }
 
     public void send(HttpGenerator.ResponseInfo info, ByteBuffer content, boolean lastContent, Callback callback) {
-        String faultName = info.getHttpFields().get(Fault.class.getName());
-        if (faultName != null) {
-            Fault.valueOf(faultName).apply(
-                    new JettyFaultInjector(
-                            this,
-                            callback
-                    )
-            );
-        }
+//        String faultName = info.getHttpFields().get(Fault.class.getName());
+//        if (faultName != null) {
+//            Fault.valueOf(faultName).apply(
+//                    new JettyFaultInjector(
+//                            response,
+//                            this,
+//                            callback
+//                    )
+//            );
+//        }
         super.send(
                 info,
                 content,

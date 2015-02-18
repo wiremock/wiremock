@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import org.eclipse.jetty.io.ChannelEndPoint;
+import org.eclipse.jetty.server.HttpConnection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.Socket;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.Charsets.UTF_8;
@@ -102,9 +105,9 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 	}
 
     public static void applyResponse(Response response, HttpServletResponse httpServletResponse) {
-
         Fault fault = response.getFault();
         if (fault != null) {
+			fault.apply(new JettyFaultInjector(httpServletResponse));
             httpServletResponse.addHeader(Fault.class.getName(), fault.name());
             return;
         }
