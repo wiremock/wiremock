@@ -129,6 +129,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
     }
 
+	@Test
+	public void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
+		stubFor(get(urlPathEqualTo("/path-and-query/match"))
+				.withQueryParam("search", containing("WireMock"))
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.get("/path-and-query/match?wrongParam=wrongVal").statusCode(), is(404));
+	}
+
     @Test
 	public void responseBodyLoadedFromFile() {
 		stubFor(get(urlEqualTo("/my/file")).willReturn(
