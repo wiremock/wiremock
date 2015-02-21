@@ -19,10 +19,12 @@ import com.github.tomakehurst.wiremock.http.*;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.google.common.collect.Lists.asList;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
@@ -32,11 +34,12 @@ public class MockRequestBuilder {
 	private String url = "/";
 	private RequestMethod method = GET;
     private List<HttpHeader> individualHeaders = newArrayList();
+	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
+
 	private boolean browserProxyRequest = false;
-	
 	private String mockName;
-	
+
 	public MockRequestBuilder(Mockery context) {
 		this.context = context;
 	}
@@ -56,6 +59,11 @@ public class MockRequestBuilder {
 
 	public MockRequestBuilder withUrl(String url) {
 		this.url = url;
+		return this;
+	}
+
+	public MockRequestBuilder withQueryParameter(String key, String... values) {
+		queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
 		return this;
 	}
 
@@ -97,6 +105,11 @@ public class MockRequestBuilder {
                     allowing(request).contentTypeHeader(); will(returnValue(new ContentTypeHeader(header.firstValue())));
                 }
             }
+
+			for (QueryParameter queryParameter: queryParameters) {
+				allowing(request).queryParameter(queryParameter.key()); will(returnValue(queryParameter));
+			}
+
             allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));
 
             allowing(request).getHeaders(); will(returnValue(headers));

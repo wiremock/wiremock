@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -149,7 +150,9 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return splitQuery(request.getQueryString()).get(key);
+		return Optional.fromNullable(splitQuery(request.getQueryString())
+				.get(key))
+				.or(QueryParameter.absent(key));
     }
 
     @Override
