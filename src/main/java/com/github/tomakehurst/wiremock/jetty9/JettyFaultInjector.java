@@ -4,6 +4,9 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.google.common.base.Charsets;
 import org.eclipse.jetty.io.ChannelEndPoint;
 import org.eclipse.jetty.io.EndPoint;
+import org.eclipse.jetty.io.SelectChannelEndPoint;
+import org.eclipse.jetty.io.ssl.SslConnection;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.Callback;
@@ -16,6 +19,8 @@ import java.net.Socket;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class JettyFaultInjector implements FaultInjector {
+
+    private static final byte[] GARBAGE = "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8);
 
     private final Response response;
     private final Socket socket;
@@ -39,8 +44,7 @@ public class JettyFaultInjector implements FaultInjector {
         try {
             response.setStatus(200);
             response.flushBuffer();
-            byte[] stuff = "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8);
-            socket.getChannel().write(BufferUtil.toBuffer(stuff));
+            socket.getChannel().write(BufferUtil.toBuffer(GARBAGE));
             socket.close();
         } catch (IOException e) {
             throwUnchecked(e);
@@ -51,9 +55,7 @@ public class JettyFaultInjector implements FaultInjector {
     @Override
     public void randomDataAndCloseConnection() {
         try {
-//            response.getHttpOutput().sendContent(new ByteArrayInputStream("lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8)));
-            byte[] stuff = "lskdu018973t09sylgasjkfg1][]'./.sdlv".getBytes(Charsets.UTF_8);
-            socket.getChannel().write(BufferUtil.toBuffer(stuff));
+            socket.getChannel().write(BufferUtil.toBuffer(GARBAGE));
             socket.close();
         } catch (IOException e) {
             throwUnchecked(e);
@@ -61,8 +63,18 @@ public class JettyFaultInjector implements FaultInjector {
     }
 
     private Socket socket() {
-        ChannelEndPoint ep = (ChannelEndPoint) response.getHttpOutput().getHttpChannel().getEndPoint();
-        return ep.getSocket();
+        HttpChannel<?> httpChannel = response.getHttpOutput().getHttpChannel();
+        EndPoint endPoint = httpChannel.getEndPoint();
+        if (endPoint instanceof ChannelEndPoint) {
+            ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
+            return ep.getSocket();
+        } else if (endPoint instanceof SslConnection.DecryptedEndPoint) {
+            SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
+            SelectChannelEndPoint selectChannelEndPoint = (SelectChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
+            return selectChannelEndPoint.getSocket();
+        }
+
+        throw new RuntimeException("Couldn't extract the socket from the request. Unknown EndPoint type.");
     }
 
 }

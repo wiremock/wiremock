@@ -178,7 +178,7 @@ public class HttpsAcceptanceTest {
 
         proxy = new WireMockServer(wireMockConfig().port(Options.DYNAMIC_PORT));
         proxy.start();
-        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
 
         HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
         HttpResponse response = httpClient.execute(get);
@@ -203,6 +203,7 @@ public class HttpsAcceptanceTest {
             contentFor(url);
         } catch (Exception e) {
             Throwable cause = e.getCause();
+            e.printStackTrace();
             if (cause != null) {
                 assertThat(e.getCause(), instanceOf(expectedClass));
             } else {

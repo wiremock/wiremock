@@ -19,9 +19,9 @@ configurations {
 
 dependencies {
 //    compile "org.mortbay.jetty:jetty:6.1.26"
-	compile "org.eclipse.jetty:jetty-server:9.2.2.v20140723"
-	compile "org.eclipse.jetty:jetty-servlet:9.2.2.v20140723"
-    compile "org.eclipse.jetty:jetty-webapp:9.2.2.v20140723"
+	compile "org.eclipse.jetty:jetty-server:9.2.8.v20150217"
+	compile "org.eclipse.jetty:jetty-servlet:9.2.8.v20150217"
+    compile "org.eclipse.jetty:jetty-webapp:9.2.8.v20150217"
 	compile "com.google.guava:guava:18.0"
 	compile "com.fasterxml.jackson.core:jackson-core:2.4.2",
         	"com.fasterxml.jackson.core:jackson-annotations:2.4.2",
