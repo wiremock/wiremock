@@ -110,14 +110,14 @@ class JettyHttpServer implements HttpServer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        long timeout=System.currentTimeMillis()+30000;
+        long timeout = System.currentTimeMillis() + 30000;
         while (!jettyServer.isStarted()) {
             try {
-                Thread.currentThread().sleep(100);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 // no-op
             }
-            if (System.currentTimeMillis()>timeout) {
+            if (System.currentTimeMillis() > timeout) {
                 throw new RuntimeException("Server took too long to start up.");
             }
         }

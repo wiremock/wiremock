@@ -64,17 +64,8 @@ public class JettyFaultInjector implements FaultInjector {
 
     private Socket socket() {
         HttpChannel<?> httpChannel = response.getHttpOutput().getHttpChannel();
-        EndPoint endPoint = httpChannel.getEndPoint();
-        if (endPoint instanceof ChannelEndPoint) {
-            ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
-            return ep.getSocket();
-        } else if (endPoint instanceof SslConnection.DecryptedEndPoint) {
-            SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
-            SelectChannelEndPoint selectChannelEndPoint = (SelectChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
-            return selectChannelEndPoint.getSocket();
-        }
-
-        throw new RuntimeException("Couldn't extract the socket from the request. Unknown EndPoint type.");
+        ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
+        return ep.getSocket();
     }
 
 }

@@ -126,7 +126,7 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 
 	private static FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		if (httpServletRequest.getScheme().equals("https")) {
-			return new JettyFaultInjector(httpServletResponse);
+			return new JettyHttpsFaultInjector(httpServletResponse);
 		}
 
 		return new JettyFaultInjector(httpServletResponse);
