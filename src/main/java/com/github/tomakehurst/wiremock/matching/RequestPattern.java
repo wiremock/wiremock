@@ -356,7 +356,7 @@ public class RequestPattern {
                 ValuePattern valuePattern = entry.getValue();
                 String key = entry.getKey();
                 QueryParameter queryParam = request.queryParameter(key);
-                boolean match = queryParam.hasValueMatching(valuePattern);
+                boolean match = (queryParam != null ? queryParam.hasValueMatching(valuePattern) : false);
 
                 if (!match) {
                     notifier().info(String.format(
