@@ -215,7 +215,7 @@ public class ResponseDefinition {
 	
 	@JsonIgnore
 	public boolean specifiesBodyFile() {
-		return bodyFileName != null;
+		return bodyFileName != null && body == null;
 	}
 	
 	@JsonIgnore

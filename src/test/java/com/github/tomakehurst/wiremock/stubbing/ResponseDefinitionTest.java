@@ -102,4 +102,24 @@ public class ResponseDefinitionTest {
         assertJsonEquals("Expected: " + BINARY_BODY + "\nActual: " + actualJson,
                 BINARY_BODY, actualJson);
     }
+
+    @Test
+    public void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
+        ResponseDefinition responseDefinition = new ResponseDefinition();
+        responseDefinition.setBodyFileName("my-file");
+
+        assertTrue(responseDefinition.specifiesBodyFile());
+        assertFalse(responseDefinition.specifiesBodyContent());
+    }
+
+    @Test
+    public void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
+        ResponseDefinition responseDefinition = new ResponseDefinition();
+        responseDefinition.setBodyFileName("my-file");
+        responseDefinition.setBody("hello");
+
+        assertFalse(responseDefinition.specifiesBodyFile());
+        assertTrue(responseDefinition.specifiesBodyContent());
+    }
+
 }
