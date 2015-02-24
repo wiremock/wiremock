@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import java.util.List;
+import java.util.Map;
+
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -25,16 +28,18 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.collect.ImmutableList;
+import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Optional;
-
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.ImmutableList;
 
 public class WireMockApp implements StubServer, Admin {
     
@@ -61,13 +66,14 @@ public class WireMockApp implements StubServer, Admin {
             Optional<Integer> maxRequestJournalEntries,
             Map<String, ResponseTransformer> transformers,
             FileSource rootFileSource,
+            StubMappings stubMappings,
             Container container) {
         this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        stubMappings = new InMemoryStubMappings();
+        this.stubMappings = stubMappings;
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;

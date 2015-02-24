@@ -15,6 +15,13 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.google.common.base.Preconditions.checkState;
+
+import java.util.List;
+
+import org.mortbay.log.Log;
+
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -27,8 +34,19 @@ import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.*;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.global.RequestDelayControl;
+import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
+import com.github.tomakehurst.wiremock.global.ThreadSafeRequestDelayControl;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.jetty6.Jetty6HttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty6.LoggerAdapter;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -36,6 +54,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
@@ -43,30 +62,29 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.mortbay.log.Log;
-
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.google.common.base.Preconditions.checkState;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
-	public static final String FILES_ROOT = "__files";
+    public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
 
-	private final WireMockApp wireMockApp;
+    private final WireMockApp wireMockApp;
     private final StubRequestHandler stubRequestHandler;
 
-	private final HttpServer httpServer;
+    private final HttpServer httpServer;
     private final FileSource fileSource;
-	private final Notifier notifier;
+    private final Notifier notifier;
 
     private final Options options;
 
     protected final WireMock client;
 
+
     public WireMockServer(Options options) {
+        this(options, new InMemoryStubMappings());
+    }
+
+    public WireMockServer(Options options, StubMappings stubMappings) {
         this.options = options;
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
@@ -84,6 +102,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 options.maxRequestJournalEntries(),
                 options.extensionsOfType(ResponseTransformer.class),
                 fileSource,
+                stubMappings,
                 this
         );
 
@@ -136,13 +155,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 .notifier(notifier));
     }
 
-	public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
+    public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings) {
         this(wireMockConfig()
                 .port(port)
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying)
                 .proxyVia(proxySettings));
-	}
+    }
 
     public WireMockServer(int port, FileSource fileSource, boolean enableBrowserProxying) {
         this(wireMockConfig()
@@ -150,52 +169,52 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying));
     }
-	
-	public WireMockServer(int port) {
-		this(wireMockConfig().port(port));
-	}
+
+    public WireMockServer(int port) {
+        this(wireMockConfig().port(port));
+    }
 
     public WireMockServer(int port, Integer httpsPort) {
         this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
-	
-	public WireMockServer() {
-		this(wireMockConfig());
-	}
-	
-	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		wireMockApp.loadMappingsUsing(mappingsLoader);
-	}
+
+    public WireMockServer() {
+        this(wireMockConfig());
+    }
+
+    public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
+        wireMockApp.loadMappingsUsing(mappingsLoader);
+    }
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
         return wireMockApp.getGlobalSettingsHolder();
     }
 
     public void addMockServiceRequestListener(RequestListener listener) {
-		stubRequestHandler.addRequestListener(listener);
-	}
-	
-	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
-	    addMockServiceRequestListener(
+        stubRequestHandler.addRequestListener(listener);
+    }
+
+    public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
+        addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
-	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
-	}
-	
-	public void stop() {
+        notifier.info("Recording mappings to " + mappingsFileSource.getPath());
+    }
+
+    public void stop() {
         httpServer.stop();
-	}
-	
-	public void start() {
+    }
+
+    public void start() {
         try {
-		    httpServer.start();
+            httpServer.start();
         } catch (Exception e) {
             throw new FatalStartupException(e);
         }
-	}
+    }
 
     /**
      * Gracefully shutdown the server.
-     *
+     * <p/>
      * This method assumes it is being called as the result of an incoming HTTP request.
      */
     @Override
