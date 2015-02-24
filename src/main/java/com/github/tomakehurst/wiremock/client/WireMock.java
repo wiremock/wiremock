@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -241,6 +242,10 @@ public class WireMock {
 
 	public static MappingBuilder any(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
+	}
+
+	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
+		return new MappingBuilder(requestMatcher);
 	}
 	
 	public static ResponseDefinitionBuilder aResponse() {

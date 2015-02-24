@@ -50,7 +50,18 @@ public class RequestPattern {
     private Map<String, ValuePattern> queryParamPatterns;
     private List<ValuePattern> bodyPatterns;
 
-    public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {
+	private RequestMatcher matcher = new RequestMatcher() {
+		@Override
+		public boolean isMatchedBy(Request request) {
+			return RequestPattern.this.allElementsMatch(request);
+		}
+	};
+
+	public RequestPattern(RequestMatcher customMatcher) {
+		this.matcher = customMatcher;
+	}
+
+	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {
         this.url = url;
         this.method = method;
         this.headerPatterns = headerPatterns;
@@ -92,6 +103,10 @@ public class RequestPattern {
 	}
 
 	public boolean isMatchedBy(Request request) {
+		return matcher.isMatchedBy(request);
+	}
+
+	private boolean allElementsMatch(Request request) {
 		return (urlIsMatch(request) &&
 				methodMatches(request) &&
                 requiredAbsentHeadersAreNotPresentIn(request) &&
@@ -100,7 +115,7 @@ public class RequestPattern {
 				bodyMatches(request));
 	}
 
-    private boolean urlIsMatch(Request request) {
+	private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
 		boolean matched;
 		if (url != null) {
