@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
@@ -25,6 +27,12 @@ public class CustomMatchingAcceptanceTest {
 
         assertThat(client.get("/correct").statusCode(), is(200));
         assertThat(client.get("/wrong").statusCode(), is(404));
+    }
+
+    @Test(expected = AdminException.class)
+    public void throwsExceptionIfCustomMatchingAttemptedOverRemoteConnection() {
+        WireMock.configureFor(wm.port());
+        stubFor(requestMatching(new MyRequestMatcher()).willReturn(aResponse().withStatus(200)));
     }
 
     public static class MyRequestMatcher implements RequestMatcher {

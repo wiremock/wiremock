@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -50,12 +51,13 @@ public class RequestPattern {
     private Map<String, ValuePattern> queryParamPatterns;
     private List<ValuePattern> bodyPatterns;
 
-	private RequestMatcher matcher = new RequestMatcher() {
+	private final RequestMatcher defaultMatcher = new RequestMatcher() {
 		@Override
 		public boolean isMatchedBy(Request request) {
 			return RequestPattern.this.allElementsMatch(request);
 		}
 	};
+	private RequestMatcher matcher = defaultMatcher;
 
 	public RequestPattern(RequestMatcher customMatcher) {
 		this.matcher = customMatcher;
@@ -263,6 +265,11 @@ public class RequestPattern {
 
 	public void setBodyPatterns(List<ValuePattern> bodyPatterns) {
 		this.bodyPatterns = bodyPatterns;
+	}
+
+	@JsonIgnore
+	public boolean hasCustomMatcher() {
+		return matcher != defaultMatcher;
 	}
 
 	@Override
