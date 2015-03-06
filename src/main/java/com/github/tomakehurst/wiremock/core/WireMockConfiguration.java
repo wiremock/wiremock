@@ -58,6 +58,7 @@ public class WireMockConfiguration implements Options {
     private String proxyHostHeader;
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
+    private Integer jettyHeaderBufferSize;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
 
@@ -97,6 +98,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration jettyAcceptQueueSize(Integer jettyAcceptQueueSize) {
         this.jettyAcceptQueueSize = jettyAcceptQueueSize;
+        return this;
+    }
+
+    public WireMockConfiguration jettyHeaderBufferSize(Integer jettyHeaderBufferSize) {
+        this.jettyHeaderBufferSize = jettyHeaderBufferSize;
         return this;
     }
 
@@ -236,6 +242,7 @@ public class WireMockConfiguration implements Options {
         return JettySettings.Builder.aJettySettings()
                 .withAcceptors(jettyAcceptors)
                 .withAcceptQueueSize(jettyAcceptQueueSize)
+                .withRequestHeaderSize(jettyHeaderBufferSize)
                 .build();
     }
 
