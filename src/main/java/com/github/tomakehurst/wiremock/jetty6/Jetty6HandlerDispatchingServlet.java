@@ -27,6 +27,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -122,7 +123,10 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
         try {
-            httpServletResponse.getOutputStream().write(content);
+            ServletOutputStream out = httpServletResponse.getOutputStream();
+            out.write(content);
+            out.flush();
+            out.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
