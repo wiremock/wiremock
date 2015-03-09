@@ -8,10 +8,14 @@ import com.google.common.base.Optional;
 public class JettySettings {
     private final Optional<Integer> acceptors;
     private final Optional<Integer> acceptQueueSize;
+    private final Optional<Integer> requestHeaderSize;
 
-    private JettySettings(Optional<Integer> acceptors, Optional<Integer> acceptQueueSize) {
+    private JettySettings(Optional<Integer> acceptors,
+                          Optional<Integer> acceptQueueSize,
+                          Optional<Integer> requestHeaderSize) {
         this.acceptors = acceptors;
         this.acceptQueueSize = acceptQueueSize;
+        this.requestHeaderSize = requestHeaderSize;
     }
 
     public Optional<Integer> getAcceptors() {
@@ -22,17 +26,23 @@ public class JettySettings {
         return acceptQueueSize;
     }
 
+    public Optional<Integer> getRequestHeaderSize() {
+        return requestHeaderSize;
+    }
+
     @Override
     public String toString() {
         return "JettySettings{" +
                 "acceptors=" + acceptors +
                 ", acceptQueueSize=" + acceptQueueSize +
+                ", requestHeaderSize=" + requestHeaderSize +
                 '}';
     }
 
     public static class Builder {
         private Integer acceptors;
         private Integer acceptQueueSize;
+        private Integer requestHeaderSize;
 
         private Builder() {
         }
@@ -51,9 +61,15 @@ public class JettySettings {
             return this;
         }
 
+        public Builder withRequestHeaderSize(Integer requestHeaderSize) {
+            this.requestHeaderSize = requestHeaderSize;
+            return this;
+        }
+
         public JettySettings build() {
-            JettySettings jettySettings = new JettySettings(Optional.fromNullable(acceptors), Optional.fromNullable(acceptQueueSize));
-            return jettySettings;
+            return new JettySettings(Optional.fromNullable(acceptors),
+                    Optional.fromNullable(acceptQueueSize),
+                    Optional.fromNullable(requestHeaderSize));
         }
     }
 

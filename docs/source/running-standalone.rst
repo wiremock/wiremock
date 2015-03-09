@@ -87,6 +87,9 @@ The number of threads Jetty uses for accepting requests.
 ``--jetty-accept-queue-size``:
 The Jetty queue size for accepted requests.
 
+``--jetty-header-buffer-size``:
+The Jetty buffer size for request headers, e.g. ``--jetty-header-buffer-size 16384``, defaults to 8192K.
+
 ``--extensions``:
 Extension class names e.g. com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See :ref:`extending-wiremock`.
 
