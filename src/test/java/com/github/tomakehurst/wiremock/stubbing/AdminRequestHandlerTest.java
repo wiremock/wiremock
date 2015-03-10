@@ -41,7 +41,6 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class AdminRequestHandlerTest {
-	
 	private Mockery context;
 	private Admin admin;
 
@@ -77,7 +76,8 @@ public class AdminRequestHandlerTest {
 		Response response = handler.handle(request);
 		
 		assertThat(response.getStatus(), is(HTTP_CREATED));
-	}
+        verifyCorsHeader(response);
+    }
 
     @Test
     public void shouldSaveMappingsWhenSaveCalled() {
@@ -93,6 +93,7 @@ public class AdminRequestHandlerTest {
         Response response = handler.handle(request);
 
         assertThat(response.getStatus(), is(HTTP_OK));
+        verifyCorsHeader(response);
     }
 	
 	@Test
@@ -109,6 +110,7 @@ public class AdminRequestHandlerTest {
 		Response response = handler.handle(request);
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
+        verifyCorsHeader(response);
 	}
 	
 	private static final String REQUEST_PATTERN_SAMPLE = 
@@ -132,7 +134,8 @@ public class AdminRequestHandlerTest {
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
-	}
+        verifyCorsHeader(response);
+    }
 	
 	private static final String GLOBAL_SETTINGS_JSON =
 		"{												\n" +
@@ -154,5 +157,9 @@ public class AdminRequestHandlerTest {
 				.build());
 		
 	}
-	
+
+    private void verifyCorsHeader(Response response) {
+        HttpHeader header = response.getHeaders().getHeader("Access-Control-Allow-Origin");
+        assertThat(header.values().get(0), is("*"));
+    }
 }
