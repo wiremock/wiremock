@@ -96,6 +96,9 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
 		if (response.wasConfigured()) {
 		    applyResponse(response, httpServletResponse);
 		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
