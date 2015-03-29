@@ -135,4 +135,15 @@ public class HttpHeadersTest {
         assertThat(headers.getHeader("header-one").firstValue(), is("value 1"));
     }
 
+    @Test
+    public void toStringWhenHeadersPresent() {
+        HttpHeaders httpHeaders = new HttpHeaders(httpHeader("Test-Header", "value1", "value2"));
+        assertThat(httpHeaders.toString().contains("Test-Header"), is(true));
+    }
+
+    @Test
+    public void toStringWhenHeadersEmpty() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        assertThat(httpHeaders.toString().equals("HttpHeaders: []"), is(true));
+    }
 }

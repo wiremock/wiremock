@@ -121,6 +121,20 @@ public class HttpHeaders {
         return result;
     }
 
+    @Override
+    public String toString() {
+        String outString = "HttpHeaders: ";
+
+        if (headers.isEmpty()) {
+            return outString += "[]";
+        }
+
+        for (CaseInsensitiveKey key : headers.keySet()) {
+            outString += key.toString() + ": " + headers.get(key).toString() + "\n";
+        }
+        return outString;
+    }
+
     private CaseInsensitiveKey caseInsensitive(String key) {
         return new CaseInsensitiveKey(key);
     }
