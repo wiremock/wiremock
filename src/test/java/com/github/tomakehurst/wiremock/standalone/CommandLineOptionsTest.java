@@ -222,6 +222,12 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsCorrectlyParsedJettyHeaderBufferSize() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-header-buffer-size", "16384");
+        assertThat(options.jettySettings().getRequestHeaderSize().get(), is(16384));
+    }
+
+    @Test
     public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
@@ -231,6 +237,12 @@ public class CommandLineOptionsTest {
     public void returnsAbsentIfJettyAcceptorsNotSet() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.jettySettings().getAcceptors().isPresent(), is(false));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getRequestHeaderSize().isPresent(), is(false));
     }
 
     @Test(expected=IllegalArgumentException.class)

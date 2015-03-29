@@ -15,16 +15,29 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.google.common.base.Optional;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class BasicResponseRenderer implements ResponseRenderer {
 
-	@Override
-	public Response render(ResponseDefinition responseDefinition) {
+    @Override
+    public Response render(ResponseDefinition responseDefinition) {
+
+        // Allows JavaScript Client access to Wiremock admin endpoints
+        // See: http://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+        HttpHeader corsHeader = new HttpHeader("Access-Control-Allow-Origin", "*");
+        HttpHeaders httpHeaders = Optional.fromNullable(responseDefinition.getHeaders())
+                .or(new HttpHeaders())
+                .plus(corsHeader);
+
         return response()
                 .status(responseDefinition.getStatus())
-                .headers(responseDefinition.getHeaders())
+                .headers(httpHeaders)
                 .body(responseDefinition.getBody())
                 .build();
-	}
+    }
 }

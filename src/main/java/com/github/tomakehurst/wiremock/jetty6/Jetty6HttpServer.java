@@ -58,7 +58,7 @@ class Jetty6HttpServer implements HttpServer {
             RequestDelayControl requestDelayControl
     ) {
 
-    	jettyServer = new Server();
+        jettyServer = new Server();
 
         QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
         jettyServer.setThreadPool(threadPool);
@@ -146,7 +146,6 @@ class Jetty6HttpServer implements HttpServer {
         DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
         connector.setHost(bindAddress);
         connector.setPort(port);
-        connector.setHeaderBufferSize(8192);
         setJettySettings(jettySettings, connector);
         return connector;
     }
@@ -157,7 +156,6 @@ class Jetty6HttpServer implements HttpServer {
             JettySettings jettySettings) {
         DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
         connector.setPort(httpsSettings.port());
-        connector.setHeaderBufferSize(8192);
         connector.setKeystore(httpsSettings.keyStorePath());
         connector.setKeyPassword(httpsSettings.keyStorePassword());
 
@@ -179,6 +177,12 @@ class Jetty6HttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+
+        int headerBufferSize = 8192;
+        if (jettySettings.getRequestHeaderSize().isPresent()) {
+            headerBufferSize = jettySettings.getRequestHeaderSize().get();
+        }
+        connector.setHeaderBufferSize(headerBufferSize);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })

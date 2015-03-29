@@ -31,6 +31,7 @@ import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
@@ -102,6 +103,13 @@ public class HttpHeaders {
         return headers.asMap().size();
     }
 
+    public HttpHeaders plus(HttpHeader... additionalHeaders) {
+        return new HttpHeaders(ImmutableList.<HttpHeader>builder()
+                .addAll(all())
+                .addAll(asList(additionalHeaders))
+                .build());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -119,6 +127,20 @@ public class HttpHeaders {
         int result = super.hashCode();
         result = 31 * result + (headers != null ? headers.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        String outString = "HttpHeaders: ";
+
+        if (headers.isEmpty()) {
+            return outString += "[]";
+        }
+
+        for (CaseInsensitiveKey key : headers.keySet()) {
+            outString += key.toString() + ": " + headers.get(key).toString() + "\n";
+        }
+        return outString;
     }
 
     private CaseInsensitiveKey caseInsensitive(String key) {

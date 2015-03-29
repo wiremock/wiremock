@@ -15,6 +15,12 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -22,6 +28,12 @@ import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+import org.apache.http.entity.ByteArrayEntity;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
@@ -166,6 +178,41 @@ public class ProxyAcceptanceTest {
 		assertThat(response.statusCode(), is(200));
 	}
 
+	@Test
+	public void successfullyGetsResponseBinaryResponses() throws IOException {
+        initWithDefaultConfig();
+
+        final byte[] bytes = new byte[] {0x10, 0x49, 0x6e, (byte)0xb7, 0x46, (byte)0xe6, 0x52, (byte)0x95, (byte)0x95, 0x42};
+		HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+		server.createContext("/binary", new HttpHandler() {
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				InputStream request = exchange.getRequestBody();
+				
+				byte[] buffy = new byte[10];
+				request.read(buffy);
+				
+				if (Arrays.equals(buffy, bytes)) {
+					exchange.sendResponseHeaders(200, bytes.length);
+					
+					OutputStream out = exchange.getResponseBody();
+					out.write(bytes);
+					out.close();
+				} else {
+					exchange.sendResponseHeaders(500, 0);
+					exchange.close();
+				}
+			}
+		});
+		server.start();
+		
+        proxyingServiceAdmin.register(post(urlEqualTo("/binary")).willReturn(aResponse().proxiedFrom("http://localhost:" + server.getAddress().getPort()).withBody(bytes)));
+        
+        WireMockResponse post = testClient.post("/binary", new ByteArrayEntity(bytes));
+		assertThat(post.statusCode(), is(200));
+		assertThat(post.binaryContent(), Matchers.equalTo(bytes));
+	}
+	
     @Test
     public void sendsContentLengthHeaderWhenPostingIfPresentInOriginalRequest() {
         initWithDefaultConfig();

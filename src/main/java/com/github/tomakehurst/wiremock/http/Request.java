@@ -29,6 +29,7 @@ public interface Request {
 	boolean containsHeader(String key);
 	Set<String> getAllHeaderKeys();
     QueryParameter queryParameter(String key);
+    byte[] getBody();
     String getBodyAsString();
 	boolean isBrowserProxyRequest();
 }

@@ -12,7 +12,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.53/wiremock-1.53-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.54/wiremock-1.54-standalone.jar>`_.
 
 Supported command line options are:
 
@@ -86,6 +86,9 @@ The number of threads Jetty uses for accepting requests.
 
 ``--jetty-accept-queue-size``:
 The Jetty queue size for accepted requests.
+
+``--jetty-header-buffer-size``:
+The Jetty buffer size for request headers, e.g. ``--jetty-header-buffer-size 16384``, defaults to 8192K.
 
 ``--extensions``:
 Extension class names e.g. com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See :ref:`extending-wiremock`.

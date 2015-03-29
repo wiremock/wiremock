@@ -7,7 +7,7 @@ apply plugin: 'project-report'
 
 sourceCompatibility = 1.6
 group = 'com.github.tomakehurst'
-version = 1.53
+version = 1.54
 
 repositories {
 	mavenCentral()
@@ -177,7 +177,7 @@ uploadArchives {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
             	authentication(userName: user , password: password)
         	};
-        	beforeDeployment { deployment -> signPom(deployment) };
+        	beforeDeployment { deployment -> signing.signPom(deployment) };
             pom.artifactId = 'wiremock'
             pom.project {
             	packaging 'jar'

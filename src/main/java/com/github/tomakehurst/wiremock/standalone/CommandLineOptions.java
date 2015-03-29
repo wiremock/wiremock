@@ -64,6 +64,7 @@ public class CommandLineOptions implements Options {
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
     private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
+    private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
 
@@ -94,7 +95,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
-		optionParser.accepts(HELP, "Print this message");
+        optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
+        optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
         validate();
@@ -178,6 +180,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public JettySettings jettySettings() {
+
         JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
 
         if (optionSet.hasArgument(JETTY_ACCEPTOR_THREAD_COUNT)) {
@@ -186,6 +189,10 @@ public class CommandLineOptions implements Options {
 
         if (optionSet.hasArgument(JETTY_ACCEPT_QUEUE_SIZE)) {
             builder = builder.withAcceptQueueSize(Integer.parseInt((String) optionSet.valueOf(JETTY_ACCEPT_QUEUE_SIZE)));
+        }
+
+        if (optionSet.hasArgument(JETTY_HEADER_BUFFER_SIZE)) {
+            builder = builder.withRequestHeaderSize(Integer.parseInt((String) optionSet.valueOf(JETTY_HEADER_BUFFER_SIZE)));
         }
 
         return builder.build();
@@ -312,6 +319,17 @@ public class CommandLineOptions implements Options {
         builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
                .put(VERBOSE, verboseLoggingEnabled());
 
+        if (jettySettings().getAcceptQueueSize().isPresent()) {
+            builder.put(JETTY_ACCEPT_QUEUE_SIZE, jettySettings().getAcceptQueueSize().get());
+        }
+
+        if (jettySettings().getAcceptors().isPresent()) {
+            builder.put(JETTY_ACCEPTOR_THREAD_COUNT, jettySettings().getAcceptors().get());
+        }
+
+        if (jettySettings().getRequestHeaderSize().isPresent()) {
+            builder.put(JETTY_HEADER_BUFFER_SIZE, jettySettings().getRequestHeaderSize().get());
+        }
 
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Object> param: builder.build().entrySet()) {
