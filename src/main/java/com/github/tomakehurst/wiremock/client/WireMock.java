@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -244,8 +245,12 @@ public class WireMock {
 		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
 	}
 
-	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
-		return new MappingBuilder(requestMatcher);
+	public static MappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
+		return new MappingBuilder(customRequestMatcherName, parameters);
+	}
+
+	public static LocalMappingBuilder requestMatching(RequestMatcher requestMatcher) {
+		return new LocalMappingBuilder(requestMatcher);
 	}
 	
 	public static ResponseDefinitionBuilder aResponse() {

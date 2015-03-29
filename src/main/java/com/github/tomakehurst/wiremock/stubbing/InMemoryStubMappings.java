@@ -17,10 +17,13 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -33,7 +36,16 @@ public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
-	
+	private final Map<String, RequestMatcher> customMatchers;
+
+	public InMemoryStubMappings(Map<String, RequestMatcher> customMatchers) {
+		this.customMatchers = customMatchers;
+	}
+
+	public InMemoryStubMappings() {
+		this(Collections.<String, RequestMatcher>emptyMap());
+	}
+
 	@Override
 	public ResponseDefinition serveFor(Request request) {
 		StubMapping matchingMapping = find(

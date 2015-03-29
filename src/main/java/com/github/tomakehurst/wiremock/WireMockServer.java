@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -31,7 +32,9 @@ import com.github.tomakehurst.wiremock.global.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty6.Jetty6HttpServerFactory;
 import com.github.tomakehurst.wiremock.jetty6.LoggerAdapter;
+import com.github.tomakehurst.wiremock.junit.LocalStubbing;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
@@ -50,7 +53,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
 
-public class WireMockServer implements Container, Stubbing, Admin {
+public class WireMockServer implements Container, LocalStubbing, Admin {
 
 	public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -83,6 +86,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 options.requestJournalDisabled(),
                 options.maxRequestJournalEntries(),
                 options.extensionsOfType(ResponseTransformer.class),
+                options.extensionsOfType(RequestMatcher.class),
                 fileSource,
                 this
         );
@@ -246,6 +250,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void stubFor(MappingBuilder mappingBuilder) {
         givenThat(mappingBuilder);
+    }
+
+    @Override
+    public void givenThat(LocalMappingBuilder mappingBuilder) {
+        stubFor(mappingBuilder);
+    }
+
+    @Override
+    public void stubFor(LocalMappingBuilder mappingBuilder) {
+        client.register(mappingBuilder.build());
     }
 
     @Override

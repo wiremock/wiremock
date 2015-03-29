@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -27,6 +28,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,14 +55,21 @@ public class RequestPattern {
 
 	private final RequestMatcher defaultMatcher = new RequestMatcher() {
 		@Override
-		public boolean isMatchedBy(Request request) {
+		public boolean isMatchedBy(Request request, Parameters parameters) {
 			return RequestPattern.this.allElementsMatch(request);
 		}
 	};
 	private RequestMatcher matcher = defaultMatcher;
+	private CustomMatcherDefinition customMatcherDefinition;
 
 	public RequestPattern(RequestMatcher customMatcher) {
 		this.matcher = customMatcher;
+	}
+
+	public RequestPattern(String customMatcherName, Parameters matcherParameters) {
+		customMatcherDefinition = new CustomMatcherDefinition();
+		customMatcherDefinition.setName(customMatcherName);
+		customMatcherDefinition.setParameters(matcherParameters);
 	}
 
 	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {
@@ -104,8 +113,17 @@ public class RequestPattern {
 		}
 	}
 
-	public boolean isMatchedBy(Request request) {
+	public boolean isMatchedBy(Request request, Map<String, RequestMatcher> customMatchers) {
+		if (customMatcherDefinition != null) {
+			return customMatchers.get(customMatcherDefinition.getName())
+					.isMatchedBy(request, customMatcherDefinition.getParameters());
+		}
+
 		return matcher.isMatchedBy(request);
+	}
+
+	public boolean isMatchedBy(Request request) {
+		return isMatchedBy(request, Collections.<String, RequestMatcher>emptyMap());
 	}
 
 	private boolean allElementsMatch(Request request) {

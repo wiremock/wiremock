@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
@@ -36,6 +37,10 @@ public class MappingBuilder {
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(requestMatcher);
+	}
+
+	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
+		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
 	}
 
 	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {

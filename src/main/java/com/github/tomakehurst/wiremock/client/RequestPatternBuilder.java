@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -40,9 +41,20 @@ public class RequestPatternBuilder {
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 
 	private RequestMatcher customMatcher;
+	private String customMatcherName;
+	private Parameters customMatcherParams;
+
+	public RequestPatternBuilder(String customRequestMatcherName, Parameters customMatcherParams) {
+		this.customMatcherName = customRequestMatcherName;
+		this.customMatcherParams = customMatcherParams;
+	}
 
 	public static RequestPatternBuilder forCustomMatcher(RequestMatcher customMatcher) {
 		return new RequestPatternBuilder(customMatcher);
+	}
+
+	public static RequestPatternBuilder forCustomMatcher(String customRequestMatcherName, Parameters parameters) {
+		return new RequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
 	private RequestPatternBuilder(RequestMatcher customMatcher) {
@@ -84,6 +96,10 @@ public class RequestPatternBuilder {
 	public RequestPattern build() {
 		if (customMatcher != null) {
 			return new RequestPattern(customMatcher);
+		}
+
+		if (customMatcherName != null) {
+			return new RequestPattern(customMatcherName, customMatcherParams);
 		}
 
 		RequestPattern requestPattern = new RequestPattern();
