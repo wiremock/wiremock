@@ -31,6 +31,7 @@ import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Arrays.asList;
 
 @JsonSerialize(using = HttpHeadersJsonSerializer.class)
 @JsonDeserialize(using = HttpHeadersJsonDeserializer.class)
@@ -100,6 +101,13 @@ public class HttpHeaders {
 
     public int size() {
         return headers.asMap().size();
+    }
+
+    public HttpHeaders plus(HttpHeader... additionalHeaders) {
+        return new HttpHeaders(ImmutableList.<HttpHeader>builder()
+                .addAll(all())
+                .addAll(asList(additionalHeaders))
+                .build());
     }
 
     @Override
