@@ -24,11 +24,11 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.XpathEngine;
+import org.custommonkey.xmlunit.*;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -52,20 +52,21 @@ public class ValuePattern {
     private String equalToJson;
     private String equalToXml;
     private String matchesXPath;
+    private Map<String, String> xpathNamespaces;
     private JSONCompareMode jsonCompareMode;
-	private String equalTo;
-	private String contains;
-	private String matches;
-	private String doesNotMatch;
+    private String equalTo;
+    private String contains;
+    private String matches;
+    private String doesNotMatch;
     private Boolean absent;
     private String matchesJsonPath;
 
     public static ValuePattern equalTo(String value) {
-		ValuePattern valuePattern = new ValuePattern();
-		valuePattern.setEqualTo(value);
-		return valuePattern;
-	}
-	
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setEqualTo(value);
+        return valuePattern;
+    }
+
     public static ValuePattern equalToJson(String value) {
         ValuePattern valuePattern = new ValuePattern();
         valuePattern.setEqualToJson(value);
@@ -90,27 +91,27 @@ public class ValuePattern {
         valuePattern.setJsonCompareMode(jsonCompareMode);
         return valuePattern;
     }
-    
-	public static ValuePattern containing(String value) {
-		ValuePattern valuePattern = new ValuePattern();
-		valuePattern.setContains(value);
-		return valuePattern;
-	}
-	
-	public static ValuePattern matches(String value) {
-		ValuePattern valuePattern = new ValuePattern();
-		valuePattern.setMatches(value);
-		return valuePattern;
-	}
+
+    public static ValuePattern containing(String value) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setContains(value);
+        return valuePattern;
+    }
+
+    public static ValuePattern matches(String value) {
+        ValuePattern valuePattern = new ValuePattern();
+        valuePattern.setMatches(value);
+        return valuePattern;
+    }
 
     public static ValuePattern absent() {
         ValuePattern valuePattern = new ValuePattern();
         valuePattern.absent = true;
         return valuePattern;
     }
-	
-	public boolean isMatchFor(String value) {
-		checkOneMatchTypeSpecified();
+
+    public boolean isMatchFor(String value) {
+        checkOneMatchTypeSpecified();
 
         if (absent != null) {
             return (absent && value == null);
@@ -121,28 +122,28 @@ public class ValuePattern {
         } else if (matchesXPath != null) {
             return isXPathMatch(value);
         } else if (equalTo != null) {
-			return value.equals(equalTo);
-		} else if (contains != null) {
-			return value.contains(contains);
-		} else if (matches != null) {
-			return isMatch(matches, value);
-		} else if (doesNotMatch != null) {
-			return !isMatch(doesNotMatch, value);
-		} else if (matchesJsonPath != null) {
+            return value.equals(equalTo);
+        } else if (contains != null) {
+            return value.contains(contains);
+        } else if (matches != null) {
+            return isMatch(matches, value);
+        } else if (doesNotMatch != null) {
+            return !isMatch(doesNotMatch, value);
+        } else if (matchesJsonPath != null) {
             return isJsonPathMatch(value);
         }
-		
-		return false;
-	}
-	
-	public static Predicate<ValuePattern> matching(final String value) {
-		return new Predicate<ValuePattern>() {
-			public boolean apply(ValuePattern input) {
-				return input.isMatchFor(value);
-			}
-		};
-	}
-	
+
+        return false;
+    }
+
+    public static Predicate<ValuePattern> matching(final String value) {
+        return new Predicate<ValuePattern>() {
+            public boolean apply(ValuePattern input) {
+                return input.isMatchFor(value);
+            }
+        };
+    }
+
     private boolean isEqualJson(String value) {
         JSONCompareResult result;
         try {
@@ -168,6 +169,10 @@ public class ValuePattern {
         try {
             Document inDocument = XMLUnit.buildControlDocument(value);
             XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
+            if (xpathNamespaces != null) {
+                NamespaceContext namespaceContext = new SimpleNamespaceContext(xpathNamespaces);
+                simpleXpathEngine.setNamespaceContext(namespaceContext);
+            }
             NodeList nodeList = simpleXpathEngine.getMatchingNodes(
                     matchesXPath, inDocument);
             return nodeList.getLength() > 0;
@@ -183,11 +188,11 @@ public class ValuePattern {
             return false;
         }
     }
-	
-	private boolean isMatch(String regex, String value) {
-		Pattern pattern = Pattern.compile(regex, DOTALL);
-		return pattern.matcher(value).matches();
-	}
+
+    private boolean isMatch(String regex, String value) {
+        Pattern pattern = Pattern.compile(regex, DOTALL);
+        return pattern.matcher(value).matches();
+    }
 
     private boolean isJsonPathMatch(String value) {
         try {
@@ -219,39 +224,45 @@ public class ValuePattern {
             return false;
         }
     }
-	
-	private void checkNoMoreThanOneMatchTypeSpecified() {
-		if (countAllAttributes() > 1) {
-			throw new IllegalStateException("Only one type of match may be specified");
-		}
-	}
 
-	private void checkOneMatchTypeSpecified() {
-		if (countAllAttributes() == 0) {
-			throw new IllegalStateException("One match type must be specified");
-		}
-	}
-	
-	private int countAllAttributes() {
-		return count(equalToJson, equalToXml, matchesXPath, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
-	}
-	
-	public static int count(Object... objects) {
-		int counter = 0;
-		for (Object obj: objects) {
-			if (obj != null) {
-				counter++;
-			}
-		}
-		
-		return counter;
-	}
-	
-	public void setEqualTo(String equalTo) {
-		this.equalTo = equalTo;
-		checkNoMoreThanOneMatchTypeSpecified();
-	}
-	
+    private void checkNoMoreThanOneMatchTypeSpecified() {
+        if (countAllAttributes() > 1) {
+            throw new IllegalStateException("Only one type of match may be specified");
+        }
+    }
+
+    private void checkOneMatchTypeSpecified() {
+        if (countAllAttributes() == 0) {
+            throw new IllegalStateException("One match type must be specified");
+        }
+    }
+
+    private void checkMatchesXPath() {
+        if (this.matchesXPath == null) {
+            throw new IllegalStateException("XPathNamespace can only be set for matchesXPath");
+        }
+    }
+
+    private int countAllAttributes() {
+        return count(equalToJson, equalToXml, matchesXPath, equalTo, contains, matches, doesNotMatch, absent, matchesJsonPath);
+    }
+
+    public static int count(Object... objects) {
+        int counter = 0;
+        for (Object obj: objects) {
+            if (obj != null) {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
+
+    public void setEqualTo(String equalTo) {
+        this.equalTo = equalTo;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+
     public void setEqualToJson(String equalToJson) {
         this.equalToJson = equalToJson;
         checkNoMoreThanOneMatchTypeSpecified();
@@ -266,21 +277,34 @@ public class ValuePattern {
         this.matchesXPath = matchesXPath;
         checkNoMoreThanOneMatchTypeSpecified();
     }
-    
-	public void setContains(String contains) {
-		this.contains = contains;
-		checkNoMoreThanOneMatchTypeSpecified();
-	}
-	
-	public void setMatches(String matches) {
-		this.matches = matches;
-		checkNoMoreThanOneMatchTypeSpecified();
-	}
 
-	public void setDoesNotMatch(String doesNotMatch) {
-		this.doesNotMatch = doesNotMatch;
-		checkNoMoreThanOneMatchTypeSpecified();
-	}
+    public void setWithXPathNamespaces(Map xpathNamespaceMap) {
+        checkMatchesXPath();
+        this.xpathNamespaces = xpathNamespaceMap;
+    }
+
+    public void setWithXPathNamespace(String namespace, String namespaceUri) {
+        checkMatchesXPath();
+        if (this.xpathNamespaces == null) {
+            this.xpathNamespaces = new HashMap();
+        }
+        this.xpathNamespaces.put(namespace, namespaceUri);
+    }
+
+    public void setContains(String contains) {
+        this.contains = contains;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+
+    public void setMatches(String matches) {
+        this.matches = matches;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
+
+    public void setDoesNotMatch(String doesNotMatch) {
+        this.doesNotMatch = doesNotMatch;
+        checkNoMoreThanOneMatchTypeSpecified();
+    }
 
     public void setAbsent(Boolean absent) {
         this.absent = absent;
@@ -292,10 +316,10 @@ public class ValuePattern {
         checkNoMoreThanOneMatchTypeSpecified();
     }
 
-	public String getEqualTo() {
-		return equalTo;
-	}
-	
+    public String getEqualTo() {
+        return equalTo;
+    }
+
     public String getEqualToJson() {
         return equalToJson;
     }
@@ -308,6 +332,10 @@ public class ValuePattern {
         return matchesXPath;
     }
 
+    public Map getWithXPathNamespaces() {
+        return this.xpathNamespaces;
+    }
+
     public JSONCompareMode getJsonCompareMode() {
         return jsonCompareMode;
     }
@@ -317,16 +345,16 @@ public class ValuePattern {
     }
 
     public String getContains() {
-		return contains;
-	}
+        return contains;
+    }
 
-	public String getMatches() {
-		return matches;
-	}
+    public String getMatches() {
+        return matches;
+    }
 
-	public String getDoesNotMatch() {
-		return doesNotMatch;
-	}
+    public String getDoesNotMatch() {
+        return doesNotMatch;
+    }
 
     public Boolean isAbsent() {
         return absent;
@@ -339,29 +367,44 @@ public class ValuePattern {
     public boolean nullSafeIsAbsent() {
         return (absent != null && absent);
     }
-	
-	@Override
-	public String toString() {
-	    if (equalToJson != null) {
+
+    @Override
+    public String toString() {
+        if (equalToJson != null) {
             return "equalJson " + equalToJson;
         } else if (equalToXml != null) {
             return "equalXml " + equalToXml;
         } else if (matchesXPath != null) {
+            if (xpathNamespaces != null) {
+                return "equalXPath " + matchesXPath + " " + namespacesToString();
+            }
             return "equalXPath " + matchesXPath;
         } else if (equalTo != null) {
-			return "equal " + equalTo;
-		} else if (contains != null) {
-			return "contains " + contains;
-		} else if (matches != null) {
-			return "matches " + matches;
-		} else if (doesNotMatch != null) {
-			return "not match " + doesNotMatch;
+            return "equal " + equalTo;
+        } else if (contains != null) {
+            return "contains " + contains;
+        } else if (matches != null) {
+            return "matches " + matches;
+        } else if (doesNotMatch != null) {
+            return "not match " + doesNotMatch;
         } else if (matchesJsonPath != null) {
             return "matches JSON path " + matchesJsonPath;
-		} else {
+        } else {
             return "is absent";
         }
-	}
+    }
+
+    private String namespacesToString() {
+        // <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        StringBuilder sb = new StringBuilder(" with namespaces ");
+        for (String namespacePrefix : xpathNamespaces.keySet()) {
+            sb.append(namespacePrefix);
+            sb.append("=\"");
+            sb.append(xpathNamespaces.get(namespacePrefix));
+            sb.append("\" ");
+        }
+        return sb.toString().trim();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -377,6 +420,7 @@ public class ValuePattern {
         if (equalToJson != null ? !equalToJson.equals(that.equalToJson) : that.equalToJson != null) return false;
         if (equalToXml != null ? !equalToXml.equals(that.equalToXml) : that.equalToXml != null) return false;
         if (matchesXPath != null ? !matchesXPath.equals(that.matchesXPath) : that.matchesXPath != null) return false;
+        if (xpathNamespaces != null ? !xpathNamespaces.equals(that.xpathNamespaces) : that.xpathNamespaces != null) return false;
         if (matches != null ? !matches.equals(that.matches) : that.matches != null) return false;
         if (matchesJsonPath != null ? !matchesJsonPath.equals(that.matchesJsonPath) : that.matchesJsonPath != null)
             return false;
@@ -390,6 +434,7 @@ public class ValuePattern {
         result = 31 * result + (equalToJson != null ? equalToJson.hashCode() : 0);
         result = 31 * result + (equalToXml != null ? equalToXml.hashCode() : 0);
         result = 31 * result + (matchesXPath != null ? matchesXPath.hashCode() : 0);
+        result = 31 * result + (xpathNamespaces != null ? xpathNamespaces.hashCode() : 0);
         result = 31 * result + (contains != null ? contains.hashCode() : 0);
         result = 31 * result + (matches != null ? matches.hashCode() : 0);
         result = 31 * result + (doesNotMatch != null ? doesNotMatch.hashCode() : 0);

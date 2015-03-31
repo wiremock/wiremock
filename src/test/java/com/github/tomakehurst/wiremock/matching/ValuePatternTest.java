@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.jmock.Expectations;
@@ -26,52 +27,54 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.util.HashMap;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
 public class ValuePatternTest {
-	
-	private ValuePattern valuePattern;
+
+    private ValuePattern valuePattern;
     private Mockery context;
-	
-	@Before
-	public void init() {
-		valuePattern = new ValuePattern();
+
+    @Before
+    public void init() {
+        valuePattern = new ValuePattern();
         context = new Mockery();
-	}
+    }
 
     @After
     public void cleanUp() {
         LocalNotifier.set(null);
     }
 
-	@Test
-	public void matchesOnEqualTo() {
-		valuePattern.setEqualTo("text/plain");
-		assertTrue(valuePattern.isMatchFor("text/plain"));
-	}
-	
-	@Test
-	public void matchesOnRegex() {
-		valuePattern.setMatches("[0-9]{6}");
-		assertTrue(valuePattern.isMatchFor("938475"));
-		assertFalse(valuePattern.isMatchFor("abcde"));
-	}
-	
-	@Test
-	public void matchesOnNegativeRegex() {
-		valuePattern.setDoesNotMatch("[0-9]{6}");
-		assertFalse(valuePattern.isMatchFor("938475"));
-		assertTrue(valuePattern.isMatchFor("abcde"));
-	}
-	
-	@Test
-	public void matchesOnContains() {
-		valuePattern.setContains("some text");
-		assertFalse(valuePattern.isMatchFor("Nothing to see here"));
-		assertTrue(valuePattern.isMatchFor("There's some text here"));
-	}
+    @Test
+    public void matchesOnEqualTo() {
+        valuePattern.setEqualTo("text/plain");
+        assertTrue(valuePattern.isMatchFor("text/plain"));
+    }
+
+    @Test
+    public void matchesOnRegex() {
+        valuePattern.setMatches("[0-9]{6}");
+        assertTrue(valuePattern.isMatchFor("938475"));
+        assertFalse(valuePattern.isMatchFor("abcde"));
+    }
+
+    @Test
+    public void matchesOnNegativeRegex() {
+        valuePattern.setDoesNotMatch("[0-9]{6}");
+        assertFalse(valuePattern.isMatchFor("938475"));
+        assertTrue(valuePattern.isMatchFor("abcde"));
+    }
+
+    @Test
+    public void matchesOnContains() {
+        valuePattern.setContains("some text");
+        assertFalse(valuePattern.isMatchFor("Nothing to see here"));
+        assertTrue(valuePattern.isMatchFor("There's some text here"));
+    }
 
     @Test
     public void matchesOnAbsent() {
@@ -86,7 +89,7 @@ public class ValuePatternTest {
         valuePattern.setEqualToXml("<H><J>111</J></H>");
         assertTrue("Expected exact match", valuePattern.isMatchFor("<H><J>111</J></H>\n"));
     }
-    
+
     @Test
     public void ignoresSubElementOrderWhenMatchingXml() {
         valuePattern.setEqualToXml("<H><J>111</J><X>222</X></H>");
@@ -110,6 +113,24 @@ public class ValuePatternTest {
     public void matchesXPathWithNamespace() {
         valuePattern.setMatchesXPath("//*[local-name() = 'J'][.='111']");
         assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://schemas.xmlsoap.org/soap/envelope/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void matchesXPathWithNamespaceUsingMap() {
+        valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
+        HashMap xpathNamespaces = new HashMap();
+        xpathNamespaces.put("a", "http://foo.com/");
+        valuePattern.setWithXPathNamespaces(xpathNamespaces);
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void matchesXPathWithNamespaceUsingStrings() {
+        valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
+        valuePattern.setWithXPathNamespace("a", "http://foo.com/");
+        valuePattern.setWithXPathNamespace("b", "http://bar.com/");
+        String json = Json.write(valuePattern);
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
     }
 
     @Test
@@ -158,7 +179,7 @@ public class ValuePatternTest {
         assertTrue("Expected exact match", valuePattern.isMatchFor("{\"x\":0}"));
         assertTrue("Expected number json match", valuePattern.isMatchFor("{\"x\":0.0}"));
     }
-    
+
     @Test
     public void matchesOnIsEqualToJsonMoveFields() {
         valuePattern.setEqualToJson("{\"x\":0,\"y\":1}");
@@ -178,7 +199,7 @@ public class ValuePatternTest {
         valuePattern.setEqualToJson("{ \"x\": 0 }");
         assertFalse("Expected no match when unknown field is present", valuePattern.isMatchFor("{ \"x\": 0, \"y\": 1 }"));
     }
-    
+
     @Test
     public void matchesOnBasicJsonPaths() {
         valuePattern.setMatchesJsonPaths("$.one");
@@ -216,27 +237,27 @@ public class ValuePatternTest {
     }
 
     @Test(expected=IllegalStateException.class)
-	public void doesNotPermitMoreThanOneTypeOfMatch() {
-		valuePattern.setEqualTo("my-value");
-		valuePattern.setMatches("[0-9]{6}");
-	}
+    public void doesNotPermitMoreThanOneTypeOfMatch() {
+        valuePattern.setEqualTo("my-value");
+        valuePattern.setMatches("[0-9]{6}");
+    }
 
-	@Test(expected=IllegalStateException.class)
-	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherOrdering() {
-		valuePattern.setMatches("[0-9]{6}");
-		valuePattern.setEqualTo("my-value");
-	}
+    @Test(expected=IllegalStateException.class)
+    public void doesNotPermitMoreThanOneTypeOfMatchWithOtherOrdering() {
+        valuePattern.setMatches("[0-9]{6}");
+        valuePattern.setEqualTo("my-value");
+    }
 
-	@Test(expected=IllegalStateException.class)
-	public void doesNotPermitMoreThanOneTypeOfMatchWithOtherDoesNotMatch() {
-		valuePattern.setEqualTo("my-value");
-		valuePattern.setDoesNotMatch("[0-9]{6}");
-	}
+    @Test(expected=IllegalStateException.class)
+    public void doesNotPermitMoreThanOneTypeOfMatchWithOtherDoesNotMatch() {
+        valuePattern.setEqualTo("my-value");
+        valuePattern.setDoesNotMatch("[0-9]{6}");
+    }
 
-	@Test(expected=IllegalStateException.class)
-	public void doesNotPermitZeroMatchTypes() {
-		valuePattern.isMatchFor("blah");
-	}
+    @Test(expected=IllegalStateException.class)
+    public void doesNotPermitZeroMatchTypes() {
+        valuePattern.isMatchFor("blah");
+    }
 
     private void expectInfoNotification(final String message) {
         final Notifier notifier = context.mock(Notifier.class);
