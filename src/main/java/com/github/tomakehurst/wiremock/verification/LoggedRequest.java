@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 
 import java.net.URI;
@@ -133,7 +134,7 @@ public class LoggedRequest implements Request {
 	@Override
     @JsonProperty("body")
 	public String getBodyAsString() {
-		return new String(body);
+		return new String(body, Charsets.UTF_8);
 	}
 
 	@Override
