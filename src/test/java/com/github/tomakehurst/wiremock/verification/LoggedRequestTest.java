@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.google.common.base.Charsets;
+
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
@@ -32,11 +34,15 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 
 @RunWith(JMock.class)
 public class LoggedRequestTest {
+
+    public static final String REQUEST_BODY = "some text 形声字形聲字";
 
     private Mockery context;
 
@@ -72,7 +78,7 @@ public class LoggedRequestTest {
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
-            "      \"body\" : \"some text\",\n" +
+            "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
             "      \"loggedDateString\" : \"" + DATE + "\"\n" +
@@ -89,12 +95,26 @@ public class LoggedRequestTest {
                 "http://mydomain.com/my/url",
                 RequestMethod.GET,
                 headers,
-                "some text",
+                REQUEST_BODY,
                 true,
                 loggedDate);
 
         String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
         assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(expectedJson));
+    }
+
+    @Test
+    public void bodyEncodedAsUTF8() throws Exception {
+        LoggedRequest loggedRequest = new LoggedRequest(
+            "/my/url",
+            "http://mydomain.com/my/url",
+            RequestMethod.GET,
+            null,
+            REQUEST_BODY.getBytes(Charsets.UTF_8),
+            true,
+            null);
+
+        assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
     }
 
     private Date parse(String dateString) throws Exception {
