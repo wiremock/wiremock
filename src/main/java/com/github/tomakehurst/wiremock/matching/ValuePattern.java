@@ -279,7 +279,9 @@ public class ValuePattern {
     }
 
     public void setWithXPathNamespaces(Map xpathNamespaceMap) {
-        checkMatchesXPath();
+        if (xpathNamespaceMap != null) {
+            checkMatchesXPath();
+        }
         this.xpathNamespaces = xpathNamespaceMap;
     }
 
