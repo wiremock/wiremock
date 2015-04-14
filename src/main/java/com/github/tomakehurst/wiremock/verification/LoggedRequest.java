@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -82,7 +81,7 @@ public class LoggedRequest implements Request {
                          @JsonProperty("body") String body,
                          @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
                          @JsonProperty("loggedDate") Date loggedDate) {
-        this(url, absoluteUrl, method, headers, body.getBytes(), isBrowserProxyRequest, loggedDate);
+        this(url, absoluteUrl, method, headers, body.getBytes(Charsets.UTF_8), isBrowserProxyRequest, loggedDate);
     }
 
 	@Override
@@ -134,7 +133,7 @@ public class LoggedRequest implements Request {
 	@Override
     @JsonProperty("body")
 	public String getBodyAsString() {
-		return new String(body, Charsets.UTF_8);
+        return new String(body, Charsets.UTF_8);
 	}
 
 	@Override
