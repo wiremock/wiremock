@@ -77,7 +77,7 @@ And if you're still using JUnit 4.8:
 Accessing the stubbing and verification DSL from the rule
 =========================================================
 
-In addition the the static methods on the ``WireMock`` class, it is also possilble to configure stubs etc. via the rule
+In addition the the static methods on the ``WireMock`` class, it is also possible to configure stubs etc. via the rule
 object directly. There are two advantages to this - 1) it's a bit faster as it avoids sending commands over HTTP, and
 2) if you want to mock multiple services you can declare a rule per service but not have to create a client object for each e.g.
 
