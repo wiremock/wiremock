@@ -108,9 +108,9 @@
 <p>The WireMock server can be run in its own process, and configured via the Java API, JSON over HTTP or JSON files.</p>
 <p>This will start the server on port 8080:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.54-standalone.jar
+$ java -jar wiremock-1.55-standalone.jar
 </pre>
-<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.54/wiremock-1.54-standalone.jar">download the standalone JAR from here</a>.</p>
+<p>You can <a class="reference external" href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.55/wiremock-1.55-standalone.jar">download the standalone JAR from here</a>.</p>
 <p>Supported command line options are:</p>
 <p><tt class="docutils literal"><span class="pre">--port</span></tt>:
 Set the HTTP port number e.g. <tt class="docutils literal"><span class="pre">--port</span> <span class="pre">9999</span></tt></p>
@@ -163,6 +163,8 @@ Set maximum number of entries in request journal (if enabled). When this limit i
 The number of threads Jetty uses for accepting requests.</p>
 <p><tt class="docutils literal"><span class="pre">--jetty-accept-queue-size</span></tt>:
 The Jetty queue size for accepted requests.</p>
+<p><tt class="docutils literal"><span class="pre">--jetty-header-buffer-size</span></tt>:
+The Jetty buffer size for request headers, e.g. <tt class="docutils literal"><span class="pre">--jetty-header-buffer-size</span> <span class="pre">16384</span></tt>, defaults to 8192K.</p>
 <p><tt class="docutils literal"><span class="pre">--extensions</span></tt>:
 Extension class names e.g. com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See <a class="reference internal" href="extending-wiremock.html#extending-wiremock"><em>Extending WireMock</em></a>.</p>
 <p><tt class="docutils literal"><span class="pre">--help</span></tt>:

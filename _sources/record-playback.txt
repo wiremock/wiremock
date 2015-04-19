@@ -43,7 +43,7 @@ e.g. ``--match-headers="Accept,Content-Type"``
 Playback
 ========
 
-If you start the standlone runner again without the extra commandline options it will automatically load the newly
+If you start the standalone runner again without the extra commandline options it will automatically load the newly
 created stub mappings and start serving them.
 
 Alternatively you can copy the files created under ``src/test/resources/mappings`` and ``src/test/resources/__files``

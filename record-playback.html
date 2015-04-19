@@ -111,7 +111,7 @@ quickly capture a collection of responses from a real service then use them offl
 <span id="record-playback-recording"></span><h2>Recording<a class="headerlink" href="#recording" title="Permalink to this headline">¶</a></h2>
 <p>Recording is done by starting the standalone runner like this:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.54-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
+$ java -jar wiremock-1.55-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://search.twitter.com">http://search.twitter.com</a>&quot; --record-mappings --verbose
 </pre>
 <p>Once it&#8217;s started you send requests to it as if it was the remote service:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ curl &quot;http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1&quot;
@@ -133,7 +133,7 @@ e.g. <tt class="docutils literal"><span class="pre">--match-headers=&quot;Accept
 </div>
 <div class="section" id="playback">
 <h2>Playback<a class="headerlink" href="#playback" title="Permalink to this headline">¶</a></h2>
-<p>If you start the standlone runner again without the extra commandline options it will automatically load the newly
+<p>If you start the standalone runner again without the extra commandline options it will automatically load the newly
 created stub mappings and start serving them.</p>
 <p>Alternatively you can copy the files created under <tt class="docutils literal"><span class="pre">src/test/resources/mappings</span></tt> and <tt class="docutils literal"><span class="pre">src/test/resources/__files</span></tt>
 in your Java project, or the equivalents under <tt class="docutils literal"><span class="pre">WEB-INF/wiremock</span></tt> in your WAR project.</p>

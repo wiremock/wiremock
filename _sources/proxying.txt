@@ -7,7 +7,7 @@ Proxying
 .. rubric::
     WireMock has the ability to selectively proxy requests through to other hosts. This supports a proxy/intercept setup
     where requests are by default proxied to another (possibly real, live) service, but where specific stubs are configured these
-    are returned in place of the remote serivce's response. Responses that the live service can't be forced to generate
+    are returned in place of the remote service's response. Responses that the live service can't be forced to generate
     on demand can thus be injected for testing. Proxying also supports :ref:`record-playback`.
 
 .. _proxying-proxy-stub-mappings:

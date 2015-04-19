@@ -111,7 +111,7 @@
 <span id="id1"></span><h1>Proxying<a class="headerlink" href="#proxying" title="Permalink to this headline">¶</a></h1>
 <p class="rubric">WireMock has the ability to selectively proxy requests through to other hosts. This supports a proxy/intercept setup
 where requests are by default proxied to another (possibly real, live) service, but where specific stubs are configured these
-are returned in place of the remote serivce&#8217;s response. Responses that the live service can&#8217;t be forced to generate
+are returned in place of the remote service&#8217;s response. Responses that the live service can&#8217;t be forced to generate
 on demand can thus be injected for testing. Proxying also supports <a class="reference internal" href="record-playback.html#record-playback"><em>Record and Playback</em></a>.</p>
 <div class="section" id="proxy-stub-mappings">
 <span id="proxying-proxy-stub-mappings"></span><h2>Proxy stub mappings<a class="headerlink" href="#proxy-stub-mappings" title="Permalink to this headline">¶</a></h2>
@@ -184,7 +184,7 @@ and any number of higher priority stub mappings e.g.</p>
 <h3>Standalone shortcut<a class="headerlink" href="#standalone-shortcut" title="Permalink to this headline">¶</a></h3>
 <p>It is possible to start the standalone running with the catch-all stub already configured:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.54-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
+$ java -jar wiremock-1.55-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
 </pre>
 <p>Then it&#8217;s simply a case of adding your stub mapping <tt class="docutils literal"><span class="pre">.json</span></tt> files under <tt class="docutils literal"><span class="pre">mappings</span></tt> as usual (see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a>).</p>
 </div>
@@ -195,7 +195,7 @@ $ java -jar wiremock-1.54-standalone.jar --proxy-all=&quot;<a class="reference e
 described above, allowing you to modify specific AJAX requests or swap out CSS/Javascript files.</p>
 <p>This currently only works in standalone mode:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.54-standalone.jar --enable-browser-proxying
+$ java -jar wiremock-1.55-standalone.jar --enable-browser-proxying
 </pre>
 </div>
 <div class="section" id="proxying-via-another-proxy-server">

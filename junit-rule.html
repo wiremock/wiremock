@@ -157,7 +157,7 @@ This is easiest in JUnit 4.10:</p>
 </div>
 <div class="section" id="accessing-the-stubbing-and-verification-dsl-from-the-rule">
 <span id="stubbing-and-verification-via-rule"></span><h2>Accessing the stubbing and verification DSL from the rule<a class="headerlink" href="#accessing-the-stubbing-and-verification-dsl-from-the-rule" title="Permalink to this headline">¶</a></h2>
-<p>In addition the the static methods on the <tt class="docutils literal"><span class="pre">WireMock</span></tt> class, it is also possilble to configure stubs etc. via the rule
+<p>In addition the the static methods on the <tt class="docutils literal"><span class="pre">WireMock</span></tt> class, it is also possible to configure stubs etc. via the rule
 object directly. There are two advantages to this - 1) it&#8217;s a bit faster as it avoids sending commands over HTTP, and
 2) if you want to mock multiple services you can declare a rule per service but not have to create a client object for each e.g.</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="nd">@Rule</span>
