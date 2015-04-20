@@ -24,9 +24,9 @@ import java.util.Map;
 
 public class ValueMatchingStrategy {
 
-    private String equalTo;
-    private String equalToJson;
-    private String equalToXml;
+	private String equalTo;
+	private String equalToJson;
+	private String equalToXml;
     private String matchingXPath;
     private Map<String, String> xpathNamespaces;
     private JSONCompareMode jsonCompareMode;
@@ -36,35 +36,35 @@ public class ValueMatchingStrategy {
     private String matchesJsonPath;
 
     public ValuePattern asValuePattern() {
-        ValuePattern pattern = new ValuePattern();
-        pattern.setEqualTo(equalTo);
-        pattern.setEqualToJson(equalToJson);
-        pattern.setEqualToXml(equalToXml);
+		ValuePattern pattern = new ValuePattern();
+		pattern.setEqualTo(equalTo);
+		pattern.setEqualToJson(equalToJson);
+		pattern.setEqualToXml(equalToXml);
         pattern.setMatchesXPath(matchingXPath);
         pattern.setWithXPathNamespaces(xpathNamespaces);
         pattern.setJsonCompareMode(jsonCompareMode);
-        pattern.setMatches(matches);
-        pattern.setDoesNotMatch(doesNotMatch);
-        pattern.setContains(contains);
+		pattern.setMatches(matches);
+		pattern.setDoesNotMatch(doesNotMatch);
+		pattern.setContains(contains);
         pattern.setMatchesJsonPaths(matchesJsonPath);
-        return pattern;
-    }
+		return pattern;
+	}
+	
+	public String getContains() {
+		return contains;
+	}
 
-    public String getContains() {
-        return contains;
-    }
+	public void setContains(String contains) {
+		this.contains = contains;
+	}
 
-    public void setContains(String contains) {
-        this.contains = contains;
-    }
-
-    public static Function<ValueMatchingStrategy, ValuePattern> toValuePattern = new Function<ValueMatchingStrategy, ValuePattern>() {
-        public ValuePattern apply(ValueMatchingStrategy input) {
-            return input.asValuePattern();
-        }
-    };
-
-    public String getEqualToJson() {
+	public static Function<ValueMatchingStrategy, ValuePattern> toValuePattern = new Function<ValueMatchingStrategy, ValuePattern>() {
+		public ValuePattern apply(ValueMatchingStrategy input) {
+			return input.asValuePattern();
+		}
+	};
+	
+	public String getEqualToJson() {
         return equalToJson;
     }
 
@@ -92,15 +92,15 @@ public class ValueMatchingStrategy {
         this.matchingXPath = matchingXPath;
     }
 
-    public Map<String, String> getXpathNamespaces() {
+    public Map<String, String> getXPathNamespaces() {
         return xpathNamespaces;
     }
 
-    public void setXpathNamespaces(Map<String, String> xpathNamespaces) {
+    public void setXPathNamespaces(Map<String, String> xpathNamespaces) {
         this.xpathNamespaces = xpathNamespaces;
     }
 
-    public ValueMatchingStrategy addXpathNamespace(String namespace, String namespaceUri) {
+    public ValueMatchingStrategy addXPathNamespace(String namespace, String namespaceUri) {
         if (xpathNamespaces == null) {
             xpathNamespaces = new HashMap<String, String>();
         }
@@ -108,29 +108,29 @@ public class ValueMatchingStrategy {
         return this;
     }
 
-    public String getEqualTo() {
-        return equalTo;
-    }
+	public String getEqualTo() {
+		return equalTo;
+	}
 
-    public void setEqualTo(String equalTo) {
-        this.equalTo = equalTo;
-    }
+	public void setEqualTo(String equalTo) {
+		this.equalTo = equalTo;
+	}
 
-    public String getMatches() {
-        return matches;
-    }
+	public String getMatches() {
+		return matches;
+	}
 
-    public void setMatches(String matches) {
-        this.matches = matches;
-    }
+	public void setMatches(String matches) {
+		this.matches = matches;
+	}
 
-    public String getDoesNotMatch() {
-        return doesNotMatch;
-    }
+	public String getDoesNotMatch() {
+		return doesNotMatch;
+	}
 
-    public void setDoesNotMatch(String doesNotMatch) {
-        this.doesNotMatch = doesNotMatch;
-    }
+	public void setDoesNotMatch(String doesNotMatch) {
+		this.doesNotMatch = doesNotMatch;
+	}
 
     public void setJsonMatchesPath(String jsonPaths) {
         this.matchesJsonPath = jsonPaths;
