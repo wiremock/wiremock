@@ -27,6 +27,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,6 +97,9 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
 		if (response.wasConfigured()) {
 		    applyResponse(response, httpServletRequest, httpServletResponse);
 		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
@@ -134,7 +138,10 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
         try {
-            httpServletResponse.getOutputStream().write(content);
+            ServletOutputStream out = httpServletResponse.getOutputStream();
+            out.write(content);
+            out.flush();
+            out.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

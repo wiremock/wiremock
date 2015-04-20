@@ -17,19 +17,8 @@ package com.github.tomakehurst.wiremock.common;
 
 public class FatalStartupException extends RuntimeException {
 
-    public FatalStartupException(String message) {
-        super(message);
-    }
-
-    public FatalStartupException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public FatalStartupException(Throwable cause) {
         super(cause);
     }
 
-    public FatalStartupException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

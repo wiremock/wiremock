@@ -34,74 +34,80 @@ import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
 public class JettyHttpServletRequestAdapter implements Request {
-	
-	private final HttpServletRequest request;
-	private String cachedBody;
-	private String urlPrefixToRemove;
+    
+    private final HttpServletRequest request;
+    private byte[] cachedBody;
+    private String urlPrefixToRemove;
 
-	public JettyHttpServletRequestAdapter(HttpServletRequest request) {
-		this.request = request;
-	}
+    public JettyHttpServletRequestAdapter(HttpServletRequest request) {
+        this.request = request;
+    }
 
-	public JettyHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
-		this.request = request;
-		this.urlPrefixToRemove = urlPrefixToRemove;
-	}
+    public JettyHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
+        this.request = request;
+        this.urlPrefixToRemove = urlPrefixToRemove;
+    }
 
-	@Override
-	public String getUrl() {
-		String url = request.getRequestURI();
+    @Override
+    public String getUrl() {
+        String url = request.getRequestURI();
 
-		String contextPath = request.getContextPath();
-		if (!isNullOrEmpty(contextPath) && url.startsWith(contextPath)) {
-			url = url.substring(contextPath.length());
-		}
-		if(!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
-			url = url.substring(urlPrefixToRemove.length());
-		}
+        String contextPath = request.getContextPath();
+        if (!isNullOrEmpty(contextPath) && url.startsWith(contextPath)) {
+            url = url.substring(contextPath.length());
+        }
+        if(!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
+            url = url.substring(urlPrefixToRemove.length());
+        }
 
-		return withQueryStringIfPresent(url);
-	}
-	
-	@Override
-	public String getAbsoluteUrl() {
-		return withQueryStringIfPresent(request.getRequestURL().toString());
-	}
+        return withQueryStringIfPresent(url);
+    }
+    
+    @Override
+    public String getAbsoluteUrl() {
+        return withQueryStringIfPresent(request.getRequestURL().toString());
+    }
 
     private String withQueryStringIfPresent(String url) {
         return url + (isNullOrEmpty(request.getQueryString()) ? "" : "?" + request.getQueryString());
     }
 
-	@Override
-	public RequestMethod getMethod() {
-		return RequestMethod.valueOf(request.getMethod().toUpperCase());
-	}
+    @Override
+    public RequestMethod getMethod() {
+        return RequestMethod.valueOf(request.getMethod().toUpperCase());
+    }
 
-	@Override
-	public String getBodyAsString() {
-		if (cachedBody == null) {
-			try {
-                cachedBody = new String(toByteArray(request.getInputStream()), UTF_8);
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		}
-		
-		return cachedBody;
-	}
+    @Override
+    public byte[] getBody() {
+        if (cachedBody == null) {
+            try {
+                cachedBody = toByteArray(request.getInputStream());
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public String getHeader(String key) {
-	    List<String> headerNames = list(request.getHeaderNames());
-		for (String currentKey: headerNames) {
-			if (currentKey.toLowerCase().equals(key.toLowerCase())) {
-				return request.getHeader(currentKey);
-			}
-		}
-		
-		return null;
-	}
+        return cachedBody;
+    }
+
+    @Override
+    public String getBodyAsString() {
+        byte[] body = getBody();
+        return new String(body, UTF_8);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public String getHeader(String key) {
+        List<String> headerNames = list(request.getHeaderNames());
+        for (String currentKey: headerNames) {
+            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+                return request.getHeader(currentKey);
+            }
+        }
+        
+        return null;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -123,9 +129,9 @@ public class JettyHttpServletRequestAdapter implements Request {
     }
 
     @Override
-	public boolean containsHeader(String key) {
-		return header(key).isPresent();
-	}
+    public boolean containsHeader(String key) {
+        return header(key).isPresent();
+    }
 
     @Override
     public HttpHeaders getHeaders() {
@@ -138,15 +144,15 @@ public class JettyHttpServletRequestAdapter implements Request {
     }
 
     @SuppressWarnings("unchecked")
-	@Override
-	public Set<String> getAllHeaderKeys() {
-		LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();
-		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
-			headerKeys.add(headerNames.nextElement());
-		}
-		
-		return headerKeys;
-	}
+    @Override
+    public Set<String> getAllHeaderKeys() {
+        LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();
+        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+            headerKeys.add(headerNames.nextElement());
+        }
+        
+        return headerKeys;
+    }
 
     @Override
     public QueryParameter queryParameter(String key) {
@@ -156,7 +162,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     }
 
     @Override
-	public boolean isBrowserProxyRequest() {
+    public boolean isBrowserProxyRequest() {
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
             URI uri = URI.create(jettyRequest.getUri().toString());

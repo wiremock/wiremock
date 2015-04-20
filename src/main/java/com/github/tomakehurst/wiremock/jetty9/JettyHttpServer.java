@@ -48,6 +48,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 
+
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.jetty9.JettyHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 
@@ -65,6 +66,8 @@ class JettyHttpServer implements HttpServer {
             StubRequestHandler stubRequestHandler,
             RequestDelayControl requestDelayControl
     ) {
+
+    	jettyServer = new Server();
 
         QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
         jettyServer = new Server(threadPool);
@@ -220,6 +223,12 @@ class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+
+        int headerBufferSize = 8192;
+        if (jettySettings.getRequestHeaderSize().isPresent()) {
+            headerBufferSize = jettySettings.getRequestHeaderSize().get();
+        }
+        connector.setHeaderBufferSize(headerBufferSize);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })

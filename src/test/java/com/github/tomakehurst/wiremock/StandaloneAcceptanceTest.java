@@ -25,6 +25,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -308,6 +309,20 @@ public class StandaloneAcceptanceTest {
 		assertThat(mappingsDirectory, containsAFileContaining("/please/record-headers"));
 		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept\" : {"));
 	}
+
+    @Test
+    public void matchesVeryLongHeader() {
+        startRunner("--jetty-header-buffer-size", "32678");
+        String veryLongHeader = RandomStringUtils.randomAscii(16336);
+        givenThat(get(urlEqualTo("/some/big/header"))
+                .withHeader("ExpectedHeader", equalTo(veryLongHeader))
+                .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response = testClient.get("/some/big/header",
+                withHeader("ExpectedHeader", veryLongHeader));
+
+        assertThat(response.statusCode(), is(200));
+    }
 	
 	@Test
 	public void performsBrowserProxyingWhenEnabled() throws Exception {

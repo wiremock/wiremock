@@ -76,7 +76,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 	        try {
 	            Thread.sleep(optionalDelay.get());
 	        } catch (InterruptedException e) {
-	            throw new RuntimeException(e);
+	            Thread.currentThread().interrupt();
 	        }
 	    }
     }
