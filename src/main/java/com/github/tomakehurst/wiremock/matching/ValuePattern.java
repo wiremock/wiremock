@@ -241,7 +241,7 @@ public class ValuePattern {
 		}
 	}
 
-    private void checkMatchesXpath() {
+    private void checkMatchesXPath() {
         if (this.matchesXPath == null) {
             throw new IllegalStateException("XPathNamespace can only be set for matchesXPath");
         }
@@ -283,12 +283,14 @@ public class ValuePattern {
     }
 
     public void setWithXPathNamespaces(Map xpathNamespaceMap) {
-        checkMatchesXpath();
+        if (xpathNamespaceMap != null) {
+            checkMatchesXPath();
+        }
         this.xpathNamespaces = xpathNamespaceMap;
     }
 
     public void setWithXPathNamespace(String namespace, String namespaceUri) {
-        checkMatchesXpath();
+        checkMatchesXPath();
         if (this.xpathNamespaces == null) {
             this.xpathNamespaces = new HashMap<String, String>();
         }
