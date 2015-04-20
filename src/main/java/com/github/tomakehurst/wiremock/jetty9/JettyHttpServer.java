@@ -67,8 +67,6 @@ class JettyHttpServer implements HttpServer {
             RequestDelayControl requestDelayControl
     ) {
 
-    	jettyServer = new Server();
-
         QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
         jettyServer = new Server(threadPool);
 
@@ -157,11 +155,14 @@ class JettyHttpServer implements HttpServer {
             int port,
             JettySettings jettySettings) {
 
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        setHeaderBufferSize(jettySettings, httpConfig);
+
         ServerConnector connector = createServerConnector(
                 jettySettings,
                 port,
                 new FaultInjectingHttpConnectionFactory(
-                        new HttpConfiguration(),
+                        httpConfig,
                         requestDelayControl
                 )
         );
@@ -184,6 +185,7 @@ class JettyHttpServer implements HttpServer {
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
         HttpConfiguration httpConfig = new HttpConfiguration();
+        setHeaderBufferSize(jettySettings, httpConfig);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
 
         final int port = httpsSettings.port();
@@ -223,12 +225,14 @@ class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+    }
 
+    private void setHeaderBufferSize(JettySettings jettySettings, HttpConfiguration configuration) {
         int headerBufferSize = 8192;
         if (jettySettings.getRequestHeaderSize().isPresent()) {
             headerBufferSize = jettySettings.getRequestHeaderSize().get();
         }
-        connector.setHeaderBufferSize(headerBufferSize);
+        configuration.setRequestHeaderSize(headerBufferSize);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
@@ -258,7 +262,7 @@ class JettyHttpServer implements HttpServer {
         mimeTypes.addMimeMapping("txt", "text/plain");
         mockServiceContext.setMimeTypes(mimeTypes);
 
-        mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
+        mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
