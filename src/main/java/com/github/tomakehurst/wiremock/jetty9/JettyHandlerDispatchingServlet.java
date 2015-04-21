@@ -20,8 +20,6 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
-import org.eclipse.jetty.io.ChannelEndPoint;
-import org.eclipse.jetty.server.HttpConnection;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -32,7 +30,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.Socket;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.Charsets.UTF_8;
@@ -101,8 +98,8 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
             return;
         }
 		if (response.wasConfigured()) {
-		    applyResponse(response, httpServletRequest, httpServletResponse);
-		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
+			applyResponse(response, httpServletRequest, httpServletResponse);
+		} else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);

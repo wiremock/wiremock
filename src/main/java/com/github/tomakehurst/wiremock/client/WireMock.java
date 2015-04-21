@@ -242,7 +242,11 @@ public class WireMock {
 	public static MappingBuilder any(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
 	}
-	
+
+	public static MappingBuilder request(String method, UrlMatchingStrategy urlMatchingStrategy) {
+		return new MappingBuilder(RequestMethod.fromString(method), urlMatchingStrategy);
+	}
+
 	public static ResponseDefinitionBuilder aResponse() {
 		return new ResponseDefinitionBuilder();
 	}

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -29,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import static com.github.tomakehurst.wiremock.core.Options.DEFAULT_PORT;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -215,4 +215,10 @@ public class WireMockTestClient {
                 .disableContentCompression()
                 .build();
     }
+
+    public WireMockResponse request(final String methodName, String url, TestHttpHeader... headers) {
+        HttpUriRequest httpRequest = new GenericHttpUriRequest(methodName, mockServiceUrlFor(url));
+        return executeMethodAndCovertExceptions(httpRequest, headers);
+    }
+
 }

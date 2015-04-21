@@ -20,20 +20,61 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import static java.util.Arrays.asList;
 
-public enum RequestMethod {
-	GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY;
+public class RequestMethod {
+
+    public static final RequestMethod GET = new RequestMethod("GET");
+    public static final RequestMethod POST = new RequestMethod("POST");
+    public static final RequestMethod PUT = new RequestMethod("PUT");
+    public static final RequestMethod DELETE = new RequestMethod("DELETE");
+    public static final RequestMethod PATCH = new RequestMethod("PATCH");
+    public static final RequestMethod OPTIONS = new RequestMethod("OPTIONS");
+    public static final RequestMethod HEAD = new RequestMethod("HEAD");
+    public static final RequestMethod TRACE = new RequestMethod("TRACE");
+    public static final RequestMethod ANY = new RequestMethod("ANY");
+
+    private final String name;
+
+    public RequestMethod(String name) {
+        if (name == null) throw new NullPointerException("Method name cannot be null");
+        this.name = name;
+    }
 
     @JsonCreator
     public static RequestMethod fromString(String value) {
-        return RequestMethod.valueOf(value);
+        return new RequestMethod(value);
     }
 
     @JsonValue
     public String value() {
-        return super.toString();
+        return name;
     }
 
     public boolean isOneOf(RequestMethod... methods) {
         return asList(methods).contains(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RequestMethod that = (RequestMethod) o;
+
+        return name.equals(that.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public static RequestMethod[] values() {
+        return new RequestMethod[] { GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY };
     }
 }

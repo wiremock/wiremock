@@ -34,9 +34,14 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.TRACE;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
@@ -95,30 +100,28 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     }
 
     private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
-		RequestMethod method = response.getOriginalRequest().getMethod();
-		String url = response.getProxyUrl();
+		final RequestMethod method = response.getOriginalRequest().getMethod();
+		final String url = response.getProxyUrl();
 		notifier().info("Proxying: " + method + " " + url);
 		
-		switch (method) {
-		case GET:
+		if (method.equals(GET))
 			return new HttpGet(url);
-		case POST:
+		else if (method.equals(POST))
 			return new HttpPost(url);
-		case PUT:
+		else if (method.equals(PUT))
 			return new HttpPut(url);
-		case DELETE:
+		else if (method.equals(DELETE))
 			return new HttpDelete(url);
-		case HEAD:
+		else if (method.equals(HEAD))
 			return new HttpHead(url);
-		case OPTIONS:
+		else if (method.equals(OPTIONS))
 			return new HttpOptions(url);
-		case TRACE:
+		else if (method.equals(TRACE))
 			return new HttpTrace(url);
-		case PATCH:
+		else if (method.equals(PATCH))
 			return new HttpPatch(url);
-		default:
-			throw new RuntimeException("Cannot create HttpMethod for " + method);
-		}
+		else
+			return new GenericHttpUriRequest(method.toString(), url);
 	}
 	
 	private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
