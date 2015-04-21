@@ -101,7 +101,7 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
         }
 		if (response.wasConfigured()) {
 		    applyResponse(response, httpServletResponse);
-		} else if (request.getMethod() == GET && shouldForwardToFilesContext) {
+		} else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
 			httpServletResponse.sendError(HTTP_NOT_FOUND);

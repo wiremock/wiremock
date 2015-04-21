@@ -50,7 +50,7 @@ public class RequestSpec {
 
         RequestSpec that = (RequestSpec) o;
 
-        if (method != that.method) return false;
+        if (!method.equals(that.method)) return false;
         if (!path.equals(that.path)) return false;
 
         return true;

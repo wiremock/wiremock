@@ -74,7 +74,7 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 
     @Override
     public RequestMethod getMethod() {
-        return RequestMethod.valueOf(request.getMethod().toUpperCase());
+        return RequestMethod.fromString(request.getMethod().toUpperCase());
     }
 
     @Override
