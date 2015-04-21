@@ -115,7 +115,7 @@ public class RequestPattern {
 	}
 
 	private boolean methodMatches(Request request) {
-		boolean matched = method == ANY || request.getMethod() == method;
+		boolean matched = method.equals(ANY) || request.getMethod().equals(method);
 		if (!matched) {
 			notifier().info(String.format("URL %s is match, but method %s is not", request.getUrl(), request.getMethod()));
 		}
@@ -290,7 +290,7 @@ public class RequestPattern {
 		} else if (!headerPatterns.equals(other.headerPatterns)) {
 			return false;
 		}
-		if (method != other.method) {
+		if (!method.equals(other.method)) {
 			return false;
 		}
 		if (url == null) {

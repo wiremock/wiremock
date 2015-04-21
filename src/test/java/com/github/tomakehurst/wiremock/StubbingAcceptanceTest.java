@@ -299,6 +299,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(204));
     }
 
+	@Test
+	public void stubbingArbitraryMethod() {
+		stubFor(request("KILL", urlEqualTo("/some/url"))
+				.willReturn(aResponse().withStatus(204)));
+
+		WireMockResponse response = testClient.request("KILL", "/some/url");
+
+		assertThat(response.statusCode(), is(204));
+	}
+
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {
