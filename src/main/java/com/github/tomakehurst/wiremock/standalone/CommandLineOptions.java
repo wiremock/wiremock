@@ -227,7 +227,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public String proxyHostHeader() {
-       return optionSet.hasArgument(PROXY_ALL) ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getHost() : null;
+       return optionSet.hasArgument(PROXY_ALL) ? URI.create((String) optionSet.valueOf(PROXY_ALL)).getAuthority() : null;
     }
 
     @Override
