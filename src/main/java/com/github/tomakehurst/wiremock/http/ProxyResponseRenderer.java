@@ -135,7 +135,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                     if (hostHeaderValue != null) {
                         httpRequest.addHeader(key, hostHeaderValue);
                     } else if (response.getProxyBaseUrl() != null) {
-                        httpRequest.addHeader(key, URI.create(response.getProxyBaseUrl()).getHost());
+                        httpRequest.addHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
                     }
                 }
 			}

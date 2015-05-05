@@ -261,7 +261,7 @@ public class ProxyAcceptanceTest {
         testClient.get("/host-header", withHeader("Host", "my.host"));
 
         proxyingServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("my.host")));
-        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost")));
+        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/host-header")).withHeader("Host", equalTo("localhost:"+targetService.port())));
     }
 
     @Test
