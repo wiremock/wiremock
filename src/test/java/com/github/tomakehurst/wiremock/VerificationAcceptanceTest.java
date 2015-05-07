@@ -160,6 +160,12 @@ public class VerificationAcceptanceTest {
         }
 
         @Test(expected=VerificationException.class)
+        public void verifyIsFalseWhenExpectedQueryParamMissing() {
+            testClient.get("/query");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
+        }
+
+        @Test(expected=VerificationException.class)
         public void resetErasesCounters() {
             testClient.get("/count/this");
             testClient.get("/count/this");
