@@ -282,10 +282,10 @@ public class StandaloneAcceptanceTest {
 	    WireMock otherServerClient = startOtherServerAndClient();
 		startRunner("--record-mappings");
 		givenThat(get(urlEqualTo("/please/record-this"))
-		        .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+				.willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
 		otherServerClient.register(
-		        get(urlEqualTo("/please/record-this"))
-		        .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+				get(urlEqualTo("/please/record-this"))
+						.willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
 
 		testClient.get("/please/record-this");
 		
@@ -313,17 +313,18 @@ public class StandaloneAcceptanceTest {
     @Test
     public void matchesVeryLongHeader() {
         startRunner("--jetty-header-buffer-size", "32678");
-        String veryLongHeader = RandomStringUtils.randomAscii(16336);
-        givenThat(get(urlEqualTo("/some/big/header"))
-                .withHeader("ExpectedHeader", equalTo(veryLongHeader))
-                .willReturn(aResponse().withStatus(200)));
 
-        WireMockResponse response = testClient.get("/some/big/header",
+        String veryLongHeader = padRight("", 16336).replace(' ', 'h');
+        givenThat(get(urlEqualTo("/some/big/header"))
+				.withHeader("ExpectedHeader", equalTo(veryLongHeader))
+				.willReturn(aResponse().withStatus(200)));
+
+		WireMockResponse response = testClient.get("/some/big/header",
                 withHeader("ExpectedHeader", veryLongHeader));
 
         assertThat(response.statusCode(), is(200));
     }
-	
+
 	@Test
 	public void performsBrowserProxyingWhenEnabled() throws Exception {
 		WireMock otherServerClient = startOtherServerAndClient();
@@ -334,7 +335,7 @@ public class StandaloneAcceptanceTest {
 
 		assertThat(testClient.getViaProxy("http://localhost:" + otherServer.port() + "/from/browser/proxy").content(), is("Proxied body"));
 	}
-	
+
 	@Test
 	public void doesNotRecordRequestWhenNotProxied() {
 	    startRunner("--record-mappings");
@@ -361,16 +362,16 @@ public class StandaloneAcceptanceTest {
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
         return Files.toString(firstFileWithNameLike(mappingsDirectory, namePart), UTF_8);
     }
-	
+
 	private File firstFileWithNameLike(File directory, String namePart) {
 	    for (File file: directory.listFiles(namedLike(namePart))) {
 	        return file;
 	    }
-	    
+
 	    fail(String.format("Couldn't find a file under %s named like %s", directory.getPath(), namePart));
 	    return null;
 	}
-	
+
 	private FilenameFilter namedLike(final String namePart) {
 	    return new FilenameFilter() {
             @Override
@@ -379,13 +380,13 @@ public class StandaloneAcceptanceTest {
             }
         };
 	}
-	
+
 	private WireMock startOtherServerAndClient() {
         otherServer = new WireMockServer(Options.DYNAMIC_PORT);
         otherServer.start();
         return new WireMock(otherServer.port());
     }
-	
+
 	private void writeFileToFilesDir(String name, String contents) {
 		writeFile(underFileSourceRoot(underFiles(name)), contents);
     }
@@ -467,14 +468,14 @@ public class StandaloneAcceptanceTest {
     private String systemErrText() {
         return new String(err.toByteArray());
     }
-	
+
 	private Matcher<File> containsAFileContaining(final String expectedContents) {
 		return new TypeSafeMatcher<File>() {
 
 			@Override
 			public void describeTo(Description desc) {
 				desc.appendText("a file containing " + expectedContents);
-				
+
 			}
 
 			@Override
@@ -488,20 +489,20 @@ public class StandaloneAcceptanceTest {
 						throw new RuntimeException(e);
 					}
 				}
-				
+
 				return false;
 			}
-			
+
 		};
 	}
-	
+
 	private Matcher<File> doesNotContainAFileWithNameContaining(final String namePart) {
         return new TypeSafeMatcher<File>() {
 
             @Override
             public void describeTo(Description desc) {
                 desc.appendText("no file named like " + namePart);
-                
+
             }
 
             @Override
@@ -513,7 +514,7 @@ public class StandaloneAcceptanceTest {
                     }
                 });
             }
-            
+
         };
     }
 
@@ -566,6 +567,10 @@ public class StandaloneAcceptanceTest {
             }
         }
     }
+
+	public static String padRight(String s, int paddingLength) {
+		return String.format("%1$-" + paddingLength + "s", s);
+	}
 
 
 }
