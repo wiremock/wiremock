@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
@@ -355,8 +356,8 @@ public class RequestPattern {
             public boolean apply(Map.Entry<String, ValuePattern> entry) {
                 ValuePattern valuePattern = entry.getValue();
                 String key = entry.getKey();
-                QueryParameter queryParam = request.queryParameter(key);
-                boolean match = queryParam.hasValueMatching(valuePattern);
+                Optional<QueryParameter> queryParam = Optional.fromNullable(request.queryParameter(key));
+                boolean match = queryParam.isPresent() && queryParam.get().hasValueMatching(valuePattern);
 
                 if (!match) {
                     notifier().info(String.format(
