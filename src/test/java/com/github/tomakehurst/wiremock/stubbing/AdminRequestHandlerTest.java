@@ -46,7 +46,6 @@ public class AdminRequestHandlerTest {
 
 	private AdminRequestHandler handler;
 	
-	
 	@Before
 	public void init() {
 		context = new Mockery();
@@ -112,7 +111,24 @@ public class AdminRequestHandlerTest {
 		assertThat(response.getStatus(), is(HTTP_OK));
         verifyCorsHeader(response);
 	}
-	
+
+	@Test
+	public void shouldClearJournalWhenResetRequestsCalled() {
+		Request request = aRequest(context)
+				.withUrl("/requests/reset")
+				.withMethod(POST)
+				.build();
+
+		context.checking(new Expectations() {{
+			one(admin).resetRequests();
+		}});
+
+		Response response = handler.handle(request);
+
+		assertThat(response.getStatus(), is(HTTP_OK));
+		verifyCorsHeader(response);
+	}
+
 	private static final String REQUEST_PATTERN_SAMPLE = 
 		"{												\n" +
 		"	\"method\": \"DELETE\",						\n" +

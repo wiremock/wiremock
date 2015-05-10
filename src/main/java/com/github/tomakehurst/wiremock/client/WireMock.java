@@ -104,7 +104,15 @@ public class WireMock {
 	public static void reset() {
 		defaultInstance.resetMappings();
 	}
-	
+
+	public static void resetAllRequests() {
+		defaultInstance.resetRequests();
+	}
+
+	public void resetRequests() {
+		admin.resetRequests();
+	}
+
 	public void resetScenarios() {
 		admin.resetScenarios();
 	}
