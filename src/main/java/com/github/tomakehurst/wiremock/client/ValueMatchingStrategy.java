@@ -19,12 +19,16 @@ import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.google.common.base.Function;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ValueMatchingStrategy {
 
 	private String equalTo;
 	private String equalToJson;
 	private String equalToXml;
     private String matchingXPath;
+    private Map<String, String> xpathNamespaces;
     private JSONCompareMode jsonCompareMode;
     private String matches;
     private String doesNotMatch;
@@ -37,6 +41,7 @@ public class ValueMatchingStrategy {
 		pattern.setEqualToJson(equalToJson);
 		pattern.setEqualToXml(equalToXml);
         pattern.setMatchesXPath(matchingXPath);
+        pattern.setWithXPathNamespaces(xpathNamespaces);
         pattern.setJsonCompareMode(jsonCompareMode);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);
@@ -85,6 +90,22 @@ public class ValueMatchingStrategy {
 
     public void setMatchingXPath(String matchingXPath) {
         this.matchingXPath = matchingXPath;
+    }
+
+    public Map<String, String> getXPathNamespaces() {
+        return xpathNamespaces;
+    }
+
+    public void setXPathNamespaces(Map<String, String> xpathNamespaces) {
+        this.xpathNamespaces = xpathNamespaces;
+    }
+
+    public ValueMatchingStrategy addXPathNamespace(String namespace, String namespaceUri) {
+        if (xpathNamespaces == null) {
+            xpathNamespaces = new HashMap<String, String>();
+        }
+        xpathNamespaces.put(namespace, namespaceUri);
+        return this;
     }
 
 	public String getEqualTo() {

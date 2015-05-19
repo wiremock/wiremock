@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.jmock.Expectations;
@@ -25,6 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+
+import java.util.HashMap;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +57,7 @@ public class ValuePatternTest {
 	
 	@Test
 	public void matchesOnRegex() {
-		valuePattern.setMatches("[0-9]{6}");
+        valuePattern.setMatches("[0-9]{6}");
 		assertTrue(valuePattern.isMatchFor("938475"));
 		assertFalse(valuePattern.isMatchFor("abcde"));
 	}
@@ -68,8 +71,8 @@ public class ValuePatternTest {
 	
 	@Test
 	public void matchesOnContains() {
-		valuePattern.setContains("some text");
-		assertFalse(valuePattern.isMatchFor("Nothing to see here"));
+        valuePattern.setContains("some text");
+        assertFalse(valuePattern.isMatchFor("Nothing to see here"));
 		assertTrue(valuePattern.isMatchFor("There's some text here"));
 	}
 
@@ -110,6 +113,24 @@ public class ValuePatternTest {
     public void matchesXPathWithNamespace() {
         valuePattern.setMatchesXPath("//*[local-name() = 'J'][.='111']");
         assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://schemas.xmlsoap.org/soap/envelope/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void matchesXPathWithNamespaceUsingMap() {
+        valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
+        HashMap xpathNamespaces = new HashMap();
+        xpathNamespaces.put("a", "http://foo.com/");
+        valuePattern.setWithXPathNamespaces(xpathNamespaces);
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
+    }
+
+    @Test
+    public void matchesXPathWithNamespaceUsingStrings() {
+        valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
+        valuePattern.setWithXPathNamespace("a", "http://foo.com/");
+        valuePattern.setWithXPathNamespace("b", "http://bar.com/");
+        String json = Json.write(valuePattern);
+        assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
     }
 
     @Test
