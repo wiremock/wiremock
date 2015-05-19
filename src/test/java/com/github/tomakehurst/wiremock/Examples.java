@@ -198,4 +198,11 @@ public class Examples extends AcceptanceTestBase {
             .willReturn(aResponse().withStatus(200)));
     }
 
+    @Test
+    public void xpathWithNamespaces() {
+        stubFor(put(urlEqualTo("/namespaced/xpath"))
+                .withRequestBody(matchingXPath("/stuff:outer/stuff:inner[.=111]")
+                        .withXPathNamespace("stuff", "http://foo.com"))
+                .willReturn(aResponse().withStatus(200)));
+    }
 }
