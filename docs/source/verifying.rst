@@ -158,3 +158,10 @@ e.g. with the JUnit rule:
         assertThat(request.getUrl(), containsString("docId=92837592847"));
     }
 
+Reset
+=====
+
+The request log can be reset at any time. If you're using either of the
+JUnit rules this will happen automatically at the start of every test case. However you can do it yourself
+via a call to ``WireMock.resetAllRequests()`` in Java or posting a request with an empty body to ``http://<host>:<port>/__admin/requests/reset``.
+

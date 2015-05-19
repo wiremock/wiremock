@@ -85,8 +85,13 @@ public class HttpAdminClient implements Admin {
 	public void resetMappings() {
 		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
 	}
-	
-	@Override
+
+    @Override
+    public void resetRequests() {
+        postJsonAssertOkAndReturnBody(urlFor(ResetRequestsTask.class), null, HTTP_OK);
+    }
+
+    @Override
 	public void resetScenarios() {
         postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
 	}
