@@ -121,6 +121,8 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
             }
         }
 
+		httpServletResponse.setContentLength(response.getBody().length);
+
         writeAndTranslateExceptions(httpServletResponse, response.getBody());
     }
 
