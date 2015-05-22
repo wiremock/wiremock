@@ -36,7 +36,7 @@ public class ResponseDefinitionBuilder {
 	protected byte[] bodyContent;
 	protected boolean isBinaryBody = false;
 	protected String bodyFileName;
-	protected List<HttpHeader> headers = newArrayList();
+	protected List<HttpHeader> headers = Lists.newArrayList();
 	protected Integer fixedDelayMilliseconds;
 	protected String proxyBaseUrl;
 	protected Fault fault;
@@ -46,7 +46,7 @@ public class ResponseDefinitionBuilder {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
 		builder.status = responseDefinition.getStatus();
 		builder.headers = responseDefinition.getHeaders() != null ?
-				newArrayList(responseDefinition.getHeaders().all()) :
+				Lists.newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
 		builder.bodyContent = responseDefinition.getByteBody();
 		builder.isBinaryBody = responseDefinition.specifiesBinaryBodyContent();
@@ -86,7 +86,7 @@ public class ResponseDefinitionBuilder {
 	}
 	
 	public ResponseDefinitionBuilder withBody(String body) {
-		this.bodyContent = body.getBytes(Charset.forName(UTF_8.name()));
+		this.bodyContent = body.getBytes(Charset.forName(Charsets.UTF_8.name()));
         isBinaryBody = false;
 		return this;
 	}
@@ -114,7 +114,7 @@ public class ResponseDefinitionBuilder {
 
 	public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
-		private List<HttpHeader> additionalRequestHeaders = newArrayList();
+		private List<HttpHeader> additionalRequestHeaders = Lists.newArrayList();
 
 		public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
 			this.status = from.status;
@@ -159,7 +159,7 @@ public class ResponseDefinitionBuilder {
             if(bodyContent==null) {
                 response = new ResponseDefinition(status, (String)null);
             } else {
-                response = new ResponseDefinition(status, new String(bodyContent,Charset.forName(UTF_8.name())));
+                response = new ResponseDefinition(status, new String(bodyContent,Charset.forName(Charsets.UTF_8.name())));
             }
         }
 

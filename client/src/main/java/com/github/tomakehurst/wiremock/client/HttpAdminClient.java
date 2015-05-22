@@ -148,7 +148,7 @@ public class HttpAdminClient implements Admin {
 		HttpPost post = new HttpPost(url);
 		try {
 			if (json != null) {
-				post.setEntity(new StringEntity(json, APPLICATION_JSON));
+				post.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 			}
 			HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -157,9 +157,9 @@ public class HttpAdminClient implements Admin {
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
 			}
 
-            return getEntityAsStringAndCloseStream(response);
+            return HttpClientUtils.getEntityAsStringAndCloseStream(response);
         } catch (Exception e) {
-            return throwUnchecked(e, String.class);
+            return Exceptions.throwUnchecked(e, String.class);
         }
     }
 
@@ -173,9 +173,9 @@ public class HttpAdminClient implements Admin {
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
             }
 
-            return getEntityAsStringAndCloseStream(response);
+            return HttpClientUtils.getEntityAsStringAndCloseStream(response);
         } catch (Exception e) {
-            return throwUnchecked(e, String.class);
+            return Exceptions.throwUnchecked(e, String.class);
         }
     }
 
