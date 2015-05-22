@@ -1,7 +1,17 @@
 WireMock - a web service test double for all occasions
 ======================================================
 
-[![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
+[![Build Status](https://travis-ci.org/krzysiekbielicki/wiremock.svg?branch=master)](https://travis-ci.org/krzysiekbielicki/wiremock)
+
+Running
+-------
+
+* Clone repo
+* Run wiremock with default settings
+
+```
+./gradlew run
+```
 
 Key Features
 ------------
