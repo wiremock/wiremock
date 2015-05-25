@@ -4,7 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'project-report'
 apply plugin: 'application'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.6
 
 repositories {
 	mavenCentral()
