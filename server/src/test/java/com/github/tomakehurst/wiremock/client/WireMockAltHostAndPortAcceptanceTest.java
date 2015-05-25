@@ -52,7 +52,7 @@ public class WireMockAltHostAndPortAcceptanceTest {
 		WireMockTestClient altTestClient = new WireMockTestClient(altServer.port());
 		
 		String thisHostName = InetAddress.getLocalHost().getHostName();
-        WireMock.configureFor(thisHostName, altServer.port());
+        WireMock.configureFor(new HttpAdminClient(thisHostName, altServer.port()));
 		
 		givenThat(get(urlEqualTo("/resource/on/other/address"))
 				.willReturn(aResponse()

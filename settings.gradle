@@ -1,3 +1,2 @@
 include ':server', ':client'
-include 'model'
 

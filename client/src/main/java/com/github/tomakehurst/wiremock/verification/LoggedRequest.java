@@ -19,7 +19,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.common.Urls;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Charsets;
 
 import java.net.URI;
@@ -28,7 +34,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -68,7 +73,7 @@ public class LoggedRequest implements Request {
         this.method = method;
         this.body = body;
         this.headers = headers;
-        this.queryParams = splitQuery(URI.create(url));
+        this.queryParams = Urls.splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
     }

@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.admin.AdminTasks.ADMIN_CONTEXT_ROOT;
 
 public class RootRedirectTask implements AdminTask {
 

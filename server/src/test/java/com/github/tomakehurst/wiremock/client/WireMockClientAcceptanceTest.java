@@ -36,7 +36,7 @@ public class WireMockClientAcceptanceTest {
 	public void init() {
 		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
 		wireMockServer.start();
-		WireMock.configureFor(wireMockServer.port());
+		WireMock.configureFor(new HttpAdminClient("localhost", wireMockServer.port()));
 		testClient = new WireMockTestClient(wireMockServer.port());
 	}
 	
@@ -47,7 +47,7 @@ public class WireMockClientAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = new WireMock(wireMockServer.port());
+		WireMock wireMock = new WireMock(new HttpAdminClient("localhost", wireMockServer.port()));
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(

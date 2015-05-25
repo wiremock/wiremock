@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.Network;
@@ -52,14 +53,14 @@ public class WarDeploymentAcceptanceTest {
 		jetty.addHandler(context);
 		jetty.start();
 		
-		WireMock.configureFor("localhost", port, "/wiremock");
+		WireMock.configureFor(new HttpAdminClient("127.0.0.1", port, "/wiremock"));
 		testClient = new WireMockTestClient(port);
 	}
 	
 	@After
 	public void cleanup() throws Exception {
 		jetty.stop();
-		WireMock.configure();
+		WireMock.configureFor(new HttpAdminClient(8080));
 	}
 	
 	@Test

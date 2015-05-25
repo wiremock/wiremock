@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.junit.rules.MethodRule;
@@ -56,7 +57,7 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 			@Override
 			public void evaluate() throws Throwable {
 				start();
-				WireMock.configureFor("localhost", port());
+				WireMock.configureFor(new HttpAdminClient("localhost", port()));
 				try {
                     before();
                     base.evaluate();

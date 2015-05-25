@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -26,9 +25,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-
-import static com.google.common.collect.Iterables.transform;
-import static java.util.Arrays.asList;
 
 public class Urls {
 

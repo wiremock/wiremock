@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -48,7 +49,7 @@ public class AcceptanceTestBase {
         wireMockServer = new WireMockServer(options);
         wireMockServer.start();
         testClient = new WireMockTestClient(wireMockServer.port());
-        WireMock.configureFor(wireMockServer.port());
+        WireMock.configureFor(new HttpAdminClient(wireMockServer.port()));
     }
 
 	@Before

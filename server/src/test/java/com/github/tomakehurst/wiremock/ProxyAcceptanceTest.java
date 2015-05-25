@@ -15,12 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -31,13 +26,28 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
 import org.apache.http.entity.ByteArrayEntity;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.patch;
+import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
@@ -61,7 +71,7 @@ public class ProxyAcceptanceTest {
 	void init(WireMockConfiguration proxyingServiceOptions) {
 		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
 		targetService.start();
-		targetServiceAdmin = new WireMock("localhost", targetService.port());
+		targetServiceAdmin = new WireMock(new HttpAdminClient("localhost", targetService.port()));
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
         targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
@@ -69,10 +79,10 @@ public class ProxyAcceptanceTest {
         proxyingServiceOptions.dynamicPort();
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
-        proxyingServiceAdmin = new WireMock(proxyingService.port());
+        proxyingServiceAdmin = new WireMock(new HttpAdminClient(proxyingService.port()));
         testClient = new WireMockTestClient(proxyingService.port());
 
-        WireMock.configureFor(targetService.port());
+        WireMock.configureFor(new HttpAdminClient(targetService.port()));
 	}
 
     void initWithDefaultConfig() {

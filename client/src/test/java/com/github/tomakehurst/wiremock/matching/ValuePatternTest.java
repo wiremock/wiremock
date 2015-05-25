@@ -28,9 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

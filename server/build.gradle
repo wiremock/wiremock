@@ -5,8 +5,6 @@ apply plugin: 'project-report'
 apply plugin: 'application'
 
 sourceCompatibility = 1.7
-group = 'com.allegrogroup.testing.wiremock'
-version = '1.55.1'
 
 repositories {
 	mavenCentral()
@@ -19,15 +17,11 @@ configurations {
 dependencies {
     compile project(':client')
 	compile "org.mortbay.jetty:jetty:6.1.26"
-	compile "com.google.guava:guava:18.0"
 	compile "com.fasterxml.jackson.core:jackson-core:2.4.2",
         	"com.fasterxml.jackson.core:jackson-annotations:2.4.2",
         	"com.fasterxml.jackson.core:jackson-databind:2.4.2"
 	compile "org.apache.httpcomponents:httpclient:4.3.5"
-    compile "org.skyscreamer:jsonassert:1.2.3"
-    compile "xmlunit:xmlunit:1.5"
-    compile "com.jayway.jsonpath:json-path:0.8.1"
-	compile "org.slf4j:slf4j-api:1.7.6"
+    compile "org.slf4j:slf4j-api:1.7.6"
 	compile "net.sf.jopt-simple:jopt-simple:4.7"
 	compile ("junit:junit:4.11") {
         exclude group: "org.hamcrest", module: "hamcrest-core"

@@ -15,7 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.AdminTasks;
+import com.github.tomakehurst.wiremock.admin.FindRequestsTask;
+import com.github.tomakehurst.wiremock.admin.GetRequestCountTask;
+import com.github.tomakehurst.wiremock.admin.GlobalSettingsUpdateTask;
+import com.github.tomakehurst.wiremock.admin.NewStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.ResetRequestsTask;
+import com.github.tomakehurst.wiremock.admin.ResetScenariosTask;
+import com.github.tomakehurst.wiremock.admin.ResetTask;
+import com.github.tomakehurst.wiremock.admin.ResetToDefaultMappingsTask;
+import com.github.tomakehurst.wiremock.admin.RootTask;
+import com.github.tomakehurst.wiremock.admin.SaveMappingsTask;
+import com.github.tomakehurst.wiremock.admin.ShutdownServerTask;
+import com.github.tomakehurst.wiremock.admin.SocketDelayTask;
+import com.github.tomakehurst.wiremock.common.Exceptions;
+import com.github.tomakehurst.wiremock.common.HttpClientUtils;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -30,13 +46,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
 	
@@ -55,8 +69,12 @@ public class HttpAdminClient implements Admin {
 		
 		httpClient = HttpClientFactory.createClient();
 	}
-	
-	public HttpAdminClient(String host, int port) {
+
+    public HttpAdminClient(int port) {
+        this("localhost", port);
+    }
+
+    public HttpAdminClient(String host, int port) {
 		this(host, port, "");
 	}
 

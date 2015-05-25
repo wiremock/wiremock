@@ -39,27 +39,11 @@ public class WireMock {
 
 	private final Admin admin;
 	
-	private static WireMock defaultInstance = new WireMock();
+	private static WireMock defaultInstance;
 
     public WireMock(Admin admin) {
         this.admin = admin;
     }
-
-    public WireMock(int port) {
-        this(DEFAULT_HOST, port);
-    }
-
-    public WireMock(String host, int port) {
-		admin = new HttpAdminClient(host, port);
-	}
-	
-	public WireMock(String host, int port, String urlPathPrefix) {
-		admin = new HttpAdminClient(host, port, urlPathPrefix);
-	}
-	
-	public WireMock() {
-		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
-	}
 	
 	public static void givenThat(MappingBuilder mappingBuilder) {
 		defaultInstance.register(mappingBuilder);
@@ -73,22 +57,10 @@ public class WireMock {
         return defaultInstance.allStubMappings();
     }
 
-    public static void configureFor(int port) {
-        defaultInstance = new WireMock(port);
-    }
-
-	public static void configureFor(String host, int port) {
-		defaultInstance = new WireMock(host, port);
+    public static void configureFor(Admin admin) {
+		defaultInstance = new WireMock(admin);
 	}
 	
-	public static void configureFor(String host, int port, String urlPathPrefix) {
-		defaultInstance = new WireMock(host, port, urlPathPrefix);
-	}
-	
-	public static void configure() {
-		defaultInstance = new WireMock();
-	}
-
     public void saveMappings() {
         admin.saveMappings();
     }

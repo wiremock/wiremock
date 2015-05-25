@@ -33,10 +33,13 @@ import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Iterables.all;
+import static com.google.common.collect.Iterables.any;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 
@@ -167,7 +170,7 @@ public class RequestPattern {
 			return true;
 		}
 
-		boolean matches = all(bodyPatterns, matching(request.getBodyAsString()));
+		boolean matches = all(bodyPatterns, ValuePattern.matching(request.getBodyAsString()));
 
 		if (!matches) {
 			notifier().info(String.format("URL %s is match, but body is not: %s", request.getUrl(), request.getBodyAsString()));

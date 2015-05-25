@@ -26,6 +26,8 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 
 public class AdminTasks {
 
+    public static final String ADMIN_CONTEXT_ROOT = "/__admin";
+
     private static final BiMap<RequestSpec, Class<? extends AdminTask>> TASKS =
             new ImmutableBiMap.Builder<RequestSpec, Class<? extends AdminTask>>()
                 .put(requestSpec(GET, "/"), RootTask.class)

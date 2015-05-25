@@ -1,0 +1,3 @@
+allprojects {
+    version = VERSION
+}

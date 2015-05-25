@@ -15,17 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+
+import static java.net.HttpURLConnection.HTTP_OK;
 
 public class RootTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         ListStubMappingsResult result = admin.listAllStubMappings();
-        return ResponseDefinitionBuilder.jsonResponse(result);
+        ResponseDefinition responseDefinition = new ResponseDefinition(HTTP_OK, Json.write(result));
+        responseDefinition.setHeaders(new HttpHeaders(new HttpHeader("Content-Type", "application/json")));
+        return responseDefinition;
     }
 }

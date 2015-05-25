@@ -20,13 +20,12 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 

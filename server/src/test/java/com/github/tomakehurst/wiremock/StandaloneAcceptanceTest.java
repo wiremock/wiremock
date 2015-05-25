@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
@@ -25,7 +26,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -34,14 +34,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
@@ -51,7 +61,9 @@ import static com.google.common.io.Files.write;
 import static java.io.File.separator;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -85,7 +97,7 @@ public class StandaloneAcceptanceTest {
 		
 		runner = new WireMockServerRunner();
 
-		WireMock.configure();
+		WireMock.configureFor(new HttpAdminClient("localhost", 8080));
 	}
 	
 	@After
@@ -248,7 +260,7 @@ public class StandaloneAcceptanceTest {
 	public void startsOnPortSpecifiedOnCommandLine() throws Exception {
         int port = findFreePort();
 		startRunner("--port", "" + port);
-		WireMock client = new WireMock("localhost", port);
+		WireMock client = new WireMock(new HttpAdminClient("localhost", port));
 		client.verifyThat(0, getRequestedFor(urlEqualTo("/bling/blang/blong"))); //Would throw an exception if couldn't connect
 	}
 	
@@ -384,7 +396,7 @@ public class StandaloneAcceptanceTest {
 	private WireMock startOtherServerAndClient() {
         otherServer = new WireMockServer(Options.DYNAMIC_PORT);
         otherServer.start();
-        return new WireMock(otherServer.port());
+        return new WireMock(new HttpAdminClient("localhost", otherServer.port()));
     }
 
 	private void writeFileToFilesDir(String name, String contents) {
@@ -434,7 +446,7 @@ public class StandaloneAcceptanceTest {
 
         int port = runner.port();
         testClient = new WireMockTestClient(port);
-        WireMock.configureFor(port);
+        WireMock.configureFor(new HttpAdminClient("localhost", port));
 	}
 
 	private String[] argsWithRecordingsPath(String[] args) {

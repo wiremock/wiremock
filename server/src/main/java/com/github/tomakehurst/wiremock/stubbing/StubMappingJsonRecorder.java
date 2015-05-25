@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
 

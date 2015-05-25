@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toValuePattern;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -34,10 +33,10 @@ public class RequestPatternBuilder {
 
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
-	private Map<String, ValueMatchingStrategy> headers = Maps.newLinkedHashMap();
-    private Map<String, ValueMatchingStrategy> queryParameters = Maps.newLinkedHashMap();
-    private Set<String> withoutHeaders = Sets.newHashSet();
-	private List<ValueMatchingStrategy> bodyPatterns = Lists.newArrayList();
+	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
+    private Map<String, ValueMatchingStrategy> queryParameters = newLinkedHashMap();
+    private Set<String> withoutHeaders = newHashSet();
+	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 	
 	public RequestPatternBuilder(RequestMethod method,
 			UrlMatchingStrategy urlMatchingStrategy) {
@@ -88,7 +87,7 @@ public class RequestPatternBuilder {
         }
 
 		if (!bodyPatterns.isEmpty()) {
-			requestPattern.setBodyPatterns(Lists.newArrayList(Iterables.transform(bodyPatterns, toValuePattern)));
+			requestPattern.setBodyPatterns(newArrayList(Iterables.transform(bodyPatterns, toValuePattern)));
 		}
 
 		return requestPattern;

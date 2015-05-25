@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -70,7 +71,7 @@ public class WireMockJUnitRuleTest {
 
         @Before
         public void init() {
-            WireMock.configureFor(wireMockRule.port());
+            WireMock.configureFor(new HttpAdminClient(wireMockRule.port()));
         }
 
         @Test
@@ -111,7 +112,7 @@ public class WireMockJUnitRuleTest {
 
         @Before
         public void init() {
-            WireMock.configureFor(classRule.port());
+            WireMock.configureFor(new HttpAdminClient(classRule.port()));
         }
 
         @Test

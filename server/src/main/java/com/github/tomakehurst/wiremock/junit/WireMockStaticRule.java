@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.HttpAdminClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import org.junit.rules.MethodRule;
@@ -33,7 +34,7 @@ public class WireMockStaticRule implements MethodRule {
 	public WireMockStaticRule(int port) {
 		wireMockServer = new WireMockServer(port);
 		wireMockServer.start();
-		WireMock.configureFor("localhost", port);
+		WireMock.configureFor(new HttpAdminClient("localhost", port));
 	}
 	
 	public WireMockStaticRule() {

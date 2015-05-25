@@ -22,12 +22,6 @@ import com.google.common.base.Predicate;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -40,6 +34,11 @@ import org.skyscreamer.jsonassert.JSONCompareResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.regex.Pattern.DOTALL;

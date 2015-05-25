@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 
@@ -28,7 +27,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
@@ -110,10 +112,9 @@ public class ResponseDefinition {
 	}
 
     public static ResponseDefinition redirectTo(String path) {
-        return new ResponseDefinitionBuilder()
-                .withHeader("Location", path)
-                .withStatus(HTTP_MOVED_TEMP)
-                .build();
+		ResponseDefinition responseDefinition = new ResponseDefinition(HTTP_MOVED_TEMP, (byte[]) null);
+		responseDefinition.setHeaders(new HttpHeaders(new HttpHeader("Location", path)));
+		return responseDefinition;
     }
 	
 	public static ResponseDefinition notConfigured() {
