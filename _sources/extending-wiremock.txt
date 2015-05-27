@@ -20,7 +20,7 @@ A response transformer is a single class that extends the ``ResponseTransformer`
             public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
                 return ResponseDefinitionBuilder
                         .like(responseDefinition).but()
-                        .withBody(responseDefinition.getBody().replace("Hello", "Goodbye")
+                        .withBody(responseDefinition.getBody().replace("Hello", "Goodbye"))
                         .build();
             }
 
