@@ -384,6 +384,32 @@ elements are returned by the XPath evaluation.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>To match XML with namespaced elements the namespaces must be registered:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">put</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/namespaced/xpath&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">&quot;/stuff:outer/stuff:inner[.=111]&quot;</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">withXPathNamespace</span><span class="o">(</span><span class="s">&quot;stuff&quot;</span><span class="o">,</span> <span class="s">&quot;http://foo.com&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/xpath&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bodyPatterns&quot;</span> <span class="o">:</span> <span class="p">[</span>
+            <span class="p">{</span> <span class="s2">&quot;matchesXPath&quot;</span> <span class="o">:</span> <span class="s2">&quot;/stuff:outer/stuff:inner[.=111]&quot;</span> <span class="p">,</span>
+                <span class="s2">&quot;withXPathNamespaces&quot;</span> <span class="o">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;stuff&quot;</span> <span class="o">:</span> <span class="s2">&quot;http://foo.com/&quot;</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All of the request matching options described here can also be used for <a class="reference internal" href="verifying.html#verifying"><em>Verifying</em></a>.</p>

@@ -90,6 +90,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#querying-request-details">Querying request details</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#listening-for-requests">Listening for requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reset">Reset</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="proxying.html">Proxying</a></li>
@@ -228,6 +229,12 @@ called when a request is received.</p>
 <span class="o">}</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="reset">
+<h2>Reset<a class="headerlink" href="#reset" title="Permalink to this headline">¶</a></h2>
+<p>The request log can be reset at any time. If you&#8217;re using either of the
+JUnit rules this will happen automatically at the start of every test case. However you can do it yourself
+via a call to <tt class="docutils literal"><span class="pre">WireMock.resetAllRequests()</span></tt> in Java or posting a request with an empty body to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/reset</span></tt>.</p>
 </div>
 </div>
 

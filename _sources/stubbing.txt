@@ -344,6 +344,37 @@ The JSON equivalent of which would be:
     	}
     }
 
+To match XML with namespaced elements the namespaces must be registered:
+
+.. code-block:: java
+
+    stubFor(put(urlEqualTo("/namespaced/xpath"))
+        .withRequestBody(matchingXPath("/stuff:outer/stuff:inner[.=111]")
+                .withXPathNamespace("stuff", "http://foo.com"))
+        .willReturn(aResponse().withStatus(200)));
+
+or:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "PUT",
+            "url": "/xpath",
+            "bodyPatterns" : [
+              	{ "matchesXPath" : "/stuff:outer/stuff:inner[.=111]" ,
+              	    "withXPathNamespaces" : {
+                        "stuff" : "http://foo.com/"
+                    }
+                },
+            ]
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
+
 
 .. note::
     All of the request matching options described here can also be used for :ref:`verifying`.
