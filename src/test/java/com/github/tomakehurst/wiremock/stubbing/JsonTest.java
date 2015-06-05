@@ -29,7 +29,12 @@ public class JsonTest {
 			"{                                          \n" +
                 "\"property\": \"" + TEST_VALUE + "\"   \n" +
             "}";
-	
+
+	private static final String JSON_WITH_SINGLE_QUOTES =
+			"{                                            \n" +
+				"'property': '" + TEST_VALUE + "'         \n" +
+			"}";
+
 	private static final String JSON_WITH_COMMENTS =
 			"// this is the first comment                                                   \n" +
             "{                                                                              \n" +
@@ -37,7 +42,7 @@ public class JsonTest {
                     "\"property\": \"" + TEST_VALUE + "\"// comment on same line as code    \n" +
             "}                                                                              \n" +
              "//this is the last comment";
-	
+
 	@Test
 	public void testReadNoComments() {
 		TestPojo pojo = Json.read(JSON_WITH_NO_COMMENTS, TestPojo.class);
@@ -48,6 +53,13 @@ public class JsonTest {
 	@Test
 	public void testReadWithComments() {
 		TestPojo pojo = Json.read(JSON_WITH_COMMENTS, TestPojo.class);
+		assertNotNull(pojo);
+		assertThat(TEST_VALUE, is(pojo.property));
+	}
+
+	@Test
+	public void testReadWithSingleQuotes() {
+		TestPojo pojo = Json.read(JSON_WITH_SINGLE_QUOTES, TestPojo.class);
 		assertNotNull(pojo);
 		assertThat(TEST_VALUE, is(pojo.property));
 	}

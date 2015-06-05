@@ -28,6 +28,7 @@ public final class Json {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
 			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + json, ioe);
