@@ -67,15 +67,16 @@ public class StubMappingJsonRecorder implements RequestListener {
 //    }
 
     /* 
-     * Updated <code>requestReceived</code> to correctly handle multiple concurrent identical 
-     * requests. The initial implementation discarded any/all responses if a pending request
-     * matched the request/response.
+     * Provisional fix for issue #90 to correctly handle multiple concurrent identical 
+     * requests by checking against a list of recorded requests rather than a list of
+     * received requests.
      * 
-     * And 'synchronized' ensures that only one of the request/response pairs is recorded 
-     * for the case where responses are received 'simultaneously' (i.e. within the execution
-     * time of this method).
+     * 'synchronized' is required to ensure that only one of the request/response pairs is
+     * recorded for the case where responses are received 'simultaneously' (i.e. within the
+     * execution time of this method).
      * 
      * @see com.github.tomakehurst.wiremock.ConcurrentDelayedResponsesFixTest
+     *
      */
     @Override
     public synchronized void requestReceived(Request request, Response response) {
