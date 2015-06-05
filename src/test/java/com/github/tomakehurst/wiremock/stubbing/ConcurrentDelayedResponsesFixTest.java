@@ -47,7 +47,7 @@ public class ConcurrentDelayedResponsesFixTest {
     private static final int  SOCKET_DELAY = 5000;              // milliseconds
     private static final long MIN_DELAY = SOCKET_DELAY - 250;
     private static final long MAX_DELAY = SOCKET_DELAY + 250;
-    private static final long VARIANCE = 10;
+    private static final long VARIANCE = 25;
 
     private FileSource mappingsFileSource;
     private FileSource filesFileSource;
