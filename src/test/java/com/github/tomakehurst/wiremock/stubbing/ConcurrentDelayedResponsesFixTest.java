@@ -37,7 +37,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class ConcurrentDelayedResponsesFixTest {
-    private static final File ROOT = new File(".");
+    private static final File ROOT = new File("./build");
     private static final String REQUEST_URL = "/proxied/resource?param=value";
     private static final String RESPONSE_BODY = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
 
@@ -156,9 +156,9 @@ public class ConcurrentDelayedResponsesFixTest {
 
         // ... set up concurrent requests
         
-        List<Runnable> tasks = new ArrayList<Runnable>();
-        Long[] duration = new Long[concurrentRequests];
-        AtomicLong start = new AtomicLong();
+        final List<Runnable> tasks = new ArrayList<Runnable>();
+        final Long[] duration = new Long[concurrentRequests];
+        final AtomicLong start = new AtomicLong();
         
         Arrays.fill(duration, 0L);
         
