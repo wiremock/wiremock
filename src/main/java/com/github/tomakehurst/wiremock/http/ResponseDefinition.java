@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -152,6 +153,11 @@ public class ResponseDefinition {
     public void setBase64Body(String base64Body) {
         isBinaryBody = true;
         body = parseBase64Binary(base64Body);
+    }
+
+    public void setJsonBody(JsonNode jsonBody) {
+        isBinaryBody = false;
+        body = Json.toByteArray(jsonBody);
     }
 
     // Needs to be explicitly marked as a property, since an overloaded setter with the same
