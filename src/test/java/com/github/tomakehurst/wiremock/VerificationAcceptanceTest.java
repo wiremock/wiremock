@@ -46,6 +46,18 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlEqualTo("/this/got/requested")));
         }
 
+        @Test
+        public void verifiesRequestBasedOnUrlPathOnly() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathEqualTo("/this/got")));
+        }
+
+        @Test
+        public void verifiesRequestBasedOnUrlPathPatternOnly() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got")));
+        }
+
         @Test(expected=VerificationException.class)
         public void throwsVerificationExceptionWhenNoMatch() {
             testClient.get("/this/got/requested");

@@ -44,6 +44,6 @@ public class UrlMatchingStrategy {
     }
 
 	public void setUrlPathPattern(String urlPathPattern) {
-		this.urlPathPattern = urlPath;
+		this.urlPathPattern = urlPathPattern;
 	}
 }

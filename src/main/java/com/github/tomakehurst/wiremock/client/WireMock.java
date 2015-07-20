@@ -33,12 +33,12 @@ import static com.github.tomakehurst.wiremock.client.RequestPatternBuilder.allRe
 
 
 public class WireMock {
-	
+
 	private static final int DEFAULT_PORT = 8080;
 	private static final String DEFAULT_HOST = "localhost";
 
 	private final Admin admin;
-	
+
 	private static WireMock defaultInstance = new WireMock();
 
     public WireMock(Admin admin) {
@@ -52,19 +52,19 @@ public class WireMock {
     public WireMock(String host, int port) {
 		admin = new HttpAdminClient(host, port);
 	}
-	
+
 	public WireMock(String host, int port, String urlPathPrefix) {
 		admin = new HttpAdminClient(host, port, urlPathPrefix);
 	}
-	
+
 	public WireMock() {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
-	
+
 	public static void givenThat(MappingBuilder mappingBuilder) {
 		defaultInstance.register(mappingBuilder);
 	}
-	
+
 	public static void stubFor(MappingBuilder mappingBuilder) {
 		givenThat(mappingBuilder);
 	}
@@ -80,11 +80,11 @@ public class WireMock {
 	public static void configureFor(String host, int port) {
 		defaultInstance = new WireMock(host, port);
 	}
-	
+
 	public static void configureFor(String host, int port, String urlPathPrefix) {
 		defaultInstance = new WireMock(host, port, urlPathPrefix);
 	}
-	
+
 	public static void configure() {
 		defaultInstance = new WireMock();
 	}
@@ -96,11 +96,11 @@ public class WireMock {
     public static void saveAllMappings() {
         defaultInstance.saveMappings();
     }
-	
+
 	public void resetMappings() {
 		admin.resetMappings();
 	}
-	
+
 	public static void reset() {
 		defaultInstance.resetMappings();
 	}
@@ -116,7 +116,7 @@ public class WireMock {
 	public void resetScenarios() {
 		admin.resetScenarios();
 	}
-	
+
 	public static void resetAllScenarios() {
 		defaultInstance.resetScenarios();
 	}
@@ -141,13 +141,13 @@ public class WireMock {
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
     }
-	
+
 	public static UrlMatchingStrategy urlEqualTo(String url) {
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
 		urlStrategy.setUrl(url);
 		return urlStrategy;
 	}
-	
+
 	public static UrlMatchingStrategy urlMatching(String url) {
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
 		urlStrategy.setUrlPattern(url);
@@ -159,13 +159,19 @@ public class WireMock {
         urlStrategy.setUrlPath(urlPath);
         return urlStrategy;
     }
-	
+
+	public static UrlMatchingStrategy urlPathMatching(String urlPath) {
+		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
+		urlStrategy.setUrlPathPattern(urlPath);
+		return urlStrategy;
+	}
+
 	public static ValueMatchingStrategy equalTo(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setEqualTo(value);
 		return headerStrategy;
 	}
-	
+
     public static ValueMatchingStrategy equalToJson(String value) {
         ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
         headerStrategy.setEqualToJson(value);
@@ -196,13 +202,13 @@ public class WireMock {
 		headerStrategy.setContains(value);
 		return headerStrategy;
 	}
-	
+
 	public static ValueMatchingStrategy matching(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setMatches(value);
 		return headerStrategy;
 	}
-	
+
 	public static ValueMatchingStrategy notMatching(String value) {
 		ValueMatchingStrategy headerStrategy = new ValueMatchingStrategy();
 		headerStrategy.setDoesNotMatch(value);
@@ -214,35 +220,35 @@ public class WireMock {
         matchingStrategy.setJsonMatchesPath(jsonPath);
         return matchingStrategy;
     }
-	
+
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder post(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.POST, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder put(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.PUT, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder delete(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.DELETE, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder patch(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.PATCH, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder head(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.HEAD, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder options(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
 	}
-	
+
 	public static MappingBuilder trace(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
@@ -258,7 +264,7 @@ public class WireMock {
 	public static ResponseDefinitionBuilder aResponse() {
 		return new ResponseDefinitionBuilder();
 	}
-	
+
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
         VerificationResult result = admin.countRequestsMatching(requestPattern);
@@ -278,11 +284,11 @@ public class WireMock {
             throw new VerificationException(requestPattern, count, find(allRequests()));
 		}
 	}
-	
+
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.verifyThat(requestPatternBuilder);
 	}
-	
+
 	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.verifyThat(count, requestPatternBuilder);
 	}
@@ -296,19 +302,19 @@ public class WireMock {
     public static List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
         return defaultInstance.find(requestPatternBuilder);
     }
-	
+
 	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder postRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.POST, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder putRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.PUT, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder deleteRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.DELETE, urlMatchingStrategy);
 	}
@@ -316,23 +322,23 @@ public class WireMock {
 	public static RequestPatternBuilder patchRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.PATCH, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder headRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.HEAD, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder optionsRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.OPTIONS, urlMatchingStrategy);
 	}
-	
+
 	public static RequestPatternBuilder traceRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.TRACE, urlMatchingStrategy);
 	}
-	
+
 	public static void setGlobalFixedDelay(int milliseconds) {
 		defaultInstance.setGlobalFixedDelayVariable(milliseconds);
 	}
-	
+
 	public void setGlobalFixedDelayVariable(int milliseconds) {
 		GlobalSettings settings = new GlobalSettings();
 		settings.setFixedDelay(milliseconds);
