@@ -36,7 +36,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
-	
+
 	@Test
 	public void mappingWithExactUrlAndMethodMatch() {
 		stubFor(get(urlEqualTo("/a/registered/resource")).willReturn(
@@ -44,26 +44,26 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				.withStatus(401)
 				.withHeader("Content-Type", "text/plain")
 				.withBody("Not allowed!")));
-		
+
 		WireMockResponse response = testClient.get("/a/registered/resource");
-		
+
 		assertThat(response.statusCode(), is(401));
 		assertThat(response.content(), is("Not allowed!"));
 		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
 	}
-	
+
 	@Test
 	public void mappingWithUrlContainingQueryParameters() {
 		stubFor(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
 				aResponse()
-				.withHeader("Location", "/nowhere")
-				.withStatus(302)));
-		
+						.withHeader("Location", "/nowhere")
+						.withStatus(302)));
+
 		WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
-		
+
 		assertThat(response.statusCode(), is(302));
 	}
-	
+
 	@Test
 	public void mappingWithHeaderMatchers() {
 		stubFor(put(urlEqualTo("/some/url"))
@@ -71,15 +71,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			.withHeader("Two", matching("[a-z]{5}"))
 			.withHeader("Three", notMatching("[A-Z]+"))
 			.willReturn(aResponse().withStatus(204)));
-		
+
 		WireMockResponse response = testClient.put("/some/url",
 				withHeader("One", "abcd1234"),
 				withHeader("Two", "thing"),
 				withHeader("Three", "something"));
-		
+
 		assertThat(response.statusCode(), is(204));
 	}
-	
+
 	@Test
 	public void mappingWithCaseInsensitiveHeaderMatchers() {
 		stubFor(put(urlEqualTo("/case/insensitive"))
@@ -87,12 +87,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			.withHeader("two", matching("[a-z]{5}"))
 			.withHeader("Three", notMatching("[A-Z]+"))
 			.willReturn(aResponse().withStatus(204)));
-		
+
 		WireMockResponse response = testClient.put("/case/insensitive",
 				withHeader("one", "abcd1234"),
 				withHeader("TWO", "thing"),
 				withHeader("tHrEe", "something"));
-		
+
 		assertThat(response.statusCode(), is(204));
 	}
 
@@ -130,6 +130,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
 	@Test
+	public void matchesOnUrlPathPatternAndQueryParameters() {
+		stubFor(get(urlPathMatching("/path(.*)/match"))
+				.withQueryParam("search", containing("WireMock"))
+				.withQueryParam("since", equalTo("2014-10-14"))
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
+	}
+
+	@Test
 	public void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
 		stubFor(get(urlPathEqualTo("/path-and-query/match"))
 				.withQueryParam("search", containing("WireMock"))
@@ -144,12 +154,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				aResponse()
 				.withStatus(200)
 				.withBodyFile("plain-example.txt")));
-		
+
 		WireMockResponse response = testClient.get("/my/file");
-		
+
 		assertThat(response.content(), is("Some example test from a file"));
 	}
-	
+
 	@Test
 	public void matchingOnRequestBodyWithTwoRegexes() {
 		stubFor(put(urlEqualTo("/match/this/body"))
@@ -158,16 +168,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	            .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
-        
+
         WireMockResponse response = testClient.putWithBody("/match/this/body", "Blah...but not the rest", "text/plain");
         assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
         response = testClient.putWithBody("/match/this/body", "@12345@...but not the rest", "text/plain");
         assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-        
+
         response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
 	}
-	
+
 	@Test
     public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
 		stubFor(put(urlEqualTo("/match/this/body/too"))
@@ -176,14 +186,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
-        
+
         WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
         assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-        
+
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
     }
-	
+
 	@Test
     public void matchingOnRequestBodyWithEqualTo() {
         stubFor(put(urlEqualTo("/match/this/body/too"))
@@ -191,14 +201,14 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
-        
+
         WireMockResponse response = testClient.putWithBody("/match/this/body/too", "Blah12345", "text/plain");
         assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-        
+
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
     }
-	
+
 	@Test
 	public void responseWithFixedDelay() {
 	    stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
@@ -206,57 +216,57 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .withStatus(200)
                 .withBody("Content")
                 .withFixedDelay(500)));
-        
+
 	    long start = System.currentTimeMillis();
         testClient.get("/delayed/resource");
         int duration = (int) (System.currentTimeMillis() - start);
-        
+
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
-	
+
 	@Test
 	public void highPriorityMappingMatchedFirst() {
 		stubFor(get(urlMatching("/priority/.*")).atPriority(10)
 				.willReturn(aResponse()
                 .withStatus(500)));
 		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
-		
+
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
 	}
-	
+
 	@Test
 	public void emptyResponseFault() {
 		stubFor(get(urlEqualTo("/empty/response")).willReturn(
                 aResponse()
                 .withFault(Fault.EMPTY_RESPONSE)));
-		
+
 		getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
 	}
-	
+
 	@Test
 	public void malformedResponseChunkFault() {
 		stubFor(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
-		
+
 		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
 	}
-	
+
 	@Test
 	public void randomDataOnSocketFault() {
 		stubFor(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
-		
+
 		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
 	}
-	
+
 	@Test
 	public void matchingUrlsWithEscapeCharacters() {
 		stubFor(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
 		assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
 	}
-	
+
 	@Test
 	public void default200ResponseWhenStatusCodeNotSpecified() {
 		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
@@ -318,7 +328,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			assertThat(e.getCause(), instanceOf(expectedClass));
 			thrown = true;
 		}
-		
+
 		assertTrue("No exception was thrown", thrown);
 	}
 }

@@ -42,11 +42,11 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JMock.class)
 public class RequestPatternTest {
-	
+
 	private Mockery context;
 	private Map<String, ValuePattern> headerPatterns;
 	private Notifier notifier;
-	
+
 	@Before
 	public void init() {
 		context = new Mockery();
@@ -54,12 +54,12 @@ public class RequestPatternTest {
 		notifier = context.mock(Notifier.class);
 		LocalNotifier.set(notifier);
 	}
-	
+
 	@After
 	public void cleanUp() {
 	    LocalNotifier.set(null);
 	}
-	
+
 	@Test
 	public void matchesOnExactMethodAndUrl() {
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.POST, "/some/resource/path");
@@ -69,7 +69,7 @@ public class RequestPatternTest {
 			.build();
 		assertTrue(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldNotMatchWhenMethodIsCorrectButUrlIsWrong() {
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.POST, "/some/resource/path");
@@ -79,55 +79,55 @@ public class RequestPatternTest {
 			.build();
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldMatchWhenSpecifiedHeadersArePresent() {
 		headerPatterns.put("Accept", equalTo("text/plain"));
 		headerPatterns.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
-		
+
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
 			.withMethod(GET)
 			.withHeader("Accept", "text/plain")
 			.withHeader("Content-Type", "application/json")
 			.build();
-		
+
 		assertTrue(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderIsAbsent() {
 	    ignoringNotifier();
-	    
+
 		headerPatterns.put("Accept", equalTo("text/plain"));
 		headerPatterns.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
-		
+
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
 			.withMethod(GET)
 			.withHeader("Accept", "text/plain")
 			.build();
-		
+
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldNotMatchWhenASpecifiedHeaderHasAnIncorrectValue() {
 	    ignoringNotifier();
-	    
+
 		headerPatterns.put("Accept", equalTo("text/plain"));
 		headerPatterns.put("Content-Type", equalTo("application/json"));
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET, "/header/dependent/resource", headerPatterns);
-		
+
 		Request request = aRequest(context)
 			.withUrl("/header/dependent/resource")
 			.withMethod(GET)
 			.withHeader("Accept", "text/plain")
 			.withHeader("Content-Type", "text/xml")
 			.build();
-		
+
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
 
@@ -157,76 +157,99 @@ public class RequestPatternTest {
 	public void shouldMatchUrlPatternWithRegexes() {
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
 		requestPattern.setUrlPattern("/resource/(.*?)/subresource");
-		
+
 		Request request = aRequest(context)
 			.withUrl("/resource/1234-abcd/subresource")
 			.withMethod(GET)
 			.build();
-		
+
 		assertTrue(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldNotMatchUrlWhenUsingRegexButCandidateIsNotMatch() {
 		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
 		requestPattern.setUrlPattern("/resource/([A-Z]+?)/subresource");
-		
+
 		Request request = aRequest(context)
 			.withUrl("/resource/12340987/subresource")
 			.withMethod(GET)
 			.build();
-		
+
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test(expected=IllegalStateException.class)
 	public void shouldNotPermitBothUrlAndUrlPattern() {
 		RequestPattern requestPattern = new RequestPattern();
-		requestPattern.setUrlPattern("/(.*?");
+		requestPattern.setUrlPattern("/(.*?)");
 		requestPattern.setUrl("/some/url");
-		
+
 		requestPattern.isMatchedBy(aRequest(context).build());
 	}
-	
+
+	@Test
+	public void shouldMatchUrlPathPatternWithRegexes() {
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
+		requestPattern.setUrlPathPattern("/resource/(.*?)/subresource");
+
+		Request request = aRequest(context)
+				.withUrl("/resource/1234-abcd/subresource")
+				.withQueryParameter("foo", "bar")
+				.withMethod(GET)
+				.build();
+
+		assertTrue(requestPattern.isMatchedBy(request));
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void shouldNotPermitBothUrlPathAndUrlPathPattern() {
+		RequestPattern requestPattern = new RequestPattern();
+		requestPattern.setUrlPathPattern("/(.*?)");
+		requestPattern.setUrlPath("/some/url");
+
+		requestPattern.isMatchedBy(aRequest(context).build());
+	}
+
 	private static final String XML_SAMPLE =
 		"<document>							\n" +
 		"	<important>Value</important>	\n" +
 		"</document>		  				";
-	
+
 	@Test
 	public void shouldMatchOnBodyPattern() {
 		RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
 		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
-		
+
 		Request request = aRequest(context)
 			.withUrl("/with/body")
 			.withMethod(GET)
 			.withBody(XML_SAMPLE)
 			.build();
-		
+
 		assertTrue(requestPattern.isMatchedBy(request));
 	}
-	
+
 	@Test
 	public void shouldNotMatchWhenBodyDoesNotMatchPattern() {
         ignoringNotifier();
 
         RequestPattern requestPattern = new RequestPattern(GET, "/with/body");
 		requestPattern.setBodyPatterns(asList(ValuePattern.matches(".*<important>Value</important>.*")));
-		
+
 		Request request = aRequest(context)
 			.withUrl("/with/body")
 			.withMethod(GET)
 			.withBody("<important>Wrong value</important>")
 			.build();
-		
+
 		assertFalse(requestPattern.isMatchedBy(request));
 	}
 
     @Test
 	public void shouldMatchAnyMethod() {
 		RequestPattern requestPattern = new RequestPattern(ANY, "/any/method");
-		
+
 		for (RequestMethod method: RequestMethod.values()) {
 			context = new Mockery();
 			Request request = aRequest(context)
@@ -272,52 +295,52 @@ public class RequestPatternTest {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but method GET is not");
 		}});
-		
+
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
-		
+
 		Request request = aRequest(context)
 			.withUrl("/for/logging")
 			.withMethod(GET)
 			.build();
-		
+
 		requestPattern.isMatchedBy(request);
 	}
-	
+
 	@Test
 	public void shouldLogMessageIndicatingFailedHeaderMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but header Content-Type is not. For a match, value should equal text/xml");
 		}});
-		
+
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
 		ValuePattern headerPattern = new ValuePattern();
 		headerPattern.setEqualTo("text/xml");
 		requestPattern.addHeader("Content-Type", headerPattern);
-		
+
 		Request request = aRequest(context)
 			.withUrl("/for/logging")
 			.withMethod(POST)
 			.withHeader("Content-Type", "text/plain")
 			.build();
-		
+
 		requestPattern.isMatchedBy(request);
 	}
-	
+
 	@Test
 	public void shouldLogMessageIndicatingFailedBodyMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but body is not: Actual Content");
 		}});
-		
+
 		RequestPattern requestPattern = new RequestPattern(POST, "/for/logging");
 		requestPattern.setBodyPatterns(asList(ValuePattern.matches("Expected content")));
-		
+
 		Request request = aRequest(context)
 			.withUrl("/for/logging")
 			.withMethod(POST)
 			.withBody("Actual Content")
 			.build();
-		
+
 		requestPattern.isMatchedBy(request);
 	}
 
@@ -326,5 +349,5 @@ public class RequestPatternTest {
             ignoring(notifier);
         }});
     }
-	
+
 }
