@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public final class Json {
@@ -38,6 +39,15 @@ public final class Json {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+		} catch (IOException ioe) {
+			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
+		}
+	}
+
+	public static byte[] toByteArray(Object object) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsBytes(object);
 		} catch (IOException ioe) {
 			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
 		}
