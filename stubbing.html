@@ -179,9 +179,13 @@ function:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Alternatively, just the path part of the URL can be matched exactly, which is most useful when combined with query parameter
+<p>Alternatively, just the path part of the URL can be matched exactly or using a regular expression, which is most useful when combined with query parameter
 matching (<a class="reference internal" href="#stubbing-query-parameter-matching"><em>Query parameter matching</em></a>):</p>
 <div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">&quot;/query&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">&quot;/qu.*&quot;</span><span class="o">))</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
 </pre></div>
 </div>
@@ -261,6 +265,8 @@ matching (<a class="reference internal" href="#stubbing-query-parameter-matching
 <span class="p">}</span>
 </pre></div>
 </div>
+<p>Note: you must use <tt class="docutils literal"><span class="pre">urlPathEqualTo</span></tt> or <tt class="docutils literal"><span class="pre">urlPathMatching</span></tt> to specify the path, as <tt class="docutils literal"><span class="pre">urlEqualTo</span></tt> or <tt class="docutils literal"><span class="pre">urlMatching</span></tt> will
+attempt to match the whole request URL, including the query parameters.</p>
 </div>
 <div class="section" id="request-body-matching">
 <span id="stubbing-request-body-matching"></span><h2>Request body matching<a class="headerlink" href="#request-body-matching" title="Permalink to this headline">¶</a></h2>
