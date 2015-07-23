@@ -23,6 +23,8 @@ import com.google.common.base.Predicate;
 
 import static com.google.common.collect.Iterables.filter;
 
+import static java.lang.System.out;
+
 public class JsonFileMappingsLoader implements MappingsLoader {
 
 	private final FileSource mappingsFileSource;
@@ -35,8 +37,16 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 	public void loadMappingsInto(StubMappings stubMappings) {
 		JsonStubMappingCreator jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+		
+		//***Custom Changes here tedleman 1/7/15****
 		for (TextFile mappingFile: mappingFiles) {
-			jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString());
+			try{
+				jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString());
+			}catch(Exception e){
+				out.println("ERROR READING [skipped]: "+mappingFile.name());
+				out.println(e.getMessage());
+			}
+			
 		}
 	}
 	
