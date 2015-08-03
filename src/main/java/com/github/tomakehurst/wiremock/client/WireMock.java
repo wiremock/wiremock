@@ -39,7 +39,12 @@ public class WireMock {
 
 	private final Admin admin;
 
-	private static WireMock defaultInstance = new WireMock();
+	private static ThreadLocal<WireMock> defaultInstance = new ThreadLocal<WireMock>(){
+            @Override 
+            protected WireMock initialValue() {
+            	return new WireMock();
+            }
+	};
 
     public WireMock(Admin admin) {
         this.admin = admin;
@@ -62,7 +67,7 @@ public class WireMock {
 	}
 
 	public static void givenThat(MappingBuilder mappingBuilder) {
-		defaultInstance.register(mappingBuilder);
+		defaultInstance.get().register(mappingBuilder);
 	}
 
 	public static void stubFor(MappingBuilder mappingBuilder) {
@@ -70,23 +75,23 @@ public class WireMock {
 	}
 
     public static ListStubMappingsResult listAllStubMappings() {
-        return defaultInstance.allStubMappings();
+        return defaultInstance.get().allStubMappings();
     }
 
     public static void configureFor(int port) {
-        defaultInstance = new WireMock(port);
+        defaultInstance.set(new WireMock(port));
     }
 
 	public static void configureFor(String host, int port) {
-		defaultInstance = new WireMock(host, port);
+		defaultInstance.set(new WireMock(host, port));
 	}
 
 	public static void configureFor(String host, int port, String urlPathPrefix) {
-		defaultInstance = new WireMock(host, port, urlPathPrefix);
+		defaultInstance.set(new WireMock(host, port, urlPathPrefix));
 	}
 
 	public static void configure() {
-		defaultInstance = new WireMock();
+		defaultInstance.set(new WireMock());
 	}
 
     public void saveMappings() {
@@ -94,7 +99,7 @@ public class WireMock {
     }
 
     public static void saveAllMappings() {
-        defaultInstance.saveMappings();
+        defaultInstance.get().saveMappings();
     }
 
 	public void resetMappings() {
@@ -102,11 +107,11 @@ public class WireMock {
 	}
 
 	public static void reset() {
-		defaultInstance.resetMappings();
+		defaultInstance.get().resetMappings();
 	}
 
 	public static void resetAllRequests() {
-		defaultInstance.resetRequests();
+		defaultInstance.get().resetRequests();
 	}
 
 	public void resetRequests() {
@@ -118,7 +123,7 @@ public class WireMock {
 	}
 
 	public static void resetAllScenarios() {
-		defaultInstance.resetScenarios();
+		defaultInstance.get().resetScenarios();
 	}
 
     public void resetToDefaultMappings() {
@@ -126,7 +131,7 @@ public class WireMock {
     }
 
     public static void resetToDefault() {
-        defaultInstance.resetToDefaultMappings();
+        defaultInstance.get().resetToDefaultMappings();
     }
 
 	public void register(MappingBuilder mappingBuilder) {
@@ -286,11 +291,11 @@ public class WireMock {
 	}
 
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
-		defaultInstance.verifyThat(requestPatternBuilder);
+		defaultInstance.get().verifyThat(requestPatternBuilder);
 	}
 
 	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
-		defaultInstance.verifyThat(count, requestPatternBuilder);
+		defaultInstance.get().verifyThat(count, requestPatternBuilder);
 	}
 
     public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
@@ -300,7 +305,7 @@ public class WireMock {
     }
 
     public static List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
-        return defaultInstance.find(requestPatternBuilder);
+        return defaultInstance.get().find(requestPatternBuilder);
     }
 
 	public static RequestPatternBuilder getRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
@@ -336,7 +341,7 @@ public class WireMock {
 	}
 
 	public static void setGlobalFixedDelay(int milliseconds) {
-		defaultInstance.setGlobalFixedDelayVariable(milliseconds);
+		defaultInstance.get().setGlobalFixedDelayVariable(milliseconds);
 	}
 
 	public void setGlobalFixedDelayVariable(int milliseconds) {
@@ -350,7 +355,7 @@ public class WireMock {
     }
 
     public static void addRequestProcessingDelay(int milliseconds) {
-        defaultInstance.addDelayBeforeProcessingRequests(milliseconds);
+        defaultInstance.get().addDelayBeforeProcessingRequests(milliseconds);
     }
 
     public void shutdown() {
@@ -358,6 +363,6 @@ public class WireMock {
     }
 
     public static void shutdownServer() {
-        defaultInstance.shutdown();
+        defaultInstance.get().shutdown();
     }
 }
