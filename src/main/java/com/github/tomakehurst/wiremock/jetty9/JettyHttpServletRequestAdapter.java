@@ -165,8 +165,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     public boolean isBrowserProxyRequest() {
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            URI uri = URI.create(jettyRequest.getUri().toString());
-            return uri.isAbsolute();
+            return jettyRequest.getHttpURI().isAbsolute();
         }
 
         return false;

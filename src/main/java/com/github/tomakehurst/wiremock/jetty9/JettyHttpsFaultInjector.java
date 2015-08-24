@@ -27,7 +27,7 @@ public class JettyHttpsFaultInjector implements FaultInjector {
     public JettyHttpsFaultInjector(HttpServletResponse response) {
         this.response = (Response) response;
 
-        HttpChannel<?> httpChannel = this.response.getHttpOutput().getHttpChannel();
+        HttpChannel httpChannel = this.response.getHttpOutput().getHttpChannel();
         SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
         SelectChannelEndPoint selectChannelEndPoint = (SelectChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
         this.socket = selectChannelEndPoint.getSocket();
