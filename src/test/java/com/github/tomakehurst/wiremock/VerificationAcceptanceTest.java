@@ -115,7 +115,7 @@ public class VerificationAcceptanceTest {
             testClient.postWithBody("/body/contains", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/contains"))
                     .withRequestBody(matchingJsonPath("$.thing"))
-                    .withRequestBody(matchingJsonPath("$..*[?(@.importantKey == 'Important value')]")));
+                    .withRequestBody(matchingJsonPath("$..thing[?(@.importantKey == 'Important value')]")));
         }
 
         @Test
