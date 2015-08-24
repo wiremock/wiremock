@@ -83,6 +83,18 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         assertThat(requests.size(), is(0));
     }
 
+    @Test
+    public void returnsNoResultsAfterRequestsReset() {
+        testClient.get("/blah");
+        testClient.get("/blah");
+        testClient.get("/blah");
+
+        WireMock.resetAllRequests();
+        List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/blah")));
+
+        assertThat(requests.size(), is(0));
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void resultsAreInOrderRequestsWereReceived() {

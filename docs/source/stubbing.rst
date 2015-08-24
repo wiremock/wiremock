@@ -87,7 +87,7 @@ And in JSON via the ``urlPattern`` attribute:
     }
 
 
-Alternatively, just the path part of the URL can be matched exactly, which is most useful when combined with query parameter
+Alternatively, just the path part of the URL can be matched exactly or using a regular expression, which is most useful when combined with query parameter
 matching (:ref:`stubbing-query-parameter-matching`):
 
 .. code-block:: java
@@ -95,6 +95,10 @@ matching (:ref:`stubbing-query-parameter-matching`):
     stubFor(get(urlPathEqualTo("/query"))
         .willReturn(aResponse().withStatus(200)));
 
+.. code-block:: java
+
+    stubFor(get(urlPathMatching("/qu.*"))
+        .willReturn(aResponse().withStatus(200)));
 
 And in JSON via the ``urlPath`` attribute:
 
@@ -188,6 +192,8 @@ And in JSON:
     	}
     }
 
+Note: you must use ``urlPathEqualTo`` or ``urlPathMatching`` to specify the path, as ``urlEqualTo`` or ``urlMatching`` will
+attempt to match the whole request URL, including the query parameters.
 
 .. _stubbing-request-body-matching:
 
@@ -343,6 +349,37 @@ The JSON equivalent of which would be:
     		"status": 200
     	}
     }
+
+To match XML with namespaced elements the namespaces must be registered:
+
+.. code-block:: java
+
+    stubFor(put(urlEqualTo("/namespaced/xpath"))
+        .withRequestBody(matchingXPath("/stuff:outer/stuff:inner[.=111]")
+                .withXPathNamespace("stuff", "http://foo.com"))
+        .willReturn(aResponse().withStatus(200)));
+
+or:
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+            "method": "PUT",
+            "url": "/xpath",
+            "bodyPatterns" : [
+              	{ "matchesXPath" : "/stuff:outer/stuff:inner[.=111]" ,
+              	    "withXPathNamespaces" : {
+                        "stuff" : "http://foo.com/"
+                    }
+                },
+            ]
+    	},
+    	"response": {
+    		"status": 200
+    	}
+    }
+
 
 
 .. note::

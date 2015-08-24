@@ -22,23 +22,28 @@ public class UrlMatchingStrategy {
 	private String url;
 	private String urlPattern;
     private String urlPath;
+	private String urlPathPattern;
 
-    public void contributeTo(RequestPattern requestPattern) {
+	public void contributeTo(RequestPattern requestPattern) {
 		requestPattern.setUrl(url);
 		requestPattern.setUrlPattern(urlPattern);
         requestPattern.setUrlPath(urlPath);
+		requestPattern.setUrlPathPattern(urlPathPattern);
 	}
-	
+
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
+
 	public void setUrlPattern(String urlPattern) {
 		this.urlPattern = urlPattern;
 	}
 
-
     public void setUrlPath(String urlPath) {
         this.urlPath = urlPath;
     }
+
+	public void setUrlPathPattern(String urlPathPattern) {
+		this.urlPathPattern = urlPathPattern;
+	}
 }

@@ -129,8 +129,14 @@ public class CommandLineOptionsTest {
 		assertThat(options.specifiesProxyUrl(), is(true));
 		assertThat(options.proxyUrl(), is("http://someotherhost.com/site"));
 	}
-	
-	@Test(expected=Exception.class)
+
+    @Test
+    public void setsProxyHostHeaderWithTrailingPortInformation() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://someotherhost.com:8080/site");
+        assertThat(options.proxyHostHeader(), is("someotherhost.com:8080"));
+    }
+
+    @Test(expected=Exception.class)
 	public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
 		new CommandLineOptions("--proxy-all");
 	}

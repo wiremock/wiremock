@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
@@ -45,6 +46,7 @@ public class RequestPattern {
     private String urlPattern;
 	private String url;
     private String urlPath;
+	private String urlPathPattern;
     private RequestMethod method;
     private Map<String, ValuePattern> headerPatterns;
     private Map<String, ValuePattern> queryParamPatterns;
@@ -62,16 +64,16 @@ public class RequestPattern {
 		this.method = method;
 		this.headerPatterns = headerPatterns;
 	}
-	
+
 	public RequestPattern(RequestMethod method) {
 		this.method = method;
 	}
-	
+
 	public RequestPattern(RequestMethod method, String url) {
 		this.url = url;
 		this.method = method;
 	}
-	
+
 	public RequestPattern() {
 	}
 
@@ -86,8 +88,8 @@ public class RequestPattern {
     }
 
     private void assertIsInValidState() {
-        if (from(asList(url, urlPath, urlPattern)).filter(notNull()).size() > 1) {
-			throw new IllegalStateException("Only one of url, urlPattern or urlPath may be set");
+        if (from(asList(url, urlPath, urlPattern, urlPathPattern)).filter(notNull()).size() > 1) {
+			throw new IllegalStateException("Only one of url, urlPattern, urlPath or urlPathPattern may be set");
 		}
 	}
 
@@ -107,6 +109,8 @@ public class RequestPattern {
             matched = url.equals(candidateUrl);
         } else if (urlPattern != null) {
 			matched = candidateUrl.matches(urlPattern);
+		} else if (urlPathPattern != null) {
+			matched = candidateUrl.matches(urlPathPattern.concat(".*"));
 		} else {
             matched = candidateUrl.startsWith(urlPath);
         }
@@ -242,6 +246,15 @@ public class RequestPattern {
         assertIsInValidState();
     }
 
+	public String getUrlPathPattern() {
+		return urlPathPattern;
+	}
+
+	public void setUrlPathPattern(String urlPathPattern) {
+		this.urlPathPattern = urlPathPattern;
+		assertIsInValidState();
+	}
+
 	public List<ValuePattern> getBodyPatterns() {
 		return bodyPatterns;
 	}
@@ -355,8 +368,8 @@ public class RequestPattern {
             public boolean apply(Map.Entry<String, ValuePattern> entry) {
                 ValuePattern valuePattern = entry.getValue();
                 String key = entry.getKey();
-                QueryParameter queryParam = request.queryParameter(key);
-                boolean match = queryParam.hasValueMatching(valuePattern);
+                Optional<QueryParameter> queryParam = Optional.fromNullable(request.queryParameter(key));
+                boolean match = queryParam.isPresent() && queryParam.get().hasValueMatching(valuePattern);
 
                 if (!match) {
                     notifier().info(String.format(

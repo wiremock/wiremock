@@ -46,6 +46,18 @@ public class VerificationAcceptanceTest {
             verify(getRequestedFor(urlEqualTo("/this/got/requested")));
         }
 
+        @Test
+        public void verifiesRequestBasedOnUrlPathOnly() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathEqualTo("/this/got")));
+        }
+
+        @Test
+        public void verifiesRequestBasedOnUrlPathPatternOnly() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got")));
+        }
+
         @Test(expected=VerificationException.class)
         public void throwsVerificationExceptionWhenNoMatch() {
             testClient.get("/this/got/requested");
@@ -135,6 +147,18 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
+        public void verifiesWithBodyEquallingNamespacedXpath() {
+            testClient.postWithBody(
+                    "/namespaced/xml",
+                    "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>", "application/xml", "utf-8");
+
+            verify(postRequestedFor(urlEqualTo("/namespaced/xml"))
+                    .withRequestBody(matchingXPath("//s:subThing[.='The stuff']")
+                            .withXPathNamespace("t", "http://things")
+                            .withXPathNamespace("s", "http://subthings")));
+        }
+
+        @Test
         public void verifiesWithBodyContainingString() {
             testClient.postWithBody("/body/json", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json"))
@@ -157,6 +181,12 @@ public class VerificationAcceptanceTest {
         public void verifyIsFalseWithQueryParamNotMatched() {
             testClient.get("/query?param=my-value");
             verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("wrong-value")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void verifyIsFalseWhenExpectedQueryParamMissing() {
+            testClient.get("/query");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withQueryParam("param", equalTo("my-value")));
         }
 
         @Test(expected=VerificationException.class)

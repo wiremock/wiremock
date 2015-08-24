@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/testjsonmapping"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "key": "value",
+      "array": [1, 2, 3]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

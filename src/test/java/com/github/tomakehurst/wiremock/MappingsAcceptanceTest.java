@@ -124,6 +124,13 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
         testClient.addResponse(MAPPING_REQUEST_FOR_BINARY_BYTE_BODY);
         assertThat(testClient.get("/bytecompressed/resource/from/file").binaryContent(), is(BINARY_COMPRESSED_CONTENT));
     }
+
+	@Test
+	public void readsJsonMapping() {
+		WireMockResponse response = testClient.get("/testjsonmapping");
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
+	}
 	
 	private void getResponseAndAssert200Status(String url) {
 		WireMockResponse response = testClient.get(url);

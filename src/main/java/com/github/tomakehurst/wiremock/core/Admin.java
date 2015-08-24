@@ -29,6 +29,7 @@ public interface Admin {
     ListStubMappingsResult listAllStubMappings();
     void saveMappings();
 	void resetMappings();
+	void resetRequests();
 	void resetScenarios();
     void resetToDefaultMappings();
 	VerificationResult countRequestsMatching(RequestPattern requestPattern);
