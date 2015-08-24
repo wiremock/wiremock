@@ -36,7 +36,7 @@ dependencies {
     compile "com.jayway.jsonpath:json-path:2.0.0"
 	compile "org.slf4j:slf4j-api:1.7.12"
 	compile "net.sf.jopt-simple:jopt-simple:4.9"
-	compile ("junit:junit:4.11") {
+	compile ("junit:junit:4.12") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
 	
