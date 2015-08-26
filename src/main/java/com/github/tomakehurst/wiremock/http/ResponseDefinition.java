@@ -21,27 +21,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.*;
-import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
 	private int status;
-	private byte[] body;
-	private boolean isBinaryBody = false;
+	private Body body = Body.none();
 	private String bodyFileName;
 	private HttpHeaders headers;
 	private HttpHeaders additionalProxyRequestHeaders;
@@ -66,23 +59,8 @@ public class ResponseDefinition {
 							  @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
 							  @JsonProperty("fault") Fault fault,
 							  @JsonProperty("transformers") List<String> transformers) {
-		this.status = status > 0 ? status : 200;
-
-		if (body != null) {
-			setBody(body);
-		} else if (jsonBody != null && !(jsonBody instanceof NullNode)) {
-			setJsonBody(jsonBody);
-		} else if (base64Body != null) {
-			setBase64Body(base64Body);
-		}
-
-		this.bodyFileName = bodyFileName;
-		this.headers = headers;
-		this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
-		this.fixedDelayMilliseconds = fixedDelayMilliseconds;
-		this.proxyBaseUrl = proxyBaseUrl;
-		this.fault = fault;
-		this.transformers = transformers;
+		this(status, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
+		this.body = Body.fromOneOf(null, body, jsonBody, base64Body);
 	}
 
 	public ResponseDefinition(int status,
@@ -96,17 +74,22 @@ public class ResponseDefinition {
 							  String proxyBaseUrl,
 							  Fault fault,
 							  List<String> transformers) {
+		this(status, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
+		this.body = Body.fromOneOf(body, null, jsonBody, base64Body);
+	}
+
+	private ResponseDefinition(int status,
+							   String bodyFileName,
+							   HttpHeaders headers,
+							   HttpHeaders additionalProxyRequestHeaders,
+							   Integer fixedDelayMilliseconds,
+							   String proxyBaseUrl,
+							   Fault fault,
+							   List<String> transformers) {
 		this.status = status > 0 ? status : 200;
 
-		if (body != null) {
-			setBody(body);
-		} else if (jsonBody != null) {
-			setJsonBody(jsonBody);
-		} else if (base64Body != null) {
-			setBase64Body(base64Body);
-		}
-
 		this.bodyFileName = bodyFileName;
+
 		this.headers = headers;
 		this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
 		this.fixedDelayMilliseconds = fixedDelayMilliseconds;
@@ -119,7 +102,6 @@ public class ResponseDefinition {
 		ResponseDefinition newResponseDef = new ResponseDefinition();
 		newResponseDef.status = original.status;
 		newResponseDef.body = original.body;
-		newResponseDef.isBinaryBody = original.isBinaryBody;
 		newResponseDef.bodyFileName = original.bodyFileName;
 		newResponseDef.headers = original.headers;
 		newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
@@ -149,13 +131,12 @@ public class ResponseDefinition {
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
 		this.status = statusCode;
-		this.body = (bodyContent==null) ? null : bodyContent.getBytes(Charset.forName(UTF_8.name()));
+		this.body = Body.fromString(bodyContent);
 	}
 
 	public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
 		this.status = statusCode;
-		this.body = bodyContent;
-		isBinaryBody = true;
+		this.body = Body.fromBytes(bodyContent);
 	}
 
 	public ResponseDefinition() {
@@ -198,44 +179,36 @@ public class ResponseDefinition {
 	}
 
 	public String getBody() {
-		return !isBinaryBody ? stringFromBytes(body) : null;
+		return !body.isBinary() ? body.asString() : null;
 	}
 
 	@JsonIgnore
 	public byte[] getByteBody() {
-		return body;
+		return body.asBytes();
 	}
 
 	public String getBase64Body() {
-		if (isBinaryBody && body != null) {
-			return printBase64Binary(body);
-		}
-
-		return null;
+		return body.isBinary() ? body.asBase64() : null;
 	}
 
 	public void setBase64Body(String base64Body) {
-		isBinaryBody = true;
-		body = parseBase64Binary(base64Body);
+		body = Body.fromOneOf(null, null, null, base64Body);
 	}
 
 	public void setJsonBody(JsonNode jsonBody) {
-		isBinaryBody = false;
-		body = Json.toByteArray(jsonBody);
+		body = Body.fromOneOf(null, null, jsonBody, null);
 	}
 
 	// Needs to be explicitly marked as a property, since an overloaded setter with the same
 	// name is marked as ignored (see currently open JACKSON-783 bug)
 	@JsonProperty
 	public void setBody(final String body) {
-		this.body = (body!=null) ? body.getBytes(Charset.forName(UTF_8.name())) : null;
-		isBinaryBody = false;
+		this.body = Body.fromString(body);
 	}
 
 	@JsonIgnore
 	public void setBody(final byte[] body) {
-		this.body = body;
-		isBinaryBody = true;
+		this.body = Body.fromBytes(body);
 	}
 
 	public void setStatus(final int status) {
@@ -285,17 +258,17 @@ public class ResponseDefinition {
 
 	@JsonIgnore
 	public boolean specifiesBodyFile() {
-		return bodyFileName != null && body == null;
+		return bodyFileName != null && body.isAbsent();
 	}
 
 	@JsonIgnore
 	public boolean specifiesBodyContent() {
-		return body != null;
+		return body.isPresent();
 	}
 
 	@JsonIgnore
 	public boolean specifiesBinaryBodyContent() {
-		return (body!=null && isBinaryBody);
+		return (body.isPresent() && body.isBinary());
 	}
 
 	@JsonIgnore
@@ -335,66 +308,24 @@ public class ResponseDefinition {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-
 		ResponseDefinition that = (ResponseDefinition) o;
-
-		if (isBinaryBody != that.isBinaryBody) return false;
-		if (status != that.status) return false;
-		if (wasConfigured != that.wasConfigured) return false;
-		if (additionalProxyRequestHeaders != null ? !additionalProxyRequestHeaders.equals(that.additionalProxyRequestHeaders) : that.additionalProxyRequestHeaders != null)
-			return false;
-		if (!Arrays.equals(body, that.body)) return false;
-		if (bodyFileName != null ? !bodyFileName.equals(that.bodyFileName) : that.bodyFileName != null) return false;
-		if (browserProxyUrl != null ? !browserProxyUrl.equals(that.browserProxyUrl) : that.browserProxyUrl != null)
-			return false;
-		if (fault != that.fault) return false;
-		if (fixedDelayMilliseconds != null ? !fixedDelayMilliseconds.equals(that.fixedDelayMilliseconds) : that.fixedDelayMilliseconds != null)
-			return false;
-		if (headers != null ? !headers.equals(that.headers) : that.headers != null) return false;
-		if (originalRequest != null ? !originalRequest.equals(that.originalRequest) : that.originalRequest != null)
-			return false;
-		if (proxyBaseUrl != null ? !proxyBaseUrl.equals(that.proxyBaseUrl) : that.proxyBaseUrl != null) return false;
-		if (transformers != null ? !transformers.equals(that.transformers) : that.transformers != null)
-			return false;
-
-		return true;
+		return Objects.equals(status, that.status) &&
+				Objects.equals(wasConfigured, that.wasConfigured) &&
+				Objects.equals(body, that.body) &&
+				Objects.equals(bodyFileName, that.bodyFileName) &&
+				Objects.equals(headers, that.headers) &&
+				Objects.equals(additionalProxyRequestHeaders, that.additionalProxyRequestHeaders) &&
+				Objects.equals(fixedDelayMilliseconds, that.fixedDelayMilliseconds) &&
+				Objects.equals(proxyBaseUrl, that.proxyBaseUrl) &&
+				Objects.equals(browserProxyUrl, that.browserProxyUrl) &&
+				Objects.equals(fault, that.fault) &&
+				Objects.equals(originalRequest, that.originalRequest) &&
+				Objects.equals(transformers, that.transformers);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = status;
-		result = 31 * result + (body != null ? Arrays.hashCode(body) : 0);
-		result = 31 * result + (isBinaryBody ? 1 : 0);
-		result = 31 * result + (bodyFileName != null ? bodyFileName.hashCode() : 0);
-		result = 31 * result + (headers != null ? headers.hashCode() : 0);
-		result = 31 * result + (additionalProxyRequestHeaders != null ? additionalProxyRequestHeaders.hashCode() : 0);
-		result = 31 * result + (fixedDelayMilliseconds != null ? fixedDelayMilliseconds.hashCode() : 0);
-		result = 31 * result + (proxyBaseUrl != null ? proxyBaseUrl.hashCode() : 0);
-		result = 31 * result + (browserProxyUrl != null ? browserProxyUrl.hashCode() : 0);
-		result = 31 * result + (fault != null ? fault.hashCode() : 0);
-		result = 31 * result + (wasConfigured ? 1 : 0);
-		result = 31 * result + (originalRequest != null ? originalRequest.hashCode() : 0);
-		result = 31 * result + (transformers != null ? transformers.hashCode() : 0);
-		return result;
-	}
-
-	private static boolean byteBodyEquals(byte[] expecteds, byte[] actuals)
-	{
-		if (expecteds == actuals) return true;
-		if (expecteds == null) return false;
-		if (actuals == null) return false;
-
-		int actualsLength= actuals.length;
-		int expectedsLength= expecteds.length;
-		if (actualsLength != expectedsLength)
-			return false;
-
-		for (int i= 0; i < expectedsLength; i++) {
-			byte  expected= expecteds[i];
-			byte  actual= actuals[i];
-			if(expected!=actual) return false;
-		}
-		return true;
+		return Objects.hash(status, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, browserProxyUrl, fault, wasConfigured, originalRequest, transformers);
 	}
 
 	@Override

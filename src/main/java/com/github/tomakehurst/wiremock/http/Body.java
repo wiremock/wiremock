@@ -1,0 +1,105 @@
+package com.github.tomakehurst.wiremock.http;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Strings;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+
+public class Body {
+
+    private final byte[] content;
+    private final boolean binary;
+
+    public Body(byte[] content) {
+        this(content, true);
+    }
+
+    private Body(byte[] content, boolean binary) {
+        this.content = content;
+        this.binary = binary;
+    }
+
+    public Body(String content) {
+        this.content = Strings.bytesFromString(content);
+        binary = false;
+    }
+
+    public Body(JsonNode content) {
+        this.content = Json.toByteArray(content);
+        binary = false;
+    }
+
+    static Body fromBytes(byte[] bytes) {
+        return bytes != null ? new Body(bytes) : none();
+    }
+
+    static Body fromString(String str) {
+        return str != null ? new Body(str) : none();
+    }
+
+    static Body fromOneOf(byte[] bytes, String str, JsonNode json, String base64) {
+        if (bytes != null) return new Body(bytes);
+        if (str != null) return new Body(str);
+        if (json != null && !(json instanceof NullNode)) return new Body(json);
+        if (base64 != null) return new Body(parseBase64Binary(base64), true);
+
+        return none();
+    }
+
+    public static Body none() {
+        return new Body((byte[]) null);
+    }
+
+    public String asString() {
+        return content != null ? stringFromBytes(content) : null;
+    }
+
+    public byte[] asBytes() {
+        return content != null ? content : null;
+    }
+
+    public String asBase64() {
+        return content != null ? printBase64Binary(content) : null;
+    }
+
+    public boolean isBinary() {
+        return binary;
+    }
+
+    public boolean isAbsent() {
+        return content == null;
+    }
+
+    public boolean isPresent() {
+        return !isAbsent();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Body body = (Body) o;
+        return Objects.equals(binary, body.binary) &&
+                Arrays.equals(content, body.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(content, binary);
+    }
+
+    @Override
+    public String toString() {
+        return "Body {" +
+                "content=" + Arrays.toString(content) +
+                ", binary=" + binary +
+                '}';
+    }
+}

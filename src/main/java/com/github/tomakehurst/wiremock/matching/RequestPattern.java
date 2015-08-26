@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -264,63 +265,23 @@ public class RequestPattern {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((bodyPatterns == null) ? 0 : bodyPatterns.hashCode());
-		result = prime * result + ((headerPatterns == null) ? 0 : headerPatterns.hashCode());
-		result = prime * result + ((method == null) ? 0 : method.hashCode());
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		result = prime * result
-				+ ((urlPattern == null) ? 0 : urlPattern.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		RequestPattern that = (RequestPattern) o;
+		return Objects.equals(urlPattern, that.urlPattern) &&
+				Objects.equals(url, that.url) &&
+				Objects.equals(urlPath, that.urlPath) &&
+				Objects.equals(urlPathPattern, that.urlPathPattern) &&
+				Objects.equals(method, that.method) &&
+				Objects.equals(headerPatterns, that.headerPatterns) &&
+				Objects.equals(queryParamPatterns, that.queryParamPatterns) &&
+				Objects.equals(bodyPatterns, that.bodyPatterns);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		RequestPattern other = (RequestPattern) obj;
-		if (bodyPatterns == null) {
-			if (other.bodyPatterns != null) {
-				return false;
-			}
-		} else if (!bodyPatterns.equals(other.bodyPatterns)) {
-			return false;
-		}
-		if (headerPatterns == null) {
-			if (other.headerPatterns != null) {
-				return false;
-			}
-		} else if (!headerPatterns.equals(other.headerPatterns)) {
-			return false;
-		}
-		if (!method.equals(other.method)) {
-			return false;
-		}
-		if (url == null) {
-			if (other.url != null) {
-				return false;
-			}
-		} else if (!url.equals(other.url)) {
-			return false;
-		}
-		if (urlPattern == null) {
-			if (other.urlPattern != null) {
-				return false;
-			}
-		} else if (!urlPattern.equals(other.urlPattern)) {
-			return false;
-		}
-		return true;
+	public int hashCode() {
+		return Objects.hash(urlPattern, url, urlPath, urlPathPattern, method, headerPatterns, queryParamPatterns, bodyPatterns);
 	}
 
 	@Override

@@ -11,4 +11,12 @@ public class Strings {
 
         return new String(bytes, UTF_8);
     }
+
+    public static byte[] bytesFromString(String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return str.getBytes();
+    }
 }
