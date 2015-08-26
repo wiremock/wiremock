@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.nio.charset.Charset;
@@ -35,6 +36,7 @@ public class ResponseDefinitionBuilder {
 
 	protected int status = HTTP_OK;
 	protected byte[] bodyContent;
+	protected String base64Body;
 	protected boolean isBinaryBody = false;
 	protected String bodyFileName;
 	protected List<HttpHeader> headers = newArrayList();
@@ -50,6 +52,7 @@ public class ResponseDefinitionBuilder {
 				newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
 		builder.bodyContent = responseDefinition.getByteBody();
+		builder.base64Body = responseDefinition.getBase64Body();
 		builder.isBinaryBody = responseDefinition.specifiesBinaryBodyContent();
 		builder.bodyFileName = responseDefinition.getBodyFileName();
 		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
@@ -113,6 +116,20 @@ public class ResponseDefinitionBuilder {
 		return new ProxyResponseDefinitionBuilder(this);
 	}
 
+	public static ResponseDefinitionBuilder responseDefinition() {
+		return new ResponseDefinitionBuilder();
+	}
+
+	public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
+		this.headers = ImmutableList.copyOf(headers.all());
+		return this;
+	}
+
+	public ResponseDefinitionBuilder withBase64Body(String base64Body) {
+		this.base64Body = base64Body;
+		return this;
+	}
+
 	public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
 		private List<HttpHeader> additionalRequestHeaders = newArrayList();
@@ -121,6 +138,7 @@ public class ResponseDefinitionBuilder {
 			this.status = from.status;
 			this.headers = from.headers;
 			this.bodyContent = from.bodyContent;
+			this.base64Body = from.base64Body;
 			this.bodyFileName = from.bodyFileName;
 			this.fault = from.fault;
 			this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
@@ -136,13 +154,9 @@ public class ResponseDefinitionBuilder {
 
 		@Override
 		public ResponseDefinition build() {
-			ResponseDefinition response = super.build();
-
-			if (!additionalRequestHeaders.isEmpty()) {
-				response.setAdditionalProxyRequestHeaders(new HttpHeaders(additionalRequestHeaders));
-			}
-
-			return response;
+			return !additionalRequestHeaders.isEmpty() ?
+					super.build(new HttpHeaders(additionalRequestHeaders)) :
+					super.build();
 		}
 	}
 
@@ -152,16 +166,20 @@ public class ResponseDefinitionBuilder {
 	}
 
 	public ResponseDefinition build() {
+		return build(null);
+	}
+
+	protected ResponseDefinition build(HttpHeaders additionalProxyRequestHeaders) {
 		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
 		return isBinaryBody ?
 				new ResponseDefinition(
 						status,
 						bodyContent,
 						null,
-						null,
+						base64Body,
 						bodyFileName,
 						httpHeaders,
-						null,
+						additionalProxyRequestHeaders,
 						fixedDelayMilliseconds,
 						proxyBaseUrl,
 						fault,
@@ -170,10 +188,10 @@ public class ResponseDefinitionBuilder {
 						status,
 						stringFromBytes(bodyContent),
 						null,
-						null,
+						base64Body,
 						bodyFileName,
 						httpHeaders,
-						null,
+						additionalProxyRequestHeaders,
 						fixedDelayMilliseconds,
 						proxyBaseUrl,
 						fault,

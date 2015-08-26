@@ -21,6 +21,9 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Test;
 
+import java.util.Collections;
+
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static net.sf.json.test.JSONAssert.assertJsonEquals;
@@ -34,15 +37,19 @@ public class ResponseDefinitionTest {
 
     @Test
     public void copyProducesEqualObject() {
-        ResponseDefinition response = new ResponseDefinition();
-        response.setBody("blah");
-        response.setBodyFileName("name.json");
-        response.setFault(Fault.EMPTY_RESPONSE);
-        response.setHeaders(new HttpHeaders(httpHeader("thing", "thingvalue")));
-        response.setFixedDelayMilliseconds(1112);
-        response.setProxyBaseUrl("http://base.com");
-        response.setStatus(222);
-        
+        ResponseDefinition response = new ResponseDefinition(
+                222,
+                "blah",
+                null,
+                null,
+                "name.json",
+                new HttpHeaders(httpHeader("thing", "thingvalue")),
+                null,
+                1112,
+                "http://base.com",
+                Fault.EMPTY_RESPONSE,
+                Collections.<String>emptyList());
+
         ResponseDefinition copiedResponse = copyOf(response);
         
         assertTrue(response.equals(copiedResponse));
@@ -70,9 +77,10 @@ public class ResponseDefinitionTest {
 
     @Test
     public void correctlyMarshalsToJsonWhenBodyIsAString() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBody("String content");
+        ResponseDefinition responseDef = responseDefinition()
+                .withStatus(200)
+                .withBody("String content")
+                .build();
 
         assertJsonEquals(STRING_BODY, Json.write(responseDef));
     }
@@ -94,9 +102,7 @@ public class ResponseDefinitionTest {
 
     @Test
     public void correctlyMarshalsToJsonWhenBodyIsBinary() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBase64Body(BASE64_BODY);
+        ResponseDefinition responseDef = responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
 
         String actualJson = Json.write(responseDef);
         assertJsonEquals("Expected: " + BINARY_BODY + "\nActual: " + actualJson,
@@ -105,8 +111,7 @@ public class ResponseDefinitionTest {
 
     @Test
     public void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
-        ResponseDefinition responseDefinition = new ResponseDefinition();
-        responseDefinition.setBodyFileName("my-file");
+        ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").build();
 
         assertTrue(responseDefinition.specifiesBodyFile());
         assertFalse(responseDefinition.specifiesBodyContent());
@@ -114,9 +119,7 @@ public class ResponseDefinitionTest {
 
     @Test
     public void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
-        ResponseDefinition responseDefinition = new ResponseDefinition();
-        responseDefinition.setBodyFileName("my-file");
-        responseDefinition.setBody("hello");
+        ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").withBody("hello").build();
 
         assertFalse(responseDefinition.specifiesBodyFile());
         assertTrue(responseDefinition.specifiesBodyContent());

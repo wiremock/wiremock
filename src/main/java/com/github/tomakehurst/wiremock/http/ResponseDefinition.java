@@ -117,16 +117,8 @@ public class ResponseDefinition {
 		return headers;
 	}
 
-	public void setHeaders(final HttpHeaders headers) {
-		this.headers = headers;
-	}
-
 	public HttpHeaders getAdditionalProxyRequestHeaders() {
 		return additionalProxyRequestHeaders;
-	}
-
-	public void setAdditionalProxyRequestHeaders(final HttpHeaders additionalProxyRequestHeaders) {
-		this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
@@ -191,44 +183,8 @@ public class ResponseDefinition {
 		return body.isBinary() ? body.asBase64() : null;
 	}
 
-	public void setBase64Body(String base64Body) {
-		body = Body.fromOneOf(null, null, null, base64Body);
-	}
-
-	public void setJsonBody(JsonNode jsonBody) {
-		body = Body.fromOneOf(null, null, jsonBody, null);
-	}
-
-	// Needs to be explicitly marked as a property, since an overloaded setter with the same
-	// name is marked as ignored (see currently open JACKSON-783 bug)
-	@JsonProperty
-	public void setBody(final String body) {
-		this.body = Body.fromString(body);
-	}
-
-	@JsonIgnore
-	public void setBody(final byte[] body) {
-		this.body = Body.fromBytes(body);
-	}
-
-	public void setStatus(final int status) {
-		if (status == 0) {
-			this.status = HTTP_OK;
-		} else {
-			this.status = status;
-		}
-	}
-
-	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
-		this.fixedDelayMilliseconds = fixedDelayMilliseconds;
-	}
-
 	public String getBodyFileName() {
 		return bodyFileName;
-	}
-
-	public void setBodyFileName(final String bodyFileName) {
-		this.bodyFileName = bodyFileName;
 	}
 
 	public boolean wasConfigured() {
@@ -250,10 +206,6 @@ public class ResponseDefinition {
 
 	public String getProxyBaseUrl() {
 		return proxyBaseUrl;
-	}
-
-	public void setProxyBaseUrl(final String proxyBaseUrl) {
-		this.proxyBaseUrl = proxyBaseUrl;
 	}
 
 	@JsonIgnore
@@ -288,16 +240,8 @@ public class ResponseDefinition {
 		return fault;
 	}
 
-	public void setFault(final Fault fault) {
-		this.fault = fault;
-	}
-
 	public List<String> getTransformers() {
 		return transformers;
-	}
-
-	public void setTransformers(List<String> transformers) {
-		this.transformers = transformers;
 	}
 
 	public boolean hasTransformer(ResponseTransformer transformer) {

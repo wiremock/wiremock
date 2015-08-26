@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.buildRequestPatternFrom;
@@ -33,8 +34,11 @@ public class GetRequestCountTask implements AdminTask {
     public ResponseDefinition execute(Admin admin, Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
         VerificationResult result = admin.countRequestsMatching(requestPattern);
-        ResponseDefinition response = new ResponseDefinition(HTTP_OK, write(result));
-        response.setHeaders(new HttpHeaders(httpHeader("Content-Type", "application/json")));
-        return response;
+
+        return responseDefinition()
+                .withStatus(HTTP_OK)
+                .withBody(write(result))
+                .withHeader("Content-Type", "application/json")
+                .build();
     }
 }

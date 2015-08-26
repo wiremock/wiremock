@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -66,9 +67,12 @@ public class RequestResponseMappingBuilder {
 	
 	public StubMapping build() {
 		RequestPattern requestPattern = new RequestPattern(method, url);
-		ResponseDefinition response = new ResponseDefinition(responseStatus, responseBody);
-		response.setHeaders(new HttpHeaders(headers));
-		StubMapping mapping = new StubMapping(requestPattern, response);
-		return mapping;
+		ResponseDefinition response = responseDefinition()
+				.withStatus(responseStatus)
+				.withBody(responseBody)
+				.withHeaders(new HttpHeaders(headers))
+				.build();
+
+		return new StubMapping(requestPattern, response);
 	}
 }
