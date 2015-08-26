@@ -20,14 +20,13 @@ import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
@@ -92,8 +91,7 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public String getBodyAsString() {
-        byte[] body = getBody();
-        return new String(body, UTF_8);
+        return stringFromBytes(getBody());
     }
 
     @SuppressWarnings("unchecked")

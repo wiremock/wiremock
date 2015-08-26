@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -58,49 +59,49 @@ public class ResponseDefinitionBuilder {
 		return builder;
 	}
 
-    public static ResponseDefinition jsonResponse(Object body) {
-        return new ResponseDefinitionBuilder()
-                .withBody(Json.write(body))
-                .withStatus(HTTP_OK)
-                .withHeader("Content-Type", "application/json")
-                .build();
-    }
+	public static ResponseDefinition jsonResponse(Object body) {
+		return new ResponseDefinitionBuilder()
+				.withBody(Json.write(body))
+				.withStatus(HTTP_OK)
+				.withHeader("Content-Type", "application/json")
+				.build();
+	}
 
 	public ResponseDefinitionBuilder but() {
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withStatus(int status) {
 		this.status = status;
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withHeader(String key, String value) {
 		headers.add(new HttpHeader(key, value));
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withBodyFile(String fileName) {
 		this.bodyFileName = fileName;
 		return this;
 	}
-	
+
 	public ResponseDefinitionBuilder withBody(String body) {
 		this.bodyContent = body.getBytes(Charset.forName(UTF_8.name()));
-        isBinaryBody = false;
+		isBinaryBody = false;
 		return this;
 	}
 
-    public ResponseDefinitionBuilder withBody(byte[] body) {
-        this.bodyContent = body;
-        isBinaryBody = true;
-        return this;
-    }
+	public ResponseDefinitionBuilder withBody(byte[] body) {
+		this.bodyContent = body;
+		isBinaryBody = true;
+		return this;
+	}
 
-    public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
-        this.fixedDelayMilliseconds = milliseconds;
-        return this;
-    }
+	public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
+		this.fixedDelayMilliseconds = milliseconds;
+		return this;
+	}
 
 	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
 		this.responseTransformerNames = asList(responseTransformerNames);
@@ -144,34 +145,39 @@ public class ResponseDefinitionBuilder {
 			return response;
 		}
 	}
-	
+
 	public ResponseDefinitionBuilder withFault(Fault fault) {
 		this.fault = fault;
 		return this;
 	}
-	
+
 	public ResponseDefinition build() {
-        ResponseDefinition response;
-
-        if(isBinaryBody) {
-	        response = new ResponseDefinition(status, bodyContent);
-        } else {
-            if(bodyContent==null) {
-                response = new ResponseDefinition(status, (String)null);
-            } else {
-                response = new ResponseDefinition(status, new String(bodyContent,Charset.forName(UTF_8.name())));
-            }
-        }
-
-        if (!headers.isEmpty()) {
-            response.setHeaders(new HttpHeaders(headers));
-        }
-		
-        response.setBodyFileName(bodyFileName);
-		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
-		response.setProxyBaseUrl(proxyBaseUrl);
-		response.setFault(fault);
-		response.setTransformers(responseTransformerNames);
-		return response;
+		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
+		return isBinaryBody ?
+				new ResponseDefinition(
+						status,
+						bodyContent,
+						null,
+						null,
+						bodyFileName,
+						httpHeaders,
+						null,
+						fixedDelayMilliseconds,
+						proxyBaseUrl,
+						fault,
+						responseTransformerNames) :
+				new ResponseDefinition(
+						status,
+						stringFromBytes(bodyContent),
+						null,
+						null,
+						bodyFileName,
+						httpHeaders,
+						null,
+						fixedDelayMilliseconds,
+						proxyBaseUrl,
+						fault,
+						responseTransformerNames
+				);
 	}
 }

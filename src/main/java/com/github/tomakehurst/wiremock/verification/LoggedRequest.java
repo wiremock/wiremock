@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
@@ -133,7 +134,7 @@ public class LoggedRequest implements Request {
 	@Override
     @JsonProperty("body")
 	public String getBodyAsString() {
-        return new String(body, Charsets.UTF_8);
+        return stringFromBytes(body);
 	}
 
 	@Override
