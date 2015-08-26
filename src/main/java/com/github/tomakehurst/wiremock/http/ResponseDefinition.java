@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,19 +34,19 @@ import static java.net.HttpURLConnection.*;
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {
 
-	private int status;
-	private Body body = Body.none();
-	private String bodyFileName;
-	private HttpHeaders headers;
-	private HttpHeaders additionalProxyRequestHeaders;
-	private Integer fixedDelayMilliseconds;
-	private String proxyBaseUrl;
-	private String browserProxyUrl;
-	private Fault fault;
+	private final int status;
+	private final Body body;
+	private final String bodyFileName;
+	private final HttpHeaders headers;
+	private final HttpHeaders additionalProxyRequestHeaders;
+	private final Integer fixedDelayMilliseconds;
+	private final String proxyBaseUrl;
+	private final Fault fault;
+	private final List<String> transformers;
 
+	private String browserProxyUrl;
 	private boolean wasConfigured = true;
 	private Request originalRequest;
-	private List<String> transformers;
 
 	@JsonCreator
 	public ResponseDefinition(@JsonProperty("status") int status,
@@ -59,8 +60,7 @@ public class ResponseDefinition {
 							  @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
 							  @JsonProperty("fault") Fault fault,
 							  @JsonProperty("transformers") List<String> transformers) {
-		this(status, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
-		this.body = Body.fromOneOf(null, body, jsonBody, base64Body);
+		this(status, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
 	}
 
 	public ResponseDefinition(int status,
@@ -74,11 +74,11 @@ public class ResponseDefinition {
 							  String proxyBaseUrl,
 							  Fault fault,
 							  List<String> transformers) {
-		this(status, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
-		this.body = Body.fromOneOf(body, null, jsonBody, base64Body);
+		this(status, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
 	}
 
 	private ResponseDefinition(int status,
+							   Body body,
 							   String bodyFileName,
 							   HttpHeaders headers,
 							   HttpHeaders additionalProxyRequestHeaders,
@@ -88,6 +88,7 @@ public class ResponseDefinition {
 							   List<String> transformers) {
 		this.status = status > 0 ? status : 200;
 
+		this.body = body;
 		this.bodyFileName = bodyFileName;
 
 		this.headers = headers;
@@ -98,41 +99,16 @@ public class ResponseDefinition {
 		this.transformers = transformers;
 	}
 
-	public static ResponseDefinition copyOf(ResponseDefinition original) {
-		ResponseDefinition newResponseDef = new ResponseDefinition();
-		newResponseDef.status = original.status;
-		newResponseDef.body = original.body;
-		newResponseDef.bodyFileName = original.bodyFileName;
-		newResponseDef.headers = original.headers;
-		newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
-		newResponseDef.fixedDelayMilliseconds = original.fixedDelayMilliseconds;
-		newResponseDef.proxyBaseUrl = original.proxyBaseUrl;
-		newResponseDef.fault = original.fault;
-		newResponseDef.wasConfigured = original.wasConfigured;
-		newResponseDef.transformers = original.transformers;
-		return newResponseDef;
-	}
-
-	public HttpHeaders getHeaders() {
-		return headers;
-	}
-
-	public HttpHeaders getAdditionalProxyRequestHeaders() {
-		return additionalProxyRequestHeaders;
-	}
-
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
-		this.status = statusCode;
-		this.body = Body.fromString(bodyContent);
+		this(statusCode, Body.fromString(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList());
 	}
 
 	public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-		this.status = statusCode;
-		this.body = Body.fromBytes(bodyContent);
+		this(statusCode, Body.fromBytes(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList());
 	}
 
 	public ResponseDefinition() {
-		this.status = HTTP_OK;
+		this(HTTP_OK, Body.none(), null, null, null, null, null, null, Collections.<String>emptyList());
 	}
 
 	public static ResponseDefinition notFound() {
@@ -166,6 +142,30 @@ public class ResponseDefinition {
 		return response;
 	}
 
+	public static ResponseDefinition copyOf(ResponseDefinition original) {
+		ResponseDefinition newResponseDef = new ResponseDefinition(
+				original.status,
+				original.body,
+				original.bodyFileName,
+				original.headers,
+				original.additionalProxyRequestHeaders,
+				original.fixedDelayMilliseconds,
+				original.proxyBaseUrl,
+				original.fault,
+				original.transformers
+		);
+		newResponseDef.wasConfigured = original.wasConfigured;
+		return newResponseDef;
+	}
+
+	public HttpHeaders getHeaders() {
+		return headers;
+	}
+
+	public HttpHeaders getAdditionalProxyRequestHeaders() {
+		return additionalProxyRequestHeaders;
+	}
+
 	public int getStatus() {
 		return status;
 	}
@@ -177,6 +177,11 @@ public class ResponseDefinition {
 	@JsonIgnore
 	public byte[] getByteBody() {
 		return body.asBytes();
+	}
+
+	@JsonIgnore
+	public byte[] getByteBodyIfBinary() {
+		return body.isBinary() ? body.asBytes() : null;
 	}
 
 	public String getBase64Body() {

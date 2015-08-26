@@ -98,7 +98,7 @@ public class Body {
     @Override
     public String toString() {
         return "Body {" +
-                "content=" + Arrays.toString(content) +
+                "content=" + asString() +
                 ", binary=" + binary +
                 '}';
     }
