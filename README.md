@@ -3,7 +3,7 @@ WireMock - a web service test double for all occasions
 
 [![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=2.0-beta)](https://travis-ci.org/tomakehurst/wiremock)
 
-** PLEASE NOTE: The 2.0-beta branch is now the active line of development so we're no longer taking pull requests against version 1.x (master) **
+**PLEASE NOTE: The 2.0-beta branch is now the active line of development so we're no longer taking pull requests against version 1.x (master)**
 
 Key Features
 ------------
