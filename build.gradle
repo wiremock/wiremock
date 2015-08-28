@@ -263,7 +263,7 @@ task 'bump-version' << {
 
     def gradleBuildFile = new File('build.gradle')
     int currentMinorVersion
-    gradleBuildFile.text.find ~/version = 2.0.([0-9]+)/, { match, minorVersion ->
+    gradleBuildFile.text.find ~/version = '2.0.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
 
