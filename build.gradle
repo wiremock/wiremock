@@ -7,7 +7,7 @@ apply plugin: 'project-report'
 
 sourceCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.0-beta'
+version = '2.0.0-beta'
 
 def versions = [
         jackson: '2.6.1',
@@ -254,16 +254,16 @@ task 'release-to' {
 
 task 'bump-version' << {
     def filesWithVersion = [
-        'build.gradle': { "version = 1.${it}" },
-        'docs/source/conf.py': { "version = '1.${it}'" },
-        'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
-        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
-        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
+        'build.gradle': { "version = 2.0.${it}-beta" },
+        'docs/source/conf.py': { "version = '2.0.${it}-beta'" },
+        'docs/source/getting-started.rst': [{ "<version>2.0.${it}-beta</version>" },{ "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" }],
+        'docs/source/running-standalone.rst': { "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" },
+        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
     ]
 
     def gradleBuildFile = new File('build.gradle')
     int currentMinorVersion
-    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
+    gradleBuildFile.text.find ~/version = 2.0.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
 
