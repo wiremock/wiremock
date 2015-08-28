@@ -214,6 +214,102 @@ public class VerificationAcceptanceTest {
             verify(4, getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
+        private void getCountableRequests(int count) {
+            for (int i = 0; i < count; i++) {
+                testClient.get("/add/to/count");
+            }
+        }
+
+        @Test
+        public void verifiesLessThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesExactlyThanCountWithExactRequests() {
+            getCountableRequests(5);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
         @Test
         public void verifiesHeaderAbsent() {
             testClient.get("/without/header", withHeader("Content-Type", "application/json"));
@@ -257,7 +353,96 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
                         containsString("Expected exactly 14 requests matching: {"),
-                        containsString("/specific/thing"),
+                        containsString("/some/request"),
+                        containsString("Requests received: "),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThan() {
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+
+            try {
+                verify(lessThan(2), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected less than 2 requests matching: {"),
+                        containsString("/some/request"),
+                        containsString("Requests received: "),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThanOrExactly() {
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+
+            try {
+                verify(lessThanOrExactly(2), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected less than or exactly 2 requests matching: {"),
+                        containsString("/some/request"),
+                        containsString("Requests received: "),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForExactly() {
+            testClient.get("/some/request");
+
+            try {
+                verify(exactly(12), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected exactly 12 requests matching: {"),
+                        containsString("/some/request"),
+                        containsString("Requests received: "),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForMoreThanOrExactly() {
+            testClient.get("/some/request");
+
+            try {
+                verify(moreThanOrExactly(12), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected more than or exactly 12 requests matching: {"),
+                        containsString("/some/request"),
+                        containsString("Requests received: "),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForMoreThan() {
+            testClient.get("/some/request");
+
+            try {
+                verify(moreThan(12), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected more than 12 requests matching: {"),
+                        containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
             }
