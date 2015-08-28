@@ -25,6 +25,8 @@ Among the changes we're making or considering are:
 
 If there's something you'd like to see added, particularly something involving a breaking change, please post a topic on the `mailing list <https://groups.google.com/forum/#!forum/wiremock-user>`_.
 
+If you'd like to raise a pull request (having discussed it on the list first :-) please do so against the 2.0-beta branch, not master.
+
 
 What's it for?
 --------------
