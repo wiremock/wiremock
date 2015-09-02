@@ -1,9 +1,28 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://oss.sonatype.org"
+        }
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.1'
+
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
 apply plugin: 'project-report'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.7
 group = 'com.github.tomakehurst'
@@ -15,8 +34,9 @@ def versions = [
 ]
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
+
 
 configurations {
 	provided
@@ -66,20 +86,6 @@ test {
     maxParallelForks = 1
 }
 
-buildscript {
-    repositories {
-        maven {
-            url "https://oss.sonatype.org"
-        }
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.1'
-
-    }
-}
-
 sourceSets {
 	main { compileClasspath += configurations.provided }
 }
@@ -94,6 +100,23 @@ jar {
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
     }
+}
+
+shadowJar {
+    baseName = 'wiremock'
+
+    relocate "org.mortbay", 'wiremock.org.mortbay'
+    relocate "org.eclipse", 'wiremock.org.eclipse'
+    relocate "com.google.common", 'wiremock.com.google.common'
+    relocate "com.fasterxml.jackson", 'wiremock.com.fasterxml.jackson'
+    relocate "org.apache.http", 'wiremock.org.apache.http'
+    relocate "org.apache.commons", 'wiremock.org.apache.commons'
+    relocate "joptsimple", 'wiremock.joptsimple'
+    relocate "org.skyscreamer", 'wiremock.org.skyscreamer'
+    relocate "org.json", 'wiremock.org.json'
+    relocate "net.minidev", 'wiremock.net.minidev'
+    relocate "com.jayway", 'wiremock.com.jayway'
+    relocate "org.objectweb", 'wiremock.org.objectweb'
 }
 
 task jarAll(type: Jar, dependsOn: jar) {
@@ -114,6 +137,7 @@ task jarAll(type: Jar, dependsOn: jar) {
                 	zipfileset(src: it)
                 }
                 rule pattern: "org.mortbay.**", result: "wiremock.org.mortbay.@1"
+                rule pattern: "org.eclipse.jetty.**", result: "wiremock.org.eclipse.jetty.@1"
                 rule pattern: "com.google.common.**", result: "wiremock.com.google.common.@1"
                 rule pattern: "com.fasterxml.jackson.**", result: "wiremock.com.fasterxml.jackson.@1"
                 rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
@@ -182,17 +206,17 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-            	authentication(userName: user , password: password)
-        	};
-        	beforeDeployment { deployment -> signing.signPom(deployment) };
+                authentication(userName: user , password: password)
+            };
+            beforeDeployment { deployment -> signing.signPom(deployment) };
             pom.artifactId = 'wiremock'
             pom.project {
-            	packaging 'jar'
-            	name 'WireMock'
-            	description 'A web service test double for all occasions'
-            	
-            	url 'https://github.com/tomakehurst/wiremock'
-            	
+                packaging 'jar'
+                name 'WireMock'
+                description 'A web service test double for all occasions'
+
+                url 'https://github.com/tomakehurst/wiremock'
+
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
@@ -200,25 +224,25 @@ uploadArchives {
                         distribution 'repo'
                     }
                 }
-                
+
                 scm {
-					connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-					developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-					url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-				}
-				
-				developers {
-					developer {
-						id 'tomakehurst'
-						name 'Tom Akehurst'
-					}
-				}
+                    connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                    developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                    url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+                }
+
+                developers {
+                    developer {
+                        id 'tomakehurst'
+                        name 'Tom Akehurst'
+                    }
+                }
             }
-            
+
             pom.whenConfigured { thepom ->
-            	println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
-            	thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
-			}
+                println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
+                thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
+            }
         }
     }
 }
