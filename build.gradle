@@ -208,7 +208,8 @@ publishing {
     repositories {
         maven {
 //            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            url 'file:///Users/tomakehurst/dev/tmp/repo'
+            URL localRepo = new File(System.getProperty('java.io.tmpdir')).toURI().toURL()
+            url localRepo
             credentials {
                 username repoUser
                 password repoPassword
