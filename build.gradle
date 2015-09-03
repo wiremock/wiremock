@@ -217,17 +217,27 @@ publishing {
         }
     }
     publications {
-        thinJar(MavenPublication) {
-            artifact jar
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom.withXml {
+                //workaround to not to have only runtime dependencies in generated pom.xml
+                //Known limitation of maven-publish - - http://forums.gradle.org/gradle/topics/maven_publish_plugin_generated_pom_making_dependency_scope_runtime#reply_14120711
+                asNode().dependencies.'*'.findAll() {
+                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+                        dep.name == it.artifactId.text()
+                    }
+                }.each() {
+                    it.scope*.value = 'compile'
+                }
+            }
         }
 
         fatJar(MavenPublication) {
             artifactId "${project.name}-standalone"
             artifact shadowJar
-//            pom.withXml {
-//                //Remove dependencies - everything is embedded in JAR created by Spring Boot
-//                asNode().dependencies.replaceNode{ null }
-//            }
+            pom.packaging 'jar'
         }
     }
 }
