@@ -209,6 +209,7 @@ publishing {
         maven {
 //            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
             URL localRepo = new File(System.getProperty('java.io.tmpdir')).toURI().toURL()
+            println "Publishing to $localRepo"
             url localRepo
             credentials {
                 username repoUser
@@ -218,16 +219,12 @@ publishing {
     }
     publications {
         thinJar(MavenPublication) {
-            artifact jar
+            from components.java
         }
 
         fatJar(MavenPublication) {
             artifactId "${project.name}-standalone"
-            artifact shadowJar
-//            pom.withXml {
-//                //Remove dependencies - everything is embedded in JAR created by Spring Boot
-//                asNode().dependencies.replaceNode{ null }
-//            }
+            from components.shadow
         }
     }
 }
