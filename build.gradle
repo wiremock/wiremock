@@ -19,6 +19,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'idea'
 apply plugin: 'project-report'
@@ -40,6 +41,7 @@ repositories {
 
 configurations {
 	provided
+    shadowJar
 }
 
 dependencies {
@@ -83,7 +85,7 @@ test {
     // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
     systemProperty 'user.timezone', 'Australia/Sydney'
 
-    maxParallelForks = 1
+    maxParallelForks = 2
 }
 
 sourceSets {
@@ -169,8 +171,8 @@ task jarAll(type: Jar, dependsOn: jar) {
 }
 
 def releaseDirUrl
-def user
-def password
+def repoUser
+def repoPassword
 
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
@@ -193,20 +195,47 @@ signing {
 }
 
 if (!this.hasProperty('sonatypeUser'))
-    user = 'default'
+    repoUser = 'default'
 else
-    user = sonatypeUser
+    repoUser = sonatypeUser
 
 if (!this.hasProperty('sonatypePassword'))
-    password = 'default'
+    repoPassword = 'default'
 else
-    password = sonatypePassword
+    repoPassword = sonatypePassword
+
+publishing {
+    repositories {
+        maven {
+//            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url 'file:///Users/tomakehurst/dev/tmp/repo'
+            credentials {
+                username repoUser
+                password repoPassword
+            }
+        }
+    }
+    publications {
+        thinJar(MavenPublication) {
+            artifact jar
+        }
+
+        fatJar(MavenPublication) {
+            artifactId "${project.name}-standalone"
+            artifact shadowJar
+//            pom.withXml {
+//                //Remove dependencies - everything is embedded in JAR created by Spring Boot
+//                asNode().dependencies.replaceNode{ null }
+//            }
+        }
+    }
+}
 
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-                authentication(userName: user , password: password)
+                authentication(userName: repoUser , password: repoPassword)
             };
             beforeDeployment { deployment -> signing.signPom(deployment) };
             pom.artifactId = 'wiremock'
