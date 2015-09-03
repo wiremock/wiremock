@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.1'
+        classpath group: 'org.ajoberstar', name: 'gradle-plugins', version: '0.1.1'
 
     }
 }
@@ -31,7 +31,7 @@ version = '2.0.0-beta'
 
 def versions = [
         jackson: '2.6.1',
-        jetty: '9.3.2.v20150730'
+        jetty  : '9.3.2.v20150730'
 ]
 
 repositories {
@@ -40,7 +40,7 @@ repositories {
 
 
 configurations {
-	provided
+    provided
     shadowJar
 }
 
@@ -48,33 +48,33 @@ dependencies {
     compile "org.eclipse.jetty:jetty-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-	compile "com.google.guava:guava:18.0"
-	compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-        	"com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        	"com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
-	compile "org.apache.httpcomponents:httpclient:4.5"
+    compile "com.google.guava:guava:18.0"
+    compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
+            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+            "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+    compile "org.apache.httpcomponents:httpclient:4.5"
     compile "org.skyscreamer:jsonassert:1.2.3"
     compile "xmlunit:xmlunit:1.6"
     compile "com.jayway.jsonpath:json-path:2.0.0"
-	compile "org.slf4j:slf4j-api:1.7.12"
-	compile "net.sf.jopt-simple:jopt-simple:4.9"
-	compile ("junit:junit:4.12") {
+    compile "org.slf4j:slf4j-api:1.7.12"
+    compile "net.sf.jopt-simple:jopt-simple:4.9"
+    compile("junit:junit:4.12") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
-	
+
     testCompile "org.hamcrest:hamcrest-all:1.3"
-	testCompile ("org.jmock:jmock:2.5.1") {
+    testCompile("org.jmock:jmock:2.5.1") {
         exclude group: "junit", module: "junit-dep"
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-	testCompile ("org.jmock:jmock-junit4:2.5.1") {
-		exclude group: "junit", module: "junit-dep"
+    testCompile("org.jmock:jmock-junit4:2.5.1") {
+        exclude group: "junit", module: "junit-dep"
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
-	}
-	testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
-	testCompile "com.googlecode.jarjar:jarjar:1.3"
+    }
+    testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
+    testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
 
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
@@ -89,13 +89,13 @@ test {
 }
 
 sourceSets {
-	main { compileClasspath += configurations.provided }
+    main { compileClasspath += configurations.provided }
 }
 
 eclipse {
-	classpath {
-		plusConfigurations += configurations.provided
-	}
+    classpath {
+        plusConfigurations += configurations.provided
+    }
 }
 
 jar {
@@ -106,6 +106,7 @@ jar {
 
 shadowJar {
     baseName = 'wiremock'
+    classifier = ''
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
@@ -127,16 +128,16 @@ task jarAll(type: Jar, dependsOn: jar) {
     def metaInfDir = "$buildDir/tmp/manifest"
     def jar = project.tasks.jar
     String fileName = jar.archiveName - ("." + jar.extension) + "-standalone." + jar.extension
-	File jarFile = new File(jar.destinationDir, fileName)
+    File jarFile = new File(jar.destinationDir, fileName)
     doFirst {
-    	manifest.writeTo("${metaInfDir}/MANIFEST.MF")
+        manifest.writeTo("${metaInfDir}/MANIFEST.MF")
         project.ant {
             taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.testCompile.asPath
             jarjar(jarfile: jarFile, manifest: "${metaInfDir}/MANIFEST.MF") {
                 zipfileset(src: jar.archivePath)
-                
+
                 configurations.compile.files.findAll { !it.name.contains("junit") }.each {
-                	zipfileset(src: it)
+                    zipfileset(src: it)
                 }
                 rule pattern: "org.mortbay.**", result: "wiremock.org.mortbay.@1"
                 rule pattern: "org.eclipse.jetty.**", result: "wiremock.org.eclipse.jetty.@1"
@@ -151,19 +152,19 @@ task jarAll(type: Jar, dependsOn: jar) {
                 rule pattern: "com.jayway.**", result: "wiremock.com.jayway.@1"
             }
         }
-        
+
         Date date = new Date()
-		String name = jar.baseName
+        String name = jar.baseName
         project.artifacts.add('archives',
-			[
-				getClassifier: { -> "standalone" },
-				getDate: {-> date },
-				getExtension: {-> "jar" },
-				getType: {-> "jar" },
-				getFile: {-> jarFile },
-				getName: {-> name }
-			] as PublishArtifact
-		)
+                [
+                        getClassifier: { -> "standalone" },
+                        getDate      : { -> date },
+                        getExtension : { -> "jar" },
+                        getType      : { -> "jar" },
+                        getFile      : { -> jarFile },
+                        getName      : { -> name }
+                ] as PublishArtifact
+        )
     }
     manifest {
         attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
@@ -174,19 +175,19 @@ def releaseDirUrl
 def repoUser
 def repoPassword
 
-task sourcesJar(type: Jar, dependsOn:classes) {
-     classifier = 'sources'
-     from sourceSets.main.allSource
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn:javadoc) {
-     classifier = 'javadoc'
-     from javadoc.destinationDir
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
 
 artifacts {
-     archives sourcesJar
-     archives javadocJar
+    archives sourcesJar
+    archives javadocJar
 }
 
 signing {
@@ -207,10 +208,10 @@ else
 publishing {
     repositories {
         maven {
-//            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
             URL localRepo = new File(System.getProperty('java.io.tmpdir')).toURI().toURL()
-            println "Publishing to $localRepo"
-            url localRepo
+            URL repoUrl = System.getProperty('LOCAL_PUBLISH') ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
+            println "Publishing to $repoUrl"
+            url repoUrl
             credentials {
                 username repoUser
                 password repoPassword
@@ -220,11 +221,25 @@ publishing {
     publications {
         thinJar(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom.withXml {
+                asNode().dependencies.'*'.findAll() {
+                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+                        dep.name == it.artifactId.text()
+                    }
+                }.each() {
+                    it.scope*.value = 'compile'
+                }
+            }
         }
 
         fatJar(MavenPublication) {
             artifactId "${project.name}-standalone"
             from components.shadow
+            artifact sourcesJar
+            artifact javadocJar
+            pom.packaging 'jar'
         }
     }
 }
@@ -233,7 +248,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-                authentication(userName: repoUser , password: repoPassword)
+                authentication(userName: repoUser, password: repoPassword)
             };
             beforeDeployment { deployment -> signing.signPom(deployment) };
             pom.artifactId = 'wiremock'
@@ -268,7 +283,9 @@ uploadArchives {
 
             pom.whenConfigured { thepom ->
                 println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
-                thepom.dependencies.removeAll(thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') }));
+                thepom.dependencies.removeAll(thepom.dependencies.findAll({
+                    it.artifactId.equals('junit') || it.scope.equals('test')
+                }));
             }
         }
     }
@@ -280,36 +297,38 @@ task addGitTag << {
 }
 
 task release {
-	dependsOn clean, jarAll, uploadArchives, addGitTag
+    dependsOn clean, jarAll, uploadArchives, addGitTag
 }
 
 task 'set-release-dir' << {
-	if (releaseDir) {
-		releaseDirUrl = 'file://' + releaseDir
-		if (!releaseDirUrl.endsWith('/')) {
-			releaseDirUrl = releaseDirUrl + '/';
-		}
-		
-		tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
-		
-		println 'Release dir set to: ' + releaseDirUrl
-	} else {
-		logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
+    if (releaseDir) {
+        releaseDirUrl = 'file://' + releaseDir
+        if (!releaseDirUrl.endsWith('/')) {
+            releaseDirUrl = releaseDirUrl + '/';
+        }
+
+        tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
+
+        println 'Release dir set to: ' + releaseDirUrl
+    } else {
+        logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
         System.exit(1)
-	}
+    }
 }
 
 task 'release-to' {
-	dependsOn 'set-release-dir', clean, jarAll, uploadArchives, addGitTag
+    dependsOn 'set-release-dir', clean, jarAll, uploadArchives, addGitTag
 }
 
 task 'bump-version' << {
     def filesWithVersion = [
-        'build.gradle': { "version = 2.0.${it}-beta" },
-        'docs/source/conf.py': { "version = '2.0.${it}-beta'" },
-        'docs/source/getting-started.rst': [{ "<version>2.0.${it}-beta</version>" },{ "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" }],
-        'docs/source/running-standalone.rst': { "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" },
-        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
+            'build.gradle'                      : { "version = 2.0.${it}-beta" },
+            'docs/source/conf.py'               : { "version = '2.0.${it}-beta'" },
+            'docs/source/getting-started.rst'   : [{ "<version>2.0.${it}-beta</version>" }, {
+                "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar"
+            }],
+            'docs/source/running-standalone.rst': { "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" },
+            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
     ]
 
     def gradleBuildFile = new File('build.gradle')
@@ -321,8 +340,8 @@ task 'bump-version' << {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                lineWithVersionTemplates :
-                [lineWithVersionTemplates];
+                    lineWithVersionTemplates :
+                    [lineWithVersionTemplates];
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
@@ -336,11 +355,13 @@ task 'bump-version' << {
 
 task 'bump-version-down' << {
     def filesWithVersion = [
-        'build.gradle': { "version = 1.${it}" },
-        'docs/source/conf.py': { "version = '1.${it}'" },
-        'docs/source/getting-started.rst': [{ "<version>1.${it}</version>" },{ "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" }],
-        'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
-        'sample-war/build.gradle': { "com.github.tomakehurst:wiremock:1.${it}" },
+            'build.gradle'                      : { "version = 1.${it}" },
+            'docs/source/conf.py'               : { "version = '1.${it}'" },
+            'docs/source/getting-started.rst'   : [{ "<version>1.${it}</version>" }, {
+                "wiremock/1.${it}/wiremock-1.${it}-standalone.jar"
+            }],
+            'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
+            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:1.${it}" },
     ]
 
     def gradleBuildFile = new File('build.gradle')
@@ -352,8 +373,8 @@ task 'bump-version-down' << {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                lineWithVersionTemplates :
-                [lineWithVersionTemplates];
+                    lineWithVersionTemplates :
+                    [lineWithVersionTemplates];
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
@@ -370,7 +391,7 @@ task wrapper(type: Wrapper) {
 }
 
 task 'add-copyright-headers' << {
-	def copyrightNotice = """/*
+    def copyrightNotice = """/*
  * Copyright (C) 2011 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -387,12 +408,12 @@ task 'add-copyright-headers' << {
  */
 """
 
-	def srcDir = new File('src')
-	srcDir.eachFileRecurse { file ->
-		if (file.name.endsWith(".java") && !file.text.contains(copyrightNotice)) {
-			println "Adding copyright header to $file.path"
-			def newFileText = copyrightNotice + file.text;
- 			file.text = newFileText;
-		}
-	}
+    def srcDir = new File('src')
+    srcDir.eachFileRecurse { file ->
+        if (file.name.endsWith(".java") && !file.text.contains(copyrightNotice)) {
+            println "Adding copyright header to $file.path"
+            def newFileText = copyrightNotice + file.text;
+            file.text = newFileText;
+        }
+    }
 }
