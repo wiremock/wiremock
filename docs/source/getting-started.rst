@@ -13,7 +13,7 @@ To add WireMock to your Java project, put the following in the dependencies sect
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>2.0.0-beta</version>
+        <version>2.0.1-beta</version>
 
         <!-- Include everything below here if you have dependency conflicts -->
         <classifier>standalone</classifier>
@@ -166,7 +166,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/2.0.0-beta/wiremock-2.0.0-beta-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/2.0.1-beta/wiremock-2.0.1-beta-standalone.jar>`_.
 
 See :ref:`running-standalone` for more details and commandline options.
 
