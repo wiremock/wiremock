@@ -27,7 +27,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.0.0-beta'
+version = '2.0.1-beta'
 
 def versions = [
         jackson: '2.6.1',
@@ -329,7 +329,7 @@ task 'release-to' {
 
 task 'bump-version' << {
     def filesWithVersion = [
-            'build.gradle'                      : { "version = 2.0.${it}-beta" },
+            'build.gradle'                      : { "version = '2.0.${it}-beta" },
             'docs/source/conf.py'               : { "version = '2.0.${it}-beta'" },
             'docs/source/getting-started.rst'   : [{ "<version>2.0.${it}-beta</version>" }, {
                 "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar"
