@@ -120,6 +120,13 @@ shadowJar {
     relocate "net.minidev", 'wiremock.net.minidev'
     relocate "com.jayway", 'wiremock.com.jayway'
     relocate "org.objectweb", 'wiremock.org.objectweb'
+    relocate "org.custommonkey", "wiremock.org.custommonkey"
+
+    dependencies {
+        exclude(dependency('junit:junit'))
+    }
+
+
 }
 
 task jarAll(type: Jar, dependsOn: jar) {
