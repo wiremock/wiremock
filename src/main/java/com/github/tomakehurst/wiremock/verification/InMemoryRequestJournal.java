@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.matching.DoNothingMatcherObserver;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -35,12 +37,18 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	private final Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
 
 	private final Optional<Integer> maxEntries;
+	private final RequestPatternMatcher requestPatternMatcher;
 
 	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
-		if (maxEntries.isPresent() && maxEntries.get() < 0) {
-			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
-		}
-		this.maxEntries = maxEntries;
+        this(maxEntries, new RequestPatternMatcher(new DoNothingMatcherObserver()));
+	}
+
+	public InMemoryRequestJournal(Optional<Integer> maxEntries, RequestPatternMatcher requestPatternMatcher) {
+        if (maxEntries.isPresent() && maxEntries.get() < 0) {
+            throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
+        }
+        this.maxEntries = maxEntries;
+        this.requestPatternMatcher = requestPatternMatcher;
 	}
 
 	@Override
@@ -56,7 +64,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
-				return requestPattern.isMatchedBy(input);
+				return requestPatternMatcher.matches(input, requestPattern);
 			}
 		};
 	}
