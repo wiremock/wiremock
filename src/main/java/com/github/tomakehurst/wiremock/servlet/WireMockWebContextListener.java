@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.DoNothingMatcherObserver;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.google.common.base.Optional;
 
@@ -62,7 +64,8 @@ public class WireMockWebContextListener implements ServletContextListener {
                 maxRequestJournalEntries,
                 Collections.<String, ResponseTransformer>emptyMap(),
                 fileSource,
-                new NotImplementedContainer()
+                new NotImplementedContainer(),
+                new RequestPatternMatcher(new DoNothingMatcherObserver())
         );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,

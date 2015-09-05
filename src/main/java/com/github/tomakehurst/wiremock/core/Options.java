@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -25,10 +26,10 @@ import java.util.Map;
 
 public interface Options {
 
-    public static final int DEFAULT_PORT = 8080;
-    public static final int DYNAMIC_PORT = 0;
-    public static final int DEFAULT_CONTAINER_THREADS = 200;
-    public static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+    int DEFAULT_PORT = 8080;
+    int DYNAMIC_PORT = 0;
+    int DEFAULT_CONTAINER_THREADS = 200;
+    String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
     HttpsSettings httpsSettings();
@@ -40,9 +41,10 @@ public interface Options {
     Notifier notifier();
     boolean requestJournalDisabled();
     Optional<Integer> maxRequestJournalEntries();
-    public String bindAddress();
+    String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
-    public boolean shouldPreserveHostHeader();
+    boolean shouldPreserveHostHeader();
     String proxyHostHeader();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
+    RequestPatternMatcher requestPatternMatcher();
 }
