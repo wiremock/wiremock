@@ -198,7 +198,7 @@ artifacts {
 }
 
 signing {
-    required { !version.toString().contains("SNAPSHOT") && gradle.taskGraph.hasTask("uploadArchives") }
+    required { !version.toString().contains("SNAPSHOT") }
     sign configurations.archives
 }
 
@@ -211,6 +211,31 @@ if (!this.hasProperty('sonatypePassword'))
     repoPassword = 'default'
 else
     repoPassword = sonatypePassword
+
+final pomInfo = {
+    resolveStrategy = Closure.DELEGATE_FIRST
+    name 'WireMock'
+    description 'A web service test double for all occasions'
+    url 'http://wiremock.org'
+    scm {
+        connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+        developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+        url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
+    }
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id 'tomakehurst'
+            name 'Tom Akehurst'
+        }
+    }
+}
 
 publishing {
     repositories {
@@ -226,11 +251,23 @@ publishing {
         }
     }
     publications {
+//        signatures (MavenPublication) {
+//            // give signature files to rtifact method
+//            getSignatureFiles().each { signature ->
+//                artifact (signature.archive) {
+//                    classifier = signature.classifier
+//                    extension  = signature.extension
+//                }
+//            }
+//        }
+
         thinJar(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
             pom.withXml {
+                asNode().children().last() + pomInfo
+
                 asNode().dependencies.'*'.findAll() {
                     it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
                         dep.name == it.artifactId.text()
@@ -238,6 +275,7 @@ publishing {
                 }.each() {
                     it.scope*.value = 'compile'
                 }
+
             }
         }
 
@@ -247,6 +285,9 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             pom.packaging 'jar'
+            pom.withXml {
+                asNode().children().last() + pomInfo
+            }
         }
     }
 }
