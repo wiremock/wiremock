@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
-import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Map;
