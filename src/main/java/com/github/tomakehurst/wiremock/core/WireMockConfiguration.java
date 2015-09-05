@@ -19,9 +19,10 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 
 import java.util.List;
@@ -61,6 +62,7 @@ public class WireMockConfiguration implements Options {
     private Integer jettyHeaderBufferSize;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
+    private RequestPatternMatcher requestPatternMatcher;
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -200,6 +202,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration requestPatternMatcher(RequestPatternMatcher requestPatternMatcher) {
+        this.requestPatternMatcher = requestPatternMatcher;
+        return this;
+    }
+
     public WireMockConfiguration extensions(String... classNames) {
         extensions.putAll(ExtensionLoader.load(classNames));
         return this;
@@ -294,6 +301,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public String proxyHostHeader() {
         return proxyHostHeader;
+    }
+
+    @Override
+    public RequestPatternMatcher requestPatternMatcher() {
+        return requestPatternMatcher;
     }
 
     @Override
