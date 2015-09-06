@@ -170,11 +170,12 @@ task signShadowJar(type: Sign, dependsOn: shadowJar) {
     sign shadowJar
 }
 task signThinJarPom(type: Sign, dependsOn: 'generatePomFileForThinJarPublication') {
-    sign configurations.thinJarPom
+    outputs.upToDateWhen { false }
+    sign new File(thinJarPomPath)
 }
-println "HERE: " + signThinJarPom.singleSignature.file
 task signStandaloneJarPom(type: Sign, dependsOn: 'generatePomFileForStandaloneJarPublication') {
-    sign configurations.standaloneJarPom
+    outputs.upToDateWhen { false }
+    sign new File(standaloneJarPomPath)
 }
 
 if (!this.hasProperty('sonatypeUser'))
@@ -237,9 +238,7 @@ publishing {
                     extension = "jar.${signature.extension}"
                 }
             }
-            println "THIS: ${signThinJarPom.singleSignature.file}"
             artifact(signThinJarPom.singleSignature) {
-                classifier = 'pom'
                 extension = 'pom.asc'
             }
 
@@ -269,9 +268,7 @@ publishing {
                     extension = "jar.${signature.extension}"
                 }
             }
-            println "THIS: ${signStandaloneJarPom.singleSignature}"
             artifact(signStandaloneJarPom.singleSignature) {
-                classifier = 'pom'
                 extension = 'pom.asc'
             }
 
@@ -293,6 +290,7 @@ task signAll {
 }
 
 task release {
+    dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
     dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
 }
 
