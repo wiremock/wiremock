@@ -38,12 +38,6 @@ repositories {
     mavenCentral()
 }
 
-
-configurations {
-    provided
-    shadowJar
-}
-
 dependencies {
     compile "org.eclipse.jetty:jetty-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
@@ -88,6 +82,14 @@ test {
     maxParallelForks = 2
 }
 
+
+configurations {
+    provided
+    shadowJar
+    thinJarPom
+    standaloneJarPom
+}
+
 sourceSets {
     main { compileClasspath += configurations.provided }
 }
@@ -105,7 +107,7 @@ jar {
 }
 
 shadowJar {
-    baseName = 'wiremock'
+    baseName = 'wiremock-standalone'
     classifier = ''
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
@@ -125,57 +127,6 @@ shadowJar {
     dependencies {
         exclude(dependency('junit:junit'))
     }
-
-
-}
-
-task jarAll(type: Jar, dependsOn: jar) {
-    inputs.files jar.archivePath
-    appendix = 'standalone'
-    def metaInfDir = "$buildDir/tmp/manifest"
-    def jar = project.tasks.jar
-    String fileName = jar.archiveName - ("." + jar.extension) + "-standalone." + jar.extension
-    File jarFile = new File(jar.destinationDir, fileName)
-    doFirst {
-        manifest.writeTo("${metaInfDir}/MANIFEST.MF")
-        project.ant {
-            taskdef name: "jarjar", classname: "com.tonicsystems.jarjar.JarJarTask", classpath: configurations.testCompile.asPath
-            jarjar(jarfile: jarFile, manifest: "${metaInfDir}/MANIFEST.MF") {
-                zipfileset(src: jar.archivePath)
-
-                configurations.compile.files.findAll { !it.name.contains("junit") }.each {
-                    zipfileset(src: it)
-                }
-                rule pattern: "org.mortbay.**", result: "wiremock.org.mortbay.@1"
-                rule pattern: "org.eclipse.jetty.**", result: "wiremock.org.eclipse.jetty.@1"
-                rule pattern: "com.google.common.**", result: "wiremock.com.google.common.@1"
-                rule pattern: "com.fasterxml.jackson.**", result: "wiremock.com.fasterxml.jackson.@1"
-                rule pattern: "org.apache.http.**", result: "wiremock.org.apache.http.@1"
-                rule pattern: "org.apache.commons.**", result: "wiremock.org.apache.commons.@1"
-                rule pattern: "joptsimple.**", result: "wiremock.joptsimple.@1"
-                rule pattern: "org.skyscreamer.**", result: "wiremock.org.skyscreamer.@1"
-                rule pattern: "org.json.**", result: "wiremock.org.json.@1"
-                rule pattern: "net.minidev.**", result: "wiremock.net.minidev.@1"
-                rule pattern: "com.jayway.**", result: "wiremock.com.jayway.@1"
-            }
-        }
-
-        Date date = new Date()
-        String name = jar.baseName
-        project.artifacts.add('archives',
-                [
-                        getClassifier: { -> "standalone" },
-                        getDate      : { -> date },
-                        getExtension : { -> "jar" },
-                        getType      : { -> "jar" },
-                        getFile      : { -> jarFile },
-                        getName      : { -> name }
-                ] as PublishArtifact
-        )
-    }
-    manifest {
-        attributes("Main-Class": "com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
-    }
 }
 
 def releaseDirUrl
@@ -192,14 +143,38 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+def thinJarPomPath = "${project.buildDir}/publications/thinJar/pom-default.xml"
+def standaloneJarPomPath = "${project.buildDir}/publications/standaloneJar/pom-default.xml"
+
 artifacts {
     archives sourcesJar
     archives javadocJar
+    archives shadowJar
+    thinJarPom new File(thinJarPomPath)
+    standaloneJarPom new File(standaloneJarPomPath)
 }
 
 signing {
-    required { !version.toString().contains("SNAPSHOT") && gradle.taskGraph.hasTask("uploadArchives") }
+    required { !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish")) }
     sign configurations.archives
+}
+
+task signJars(type: Sign, dependsOn: [javadocJar, sourcesJar]) {
+    sign javadocJar
+    sign sourcesJar
+}
+task signThinJar(type: Sign, dependsOn: jar) {
+    sign jar
+}
+task signShadowJar(type: Sign, dependsOn: shadowJar) {
+    sign shadowJar
+}
+task signThinJarPom(type: Sign, dependsOn: 'generatePomFileForThinJarPublication') {
+    sign configurations.thinJarPom
+}
+println "HERE: " + signThinJarPom.singleSignature.file
+task signStandaloneJarPom(type: Sign, dependsOn: 'generatePomFileForStandaloneJarPublication') {
+    sign configurations.standaloneJarPom
 }
 
 if (!this.hasProperty('sonatypeUser'))
@@ -211,6 +186,7 @@ if (!this.hasProperty('sonatypePassword'))
     repoPassword = 'default'
 else
     repoPassword = sonatypePassword
+
 
 final pomInfo = {
     resolveStrategy = Closure.DELEGATE_FIRST
@@ -251,20 +227,22 @@ publishing {
         }
     }
     publications {
-//        signatures (MavenPublication) {
-//            // give signature files to rtifact method
-//            getSignatureFiles().each { signature ->
-//                artifact (signature.archive) {
-//                    classifier = signature.classifier
-//                    extension  = signature.extension
-//                }
-//            }
-//        }
-
         thinJar(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+            (signJars.signatures + signThinJar.singleSignature).each { signature ->
+                artifact(signature) {
+                    classifier = signature.classifier == '' ? null : signature.classifier
+                    extension = "jar.${signature.extension}"
+                }
+            }
+            println "THIS: ${signThinJarPom.singleSignature.file}"
+            artifact(signThinJarPom.singleSignature) {
+                classifier = 'pom'
+                extension = 'pom.asc'
+            }
+
             pom.withXml {
                 asNode().children().last() + pomInfo
 
@@ -279,61 +257,27 @@ publishing {
             }
         }
 
-        fatJar(MavenPublication) {
+        standaloneJar(MavenPublication) {
             artifactId "${project.name}-standalone"
             from components.shadow
+
             artifact sourcesJar
             artifact javadocJar
+            (signJars.signatures + signShadowJar.singleSignature).each { signature ->
+                artifact(signature) {
+                    classifier = signature.classifier == '' ? null : signature.classifier
+                    extension = "jar.${signature.extension}"
+                }
+            }
+            println "THIS: ${signStandaloneJarPom.singleSignature}"
+            artifact(signStandaloneJarPom.singleSignature) {
+                classifier = 'pom'
+                extension = 'pom.asc'
+            }
+
             pom.packaging 'jar'
             pom.withXml {
                 asNode().children().last() + pomInfo
-            }
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-                authentication(userName: repoUser, password: repoPassword)
-            };
-            beforeDeployment { deployment -> signing.signPom(deployment) };
-            pom.artifactId = 'wiremock'
-            pom.project {
-                packaging 'jar'
-                name 'WireMock'
-                description 'A web service test double for all occasions'
-
-                url 'https://github.com/tomakehurst/wiremock'
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                scm {
-                    connection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-                    developerConnection 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-                    url 'https://tomakehurst@github.com/tomakehurst/wiremock.git'
-                }
-
-                developers {
-                    developer {
-                        id 'tomakehurst'
-                        name 'Tom Akehurst'
-                    }
-                }
-            }
-
-            pom.whenConfigured { thepom ->
-                println thepom.dependencies.findAll({ it.artifactId.equals('junit') || it.scope.equals('test') });
-                thepom.dependencies.removeAll(thepom.dependencies.findAll({
-                    it.artifactId.equals('junit') || it.scope.equals('test')
-                }));
             }
         }
     }
@@ -344,8 +288,12 @@ task addGitTag << {
     println "git push origin --tags".execute().text
 }
 
+task signAll {
+    dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
+}
+
 task release {
-    dependsOn clean, jarAll, uploadArchives, addGitTag
+    dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
 }
 
 task 'set-release-dir' << {
@@ -362,10 +310,6 @@ task 'set-release-dir' << {
         logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
         System.exit(1)
     }
-}
-
-task 'release-to' {
-    dependsOn 'set-release-dir', clean, jarAll, uploadArchives, addGitTag
 }
 
 task 'bump-version' << {
