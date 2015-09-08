@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -163,7 +164,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     public boolean isBrowserProxyRequest() {
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            return jettyRequest.getHttpURI().isAbsolute();
+            return URI.create(jettyRequest.getUri().toString()).isAbsolute();
         }
 
         return false;

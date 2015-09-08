@@ -3,10 +3,11 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.github.tomakehurst.wiremock.common.Strings;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 
-import java.util.Base64;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -38,7 +39,8 @@ public class BodyTest {
 
     @Test
     public void constructsFromBase64() {
-        String encodedText = Strings.stringFromBytes(Base64.getEncoder().encode("this content".getBytes()));
+        byte[] base64Encoded = Base64.encodeBase64("this content".getBytes());
+        String encodedText = stringFromBytes(base64Encoded);
         Body body = Body.fromOneOf(null, null, null, encodedText);
 
         assertThat(body.asString(), is("this content"));
