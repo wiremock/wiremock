@@ -58,7 +58,6 @@ public class ExtensionLoader {
             @SuppressWarnings("unchecked")
             public Extension apply(Class<? extends Extension> extensionClass) {
                 try {
-                    checkArgument(ResponseTransformer.class.isAssignableFrom(extensionClass), "Extension classes must implement ResponseTransformer");
                     return extensionClass.newInstance();
                 } catch (Exception e) {
                     return throwUnchecked(e, Extension.class);

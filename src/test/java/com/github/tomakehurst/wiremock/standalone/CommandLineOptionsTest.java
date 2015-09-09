@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -261,22 +262,22 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions(
                 "--extensions",
                 "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext2");
-        Map<String, ResponseTransformer> extensions = options.extensionsOfType(ResponseTransformer.class);
+        Map<String, ResponseDefinitionTransformer> extensions = options.extensionsOfType(ResponseDefinitionTransformer.class);
         assertThat(extensions.get("one"), instanceOf(Ext1.class));
         assertThat(extensions.get("two"), instanceOf(Ext2.class));
     }
     
-    public static class Ext1 extends ResponseTransformer {
+    public static class Ext1 extends ResponseDefinitionTransformer {
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
 
         @Override
         public String name() { return "one"; }
     }
 
-    public static class Ext2 extends ResponseTransformer {
+    public static class Ext2 extends ResponseDefinitionTransformer {
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
 
         @Override
         public String name() { return "two"; }

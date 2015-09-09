@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
@@ -49,7 +50,7 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
     private final MappingsSaver mappingsSaver;
-    private final Map<String, ResponseTransformer> transformers;
+    private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
 
     public WireMockApp(
@@ -59,7 +60,7 @@ public class WireMockApp implements StubServer, Admin {
             MappingsSaver mappingsSaver,
             boolean requestJournalDisabled,
             Optional<Integer> maxRequestJournalEntries,
-            Map<String, ResponseTransformer> transformers,
+            Map<String, ResponseDefinitionTransformer> transformers,
             FileSource rootFileSource,
             Container container) {
         this.requestDelayControl = requestDelayControl;
@@ -105,15 +106,15 @@ public class WireMockApp implements StubServer, Admin {
 
     private ResponseDefinition applyTransformations(Request request,
                                                     ResponseDefinition responseDefinition,
-                                                    List<ResponseTransformer> transformers) {
+                                                    List<ResponseDefinitionTransformer> transformers) {
         if (transformers.isEmpty()) {
             return responseDefinition;
         }
 
-        ResponseTransformer transformer = transformers.get(0);
+        ResponseDefinitionTransformer transformer = transformers.get(0);
         ResponseDefinition newResponseDef =
                 transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT)) :
+                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
                 responseDefinition;
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));

@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -48,7 +50,8 @@ public class ResponseDefinitionTest {
                 1112,
                 "http://base.com",
                 Fault.EMPTY_RESPONSE,
-                Collections.<String>emptyList());
+                ImmutableList.of("transformer-1"),
+                Parameters.one("name", "Jeff"));
 
         ResponseDefinition copiedResponse = copyOf(response);
         

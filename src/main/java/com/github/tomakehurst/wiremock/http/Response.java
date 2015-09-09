@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.google.common.base.Optional;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -31,14 +33,17 @@ public class Response {
 	private final boolean configured;
 	private final Fault fault;
 	private final boolean fromProxy;
+    private final Optional<ResponseDefinition> renderedFromDefinition;
 	
 	public static Response notConfigured() {
-        Response response = new Response(HTTP_NOT_FOUND,
+        Response response = new Response(
+                HTTP_NOT_FOUND,
                 (byte[]) null,
                 noHeaders(),
                 false,
                 null,
-                false);
+                false,
+                Optional.<ResponseDefinition>absent());
 		return response;
 	}
 
@@ -46,18 +51,20 @@ public class Response {
         return new Builder();
     }
 
-	public Response(int status, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+	public Response(int status, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
 		this.status = status;
         this.body = body;
         this.headers = headers;
         this.configured = configured;
         this.fault = fault;
         this.fromProxy = fromProxy;
-	}
+        this.renderedFromDefinition = renderedFromDefinition;
+    }
 
-    public Response(int status, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+    public Response(int status, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
         this.status = status;
         this.headers = headers;
+        this.renderedFromDefinition = renderedFromDefinition;
         this.body = body == null ? null : body.getBytes(encodingFromContentTypeHeaderOrUtf8());
         this.configured = configured;
         this.fault = fault;
@@ -115,6 +122,22 @@ public class Response {
         private boolean configured = true;
         private Fault fault;
         private boolean fromProxy;
+        private Optional<ResponseDefinition> renderedFromDefinition;
+
+        public static Builder like(Response response) {
+            Builder responseBuilder = new Builder();
+            responseBuilder.status = response.getStatus();
+            responseBuilder.body = response.getBody();
+            responseBuilder.headers = response.getHeaders();
+            responseBuilder.configured = response.wasConfigured();
+            responseBuilder.fault = response.getFault();
+            responseBuilder.fromProxy = response.isFromProxy();
+            return responseBuilder;
+        }
+
+        public Builder but() {
+            return this;
+        }
 
         public Builder status(int status) {
             this.status = status;
@@ -123,12 +146,14 @@ public class Response {
 
         public Builder body(byte[] body) {
             this.body = body;
+            this.bodyString = null;
             ensureOnlyOneBodySet();
             return this;
         }
 
         public Builder body(String body) {
             this.bodyString = body;
+            this.body = null;
             ensureOnlyOneBodySet();
             return this;
         }
@@ -159,13 +184,18 @@ public class Response {
             return this;
         }
 
+        public Builder renderedFromDefinition(ResponseDefinition renderedFromDefinition) {
+            this.renderedFromDefinition = Optional.fromNullable(renderedFromDefinition);
+            return this;
+        }
+
         public Response build() {
             if (body != null) {
-                return new Response(status, body, headers, configured, fault, fromProxy);
+                return new Response(status, body, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else if (bodyString != null) {
-                return new Response(status, bodyString, headers, configured, fault, fromProxy);
+                return new Response(status, bodyString, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else {
-                return new Response(status, new byte[0], headers, configured, fault, fromProxy);
+                return new Response(status, new byte[0], headers, configured, fault, fromProxy, renderedFromDefinition);
             }
         }
     }

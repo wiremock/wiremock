@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.*;
 import com.github.tomakehurst.wiremock.http.*;
@@ -41,6 +42,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
@@ -79,7 +81,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 mappingsSaver,
                 options.requestJournalDisabled(),
                 options.maxRequestJournalEntries(),
-                options.extensionsOfType(ResponseTransformer.class),
+                options.extensionsOfType(ResponseDefinitionTransformer.class),
                 fileSource,
                 this
         );
@@ -98,8 +100,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
                                 options.httpsSettings().trustStore(),
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
-                        )
-                )
+                        ),
+                        ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values()))
         );
         HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
