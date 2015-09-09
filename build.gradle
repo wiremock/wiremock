@@ -318,7 +318,7 @@ task 'bump-version' << {
             'docs/source/getting-started.rst'   : [{ "<version>2.0.${it}-beta</version>" }, {
                 "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar"
             }],
-            'docs/source/running-standalone.rst': { "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" },
+            'docs/source/running-standalone.rst': { "wiremock/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
             'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
     ]
 

@@ -4,9 +4,15 @@
 Getting Started
 ***************
 
+
+WireMock is distributed in two flavours - a standard JAR containing just WireMock, and a standalone fat JAR containing WireMock plus all its dependencies.
+
+The fat JAR's dependencies are shaded i.e. they are hidden in alternative packages. This allows WireMock to be used in projects with conflicting versions of its dependencies. The standalone JAR is also runnable (discussed in more detail below).
+
+
 Maven
 =====
-To add WireMock to your Java project, put the following in the dependencies section of your POM:
+To add the standard WireMock JAR as a project dependency, put the following in the dependencies section of your POM:
 
 .. code-block:: xml
 
@@ -14,52 +20,32 @@ To add WireMock to your Java project, put the following in the dependencies sect
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
         <version>2.0.2-beta</version>
-
-        <!-- Include everything below here if you have dependency conflicts -->
-        <classifier>standalone</classifier>
-        <exclusions>
-            <exclusion>
-              <groupId>org.mortbay.jetty</groupId>
-              <artifactId>jetty</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.google.guava</groupId>
-              <artifactId>guava</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-core</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-annotations</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-databind</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.apache.httpcomponents</groupId>
-              <artifactId>httpclient</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.skyscreamer</groupId>
-              <artifactId>jsonassert</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>xmlunit</groupId>
-              <artifactId>xmlunit</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.jayway.jsonpath</groupId>
-              <artifactId>json-path</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>net.sf.jopt-simple</groupId>
-              <artifactId>jopt-simple</artifactId>
-            </exclusion>
-         </exclusions>
     </dependency>
+
+Or to use the standalone JAR:
+
+.. code-block:: xml
+
+    <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>2.0.2-beta</version>
+    </dependency>
+
+
+Gradle
+======
+
+
+.. code-block:: groovy
+
+    testCompile "com.github.tomakehurst:wiremock:2.0.2-beta"
+
+Or
+
+.. code-block:: groovy
+
+    testCompile "com.github.tomakehurst:wiremock-standalone:2.0.2-beta"
 
 
 JUnit 4.x
@@ -166,7 +152,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/2.0.2-beta/wiremock-2.0.2-beta-standalone.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.0.2-beta/wiremock-standalone-2.0.2-beta.jar>`_.
 
 See :ref:`running-standalone` for more details and commandline options.
 
