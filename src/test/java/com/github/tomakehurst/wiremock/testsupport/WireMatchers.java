@@ -18,10 +18,11 @@ package com.github.tomakehurst.wiremock.testsupport;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.google.common.base.Predicate;
-import net.sf.json.test.JSONAssert;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,41 +39,62 @@ public class WireMatchers {
 
 			@Override
 			public void describeTo(Description desc) {
-                desc.appendText("Expected:\n" + expectedJson);
+				desc.appendText("Expected:\n" + expectedJson);
 			}
 
 			@Override
 			public boolean matchesSafely(String actualJson) {
 				try {
-					JSONAssert.assertJsonEquals(expectedJson, actualJson);
+					JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.STRICT);
 					return true;
 				} catch (Throwable e) {
 					return false;
 				}
 			}
-			
+
 		};
 	}
 
-    public static Matcher<String> matches(final String regex) {
-        return new TypeSafeMatcher<String>() {
-    
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Should match " + regex);
-                
-            }
-    
-            @Override
-            public boolean matchesSafely(String actual) {
-                return actual.matches(regex);
-            }
-            
-        };
-    }
+	public static Matcher<String> equalToJson(final String expectedJson, final JSONCompareMode jsonCompareMode) {
+		return new TypeSafeMatcher<String>() {
 
-    public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
-    	return new TypeSafeMatcher<Iterable<T>>() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("Expected:\n" + expectedJson);
+			}
+
+			@Override
+			public boolean matchesSafely(String actualJson) {
+				try {
+					JSONAssert.assertEquals(expectedJson, actualJson, jsonCompareMode);
+					return true;
+				} catch (Throwable e) {
+					return false;
+				}
+			}
+
+		};
+	}
+
+	public static Matcher<String> matches(final String regex) {
+		return new TypeSafeMatcher<String>() {
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("Should match " + regex);
+
+			}
+
+			@Override
+			public boolean matchesSafely(String actual) {
+				return actual.matches(regex);
+			}
+
+		};
+	}
+
+	public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
+		return new TypeSafeMatcher<Iterable<T>>() {
 
 			@Override
 			public void describeTo(Description desc) {
@@ -82,20 +104,20 @@ public class WireMatchers {
 			@Override
 			public boolean matchesSafely(Iterable<T> actual) {
 				Iterator<T> actualIter = actual.iterator();
-				for (Matcher<T> matcher: items) {
+				for (Matcher<T> matcher : items) {
 					if (!matcher.matches(actualIter.next())) {
 						return false;
 					}
 				}
-				
+
 				return !actualIter.hasNext();
 			}
-    		
-    	};
-    }
-    
-    public static <T> Matcher<Iterable<T>> hasExactlyIgnoringOrder(final Matcher<T>... items) {
-    	return new TypeSafeMatcher<Iterable<T>>() {
+
+		};
+	}
+
+	public static <T> Matcher<Iterable<T>> hasExactlyIgnoringOrder(final Matcher<T>... items) {
+		return new TypeSafeMatcher<Iterable<T>>() {
 
 			@Override
 			public void describeTo(Description desc) {
@@ -107,89 +129,89 @@ public class WireMatchers {
 				if (size(actual) != items.length) {
 					return false;
 				}
-				
-				for (final Matcher<T> matcher: items) {
+
+				for (final Matcher<T> matcher : items) {
 					if (find(actual, isMatchFor(matcher), null) == null) {
 						return false;
 					}
 				}
-				
+
 				return true;
 			}
-    	};
-    }
-    
-    private static <T> Predicate<T> isMatchFor(final Matcher<T> matcher) {
-    	return new Predicate<T>() {
+		};
+	}
+
+	private static <T> Predicate<T> isMatchFor(final Matcher<T> matcher) {
+		return new Predicate<T>() {
 			public boolean apply(T input) {
 				return matcher.matches(input);
 			}
 		};
-    }
-    
-    public static Matcher<TextFile> fileNamed(final String name) {
-        return new TypeSafeMatcher<TextFile>() {
+	}
 
-            @Override
-            public void describeTo(Description desc) {
-                desc.appendText("a text file named " + name);
-            }
+	public static Matcher<TextFile> fileNamed(final String name) {
+		return new TypeSafeMatcher<TextFile>() {
 
-            @Override
-            public boolean matchesSafely(TextFile textFile) {
-                return textFile.name().endsWith(name);
-            }
-            
-        };
-    }
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("a text file named " + name);
+			}
 
-    public static Matcher<Date> isAfter(final String dateString) {
-        return new TypeSafeMatcher<Date>() {
-            @Override
-            public boolean matchesSafely(Date date) {
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                try {
-                    Date compareDate = df.parse(dateString);
-                    return date.after(compareDate);
-                } catch (ParseException pe) {
-                    throw new RuntimeException(pe);
-                }
-            }
+			@Override
+			public boolean matchesSafely(TextFile textFile) {
+				return textFile.name().endsWith(name);
+			}
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("A date after " + dateString);
-            }
-        };
-    }
+		};
+	}
 
-    public static Matcher<Date> isToday() {
-        return new TypeSafeMatcher<Date>() {
-            @Override
-            public boolean matchesSafely(Date date) {
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                String today = df.format(new Date());
-                return today.equals(df.format(date));
-            }
+	public static Matcher<Date> isAfter(final String dateString) {
+		return new TypeSafeMatcher<Date>() {
+			@Override
+			public boolean matchesSafely(Date date) {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				try {
+					Date compareDate = df.parse(dateString);
+					return date.after(compareDate);
+				} catch (ParseException pe) {
+					throw new RuntimeException(pe);
+				}
+			}
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Today's date");
-            }
-        };
-    }
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("A date after " + dateString);
+			}
+		};
+	}
 
-    public static Matcher<HttpHeader> header(final String key, final String value) {
-        return new TypeSafeMatcher<HttpHeader>() {
-            @Override
-            public boolean matchesSafely(HttpHeader httpHeader) {
-                return httpHeader.key().equals(key) && httpHeader.containsValue(value);
-            }
+	public static Matcher<Date> isToday() {
+		return new TypeSafeMatcher<Date>() {
+			@Override
+			public boolean matchesSafely(Date date) {
+				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+				String today = df.format(new Date());
+				return today.equals(df.format(date));
+			}
 
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(String.format("Header %s: %s", key, value));
-            }
-        };
-    }
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("Today's date");
+			}
+		};
+	}
+
+	public static Matcher<HttpHeader> header(final String key, final String value) {
+		return new TypeSafeMatcher<HttpHeader>() {
+			@Override
+			public boolean matchesSafely(HttpHeader httpHeader) {
+				return httpHeader.key().equals(key) && httpHeader.containsValue(value);
+			}
+
+			@Override
+			public void describeTo(Description description) {
+				description.appendText(String.format("Header %s: %s", key, value));
+			}
+		};
+	}
 }

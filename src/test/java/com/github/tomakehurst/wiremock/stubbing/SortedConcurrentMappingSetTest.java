@@ -23,15 +23,17 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
+
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SortedConcurrentMappingSetTest {
-	
+
 	private SortedConcurrentMappingSet mappingSet;
-	
+
 	@Before
 	public void init() {
 		mappingSet = new SortedConcurrentMappingSet();
@@ -46,7 +48,7 @@ public class SortedConcurrentMappingSetTest {
 		mappingSet.add(aMapping(1, "/priority1/1"));
 		mappingSet.add(aMapping(1, "/priority1/2"));
 		mappingSet.add(aMapping(1, "/priority1/3"));
-		
+
 		assertThat(mappingSet, hasExactly(
 				requestUrlIs("/priority1/3"),
 				requestUrlIs("/priority1/2"),
@@ -55,7 +57,7 @@ public class SortedConcurrentMappingSetTest {
 				requestUrlIs("/priority3/1"),
 				requestUrlIs("/priority6/1")));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void supportsNullPriority() {
@@ -63,33 +65,81 @@ public class SortedConcurrentMappingSetTest {
 		mappingSet.add(aMapping(null, "/2"));
 		mappingSet.add(aMapping(null, "/3"));
 		mappingSet.add(aMapping(null, "/4"));
-		
+
 		assertThat(mappingSet, hasExactly(
 				requestUrlIs("/4"),
 				requestUrlIs("/3"),
 				requestUrlIs("/2"),
 				requestUrlIs("/1")));
 	}
-	
+
 	@Test
 	public void clearsCorrectly() {
 		mappingSet.add(aMapping(3, "/priority3/1"));
 		mappingSet.add(aMapping(3, "/priority3/2"));
 		mappingSet.add(aMapping(6, "/priority6/1"));
 		mappingSet.add(aMapping(1, "/priority1/1"));
-		
+
 		mappingSet.clear();
-		
+
 		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
 	}
-	
+
+	@Test
+	public void testRemove() throws Exception {
+
+		StubMapping stubMapping = aMapping(1, "/priority1/1");
+
+		mappingSet.add(stubMapping);
+		assertThat(mappingSet.iterator().hasNext(), is(true));
+
+		mappingSet.remove(stubMapping);
+		assertThat(mappingSet.iterator().hasNext(), is(false));
+	}
+
+	@Test
+	public void testReplace() throws Exception {
+
+		StubMapping existingMapping = aMapping(1, "/priority1/1");
+		mappingSet.add(existingMapping);
+
+		existingMapping.setNewScenarioState("New Scenario State");
+
+		StubMapping newMapping = aMapping(2, "/priority2/1");
+		boolean result = mappingSet.replace(existingMapping, newMapping);
+
+		Iterator<StubMapping> it = mappingSet.iterator();
+
+		assertThat(result, is(true));
+		assertThat(it.hasNext(), is(true));
+		assertThat(it.next(), is(newMapping));
+		assertThat(it.hasNext(), is(false));
+	}
+
+	@Test
+	public void testReplaceNotExists() throws Exception {
+
+		StubMapping existingMapping = aMapping(1, "/priority1/1");
+		mappingSet.add(existingMapping);
+
+		StubMapping newMapping = aMapping(2, "/priority2/1");
+		boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
+
+		Iterator<StubMapping> it = mappingSet.iterator();
+
+		assertThat(result, is(false));
+		assertThat(it.hasNext(), is(true));
+		assertThat(it.next(), is(existingMapping));
+		assertThat(it.hasNext(), is(false));
+	}
+
 	private StubMapping aMapping(Integer priority, String url) {
 		RequestPattern requestPattern = new RequestPattern(ANY, url);
 		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
 		mapping.setPriority(priority);
 		return mapping;
 	}
-	
+
 	private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
 		return new TypeSafeMatcher<StubMapping>() {
 
@@ -101,7 +151,7 @@ public class SortedConcurrentMappingSetTest {
 			public boolean matchesSafely(StubMapping actualMapping) {
 				return actualMapping.getRequest().getUrl().equals(expectedUrl);
 			}
-			
+
 		};
 	}
 }

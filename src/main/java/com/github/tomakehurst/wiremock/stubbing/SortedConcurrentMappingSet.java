@@ -24,12 +24,12 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
 	private AtomicLong insertionCount;
 	private ConcurrentSkipListSet<StubMapping> mappingSet;
-	
+
 	public SortedConcurrentMappingSet() {
 		insertionCount = new AtomicLong();
-		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
+		mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
 	}
-	
+
 	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
 		return new Comparator<StubMapping>() {
 			public int compare(StubMapping one, StubMapping two) {
@@ -37,8 +37,8 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 				if (priorityComparison != 0) {
 					return priorityComparison;
 				}
-				
-				return (two.getInsertionIndex() > one.getInsertionIndex()) ? 1 : -1;
+
+				return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
 			}
 		};
 	}
@@ -47,16 +47,29 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	public Iterator<StubMapping> iterator() {
 		return mappingSet.iterator();
 	}
-	
+
 	public void add(StubMapping mapping) {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
 	}
-	
+
+	public boolean remove(StubMapping stubMapping) {
+		return mappingSet.remove(stubMapping);
+	}
+
+	public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+
+		if ( mappingSet.remove(existingStubMapping) ) {
+			mappingSet.add(newStubMapping);
+			return true;
+		}
+		return false;
+	}
+
 	public void clear() {
 		mappingSet.clear();
 	}
-	
+
 	@Override
 	public String toString() {
 		return mappingSet.toString();

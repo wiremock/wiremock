@@ -22,14 +22,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
-@JsonPropertyOrder({ "request", "response" })
+@JsonPropertyOrder({ "uuid", "request", "response" })
 public class StubMapping {
-	
-	public static final int DEFAULT_PRIORITY = 5; 
+
+	public static final int DEFAULT_PRIORITY = 5;
+
+	private UUID uuid = UUID.randomUUID();
 
 	private RequestPattern request;
 	private ResponseDefinition response;
@@ -42,15 +46,17 @@ public class StubMapping {
 	private long insertionIndex;
     private boolean isTransient = true;
 
+	private String mappingFileName;
+
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
 		this.response = response;
 	}
-	
+
 	public StubMapping() {
 		//Concession to Jackson
 	}
-	
+
 	public static final StubMapping NOT_CONFIGURED =
 	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 
@@ -62,14 +68,23 @@ public class StubMapping {
 		return Json.write(mapping);
 	}
 
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	@VisibleForTesting
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+
     public RequestPattern getRequest() {
 		return request;
 	}
-	
+
 	public ResponseDefinition getResponse() {
 		return response;
 	}
-	
+
 	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
@@ -113,7 +128,7 @@ public class StubMapping {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
-	
+
 	public String getScenarioName() {
 		return scenarioName;
 	}
@@ -137,13 +152,23 @@ public class StubMapping {
 	public void setNewScenarioState(String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
-	
+
 	public void updateScenarioStateIfRequired() {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
 		}
 	}
-	
+
+	@JsonIgnore
+	public String getMappingFileName() {
+		return mappingFileName;
+	}
+
+	@JsonIgnore
+	public void setMappingFileName(String mappingFileName) {
+		this.mappingFileName = mappingFileName;
+	}
+
 	@JsonIgnore
 	public Scenario getScenario() {
 		return scenario;
@@ -158,22 +183,22 @@ public class StubMapping {
 	public boolean isInScenario() {
 		return scenarioName != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean modifiesScenarioState() {
 		return newScenarioState != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
 	}
-	
+
 	@JsonIgnore
 	public boolean requiresCurrentScenarioState() {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
-	
+
 	public int comparePriorityWith(StubMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;

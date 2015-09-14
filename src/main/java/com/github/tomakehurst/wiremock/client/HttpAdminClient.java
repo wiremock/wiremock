@@ -35,27 +35,28 @@ import org.apache.http.entity.StringEntity;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
-	
+
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 
 	private final String host;
 	private final int port;
 	private final String urlPathPrefix;
-	
+
 	private final HttpClient httpClient;
-	
+
 	public HttpAdminClient(String host, int port, String urlPathPrefix) {
 		this.host = host;
 		this.port = port;
 		this.urlPathPrefix = urlPathPrefix;
-		
+
 		httpClient = HttpClientFactory.createClient();
 	}
-	
+
 	public HttpAdminClient(String host, int port) {
 		this(host, port, "");
 	}
@@ -67,6 +68,14 @@ public class HttpAdminClient implements Admin {
                 Json.write(stubMapping),
                 HTTP_CREATED);
 	}
+
+    @Override
+    public void editStubMapping(StubMapping stubMapping) {
+        postJsonAssertOkAndReturnBody(
+                urlFor(EditStubMappingTask.class),
+                Json.write(stubMapping),
+                HTTP_NO_CONTENT);
+    }
 
     @Override
     public ListStubMappingsResult listAllStubMappings() {

@@ -20,13 +20,16 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.URI;
 
 import static com.google.common.collect.Iterables.filter;
 
 public class JsonFileMappingsLoader implements MappingsLoader {
 
 	private final FileSource mappingsFileSource;
-	
+
 	public JsonFileMappingsLoader(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 	}
@@ -36,15 +39,25 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 		JsonStubMappingCreator jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
-			jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString());
+			jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString(), getFileName(mappingFile, mappingsFileSource));
 		}
 	}
-	
+
 	private Predicate<TextFile> byFileExtension(final String extension) {
 		return new Predicate<TextFile>() {
 			public boolean apply(TextFile input) {
 				return input.name().endsWith("." + extension);
 			}
 		};
+	}
+
+	private String getFileName(TextFile mappingFile, FileSource fileSource) {
+
+		URI mappingFileUri = mappingFile.getUri();
+
+		if(mappingFileUri.getScheme().equals("file")) {
+			return StringUtils.removeStart(mappingFileUri.getPath(), fileSource.getPath() + "/");
+		}
+		return null;
 	}
 }
