@@ -1,0 +1,25 @@
+<div>
+    <div class="page-header">
+        <div class="row">
+            <div class="col-md-12">
+                <span class="h1">Available Mocks</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <input type="text" class="form-control" ng-model="searchText" placeholder="Search...">
+        </div>
+        <div class="col-md-8">
+            <p class="pull-right">
+                <button class="btn btn-success" ng-click="createNewMapping()">Add New Mapping</button>
+                <button class="btn btn-primary" ng-click="saveMapping()">Save Mappings to Disk</button>
+            </p>
+        </div>
+    </div>
+    <div class="row margin-top">
+        <div class="col-md-12" ng-repeat="mock in mappings | filter:searchText">
+            <div mock-display mock="mock"></div>
+        </div>
+    </div>
+</div>

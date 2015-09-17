@@ -42,6 +42,7 @@ import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_UI_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.jetty9.JettyHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 
 class JettyHttpServer implements HttpServer {
@@ -87,9 +88,10 @@ class JettyHttpServer implements HttpServer {
                 options.filesRoot(),
                 notifier
         );
+        ServletContextHandler adminUiContext = addAdminUiContext();
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[]{adminContext, mockServiceContext});
+        handlers.setHandlers(new Handler[]{adminContext, adminUiContext, mockServiceContext});
         jettyServer.setHandler(handlers);
 
         jettyServer.setStopTimeout(0);
@@ -268,6 +270,13 @@ class JettyHttpServer implements HttpServer {
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
         return adminContext;
+    }
+
+    private ServletContextHandler addAdminUiContext() {
+        ServletContextHandler adminUiContext = new ServletContextHandler(jettyServer, ADMIN_UI_CONTEXT_ROOT);
+        ServletHolder servletHolder = adminUiContext.addServlet(DefaultServlet.class, "/");
+        servletHolder.setInitParameter("resourceBase", this.getClass().getResource("/admin-ui").toString());
+        return adminUiContext;
     }
 
 }

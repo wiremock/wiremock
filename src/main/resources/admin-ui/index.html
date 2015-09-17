@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WireMock Admin</title>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <link rel="stylesheet" href="styles/main.css">
+
+    <script src="vendor/angular.js"></script>
+    <script src="vendor/angular-route.js"></script>
+    <script src="vendor/angular-sanitize.js"></script>
+    <script src="vendor/ui-bootstrap-tpls-0.13.4.js"></script>
+    <script src="vendor/angular-count-to.min.js"></script>
+
+    <script src="js/app.js"></script>
+
+    <script src="js/services/adminApiServiceWrapper.js"></script>
+    <script src="js/services/adminService.js"></script>
+    <script src="js/services/alert.js"></script>
+
+    <script src="js/directive/mockDisplay.js"></script>
+
+    <script src="js/ctrl/mockListCtrl.js"></script>
+    <script src="js/ctrl/editMockCtrl.js"></script>
+    <script src="js/ctrl/overviewCtrl.js"></script>
+
+</head>
+<body ng-app="admin" ng-controller="appCtrl">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="#/" class="navbar-brand main-title">WireMock Admin</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li>
+                        <a href="#/">Overview</a>
+                    </li>
+                    <li>
+                        <a href="#/available-mocks">Available Mocks</a></li>
+                </ul>
+            </div>
+            <div class="col-md-10 col-md-offset-2 main" ng-view>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
