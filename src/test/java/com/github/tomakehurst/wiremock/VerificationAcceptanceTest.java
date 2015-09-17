@@ -80,8 +80,8 @@ public class VerificationAcceptanceTest {
                     withHeader("X-Thing", "Three"));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
-                .withHeader("X-Thing", equalTo("Two"))
-                .withHeader("X-Thing", matching("Thr.*")));
+                    .withHeader("X-Thing", equalTo("Two"))
+                    .withHeader("X-Thing", matching("Thr.*")));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
                     .withHeader("X-Thing", equalTo("Three")));
@@ -208,6 +208,102 @@ public class VerificationAcceptanceTest {
             testClient.get("/add/to/count");
 
             verify(4, getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        private void getCountableRequests(int count) {
+            for (int i = 0; i < count; i++) {
+                testClient.get("/add/to/count");
+            }
+        }
+
+        @Test
+        public void verifiesLessThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesExactlyThanCountWithExactRequests() {
+            getCountableRequests(5);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
         @Test
