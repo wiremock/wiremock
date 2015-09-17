@@ -226,6 +226,26 @@ public class WireMock {
         return matchingStrategy;
     }
 
+	public static CountMatchingStrategy lessThan(int expected) {
+		return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN, expected);
+	}
+
+	public static CountMatchingStrategy lessThanOrExactly(int expected) {
+		return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN_OR_EQUAL, expected);
+	}
+
+	public static CountMatchingStrategy exactly(int expected) {
+		return new CountMatchingStrategy(CountMatchingStrategy.EQUAL_TO, expected);
+	}
+
+	public static CountMatchingStrategy moreThanOrExactly(int expected) {
+		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN_OR_EQUAL, expected);
+	}
+
+	public static CountMatchingStrategy moreThan(int expected) {
+		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, expected);
+	}
+
 	public static MappingBuilder get(UrlMatchingStrategy urlMatchingStrategy) {
 		return new MappingBuilder(RequestMethod.GET, urlMatchingStrategy);
 	}
@@ -290,12 +310,26 @@ public class WireMock {
 		}
 	}
 
+	public void verifyThat(CountMatchingStrategy count, RequestPatternBuilder requestPatternBuilder) {
+		RequestPattern requestPattern = requestPatternBuilder.build();
+		VerificationResult result = admin.countRequestsMatching(requestPattern);
+		result.assertRequestJournalEnabled();
+
+		if (!count.match(result.getCount())) {
+			throw new VerificationException(requestPattern, count, find(allRequests()));
+		}
+	}
+
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(requestPatternBuilder);
 	}
 
 	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(count, requestPatternBuilder);
+	}
+
+	public static void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
+		defaultInstance.get().verifyThat(countMatchingStrategy, requestPatternBuilder);
 	}
 
     public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
