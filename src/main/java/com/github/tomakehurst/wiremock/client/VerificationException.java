@@ -38,4 +38,9 @@ public class VerificationException extends AssertionError {
         super(String.format("Expected exactly %d requests matching: %s\nRequests received: %s",
                 expectedCount, expected.toString(), Json.write(requests)));
     }
+
+    public VerificationException(RequestPattern expected, CountMatchingStrategy count, List<LoggedRequest> requests) {
+        super(String.format("Expected %s requests matching: %s\nRequests received: %s",
+                count.toString().toLowerCase(), expected.toString(), Json.write(requests)));
+    }
 }
