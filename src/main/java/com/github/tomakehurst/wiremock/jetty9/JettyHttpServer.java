@@ -13,10 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.jetty9;
 
-import java.util.Map;
+import java.util.EnumSet;
 
+import javax.servlet.DispatcherType;
+
+import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+
+import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
@@ -25,43 +43,32 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.MimeTypes;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.DefaultServlet;
-import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.thread.QueuedThreadPool;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.*;
-import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.*;
-import static com.google.common.collect.Maps.*;
 
-class Jetty6HttpServer implements HttpServer {
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static com.github.tomakehurst.wiremock.jetty9.JettyHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
+
+class JettyHttpServer implements HttpServer {
 
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockServer.FILES_ROOT);
 
     private final Server jettyServer;
-    private final DelayableSocketConnector httpConnector;
-    private final DelayableSslSocketConnector httpsConnector;
+    private final ServerConnector httpConnector;
+    private final ServerConnector httpsConnector;
 
-    Jetty6HttpServer(
+    JettyHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler,
             RequestDelayControl requestDelayControl
     ) {
 
-        jettyServer = new Server();
-
         QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
-        jettyServer.setThreadPool(threadPool);
+        jettyServer = new Server(threadPool);
 
         httpConnector = createHttpConnector(
                 requestDelayControl,
@@ -82,15 +89,19 @@ class Jetty6HttpServer implements HttpServer {
         }
 
         Notifier notifier = options.notifier();
-        addAdminContext(
+        ServletContextHandler adminContext = addAdminContext(
                 adminRequestHandler,
                 notifier
         );
-        addMockServiceContext(
+        ServletContextHandler mockServiceContext = addMockServiceContext(
                 stubRequestHandler,
                 options.filesRoot(),
                 notifier
         );
+
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(new Handler[]{adminContext, mockServiceContext});
+        jettyServer.setHandler(handlers);
     }
 
     @Override
@@ -100,14 +111,14 @@ class Jetty6HttpServer implements HttpServer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        long timeout=System.currentTimeMillis()+30000;
+        long timeout = System.currentTimeMillis() + 30000;
         while (!jettyServer.isStarted()) {
             try {
-                Thread.currentThread().sleep(100);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 // no-op
             }
-            if (System.currentTimeMillis()>timeout) {
+            if (System.currentTimeMillis() > timeout) {
                 throw new RuntimeException("Server took too long to start up.");
             }
         }
@@ -125,7 +136,7 @@ class Jetty6HttpServer implements HttpServer {
 
     @Override
     public boolean isRunning() {
-        return jettyServer != null && jettyServer.isRunning();
+        return jettyServer.isRunning();
     }
 
     @Override
@@ -138,72 +149,109 @@ class Jetty6HttpServer implements HttpServer {
         return httpsConnector.getLocalPort();
     }
 
-    private DelayableSocketConnector createHttpConnector(
+    private ServerConnector createHttpConnector(
             RequestDelayControl requestDelayControl,
             String bindAddress,
             int port,
             JettySettings jettySettings) {
-        DelayableSocketConnector connector = new DelayableSocketConnector(requestDelayControl);
+
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        setHeaderBufferSize(jettySettings, httpConfig);
+
+        ServerConnector connector = createServerConnector(
+                jettySettings,
+                port,
+                new FaultInjectingHttpConnectionFactory(
+                        httpConfig,
+                        requestDelayControl
+                )
+        );
         connector.setHost(bindAddress);
+        return connector;
+    }
+
+    private ServerConnector createHttpsConnector(
+            RequestDelayControl requestDelayControl,
+            HttpsSettings httpsSettings,
+            JettySettings jettySettings) {
+
+        SslContextFactory sslContextFactory = new SslContextFactory();
+        sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
+        if (httpsSettings.hasTrustStore()) {
+            sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
+            sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
+        }
+        sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
+
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        setHeaderBufferSize(jettySettings, httpConfig);
+        httpConfig.addCustomizer(new SecureRequestCustomizer());
+
+        final int port = httpsSettings.port();
+
+
+        return createServerConnector(
+                jettySettings,
+                port,
+                new SslConnectionFactory(
+                        sslContextFactory,
+                        "http/1.1"
+                ),
+                new FaultInjectingHttpConnectionFactory(
+                        httpConfig,
+                        requestDelayControl
+                )
+        );
+    }
+
+    private ServerConnector createServerConnector(JettySettings jettySettings, int port, ConnectionFactory... connectionFactories) {
+        int acceptors = jettySettings.getAcceptors().or(-1);
+        ServerConnector connector = new ServerConnector(
+                jettyServer,
+                null,
+                null,
+                null,
+                acceptors,
+                -1,
+                connectionFactories
+        );
         connector.setPort(port);
         setJettySettings(jettySettings, connector);
         return connector;
     }
 
-    private DelayableSslSocketConnector createHttpsConnector(
-            RequestDelayControl requestDelayControl,
-            HttpsSettings httpsSettings,
-            JettySettings jettySettings) {
-        DelayableSslSocketConnector connector = new DelayableSslSocketConnector(requestDelayControl);
-        connector.setPort(httpsSettings.port());
-        connector.setKeystore(httpsSettings.keyStorePath());
-        connector.setKeyPassword(httpsSettings.keyStorePassword());
-
-        if (httpsSettings.hasTrustStore()) {
-            connector.setTruststore(httpsSettings.trustStorePath());
-            connector.setTrustPassword(httpsSettings.trustStorePassword());
-        }
-
-        connector.setNeedClientAuth(httpsSettings.needClientAuth());
-
-        setJettySettings(jettySettings, connector);
-        return connector;
-    }
-
-    private void setJettySettings(JettySettings jettySettings, SocketConnector connector) {
-        if (jettySettings.getAcceptors().isPresent()) {
-            connector.setAcceptors(jettySettings.getAcceptors().get());
-        }
+    private void setJettySettings(JettySettings jettySettings, ServerConnector connector) {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
+    }
 
+    private void setHeaderBufferSize(JettySettings jettySettings, HttpConfiguration configuration) {
         int headerBufferSize = 8192;
         if (jettySettings.getRequestHeaderSize().isPresent()) {
             headerBufferSize = jettySettings.getRequestHeaderSize().get();
         }
-        connector.setHeaderBufferSize(headerBufferSize);
+        configuration.setRequestHeaderSize(headerBufferSize);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
-    private void addMockServiceContext(
+    private ServletContextHandler addMockServiceContext(
             StubRequestHandler stubRequestHandler,
             FileSource fileSource,
             Notifier notifier
     ) {
-        Context mockServiceContext = new Context(jettyServer, "/");
+        ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
 
-        Map initParams = newHashMap();
-        initParams.put("org.mortbay.jetty.servlet.Default.maxCacheSize", "0");
-        initParams.put("org.mortbay.jetty.servlet.Default.resourceBase", fileSource.getPath());
-        initParams.put("org.mortbay.jetty.servlet.Default.dirAllowed", "false");
-        mockServiceContext.setInitParams(initParams);
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", fileSource.getPath());
+        mockServiceContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
 
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
-        ServletHolder servletHolder = mockServiceContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = mockServiceContext.addServlet(JettyHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
@@ -214,24 +262,24 @@ class Jetty6HttpServer implements HttpServer {
         mimeTypes.addMimeMapping("txt", "text/plain");
         mockServiceContext.setMimeTypes(mimeTypes);
 
-        mockServiceContext.setWelcomeFiles(new String[] { "index.json", "index.html", "index.xml", "index.txt" });
+        mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
-        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, Handler.FORWARD);
-        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, Handler.ALL);
+        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
+        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
-        jettyServer.addHandler(mockServiceContext);
+        return mockServiceContext;
     }
 
-    private void addAdminContext(
+    private ServletContextHandler addAdminContext(
             AdminRequestHandler adminRequestHandler,
             Notifier notifier
     ) {
-        Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
-        ServletHolder servletHolder = adminContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
+        ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
+        ServletHolder servletHolder = adminContext.addServlet(JettyHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
-        jettyServer.addHandler(adminContext);
+        return adminContext;
     }
 
 }

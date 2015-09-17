@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.common.base.Optional;
@@ -56,6 +58,7 @@ public class WireMockConfiguration implements Options {
 
     private boolean preserveHostHeader;
     private String proxyHostHeader;
+    private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
     private Integer jettyHeaderBufferSize;
@@ -284,6 +287,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
     	return matchingHeaders;
+    }
+
+    @Override
+    public HttpServerFactory httpServerFactory() {
+        return httpServerFactory;
     }
 
     @Override

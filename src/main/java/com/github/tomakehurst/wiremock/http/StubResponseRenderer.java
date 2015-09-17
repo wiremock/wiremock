@@ -63,7 +63,7 @@ public class StubResponseRenderer implements ResponseRenderer {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
             } else {
-                responseBuilder.body(responseDefinition.getBody());
+                responseBuilder.body(responseDefinition.getByteBody());
             }
 		}
 

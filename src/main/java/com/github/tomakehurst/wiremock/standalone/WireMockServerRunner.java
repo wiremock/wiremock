@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -25,6 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 import static com.github.tomakehurst.wiremock.WireMockServer.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.WireMockServer.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static java.lang.System.out;
 
@@ -86,8 +88,9 @@ public class WireMockServerRunner {
 			public void loadMappingsInto(StubMappings stubMappings) {
 				RequestPattern requestPattern = new RequestPattern(ANY);
 				requestPattern.setUrlPattern(".*");
-				ResponseDefinition responseDef = new ResponseDefinition();
-				responseDef.setProxyBaseUrl(baseUrl);
+				ResponseDefinition responseDef = responseDefinition()
+						.proxiedFrom(baseUrl)
+						.build();
 
 				StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
 				proxyBasedMapping.setPriority(10); // Make it low priority so that existing stubs will take precedence

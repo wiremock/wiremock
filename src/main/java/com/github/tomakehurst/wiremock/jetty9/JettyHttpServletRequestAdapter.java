@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
@@ -26,24 +26,24 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
-import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
-public class Jetty6HttpServletRequestAdapter implements Request {
+public class JettyHttpServletRequestAdapter implements Request {
     
     private final HttpServletRequest request;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
 
-    public Jetty6HttpServletRequestAdapter(HttpServletRequest request) {
+    public JettyHttpServletRequestAdapter(HttpServletRequest request) {
         this.request = request;
     }
 
-    public Jetty6HttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
+    public JettyHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
         this.request = request;
         this.urlPrefixToRemove = urlPrefixToRemove;
     }
@@ -92,8 +92,7 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 
     @Override
     public String getBodyAsString() {
-        byte[] body = getBody();
-        return new String(body, UTF_8);
+        return stringFromBytes(getBody());
     }
 
     @SuppressWarnings("unchecked")
@@ -163,10 +162,9 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 
     @Override
     public boolean isBrowserProxyRequest() {
-        if (request instanceof org.mortbay.jetty.Request) {
-            org.mortbay.jetty.Request jettyRequest = (org.mortbay.jetty.Request) request;
-            URI uri = URI.create(jettyRequest.getUri().toString());
-            return uri.isAbsolute();
+        if (request instanceof org.eclipse.jetty.server.Request) {
+            org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
+            return URI.create(jettyRequest.getUri().toString()).isAbsolute();
         }
 
         return false;

@@ -27,20 +27,20 @@ import static org.junit.Assert.assertThat;
 public class BrowserProxyAcceptanceTest {
 
     @ClassRule
-    public static WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().dynamicPort());
+    public static WireMockClassRule target = new WireMockClassRule(wireMockConfig().dynamicPort());
 
     @Rule
-    public WireMockClassRule instanceRule = wireMockRule;
+    public WireMockClassRule instanceRule = target;
 
     private WireMockServer proxy;
     private WireMockTestClient testClient;
 
     @Before
     public void addAResourceToProxy() {
-        testClient = new WireMockTestClient(wireMockRule.port());
+        testClient = new WireMockTestClient(target.port());
 
         proxy = new WireMockServer(wireMockConfig()
-                .port(0)
+                .dynamicPort()
                 .enableBrowserProxying(true));
         proxy.start();
     }
@@ -54,20 +54,20 @@ public class BrowserProxyAcceptanceTest {
 
     @Test
     public void canProxyHttp() {
-        stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
+        target.stubFor(get(urlEqualTo("/whatever")).willReturn(aResponse().withBody("Got it")));
 
         assertThat(testClient.getViaProxy(url("/whatever"), proxy.port()).content(), is("Got it"));
     }
 
     @Test
     public void passesQueryParameters() {
-        stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
+        target.stubFor(get(urlEqualTo("/search?q=things&limit=10")).willReturn(aResponse().withStatus(200)));
 
         assertThat(testClient.getViaProxy(url("/search?q=things&limit=10"), proxy.port()).statusCode(), is(200));
     }
 
     private String url(String pathAndQuery) {
-        return "http://localhost:" + wireMockRule.port() + pathAndQuery;
+        return "http://localhost:" + target.port() + pathAndQuery;
     }
 
 }

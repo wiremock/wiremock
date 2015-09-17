@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.*;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -38,7 +36,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 
-public class Jetty6HandlerDispatchingServlet extends HttpServlet {
+public class JettyHandlerDispatchingServlet extends HttpServlet {
 
 	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
 	public static final String MAPPED_UNDER_KEY = "mappedUnder";
@@ -92,7 +90,7 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new Jetty6HttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new JettyHttpServletRequestAdapter(httpServletRequest, mappedUnder);
         notifier.info("Received request: " + httpServletRequest.toString());
 
 		Response response = requestHandler.handle(request);
@@ -100,7 +98,7 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
             return;
         }
 		if (response.wasConfigured()) {
-		    applyResponse(response, httpServletResponse);
+			applyResponse(response, httpServletRequest, httpServletResponse);
 		} else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
 		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
 		} else {
@@ -108,9 +106,12 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 		}
 	}
 
-    public static void applyResponse(Response response, HttpServletResponse httpServletResponse) {
-        if (response.getFault() != null) {
-            response.getFault().apply(new Jetty6FaultInjector(httpServletResponse));
+    public static void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        Fault fault = response.getFault();
+        if (fault != null) {
+			FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
+			fault.apply(faultInjector);
+            httpServletResponse.addHeader(Fault.class.getName(), fault.name());
             return;
         }
 
@@ -123,6 +124,14 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
 
         writeAndTranslateExceptions(httpServletResponse, response.getBody());
     }
+
+	private static FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+		if (httpServletRequest.getScheme().equals("https")) {
+			return new JettyHttpsFaultInjector(httpServletResponse);
+		}
+
+		return new JettyFaultInjector(httpServletResponse);
+	}
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
         try {

@@ -217,13 +217,13 @@ public class ValuePatternTest {
 
     @Test
     public void matchesOnJsonPathsWithFiltersOnNestedObjects() {
-        valuePattern.setMatchesJsonPaths("$..*[?(@.innerOne == 11)]");
+        valuePattern.setMatchesJsonPaths("$..thingOne[?(@.innerOne == 11)]");
         assertTrue("Expected match", valuePattern.isMatchFor("{ \"things\": { \"thingOne\": { \"innerOne\": 11 }, \"thingTwo\": 2 }}"));
     }
 
     @Test
     public void providesSensibleNotificationWhenJsonMatchFailsDueToInvalidJson() {
-        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because the JSON document couldn't be parsed");
+        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Property ['something'] not found in path $'");
 
         valuePattern.setMatchesJsonPaths("$.something");
         assertFalse("Expected the match to fail", valuePattern.isMatchFor("Not a JSON document"));
@@ -231,7 +231,7 @@ public class ValuePatternTest {
 
     @Test
     public void providesSensibleNotificationWhenJsonMatchFailsDueToMissingAttributeJson() {
-        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because the JSON path didn't match the document structure");
+        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document '{ \"nothing\": 1 }' because of error 'No results for path: $['something']'");
 
         valuePattern.setMatchesJsonPaths("$.something");
         assertFalse("Expected the match to fail", valuePattern.isMatchFor("{ \"nothing\": 1 }"));

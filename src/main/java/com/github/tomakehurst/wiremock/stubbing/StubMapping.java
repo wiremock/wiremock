@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 
+import java.util.Objects;
+
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "request", "response" })
 public class StubMapping {
@@ -179,88 +181,23 @@ public class StubMapping {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ (int) (insertionIndex ^ (insertionIndex >>> 32));
-		result = prime
-				* result
-				+ ((newScenarioState == null) ? 0 : newScenarioState.hashCode());
-		result = prime * result
-				+ ((priority == null) ? 0 : priority.hashCode());
-		result = prime * result + ((request == null) ? 0 : request.hashCode());
-		result = prime
-				* result
-				+ ((requiredScenarioState == null) ? 0 : requiredScenarioState
-						.hashCode());
-		result = prime * result
-				+ ((response == null) ? 0 : response.hashCode());
-		result = prime * result
-				+ ((scenarioName == null) ? 0 : scenarioName.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		StubMapping that = (StubMapping) o;
+		return Objects.equals(insertionIndex, that.insertionIndex) &&
+				Objects.equals(isTransient, that.isTransient) &&
+				Objects.equals(request, that.request) &&
+				Objects.equals(response, that.response) &&
+				Objects.equals(priority, that.priority) &&
+				Objects.equals(scenarioName, that.scenarioName) &&
+				Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
+				Objects.equals(newScenarioState, that.newScenarioState) &&
+				Objects.equals(scenario, that.scenario);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		StubMapping other = (StubMapping) obj;
-		if (insertionIndex != other.insertionIndex) {
-			return false;
-		}
-		if (newScenarioState == null) {
-			if (other.newScenarioState != null) {
-				return false;
-			}
-		} else if (!newScenarioState.equals(other.newScenarioState)) {
-			return false;
-		}
-		if (priority == null) {
-			if (other.priority != null) {
-				return false;
-			}
-		} else if (!priority.equals(other.priority)) {
-			return false;
-		}
-		if (request == null) {
-			if (other.request != null) {
-				return false;
-			}
-		} else if (!request.equals(other.request)) {
-			return false;
-		}
-		if (requiredScenarioState == null) {
-			if (other.requiredScenarioState != null) {
-				return false;
-			}
-		} else if (!requiredScenarioState.equals(other.requiredScenarioState)) {
-			return false;
-		}
-		if (response == null) {
-			if (other.response != null) {
-				return false;
-			}
-		} else if (!response.equals(other.response)) {
-			return false;
-		}
-		if (scenarioName == null) {
-			if (other.scenarioName != null) {
-				return false;
-			}
-		} else if (!scenarioName.equals(other.scenarioName)) {
-			return false;
-		}
-		return true;
+	public int hashCode() {
+		return Objects.hash(request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, insertionIndex, isTransient);
 	}
-
-	
-	
 }

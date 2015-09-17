@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.jetty9;
 
-import java.net.Socket;
+import org.eclipse.jetty.io.EndPoint;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnection;
 
-public class ActiveSocket {
+public class FaultInjectingHttpConnection extends HttpConnection {
 
-    private static final ThreadLocal<Socket> threadLocalSocket = new ThreadLocal<Socket>();
-
-    public static Socket get() {
-        return threadLocalSocket.get();
-    }
-
-    public static void clear() {
-        threadLocalSocket.remove();
-    }
-
-    public static void set(Socket socket) {
-        threadLocalSocket.set(socket);
+    public FaultInjectingHttpConnection(
+            HttpConfiguration config,
+            Connector connector,
+            EndPoint endPoint) {
+        super(
+                config,
+                connector,
+                endPoint
+        );
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
@@ -28,6 +29,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static java.util.Arrays.asList;
@@ -97,13 +99,15 @@ public class StubMappingJsonRecorder implements RequestListener {
         String fileId = idGenerator.generate();
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
-        ResponseDefinition responseToWrite = new ResponseDefinition();
-        responseToWrite.setStatus(response.getStatus());
-        responseToWrite.setBodyFileName(bodyFileName);
 
+        ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
+                .withStatus(response.getStatus())
+                .withBodyFile(bodyFileName);
         if (response.getHeaders().size() > 0) {
-            responseToWrite.setHeaders(response.getHeaders());
+            responseDefinitionBuilder.withHeaders(response.getHeaders());
         }
+
+        ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
 
         StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
 

@@ -33,6 +33,7 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
@@ -41,6 +42,7 @@ import javax.net.ssl.SSLHandshakeException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.SocketException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -53,6 +55,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class HttpsAcceptanceTest {
 
@@ -135,12 +138,17 @@ public class HttpsAcceptanceTest {
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
     }
 
-    @Test(expected = SSLHandshakeException.class)
-    public void rejectsWithoutClientCertificate() throws Exception {
+    @Test
+    public void rejectsWithoutClientCertificate() {
         startServerEnforcingClientCert(KEY_STORE_PATH, TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
-        contentFor(url("/https-test")); // this lacks the required client certificate
+        try {
+            contentFor(url("/https-test")); // this lacks the required client certificate
+            fail("Expected a SocketException or SSLHandshakeException to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getClass().getName(), Matchers.anyOf(is(SocketException.class.getName()), is(SSLHandshakeException.class.getName())));
+        }
     }
 
     @Test
@@ -178,7 +186,7 @@ public class HttpsAcceptanceTest {
 
         proxy = new WireMockServer(wireMockConfig().port(Options.DYNAMIC_PORT));
         proxy.start();
-        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:8443")));
+        proxy.stubFor(get(urlEqualTo("/client-cert-proxy-fail")).willReturn(aResponse().proxiedFrom("https://localhost:" + wireMockServer.httpsPort())));
 
         HttpGet get = new HttpGet("http://localhost:" + proxy.port() + "/client-cert-proxy-fail");
         HttpResponse response = httpClient.execute(get);
@@ -203,6 +211,7 @@ public class HttpsAcceptanceTest {
             contentFor(url);
         } catch (Exception e) {
             Throwable cause = e.getCause();
+            e.printStackTrace();
             if (cause != null) {
                 assertThat(e.getCause(), instanceOf(expectedClass));
             } else {

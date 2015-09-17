@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.http;
+package com.github.tomakehurst.wiremock.common;
 
-import org.apache.http.client.methods.HttpRequestBase;
+import static com.google.common.base.Charsets.UTF_8;
 
-import java.net.URI;
+public class Strings {
 
-public class GenericHttpUriRequest extends HttpRequestBase {
+    public static String stringFromBytes(byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
 
-    private final String methodName;
-
-    public GenericHttpUriRequest(String methodName, String url) {
-        this.methodName = methodName;
-        setURI(URI.create(url));
+        return new String(bytes, UTF_8);
     }
 
-    @Override
-    public String getMethod() {
-        return methodName;
+    public static byte[] bytesFromString(String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return str.getBytes();
     }
 }

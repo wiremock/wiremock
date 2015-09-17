@@ -42,7 +42,7 @@ public class AcceptanceTestBase {
 
     public static void setupServer(WireMockConfiguration options) {
         if(options.portNumber() == Options.DEFAULT_PORT) {
-            options.dynamicPort();
+			options.dynamicPort();
         }
 
         wireMockServer = new WireMockServer(options);

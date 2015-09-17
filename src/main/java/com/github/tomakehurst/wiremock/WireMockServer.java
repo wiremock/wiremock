@@ -29,8 +29,6 @@ import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.*;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty6.Jetty6HttpServerFactory;
-import com.github.tomakehurst.wiremock.jetty6.LoggerAdapter;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
@@ -43,7 +41,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.mortbay.log.Log;
 
 import java.util.List;
 
@@ -104,15 +101,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
                         )
                 )
         );
-        HttpServerFactory httpServerFactory = new Jetty6HttpServerFactory();
+        HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,
                 adminRequestHandler,
                 stubRequestHandler,
                 requestDelayControl
         );
-
-        Log.setLog(new LoggerAdapter(notifier));
 
         client = new WireMock(wireMockApp);
     }
