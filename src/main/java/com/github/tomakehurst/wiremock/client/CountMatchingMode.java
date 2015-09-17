@@ -1,6 +1,6 @@
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.common.BiPredicate;
+import java.util.function.BiPredicate;
 
 /**
  *
