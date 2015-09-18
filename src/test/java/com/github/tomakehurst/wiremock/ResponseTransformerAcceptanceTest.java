@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -40,6 +42,15 @@ public class ResponseTransformerAcceptanceTest {
                         .withBody("Original body")));
 
         assertThat(client.get("/response-transform-with-params").content(), is("John, 66, true"));
+    }
+
+    @Test
+    public void globalTransformAppliedWithLocalParameters() {
+        startWithExtensions(GlobalResponseTransformer.class);
+
+        wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
+
+        assertThat(client.get("/global-response-transform").firstHeader("X-Extra"), is("extra val"));
     }
 
     @SuppressWarnings("unchecked")
@@ -88,6 +99,26 @@ public class ResponseTransformerAcceptanceTest {
         @Override
         public String name() {
             return "stub-transformer-with-params";
+        }
+    }
+
+    public static class GlobalResponseTransformer extends ResponseTransformer {
+
+        @Override
+        public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+            return Response.Builder.like(response).but()
+                    .headers(response.getHeaders().plus(httpHeader("X-Extra", "extra val")))
+                    .build();
+        }
+
+        @Override
+        public String name() {
+            return "global-response-transformer";
+        }
+
+        @Override
+        public boolean applyGlobally() {
+            return true;
         }
     }
 }
