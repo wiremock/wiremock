@@ -70,9 +70,7 @@ public class RequestPattern {
 	}
 
 	public RequestPattern(String customMatcherName, Parameters matcherParameters) {
-		customMatcherDefinition = new CustomMatcherDefinition();
-		customMatcherDefinition.setName(customMatcherName);
-		customMatcherDefinition.setParameters(matcherParameters);
+		customMatcherDefinition = new CustomMatcherDefinition(customMatcherName, matcherParameters);
 	}
 
 	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {

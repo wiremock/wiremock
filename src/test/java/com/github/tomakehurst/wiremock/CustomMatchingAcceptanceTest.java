@@ -58,7 +58,7 @@ public class CustomMatchingAcceptanceTest {
 
         @Override
         public boolean isMatchedBy(Request request, Parameters parameters) {
-            String pathSegment = parameters.getString("pathSegment");
+            String pathSegment = parameters.getString("path");
             return request.getUrl().contains(pathSegment);
         }
     }
