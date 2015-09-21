@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -27,6 +29,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +56,26 @@ public class RequestPattern {
     private Map<String, ValuePattern> queryParamPatterns;
     private List<ValuePattern> bodyPatterns;
 
-    public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {
+	private final RequestMatcher defaultMatcher = new RequestMatcher() {
+		@Override
+		public boolean isMatchedBy(Request request, Parameters parameters) {
+			return RequestPattern.this.allElementsMatch(request);
+		}
+	};
+	private RequestMatcher matcher = defaultMatcher;
+	private CustomMatcherDefinition customMatcherDefinition;
+
+	public RequestPattern(RequestMatcher customMatcher) {
+		this.matcher = customMatcher;
+	}
+
+	public RequestPattern(String customMatcherName, Parameters matcherParameters) {
+		customMatcherDefinition = new CustomMatcherDefinition();
+		customMatcherDefinition.setName(customMatcherName);
+		customMatcherDefinition.setParameters(matcherParameters);
+	}
+
+	public RequestPattern(RequestMethod method, String url, Map<String, ValuePattern> headerPatterns, Map<String, ValuePattern> queryParamPatterns) {
         this.url = url;
         this.method = method;
         this.headerPatterns = headerPatterns;
@@ -94,7 +116,20 @@ public class RequestPattern {
 		}
 	}
 
+	public boolean isMatchedBy(Request request, Map<String, RequestMatcher> customMatchers) {
+		if (customMatcherDefinition != null) {
+			RequestMatcher requestMatcher = customMatchers.get(customMatcherDefinition.getName());
+			return requestMatcher.isMatchedBy(request, customMatcherDefinition.getParameters());
+		}
+
+		return matcher.isMatchedBy(request);
+	}
+
 	public boolean isMatchedBy(Request request) {
+		return isMatchedBy(request, Collections.<String, RequestMatcher>emptyMap());
+	}
+
+	private boolean allElementsMatch(Request request) {
 		return (urlIsMatch(request) &&
 				methodMatches(request) &&
                 requiredAbsentHeadersAreNotPresentIn(request) &&
@@ -103,7 +138,7 @@ public class RequestPattern {
 				bodyMatches(request));
 	}
 
-    private boolean urlIsMatch(Request request) {
+	private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
 		boolean matched;
 		if (url != null) {
@@ -262,6 +297,11 @@ public class RequestPattern {
 
 	public void setBodyPatterns(List<ValuePattern> bodyPatterns) {
 		this.bodyPatterns = bodyPatterns;
+	}
+
+	@JsonIgnore
+	public boolean hasCustomMatcher() {
+		return matcher != defaultMatcher;
 	}
 
 	@Override

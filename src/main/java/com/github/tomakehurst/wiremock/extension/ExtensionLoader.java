@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.util.Map;

@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
-import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,27 @@ public class RequestPatternBuilder {
     private Map<String, ValueMatchingStrategy> queryParameters = newLinkedHashMap();
     private Set<String> withoutHeaders = newHashSet();
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
+
+	private RequestMatcher customMatcher;
+	private String customMatcherName;
+	private Parameters customMatcherParams;
+
+	public RequestPatternBuilder(String customRequestMatcherName, Parameters customMatcherParams) {
+		this.customMatcherName = customRequestMatcherName;
+		this.customMatcherParams = customMatcherParams;
+	}
+
+	public static RequestPatternBuilder forCustomMatcher(RequestMatcher customMatcher) {
+		return new RequestPatternBuilder(customMatcher);
+	}
+
+	public static RequestPatternBuilder forCustomMatcher(String customRequestMatcherName, Parameters parameters) {
+		return new RequestPatternBuilder(customRequestMatcherName, parameters);
+	}
+
+	private RequestPatternBuilder(RequestMatcher customMatcher) {
+		this.customMatcher = customMatcher;
+	}
 	
 	public RequestPatternBuilder(RequestMethod method,
 			UrlMatchingStrategy urlMatchingStrategy) {
@@ -72,6 +94,14 @@ public class RequestPatternBuilder {
     }
 
 	public RequestPattern build() {
+		if (customMatcher != null) {
+			return new RequestPattern(customMatcher);
+		}
+
+		if (customMatcherName != null) {
+			return new RequestPattern(customMatcherName, customMatcherParams);
+		}
+
 		RequestPattern requestPattern = new RequestPattern();
 		requestPattern.setMethod(method);
 		urlMatchingStrategy.contributeTo(requestPattern);

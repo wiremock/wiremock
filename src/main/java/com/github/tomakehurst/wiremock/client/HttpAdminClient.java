@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -62,6 +63,11 @@ public class HttpAdminClient implements Admin {
 
 	@Override
 	public void addStubMapping(StubMapping stubMapping) {
+        if (stubMapping.getRequest().hasCustomMatcher()) {
+            throw new AdminException("Custom matchers can't be used when administering a remote WireMock server. " +
+                    "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
+        }
+
         postJsonAssertOkAndReturnBody(
                 urlFor(NewStubMappingTask.class),
                 Json.write(stubMapping),

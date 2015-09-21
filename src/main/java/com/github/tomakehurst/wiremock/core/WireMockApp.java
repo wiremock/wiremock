@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
@@ -61,6 +62,7 @@ public class WireMockApp implements StubServer, Admin {
             boolean requestJournalDisabled,
             Optional<Integer> maxRequestJournalEntries,
             Map<String, ResponseDefinitionTransformer> transformers,
+            Map<String, RequestMatcher> requestMatchers,
             FileSource rootFileSource,
             Container container) {
         this.requestDelayControl = requestDelayControl;
@@ -68,7 +70,7 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        stubMappings = new InMemoryStubMappings();
+        stubMappings = new InMemoryStubMappings(requestMatchers);
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
