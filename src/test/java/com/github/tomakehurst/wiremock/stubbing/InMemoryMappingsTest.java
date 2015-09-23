@@ -19,7 +19,9 @@ import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.DoNothingMatcherObserver;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -41,13 +43,15 @@ public class InMemoryMappingsTest {
 	private InMemoryStubMappings mappings;
 	private Mockery context;
 	private Notifier notifier;
-	
+	private RequestPatternMatcher requestPatternMatcher = new RequestPatternMatcher(new DoNothingMatcherObserver());
+
 	@Before
 	public void init() {
-		mappings = new InMemoryStubMappings();
 		context = new Mockery();
-		
+
 		notifier = context.mock(Notifier.class);
+
+		mappings = new InMemoryStubMappings(requestPatternMatcher);
 	}
 	
 	@After

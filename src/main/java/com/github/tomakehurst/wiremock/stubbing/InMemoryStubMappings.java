@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -33,7 +34,12 @@ public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
-	
+	private final RequestPatternMatcher requestPatternMatcher;
+
+	public InMemoryStubMappings(RequestPatternMatcher requestPatternMatcher) {
+		this.requestPatternMatcher = requestPatternMatcher;
+	}
+
 	@Override
 	public ResponseDefinition serveFor(Request request) {
 		StubMapping matchingMapping = find(
@@ -84,7 +90,7 @@ public class InMemoryStubMappings implements StubMappings {
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
-				return mapping.getRequest().isMatchedBy(request) &&
+				return requestPatternMatcher.matches(request, mapping.getRequest()) &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};

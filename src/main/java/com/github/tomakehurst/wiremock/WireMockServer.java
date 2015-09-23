@@ -83,7 +83,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 options.maxRequestJournalEntries(),
                 options.extensionsOfType(ResponseDefinitionTransformer.class),
                 fileSource,
-                this
+                this,
+                options.requestPatternMatcher()
         );
 
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(

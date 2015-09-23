@@ -15,20 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.matching.DoNothingMatcherObserver;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -39,8 +34,12 @@ import com.google.common.io.Resources;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-import static com.github.tomakehurst.wiremock.common.ProxySettings.*;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
@@ -256,6 +255,11 @@ public class CommandLineOptions implements Options {
         }
 
         return Collections.emptyMap();
+    }
+
+    @Override
+    public RequestPatternMatcher requestPatternMatcher() {
+        return new RequestPatternMatcher(new DoNothingMatcherObserver());
     }
 
     @Override

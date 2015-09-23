@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.matching.DoNothingMatcherObserver;
+import com.github.tomakehurst.wiremock.matching.RequestPatternMatcher;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -31,6 +33,7 @@ import static org.junit.Assert.assertThat;
 public class InMemoryRequestJournalTest {
 
     private LoggedRequest request1, request2, request3;
+    private RequestPatternMatcher requestPatternMatcher = new RequestPatternMatcher(new DoNothingMatcherObserver());
 
     @Before
     public void createTestRequests() {
@@ -42,7 +45,7 @@ public class InMemoryRequestJournalTest {
 
     @Test
     public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
-        RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent());
+        RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent(), requestPatternMatcher);
 
         journal.requestReceived(request1);
         journal.requestReceived(request1);
@@ -59,7 +62,7 @@ public class InMemoryRequestJournalTest {
                 .withUrl("/for/logging")
                 .build());
 
-        RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
+        RequestJournal journal = new InMemoryRequestJournal(Optional.of(1), requestPatternMatcher);
         journal.requestReceived(loggedRequest);
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
@@ -68,7 +71,7 @@ public class InMemoryRequestJournalTest {
 
     @Test
     public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
-        RequestJournal journal = new InMemoryRequestJournal(Optional.of(2));
+        RequestJournal journal = new InMemoryRequestJournal(Optional.of(2), requestPatternMatcher);
 
         journal.requestReceived(request1);
         journal.requestReceived(request2);
