@@ -264,6 +264,10 @@ public class WireMock {
 		return new MappingBuilder(RequestMethod.ANY, urlMatchingStrategy);
 	}
 
+	public static MappingBuilder requestMatching(String customRequestMatcherName) {
+		return new MappingBuilder(customRequestMatcherName, Parameters.empty());
+	}
+
 	public static MappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
 		return new MappingBuilder(customRequestMatcherName, parameters);
 	}
