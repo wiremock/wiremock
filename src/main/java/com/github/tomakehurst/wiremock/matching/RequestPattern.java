@@ -63,6 +63,7 @@ public class RequestPattern {
 		}
 	};
 	private RequestMatcher matcher = defaultMatcher;
+
 	private CustomMatcherDefinition customMatcherDefinition;
 
 	public RequestPattern(RequestMatcher customMatcher) {
@@ -238,6 +239,14 @@ public class RequestPattern {
         return queryParamPatterns;
     }
 
+	public CustomMatcherDefinition getCustomMatcher() {
+		return customMatcherDefinition;
+	}
+
+	public void setCustomMatcher(CustomMatcherDefinition customMatcherDefinition) {
+		this.customMatcherDefinition = customMatcherDefinition;
+	}
+
     public void setQueryParameters(Map<String, ValuePattern> queryParamPatterns) {
         this.queryParamPatterns = queryParamPatterns;
     }
@@ -382,4 +391,8 @@ public class RequestPattern {
             }
         };
     }
+
+	public static void main(String[] args) {
+		System.out.println(new RequestPattern("my-matcher", Parameters.one("itemCount", 5)).toString());
+	}
 }
