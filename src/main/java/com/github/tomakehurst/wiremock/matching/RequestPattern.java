@@ -392,7 +392,4 @@ public class RequestPattern {
         };
     }
 
-	public static void main(String[] args) {
-		System.out.println(new RequestPattern("my-matcher", Parameters.one("itemCount", 5)).toString());
-	}
 }
