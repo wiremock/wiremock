@@ -19,7 +19,7 @@ To add the standard WireMock JAR as a project dependency, put the following in t
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>2.0.3-beta</version>
+        <version>2.0.4-beta</version>
     </dependency>
 
 Or to use the standalone JAR:
@@ -29,7 +29,7 @@ Or to use the standalone JAR:
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock-standalone</artifactId>
-        <version>2.0.3-beta</version>
+        <version>2.0.4-beta</version>
     </dependency>
 
 
