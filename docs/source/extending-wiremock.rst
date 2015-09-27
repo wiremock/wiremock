@@ -146,3 +146,32 @@ The Java API also has a convenience method for adding transformers and parameter
     stubFor(get(urlEqualTo("/transform")).willReturn(
             aResponse()
                     .withTransformer("body-transformer", "newValue", 66)));
+
+
+Response transformation
+-----------------------
+A response transformer extension class is identical to ``ResponseDefinitionTransformer`` with the exception that it takes
+a ``Response`` in its transform method's parameter list and returns a ``Response``.
+
+.. code-block:: java
+
+    public static class StubResponseTransformerWithParams extends ResponseTransformer {
+
+            @Override
+            public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+                return Response.Builder.like(response)
+                        .but().body(parameters.getString("name") + ", "
+                                + parameters.getInt("number") + ", "
+                                + parameters.getBoolean("flag"))
+                        .build();
+            }
+
+            @Override
+            public String name() {
+                return "stub-transformer-with-params";
+            }
+    }
+
+
+Custom Matchers
+===============
