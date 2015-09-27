@@ -291,6 +291,6 @@ public class ResponseDefinition {
 
 	@Override
 	public String toString() {
-		return Json.write(this);
+		return this.wasConfigured? Json.write(this) : "(no response definition configured)";
 	}
 }

@@ -131,15 +131,15 @@ public class HttpHeaders {
 
     @Override
     public String toString() {
-        String outString = "HttpHeaders: ";
-
         if (headers.isEmpty()) {
-            return outString += "[]";
+            return "(no headers)\n";
         }
 
+        String outString = "";
         for (CaseInsensitiveKey key : headers.keySet()) {
             outString += key.toString() + ": " + headers.get(key).toString() + "\n";
         }
+
         return outString;
     }
 

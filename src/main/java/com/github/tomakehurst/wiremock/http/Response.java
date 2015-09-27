@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Iterables.transform;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -110,8 +111,14 @@ public class Response {
 
     @Override
     public String toString() {
-        return "Response [status=" + status + ", body=" + Arrays.toString(body) + ", headers=" + headers
-                + ", configured=" + configured + ", fault=" + fault + ", fromProxy=" + fromProxy + "]";
+        StringBuilder sb = new StringBuilder();
+        sb.append("HTTP/1.1 ").append(status).append("\n");
+        sb.append(headers).append("\n");
+        if (body != null) {
+            sb.append(getBodyAsString()).append("\n");
+        }
+
+        return sb.toString();
     }
 
     public static class Builder {

@@ -144,6 +144,6 @@ public class HttpHeadersTest {
     @Test
     public void toStringWhenHeadersEmpty() {
         HttpHeaders httpHeaders = new HttpHeaders();
-        assertThat(httpHeaders.toString().equals("HttpHeaders: []"), is(true));
+        assertThat(httpHeaders.toString().equals("(no headers)\n"), is(true));
     }
 }
