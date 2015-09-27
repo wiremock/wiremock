@@ -19,7 +19,7 @@ Among the changes we're making or considering are:
 * Dropping support for JDK 6 and 7, which allows us to use some newer libraries we previously couldn't.
 * Upgrading to Jetty 9.3, which is higher performing, and fixes some bugs.
 * Upgrading to JSONPath 2.0.0.
-* Improving the extensions API, probably to support transforming ``Response``s directly in addition to ``ResponseDefinition``s, but TBD.
+* Improving the extensions API, supporting ``Response`` transformations directly in addition to ``ResponseDefinition``.
 * Adding some additional type safety to the Java DSL.
 * Putting the standalone JAR under its own Maven artifact so it can have it's own POM (avoiding the need to exlclude all large swathes of dependencies).
 
