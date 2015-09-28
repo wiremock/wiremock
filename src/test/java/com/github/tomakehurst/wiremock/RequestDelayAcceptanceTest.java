@@ -37,7 +37,7 @@ import static org.junit.Assert.assertThat;
 
 public class RequestDelayAcceptanceTest {
 
-    private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
+    private static final int SOCKET_TIMEOUT_MILLISECONDS = 800;
     private static final int LONGER_THAN_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 3;
 
     private HttpClient httpClient;
