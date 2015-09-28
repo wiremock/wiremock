@@ -173,5 +173,71 @@ a ``Response`` in its transform method's parameter list and returns a ``Response
     }
 
 
-Custom Matchers
-===============
+Custom Request Matchers
+=======================
+If WireMock's standard set of request matching strategies isn't sufficient, you can register one or more
+request matcher classes containing your own logic.
+
+Custom matchers can be attached directly to stubs via the Java API when
+using the local admin interface (by calling ``stubFor(...)`` on ``WireMockServer`` or ``WireMockRule``). They can also be
+added via the extension mechanism and used with individual stubs by referring to them by name as described above for
+response transformers.
+
+As with response transformers, per stub mapping parameters can be passed to matchers.
+
+To add a matcher directly to a stub mapping:
+
+.. code-block:: java
+
+    wireMockServer.stubFor(requestMatching(new RequestMatcher() {
+        public boolean isMatchedBy(Request request, Parameters parameters) {
+            return request.getBody().length > 2048;
+        }
+    }).willReturn(aResponse().withStatus(422)));
+
+
+To create a matcher to be referred to by name, create a class extending ``RequestMatcher`` and register it as an extension
+as per the instructions at the top of this page e.g.
+
+.. code-block:: java
+
+    public static class BodyLengthMatcher extends RequestMatcher {
+
+            @Override
+            public String name() {
+                return "body-too-long";
+            }
+
+            @Override
+            public boolean isMatchedBy(Request request, Parameters parameters) {
+                int maxLength = parameters.getInt("maxLength");
+                return request.getBody().length > maxLength;
+            }
+        }
+
+
+Then define a stub with it:
+
+.. code-block:: java
+
+    stubFor(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+            .willReturn(aResponse().withStatus(422)));
+
+or via JSON:
+
+.. code-block:: javascript
+
+    {
+        "request" : {
+            "customMatcher" : {
+                "name" : "body-too-long",
+                "parameters" : {
+                    "maxLemgth" : 2048
+                }
+            }
+        },
+        "response" : {
+            "status" : 422
+        }
+    }
+

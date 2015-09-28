@@ -16,7 +16,10 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.collect.ImmutableMap;
@@ -229,6 +232,24 @@ public class Examples extends AcceptanceTestBase {
         System.out.println(get(urlEqualTo("/transform")).willReturn(
                 aResponse()
                         .withTransformer("body-transformer", "newValue", 66)).build());
+    }
+
+    @Test
+    public void customMatcherName() {
+        stubFor(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)));
+
+        System.out.println(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)).build());
+    }
+
+    @Test
+    public void customMatcher() {
+        wireMockServer.stubFor(requestMatching(new RequestMatcher() {
+            public boolean isMatchedBy(Request request, Parameters parameters) {
+                return request.getBody().length > 2048;
+            }
+        }).willReturn(aResponse().withStatus(422)));
     }
 
 }
