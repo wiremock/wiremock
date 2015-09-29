@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -24,7 +23,7 @@ import com.github.tomakehurst.wiremock.global.RequestDelayControl;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
@@ -62,7 +61,7 @@ public class WireMockApp implements StubServer, Admin {
             boolean requestJournalDisabled,
             Optional<Integer> maxRequestJournalEntries,
             Map<String, ResponseDefinitionTransformer> transformers,
-            Map<String, RequestMatcher> requestMatchers,
+            Map<String, RequestMatcherExtension> requestMatchers,
             FileSource rootFileSource,
             Container container) {
         this.requestDelayControl = requestDelayControl;

@@ -58,7 +58,7 @@ public class RequestPattern {
 
 	private final RequestMatcher defaultMatcher = new RequestMatcher() {
 		@Override
-		public boolean isMatchedBy(Request request, Parameters parameters) {
+		public boolean isMatchedBy(Request request) {
 			return RequestPattern.this.allElementsMatch(request);
 		}
 	};
@@ -115,9 +115,9 @@ public class RequestPattern {
 		}
 	}
 
-	public boolean isMatchedBy(Request request, Map<String, RequestMatcher> customMatchers) {
+	public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
 		if (customMatcherDefinition != null) {
-			RequestMatcher requestMatcher = customMatchers.get(customMatcherDefinition.getName());
+			RequestMatcherExtension requestMatcher = customMatchers.get(customMatcherDefinition.getName());
 			return requestMatcher.isMatchedBy(request, customMatcherDefinition.getParameters());
 		}
 
@@ -125,7 +125,7 @@ public class RequestPattern {
 	}
 
 	public boolean isMatchedBy(Request request) {
-		return isMatchedBy(request, Collections.<String, RequestMatcher>emptyMap());
+		return isMatchedBy(request, Collections.<String, RequestMatcherExtension>emptyMap());
 	}
 
 	private boolean allElementsMatch(Request request) {

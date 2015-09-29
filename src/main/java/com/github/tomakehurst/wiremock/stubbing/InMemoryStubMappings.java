@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -36,14 +36,14 @@ public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
-	private final Map<String, RequestMatcher> customMatchers;
+	private final Map<String, RequestMatcherExtension> customMatchers;
 
-	public InMemoryStubMappings(Map<String, RequestMatcher> customMatchers) {
+	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers) {
 		this.customMatchers = customMatchers;
 	}
 
 	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcher>emptyMap());
+		this(Collections.<String, RequestMatcherExtension>emptyMap());
 	}
 
 	@Override

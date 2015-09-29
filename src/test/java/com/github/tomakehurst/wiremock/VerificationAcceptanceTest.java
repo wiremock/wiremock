@@ -17,7 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
@@ -80,8 +84,8 @@ public class VerificationAcceptanceTest {
                     withHeader("X-Thing", "Three"));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
-                .withHeader("X-Thing", equalTo("Two"))
-                .withHeader("X-Thing", matching("Thr.*")));
+                    .withHeader("X-Thing", equalTo("Two"))
+                    .withHeader("X-Thing", matching("Thr.*")));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
                     .withHeader("X-Thing", equalTo("Three")));
@@ -265,6 +269,19 @@ public class VerificationAcceptanceTest {
             verify(patchRequestedFor(urlEqualTo("/patch/this"))
                     .withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
         }
+
+        @Test
+        public void verifiesRequestsViaCustomMatcher() {
+            testClient.get("/custom-match-this");
+            testClient.get("/custom-match-that");
+
+            wireMockServer.verify(2, requestMadeFor(new RequestMatcher() {
+                public boolean isMatchedBy(Request request) {
+                    return request.getUrl().contains("custom-match");
+                }
+            }));
+        }
+
     }
 
     public static class JournalDisabled {

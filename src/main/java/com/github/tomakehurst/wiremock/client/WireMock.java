@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -352,6 +353,14 @@ public class WireMock {
 
 	public static RequestPatternBuilder traceRequestedFor(UrlMatchingStrategy urlMatchingStrategy) {
 		return new RequestPatternBuilder(RequestMethod.TRACE, urlMatchingStrategy);
+	}
+
+	public static LocalRequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+		return LocalRequestPatternBuilder.forCustomMatcher(requestMatcher);
+	}
+
+	public static RequestPatternBuilder requestMadeFor(String customMatcherName, Parameters parameters) {
+		return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
 	}
 
 	public static void setGlobalFixedDelay(int milliseconds) {

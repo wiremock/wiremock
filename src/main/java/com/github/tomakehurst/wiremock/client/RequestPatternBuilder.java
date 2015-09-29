@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 
@@ -57,7 +58,7 @@ public class RequestPatternBuilder {
 		return new RequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
-	private RequestPatternBuilder(RequestMatcher customMatcher) {
+	protected RequestPatternBuilder(RequestMatcher customMatcher) {
 		this.customMatcher = customMatcher;
 	}
 	

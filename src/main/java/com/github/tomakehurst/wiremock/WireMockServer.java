@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.*;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -32,8 +29,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.*;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
@@ -85,7 +81,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
                 options.requestJournalDisabled(),
                 options.maxRequestJournalEntries(),
                 options.extensionsOfType(ResponseDefinitionTransformer.class),
-                options.extensionsOfType(RequestMatcher.class),
+                options.extensionsOfType(RequestMatcherExtension.class),
                 fileSource,
                 this
         );
@@ -267,6 +263,16 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(count, requestPatternBuilder);
+    }
+
+    @Override
+    public void verify(LocalRequestPatternBuilder requestPatternBuilder) {
+        verify(requestPatternBuilder.getUnderlyingBuilder());
+    }
+
+    @Override
+    public void verify(int count, LocalRequestPatternBuilder requestPatternBuilder) {
+        verify(count, requestPatternBuilder.getUnderlyingBuilder());
     }
 
     @Override
