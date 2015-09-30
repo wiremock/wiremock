@@ -23,7 +23,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,7 @@ public class ResponseDefinition {
 	private final String proxyBaseUrl;
 	private final Fault fault;
 	private final List<String> transformers;
+	private final Parameters transformerParameters;
 
 	private String browserProxyUrl;
 	private boolean wasConfigured = true;
@@ -59,8 +61,9 @@ public class ResponseDefinition {
 							  @JsonProperty("fixedDelayMilliseconds") Integer fixedDelayMilliseconds,
 							  @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
 							  @JsonProperty("fault") Fault fault,
-							  @JsonProperty("transformers") List<String> transformers) {
-		this(status, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
+							  @JsonProperty("transformers") List<String> transformers,
+							  @JsonProperty("extensionParameters") Parameters transformerParameters) {
+		this(status, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
 	}
 
 	public ResponseDefinition(int status,
@@ -73,8 +76,9 @@ public class ResponseDefinition {
 							  Integer fixedDelayMilliseconds,
 							  String proxyBaseUrl,
 							  Fault fault,
-							  List<String> transformers) {
-		this(status, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers);
+							  List<String> transformers,
+							  Parameters transformerParameters) {
+		this(status, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
 	}
 
 	private ResponseDefinition(int status,
@@ -85,7 +89,8 @@ public class ResponseDefinition {
 							   Integer fixedDelayMilliseconds,
 							   String proxyBaseUrl,
 							   Fault fault,
-							   List<String> transformers) {
+							   List<String> transformers,
+							   Parameters transformerParameters) {
 		this.status = status > 0 ? status : 200;
 
 		this.body = body;
@@ -97,18 +102,19 @@ public class ResponseDefinition {
 		this.proxyBaseUrl = proxyBaseUrl;
 		this.fault = fault;
 		this.transformers = transformers;
+		this.transformerParameters = transformerParameters;
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
-		this(statusCode, Body.fromString(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList());
+		this(statusCode, Body.fromString(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-		this(statusCode, Body.fromBytes(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList());
+		this(statusCode, Body.fromBytes(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public ResponseDefinition() {
-		this(HTTP_OK, Body.none(), null, null, null, null, null, null, Collections.<String>emptyList());
+		this(HTTP_OK, Body.none(), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public static ResponseDefinition notFound() {
@@ -156,7 +162,8 @@ public class ResponseDefinition {
 				original.fixedDelayMilliseconds,
 				original.proxyBaseUrl,
 				original.fault,
-				original.transformers
+				original.transformers,
+				original.transformerParameters
 		);
 		newResponseDef.wasConfigured = original.wasConfigured;
 		return newResponseDef;
@@ -253,7 +260,11 @@ public class ResponseDefinition {
 		return transformers;
 	}
 
-	public boolean hasTransformer(ResponseTransformer transformer) {
+	public Parameters getTransformerParameters() {
+		return transformerParameters;
+	}
+
+	public boolean hasTransformer(AbstractTransformer transformer) {
 		return transformers != null && transformers.contains(transformer.name());
 	}
 
@@ -273,7 +284,8 @@ public class ResponseDefinition {
 				Objects.equals(browserProxyUrl, that.browserProxyUrl) &&
 				Objects.equals(fault, that.fault) &&
 				Objects.equals(originalRequest, that.originalRequest) &&
-				Objects.equals(transformers, that.transformers);
+				Objects.equals(transformers, that.transformers) &&
+				Objects.equals(transformerParameters, that.transformerParameters);
 	}
 
 	@Override
@@ -283,6 +295,6 @@ public class ResponseDefinition {
 
 	@Override
 	public String toString() {
-		return Json.write(this);
+		return this.wasConfigured? Json.write(this) : "(no response definition configured)";
 	}
 }

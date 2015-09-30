@@ -17,9 +17,13 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.google.common.base.Optional;
 
+import java.util.List;
+
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -27,29 +31,54 @@ public class StubResponseRenderer implements ResponseRenderer {
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
+	private final List<ResponseTransformer> responseTransformers;
 
     public StubResponseRenderer(FileSource fileSource,
-                                GlobalSettingsHolder globalSettingsHolder,
-                                ProxyResponseRenderer proxyResponseRenderer) {
+								GlobalSettingsHolder globalSettingsHolder,
+								ProxyResponseRenderer proxyResponseRenderer,
+								List<ResponseTransformer> responseTransformers) {
         this.fileSource = fileSource;
         this.globalSettingsHolder = globalSettingsHolder;
         this.proxyResponseRenderer = proxyResponseRenderer;
-    }
+		this.responseTransformers = responseTransformers;
+	}
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
 		if (!responseDefinition.wasConfigured()) {
 			return Response.notConfigured();
 		}
-		
+
+		Response response = buildResponse(responseDefinition);
+		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
+	}
+
+	private Response buildResponse(ResponseDefinition responseDefinition) {
 		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
 		if (responseDefinition.isProxyResponse()) {
-	    	return proxyResponseRenderer.render(responseDefinition);
-	    } else {
-	    	return renderDirectly(responseDefinition);
-	    }
+			return proxyResponseRenderer.render(responseDefinition);
+		} else {
+			return renderDirectly(responseDefinition);
+		}
 	}
-	
+
+	private Response applyTransformations(Request request,
+										  ResponseDefinition responseDefinition,
+										  Response response,
+										  List<ResponseTransformer> transformers) {
+		if (transformers.isEmpty()) {
+			return response;
+		}
+
+		ResponseTransformer transformer = transformers.get(0);
+		Response newResponse =
+				transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
+						transformer.transform(request, response, fileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+						response;
+
+		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
+	}
+
 	private Response renderDirectly(ResponseDefinition responseDefinition) {
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())

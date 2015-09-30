@@ -15,8 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.google.common.base.Function;
+
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.base.Joiner.on;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
@@ -38,12 +43,38 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		ResponseDefinition responseDefinition = handleRequest(request);
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
+
+		if (logRequests()) {
+			notifier().info("Request received:\n" +
+					formatRequest(request) +
+					"\n\nMatched response definition:\n" + responseDefinition +
+					"\n\nResponse:\n" + response);
+		}
+
 		for (RequestListener listener: listeners) {
 			listener.requestReceived(request, response);
 		}
 		
 		return response;
 	}
-	
+
+	private static String formatRequest(Request request) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(request.getMethod()).append(" ").append(request.getUrl());
+		if (request.isBrowserProxyRequest()) {
+			sb.append(" (via browser proxy request)");
+		}
+		sb.append("\n\n");
+		sb.append(request.getHeaders());
+
+		if (request.getBody() != null) {
+			sb.append(request.getBodyAsString()).append("\n");
+		}
+
+		return sb.toString();
+	}
+
+	protected boolean logRequests() { return false; }
+
 	protected abstract ResponseDefinition handleRequest(Request request);
 }

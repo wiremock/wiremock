@@ -16,9 +16,13 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -102,7 +106,7 @@ public class Examples extends AcceptanceTestBase {
     public void binaryBody() {
         stubFor(get(urlEqualTo("/binary-body"))
                 .willReturn(aResponse()
-                        .withBody(new byte[] { 1, 2, 3, 4 })));
+                        .withBody(new byte[]{1, 2, 3, 4})));
     }
 
     @Test(expected=VerificationException.class)
@@ -205,4 +209,47 @@ public class Examples extends AcceptanceTestBase {
                         .withXPathNamespace("stuff", "http://foo.com"))
                 .willReturn(aResponse().withStatus(200)));
     }
+
+    @Test
+    public void transformerParameters() {
+        stubFor(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformerParameter("newValue", 66)
+                        .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))));
+
+        System.out.println(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformerParameter("newValue", 66)
+                        .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))).build());
+    }
+
+    @Test
+    public void transformerWithParameters() {
+        stubFor(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformer("body-transformer", "newValue", 66)));
+
+        System.out.println(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformer("body-transformer", "newValue", 66)).build());
+    }
+
+    @Test
+    public void customMatcherName() {
+        stubFor(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)));
+
+        System.out.println(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)).build());
+    }
+
+    @Test
+    public void customMatcher() {
+        wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
+            public boolean isMatchedBy(Request request, Parameters parameters) {
+                return request.getBody().length > 2048;
+            }
+        }).willReturn(aResponse().withStatus(422)));
+    }
+
 }

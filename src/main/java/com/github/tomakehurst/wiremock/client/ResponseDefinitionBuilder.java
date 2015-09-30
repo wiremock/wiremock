@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -24,9 +25,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Arrays.asList;
 
@@ -42,6 +45,7 @@ public class ResponseDefinitionBuilder {
 	protected String proxyBaseUrl;
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
+	protected Map<String, Object> transformerParameters = newHashMap();
 
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
@@ -104,6 +108,17 @@ public class ResponseDefinitionBuilder {
 
 	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
 		this.responseTransformerNames = asList(responseTransformerNames);
+		return this;
+	}
+
+	public ResponseDefinitionBuilder withTransformerParameter(String name, Object value) {
+		transformerParameters.put(name, value);
+		return this;
+	}
+
+	public ResponseDefinitionBuilder withTransformer(String transformerName, String parameterKey, Object parameterValue) {
+		withTransformers(transformerName);
+		withTransformerParameter(parameterKey, parameterValue);
 		return this;
 	}
 
@@ -171,6 +186,7 @@ public class ResponseDefinitionBuilder {
 
 	protected ResponseDefinition build(HttpHeaders additionalProxyRequestHeaders) {
 		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
+		Parameters transformerParameters = this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
 		return isBinaryBody() ?
 				new ResponseDefinition(
 						status,
@@ -183,7 +199,8 @@ public class ResponseDefinitionBuilder {
 						fixedDelayMilliseconds,
 						proxyBaseUrl,
 						fault,
-						responseTransformerNames) :
+						responseTransformerNames,
+						transformerParameters) :
 				new ResponseDefinition(
 						status,
 						stringBody,
@@ -195,7 +212,8 @@ public class ResponseDefinitionBuilder {
 						fixedDelayMilliseconds,
 						proxyBaseUrl,
 						fault,
-						responseTransformerNames
+						responseTransformerNames,
+						transformerParameters
 				);
 	}
 }
