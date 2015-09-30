@@ -218,7 +218,7 @@ final pomInfo = {
 publishing {
     repositories {
         maven {
-            URL localRepo = new File(System.getProperty('java.io.tmpdir')).toURI().toURL()
+            URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
             URL repoUrl = System.getProperty('LOCAL_PUBLISH') ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
             println "Publishing to $repoUrl"
             url repoUrl
