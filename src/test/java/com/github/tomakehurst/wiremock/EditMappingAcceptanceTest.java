@@ -1,0 +1,61 @@
+package com.github.tomakehurst.wiremock;
+
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+public class EditMappingAcceptanceTest extends AcceptanceTestBase {
+
+	public static final String MAPPING_REQUEST_WITH_UUID =
+			"{ 	" +
+			"	\"uuid\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n" +
+			"	\"request\": {										\n" +
+			"		\"method\": \"GET\",							\n" +
+			"		\"url\": \"/a/registered/resource\"				\n" +
+			"	},													\n" +
+			"	\"response\": {										\n" +
+			"		\"status\": 401,								\n" +
+			"		\"headers\": {									\n" +
+			"			\"Content-Type\": \"text/plain\"			\n" +
+			"		},												\n" +
+			"		\"body\": \"Not allowed!\"						\n" +
+			"	}													\n" +
+			"}														";
+
+	public static final String MODIFY_MAPPING_REQUEST_WITH_UUID =
+			"{ 	" +
+			"	\"uuid\":\"bff18359-a74e-4c3e-95f0-dab304cd3a5a\",	\n" +
+			"	\"request\": {										\n" +
+			"		\"method\": \"GET\",							\n" +
+			"		\"url\": \"/a/registered/resource\"				\n" +
+			"	},													\n" +
+			"	\"response\": {										\n" +
+			"		\"status\": 200,								\n" +
+			"		\"headers\": {									\n" +
+			"			\"Content-Type\": \"text/html\"				\n" +
+			"		},												\n" +
+			"		\"body\": \"OK\"								\n" +
+			"	}													\n" +
+			"}														";
+
+	@Test
+	public void editMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
+
+		testClient.addResponse(MAPPING_REQUEST_WITH_UUID);
+		WireMockResponse response = testClient.get("/a/registered/resource");
+
+		assertThat(response.statusCode(), is(401));
+		assertThat(response.content(), is("Not allowed!"));
+		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+
+		testClient.editMapping(MODIFY_MAPPING_REQUEST_WITH_UUID);
+
+		response = testClient.get("/a/registered/resource");
+
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.content(), is("OK"));
+		assertThat(response.firstHeader("Content-Type"), is("text/html"));
+	}
+}
