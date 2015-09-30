@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 
 import java.util.Collection;
 
@@ -45,13 +44,8 @@ public class JsonFileMappingsSaver implements MappingsSaver {
         });
 
         for (StubMapping mapping : transientStubs) {
-
-            String mappingFileName = mapping.getMappingFileName();
-
-            if (Strings.isNullOrEmpty(mappingFileName)) {
-                String fileId = idGenerator.generate();
-                mappingFileName = "saved-mapping-" + fileId + ".json";
-            }
+            String fileId = idGenerator.generate();
+            String mappingFileName = "saved-mapping-" + fileId + ".json";
             mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
             mapping.setTransient(false);
         }

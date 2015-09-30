@@ -36,15 +36,15 @@ public class JsonFileMappingsLoaderTest {
 
 	private static final String SAMPLE_REQUEST_MAPPING =
 			"{ 													             \n" +
-					"	\"request\": {									             \n" +
-					"		\"method\": \"GET\",						             \n" +
-					"		\"url\": \"/recorded/content\"				             \n" +
-					"	},												             \n" +
-					"	\"response\": {									             \n" +
-					"		\"status\": 200,							             \n" +
-					"		\"bodyFileName\": \"body-recorded-content-1$2!3.json\"   \n" +
-					"	}												             \n" +
-					"}													               ";
+			"	\"request\": {									             \n" +
+			"		\"method\": \"GET\",						             \n" +
+			"		\"url\": \"/recorded/content\"				             \n" +
+			"	},												             \n" +
+			"	\"response\": {									             \n" +
+			"		\"status\": 200,							             \n" +
+			"		\"bodyFileName\": \"body-recorded-content-1$2!3.json\"   \n" +
+			"	}												             \n" +
+			"}													               ";
 
 	private Mockery context;
 
@@ -80,6 +80,5 @@ public class JsonFileMappingsLoaderTest {
 		jsonFileMappingsLoader.loadMappingsInto(stubMappings);
 
 		assertThat(stubMappings.getAll(), hasSize(1));
-		assertThat(stubMappings.getAll().get(0).getMappingFileName(), is(mappingFileName));
 	}
 }

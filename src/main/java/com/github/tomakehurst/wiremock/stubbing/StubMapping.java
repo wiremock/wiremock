@@ -46,8 +46,6 @@ public class StubMapping {
 	private long insertionIndex;
     private boolean isTransient = true;
 
-	private String mappingFileName;
-
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		this.request = requestPattern;
 		this.response = response;
@@ -157,16 +155,6 @@ public class StubMapping {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
 		}
-	}
-
-	@JsonIgnore
-	public String getMappingFileName() {
-		return mappingFileName;
-	}
-
-	@JsonIgnore
-	public void setMappingFileName(String mappingFileName) {
-		this.mappingFileName = mappingFileName;
 	}
 
 	@JsonIgnore

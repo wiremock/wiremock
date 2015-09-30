@@ -80,7 +80,6 @@ public class InMemoryStubMappings implements StubMappings {
 
 		updateSenarioMapIfPresent(stubMapping);
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-		stubMapping.setMappingFileName(existingMapping.getMappingFileName());
 		stubMapping.setTransient(true);
 
 		mappings.replace(existingMapping, stubMapping);

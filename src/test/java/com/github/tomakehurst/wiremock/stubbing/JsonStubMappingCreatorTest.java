@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 public class JsonStubMappingCreatorTest {
 
 	private static final String JSON_WITH_UUID =
-			"{                                                                          \n" +
+					"{                                                                  \n" +
 					"  \"uuid\" : \"82cefb9d-e2b3-4286-96ec-b33e855ece31\",             \n" +
 					"  \"request\" : {                                                  \n" +
 					"    \"url\" : \"/xml/content\",                                    \n" +
@@ -43,7 +43,7 @@ public class JsonStubMappingCreatorTest {
 					"}";
 
 	private static final String JSON_WITHOUT_UUID =
-			"{                                                                          \n" +
+					"{                                                                  \n" +
 					"  \"request\" : {                                                  \n" +
 					"    \"url\" : \"/xml/content\",                                    \n" +
 					"    \"method\" : \"POST\",                                         \n" +
@@ -70,9 +70,7 @@ public class JsonStubMappingCreatorTest {
 	@Test
 	public void testAddMappingFromJsonWithUuid() throws Exception {
 
-		final String fileName = "DUMMY";
-
-		jsonStubMappingCreator.addMappingFrom(JSON_WITH_UUID, fileName);
+		jsonStubMappingCreator.addMappingFrom(JSON_WITH_UUID);
 
 		StubMapping stubMapping = Iterables.getFirst(stubMappings.getAll(), null);
 		assertThat(stubMapping, notNullValue());
@@ -80,15 +78,12 @@ public class JsonStubMappingCreatorTest {
 		assertThat(stubMapping.getResponse(), notNullValue());
 		assertThat(stubMapping.getUuid(), notNullValue());
 		assertThat(stubMapping.getUuid().toString(), is("82cefb9d-e2b3-4286-96ec-b33e855ece31"));
-		assertThat(stubMapping.getMappingFileName(), is(fileName));
 	}
 
 	@Test
 	public void testAddMappingFromJsonWithoutUuidGeneratesNewUuid() throws Exception {
 
-		final String fileName = "DUMMY";
-
-		jsonStubMappingCreator.addMappingFrom(JSON_WITHOUT_UUID, fileName);
+		jsonStubMappingCreator.addMappingFrom(JSON_WITHOUT_UUID);
 
 		StubMapping stubMapping = Iterables.getFirst(stubMappings.getAll(), null);
 		assertThat(stubMapping, notNullValue());
@@ -96,6 +91,5 @@ public class JsonStubMappingCreatorTest {
 		assertThat(stubMapping.getResponse(), notNullValue());
 		assertThat(stubMapping.getUuid(), notNullValue());
 		assertThat(stubMapping.getUuid().toString(), is(not("82cefb9d-e2b3-4286-96ec-b33e855ece31")));
-		assertThat(stubMapping.getMappingFileName(), is(fileName));
 	}
 }

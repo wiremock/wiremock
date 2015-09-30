@@ -43,26 +43,7 @@ public class JsonFileMappingsSaverTest {
 	}
 
 	@Test
-	public void testSaveMappingsWithFileName() throws Exception {
-
-		final String fileName = "mappingFile.json";
-		final StubMapping stubMapping = new StubMapping();
-		stubMapping.setTransient(true);
-		stubMapping.setMappingFileName(fileName);
-
-		final StubMappings stubMappings = new InMemoryStubMappings();
-		stubMappings.addMapping(stubMapping);
-
-		context.checking(new Expectations() {{
-			one(mappingsFileSource).writeTextFile(fileName, Json.write(stubMapping));
-		}});
-
-		jsonFileMappingsSaver.saveMappings(stubMappings);
-		assertThat(stubMapping.isTransient(), is(false));
-	}
-
-	@Test
-	public void testSaveMappingsWithoutFileName() throws Exception {
+	public void testSaveMappings() throws Exception {
 
 		final StubMapping stubMapping = new StubMapping();
 		stubMapping.setTransient(true);

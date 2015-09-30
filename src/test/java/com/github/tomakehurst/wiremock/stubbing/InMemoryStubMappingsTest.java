@@ -54,7 +54,6 @@ public class InMemoryStubMappingsTest {
 		assertThat(allMappings, hasSize(1));
 		assertThat(allMappings.get(0), is(newMapping));
 		assertThat(newMapping.getInsertionIndex(), is(existingMapping.getInsertionIndex()));
-		assertThat(newMapping.getMappingFileName(), is(existingMapping.getMappingFileName()));
 	}
 
 	@Test

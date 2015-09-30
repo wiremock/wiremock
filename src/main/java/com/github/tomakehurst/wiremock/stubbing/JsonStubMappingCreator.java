@@ -23,11 +23,10 @@ public class JsonStubMappingCreator {
 	public JsonStubMappingCreator(StubMappings stubMappings) {
 		this.stubMappings = stubMappings;
 	}
-
-	public void addMappingFrom(String mappingSpecJson, String mappingFileName) {
+	
+	public void addMappingFrom(String mappingSpecJson) {
 		StubMapping mapping = StubMapping.buildFrom(mappingSpecJson);
         mapping.setTransient(false);
-		mapping.setMappingFileName(mappingFileName);
 		stubMappings.addMapping(mapping);
 	}
 }
