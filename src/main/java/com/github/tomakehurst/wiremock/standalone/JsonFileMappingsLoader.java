@@ -29,7 +29,7 @@ import static com.google.common.collect.Iterables.filter;
 public class JsonFileMappingsLoader implements MappingsLoader {
 
 	private final FileSource mappingsFileSource;
-
+	
 	public JsonFileMappingsLoader(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 	}
@@ -42,7 +42,7 @@ public class JsonFileMappingsLoader implements MappingsLoader {
 			jsonStubMappingCreator.addMappingFrom(mappingFile.readContentsAsString(), getFileName(mappingFile, mappingsFileSource));
 		}
 	}
-
+	
 	private Predicate<TextFile> byFileExtension(final String extension) {
 		return new Predicate<TextFile>() {
 			public boolean apply(TextFile input) {

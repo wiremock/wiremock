@@ -30,8 +30,8 @@ import java.util.UUID;
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "uuid", "request", "response" })
 public class StubMapping {
-
-	public static final int DEFAULT_PRIORITY = 5;
+	
+	public static final int DEFAULT_PRIORITY = 5; 
 
 	private UUID uuid = UUID.randomUUID();
 
@@ -52,11 +52,11 @@ public class StubMapping {
 		this.request = requestPattern;
 		this.response = response;
 	}
-
+	
 	public StubMapping() {
 		//Concession to Jackson
 	}
-
+	
 	public static final StubMapping NOT_CONFIGURED =
 	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
 
@@ -80,11 +80,11 @@ public class StubMapping {
     public RequestPattern getRequest() {
 		return request;
 	}
-
+	
 	public ResponseDefinition getResponse() {
 		return response;
 	}
-
+	
 	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
@@ -128,7 +128,7 @@ public class StubMapping {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
-
+	
 	public String getScenarioName() {
 		return scenarioName;
 	}
@@ -152,7 +152,7 @@ public class StubMapping {
 	public void setNewScenarioState(String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
-
+	
 	public void updateScenarioStateIfRequired() {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
@@ -183,22 +183,22 @@ public class StubMapping {
 	public boolean isInScenario() {
 		return scenarioName != null;
 	}
-
+	
 	@JsonIgnore
 	public boolean modifiesScenarioState() {
 		return newScenarioState != null;
 	}
-
+	
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
 	}
-
+	
 	@JsonIgnore
 	public boolean requiresCurrentScenarioState() {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
-
+	
 	public int comparePriorityWith(StubMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;

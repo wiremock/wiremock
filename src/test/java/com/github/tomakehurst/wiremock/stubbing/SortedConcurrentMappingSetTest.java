@@ -31,9 +31,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SortedConcurrentMappingSetTest {
-
+	
 	private SortedConcurrentMappingSet mappingSet;
-
+	
 	@Before
 	public void init() {
 		mappingSet = new SortedConcurrentMappingSet();
@@ -48,7 +48,7 @@ public class SortedConcurrentMappingSetTest {
 		mappingSet.add(aMapping(1, "/priority1/1"));
 		mappingSet.add(aMapping(1, "/priority1/2"));
 		mappingSet.add(aMapping(1, "/priority1/3"));
-
+		
 		assertThat(mappingSet, hasExactly(
 				requestUrlIs("/priority1/3"),
 				requestUrlIs("/priority1/2"),
@@ -57,7 +57,7 @@ public class SortedConcurrentMappingSetTest {
 				requestUrlIs("/priority3/1"),
 				requestUrlIs("/priority6/1")));
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void supportsNullPriority() {
@@ -65,23 +65,23 @@ public class SortedConcurrentMappingSetTest {
 		mappingSet.add(aMapping(null, "/2"));
 		mappingSet.add(aMapping(null, "/3"));
 		mappingSet.add(aMapping(null, "/4"));
-
+		
 		assertThat(mappingSet, hasExactly(
 				requestUrlIs("/4"),
 				requestUrlIs("/3"),
 				requestUrlIs("/2"),
 				requestUrlIs("/1")));
 	}
-
+	
 	@Test
 	public void clearsCorrectly() {
 		mappingSet.add(aMapping(3, "/priority3/1"));
 		mappingSet.add(aMapping(3, "/priority3/2"));
 		mappingSet.add(aMapping(6, "/priority6/1"));
 		mappingSet.add(aMapping(1, "/priority1/1"));
-
+		
 		mappingSet.clear();
-
+		
 		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
 	}
 
@@ -139,7 +139,7 @@ public class SortedConcurrentMappingSetTest {
 		mapping.setPriority(priority);
 		return mapping;
 	}
-
+	
 	private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
 		return new TypeSafeMatcher<StubMapping>() {
 
@@ -151,7 +151,7 @@ public class SortedConcurrentMappingSetTest {
 			public boolean matchesSafely(StubMapping actualMapping) {
 				return actualMapping.getRequest().getUrl().equals(expectedUrl);
 			}
-
+			
 		};
 	}
 }

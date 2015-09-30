@@ -145,7 +145,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying));
     }
-
+	
 	public WireMockServer(int port) {
 		this(wireMockConfig().port(port));
 	}
@@ -153,11 +153,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public WireMockServer(int port, Integer httpsPort) {
         this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
-
+	
 	public WireMockServer() {
 		this(wireMockConfig());
 	}
-
+	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
 		wireMockApp.loadMappingsUsing(mappingsLoader);
 	}
@@ -169,17 +169,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public void addMockServiceRequestListener(RequestListener listener) {
 		stubRequestHandler.addRequestListener(listener);
 	}
-
+	
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
 	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
-
+	
 	public void stop() {
         httpServer.stop();
 	}
-
+	
 	public void start() {
         try {
 		    httpServer.start();

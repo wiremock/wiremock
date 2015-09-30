@@ -24,12 +24,12 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
 	private AtomicLong insertionCount;
 	private ConcurrentSkipListSet<StubMapping> mappingSet;
-
+	
 	public SortedConcurrentMappingSet() {
 		insertionCount = new AtomicLong();
 		mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
 	}
-
+	
 	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
 		return new Comparator<StubMapping>() {
 			public int compare(StubMapping one, StubMapping two) {
@@ -47,7 +47,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	public Iterator<StubMapping> iterator() {
 		return mappingSet.iterator();
 	}
-
+	
 	public void add(StubMapping mapping) {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
@@ -69,7 +69,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	public void clear() {
 		mappingSet.clear();
 	}
-
+	
 	@Override
 	public String toString() {
 		return mappingSet.toString();

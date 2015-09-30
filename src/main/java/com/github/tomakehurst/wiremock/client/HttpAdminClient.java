@@ -40,23 +40,23 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
-
+	
 	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 
 	private final String host;
 	private final int port;
 	private final String urlPathPrefix;
-
+	
 	private final HttpClient httpClient;
-
+	
 	public HttpAdminClient(String host, int port, String urlPathPrefix) {
 		this.host = host;
 		this.port = port;
 		this.urlPathPrefix = urlPathPrefix;
-
+		
 		httpClient = HttpClientFactory.createClient();
 	}
-
+	
 	public HttpAdminClient(String host, int port) {
 		this(host, port, "");
 	}

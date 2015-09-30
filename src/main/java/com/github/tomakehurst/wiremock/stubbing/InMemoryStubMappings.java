@@ -33,17 +33,17 @@ import static com.google.common.collect.Iterables.tryFind;
 
 
 public class InMemoryStubMappings implements StubMappings {
-
+	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
-
+	
 	@Override
 	public ResponseDefinition serveFor(Request request) {
 		StubMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
 				StubMapping.NOT_CONFIGURED);
-
+		
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
 		return copyOf(matchingMapping.getResponse());
@@ -99,7 +99,7 @@ public class InMemoryStubMappings implements StubMappings {
 		mappings.clear();
         scenarioMap.clear();
 	}
-
+	
 	@Override
 	public void resetScenarios() {
 		for (Scenario scenario: scenarioMap.values()) {

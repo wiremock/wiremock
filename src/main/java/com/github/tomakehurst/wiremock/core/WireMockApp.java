@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WireMockApp implements StubServer, Admin {
-
+    
     public static final String FILES_ROOT = "__files";
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
 
@@ -86,7 +86,7 @@ public class WireMockApp implements StubServer, Admin {
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
         mappingsLoader.loadMappingsInto(stubMappings);
     }
-
+    
     @Override
     public ResponseDefinition serveStubFor(Request request) {
         ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request);
@@ -170,7 +170,7 @@ public class WireMockApp implements StubServer, Admin {
             return VerificationResult.withRequestJournalDisabled();
         }
     }
-
+    
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         try {
