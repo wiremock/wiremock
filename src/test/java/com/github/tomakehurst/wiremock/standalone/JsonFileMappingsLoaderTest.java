@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -29,22 +28,9 @@ import org.junit.Test;
 import java.net.URI;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JsonFileMappingsLoaderTest {
-
-	private static final String SAMPLE_REQUEST_MAPPING =
-			"{ 													             \n" +
-			"	\"request\": {									             \n" +
-			"		\"method\": \"GET\",						             \n" +
-			"		\"url\": \"/recorded/content\"				             \n" +
-			"	},												             \n" +
-			"	\"response\": {									             \n" +
-			"		\"status\": 200,							             \n" +
-			"		\"bodyFileName\": \"body-recorded-content-1$2!3.json\"   \n" +
-			"	}												             \n" +
-			"}													               ";
 
 	private Mockery context;
 
@@ -67,7 +53,7 @@ public class JsonFileMappingsLoaderTest {
 		final TextFile textFile = new TextFile(fileUri);
 
 		final String mappingFileName = "testmapping.json";
-		final String mappingFileSourcePath = StringUtils.removeEnd(fileUri.getPath(), "/" + mappingFileName);
+		final String mappingFileSourcePath = fileUri.getPath().replace("/" + mappingFileName, "");
 
 
 		context.checking(new Expectations() {{
