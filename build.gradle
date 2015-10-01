@@ -317,7 +317,7 @@ task 'bump-version' << {
             'docs/source/conf.py'               : { "version = '2.0.${it}-beta'" },
             'docs/source/getting-started.rst'   : [
                     { "<version>2.0.${it}-beta</version>" },
-                    { "wiremock/2.0.${it}-beta/wiremock-2.0.${it}-beta-standalone.jar" },
+                    { "wiremock-standalone/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
                     { "wiremock:2.0.${it}-beta" },
                     { "wiremock-standalone:2.0.${it}-beta" },
             ],
