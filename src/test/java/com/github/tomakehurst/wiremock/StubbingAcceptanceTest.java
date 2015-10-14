@@ -152,8 +152,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void responseBodyLoadedFromFile() {
 		stubFor(get(urlEqualTo("/my/file")).willReturn(
 				aResponse()
-				.withStatus(200)
-				.withBodyFile("plain-example.txt")));
+						.withStatus(200)
+						.withBodyFile("plain-example.txt")));
 
 		WireMockResponse response = testClient.get("/my/file");
 
@@ -212,10 +212,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
 	public void responseWithFixedDelay() {
 	    stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
-                aResponse()
-                .withStatus(200)
-                .withBody("Content")
-                .withFixedDelay(500)));
+				aResponse()
+						.withStatus(200)
+						.withBody("Content")
+						.withFixedDelay(500)));
 
 	    long start = System.currentTimeMillis();
         testClient.get("/delayed/resource");
@@ -228,7 +228,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	public void highPriorityMappingMatchedFirst() {
 		stubFor(get(urlMatching("/priority/.*")).atPriority(10)
 				.willReturn(aResponse()
-                .withStatus(500)));
+						.withStatus(500)));
 		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
 
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
@@ -302,7 +302,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void stubbingPatch() {
         stubFor(patch(urlEqualTo("/a/registered/resource")).withRequestBody(equalTo("some body"))
-                .willReturn(aResponse().withStatus(204)));
+				.willReturn(aResponse().withStatus(204)));
 
         WireMockResponse response = testClient.patchWithBody("/a/registered/resource", "some body", "text/plain");
 
@@ -317,6 +317,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		WireMockResponse response = testClient.request("KILL", "/some/url");
 
 		assertThat(response.statusCode(), is(204));
+	}
+
+	@Test
+	public void settingStatusMessage() {
+		stubFor(get(urlEqualTo("/status-message")).willReturn(
+				aResponse()
+					.withStatus(500)
+					.withStatusMessage("The bees! They're in my eyes!")));
+
+		assertThat(testClient.get("/status-message").statusMessage(), is("The bees! They're in my eyes!"));
 	}
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

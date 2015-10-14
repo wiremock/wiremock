@@ -36,6 +36,7 @@ import static java.util.Arrays.asList;
 public class ResponseDefinitionBuilder {
 
 	protected int status = HTTP_OK;
+	protected String statusMessage;
 	protected byte[] binaryBody;
 	protected String stringBody;
 	protected String base64Body;
@@ -141,6 +142,11 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 
+	public ResponseDefinitionBuilder withStatusMessage(String message) {
+		this.statusMessage = message;
+		return this;
+	}
+
 	public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
 		private List<HttpHeader> additionalRequestHeaders = newArrayList();
@@ -190,6 +196,7 @@ public class ResponseDefinitionBuilder {
 		return isBinaryBody() ?
 				new ResponseDefinition(
 						status,
+						statusMessage,
 						binaryBody,
 						null,
 						base64Body,
@@ -203,6 +210,7 @@ public class ResponseDefinitionBuilder {
 						transformerParameters) :
 				new ResponseDefinition(
 						status,
+						statusMessage,
 						stringBody,
 						null,
 						base64Body,

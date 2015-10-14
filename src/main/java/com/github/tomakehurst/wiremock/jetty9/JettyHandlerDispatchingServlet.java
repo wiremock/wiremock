@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -114,7 +116,12 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
             return;
         }
 
-        httpServletResponse.setStatus(response.getStatus());
+		if (response.getStatusMessage() == null) {
+			httpServletResponse.setStatus(response.getStatus());
+		} else {
+			httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+		}
+
         for (HttpHeader header: response.getHeaders().all()) {
             for (String value: header.values()) {
                 httpServletResponse.addHeader(header.key(), value);
@@ -139,7 +146,7 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
             out.flush();
             out.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throwUnchecked(e);
         }
     }
 

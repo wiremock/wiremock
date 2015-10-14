@@ -41,6 +41,7 @@ public class ResponseDefinitionTest {
     public void copyProducesEqualObject() {
         ResponseDefinition response = new ResponseDefinition(
                 222,
+                null,
                 "blah",
                 null,
                 null,

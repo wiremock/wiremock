@@ -65,4 +65,7 @@ public class WireMockResponse {
 		return builder.build();
 	}
 
+	public String statusMessage() {
+		return httpResponse.getStatusLine().getReasonPhrase();
+	}
 }

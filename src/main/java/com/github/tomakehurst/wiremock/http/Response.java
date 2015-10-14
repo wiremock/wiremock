@@ -29,6 +29,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class Response {
 
 	private final int status;
+    private final String statusMessage;
 	private final byte[] body;
 	private final HttpHeaders headers;
 	private final boolean configured;
@@ -39,6 +40,7 @@ public class Response {
 	public static Response notConfigured() {
         Response response = new Response(
                 HTTP_NOT_FOUND,
+                null,
                 (byte[]) null,
                 noHeaders(),
                 false,
@@ -52,8 +54,9 @@ public class Response {
         return new Builder();
     }
 
-	public Response(int status, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
+	public Response(int status, String statusMessage, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
 		this.status = status;
+        this.statusMessage = statusMessage;
         this.body = body;
         this.headers = headers;
         this.configured = configured;
@@ -62,8 +65,9 @@ public class Response {
         this.renderedFromDefinition = renderedFromDefinition;
     }
 
-    public Response(int status, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
+    public Response(int status, String statusMessage, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
         this.status = status;
+        this.statusMessage = statusMessage;
         this.headers = headers;
         this.renderedFromDefinition = renderedFromDefinition;
         this.body = body == null ? null : body.getBytes(encodingFromContentTypeHeaderOrUtf8());
@@ -75,6 +79,10 @@ public class Response {
 	public int getStatus() {
 		return status;
 	}
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
 
     public byte[] getBody() {
         return body;
@@ -123,6 +131,7 @@ public class Response {
 
     public static class Builder {
         private int status = HTTP_OK;
+        private String statusMessage;
         private byte[] body;
         private String bodyString;
         private HttpHeaders headers = new HttpHeaders();
@@ -148,6 +157,11 @@ public class Response {
 
         public Builder status(int status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder statusMessage(String statusMessage) {
+            this.statusMessage = statusMessage;
             return this;
         }
 
@@ -198,11 +212,11 @@ public class Response {
 
         public Response build() {
             if (body != null) {
-                return new Response(status, body, headers, configured, fault, fromProxy, renderedFromDefinition);
+                return new Response(status, statusMessage, body, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else if (bodyString != null) {
-                return new Response(status, bodyString, headers, configured, fault, fromProxy, renderedFromDefinition);
+                return new Response(status, statusMessage, bodyString, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else {
-                return new Response(status, new byte[0], headers, configured, fault, fromProxy, renderedFromDefinition);
+                return new Response(status, statusMessage, new byte[0], headers, configured, fault, fromProxy, renderedFromDefinition);
             }
         }
     }

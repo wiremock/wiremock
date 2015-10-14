@@ -36,6 +36,7 @@ import static java.net.HttpURLConnection.*;
 public class ResponseDefinition {
 
 	private final int status;
+	private final String statusMessage;
 	private final Body body;
 	private final String bodyFileName;
 	private final HttpHeaders headers;
@@ -52,6 +53,7 @@ public class ResponseDefinition {
 
 	@JsonCreator
 	public ResponseDefinition(@JsonProperty("status") int status,
+							  @JsonProperty("statusMessage") String statusMessage,
 							  @JsonProperty("body") String body,
 							  @JsonProperty("jsonBody") JsonNode jsonBody,
 							  @JsonProperty("base64Body") String base64Body,
@@ -63,10 +65,11 @@ public class ResponseDefinition {
 							  @JsonProperty("fault") Fault fault,
 							  @JsonProperty("transformers") List<String> transformers,
 							  @JsonProperty("extensionParameters") Parameters transformerParameters) {
-		this(status, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
+		this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
 	}
 
 	public ResponseDefinition(int status,
+							  String statusMessage,
 							  byte[] body,
 							  JsonNode jsonBody,
 							  String base64Body,
@@ -78,10 +81,11 @@ public class ResponseDefinition {
 							  Fault fault,
 							  List<String> transformers,
 							  Parameters transformerParameters) {
-		this(status, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
+		this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, fault, transformers, transformerParameters);
 	}
 
 	private ResponseDefinition(int status,
+							   String statusMessage,
 							   Body body,
 							   String bodyFileName,
 							   HttpHeaders headers,
@@ -92,6 +96,7 @@ public class ResponseDefinition {
 							   List<String> transformers,
 							   Parameters transformerParameters) {
 		this.status = status > 0 ? status : 200;
+		this.statusMessage = statusMessage;
 
 		this.body = body;
 		this.bodyFileName = bodyFileName;
@@ -106,15 +111,15 @@ public class ResponseDefinition {
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
-		this(statusCode, Body.fromString(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-		this(statusCode, Body.fromBytes(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public ResponseDefinition() {
-		this(HTTP_OK, Body.none(), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
 	}
 
 	public static ResponseDefinition notFound() {
@@ -151,6 +156,7 @@ public class ResponseDefinition {
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 		ResponseDefinition newResponseDef = new ResponseDefinition(
 				original.status,
+				original.statusMessage,
 				original.body,
 				original.bodyFileName,
 				original.headers,
@@ -175,6 +181,10 @@ public class ResponseDefinition {
 
 	public int getStatus() {
 		return status;
+	}
+
+	public String getStatusMessage() {
+		return statusMessage;
 	}
 
 	public String getBody() {
