@@ -58,6 +58,41 @@ To create the stub described above via the JSON API, the following document can 
 HTTP methods currently supported are: ``GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS``. You can specify ``ANY`` if you
 want the stub mapping to match on any request method.
 
+
+Setting the response status message
+-----------------------------------
+In addition to the status code, the status message can optionally also be set:
+
+.. code-block:: java
+
+    @Test
+    public void statusMessage() {
+        stubFor(get(urlEqualTo("/some/thing"))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withStatusMessage("Everything was just fine!")
+                    .withHeader("Content-Type", "text/plain")));
+
+        assertThat(testClient.get("/some/thing").statusCode(), is(200));
+        assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
+    }
+
+Or
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+    		"method": "GET",
+    		"url": "/some/thing"
+    	},
+    	"response": {
+    		"status": 200,
+    		"statusMessage": "Everything was just fine!"
+    	}
+    }
+
+
 .. _stubbing-url-matching:
 
 URL matching
