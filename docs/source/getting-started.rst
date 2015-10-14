@@ -108,6 +108,25 @@ Options object to either (non-deprecated) rule's constructor:
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).httpsPort(8443));
 
 
+Random port numbers
+-------------------
+You can have WireMock (or more accurately the JVM) pick random, free HTTP and HTTPS ports (which is a great idea if you
+want to run your tests concurrently):
+
+.. code-block:: java
+
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
+
+
+Then find out which ports to use from your tests as follows:
+
+.. code-block:: java
+
+    int port = wireMockRule.port();
+    int httpsPort = wireMockRule.httpsPort();
+
+
 
 Non-JUnit and general Java usage
 ================================
