@@ -16,10 +16,12 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class HttpHeaderTest {
@@ -80,5 +82,31 @@ public class HttpHeaderTest {
         assertThat(header.hasValueMatching(ValuePattern.matches("value.*")), is(true));
         assertThat(header.hasValueMatching(ValuePattern.equalTo("value2")), is(true));
         assertThat(header.hasValueMatching(ValuePattern.equalTo("value4")), is(false));
+    }
+
+    @Test
+    public void shouldEqualWhenIdentical() throws Exception {
+        HttpHeader header1 = new HttpHeader("My-Header", "value1");
+        HttpHeader header2 = new HttpHeader("My-Header", "value1");
+
+        assertThat(header1.equals(header2), is(true));
+        assertThat(header1.hashCode(), equalTo(header2.hashCode()));
+    }
+
+    @Test
+    public void shouldEqualWhenKeysHaveDifferentCases() throws Exception {
+        HttpHeader header1 = new HttpHeader("MY-HEADER", "value1", "value2");
+        HttpHeader header2 = new HttpHeader("my-header", "value1", "value2");
+
+        assertThat(header1.equals(header2), is(true));
+        assertThat(header1.hashCode(), equalTo(header2.hashCode()));
+    }
+
+    @Test
+    public void shouldNotEqualWhenContentsAreDifferent() throws Exception {
+        HttpHeader header1 = new HttpHeader("My-Header", "value1");
+        HttpHeader header2 = new HttpHeader("My-Header", "VALUE1");
+
+        assertThat(header1.equals(header2), is(false));
     }
 }
