@@ -211,9 +211,9 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultsContainerThreadsTo200() {
+    public void defaultsContainerThreadsTo10() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.containerThreads(), is(200));
+        assertThat(options.containerThreads(), is(10));
     }
 
     @Test

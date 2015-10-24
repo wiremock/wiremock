@@ -206,14 +206,14 @@ class JettyHttpServer implements HttpServer {
     }
 
     private ServerConnector createServerConnector(JettySettings jettySettings, int port, ConnectionFactory... connectionFactories) {
-        int acceptors = jettySettings.getAcceptors().or(-1);
+        int acceptors = jettySettings.getAcceptors().or(2);
         ServerConnector connector = new ServerConnector(
                 jettyServer,
                 null,
                 null,
                 null,
                 acceptors,
-                -1,
+                2,
                 connectionFactories
         );
         connector.setPort(port);
