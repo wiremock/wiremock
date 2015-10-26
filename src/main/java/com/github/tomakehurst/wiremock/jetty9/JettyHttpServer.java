@@ -49,6 +49,7 @@ import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static com.github.tomakehurst.wiremock.jetty9.JettyHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT;
 
@@ -102,6 +103,8 @@ class JettyHttpServer implements HttpServer {
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[]{adminContext, mockServiceContext});
         jettyServer.setHandler(handlers);
+
+        jettyServer.setStopTimeout(0);
     }
 
     @Override
@@ -130,7 +133,7 @@ class JettyHttpServer implements HttpServer {
             jettyServer.stop();
             jettyServer.join();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throwUnchecked(e);
         }
     }
 
@@ -217,7 +220,12 @@ class JettyHttpServer implements HttpServer {
                 connectionFactories
         );
         connector.setPort(port);
+
+        connector.setStopTimeout(0);
+        connector.getSelectorManager().setStopTimeout(0);
+
         setJettySettings(jettySettings, connector);
+
         return connector;
     }
 

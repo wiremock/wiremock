@@ -34,7 +34,7 @@ def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
         jackson: '2.6.1',
-        jetty  : '9.2.8.v20150217'
+        jetty  : '9.2.13.v20150730'
 ]
 
 repositories {
