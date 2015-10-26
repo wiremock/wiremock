@@ -35,6 +35,18 @@ To check for a precise number of requests matching the criteria, use this form:
     verify(3, postRequestedFor(urlEqualTo("/three/times")));
 
 
+Or you can use some more advanced comparison operators:
+
+.. code-block:: java
+
+    verify(lessThan(5), postRequestedFor(urlEqualTo("/many")));
+    verify(lessThanOrExactly(5), postRequestedFor(urlEqualTo("/many")));
+    verify(exactly(5), postRequestedFor(urlEqualTo("/many")));
+    verify(moreThanOrExactly(5), postRequestedFor(urlEqualTo("/many")));
+    verify(moreThan(5), postRequestedFor(urlEqualTo("/many")));
+
+
+
 Via JSON + HTTP
 ---------------
 
