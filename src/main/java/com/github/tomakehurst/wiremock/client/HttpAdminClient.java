@@ -40,18 +40,18 @@ import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
 
-    private static final String ADMIN_URL_PREFIX = "%s://%s:%d%s/__admin";
+	private static final String ADMIN_URL_PREFIX = "%s://%s:%d%s/__admin";
 
-    private final String scheme;
-    private final String host;
-    private final int port;
-    private final String urlPathPrefix;
+	private final String scheme;
+	private final String host;
+	private final int port;
+	private final String urlPathPrefix;
 
-    private final HttpClient httpClient;
+	private final HttpClient httpClient;
 
-    protected String getScheme() {
+	protected String getScheme() {
         return scheme;
-    }
+	}
 
     protected String getHost() {
         return host;
@@ -94,13 +94,13 @@ public class HttpAdminClient implements Admin {
         this(host, port, "");
     }
 
-    @Override
-    public void addStubMapping(StubMapping stubMapping) {
+	@Override
+	public void addStubMapping(StubMapping stubMapping) {
         postJsonAssertOkAndReturnBody(
                 urlFor(NewStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_CREATED);
-    }
+	}
 
     public void addStubMapping( MappingBuilder mappingBuilder) {
         addStubMapping(mappingBuilder.build());
@@ -120,9 +120,9 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void resetMappings() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
-    }
+	public void resetMappings() {
+		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
+	}
 
     @Override
     public void resetRequests() {
@@ -130,23 +130,23 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void resetScenarios() {
+	public void resetScenarios() {
         postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
-    }
+	}
 
     @Override
     public void resetToDefaultMappings() {
         postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null, HTTP_OK);
     }
 
-    @Override
-    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
-        String body = postJsonAssertOkAndReturnBody(
+	@Override
+	public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+		String body = postJsonAssertOkAndReturnBody(
                 urlFor(GetRequestCountTask.class),
                 Json.write(requestPattern),
                 HTTP_OK);
-        return VerificationResult.from(body);
-    }
+		return VerificationResult.from(body);
+	}
 
     public VerificationResult countRequestsMatching(RequestPatternBuilder requestPatternBuilder) {
         return countRequestsMatching(requestPatternBuilder.build());
@@ -162,12 +162,12 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void updateGlobalSettings(GlobalSettings settings) {
+	public void updateGlobalSettings(GlobalSettings settings) {
         postJsonAssertOkAndReturnBody(
                 urlFor(GlobalSettingsUpdateTask.class),
                 Json.write(settings),
                 HTTP_OK);
-    }
+	}
 
     @Override
     public void addSocketAcceptDelay(RequestDelaySpec spec) {
@@ -187,17 +187,17 @@ public class HttpAdminClient implements Admin {
     }
 
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
-        HttpPost post = new HttpPost(url);
-        try {
-            if (json != null) {
-                post.setEntity(new StringEntity(json, APPLICATION_JSON));
-            }
-            HttpResponse response = httpClient.execute(post);
+		HttpPost post = new HttpPost(url);
+		try {
+			if (json != null) {
+				post.setEntity(new StringEntity(json, APPLICATION_JSON));
+			}
+			HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != expectedStatus) {
-                throw new VerificationException(
+			if (statusCode != expectedStatus) {
+				throw new VerificationException(
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
-            }
+			}
 
             return getEntityAsStringAndCloseStream(response);
         } catch (Exception e) {
