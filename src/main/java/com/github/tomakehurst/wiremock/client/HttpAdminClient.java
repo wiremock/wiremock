@@ -40,26 +40,60 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
-	
-	private static final String ADMIN_URL_PREFIX = "http://%s:%d%s/__admin";
 
-	private final String host;
+    private static final String ADMIN_URL_PREFIX = "%s://%s:%d%s/__admin";
+
+    private final String scheme;
+    private final String host;
 	private final int port;
 	private final String urlPathPrefix;
-	
+
 	private final HttpClient httpClient;
-	
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+    public String getUrlPathPrefix() {
+        return urlPathPrefix;
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    protected HttpAdminClient( HttpAdminClientBuilder builder) {
+        this.scheme =  builder.getScheme();
+        this.host = builder.getHost();
+        this.port = builder.getPort();
+        this.urlPathPrefix = builder.getUrlPathPrefix();
+
+        HttpClient thisHttpClient = builder.getHttpClient();
+        if (thisHttpClient == null) {
+            thisHttpClient = HttpClientFactory.createClient();
+        }
+        this.httpClient = thisHttpClient;
+    }
+
 	public HttpAdminClient(String host, int port, String urlPathPrefix) {
+        this.scheme = "http";
 		this.host = host;
 		this.port = port;
 		this.urlPathPrefix = urlPathPrefix;
-		
+
 		httpClient = HttpClientFactory.createClient();
 	}
-	
+
 	public HttpAdminClient(String host, int port) {
 		this(host, port, "");
-	}
+    }
 
 	@Override
 	public void addStubMapping(StubMapping stubMapping) {
@@ -114,7 +148,7 @@ public class HttpAdminClient implements Admin {
                 Json.write(requestPattern),
                 HTTP_OK);
 		return VerificationResult.from(body);
-	}
+    }
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
@@ -169,7 +203,7 @@ public class HttpAdminClient implements Admin {
         }
     }
 
-    private String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
+    protected String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
         HttpGet get = new HttpGet(url);
         try {
             HttpResponse response = httpClient.execute(get);
@@ -187,6 +221,69 @@ public class HttpAdminClient implements Admin {
 
     private String urlFor(Class<? extends AdminTask> taskClass) {
         RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
-        return String.format(ADMIN_URL_PREFIX + requestSpec.path(), host, port, urlPathPrefix);
+        return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
+    }
+
+
+    public static class HttpAdminClientBuilder {
+
+        private String scheme = "http";
+        private String host;
+        private int port;
+        private String urlPathPrefix = "";
+        private HttpClient httpClient;
+        public HttpAdminClientBuilder(String host, int port) {
+            this.host = host;
+            this.port = port;
+        }
+
+        public HttpClient getHttpClient() {
+            return httpClient;
+        }
+
+        public HttpAdminClientBuilder setHttpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return this;
+        }
+
+        public String getScheme() {
+            return scheme;
+        }
+
+        public HttpAdminClientBuilder setScheme(String scheme) {
+            this.scheme = scheme;
+            return this;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public HttpAdminClientBuilder setHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public String getUrlPathPrefix() {
+            return urlPathPrefix;
+        }
+
+        public HttpAdminClientBuilder setUrlPathPrefix(String urlPathPrefix) {
+            this.urlPathPrefix = urlPathPrefix;
+            return this;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public HttpAdminClientBuilder setPort(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public HttpAdminClient build() {
+            return new HttpAdminClient(this);
+        }
     }
 }
