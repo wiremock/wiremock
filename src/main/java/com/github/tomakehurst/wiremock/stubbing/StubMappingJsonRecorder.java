@@ -23,13 +23,17 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.skyscreamer.jsonassert.JSONCompareMode;
+import com.google.common.base.Predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
 import static java.util.Arrays.asList;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
@@ -40,6 +44,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     private final Admin admin;
     private final List<CaseInsensitiveKey> headersToMatch;
     private IdGenerator idGenerator;
+    private final List<LoggedRequest> recorded = new ArrayList<LoggedRequest>();
 
     public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
         this.mappingsFileSource = mappingsFileSource;
@@ -49,13 +54,38 @@ public class StubMappingJsonRecorder implements RequestListener {
         idGenerator = new VeryShortIdGenerator();
     }
 
+//    @Override
+//    public void requestReceived(Request request, Response response) {
+//        RequestPattern requestPattern = buildRequestPatternFrom(request);
+//
+//        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+//            notifier().info(String.format("Recording mappings for %s", request.getUrl()));
+//            writeToMappingAndBodyFile(request, response, requestPattern);
+//        } else {
+//            notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
+//        }
+//    }
+
+    /* 
+     * Provisional fix for issue #90 to correctly handle multiple concurrent identical 
+     * requests by checking against a list of recorded requests rather than a list of
+     * received requests.
+     * 
+     * 'synchronized' is required to ensure that only one of the request/response pairs is
+     * recorded for the case where responses are received 'simultaneously' (i.e. within the
+     * execution time of this method).
+     * 
+     * @see com.github.tomakehurst.wiremock.ConcurrentDelayedResponsesFixTest
+     *
+     */
     @Override
-    public void requestReceived(Request request, Response response) {
+    public synchronized void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
 
-        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+        if (requestNotAlreadyRecorded(requestPattern) && response.isFromProxy()) {
             notifier().info(String.format("Recording mappings for %s", request.getUrl()));
             writeToMappingAndBodyFile(request, response, requestPattern);
+            recorded.add(LoggedRequest.createFrom(request));
         } else {
             notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
         }
@@ -111,6 +141,18 @@ public class StubMappingJsonRecorder implements RequestListener {
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }
 
+    private boolean requestNotAlreadyRecorded(RequestPattern requestPattern) {
+        if (requestNotAlreadyReceived(requestPattern)) {
+            return true;
+        }
+    
+        if (size(filter(recorded, matchedBy(requestPattern))) < 1) {
+            return true;
+        }
+        
+        return false;
+    }
+
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
         VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
         verificationResult.assertRequestJournalEnabled();
@@ -119,6 +161,14 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
+    }
+
+    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+        return new Predicate<Request>() {
+            public boolean apply(Request input) {
+                return requestPattern.isMatchedBy(input);
+            }
+        };
     }
 
 }
