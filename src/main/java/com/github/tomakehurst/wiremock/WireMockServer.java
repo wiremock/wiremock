@@ -231,6 +231,10 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
         return httpServer.httpsPort();
     }
 
+    public Options getOptions() {
+        return options;
+    }
+
     public boolean isRunning() {
         return httpServer.isRunning();
     }

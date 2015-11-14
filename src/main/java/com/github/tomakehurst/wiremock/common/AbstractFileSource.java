@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -144,4 +145,16 @@ public abstract class AbstractFileSource implements FileSource {
     	};
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractFileSource that = (AbstractFileSource) o;
+        return Objects.equal(rootDirectory, that.rootDirectory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(rootDirectory);
+    }
 }

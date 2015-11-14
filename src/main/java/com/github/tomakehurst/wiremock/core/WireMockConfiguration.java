@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.common.base.Optional;
@@ -34,7 +35,7 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-public class WireMockConfiguration implements Options {
+public final class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
@@ -67,6 +68,10 @@ public class WireMockConfiguration implements Options {
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
+    }
+
+    public static WireMockConfiguration opts() {
+        return wireMockConfig();
     }
 
     public WireMockConfiguration port(int portNumber) {
@@ -312,5 +317,39 @@ public class WireMockConfiguration implements Options {
                 return extensionType.isAssignableFrom(input.getValue().getClass());
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WireMockConfiguration that = (WireMockConfiguration) o;
+        return Objects.equal(portNumber, that.portNumber) &&
+                Objects.equal(containerThreads, that.containerThreads) &&
+                Objects.equal(httpsPort, that.httpsPort) &&
+                Objects.equal(needClientAuth, that.needClientAuth) &&
+                Objects.equal(browserProxyingEnabled, that.browserProxyingEnabled) &&
+                Objects.equal(requestJournalDisabled, that.requestJournalDisabled) &&
+                Objects.equal(preserveHostHeader, that.preserveHostHeader) &&
+                Objects.equal(bindAddress, that.bindAddress) &&
+                Objects.equal(keyStorePath, that.keyStorePath) &&
+                Objects.equal(keyStorePassword, that.keyStorePassword) &&
+                Objects.equal(trustStorePath, that.trustStorePath) &&
+                Objects.equal(trustStorePassword, that.trustStorePassword) &&
+                Objects.equal(proxySettings, that.proxySettings) &&
+                Objects.equal(filesRoot, that.filesRoot) &&
+                Objects.equal(notifier, that.notifier) &&
+                Objects.equal(maxRequestJournalEntries, that.maxRequestJournalEntries) &&
+                Objects.equal(matchingHeaders, that.matchingHeaders) &&
+                Objects.equal(proxyHostHeader, that.proxyHostHeader) &&
+                Objects.equal(jettyAcceptors, that.jettyAcceptors) &&
+                Objects.equal(jettyAcceptQueueSize, that.jettyAcceptQueueSize) &&
+                Objects.equal(jettyHeaderBufferSize, that.jettyHeaderBufferSize) &&
+                Objects.equal(extensions, that.extensions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(portNumber, bindAddress, containerThreads, httpsPort, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth, browserProxyingEnabled, proxySettings, filesRoot, notifier, requestJournalDisabled, maxRequestJournalEntries, matchingHeaders, preserveHostHeader, proxyHostHeader, jettyAcceptors, jettyAcceptQueueSize, jettyHeaderBufferSize, extensions);
     }
 }

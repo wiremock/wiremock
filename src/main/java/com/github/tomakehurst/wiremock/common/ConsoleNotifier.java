@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Objects;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +24,7 @@ import java.util.Date;
 import static java.lang.System.err;
 import static java.lang.System.out;
 
-public class ConsoleNotifier implements Notifier {
+public final class ConsoleNotifier implements Notifier {
 
     private final boolean verbose;
 
@@ -55,5 +57,18 @@ public class ConsoleNotifier implements Notifier {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
         String date = df.format(new Date());
         return String.format("%s %s", date, message);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConsoleNotifier that = (ConsoleNotifier) o;
+        return Objects.equal(verbose, that.verbose);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(verbose);
     }
 }

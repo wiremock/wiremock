@@ -15,13 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.getFirst;
 
-public class ProxySettings {
+public final class ProxySettings {
 
     public static final ProxySettings NO_PROXY = new ProxySettings(null, 0);
 
@@ -57,5 +58,19 @@ public class ProxySettings {
         }
 
         return host() + ":" + port();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof ProxySettings)) return false;
+        ProxySettings that = (ProxySettings) o;
+        return Objects.equal(port, that.port) &&
+                Objects.equal(host, that.host);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(host, port);
     }
 }

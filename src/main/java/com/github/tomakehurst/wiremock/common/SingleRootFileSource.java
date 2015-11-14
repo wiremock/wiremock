@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.io.File;
 
-public class SingleRootFileSource extends AbstractFileSource {
+public final class SingleRootFileSource extends AbstractFileSource {
 
 	public SingleRootFileSource(File rootDirectory) {
 		super(rootDirectory);
@@ -41,4 +41,6 @@ public class SingleRootFileSource extends AbstractFileSource {
     public String toString() {
         return SingleRootFileSource.class.getSimpleName() + ": " + rootDirectory;
     }
+
+
 }

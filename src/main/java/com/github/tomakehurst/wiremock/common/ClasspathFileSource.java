@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
@@ -40,7 +41,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 
-public class ClasspathFileSource implements FileSource {
+public final class ClasspathFileSource implements FileSource {
 
     private final String path;
     private ZipFile zipFile;
@@ -188,5 +189,18 @@ public class ClasspathFileSource implements FileSource {
         } else if (!rootDirectory.exists()) {
             throw new RuntimeException(rootDirectory + " does not exist");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClasspathFileSource that = (ClasspathFileSource) o;
+        return Objects.equal(path, that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(path);
     }
 }

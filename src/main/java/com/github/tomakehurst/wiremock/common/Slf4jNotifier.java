@@ -15,10 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Slf4jNotifier implements Notifier {
+public final class Slf4jNotifier implements Notifier {
 
     private static final Logger log = LoggerFactory.getLogger("WireMock");
 
@@ -43,5 +44,18 @@ public class Slf4jNotifier implements Notifier {
     @Override
     public void error(String message, Throwable t) {
         log.error(message, t);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Slf4jNotifier that = (Slf4jNotifier) o;
+        return Objects.equal(verbose, that.verbose);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(verbose);
     }
 }

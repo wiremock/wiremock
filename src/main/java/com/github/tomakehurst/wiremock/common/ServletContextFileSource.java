@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.base.Objects;
+
 import javax.servlet.ServletContext;
 import java.io.File;
 
-public class ServletContextFileSource extends AbstractFileSource {
+public final class ServletContextFileSource extends AbstractFileSource {
     
     private final String rootPath;
     private final ServletContext servletContext;
@@ -44,5 +46,19 @@ public class ServletContextFileSource extends AbstractFileSource {
     @Override
     protected boolean readOnly() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ServletContextFileSource that = (ServletContextFileSource) o;
+        return Objects.equal(rootPath, that.rootPath) &&
+                Objects.equal(servletContext, that.servletContext);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(rootPath, servletContext);
     }
 }

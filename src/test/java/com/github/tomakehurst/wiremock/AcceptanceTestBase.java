@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.pool.WireMockServerPool;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,8 +46,7 @@ public class AcceptanceTestBase {
 			options.dynamicPort();
         }
 
-        wireMockServer = new WireMockServer(options);
-        wireMockServer.start();
+		wireMockServer = WireMockServerPool.checkOut(options);
         testClient = new WireMockTestClient(wireMockServer.port());
         WireMock.configureFor(wireMockServer.port());
     }
