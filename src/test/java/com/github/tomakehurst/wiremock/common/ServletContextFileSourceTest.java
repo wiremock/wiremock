@@ -18,15 +18,23 @@ package com.github.tomakehurst.wiremock.common;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.EventListener;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
@@ -34,9 +42,9 @@ import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactl
 import static org.junit.Assert.assertThat;
 
 public class ServletContextFileSourceTest {
-    
+
     private ServletContextFileSource fileSource;
-    
+
     @Before
     public void init() {
         fileSource = new ServletContextFileSource(new MockServletContext(), "filesource");
@@ -46,25 +54,33 @@ public class ServletContextFileSourceTest {
     @Test
     public void listsTextFilesRecursively() {
         List<TextFile> files = fileSource.listFilesRecursively();
-        
+
         assertThat(files, hasExactlyIgnoringOrder(
-                fileNamed("one"), fileNamed("two"), fileNamed("three"), 
-                fileNamed("four"), fileNamed("five"), fileNamed("six"), 
+                fileNamed("one"), fileNamed("two"), fileNamed("three"),
+                fileNamed("four"), fileNamed("five"), fileNamed("six"),
                 fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
     }
-    
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void throwsUnsupportedExceptionWhenAttemptingToWrite() {
         fileSource.writeTextFile("filename", "filecontents");
     }
-    
-    @Test(expected=UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void throwsUnsupportedExceptionWhenAttemptingToCreate() {
         fileSource.createIfNecessary();
     }
-    
-    
+
     private static class MockServletContext implements ServletContext {
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
+            return null;
+        }
+
+        @Override
+        public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
+            return null;
+        }
 
         @Override
         public ServletContext getContext(String uripath) {
@@ -78,6 +94,16 @@ public class ServletContextFileSourceTest {
 
         @Override
         public int getMinorVersion() {
+            return 0;
+        }
+
+        @Override
+        public int getEffectiveMajorVersion() {
+            return 0;
+        }
+
+        @Override
+        public int getEffectiveMinorVersion() {
             return 0;
         }
 
@@ -135,7 +161,6 @@ public class ServletContextFileSourceTest {
 
         @Override
         public void log(Exception exception, String msg) {
-            
         }
 
         @Override
@@ -164,6 +189,11 @@ public class ServletContextFileSourceTest {
         }
 
         @Override
+        public boolean setInitParameter(String name, String value) {
+            return false;
+        }
+
+        @Override
         public Object getAttribute(String name) {
             return null;
         }
@@ -188,10 +218,108 @@ public class ServletContextFileSourceTest {
         }
 
         @Override
-        public String getContextPath() {
-            // TODO Auto-generated method stub
+        public ServletRegistration.Dynamic addServlet(String servletName, String className) {
             return null;
         }
-        
+
+        @Override
+        public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+            return null;
+        }
+
+        @Override
+        public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+            return null;
+        }
+
+        @Override
+        public ServletRegistration getServletRegistration(String servletName) {
+            return null;
+        }
+
+        @Override
+        public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+            return null;
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, String className) {
+            return null;
+        }
+
+        @Override
+        public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
+            return null;
+        }
+
+        @Override
+        public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+            return null;
+        }
+
+        @Override
+        public FilterRegistration getFilterRegistration(String filterName) {
+            return null;
+        }
+
+        @Override
+        public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+            return null;
+        }
+
+        @Override
+        public SessionCookieConfig getSessionCookieConfig() {
+            return null;
+        }
+
+        @Override
+        public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+            return null;
+        }
+
+        @Override
+        public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+            return null;
+        }
+
+        @Override
+        public <T extends EventListener> void addListener(T t) {
+        }
+
+        @Override
+        public void addListener(Class<? extends EventListener> listenerClass) {
+        }
+
+        @Override
+        public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+            return null;
+        }
+
+        @Override
+        public JspConfigDescriptor getJspConfigDescriptor() {
+            return null;
+        }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return null;
+        }
+
+        @Override
+        public void declareRoles(String... roleNames) {
+        }
+
+        @Override
+        public void addListener(String s) {
+        }
+
+        @Override
+        public String getContextPath() {
+            return null;
+        }
     }
 }

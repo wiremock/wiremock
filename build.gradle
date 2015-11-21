@@ -22,7 +22,10 @@ configurations {
 }
 
 dependencies {
-	compile "org.mortbay.jetty:jetty:6.1.26"
+    compile("org.mortbay.jetty:jetty:6.1.26"){
+        exclude group: 'org.mortbay.jetty', module: 'servlet-api'
+    }
+    compile 'javax.servlet:javax.servlet-api:3.0.1'
 	compile "com.google.guava:guava:18.0"
 	compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         	"com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
