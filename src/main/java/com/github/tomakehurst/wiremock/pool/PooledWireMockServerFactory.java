@@ -21,6 +21,8 @@ import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class PooledWireMockServerFactory implements KeyedPooledObjectFactory<Options, WireMockServer> {
 
     @Override

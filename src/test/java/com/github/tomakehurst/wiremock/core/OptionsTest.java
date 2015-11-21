@@ -18,7 +18,14 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.common.*;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.opts;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class OptionsTest {
 
@@ -51,6 +58,20 @@ public class OptionsTest {
                 .suppress(Warning.NONFINAL_FIELDS)
                 .allFieldsShouldBeUsedExcept("httpServerFactory")
                 .verify();
+    }
+
+    @Test
+    public void treatsTwoWithDynamicPortsAsTheSame() {
+        assertTrue(wireMockConfig()
+                        .dynamicPort()
+                        .dynamicHttpsPort()
+                        .containerThreads(10)
+                        .notifier(new ConsoleNotifier(true)).equals(
+                    wireMockConfig()
+                        .dynamicPort()
+                        .dynamicHttpsPort()
+                        .containerThreads(10)
+                        .notifier(new ConsoleNotifier(true))));
     }
 
 

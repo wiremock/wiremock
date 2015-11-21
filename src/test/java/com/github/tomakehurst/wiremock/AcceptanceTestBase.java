@@ -38,7 +38,7 @@ public class AcceptanceTestBase {
 
 	@AfterClass
 	public static void serverShutdown() {
-		wireMockServer.stop();
+		WireMockServerPool.checkIn(wireMockServer);
 	}
 
     public static void setupServer(WireMockConfiguration options) {

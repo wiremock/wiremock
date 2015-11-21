@@ -17,18 +17,37 @@ package com.github.tomakehurst.wiremock.pool;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.google.common.base.Preconditions;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class WireMockServerPool {
 
-    private static final GenericKeyedObjectPool<Options, WireMockServer> serverPool =
-            new GenericKeyedObjectPool<Options, WireMockServer>(new PooledWireMockServerFactory());
+    private static int max = 10;
+    private static GenericKeyedObjectPool<Options, WireMockServer> serverPool;
+
+    static {
+        initialise(20);
+    }
+
+    public static void initialise(int maxServers) {
+        Preconditions.checkArgument(maxServers > 0, "Pool must be limited to at least 1 server");
+        GenericKeyedObjectPoolConfig poolConfig = new GenericKeyedObjectPoolConfig();
+        poolConfig.setMaxTotal(max);
+        poolConfig.setMaxTotalPerKey(max);
+
+        serverPool = new GenericKeyedObjectPool<Options, WireMockServer>(new PooledWireMockServerFactory(), poolConfig);
+    }
 
     public static WireMockServer checkOut(Options options) {
         try {
-            return serverPool.borrowObject(options);
+            WireMockServer server = serverPool.borrowObject(options);
+            System.out.printf("Checked a server out. Total created: %d, checked out: %d \n",
+                    serverPool.getCreatedCount(),
+                    serverPool.getBorrowedCount());
+            return server;
         } catch (Exception e) {
             return throwUnchecked(e, WireMockServer.class);
         }
@@ -36,6 +55,9 @@ public class WireMockServerPool {
 
     public static void checkIn(WireMockServer server) {
         serverPool.returnObject(server.getOptions(), server);
+        System.out.printf("Checked a server in. Total created: %d, checked out: %d \n",
+                serverPool.getCreatedCount(),
+                serverPool.getBorrowedCount());
     }
 
     public static void reset() {

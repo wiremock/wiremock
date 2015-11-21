@@ -50,7 +50,9 @@ public class HttpHeaders {
     public HttpHeaders(Iterable<HttpHeader> headers) {
         ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
         for (HttpHeader header: headers) {
-            builder.putAll(caseInsensitive(header.key()), header.values());
+            if (header.isPresent()) {
+                builder.putAll(caseInsensitive(header.key()), header.values());
+            }
         }
 
         this.headers = builder.build();

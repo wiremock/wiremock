@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.pool;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,6 +52,24 @@ public class WireMockServerPoolTest {
         WireMockServerPool.checkIn(server1);
 
         WireMockServer server2 = WireMockServerPool.checkOut(opts().port(port));
+        assertThat(server2, sameInstance(server1));
+    }
+
+    @Test
+    public void returnsAnExistingInstanceWhenDynamicPortsSpecified() throws Exception {
+        WireMockServer server1 = WireMockServerPool.checkOut(wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .containerThreads(10)
+                .notifier(new ConsoleNotifier(true)));
+        WireMockServerPool.checkIn(server1);
+
+        WireMockServer server2 = WireMockServerPool.checkOut(wireMockConfig()
+                .dynamicPort()
+                .dynamicHttpsPort()
+                .containerThreads(10)
+                .notifier(new ConsoleNotifier(true)));
+
         assertThat(server2, sameInstance(server1));
     }
 
