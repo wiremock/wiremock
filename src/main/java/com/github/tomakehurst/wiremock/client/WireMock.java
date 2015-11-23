@@ -65,6 +65,14 @@ public class WireMock {
 		admin = new HttpAdminClient(host, port, urlPathPrefix);
 	}
 
+	public WireMock(String scheme, String host, int port) {
+		admin = new HttpAdminClient(scheme, host, port);
+	}
+
+	public WireMock(String scheme, String host, int port, String urlPathPrefix) {
+		admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
+	}
+
 	public WireMock() {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
@@ -91,6 +99,14 @@ public class WireMock {
 
 	public static void configureFor(String host, int port, String urlPathPrefix) {
 		defaultInstance.set(new WireMock(host, port, urlPathPrefix));
+	}
+
+	public static void configureFor(String scheme, String host, int port, String urlPathPrefix) {
+		defaultInstance.set(new WireMock(scheme, host, port, urlPathPrefix));
+	}
+
+	public static void configureFor(String scheme, String host, int port) {
+		defaultInstance.set(new WireMock(scheme, host, port));
 	}
 
 	public static void configure() {

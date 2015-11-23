@@ -45,58 +45,34 @@ public class HttpAdminClient implements Admin {
 
     private final String scheme;
     private final String host;
-	private final int port;
-	private final String urlPathPrefix;
+    private final int port;
+    private final String urlPathPrefix;
 
-	private final HttpClient httpClient;
+    private final HttpClient httpClient;
 
-    public String getScheme() {
-        return scheme;
+    public HttpAdminClient(String scheme, String host, int port) {
+        this(scheme, host, port, "");
     }
 
-    public String getHost() {
-        return host;
+    public HttpAdminClient(String host, int port, String urlPathPrefix) {
+        this("http", host, port, urlPathPrefix);
     }
 
-    public int getPort() {
-        return port;
-    }
-    public String getUrlPathPrefix() {
-        return urlPathPrefix;
-    }
+    public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
+        this.scheme = scheme;
+        this.host = host;
+        this.port = port;
+        this.urlPathPrefix = urlPathPrefix;
 
-    public HttpClient getHttpClient() {
-        return httpClient;
+        httpClient = HttpClientFactory.createClient();
     }
 
-    protected HttpAdminClient( HttpAdminClientBuilder builder) {
-        this.scheme =  builder.getScheme();
-        this.host = builder.getHost();
-        this.port = builder.getPort();
-        this.urlPathPrefix = builder.getUrlPathPrefix();
-
-        HttpClient thisHttpClient = builder.getHttpClient();
-        if (thisHttpClient == null) {
-            thisHttpClient = HttpClientFactory.createClient();
-        }
-        this.httpClient = thisHttpClient;
+    public HttpAdminClient(String host, int port) {
+        this(host, port, "");
     }
 
-	public HttpAdminClient(String host, int port, String urlPathPrefix) {
-        this.scheme = "http";
-		this.host = host;
-		this.port = port;
-		this.urlPathPrefix = urlPathPrefix;
-
-		httpClient = HttpClientFactory.createClient();
-	}
-
-	public HttpAdminClient(String host, int port) {
-		this(host, port, "");
-    }
-
-	@Override
-	public void addStubMapping(StubMapping stubMapping) {
+    @Override
+    public void addStubMapping(StubMapping stubMapping) {
         if (stubMapping.getRequest().hasCustomMatcher()) {
             throw new AdminException("Custom matchers can't be used when administering a remote WireMock server. " +
                     "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
@@ -106,7 +82,7 @@ public class HttpAdminClient implements Admin {
                 urlFor(NewStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_CREATED);
-	}
+    }
 
     @Override
     public ListStubMappingsResult listAllStubMappings() {
@@ -122,9 +98,9 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-	public void resetMappings() {
-		postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
-	}
+    public void resetMappings() {
+        postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
+    }
 
     @Override
     public void resetRequests() {
@@ -132,22 +108,22 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-	public void resetScenarios() {
+    public void resetScenarios() {
         postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
-	}
+    }
 
     @Override
     public void resetToDefaultMappings() {
         postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null, HTTP_OK);
     }
 
-	@Override
-	public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
-		String body = postJsonAssertOkAndReturnBody(
+    @Override
+    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+        String body = postJsonAssertOkAndReturnBody(
                 urlFor(GetRequestCountTask.class),
                 Json.write(requestPattern),
                 HTTP_OK);
-		return VerificationResult.from(body);
+        return VerificationResult.from(body);
     }
 
     @Override
@@ -160,12 +136,12 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-	public void updateGlobalSettings(GlobalSettings settings) {
+    public void updateGlobalSettings(GlobalSettings settings) {
         postJsonAssertOkAndReturnBody(
                 urlFor(GlobalSettingsUpdateTask.class),
                 Json.write(settings),
                 HTTP_OK);
-	}
+    }
 
     @Override
     public void addSocketAcceptDelay(RequestDelaySpec spec) {
@@ -185,17 +161,17 @@ public class HttpAdminClient implements Admin {
     }
 
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
-		HttpPost post = new HttpPost(url);
-		try {
-			if (json != null) {
-				post.setEntity(new StringEntity(json, APPLICATION_JSON));
-			}
-			HttpResponse response = httpClient.execute(post);
+        HttpPost post = new HttpPost(url);
+        try {
+            if (json != null) {
+                post.setEntity(new StringEntity(json, APPLICATION_JSON));
+            }
+            HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode != expectedStatus) {
-				throw new VerificationException(
+            if (statusCode != expectedStatus) {
+                throw new VerificationException(
                         "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
-			}
+            }
 
             return getEntityAsStringAndCloseStream(response);
         } catch (Exception e) {
@@ -224,66 +200,4 @@ public class HttpAdminClient implements Admin {
         return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
     }
 
-
-    public static class HttpAdminClientBuilder {
-
-        private String scheme = "http";
-        private String host;
-        private int port;
-        private String urlPathPrefix = "";
-        private HttpClient httpClient;
-        public HttpAdminClientBuilder(String host, int port) {
-            this.host = host;
-            this.port = port;
-        }
-
-        public HttpClient getHttpClient() {
-            return httpClient;
-        }
-
-        public HttpAdminClientBuilder setHttpClient(HttpClient httpClient) {
-            this.httpClient = httpClient;
-            return this;
-        }
-
-        public String getScheme() {
-            return scheme;
-        }
-
-        public HttpAdminClientBuilder setScheme(String scheme) {
-            this.scheme = scheme;
-            return this;
-        }
-
-        public String getHost() {
-            return host;
-        }
-
-        public HttpAdminClientBuilder setHost(String host) {
-            this.host = host;
-            return this;
-        }
-
-        public String getUrlPathPrefix() {
-            return urlPathPrefix;
-        }
-
-        public HttpAdminClientBuilder setUrlPathPrefix(String urlPathPrefix) {
-            this.urlPathPrefix = urlPathPrefix;
-            return this;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public HttpAdminClientBuilder setPort(int port) {
-            this.port = port;
-            return this;
-        }
-
-        public HttpAdminClient build() {
-            return new HttpAdminClient(this);
-        }
-    }
 }
