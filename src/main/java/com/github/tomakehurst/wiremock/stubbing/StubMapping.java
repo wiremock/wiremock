@@ -31,6 +31,7 @@ public class StubMapping {
 
 	private RequestPattern request;
 	private ResponseDefinition response;
+    private String description;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
@@ -76,7 +77,15 @@ public class StubMapping {
 		this.response = response;
 	}
 
-	@Override
+	public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
 	public String toString() {
 		return Json.write(this);
 	}
