@@ -16,21 +16,20 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.IdGenerator;
-import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
-import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.google.common.base.Predicate;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
@@ -103,15 +102,31 @@ public class StubMappingJsonRecorder implements RequestListener {
                 .withStatus(response.getStatus())
                 .withBodyFile(bodyFileName);
         if (response.getHeaders().size() > 0) {
-            responseDefinitionBuilder.withHeaders(response.getHeaders());
+            responseDefinitionBuilder.withHeaders(withoutContentEncoding(response.getHeaders()));
         }
 
         ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
 
         StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
 
-        filesFileSource.writeBinaryFile(bodyFileName, response.getBody());
+        filesFileSource.writeBinaryFile(bodyFileName, bodyDecompressedIfRequired(response));
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+    }
+
+    private HttpHeaders withoutContentEncoding(HttpHeaders httpHeaders) {
+        return new HttpHeaders(filter(httpHeaders.all(), new Predicate<HttpHeader>() {
+            public boolean apply(HttpHeader input) {
+                return !input.caseInsensitiveKey().equals(CaseInsensitiveKey.from("Content-Encoding"));
+            }
+        }));
+    }
+
+    private byte[] bodyDecompressedIfRequired(Response response) {
+        if (response.getHeaders().getHeader("Content-Encoding").containsValue("gzip")) {
+            return Gzip.unGzip(response.getBody());
+        }
+
+        return response.getBody();
     }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {

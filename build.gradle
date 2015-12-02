@@ -44,6 +44,7 @@ repositories {
 dependencies {
     compile "org.eclipse.jetty:jetty-server:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
     compile "com.google.guava:guava:18.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",

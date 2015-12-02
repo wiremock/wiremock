@@ -27,7 +27,6 @@ import org.eclipse.jetty.util.Callback;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.channels.ByteChannel;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -37,16 +36,14 @@ public class JettyHttpsFaultInjector implements FaultInjector {
 
     private final Response response;
     private final Socket socket;
-    private final ByteChannel channel;
 
     public JettyHttpsFaultInjector(HttpServletResponse response) {
-        this.response = (Response) response;
+        this.response = JettyUtils.unwrapResponse(response);
 
         HttpChannel httpChannel = this.response.getHttpOutput().getHttpChannel();
         SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
         SelectChannelEndPoint selectChannelEndPoint = (SelectChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
         this.socket = selectChannelEndPoint.getSocket();
-        this.channel = selectChannelEndPoint.getChannel();
     }
 
     @Override

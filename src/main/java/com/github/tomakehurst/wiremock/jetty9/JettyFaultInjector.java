@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.jetty9.JettyUtils.unwrapResponse;
 
 public class JettyFaultInjector implements FaultInjector {
 
@@ -41,7 +42,7 @@ public class JettyFaultInjector implements FaultInjector {
     private final Socket socket;
 
     public JettyFaultInjector(HttpServletResponse response) {
-        this.response = (Response) response;
+        this.response = unwrapResponse(response);
         this.socket = socket();
     }
 

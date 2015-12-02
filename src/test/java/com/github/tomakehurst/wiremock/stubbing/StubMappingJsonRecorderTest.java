@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
@@ -35,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.github.tomakehurst.wiremock.common.Gzip.gzip;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -356,6 +358,45 @@ public class StubMappingJsonRecorderTest {
 
         listener.requestReceived(request,
                 response().status(200).body("anything").fromProxy(true).build());
+    }
+
+    private static final String GZIP_REQUEST_MAPPING =
+                    "{ 													             \n" +
+                    "	\"request\": {									             \n" +
+                    "		\"method\": \"GET\",						             \n" +
+                    "		\"url\": \"/gzipped/content\"				             \n" +
+                    "	},												             \n" +
+                    "	\"response\": {									             \n" +
+                    "		\"status\": 200,							             \n" +
+                    "		\"bodyFileName\": \"body-gzipped-content-1$2!3.json\"    \n" +
+                    "	}												             \n" +
+                    "}													               ";
+
+    @Test
+    public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class)));
+            will(returnValue(VerificationResult.withCount(0)));
+            one(mappingsFileSource).writeTextFile(with(equal("mapping-gzipped-content-1$2!3.json")),
+                    with(equalToJson(GZIP_REQUEST_MAPPING)));
+            one(filesFileSource).writeBinaryFile(with(equal("body-gzipped-content-1$2!3.json")),
+                    with(equal("Recorded body content".getBytes(UTF_8))));
+        }});
+
+        Request request = new MockRequestBuilder(context)
+                .withHeader("Accept-Encoding", "gzip")
+                .withMethod(RequestMethod.GET)
+                .withUrl("/gzipped/content")
+                .build();
+
+        Response response = response()
+                .status(200)
+                .fromProxy(true)
+                .headers(new HttpHeaders(httpHeader("Content-Encoding", "gzip")))
+                .body(gzip("Recorded body content"))
+                .build();
+
+        listener.requestReceived(request, response);
     }
     
 	private IdGenerator fixedIdGenerator(final String id) {
