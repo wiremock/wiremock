@@ -38,7 +38,6 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/requests/reset"), ResetRequestsTask.class)
                 .put(requestSpec(POST, "/requests/count"), GetRequestCountTask.class)
                 .put(requestSpec(POST, "/requests/find"), FindRequestsTask.class)
-                .put(requestSpec(POST, "/socket-delay"), SocketDelayTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
                 .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
                 .build();

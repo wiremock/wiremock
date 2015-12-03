@@ -26,7 +26,8 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.*;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -69,12 +70,10 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
 
-        RequestDelayControl requestDelayControl = new ThreadSafeRequestDelayControl();
         MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
         JsonFileMappingsSaver mappingsSaver = new JsonFileMappingsSaver(fileSource.child(MAPPINGS_ROOT));
 
         wireMockApp = new WireMockApp(
-                requestDelayControl,
                 options.browserProxyingEnabled(),
                 defaultMappingsLoader,
                 mappingsSaver,
@@ -107,8 +106,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
         httpServer = httpServerFactory.buildHttpServer(
                 options,
                 adminRequestHandler,
-                stubRequestHandler,
-                requestDelayControl
+                stubRequestHandler
         );
 
         client = new WireMock(wireMockApp);
@@ -286,11 +284,6 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public void addRequestProcessingDelay(int milliseconds) {
-        client.addDelayBeforeProcessingRequests(milliseconds);
-    }
-
-    @Override
     public void addStubMapping(StubMapping stubMapping) {
         wireMockApp.addStubMapping(stubMapping);
     }
@@ -338,11 +331,6 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
-    }
-
-    @Override
-    public void addSocketAcceptDelay(RequestDelaySpec delaySpec) {
-        wireMockApp.addSocketAcceptDelay(delaySpec);
     }
 
     @Override

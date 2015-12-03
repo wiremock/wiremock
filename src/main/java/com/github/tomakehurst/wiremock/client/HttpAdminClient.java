@@ -144,14 +144,6 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void addSocketAcceptDelay(RequestDelaySpec spec) {
-        postJsonAssertOkAndReturnBody(
-                urlFor(SocketDelayTask.class),
-                Json.write(spec),
-                HTTP_OK);
-    }
-
-    @Override
     public void shutdownServer() {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
     }

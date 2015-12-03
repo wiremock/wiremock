@@ -15,18 +15,20 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.RequestHandler;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -35,20 +37,8 @@ import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-import com.github.tomakehurst.wiremock.http.HttpServer;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -65,15 +55,13 @@ class JettyHttpServer implements HttpServer {
     JettyHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
-            StubRequestHandler stubRequestHandler,
-            RequestDelayControl requestDelayControl
+            StubRequestHandler stubRequestHandler
     ) {
 
         QueuedThreadPool threadPool = new QueuedThreadPool(options.containerThreads());
         jettyServer = new Server(threadPool);
 
         httpConnector = createHttpConnector(
-                requestDelayControl,
                 options.bindAddress(),
                 options.portNumber(),
                 options.jettySettings()
@@ -82,7 +70,6 @@ class JettyHttpServer implements HttpServer {
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
-                    requestDelayControl,
                     options.httpsSettings(),
                     options.jettySettings());
             jettyServer.addConnector(httpsConnector);
@@ -154,7 +141,6 @@ class JettyHttpServer implements HttpServer {
     }
 
     private ServerConnector createHttpConnector(
-            RequestDelayControl requestDelayControl,
             String bindAddress,
             int port,
             JettySettings jettySettings) {
@@ -165,17 +151,13 @@ class JettyHttpServer implements HttpServer {
         ServerConnector connector = createServerConnector(
                 jettySettings,
                 port,
-                new FaultInjectingHttpConnectionFactory(
-                        httpConfig,
-                        requestDelayControl
-                )
+                new HttpConnectionFactory(httpConfig)
         );
         connector.setHost(bindAddress);
         return connector;
     }
 
     private ServerConnector createHttpsConnector(
-            RequestDelayControl requestDelayControl,
             HttpsSettings httpsSettings,
             JettySettings jettySettings) {
 
@@ -202,10 +184,7 @@ class JettyHttpServer implements HttpServer {
                         sslContextFactory,
                         "http/1.1"
                 ),
-                new FaultInjectingHttpConnectionFactory(
-                        httpConfig,
-                        requestDelayControl
-                )
+                new HttpConnectionFactory(httpConfig)
         );
     }
 

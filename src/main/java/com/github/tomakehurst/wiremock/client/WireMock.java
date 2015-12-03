@@ -423,14 +423,6 @@ public class WireMock {
 		admin.updateGlobalSettings(settings);
 	}
 
-    public void addDelayBeforeProcessingRequests(int milliseconds) {
-        admin.addSocketAcceptDelay(new RequestDelaySpec(milliseconds));
-    }
-
-    public static void addRequestProcessingDelay(int milliseconds) {
-        defaultInstance.get().addDelayBeforeProcessingRequests(milliseconds);
-    }
-
     public void shutdown() {
         admin.shutdownServer();
     }

@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -31,8 +29,8 @@ import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.collect.ImmutableList;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +43,6 @@ public class WireMockApp implements StubServer, Admin {
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
-    private final RequestDelayControl requestDelayControl;
     private final boolean browserProxyingEnabled;
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
@@ -54,7 +51,6 @@ public class WireMockApp implements StubServer, Admin {
     private final FileSource rootFileSource;
 
     public WireMockApp(
-            RequestDelayControl requestDelayControl,
             boolean browserProxyingEnabled,
             MappingsLoader defaultMappingsLoader,
             MappingsSaver mappingsSaver,
@@ -64,7 +60,6 @@ public class WireMockApp implements StubServer, Admin {
             Map<String, RequestMatcherExtension> requestMatchers,
             FileSource rootFileSource,
             Container container) {
-        this.requestDelayControl = requestDelayControl;
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
@@ -140,7 +135,6 @@ public class WireMockApp implements StubServer, Admin {
     public void resetMappings() {
         stubMappings.reset();
         requestJournal.reset();
-        requestDelayControl.clearDelay();
     }
 
     @Override
@@ -181,11 +175,6 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         globalSettingsHolder.replaceWith(newSettings);
-    }
-
-    @Override
-    public void addSocketAcceptDelay(RequestDelaySpec delaySpec) {
-        requestDelayControl.setDelay(delaySpec.milliseconds());
     }
 
     public int port() {

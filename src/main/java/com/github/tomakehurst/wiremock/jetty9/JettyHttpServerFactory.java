@@ -15,11 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.global.RequestDelayControl;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
 public class JettyHttpServerFactory implements HttpServerFactory {
@@ -27,14 +26,12 @@ public class JettyHttpServerFactory implements HttpServerFactory {
     public HttpServer buildHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
-            StubRequestHandler stubRequestHandler,
-            RequestDelayControl requestDelayControl
+            StubRequestHandler stubRequestHandler
     ) {
         return new JettyHttpServer(
                 options,
                 adminRequestHandler,
-                stubRequestHandler,
-                requestDelayControl
+                stubRequestHandler
         );
     }
 }

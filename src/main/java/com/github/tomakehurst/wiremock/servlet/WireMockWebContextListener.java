@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
@@ -56,7 +55,6 @@ public class WireMockWebContextListener implements ServletContextListener {
         JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
         MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();
         WireMockApp wireMockApp = new WireMockApp(
-                new NotImplementedRequestDelayControl(),
                 false,
                 defaultMappingsLoader,
                 mappingsSaver,

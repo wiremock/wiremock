@@ -78,16 +78,6 @@ public class WarDeploymentAcceptanceTest {
 	}
 
     @Test
-    public void tryingToAddSocketAcceptDelayGives500() {
-        try {
-            addRequestProcessingDelay(1000);
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
-        }
-    }
-
-    @Test
     public void tryingToShutDownGives500() {
         try {
             shutdownServer();
