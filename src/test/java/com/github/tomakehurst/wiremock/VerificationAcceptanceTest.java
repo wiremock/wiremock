@@ -53,7 +53,7 @@ public class VerificationAcceptanceTest {
         @Test
         public void verifiesRequestBasedOnUrlPathOnly() {
             testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathEqualTo("/this/got")));
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requested")));
         }
 
         @Test

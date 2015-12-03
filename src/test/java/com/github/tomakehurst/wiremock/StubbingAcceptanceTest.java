@@ -130,6 +130,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
 	@Test
+	public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
+		stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
+	}
+
+	@Test
 	public void matchesOnUrlPathPatternAndQueryParameters() {
 		stubFor(get(urlPathMatching("/path(.*)/match"))
 				.withQueryParam("search", containing("WireMock"))

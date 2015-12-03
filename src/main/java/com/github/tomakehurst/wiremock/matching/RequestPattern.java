@@ -29,6 +29,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +148,7 @@ public class RequestPattern {
 		} else if (urlPathPattern != null) {
 			matched = candidateUrl.matches(urlPathPattern.concat(".*"));
 		} else {
-            matched = candidateUrl.startsWith(urlPath);
+            matched = URI.create(candidateUrl).getPath().equals(urlPath);
         }
 
 		return matched;
