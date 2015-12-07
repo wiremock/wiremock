@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.matching.ValuePattern.containing;
 import static com.github.tomakehurst.wiremock.matching.ValuePattern.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.google.common.collect.Maps.newHashMap;
@@ -196,6 +197,36 @@ public class RequestPatternTest {
 		Request request = aRequest(context)
 				.withUrl("/resource/1234-abcd/subresource")
 				.withQueryParameter("foo", "bar")
+				.withMethod(GET)
+				.build();
+
+		assertTrue(requestPattern.isMatchedBy(request));
+	}
+
+	@Test
+	public void shouldMatchQueryParametersWithMultipleValues() {
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
+		requestPattern.setUrlPath("/multi-query");
+		requestPattern.addQueryParam("name", equalTo("barry"));
+
+		Request request = aRequest(context)
+				.withUrl("/multi-query")
+				.withQueryParameter("name", "harry", "barry", "larry")
+				.withMethod(GET)
+				.build();
+
+		assertTrue(requestPattern.isMatchedBy(request));
+	}
+
+	@Test
+	public void shouldMatchOnContainsQueryParametersWithMultipleValues() {
+		RequestPattern requestPattern = new RequestPattern(RequestMethod.GET);
+		requestPattern.setUrlPath("/multi-query");
+		requestPattern.addQueryParam("name", containing("arry"));
+
+		Request request = aRequest(context)
+				.withUrl("/multi-query")
+				.withQueryParameter("name", "harry", "barry", "larry")
 				.withMethod(GET)
 				.build();
 
