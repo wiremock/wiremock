@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.http.LogNormal;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -230,6 +231,22 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
+
+	 @Test
+    public void responseWithRandomDistributionDelay() {
+        stubFor(get(urlEqualTo("/random/delayed/resource")).willReturn(
+                aResponse()
+                		.withStatus(200)
+                		.withBody("Content")
+                		.withRandomDelay(new LogNormal(90, 0.1))));
+
+        long start = System.currentTimeMillis();
+        testClient.get("/random/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(duration, greaterThanOrEqualTo(60));
+    }
+
 
 	@Test
 	public void highPriorityMappingMatchedFirst() {
