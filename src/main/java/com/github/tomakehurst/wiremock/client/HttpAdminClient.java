@@ -164,7 +164,9 @@ public class HttpAdminClient implements Admin {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                post.setEntity(new StringEntity(json, APPLICATION_JSON));
+                StringEntity stringEntity = new StringEntity(json);
+                stringEntity.setContentType(APPLICATION_JSON.getMimeType());
+                post.setEntity(stringEntity);
             }
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
