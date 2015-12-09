@@ -32,6 +32,7 @@ public final class LogNormal implements DelayDistribution {
 
     @JsonProperty("median")
     private final double median;
+
     @JsonProperty("sigma")
     private final double sigma;
 

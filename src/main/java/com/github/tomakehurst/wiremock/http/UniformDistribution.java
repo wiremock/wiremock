@@ -30,6 +30,7 @@ public final class UniformDistribution implements DelayDistribution {
 
     @JsonProperty("lower")
     private final int lower;
+
     @JsonProperty("upper")
     private final int upper;
 

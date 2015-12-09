@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.LogNormal;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -91,9 +89,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 			.willReturn(aResponse().withStatus(204)));
 
 		WireMockResponse response = testClient.put("/case/insensitive",
-				withHeader("one", "abcd1234"),
-				withHeader("TWO", "thing"),
-				withHeader("tHrEe", "something"));
+			withHeader("one", "abcd1234"),
+			withHeader("TWO", "thing"),
+			withHeader("tHrEe", "something"));
 
 		assertThat(response.statusCode(), is(204));
 	}
@@ -115,8 +113,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(aResponse().withStatus(200)));
 
         WireMockResponse response = testClient.get("/some/extra/header",
-                withHeader("ExpectedHeader", "expected-value"),
-                withHeader("UnexpectedHeader", "unexpected-value"));
+			withHeader("ExpectedHeader", "expected-value"),
+			withHeader("UnexpectedHeader", "unexpected-value"));
 
         assertThat(response.statusCode(), is(200));
     }
@@ -160,9 +158,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     @Test
 	public void responseBodyLoadedFromFile() {
 		stubFor(get(urlEqualTo("/my/file")).willReturn(
-				aResponse()
-						.withStatus(200)
-						.withBodyFile("plain-example.txt")));
+			aResponse()
+				.withStatus(200)
+				.withBodyFile("plain-example.txt")));
 
 		WireMockResponse response = testClient.get("/my/file");
 
@@ -221,10 +219,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
 	public void responseWithFixedDelay() {
 	    stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
-				aResponse()
-						.withStatus(200)
-						.withBody("Content")
-						.withFixedDelay(500)));
+			aResponse()
+				.withStatus(200)
+				.withBody("Content")
+				.withFixedDelay(500)));
 
 	    long start = System.currentTimeMillis();
         testClient.get("/delayed/resource");
@@ -236,10 +234,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
     public void responseWithLogNormalDistributedDelay() {
         stubFor(get(urlEqualTo("/lognormal/delayed/resource")).willReturn(
-                aResponse()
-                		.withStatus(200)
-                		.withBody("Content")
-                		.withRandomDelay(new LogNormal(90, 0.1))));
+			aResponse()
+				.withStatus(200)
+				.withBody("Content")
+				.withLogNormalRandomDelay(90, 0.1)));
 
         long start = System.currentTimeMillis();
         testClient.get("/lognormal/delayed/resource");
@@ -251,10 +249,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
 	public void responseWithUniformDistributedDelay() {
 		stubFor(get(urlEqualTo("/uniform/delayed/resource")).willReturn(
-				aResponse()
-						.withStatus(200)
-						.withBody("Content")
-						.withRandomDelay(new UniformDistribution(50, 60))));
+			aResponse()
+				.withStatus(200)
+				.withBody("Content")
+				.withUniformRandomDelay(50, 60)));
 
 		long start = System.currentTimeMillis();
 		testClient.get("/uniform/delayed/resource");
@@ -361,9 +359,9 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	@Test
 	public void settingStatusMessage() {
 		stubFor(get(urlEqualTo("/status-message")).willReturn(
-				aResponse()
-					.withStatus(500)
-					.withStatusMessage("The bees! They're in my eyes!")));
+			aResponse()
+				.withStatus(500)
+				.withStatusMessage("The bees! They're in my eyes!")));
 
 		assertThat(testClient.get("/status-message").statusMessage(), is("The bees! They're in my eyes!"));
 	}

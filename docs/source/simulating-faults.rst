@@ -66,7 +66,7 @@ Use ``#withRandomDelay`` on the stub to pass in the desired distribution:
     stubFor(get(urlEqualTo("/random/delayed")).willReturn(
             aResponse()
                     .withStatus(200)
-                    .withRandomDelay(new LogNormal(90, 0.1))));
+                    .withLogNormalRandomDelay(90, 0.1)));
 
 Or set it on the ``delayDistribution`` field via the JSON api:
 

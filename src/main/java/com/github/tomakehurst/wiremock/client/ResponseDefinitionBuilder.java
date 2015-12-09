@@ -17,11 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.DelayDistribution;
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -111,6 +107,14 @@ public class ResponseDefinitionBuilder {
 	public ResponseDefinitionBuilder withRandomDelay(DelayDistribution distribution) {
 		this.delayDistribution = distribution;
 		return this;
+	}
+
+	public ResponseDefinitionBuilder withLogNormalRandomDelay(double medianMilliseconds, double sigma) {
+		return withRandomDelay(new LogNormal(medianMilliseconds, sigma));
+	}
+
+	public ResponseDefinitionBuilder withUniformRandomDelay(int lowerMilliseconds, int upperMilliseconds) {
+		return withRandomDelay(new UniformDistribution(lowerMilliseconds, upperMilliseconds));
 	}
 
 	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
