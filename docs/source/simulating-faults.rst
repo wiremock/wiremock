@@ -128,6 +128,25 @@ To use, instantiate a ``new LogNormal(median, sigma)``, or via JSON:
             "sigma": 0.4
     }
 
+Uniform delay
+^^^^^^^^^^^^^
+
+A uniform distribution can be used for simulating a stable latency with a fixed amount of jitter. It takes two parameters:
+
+* lower - Lower bound of the range, inclusive.
+* upper - Upper bound of the range, inclusive.
+
+For instance, to simulate a stable latency of 20ms +/- 5ms, use lower = 15 and upper = 25.
+
+To use, instantiate a ``new UniformDistribution(15, 25)``, or via JSON:
+
+.. code-block:: javascript
+
+    "delayDistribution": {
+            "type": "uniform",
+            "lower": 15,
+            "upper": 25
+    }
 
 .. _simulating-faults-bad-responses:
 

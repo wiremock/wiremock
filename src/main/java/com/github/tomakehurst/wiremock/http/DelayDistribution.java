@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = LogNormal.class, name = "lognormal")
+        @JsonSubTypes.Type(value = LogNormal.class, name = "lognormal"),
+        @JsonSubTypes.Type(value = UniformDistribution.class, name = "uniform")
 })
 public interface DelayDistribution {
     /**

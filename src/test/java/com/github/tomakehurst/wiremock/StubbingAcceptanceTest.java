@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.http.LogNormal;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -232,21 +233,35 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
 
-	 @Test
-    public void responseWithRandomDistributionDelay() {
-        stubFor(get(urlEqualTo("/random/delayed/resource")).willReturn(
+	@Test
+    public void responseWithLogNormalDistributedDelay() {
+        stubFor(get(urlEqualTo("/lognormal/delayed/resource")).willReturn(
                 aResponse()
                 		.withStatus(200)
                 		.withBody("Content")
                 		.withRandomDelay(new LogNormal(90, 0.1))));
 
         long start = System.currentTimeMillis();
-        testClient.get("/random/delayed/resource");
+        testClient.get("/lognormal/delayed/resource");
         int duration = (int) (System.currentTimeMillis() - start);
 
         assertThat(duration, greaterThanOrEqualTo(60));
     }
 
+	@Test
+	public void responseWithUniformDistributedDelay() {
+		stubFor(get(urlEqualTo("/uniform/delayed/resource")).willReturn(
+				aResponse()
+						.withStatus(200)
+						.withBody("Content")
+						.withRandomDelay(new UniformDistribution(50, 60))));
+
+		long start = System.currentTimeMillis();
+		testClient.get("/uniform/delayed/resource");
+		int duration = (int) (System.currentTimeMillis() - start);
+
+		assertThat(duration, greaterThanOrEqualTo(50));
+	}
 
 	@Test
 	public void highPriorityMappingMatchedFirst() {
