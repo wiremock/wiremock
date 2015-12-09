@@ -12,8 +12,8 @@ Simulating Faults
 
 .. _simulating-faults-stub-delays:
 
-Stub delays
-===========
+Stub fixed delays
+=================
 
 A stub response can have a fixed delay attached to it, such that the response will not be returned until after the
 specified number of milliseconds:
@@ -53,11 +53,11 @@ document of the following form to ``http://<host>:<port>/__admin/settings``:
         "fixedDelay": 500
     }
 
-Random delays
--------------
+Stub random delays
+==================
 
 In addition to fixed delays, a delay can be sampled from a random distribution. This allows simulation of more specific
-downstream behaviours, such as a long tail for delays.
+downstream latencies, such as a long tail.
 
 Use ``#withRandomDelay`` on the stub to pass in the desired distribution:
 
@@ -87,6 +87,24 @@ Or set it on the ``delayDistribution`` field via the JSON api:
 
         }
     }
+
+Global stub delays
+------------------
+
+You can set a random delay globally with ``WireMock.setGlobalRandomDelay()`` or the JSON api at ``http://<host>:<port>/__admin/settings``:
+
+.. code-block:: javascript
+
+    {
+        "delayDistribution": {
+                "type": "lognormal",
+                "median": 90,
+                "sigma": 0.1
+        }
+    }
+
+Available distributions
+-----------------------
 
 Lognormal delay
 ^^^^^^^^^^^^^^^

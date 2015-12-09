@@ -57,7 +57,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
 	private Response buildResponse(ResponseDefinition responseDefinition) {
 		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
-		addRandomDelayIn(responseDefinition);
+		addRandomDelayIfSpecifiedGloballyOrIn(responseDefinition);
 
 		if (responseDefinition.isProxyResponse()) {
 			return proxyResponseRenderer.render(responseDefinition);
@@ -123,14 +123,22 @@ public class StubResponseRenderer implements ResponseRenderer {
     	return Optional.fromNullable(delay);
     }
 
-    private void addRandomDelayIn(ResponseDefinition response) {
-        if (response.getDelayDistribution() == null) return;
+    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
+		if (response.getDelayDistribution() != null) {
+			addRandomDelayIn(response.getDelayDistribution());
+		} else {
+			addRandomDelayIn(globalSettingsHolder.get().getDelayDistribution());
+		}
+    }
 
-        long delay = response.getDelayDistribution().sampleMillis();
-        try {
+	private void addRandomDelayIn(DelayDistribution delayDistribution) {
+		if (delayDistribution == null) return;
+
+		long delay = delayDistribution.sampleMillis();
+		try {
            TimeUnit.MILLISECONDS.sleep(delay);
         } catch (InterruptedException e) {
            Thread.currentThread().interrupt();
         }
-    }
+	}
 }
