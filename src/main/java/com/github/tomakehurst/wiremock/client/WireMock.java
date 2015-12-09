@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -41,6 +41,7 @@ public class WireMock {
 	private static final String DEFAULT_HOST = "localhost";
 
 	private final Admin admin;
+	private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
 
 	private static ThreadLocal<WireMock> defaultInstance = new ThreadLocal<WireMock>(){
             @Override 
@@ -418,8 +419,23 @@ public class WireMock {
 	}
 
 	public void setGlobalFixedDelayVariable(int milliseconds) {
-		GlobalSettings settings = new GlobalSettings();
+		GlobalSettings settings = globalSettingsHolder.get().copy();
 		settings.setFixedDelay(milliseconds);
+		updateGlobalSettings(settings);
+	}
+
+	public static void setGlobalRandomDelay(DelayDistribution distribution) {
+		defaultInstance.get().setGlobalRandomDelayVariable(distribution);
+	}
+
+	public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
+		GlobalSettings settings = globalSettingsHolder.get().copy();
+		settings.setDelayDistribution(distribution);
+		updateGlobalSettings(settings);
+	}
+
+	private void updateGlobalSettings(GlobalSettings settings) {
+		globalSettingsHolder.replaceWith(settings);
 		admin.updateGlobalSettings(settings);
 	}
 

@@ -49,6 +49,7 @@ public class ResponseDefinitionTest {
                 new HttpHeaders(httpHeader("thing", "thingvalue")),
                 null,
                 1112,
+                null,
                 "http://base.com",
                 Fault.EMPTY_RESPONSE,
                 ImmutableList.of("transformer-1"),

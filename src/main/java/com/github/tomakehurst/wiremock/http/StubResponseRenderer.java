@@ -21,9 +21,11 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.google.common.base.Optional;
 
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -55,6 +57,8 @@ public class StubResponseRenderer implements ResponseRenderer {
 
 	private Response buildResponse(ResponseDefinition responseDefinition) {
 		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
+		addRandomDelayIfSpecifiedGloballyOrIn(responseDefinition);
+
 		if (responseDefinition.isProxyResponse()) {
 			return proxyResponseRenderer.render(responseDefinition);
 		} else {
@@ -118,4 +122,23 @@ public class StubResponseRenderer implements ResponseRenderer {
     	
     	return Optional.fromNullable(delay);
     }
+
+    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
+		if (response.getDelayDistribution() != null) {
+			addRandomDelayIn(response.getDelayDistribution());
+		} else {
+			addRandomDelayIn(globalSettingsHolder.get().getDelayDistribution());
+		}
+    }
+
+	private void addRandomDelayIn(DelayDistribution delayDistribution) {
+		if (delayDistribution == null) return;
+
+		long delay = delayDistribution.sampleMillis();
+		try {
+           TimeUnit.MILLISECONDS.sleep(delay);
+        } catch (InterruptedException e) {
+           Thread.currentThread().interrupt();
+        }
+	}
 }
