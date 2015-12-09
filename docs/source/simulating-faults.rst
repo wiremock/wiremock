@@ -53,6 +53,63 @@ document of the following form to ``http://<host>:<port>/__admin/settings``:
         "fixedDelay": 500
     }
 
+Random delays
+-------------
+
+In addition to fixed delays, a delay can be sampled from a random distribution. This allows simulation of more specific
+downstream behaviours, such as a long tail for delays.
+
+Use ``#withRandomDelay`` on the stub to pass in the desired distribution:
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/random/delayed")).willReturn(
+            aResponse()
+                    .withStatus(200)
+                    .withRandomDelay(new LogNormal(90, 0.1))));
+
+Or set it on the ``delayDistribution`` field via the JSON api:
+
+.. code-block:: javascript
+
+    {
+        "request": {
+                "method": "GET",
+                "url": "/random/delayed"
+        },
+        "response": {
+                "status": 200,
+                "delayDistribution": {
+                        "type": "lognormal",
+                        "median": 80,
+                        "sigma": 0.4
+                }
+
+        }
+    }
+
+Lognormal delay
+^^^^^^^^^^^^^^^
+
+A lognormal distribution is a pretty good approximation of long tailed latencies centered on the 50th percentile.
+It takes two parameters:
+
+* median - The 50th percentile of latencies.
+* sigma - Standard deviation. The larger the value, the longer the tail.
+
+`Try different values <https://www.wolframalpha.com/input/?i=lognormaldistribution%28log%2890%29%2C+0.4%29>`_ to
+find a good approximation.
+
+To use, instantiate a ``new LogNormal(median, sigma)``, or via JSON:
+
+.. code-block:: javascript
+
+    "delayDistribution": {
+            "type": "lognormal",
+            "median": 80,
+            "sigma": 0.4
+    }
+
 
 .. _simulating-faults-bad-responses:
 
