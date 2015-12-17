@@ -102,7 +102,7 @@ public class StubMappingJsonRecorder implements RequestListener {
                 .withStatus(response.getStatus())
                 .withBodyFile(bodyFileName);
         if (response.getHeaders().size() > 0) {
-            responseDefinitionBuilder.withHeaders(withoutContentEncoding(response.getHeaders()));
+            responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength(response.getHeaders()));
         }
 
         ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
@@ -113,10 +113,10 @@ public class StubMappingJsonRecorder implements RequestListener {
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }
 
-    private HttpHeaders withoutContentEncoding(HttpHeaders httpHeaders) {
+    private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
         return new HttpHeaders(filter(httpHeaders.all(), new Predicate<HttpHeader>() {
-            public boolean apply(HttpHeader input) {
-                return !input.caseInsensitiveKey().equals(CaseInsensitiveKey.from("Content-Encoding"));
+            public boolean apply(HttpHeader header) {
+                return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
             }
         }));
     }

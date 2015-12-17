@@ -392,7 +392,10 @@ public class StubMappingJsonRecorderTest {
         Response response = response()
                 .status(200)
                 .fromProxy(true)
-                .headers(new HttpHeaders(httpHeader("Content-Encoding", "gzip")))
+                .headers(new HttpHeaders(
+                    httpHeader("Content-Encoding", "gzip"),
+                    httpHeader("Content-Length", "123"))
+                )
                 .body(gzip("Recorded body content"))
                 .build();
 
