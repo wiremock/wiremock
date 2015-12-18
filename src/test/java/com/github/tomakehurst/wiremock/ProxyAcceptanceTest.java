@@ -41,6 +41,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -353,6 +354,18 @@ public class ProxyAcceptanceTest {
         LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/no-accept-encoding-header"))));
         assertFalse("Accept-Encoding header should not be present",
                 lastRequest.getHeaders().getHeader("Accept-Encoding").isPresent());
+    }
+
+    @Test
+    public void passesMultipleValuesOfTheSameHeaderToTheTarget() {
+        initWithDefaultConfig();
+        register200StubOnProxyAndTarget("/multi-value-header");
+
+        testClient.get("/multi-value-header", withHeader("Accept", "accept1"), withHeader("Accept", "accept2"));
+
+        LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/multi-value-header"))));
+
+        assertThat(lastRequest.header("Accept").values(), hasItems("accept1", "accept2"));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

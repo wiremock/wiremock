@@ -129,8 +129,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		for (String key: originalRequest.getAllHeaderKeys()) {
 			if (headerShouldBeTransferred(key)) {
                 if (!HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
-                    String value = originalRequest.getHeader(key);
-                    httpRequest.addHeader(key, value);
+					List<String> values = originalRequest.header(key).values();
+					for (String value: values) {
+						httpRequest.addHeader(key, value);
+					}
                 } else {
                     if (hostHeaderValue != null) {
                         httpRequest.addHeader(key, hostHeaderValue);
