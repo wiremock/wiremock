@@ -26,9 +26,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class Response {
 
 	private final int status;
-    private String reason;
-    private final byte[] body;
-    private final HttpHeaders headers;
+	private String reason;
+	private final byte[] body;
+	private final HttpHeaders headers;
 	private final boolean configured;
 	private final Fault fault;
 	private final boolean fromProxy;
@@ -48,7 +48,7 @@ public class Response {
         return new Builder();
     }
 
-    public Response(int status, String reason, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+	public Response(int status, String reason, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
         this.status = status;
         this.reason = reason;
         this.body = body;

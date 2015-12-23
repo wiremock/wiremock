@@ -55,9 +55,9 @@ public class ResponseDefinition {
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
-		newResponseDef.reason = original.reason;
-		newResponseDef.body = original.body;
-		newResponseDef.isBinaryBody = original.isBinaryBody;
+	    newResponseDef.reason = original.reason;
+	    newResponseDef.body = original.body;
+	    newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
 	    newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
