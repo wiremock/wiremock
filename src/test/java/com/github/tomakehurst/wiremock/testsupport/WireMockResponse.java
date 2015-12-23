@@ -39,6 +39,10 @@ public class WireMockResponse {
 	public int statusCode() {
 		return httpResponse.getStatusLine().getStatusCode();
 	}
+
+	public String reasonPhrase() {
+		return httpResponse.getStatusLine().getReasonPhrase();
+	}
 	
 	public String content() {
         if(content==null) {

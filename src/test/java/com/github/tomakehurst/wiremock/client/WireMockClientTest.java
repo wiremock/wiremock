@@ -55,7 +55,7 @@ public class WireMockClientTest {
 				get(urlEqualTo("/basic/mapping/resource"))
 				.willReturn(aResponse().withStatus(304)));
 	}
-	
+
 	@Test
 	public void shouldAddBasicPostMapping() {
 		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.BASIC_POST);
@@ -136,7 +136,17 @@ public class WireMockClientTest {
 				get(urlMatching("/match/with/[a-z]+/here"))
 				.willReturn(aResponse().withStatus(200)));
 	}
-	
+
+	@Test
+	public void shouldAddBasicGetMappingWithCustomReasonPhrase() {
+		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_REASON_PHRASE);
+		wireMock.register(
+				get(urlEqualTo("/a/registered/resource/withReason"))
+						.willReturn(aResponse()
+											.withStatus(400)
+											.withReason("Bad Request. Check your request and try again.")));
+	}
+
 	@Test
 	public void shouldAddMappingWithResponseHeader() {
 		expectExactlyOneAddResponseCallWithJson(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);

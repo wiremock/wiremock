@@ -114,15 +114,23 @@ public class Jetty6HandlerDispatchingServlet extends HttpServlet {
             return;
         }
 
-        httpServletResponse.setStatus(response.getStatus());
         for (HttpHeader header: response.getHeaders().all()) {
             for (String value: header.values()) {
                 httpServletResponse.addHeader(header.key(), value);
             }
         }
 
-        writeAndTranslateExceptions(httpServletResponse, response.getBody());
-    }
+		if (response.getReason() != null) {
+			try {
+				httpServletResponse.sendError(response.getStatus(), response.getReason());
+			} catch (IOException e) {
+				httpServletResponse.setStatus(response.getStatus());
+			}
+		} else {
+			httpServletResponse.setStatus(response.getStatus());
+			writeAndTranslateExceptions(httpServletResponse, response.getBody());
+		}
+	}
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
         try {

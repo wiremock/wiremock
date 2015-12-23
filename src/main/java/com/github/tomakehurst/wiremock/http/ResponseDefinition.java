@@ -37,6 +37,7 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 public class ResponseDefinition {
 
 	private int status;
+	private String reason;
 	private byte[] body;
     private boolean isBinaryBody = false;
 	private String bodyFileName;
@@ -54,8 +55,9 @@ public class ResponseDefinition {
 	public static ResponseDefinition copyOf(ResponseDefinition original) {
 	    ResponseDefinition newResponseDef = new ResponseDefinition();
 	    newResponseDef.status = original.status;
-	    newResponseDef.body = original.body;
-        newResponseDef.isBinaryBody = original.isBinaryBody;
+		newResponseDef.reason = original.reason;
+		newResponseDef.body = original.body;
+		newResponseDef.isBinaryBody = original.isBinaryBody;
 	    newResponseDef.bodyFileName = original.bodyFileName;
 	    newResponseDef.headers = original.headers;
 	    newResponseDef.additionalProxyRequestHeaders = original.additionalProxyRequestHeaders;
@@ -133,6 +135,10 @@ public class ResponseDefinition {
 		return status;
 	}
 
+	public String getReason() {
+		return reason;
+	}
+
 	public String getBody() {
 		return (!isBinaryBody && body!=null) ? new String(body,Charset.forName(UTF_8.name())) : null;
 	}
@@ -181,6 +187,10 @@ public class ResponseDefinition {
             this.status = status;
         }
     }
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 
 	public void setFixedDelayMilliseconds(final Integer fixedDelayMilliseconds) {
 	    this.fixedDelayMilliseconds = fixedDelayMilliseconds;
@@ -276,6 +286,7 @@ public class ResponseDefinition {
 
 		if (isBinaryBody != that.isBinaryBody) return false;
 		if (status != that.status) return false;
+		if (reason != null ? !reason.equals(that.reason) : that.reason != null) return false;
 		if (wasConfigured != that.wasConfigured) return false;
 		if (additionalProxyRequestHeaders != null ? !additionalProxyRequestHeaders.equals(that.additionalProxyRequestHeaders) : that.additionalProxyRequestHeaders != null)
 			return false;

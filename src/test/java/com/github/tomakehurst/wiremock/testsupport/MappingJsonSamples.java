@@ -233,4 +233,16 @@ public class MappingJsonSamples {
             "		\"base64Body\": \""+ BINARY_COMPRESSED_JSON_STRING + "\"	    \n" +
             "	}												                    \n" +
             "}													                    ";
+
+	public static final String BASIC_MAPPING_REQUEST_WITH_REASON_PHRASE =
+			"{ 														\n" +
+					"	\"request\": {										\n" +
+					"		\"method\": \"GET\",							\n" +
+					"		\"url\": \"/a/registered/resource/withReason\"	\n" +
+					"	},													\n" +
+					"	\"response\": {										\n" +
+					"		\"status\": 400,								\n" +
+					"		\"reason\": \"Bad Request. Check your request and try again.\" 	\n" +
+					"	}													\n" +
+					"}														";
 }
