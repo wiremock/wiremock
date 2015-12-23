@@ -26,6 +26,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 public class Response {
 
 	private final int status;
+	private String reason;
 	private final byte[] body;
 	private final HttpHeaders headers;
 	private final boolean configured;
@@ -34,6 +35,7 @@ public class Response {
 	
 	public static Response notConfigured() {
         Response response = new Response(HTTP_NOT_FOUND,
+                "Not Found",
                 (byte[]) null,
                 noHeaders(),
                 false,
@@ -46,8 +48,9 @@ public class Response {
         return new Builder();
     }
 
-	public Response(int status, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
-		this.status = status;
+	public Response(int status, String reason, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+        this.status = status;
+        this.reason = reason;
         this.body = body;
         this.headers = headers;
         this.configured = configured;
@@ -55,8 +58,9 @@ public class Response {
         this.fromProxy = fromProxy;
 	}
 
-    public Response(int status, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+    public Response(int status, String reason, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
         this.status = status;
+        this.reason = reason;
         this.headers = headers;
         this.body = body == null ? null : body.getBytes(encodingFromContentTypeHeaderOrUtf8());
         this.configured = configured;
@@ -67,6 +71,10 @@ public class Response {
 	public int getStatus() {
 		return status;
 	}
+
+    public String getReason() {
+        return reason;
+    }
 
     public byte[] getBody() {
         return body;
@@ -109,6 +117,7 @@ public class Response {
 
     public static class Builder {
         private int status = HTTP_OK;
+        private String reason;
         private byte[] body;
         private String bodyString;
         private HttpHeaders headers = new HttpHeaders();
@@ -118,6 +127,11 @@ public class Response {
 
         public Builder status(int status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder reason(String reason) {
+            this.reason = reason;
             return this;
         }
 
@@ -161,11 +175,11 @@ public class Response {
 
         public Response build() {
             if (body != null) {
-                return new Response(status, body, headers, configured, fault, fromProxy);
+                return new Response(status, reason, body, headers, configured, fault, fromProxy);
             } else if (bodyString != null) {
-                return new Response(status, bodyString, headers, configured, fault, fromProxy);
+                return new Response(status, reason, bodyString, headers, configured, fault, fromProxy);
             } else {
-                return new Response(status, new byte[0], headers, configured, fault, fromProxy);
+                return new Response(status, reason, new byte[0], headers, configured, fault, fromProxy);
             }
         }
     }

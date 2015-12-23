@@ -90,7 +90,19 @@ public class MappingBuilderTest {
         assertThat(mapping.getResponse().getByteBody(), is("Some content".getBytes()));
     }
 
-    @SuppressWarnings("unchecked")
+	@Test
+	public void shouldBuildMappingWithReasonPhrase() {
+		StubMapping mapping =
+				new MappingBuilder(POST, new UrlMatchingStrategy())
+						.willReturn(new ResponseDefinitionBuilder()
+											.withStatus(400)
+											.withReason("Bad Request. Check your request and try again."))
+						.build();
+
+		assertThat(mapping.getResponse().getReason(), is("Bad Request. Check your request and try again."));
+	}
+
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBuildMappingWithResponseHeaders() {
 		StubMapping mapping =

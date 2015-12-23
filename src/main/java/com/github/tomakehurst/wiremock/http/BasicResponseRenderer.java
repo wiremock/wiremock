@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.google.common.base.Optional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class BasicResponseRenderer implements ResponseRenderer {
@@ -36,6 +33,7 @@ public class BasicResponseRenderer implements ResponseRenderer {
 
         return response()
                 .status(responseDefinition.getStatus())
+                .reason(responseDefinition.getReason())
                 .headers(httpHeaders)
                 .body(responseDefinition.getBody())
                 .build();

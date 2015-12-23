@@ -53,6 +53,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 	private Response renderDirectly(ResponseDefinition responseDefinition) {
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
+                .reason(responseDefinition.getReason())
                 .headers(responseDefinition.getHeaders())
                 .fault(responseDefinition.getFault());
 

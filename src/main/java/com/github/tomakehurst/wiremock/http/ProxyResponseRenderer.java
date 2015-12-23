@@ -77,6 +77,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
+                    .reason(httpResponse.getStatusLine().getReasonPhrase())
                     .headers(headersFrom(httpResponse, responseDefinition))
                     .body(getEntityAsByteArrayAndCloseStream(httpResponse))
                     .fromProxy(true)

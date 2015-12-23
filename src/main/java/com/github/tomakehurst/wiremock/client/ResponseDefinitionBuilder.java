@@ -33,6 +33,7 @@ import static java.util.Arrays.asList;
 public class ResponseDefinitionBuilder {
 
 	protected int status = HTTP_OK;
+	protected String reason;
 	protected byte[] bodyContent;
 	protected boolean isBinaryBody = false;
 	protected String bodyFileName;
@@ -45,6 +46,7 @@ public class ResponseDefinitionBuilder {
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
 		builder.status = responseDefinition.getStatus();
+		builder.reason = responseDefinition.getReason();
 		builder.headers = responseDefinition.getHeaders() != null ?
 				newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
@@ -74,7 +76,12 @@ public class ResponseDefinitionBuilder {
 		this.status = status;
 		return this;
 	}
-	
+
+	public ResponseDefinitionBuilder withReason(String reason) {
+		this.reason = reason;
+		return this;
+	}
+
 	public ResponseDefinitionBuilder withHeader(String key, String value) {
 		headers.add(new HttpHeader(key, value));
 		return this;
@@ -118,6 +125,7 @@ public class ResponseDefinitionBuilder {
 
 		public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
 			this.status = from.status;
+			this.reason = from.reason;
 			this.headers = from.headers;
 			this.bodyContent = from.bodyContent;
 			this.bodyFileName = from.bodyFileName;
@@ -166,8 +174,9 @@ public class ResponseDefinitionBuilder {
         if (!headers.isEmpty()) {
             response.setHeaders(new HttpHeaders(headers));
         }
-		
-        response.setBodyFileName(bodyFileName);
+
+		response.setReason(reason);
+		response.setBodyFileName(bodyFileName);
 		response.setFixedDelayMilliseconds(fixedDelayMilliseconds);
 		response.setProxyBaseUrl(proxyBaseUrl);
 		response.setFault(fault);

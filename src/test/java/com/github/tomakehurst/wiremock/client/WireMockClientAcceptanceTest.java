@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Before;
@@ -64,5 +65,16 @@ public class WireMockClientAcceptanceTest {
 						.withStatus(304)));
 		
 		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+	}
+
+	@Test
+	public void buildsMappingWithUrlOnlyRequestAndStatusWithReasonOnlyResponse() {
+		givenThat(get(urlEqualTo("/my/new/resource"))
+						  .willReturn(aResponse()
+											  .withStatus(400).withReason("Bad Request. Check your request and try again.")));
+
+		WireMockResponse response = testClient.get("/my/new/resource");
+		assertThat(response.statusCode(), is(400));
+		assertThat(response.reasonPhrase(), is("Bad Request. Check your request and try again."));
 	}
 }
