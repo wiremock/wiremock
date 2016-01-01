@@ -18,52 +18,47 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class LocalMappingBuilder {
+public abstract class LocalMappingBuilder<T extends LocalMappingBuilder<?>> {
 
-    private MappingBuilder mappingBuilder;
+    protected ScenarioMappingBuilder mappingBuilder;
 
     public LocalMappingBuilder(RequestMatcher requestMatcher) {
-        mappingBuilder = new MappingBuilder(requestMatcher);
+        mappingBuilder = new ScenarioMappingBuilder(requestMatcher);
     }
 
-    public LocalMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
+    @SuppressWarnings("unchecked")
+    public T willReturn(ResponseDefinitionBuilder responseDefBuilder) {
         mappingBuilder.willReturn(responseDefBuilder);
-        return this;
+        return (T) this;
     }
 
-    public LocalMappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
+    @SuppressWarnings("unchecked")
+    public T withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
         mappingBuilder.withHeader(key, headerMatchingStrategy);
-        return this;
+        return (T) this;
     }
 
-    public LocalMappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
+    @SuppressWarnings("unchecked")
+    public T withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
         mappingBuilder.withRequestBody(bodyMatchingStrategy);
-        return this;
+        return (T) this;
     }
 
-    public LocalMappingBuilder whenScenarioStateIs(String stateName) {
-        mappingBuilder.whenScenarioStateIs(stateName);
-        return this;
-    }
-
-    public LocalMappingBuilder inScenario(String scenarioName) {
+    public LocalScenarioMappingBuilder inScenario(String scenarioName) {
         mappingBuilder.inScenario(scenarioName);
-        return this;
+        return (LocalScenarioMappingBuilder)this;
     }
 
-    public LocalMappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
+    @SuppressWarnings("unchecked")
+    public T withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         mappingBuilder.withQueryParam(key, queryParamMatchingStrategy);
-        return this;
+        return (T) this;
     }
 
-    public LocalMappingBuilder atPriority(Integer priority) {
+    @SuppressWarnings("unchecked")
+    public T atPriority(Integer priority) {
         mappingBuilder.atPriority(priority);
-        return this;
-    }
-
-    public LocalMappingBuilder willSetStateTo(String stateName) {
-        mappingBuilder.willSetStateTo(stateName);
-        return this;
+        return (T) this;
     }
 
     public StubMapping build() {

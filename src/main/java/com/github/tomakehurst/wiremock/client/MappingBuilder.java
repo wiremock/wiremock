@@ -19,18 +19,17 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class MappingBuilder {
+public abstract class MappingBuilder<T extends MappingBuilder<?>> {
 	
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
-	private String requiredScenarioState;
-	private String newScenarioState;
+	protected String requiredScenarioState;
+	protected String newScenarioState;
 	
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
@@ -44,50 +43,45 @@ public class MappingBuilder {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
 	}
 
-	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
+	@SuppressWarnings("unchecked")
+	public T willReturn(ResponseDefinitionBuilder responseDefBuilder) {
 		this.responseDefBuilder = responseDefBuilder;
-		return this;
-	}
-	
-	public MappingBuilder atPriority(Integer priority) {
-		this.priority = priority;
-		return this;
-	}
-	
-	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
-		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
-		return this;
+		return (T) this;
 	}
 
-    public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
+	@SuppressWarnings("unchecked")
+	public T atPriority(Integer priority) {
+		this.priority = priority;
+		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
+		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
+		return (T) this;
+	}
+
+    @SuppressWarnings("unchecked")
+    public T withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
-        return this;
+        return (T) this;
     }
 
-	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
+	@SuppressWarnings("unchecked")
+	public T withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
-		return this;
+		return (T) this;
 	}
 
-	public MappingBuilder inScenario(String scenarioName) {
+	public ScenarioMappingBuilder inScenario(String scenarioName) {
+		if (scenarioName == null) {
+			throw new IllegalArgumentException("Scenario name must not be null");
+		}
 		this.scenarioName = scenarioName;
-		return this;
-	}
-
-	public MappingBuilder whenScenarioStateIs(String stateName) {
-		this.requiredScenarioState = stateName;
-		return this;
-	}
-
-	public MappingBuilder willSetStateTo(String stateName) {
-		this.newScenarioState = stateName;
-		return this;
+		return (ScenarioMappingBuilder) this;
 	}
 
 	public StubMapping build() {
-		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
-			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
-		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
