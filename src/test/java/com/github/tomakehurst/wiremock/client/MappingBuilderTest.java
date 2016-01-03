@@ -31,7 +31,7 @@ public class MappingBuilderTest {
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
 		urlStrategy.setUrl("/match/this");
 		StubMapping mapping =
-			new ScenarioMappingBuilder(POST, urlStrategy)
+			new MappingBuilder(POST, urlStrategy)
 			.willReturn(new ResponseDefinitionBuilder().withStatus(201))
 			.build();
 		
@@ -45,7 +45,7 @@ public class MappingBuilderTest {
 		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
 		urlStrategy.setUrlPattern("/match/[A-Z]{5}");
 		StubMapping mapping =
-			new ScenarioMappingBuilder(POST, urlStrategy)
+			new MappingBuilder(POST, urlStrategy)
 			.willReturn(new ResponseDefinitionBuilder())
 			.build();
 		
@@ -58,7 +58,7 @@ public class MappingBuilderTest {
 		urlStrategy.setUrl("/match/this");
 		
 		StubMapping mapping =
-			new ScenarioMappingBuilder(POST, urlStrategy)
+			new MappingBuilder(POST, urlStrategy)
 			.withHeader("Content-Type", headerStrategyEqualTo("text/plain"))
 			.withHeader("Encoding", headerStrategyMatches("UTF-\\d"))
 			.withHeader("X-My-Thing", headerStrategyDoesNotMatch("[A-Z]+"))
@@ -73,7 +73,7 @@ public class MappingBuilderTest {
 	@Test
 	public void shouldBuildMappingWithResponseBody() {
 		StubMapping mapping =
-			new ScenarioMappingBuilder(POST, new UrlMatchingStrategy())
+			new MappingBuilder(POST, new UrlMatchingStrategy())
 			.willReturn(new ResponseDefinitionBuilder().withBody("Some content"))
 			.build();
 		
@@ -83,7 +83,7 @@ public class MappingBuilderTest {
     @Test
     public void shouldBuildMappingWithResponseByteBody() {
         StubMapping mapping =
-                new ScenarioMappingBuilder(POST, new UrlMatchingStrategy())
+                new MappingBuilder(POST, new UrlMatchingStrategy())
                         .willReturn(new ResponseDefinitionBuilder().withBody("Some content".getBytes()))
                         .build();
 
@@ -94,7 +94,7 @@ public class MappingBuilderTest {
 	@Test
 	public void shouldBuildMappingWithResponseHeaders() {
 		StubMapping mapping =
-			new ScenarioMappingBuilder(POST, new UrlMatchingStrategy())
+			new MappingBuilder(POST, new UrlMatchingStrategy())
 			.willReturn(new ResponseDefinitionBuilder()
 				.withHeader("Content-Type", "text/xml")
 				.withHeader("Encoding", "UTF-8"))

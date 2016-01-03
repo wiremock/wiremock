@@ -25,7 +25,7 @@ import com.google.common.base.Preconditions;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public abstract class MappingBuilder<T extends MappingBuilder<?>> {
+public class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
@@ -46,44 +46,51 @@ public abstract class MappingBuilder<T extends MappingBuilder<?>> {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
 	}
 
-	@SuppressWarnings("unchecked")
-	public T willReturn(ResponseDefinitionBuilder responseDefBuilder) {
-		this.responseDefBuilder = responseDefBuilder;
-		return (T) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public T atPriority(Integer priority) {
-		this.priority = priority;
-		return (T) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public T withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
-		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
-		return (T) this;
-	}
-
+	@Override
     @SuppressWarnings("unchecked")
-    public T withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
+	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
+		this.responseDefBuilder = responseDefBuilder;
+		return this;
+	}
+
+	@Override
+    @SuppressWarnings("unchecked")
+	public MappingBuilder atPriority(Integer priority) {
+		this.priority = priority;
+		return this;
+	}
+
+	@Override
+    @SuppressWarnings("unchecked")
+	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
+		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
+		return this;
+	}
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
-        return (T) this;
+        return this;
     }
 
-	@SuppressWarnings("unchecked")
-	public T withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
+	@Override
+    @SuppressWarnings("unchecked")
+	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
-		return (T) this;
+		return this;
 	}
 
-	public ScenarioMappingBuilder inScenario(String scenarioName) {
+	@Override
+    public ScenarioMappingBuilder inScenario(String scenarioName) {
         checkArgument(scenarioName != null, "Scenario name must not be null");
 
 		this.scenarioName = scenarioName;
-		return (ScenarioMappingBuilder) this;
+		return this;
 	}
 
-	public StubMapping build() {
+	@Override
+    public StubMapping build() {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
@@ -93,4 +100,16 @@ public abstract class MappingBuilder<T extends MappingBuilder<?>> {
 		mapping.setNewScenarioState(newScenarioState);
 		return mapping;
 	}
+
+    @Override
+    public ScenarioMappingBuilder whenScenarioStateIs(String stateName) {
+        this.requiredScenarioState = stateName;
+        return this;
+    }
+
+    @Override
+    public ScenarioMappingBuilder willSetStateTo(String stateName) {
+        this.newScenarioState = stateName;
+        return this;
+    }
 }
