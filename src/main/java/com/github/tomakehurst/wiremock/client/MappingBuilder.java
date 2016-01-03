@@ -21,6 +21,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Preconditions;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class MappingBuilder<T extends MappingBuilder<?>> {
 	
@@ -74,9 +77,8 @@ public abstract class MappingBuilder<T extends MappingBuilder<?>> {
 	}
 
 	public ScenarioMappingBuilder inScenario(String scenarioName) {
-		if (scenarioName == null) {
-			throw new IllegalArgumentException("Scenario name must not be null");
-		}
+        checkArgument(scenarioName != null, "Scenario name must not be null");
+
 		this.scenarioName = scenarioName;
 		return (ScenarioMappingBuilder) this;
 	}

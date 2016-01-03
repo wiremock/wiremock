@@ -46,7 +46,7 @@ public abstract class LocalMappingBuilder<T extends LocalMappingBuilder<?>> {
 
     public LocalScenarioMappingBuilder inScenario(String scenarioName) {
         mappingBuilder.inScenario(scenarioName);
-        return (LocalScenarioMappingBuilder)this;
+        return (LocalScenarioMappingBuilder) this;
     }
 
     @SuppressWarnings("unchecked")
