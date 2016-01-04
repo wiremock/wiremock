@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Preconditions;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -47,35 +46,30 @@ public class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuild
 	}
 
 	@Override
-    @SuppressWarnings("unchecked")
 	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
 		this.responseDefBuilder = responseDefBuilder;
 		return this;
 	}
 
 	@Override
-    @SuppressWarnings("unchecked")
 	public MappingBuilder atPriority(Integer priority) {
 		this.priority = priority;
 		return this;
 	}
 
 	@Override
-    @SuppressWarnings("unchecked")
 	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
 		return this;
 	}
 
     @Override
-    @SuppressWarnings("unchecked")
     public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
         return this;
     }
 
 	@Override
-    @SuppressWarnings("unchecked")
 	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
 		return this;
