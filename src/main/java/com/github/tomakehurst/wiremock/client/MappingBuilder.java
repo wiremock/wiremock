@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
+class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	
 	private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
@@ -76,7 +76,7 @@ public class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuild
 	}
 
 	@Override
-    public ScenarioMappingBuilder inScenario(String scenarioName) {
+    public MappingBuilder inScenario(String scenarioName) {
         checkArgument(scenarioName != null, "Scenario name must not be null");
 
 		this.scenarioName = scenarioName;
@@ -96,13 +96,13 @@ public class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuild
 	}
 
     @Override
-    public ScenarioMappingBuilder whenScenarioStateIs(String stateName) {
+    public MappingBuilder whenScenarioStateIs(String stateName) {
         this.requiredScenarioState = stateName;
         return this;
     }
 
     @Override
-    public ScenarioMappingBuilder willSetStateTo(String stateName) {
+    public MappingBuilder willSetStateTo(String stateName) {
         this.newScenarioState = stateName;
         return this;
     }
