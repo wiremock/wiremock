@@ -30,10 +30,10 @@ import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -89,7 +89,9 @@ class JettyHttpServer implements HttpServer {
         );
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[]{adminContext, mockServiceContext});
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setHandler(mockServiceContext);
+        handlers.setHandlers(new Handler[]{adminContext, gzipHandler});
         jettyServer.setHandler(handlers);
 
         jettyServer.setStopTimeout(0);
@@ -252,7 +254,6 @@ class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setWelcomeFiles(new String[]{"index.json", "index.html", "index.xml", "index.txt"});
 
-        mockServiceContext.addFilter(GzipFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
