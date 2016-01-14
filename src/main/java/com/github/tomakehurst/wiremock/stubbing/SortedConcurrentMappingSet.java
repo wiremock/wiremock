@@ -27,7 +27,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	
 	public SortedConcurrentMappingSet() {
 		insertionCount = new AtomicLong();
-		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
+		mappingSet = new ConcurrentSkipListSet<>(sortedByPriorityThenReverseInsertionOrder());
 	}
 	
 	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
