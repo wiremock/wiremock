@@ -139,6 +139,10 @@ public class ResponseDefinition {
 		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
 
+	public static ResponseDefinition noContent() {
+		return new ResponseDefinition(HTTP_NO_CONTENT, (byte[])null);
+	}
+
 	public static ResponseDefinition redirectTo(String path) {
 		return new ResponseDefinitionBuilder()
 				.withHeader("Location", path)

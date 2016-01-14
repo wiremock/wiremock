@@ -25,11 +25,12 @@ public interface Stubbing {
 
     void givenThat(MappingBuilder mappingBuilder);
     void stubFor(MappingBuilder mappingBuilder);
+    void editStub(MappingBuilder mappingBuilder);
 
     void verify(RequestPatternBuilder requestPatternBuilder);
+
     void verify(int count, RequestPatternBuilder requestPatternBuilder);
 
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
-
     void setGlobalFixedDelay(int milliseconds);
 }

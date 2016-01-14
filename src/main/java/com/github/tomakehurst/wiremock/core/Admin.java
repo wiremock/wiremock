@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 public interface Admin {
 
 	void addStubMapping(StubMapping stubMapping);
+	void editStubMapping(StubMapping stubMapping);
     ListStubMappingsResult listAllStubMappings();
     void saveMappings();
 	void resetMappings();

@@ -33,12 +33,14 @@ import java.net.URI;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 public class WireMockTestClient {
 
     private static final String LOCAL_WIREMOCK_ROOT = "http://%s:%d%s";
     private static final String LOCAL_WIREMOCK_NEW_RESPONSE_URL = "http://%s:%d/__admin/mappings/new";
+    private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL = "http://%s:%d/__admin/mappings/edit";
     private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
     private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
 
@@ -64,6 +66,10 @@ public class WireMockTestClient {
 
     private String newMappingUrl() {
         return String.format(LOCAL_WIREMOCK_NEW_RESPONSE_URL, address, port);
+    }
+
+    private String editMappingUrl() {
+        return String.format(LOCAL_WIREMOCK_EDIT_RESPONSE_URL, address, port);
     }
 
     private String resetUrl() {
@@ -157,6 +163,13 @@ public class WireMockTestClient {
     public void addResponse(String responseSpecJson) {
         int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
         if (status != HTTP_CREATED) {
+            throw new RuntimeException("Returned status code was " + status);
+        }
+    }
+
+    public void editMapping(String mappingSpecJson) {
+        int status = postJsonAndReturnStatus(editMappingUrl(), mappingSpecJson);
+        if (status != HTTP_NO_CONTENT) {
             throw new RuntimeException("Returned status code was " + status);
         }
     }

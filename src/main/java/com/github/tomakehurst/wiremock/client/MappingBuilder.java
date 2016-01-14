@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import java.util.UUID;
+
 public class MappingBuilder {
 	
 	private RequestPatternBuilder requestPatternBuilder;
@@ -31,7 +33,8 @@ public class MappingBuilder {
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
-	
+	private UUID id;
+
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
 	}
@@ -84,6 +87,11 @@ public class MappingBuilder {
 		return this;
 	}
 
+	public MappingBuilder withId(UUID id) {
+		this.id = id;
+		return this;
+	}
+
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
@@ -95,6 +103,7 @@ public class MappingBuilder {
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
+		mapping.setUuid(id);
 		return mapping;
 	}
 }

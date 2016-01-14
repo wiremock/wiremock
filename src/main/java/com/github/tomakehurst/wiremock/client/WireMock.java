@@ -86,6 +86,10 @@ public class WireMock {
 		givenThat(mappingBuilder);
 	}
 
+	public static void editStub(MappingBuilder mappingBuilder) {
+		defaultInstance.get().editStubMapping(mappingBuilder);
+	}
+
     public static ListStubMappingsResult listAllStubMappings() {
         return defaultInstance.get().allStubMappings();
     }
@@ -162,6 +166,10 @@ public class WireMock {
     public void register(StubMapping mapping) {
         admin.addStubMapping(mapping);
     }
+
+	public void editStubMapping(MappingBuilder mappingBuilder) {
+		admin.editStubMapping(mappingBuilder.build());
+	}
 
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();

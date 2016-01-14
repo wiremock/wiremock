@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -24,12 +25,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
 import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.tryFind;
 
 
 public class InMemoryStubMappings implements StubMappings {
@@ -66,13 +69,40 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void addMapping(StubMapping mapping) {
+
+		updateSenarioMapIfPresent(mapping);
+		mappings.add(mapping);
+	}
+
+	@Override
+	public void editMapping(StubMapping stubMapping) {
+
+		final Optional<StubMapping> optionalExistingMapping = tryFind(
+				mappings,
+				mappingMatchingUuid(stubMapping.getUuid())
+		);
+
+		if (!optionalExistingMapping.isPresent()) {
+			String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
+			notifier().error(msg);
+			throw new RuntimeException(msg);
+		}
+
+		final StubMapping existingMapping = optionalExistingMapping.get();
+
+		updateSenarioMapIfPresent(stubMapping);
+		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
+		stubMapping.setTransient(true);
+
+		mappings.replace(existingMapping, stubMapping);
+	}
+
+	private void updateSenarioMapIfPresent(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
 			Scenario scenario = scenarioMap.get(mapping.getScenarioName());
 			mapping.setScenario(scenario);
 		}
-		
-		mappings.add(mapping);
 	}
 
 	@Override
@@ -98,6 +128,15 @@ public class InMemoryStubMappings implements StubMappings {
 			public boolean apply(StubMapping mapping) {
 				return mapping.getRequest().isMatchedBy(request, customMatchers) &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
+			}
+		};
+	}
+
+	private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
+		return new Predicate<StubMapping>() {
+			@Override
+			public boolean apply(StubMapping input) {
+				return input.getUuid().equals(uuid);
 			}
 		};
 	}
