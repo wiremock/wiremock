@@ -84,7 +84,7 @@ public class RequestPatternBuilder {
         return this;
     }
 
-    public RequestPatternBuilder withoutQueryParameter(String key) {
+    public RequestPatternBuilder withoutQueryParam(String key) {
         withoutQueryParameters.add(key);
         return this;
     }

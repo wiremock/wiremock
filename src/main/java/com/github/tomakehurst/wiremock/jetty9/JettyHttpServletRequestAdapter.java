@@ -161,6 +161,11 @@ public class JettyHttpServletRequestAdapter implements Request {
     }
 
     @Override
+    public Set<String> getAllQueryParameterKeys() {
+        return splitQuery(request.getQueryString()).keySet();
+    }
+
+    @Override
     public boolean isBrowserProxyRequest() {
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;

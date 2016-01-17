@@ -194,6 +194,18 @@ public class VerificationAcceptanceTest {
         }
 
         @Test(expected=VerificationException.class)
+        public void verifyIsFalseWhenAbsentQueryParamNotPresent() {
+            testClient.get("/query?param=my-value");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withoutQueryParam("param"));
+        }
+
+        @Test
+        public void verifyAbsentQueryParam() {
+            testClient.get("/query?param=my-value");
+            verify(getRequestedFor(urlPathEqualTo("/query")).withoutQueryParam("otherparam"));
+        }
+
+        @Test(expected=VerificationException.class)
         public void resetErasesCounters() {
             testClient.get("/count/this");
             testClient.get("/count/this");
