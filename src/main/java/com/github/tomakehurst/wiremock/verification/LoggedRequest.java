@@ -148,6 +148,12 @@ public class LoggedRequest implements Request {
         return queryParams.get(key);
     }
 
+    @Override
+    @JsonIgnore
+    public Set<String> getAllQueryParameterKeys() {
+        return queryParams.keySet();
+    }
+
     public HttpHeaders getHeaders() {
         return headers;
     }

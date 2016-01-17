@@ -134,6 +134,7 @@ public class RequestPattern {
 				methodMatches(request) &&
                 requiredAbsentHeadersAreNotPresentIn(request) &&
 				headersMatch(request) &&
+                requiredAbsentQueryParametersAreNotPresentIn(request) &&
                 queryParametersMatch(request) &&
 				bodyMatches(request));
 	}
@@ -179,15 +180,26 @@ public class RequestPattern {
         return ImmutableSet.copyOf(filter(transform(headerPatterns.entrySet(), TO_KEYS_WHERE_VALUE_ABSENT), REMOVING_NULL));
     }
 
+    private boolean requiredAbsentQueryParametersAreNotPresentIn(final Request request) {
+        return !any(requiredAbsentQueryParameterKeys(), new Predicate<String>() {
+            public boolean apply(String key) {
+                return request.getAllQueryParameterKeys().contains(key);
+            }
+        });
+    }
+
+    private Set<String> requiredAbsentQueryParameterKeys() {
+        if (queryParamPatterns == null) {
+            return ImmutableSet.of();
+        }
+
+        return ImmutableSet.copyOf(filter(transform(queryParamPatterns.entrySet(), TO_KEYS_WHERE_VALUE_ABSENT), REMOVING_NULL));
+    }
+
 	private boolean headersMatch(final Request request) {
         return noHeadersAreRequiredToBePresent() ||
                 all(headerPatterns.entrySet(), matchHeadersIn(request));
 	}
-
-    private boolean queryParametersMatch(Request request) {
-        return (queryParamPatterns == null ||
-                all(queryParamPatterns.entrySet(), matchQueryParametersIn(request)));
-    }
 
     private boolean noHeadersAreRequiredToBePresent() {
         return headerPatterns == null || allHeaderPatternsSpecifyAbsent();
@@ -197,6 +209,23 @@ public class RequestPattern {
         return size(filter(headerPatterns.values(), new Predicate<ValuePattern>() {
             public boolean apply(ValuePattern headerPattern) {
                 return !headerPattern.nullSafeIsAbsent();
+            }
+        })) == 0;
+    }
+
+    private boolean queryParametersMatch(Request request) {
+        return (noQueryParametersAreRequiredToBePresent() ||
+                all(queryParamPatterns.entrySet(), matchQueryParametersIn(request)));
+    }
+
+    private boolean noQueryParametersAreRequiredToBePresent() {
+        return queryParamPatterns == null || allQueryParameterPatternsSpecifyAbsent();
+    }
+
+    private boolean allQueryParameterPatternsSpecifyAbsent() {
+        return size(filter(queryParamPatterns.values(), new Predicate<ValuePattern>() {
+            public boolean apply(ValuePattern queryParameterPattern) {
+                return !queryParameterPattern.nullSafeIsAbsent();
             }
         })) == 0;
     }

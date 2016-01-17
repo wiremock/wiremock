@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.http;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 public class QueryParameter extends MultiValue {
 
     public QueryParameter(String key, List<String> values) {
@@ -26,5 +28,9 @@ public class QueryParameter extends MultiValue {
 
     public static QueryParameter absent(String key) {
         return new QueryParameter(key, Collections.<String>emptyList());
+    }
+
+    public static QueryParameter queryParameter(String key, String... values) {
+        return new QueryParameter(key, asList(values));
     }
 }
