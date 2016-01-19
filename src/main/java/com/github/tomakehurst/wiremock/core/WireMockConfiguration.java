@@ -15,22 +15,33 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
-import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
-import com.google.common.base.Optional;
-import com.google.common.io.Resources;
-
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
 
 public class WireMockConfiguration implements Options {
 
@@ -162,6 +173,17 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration fileSource(FileSource fileSource) {
         this.filesRoot = fileSource;
+        return this;
+    }
+
+    public WireMockConfiguration classpathFileSource(String classPath) {
+        try {
+            URL url = Thread.currentThread().getContextClassLoader().getResource(classPath);
+            URI uri = new URI(url.toString().replace(" ", "%20"));
+            fileSource(new SingleRootFileSource(new File(uri)));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 
