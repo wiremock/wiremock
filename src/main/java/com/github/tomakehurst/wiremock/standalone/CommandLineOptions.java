@@ -256,14 +256,14 @@ public class CommandLineOptions implements Options {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType) {
+    public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
         if (optionSet.has(EXTENSIONS)) {
             String classNames = (String) optionSet.valueOf(EXTENSIONS);
             return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(classNames.split(",")), 
                             new Predicate<Map.Entry<String, Extension>>() {
                                 @Override
                                 public boolean apply(Map.Entry<String, Extension> input) {
-                                    return input.getValue().getClass().isAssignableFrom(input.getValue().getClass());
+                                    return extensionType.isAssignableFrom(input.getValue().getClass());
                                 }
             });
         }
