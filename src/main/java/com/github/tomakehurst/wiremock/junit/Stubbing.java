@@ -25,6 +25,7 @@ public interface Stubbing {
 
     void givenThat(RemoteMappingBuilder mappingBuilder);
     void stubFor(RemoteMappingBuilder mappingBuilder);
+    void editStub(RemoteMappingBuilder mappingBuilder);
 
     void verify(RequestPatternBuilder requestPatternBuilder);
     void verify(int count, RequestPatternBuilder requestPatternBuilder);

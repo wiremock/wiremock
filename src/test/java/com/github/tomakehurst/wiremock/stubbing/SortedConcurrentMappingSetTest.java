@@ -23,6 +23,8 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
+
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static org.hamcrest.Matchers.is;
@@ -82,7 +84,55 @@ public class SortedConcurrentMappingSetTest {
 		
 		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
 	}
-	
+
+	@Test
+	public void testRemove() throws Exception {
+
+		StubMapping stubMapping = aMapping(1, "/priority1/1");
+
+		mappingSet.add(stubMapping);
+		assertThat(mappingSet.iterator().hasNext(), is(true));
+
+		mappingSet.remove(stubMapping);
+		assertThat(mappingSet.iterator().hasNext(), is(false));
+	}
+
+	@Test
+	public void testReplace() throws Exception {
+
+		StubMapping existingMapping = aMapping(1, "/priority1/1");
+		mappingSet.add(existingMapping);
+
+		existingMapping.setNewScenarioState("New Scenario State");
+
+		StubMapping newMapping = aMapping(2, "/priority2/1");
+		boolean result = mappingSet.replace(existingMapping, newMapping);
+
+		Iterator<StubMapping> it = mappingSet.iterator();
+
+		assertThat(result, is(true));
+		assertThat(it.hasNext(), is(true));
+		assertThat(it.next(), is(newMapping));
+		assertThat(it.hasNext(), is(false));
+	}
+
+	@Test
+	public void testReplaceNotExists() throws Exception {
+
+		StubMapping existingMapping = aMapping(1, "/priority1/1");
+		mappingSet.add(existingMapping);
+
+		StubMapping newMapping = aMapping(2, "/priority2/1");
+		boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
+
+		Iterator<StubMapping> it = mappingSet.iterator();
+
+		assertThat(result, is(false));
+		assertThat(it.hasNext(), is(true));
+		assertThat(it.next(), is(existingMapping));
+		assertThat(it.hasNext(), is(false));
+	}
+
 	private StubMapping aMapping(Integer priority, String url) {
 		RequestPattern requestPattern = new RequestPattern(ANY, url);
 		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());

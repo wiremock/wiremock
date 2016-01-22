@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.common.Json.write;
@@ -108,6 +109,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
 
         StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
+        mapping.setUuid(UUID.nameUUIDFromBytes(fileId.getBytes()));
 
         filesFileSource.writeBinaryFile(bodyFileName, bodyDecompressedIfRequired(response));
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));

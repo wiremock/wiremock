@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.client;
+package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.UUID;
+public class EditStubMappingTask implements AdminTask {
 
-public interface RemoteMappingBuilder<M extends RemoteMappingBuilder, S extends ScenarioMappingBuilder> {
-    M atPriority(Integer priority);
-    M withHeader(String key, ValueMatchingStrategy headerMatchingStrategy);
-    M withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy);
-    M withRequestBody(ValueMatchingStrategy bodyMatchingStrategy);
-    S inScenario(String scenarioName);
-    M withId(UUID id);
-
-    M willReturn(ResponseDefinitionBuilder responseDefBuilder);
-
-    StubMapping build();
+	@Override
+	public ResponseDefinition execute(Admin admin, Request request) {
+		StubMapping stubMapping = StubMapping.buildFrom(request.getBodyAsString());
+		admin.editStubMapping(stubMapping);
+		return ResponseDefinition.noContent();
+	}
 }

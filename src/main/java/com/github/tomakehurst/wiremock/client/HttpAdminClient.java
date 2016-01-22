@@ -36,6 +36,7 @@ import org.apache.http.entity.StringEntity;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
@@ -82,6 +83,14 @@ public class HttpAdminClient implements Admin {
                 urlFor(NewStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_CREATED);
+    }
+
+    @Override
+    public void editStubMapping(StubMapping stubMapping) {
+        postJsonAssertOkAndReturnBody(
+                urlFor(EditStubMappingTask.class),
+                Json.write(stubMapping),
+                HTTP_NO_CONTENT);
     }
 
     @Override

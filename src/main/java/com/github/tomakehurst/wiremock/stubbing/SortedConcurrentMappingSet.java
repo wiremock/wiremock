@@ -37,8 +37,8 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 				if (priorityComparison != 0) {
 					return priorityComparison;
 				}
-				
-				return (two.getInsertionIndex() > one.getInsertionIndex()) ? 1 : -1;
+
+				return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
 			}
 		};
 	}
@@ -52,7 +52,20 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
 	}
-	
+
+	public boolean remove(StubMapping stubMapping) {
+		return mappingSet.remove(stubMapping);
+	}
+
+	public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+
+		if ( mappingSet.remove(existingStubMapping) ) {
+			mappingSet.add(newStubMapping);
+			return true;
+		}
+		return false;
+	}
+
 	public void clear() {
 		mappingSet.clear();
 	}

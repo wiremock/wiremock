@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-
+import java.util.UUID;
 import static com.google.common.base.Preconditions.checkArgument;
 
 class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
@@ -32,6 +32,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	private String scenarioName;
 	protected String requiredScenarioState;
 	protected String newScenarioState;
+	private UUID id;
 	
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
@@ -83,8 +84,29 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 		return this;
 	}
 
+    @Override
+	public MappingBuilder whenScenarioStateIs(String stateName) {
+		this.requiredScenarioState = stateName;
+		return this;
+	}
+
+    @Override
+	public MappingBuilder willSetStateTo(String stateName) {
+		this.newScenarioState = stateName;
+		return this;
+	}
+
 	@Override
-    public StubMapping build() {
+	public MappingBuilder withId(UUID id) {
+		this.id = id;
+		return this;
+	}
+
+    @Override
+	public StubMapping build() {
+		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
+			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
+		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
@@ -92,18 +114,8 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
+		mapping.setUuid(id);
 		return mapping;
 	}
 
-    @Override
-    public MappingBuilder whenScenarioStateIs(String stateName) {
-        this.requiredScenarioState = stateName;
-        return this;
-    }
-
-    @Override
-    public MappingBuilder willSetStateTo(String stateName) {
-        this.newScenarioState = stateName;
-        return this;
-    }
 }

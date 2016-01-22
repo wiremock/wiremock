@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Optional;
 import org.junit.Test;
 
@@ -261,25 +262,52 @@ public class CommandLineOptionsTest {
     public void returnsExtensionsSpecifiedAsClassNames() {
         CommandLineOptions options = new CommandLineOptions(
                 "--extensions",
-                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext2");
+                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt2,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1");
         Map<String, ResponseDefinitionTransformer> extensions = options.extensionsOfType(ResponseDefinitionTransformer.class);
-        assertThat(extensions.get("one"), instanceOf(Ext1.class));
-        assertThat(extensions.get("two"), instanceOf(Ext2.class));
+        assertThat(extensions.entrySet(), hasSize(2));
+        assertThat(extensions.get("ResponseDefinitionTransformer_One"), instanceOf(ResponseDefinitionTransformerExt1.class));
+        assertThat(extensions.get("ResponseDefinitionTransformer_Two"), instanceOf(ResponseDefinitionTransformerExt2.class));
     }
     
-    public static class Ext1 extends ResponseDefinitionTransformer {
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
-
-        @Override
-        public String name() { return "one"; }
+    @Test
+    public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions(
+                        "--extensions",
+                        "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
+        Map<String, RequestMatcherExtension> extensions = options.extensionsOfType(RequestMatcherExtension.class);
+        assertThat(extensions.entrySet(), hasSize(1));
+        assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
     }
-
-    public static class Ext2 extends ResponseDefinitionTransformer {
+    
+    @Test
+    public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions();
+        Map<String, RequestMatcherExtension> extensions = options.extensionsOfType(RequestMatcherExtension.class);
+        assertThat(extensions.entrySet(), hasSize(0));
+    }
+    
+    public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
+        
+        @Override
+        public String name() { return "ResponseDefinitionTransformer_One"; }
+    }
+    
+    public static class ResponseDefinitionTransformerExt2 extends ResponseDefinitionTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
+        
+        @Override
+        public String name() { return "ResponseDefinitionTransformer_Two"; }
+    }
+    
+    public static class RequestExt1 extends RequestMatcherExtension {
+        
+        @Override
+        public String name() { return "RequestMatcherExtension_One"; }
 
         @Override
-        public String name() { return "two"; }
+        public boolean isMatchedBy(Request request, Parameters parameters) { return false; }
     }
 }

@@ -122,6 +122,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public void editStubMapping(StubMapping stubMapping) {
+        stubMappings.editMapping(stubMapping);
+    }
+
+    @Override
     public ListStubMappingsResult listAllStubMappings() {
         return new ListStubMappingsResult(stubMappings.getAll());
     }

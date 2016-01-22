@@ -45,6 +45,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.transform;
+import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
 
 @RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {
@@ -88,7 +89,7 @@ public class StubMappingJsonRecorderTest {
 		context.checking(new Expectations() {{
 		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
-			        with(equalToJson(SAMPLE_REQUEST_MAPPING)));
+					with(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
 			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
                     with(equal("Recorded body content".getBytes(UTF_8))));
 		}});
@@ -128,7 +129,7 @@ public class StubMappingJsonRecorderTest {
 	    context.checking(new Expectations() {{
 	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.json", "Recorded body content".getBytes(UTF_8));
         }});
         
@@ -142,8 +143,8 @@ public class StubMappingJsonRecorderTest {
                 .fromProxy(true)
                 .body("Recorded body content")
                 .headers(new HttpHeaders(
-                        httpHeader("Content-Type", "text/plain"),
-                        httpHeader("Cache-Control", "no-cache")))
+						httpHeader("Content-Type", "text/plain"),
+						httpHeader("Cache-Control", "no-cache")))
                 .build();
 
         listener.requestReceived(request, response);
@@ -205,7 +206,7 @@ public class StubMappingJsonRecorderTest {
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
@@ -262,10 +263,10 @@ public class StubMappingJsonRecorderTest {
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1, STRICT_ORDER)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
@@ -309,7 +310,7 @@ public class StubMappingJsonRecorderTest {
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
@@ -345,7 +346,7 @@ public class StubMappingJsonRecorderTest {
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
-                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY)));
+                    with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY, STRICT_ORDER)));
             ignoring(filesFileSource);
         }});
 
@@ -362,6 +363,7 @@ public class StubMappingJsonRecorderTest {
 
     private static final String GZIP_REQUEST_MAPPING =
                     "{ 													             \n" +
+                    "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n" +
                     "	\"request\": {									             \n" +
                     "		\"method\": \"GET\",						             \n" +
                     "		\"url\": \"/gzipped/content\"				             \n" +

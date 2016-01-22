@@ -22,14 +22,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
-@JsonPropertyOrder({ "request", "response" })
+@JsonPropertyOrder({ "uuid", "request", "response" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
+
+	private UUID uuid = UUID.randomUUID();
 
 	private RequestPattern request;
 	private ResponseDefinition response;
@@ -60,6 +64,15 @@ public class StubMapping {
 
     public static String buildJsonStringFor(StubMapping mapping) {
 		return Json.write(mapping);
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	@VisibleForTesting
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
     public RequestPattern getRequest() {
@@ -143,7 +156,7 @@ public class StubMapping {
 			scenario.setState(newScenarioState);
 		}
 	}
-	
+
 	@JsonIgnore
 	public Scenario getScenario() {
 		return scenario;
