@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
@@ -77,6 +78,14 @@ public class ExtensionLoader {
                 } catch (ClassNotFoundException e) {
                     return throwUnchecked(e, Class.class);
                 }
+            }
+        };
+    }
+
+    public static <T extends Extension> Predicate<Map.Entry<String, Extension>> valueAssignableFrom(final Class<T> extensionType) {
+        return new Predicate<Map.Entry<String, Extension>>() {
+            public boolean apply(Map.Entry<String, Extension> input) {
+                return extensionType.isAssignableFrom(input.getValue().getClass());
             }
         };
     }

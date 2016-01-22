@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 import java.io.IOException;
@@ -259,13 +260,9 @@ public class CommandLineOptions implements Options {
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
         if (optionSet.has(EXTENSIONS)) {
             String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(classNames.split(",")), 
-                            new Predicate<Map.Entry<String, Extension>>() {
-                                @Override
-                                public boolean apply(Map.Entry<String, Extension> input) {
-                                    return extensionType.isAssignableFrom(input.getValue().getClass());
-                                }
-            });
+            return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
+                classNames.split(",")),
+                valueAssignableFrom(extensionType));
         }
 
         return Collections.emptyMap();
