@@ -53,4 +53,5 @@ public interface Options {
     String proxyHostHeader();
     HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
+    boolean jettyMBeansEnabled();
 }
