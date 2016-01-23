@@ -69,6 +69,10 @@ public class WireMockConfiguration implements Options {
         return new WireMockConfiguration();
     }
 
+    public static WireMockConfiguration options() {
+        return wireMockConfig();
+    }
+
     public WireMockConfiguration port(int portNumber) {
         this.portNumber = portNumber;
         return this;
