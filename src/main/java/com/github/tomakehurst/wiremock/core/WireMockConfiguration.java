@@ -62,6 +62,7 @@ public class WireMockConfiguration implements Options {
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
     private Integer jettyHeaderBufferSize;
+    private boolean jettyMBeans = false;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
 
@@ -312,5 +313,14 @@ public class WireMockConfiguration implements Options {
                 return extensionType.isAssignableFrom(input.getValue().getClass());
             }
         });
+    }
+
+	@Override
+	public boolean jettyMBeansEnabled() {
+		return this.jettyMBeans;
+	}
+    public WireMockConfiguration enableJettyMBeans(boolean enabled) {
+        this.jettyMBeans = true;
+        return this;
     }
 }

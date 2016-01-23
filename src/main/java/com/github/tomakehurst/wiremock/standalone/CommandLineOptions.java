@@ -72,6 +72,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
+    private static final String JETTY_MBEANS = "jetty-mbeans";
 
     private final OptionSet optionSet;
 	private String helpText;
@@ -101,6 +102,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
+        optionParser.accepts(JETTY_MBEANS, "Load jetty MBeans (like org.eclipse.jetty.util.thread) into JMX server.");
         optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -334,6 +336,10 @@ public class CommandLineOptions implements Options {
                     .put(MATCH_HEADERS, matchingHeaders());
         }
 
+        if (jettyMBeansEnabled() ) {
+            builder.put(JETTY_MBEANS, jettyMBeansEnabled());
+        }
+        
         builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
                .put(VERBOSE, verboseLoggingEnabled());
 
@@ -369,4 +375,10 @@ public class CommandLineOptions implements Options {
 
         return value.toString();
     }
+
+	@Override
+	public boolean jettyMBeansEnabled() {
+		return optionSet.has(JETTY_MBEANS);
+
+	}
 }

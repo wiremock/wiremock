@@ -36,6 +36,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.jmx.MBeanContainer;
+import java.lang.management.ManagementFactory;
+import org.eclipse.jetty.util.log.Log;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
@@ -93,6 +96,18 @@ class JettyHttpServer implements HttpServer {
         jettyServer.setHandler(handlers);
 
         jettyServer.setStopTimeout(0);
+
+	    if (options.jettyMBeansEnabled()) {
+			// Without the following, JMX works but the Jetty MBeans are not loaded.
+	    	// Code taken from here:  https://www.eclipse.org/jetty/documentation/9.2.2.v20140723/jmx-chapter.html
+	    	MBeanContainer mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+	    	jettyServer.addEventListener(mbContainer);
+	    	jettyServer.addBean(mbContainer);
+	
+	    	// Add loggers MBean to server (will be picked up by MBeanContainer above)
+	    	jettyServer.addBean(Log.getLog());
+	    }
+
     }
 
     @Override
