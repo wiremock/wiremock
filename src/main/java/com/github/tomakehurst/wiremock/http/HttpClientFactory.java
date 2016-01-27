@@ -21,15 +21,15 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpProcessorBuilder;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
@@ -81,7 +81,12 @@ public class HttpClientFactory {
 
     private static SSLContext buildAllowAnythingSSLContext() {
         try {
-            return SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+            return SSLContexts.custom().loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    return true;
+                }
+            }).build();
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);
         }
