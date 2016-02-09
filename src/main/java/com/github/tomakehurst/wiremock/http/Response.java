@@ -16,13 +16,12 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.google.common.base.Optional;
+import com.sun.deploy.net.HttpRequest;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.collect.Iterables.transform;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -58,7 +57,7 @@ public class Response {
 		this.status = status;
         this.statusMessage = statusMessage;
         this.body = body;
-        this.headers = headers;
+        this.headers = addContentLength(headers,body==null?0:body.length);
         this.configured = configured;
         this.fault = fault;
         this.fromProxy = fromProxy;
@@ -68,7 +67,7 @@ public class Response {
     public Response(int status, String statusMessage, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
         this.status = status;
         this.statusMessage = statusMessage;
-        this.headers = headers;
+        this.headers = addContentLength(headers, body==null?0:body.length());
         this.renderedFromDefinition = renderedFromDefinition;
         this.body = body == null ? null : body.getBytes(encodingFromContentTypeHeaderOrUtf8());
         this.configured = configured;
@@ -76,6 +75,13 @@ public class Response {
         this.fromProxy = fromProxy;
     }
 
+    private HttpHeaders addContentLength(HttpHeaders headers, int bodyLength)
+    {
+        if(!headers.getHeader(HttpRequest.CONTENT_LENGTH).isPresent()){
+            return headers.plus(HttpHeader.httpHeader(CaseInsensitiveKey.from(HttpRequest.CONTENT_LENGTH), String.valueOf(bodyLength)));
+        }
+        return headers;
+    }
 	public int getStatus() {
 		return status;
 	}

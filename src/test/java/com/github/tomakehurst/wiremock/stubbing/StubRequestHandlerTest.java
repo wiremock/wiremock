@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.*;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -25,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
@@ -58,15 +56,16 @@ public class StubRequestHandlerTest {
             Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
 		}});
-		
+
 		Request request = aRequest(context)
 			.withUrl("/the/required/resource")
 			.withMethod(GET)
 			.build();
 		Response response = requestHandler.handle(request);
-		
+
 		assertThat(response.getStatus(), is(200));
 		assertThat(response.getBodyAsString(), is("Body content"));
+		assertThat(response.getHeaders().getHeader("Content-Length").firstValue(), is("12"));
 	}
 	
 	@Test
