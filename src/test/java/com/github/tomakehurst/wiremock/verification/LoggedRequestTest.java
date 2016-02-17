@@ -43,6 +43,7 @@ import static org.junit.Assert.*;
 public class LoggedRequestTest {
 
     public static final String REQUEST_BODY = "some text 形声字形聲字";
+    public static final String REQUEST_BODY_AS_BASE64 = "c29tZSB0ZXh0IOW9ouWjsOWtl+W9ouiBsuWtlw==";
 
     private Mockery context;
 
@@ -69,7 +70,7 @@ public class LoggedRequestTest {
         assertTrue(loggedRequest.containsHeader("Accept"));
         assertNotNull(loggedRequest.getHeader("Accept"));
     }
-
+    
     static  final String DATE = "2012-06-07 16:39:41";
     static final String JSON_EXAMPLE = "{\n" +
             "      \"url\" : \"/my/url\",\n" +
@@ -81,7 +82,8 @@ public class LoggedRequestTest {
             "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
-            "      \"loggedDateString\" : \"" + DATE + "\"\n" +
+            "      \"loggedDateString\" : \"" + DATE + "\",\n" +
+            "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\"\n" +
             "    }";
 
     @Test

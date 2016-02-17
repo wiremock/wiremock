@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.codec.binary.Base64;
+
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
@@ -135,6 +137,12 @@ public class LoggedRequest implements Request {
     @JsonProperty("body")
 	public String getBodyAsString() {
         return stringFromBytes(body);
+	}
+	
+	@Override
+	@JsonProperty("bodyAsBase64")
+	public String getBodyAsBase64(){
+		return Base64.encodeBase64String(body);
 	}
 
 	@Override

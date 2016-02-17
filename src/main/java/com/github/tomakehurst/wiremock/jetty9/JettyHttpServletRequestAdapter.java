@@ -15,10 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
@@ -94,6 +98,11 @@ public class JettyHttpServletRequestAdapter implements Request {
     public String getBodyAsString() {
         return stringFromBytes(getBody());
     }
+    
+    @Override
+	public String getBodyAsBase64(){
+		return Base64.encodeBase64String(getBody());
+	}
 
     @SuppressWarnings("unchecked")
     @Override
