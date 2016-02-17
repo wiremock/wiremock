@@ -100,7 +100,7 @@ class JettyHttpServer implements HttpServer {
 	    if (options.jettyMBeansEnabled()) {
 			// Without the following, JMX works but the Jetty MBeans are not loaded.
 	    	// Code taken from here:  https://www.eclipse.org/jetty/documentation/9.2.2.v20140723/jmx-chapter.html
-	    	MBeanContainer mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
+	    	MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
 	    	jettyServer.addEventListener(mbContainer);
 	    	jettyServer.addBean(mbContainer);
 	

@@ -319,6 +319,7 @@ public class WireMockConfiguration implements Options {
     public boolean jettyMBeansEnabled() {
 		return this.jettyMBeans;
     }
+
     public WireMockConfiguration enableJettyMBeans(boolean enabled) {
         this.jettyMBeans = true;
         return this;
