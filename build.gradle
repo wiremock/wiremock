@@ -218,11 +218,6 @@ final pomInfo = {
     }
 }
 
-task checkJdkVersion << {
-    println "Using Java version: ${System.getProperty('java.runtime.version')}"
-    assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
-}
-
 publishing {
     repositories {
         maven {
@@ -288,7 +283,15 @@ publishing {
         }
     }
 }
-publish.dependsOn checkJdkVersion
+
+task checkReleasePreconditions << {
+    println "Using Java version: ${System.getProperty('java.runtime.version')}"
+    assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
+
+    def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text
+    assert currentGitBranch == '2.0-beta', 'Must be on the beta branch in order to release'
+}
+publish.dependsOn checkReleasePreconditions
 
 task addGitTag << {
     if (!shouldPublishLocally) {
