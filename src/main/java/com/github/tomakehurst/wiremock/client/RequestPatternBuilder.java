@@ -39,6 +39,7 @@ public class RequestPatternBuilder {
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
     private Map<String, ValueMatchingStrategy> queryParameters = newLinkedHashMap();
     private Set<String> withoutHeaders = newHashSet();
+    private Set<String> withoutQueryParameters = newHashSet();
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
 
 	private RequestMatcher customMatcher;
@@ -83,6 +84,11 @@ public class RequestPatternBuilder {
         return this;
     }
 
+    public RequestPatternBuilder withoutQueryParam(String key) {
+        withoutQueryParameters.add(key);
+        return this;
+    }
+
 	public RequestPatternBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		bodyPatterns.add(bodyMatchingStrategy);
 		return this;
@@ -116,6 +122,10 @@ public class RequestPatternBuilder {
 
         for (Map.Entry<String, ValueMatchingStrategy> queryParam: queryParameters.entrySet()) {
             requestPattern.addQueryParam(queryParam.getKey(), queryParam.getValue().asValuePattern());
+        }
+
+        for (String key: withoutQueryParameters) {
+            requestPattern.addQueryParam(key, ValuePattern.absent());
         }
 
 		if (!bodyPatterns.isEmpty()) {

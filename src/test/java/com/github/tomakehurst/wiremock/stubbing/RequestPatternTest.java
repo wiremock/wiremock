@@ -322,6 +322,67 @@ public class RequestPatternTest {
     }
 
     @Test
+    public void shouldFailMatchWhenRequiredAbsentQueryParameterIsPresent() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/without/queryparam/fail");
+        requestPattern.addQueryParam("myparam", ValuePattern.absent());
+        Request request = aRequest(context)
+                .withUrl("/without/queryparam/fail")
+                .withMethod(GET)
+                .withQueryParameter("myparam", "value")
+                .build();
+
+        assertFalse("Request is a match for the request pattern and should not be", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
+    public void shouldMatchWhenSpecifiedQueryParametersArePresent() {
+        RequestPattern requestPattern = new RequestPattern(GET, "/queryparam/dependent/resource");
+        requestPattern.addQueryParam("myparam1", equalTo("value1"));
+        requestPattern.addQueryParam("myparam2", equalTo("value2"));
+        Request request = aRequest(context)
+                .withUrl("/queryparam/dependent/resource")
+                .withMethod(GET)
+                .withQueryParameter("myparam1", "value1")
+                .withQueryParameter("myparam2", "value2")
+                .build();
+
+        assertTrue("Request is not a match for the request pattern and should be", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
+    public void shouldNotMatchWhenASpecifiedQueryParameterIsAbsent() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/queryparam/dependent/resource");
+        requestPattern.addQueryParam("myparam1", equalTo("value1"));
+        requestPattern.addQueryParam("myparam2", equalTo("value2"));
+        Request request = aRequest(context)
+                .withUrl("/queryparam/dependent/resource")
+                .withMethod(GET)
+                .withQueryParameter("myparam1", "value1")
+                .build();
+
+        assertFalse("Request is a match for the request pattern and should not be", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
+    public void shouldNotMatchWhenASpecifiedQueryParameterHasAnIncorrectValue() {
+        ignoringNotifier();
+
+        RequestPattern requestPattern = new RequestPattern(GET, "/queryparam/dependent/resource");
+        requestPattern.addQueryParam("myparam1", equalTo("value1"));
+        Request request = aRequest(context)
+                .withUrl("/queryparam/dependent/resource")
+                .withMethod(GET)
+                .withQueryParameter("myparam1", "other value")
+                .build();
+
+        assertFalse("Request is a match for the request pattern and should not be", requestPattern.isMatchedBy(request));
+    }
+
+    @Test
 	public void shouldLogMessageIndicatingFailedMethodMatch() {
 		context.checking(new Expectations() {{
 			one(notifier).info("URL /for/logging is match, but method GET is not");

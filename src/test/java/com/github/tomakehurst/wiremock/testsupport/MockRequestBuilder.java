@@ -16,15 +16,17 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.collect.Sets;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParameter;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Lists.asList;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
@@ -106,9 +108,13 @@ public class MockRequestBuilder {
                 }
             }
 
+            Set<String> queryParameterKeys = Sets.newLinkedHashSet();
 			for (QueryParameter queryParameter: queryParameters) {
 				allowing(request).queryParameter(queryParameter.key()); will(returnValue(queryParameter));
+                queryParameterKeys.add(queryParameter.key());
 			}
+            allowing(request).getAllQueryParameterKeys(); will(returnValue(newLinkedHashSet(queryParameterKeys)));
+            allowing(request).queryParameter(with(any(String.class))); will(returnValue(queryParameter("key", "value")));
 
             allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));
 
