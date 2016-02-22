@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.base.Charsets;
 
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -58,7 +57,8 @@ public class LoggedRequestTest {
         LoggedRequest loggedRequest = createFrom(aRequest(context)
                 .withUrl("/for/logging")
                 .withMethod(POST)
-                .withBody("Actual Content")
+                .withBody(REQUEST_BODY)
+                .withBodyAsBase64(REQUEST_BODY_AS_BASE64)
                 .withHeader("Content-Type", "text/plain")
                 .withHeader("ACCEPT", "application/json")
                 .build());
@@ -79,9 +79,9 @@ public class LoggedRequestTest {
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
-            "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
+            "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
             "      \"loggedDateString\" : \"" + DATE + "\",\n" +
             "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\"\n" +
             "    }";
@@ -97,9 +97,10 @@ public class LoggedRequestTest {
                 "http://mydomain.com/my/url",
                 RequestMethod.GET,
                 headers,
-                REQUEST_BODY,
                 true,
-                loggedDate);
+                loggedDate,
+                REQUEST_BODY_AS_BASE64
+                );
 
         String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
         assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(expectedJson));
@@ -112,9 +113,10 @@ public class LoggedRequestTest {
             "http://mydomain.com/my/url",
             RequestMethod.GET,
             null,
-            REQUEST_BODY.getBytes(Charsets.UTF_8),
             true,
-            null);
+            null,
+            REQUEST_BODY_AS_BASE64
+            );
 
         assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
     }

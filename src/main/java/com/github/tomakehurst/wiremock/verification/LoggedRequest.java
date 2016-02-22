@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Charsets;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -53,23 +52,23 @@ public class LoggedRequest implements Request {
                 request.getAbsoluteUrl(),
                 request.getMethod(),
                 copyOf(request.getHeaders()),
-                request.getBody(),
                 request.isBrowserProxyRequest(),
-                new Date());
+                new Date(),
+                request.getBodyAsBase64());
 	}
 
     public LoggedRequest(String url,
                          String absoluteUrl,
                          RequestMethod method,
                          HttpHeaders headers,
-                         byte[] body,
                          boolean isBrowserProxyRequest,
-                         Date loggedDate) {
-
+                         Date loggedDate,
+                         String bodyAsBase64)
+    {
         this.url = url;
         this.absoluteUrl = absoluteUrl;
         this.method = method;
-        this.body = body;
+        this.body = Base64.decodeBase64(bodyAsBase64);
         this.headers = headers;
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
@@ -78,15 +77,18 @@ public class LoggedRequest implements Request {
 
     @JsonCreator
     public LoggedRequest(@JsonProperty("url") String url,
-                         @JsonProperty("absoluteUrl") String absoluteUrl,
-                         @JsonProperty("method") RequestMethod method,
-                         @JsonProperty("headers") HttpHeaders headers,
-                         @JsonProperty("body") String body,
-                         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-                         @JsonProperty("loggedDate") Date loggedDate) {
-        this(url, absoluteUrl, method, headers, body.getBytes(Charsets.UTF_8), isBrowserProxyRequest, loggedDate);
+    		@JsonProperty("absoluteUrl") String absoluteUrl,
+    		@JsonProperty("method") RequestMethod method,
+    		@JsonProperty("headers") HttpHeaders headers,
+    		@JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+    		@JsonProperty("loggedDate") Date loggedDate,
+    		@JsonProperty("body") String body,
+    		@JsonProperty("loggedDateString") String loggedDateString,
+    		@JsonProperty("bodyAsBase64") String bodyAsBase64)
+    {
+    	this(url, absoluteUrl, method, headers, isBrowserProxyRequest, loggedDate, bodyAsBase64);
     }
-
+    
 	@Override
 	public String getUrl() {
 		return url;
