@@ -33,7 +33,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	protected String requiredScenarioState;
 	protected String newScenarioState;
 	private UUID id;
-	
+
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
 	}
@@ -99,6 +99,12 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	@Override
 	public MappingBuilder withId(UUID id) {
 		this.id = id;
+		return this;
+	}
+
+	@Override
+	public MappingBuilder withBasicAuth(String username, String password) {
+		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
 		return this;
 	}
 

@@ -195,6 +195,35 @@ Or
     	}
     }
 
+
+Basic Authentication
+--------------------
+Although HTTP basic authentication can be supported by requiring a correctly encoded Authorization header, you can also do this more simply via the API:
+
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/basic-auth")).withBasicAuth("user", "pass")
+
+Or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/basic-auth",
+            "basicAuth" : {
+                "username" : "user",
+                "password" : "pass"
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+
+
 .. _stubbing-query-parameter-matching:
 
 Query parameter matching

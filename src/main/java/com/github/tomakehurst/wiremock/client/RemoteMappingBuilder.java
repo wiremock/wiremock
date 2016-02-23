@@ -26,6 +26,7 @@ public interface RemoteMappingBuilder<M extends RemoteMappingBuilder, S extends 
     M withRequestBody(ValueMatchingStrategy bodyMatchingStrategy);
     S inScenario(String scenarioName);
     M withId(UUID id);
+    M withBasicAuth(String username, String password);
 
     M willReturn(ResponseDefinitionBuilder responseDefBuilder);
 

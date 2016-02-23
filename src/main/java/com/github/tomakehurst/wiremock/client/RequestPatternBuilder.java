@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
 
@@ -44,6 +43,8 @@ public class RequestPatternBuilder {
 	private RequestMatcher customMatcher;
 	private String customMatcherName;
 	private Parameters customMatcherParams;
+
+	private BasicCredentials basicCredentials;
 
 	public RequestPatternBuilder(String customRequestMatcherName, Parameters customMatcherParams) {
 		this.customMatcherName = customRequestMatcherName;
@@ -94,6 +95,12 @@ public class RequestPatternBuilder {
         return new RequestPatternBuilder(RequestMethod.ANY, matchAllUrls);
     }
 
+	public RequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
+		this.basicCredentials = basicCredentials;
+		return this;
+	}
+
+
 	public RequestPattern build() {
 		if (customMatcher != null) {
 			return new RequestPattern(customMatcher);
@@ -114,6 +121,8 @@ public class RequestPatternBuilder {
             requestPattern.addHeader(key, ValuePattern.absent());
         }
 
+        requestPattern.setBasicAuth(basicCredentials);
+
         for (Map.Entry<String, ValueMatchingStrategy> queryParam: queryParameters.entrySet()) {
             requestPattern.addQueryParam(queryParam.getKey(), queryParam.getValue().asValuePattern());
         }
@@ -124,6 +133,4 @@ public class RequestPatternBuilder {
 
 		return requestPattern;
 	}
-
-
 }

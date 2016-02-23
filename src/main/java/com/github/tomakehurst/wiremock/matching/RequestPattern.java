@@ -18,6 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -27,14 +30,11 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
@@ -43,6 +43,7 @@ import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Arrays.asList;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
@@ -55,6 +56,7 @@ public class RequestPattern {
     private RequestMethod method;
     private Map<String, ValuePattern> headerPatterns;
     private Map<String, ValuePattern> queryParamPatterns;
+	private BasicCredentials basicAuthCredentials;
     private List<ValuePattern> bodyPatterns;
 
 	private final RequestMatcher defaultMatcher = new RequestMatcher() {
@@ -180,20 +182,34 @@ public class RequestPattern {
     }
 
 	private boolean headersMatch(final Request request) {
-        return noHeadersAreRequiredToBePresent() ||
-                all(headerPatterns.entrySet(), matchHeadersIn(request));
+        Map<String, ValuePattern> combinedHeaders = basicAuthCredentials != null ?
+            combineBasicAuthAndOtherHeaders() :
+            headerPatterns;
+
+        return noHeadersAreRequiredToBePresent(combinedHeaders) ||
+               all(combinedHeaders.entrySet(), matchHeadersIn(request));
 	}
+
+    private Map<String, ValuePattern> combineBasicAuthAndOtherHeaders() {
+        Map<String, ValuePattern> combinedHeaders = headerPatterns;
+        ImmutableMap.Builder<String, ValuePattern> allHeadersBuilder =
+            ImmutableMap.<String, ValuePattern>builder()
+            .putAll(Optional.fromNullable(combinedHeaders).or(Collections.<String, ValuePattern>emptyMap()));
+        allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationHeaderValue());
+        combinedHeaders = allHeadersBuilder.build();
+        return combinedHeaders;
+    }
 
     private boolean queryParametersMatch(Request request) {
         return (queryParamPatterns == null ||
                 all(queryParamPatterns.entrySet(), matchQueryParametersIn(request)));
     }
 
-    private boolean noHeadersAreRequiredToBePresent() {
-        return headerPatterns == null || allHeaderPatternsSpecifyAbsent();
+    private static boolean noHeadersAreRequiredToBePresent(Map<String, ValuePattern> headerPatterns) {
+        return headerPatterns == null || allHeaderPatternsSpecifyAbsent(headerPatterns);
     }
 
-    private boolean allHeaderPatternsSpecifyAbsent() {
+    private static boolean allHeaderPatternsSpecifyAbsent(Map<String, ValuePattern> headerPatterns) {
         return size(filter(headerPatterns.values(), new Predicate<ValuePattern>() {
             public boolean apply(ValuePattern headerPattern) {
                 return !headerPattern.nullSafeIsAbsent();
@@ -307,6 +323,14 @@ public class RequestPattern {
 		this.bodyPatterns = bodyPatterns;
 	}
 
+    public BasicCredentials getBasicAuth() {
+        return basicAuthCredentials;
+    }
+
+    public void setBasicAuth(BasicCredentials basicCredentials) {
+        this.basicAuthCredentials = basicCredentials;
+    }
+
 	@JsonIgnore
 	public boolean hasCustomMatcher() {
 		return matcher != defaultMatcher;
@@ -337,18 +361,22 @@ public class RequestPattern {
 		return Json.write(this);
 	}
 
+    public static void main(String[] args) {
+        System.out.println(new RequestPatternBuilder(RequestMethod.GET, WireMock.urlEqualTo("/test")).withBasicAuth(new BasicCredentials("user", "pass")).build().toString());
+    }
+
     private static final Function<Map.Entry<String,ValuePattern>,String> TO_KEYS_WHERE_VALUE_ABSENT = new Function<Map.Entry<String, ValuePattern>, String>() {
         public String apply(Map.Entry<String, ValuePattern> input) {
             return input.getValue().nullSafeIsAbsent() ? input.getKey() : null;
         }
     };
 
+
     private static final Predicate<String> REMOVING_NULL = new Predicate<String>() {
         public boolean apply(String input) {
             return input != null;
         }
     };
-
 
     private static Predicate<Map.Entry<String, ValuePattern>> matchHeadersIn(final Request request) {
         return new Predicate<Map.Entry<String, ValuePattern>>() {
@@ -392,5 +420,4 @@ public class RequestPattern {
             }
         };
     }
-
 }
