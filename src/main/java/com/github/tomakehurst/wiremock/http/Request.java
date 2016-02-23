@@ -31,5 +31,6 @@ public interface Request {
     QueryParameter queryParameter(String key);
     byte[] getBody();
     String getBodyAsString();
+    String getBodyAsBase64();
 	boolean isBrowserProxyRequest();
 }

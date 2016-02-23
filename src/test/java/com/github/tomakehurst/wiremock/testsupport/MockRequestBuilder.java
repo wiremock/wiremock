@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.*;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
@@ -24,7 +25,6 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.google.common.collect.Lists.asList;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
@@ -36,6 +36,7 @@ public class MockRequestBuilder {
     private List<HttpHeader> individualHeaders = newArrayList();
 	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
+	private String bodyAsBase64 = "";
 
 	private boolean browserProxyRequest = false;
 	private String mockName;
@@ -82,6 +83,11 @@ public class MockRequestBuilder {
 		return this;
 	}
 	
+	public MockRequestBuilder withBodyAsBase64(String bodyAsBase64) {
+		this.bodyAsBase64 = bodyAsBase64;
+		return this;
+	}
+	
 	public MockRequestBuilder asBrowserProxyRequest() {
 		this.browserProxyRequest = true;
 		return this;
@@ -117,6 +123,7 @@ public class MockRequestBuilder {
 			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
 			allowing(request).getBody(); will(returnValue(body.getBytes()));
 			allowing(request).getBodyAsString(); will(returnValue(body));
+			allowing(request).getBodyAsBase64(); will(returnValue(bodyAsBase64));
 			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
 			allowing(request).isBrowserProxyRequest(); will(returnValue(browserProxyRequest));
 		}});
