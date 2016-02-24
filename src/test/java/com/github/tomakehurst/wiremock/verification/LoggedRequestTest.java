@@ -24,6 +24,7 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -81,9 +82,9 @@ public class LoggedRequestTest {
             "      },\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
+            "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\",\n" +
             "      \"body\" : \"" + REQUEST_BODY + "\",\n" +
             "      \"loggedDateString\" : \"" + DATE + "\",\n" +
-            "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\"\n" +
             "    }";
 
     @Test
@@ -99,11 +100,14 @@ public class LoggedRequestTest {
                 headers,
                 true,
                 loggedDate,
-                REQUEST_BODY_AS_BASE64
+                REQUEST_BODY_AS_BASE64,
+                null
                 );
 
         String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
-        assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(expectedJson));
+
+        JSONAssert.assertEquals(expectedJson, Json.write(loggedRequest), false);
+//        assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(expectedJson));
     }
 
     @Test
@@ -115,7 +119,8 @@ public class LoggedRequestTest {
             null,
             true,
             null,
-            REQUEST_BODY_AS_BASE64
+            REQUEST_BODY_AS_BASE64,
+            null
             );
 
         assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
