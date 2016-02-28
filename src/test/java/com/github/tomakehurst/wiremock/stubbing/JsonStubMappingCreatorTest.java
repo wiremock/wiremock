@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.google.common.collect.Iterables;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -57,22 +55,12 @@ public class JsonStubMappingCreatorTest {
 					"  }                                                                \n" +
 					"}";
 
-	private StubMappings stubMappings;
-
-	private JsonStubMappingCreator jsonStubMappingCreator;
-
-	@Before
-	public void setUp() throws Exception {
-		stubMappings = new InMemoryStubMappings();
-		jsonStubMappingCreator = new JsonStubMappingCreator(stubMappings);
-	}
+	private final JsonStubMappingCreator jsonStubMappingCreator = new JsonStubMappingCreator();
 
 	@Test
 	public void testAddMappingFromJsonWithUuid() throws Exception {
 
-		jsonStubMappingCreator.addMappingFrom(JSON_WITH_UUID);
-
-		StubMapping stubMapping = Iterables.getFirst(stubMappings.getAll(), null);
+		StubMapping stubMapping = jsonStubMappingCreator.createMappingFrom(JSON_WITH_UUID);
 		assertThat(stubMapping, notNullValue());
 		assertThat(stubMapping.getRequest(), notNullValue());
 		assertThat(stubMapping.getResponse(), notNullValue());
@@ -83,9 +71,7 @@ public class JsonStubMappingCreatorTest {
 	@Test
 	public void testAddMappingFromJsonWithoutUuidGeneratesNewUuid() throws Exception {
 
-		jsonStubMappingCreator.addMappingFrom(JSON_WITHOUT_UUID);
-
-		StubMapping stubMapping = Iterables.getFirst(stubMappings.getAll(), null);
+		StubMapping stubMapping = jsonStubMappingCreator.createMappingFrom(JSON_WITHOUT_UUID);
 		assertThat(stubMapping, notNullValue());
 		assertThat(stubMapping.getRequest(), notNullValue());
 		assertThat(stubMapping.getResponse(), notNullValue());

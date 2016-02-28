@@ -32,13 +32,11 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
@@ -70,13 +68,12 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
 
-        MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
-        JsonFileMappingsSaver mappingsSaver = new JsonFileMappingsSaver(fileSource.child(MAPPINGS_ROOT));
+        JsonFileMappingsSource mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 
         wireMockApp = new WireMockApp(
                 options.browserProxyingEnabled(),
-                defaultMappingsLoader,
-                mappingsSaver,
+                mappingsSource,
+                mappingsSource,
                 options.requestJournalDisabled(),
                 options.maxRequestJournalEntries(),
                 options.extensionsOfType(ResponseDefinitionTransformer.class),
@@ -110,15 +107,6 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
         );
 
         client = new WireMock(wireMockApp);
-    }
-
-    private MappingsLoader makeDefaultMappingsLoader() {
-        FileSource mappingsFileSource = fileSource.child("mappings");
-        if (mappingsFileSource.exists()) {
-            return new JsonFileMappingsLoader(mappingsFileSource);
-        } else {
-            return new NoOpMappingsLoader();
-        }
     }
 
     public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
@@ -346,12 +334,5 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void shutdownServer() {
         shutdown();
-    }
-
-    private static class NoOpMappingsLoader implements MappingsLoader {
-        @Override
-        public void loadMappingsInto(StubMappings stubMappings) {
-            // do nothing
-        }
     }
 }

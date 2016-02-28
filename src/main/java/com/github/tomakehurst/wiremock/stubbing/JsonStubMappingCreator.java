@@ -18,15 +18,9 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 public class JsonStubMappingCreator {
 
-	private StubMappings stubMappings;
-
-	public JsonStubMappingCreator(StubMappings stubMappings) {
-		this.stubMappings = stubMappings;
-	}
-	
-	public void addMappingFrom(String mappingSpecJson) {
+	public StubMapping createMappingFrom(String mappingSpecJson) {
 		StubMapping mapping = StubMapping.buildFrom(mappingSpecJson);
         mapping.setTransient(false);
-		stubMappings.addMapping(mapping);
+		return mapping;
 	}
 }

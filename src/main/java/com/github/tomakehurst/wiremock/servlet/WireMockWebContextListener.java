@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.google.common.base.Optional;
 
 import javax.servlet.ServletContext;
@@ -52,7 +52,7 @@ public class WireMockWebContextListener implements ServletContextListener {
                 fromNullable(context.getInitParameter("verboseLoggingEnabled"))
                         .or("true"));
 
-        JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
+        JsonFileMappingsSource defaultMappingsLoader = new JsonFileMappingsSource(fileSource.child("mappings"));
         MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();
         WireMockApp wireMockApp = new WireMockApp(
                 false,
