@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,7 +41,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	public JsonFileMappingsSource(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 		idGenerator = new VeryShortIdGenerator();
-		fileNameMap = new HashMap<>();
+		fileNameMap = new HashMap<UUID, String>();
 	}
 
 	@Override
@@ -85,6 +84,6 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	private String getFileName(TextFile mappingFile) {
-		return StringUtils.removeStart(mappingFile.getUri().getPath(), mappingsFileSource.getUri().getPath());
+		return mappingFile.getUri().getPath().replace(mappingsFileSource.getUri().getPath(), "");
 	}
 }
