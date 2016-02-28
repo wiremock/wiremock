@@ -18,13 +18,10 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
-import com.github.tomakehurst.wiremock.stubbing.JsonStubMappingCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -46,7 +43,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 
 	@Override
 	public void saveMappings(StubMappings stubMappings) {
-		Collection<StubMapping> transientStubs = Collections2.filter(stubMappings.getAll(), new Predicate<StubMapping>() {
+		Iterable<StubMapping> transientStubs = filter(stubMappings.getAll(), new Predicate<StubMapping>() {
 			public boolean apply(StubMapping input) {
 				return input != null && input.isTransient();
 			}
@@ -69,7 +66,8 @@ public class JsonFileMappingsSource implements MappingsSource {
 		}
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
-			StubMapping mapping = new JsonStubMappingCreator().createMappingFrom(mappingFile.readContentsAsString());
+            StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
+            mapping.setTransient(false);
 			stubMappings.addMapping(mapping);
 			fileNameMap.put(mapping.getUuid(), getFileName(mappingFile));
 		}
