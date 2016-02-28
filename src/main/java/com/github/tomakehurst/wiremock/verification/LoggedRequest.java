@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.*;
 
 import java.net.URI;
@@ -35,8 +36,6 @@ import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
-
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private final String url;
     private final String absoluteUrl;
@@ -161,10 +160,7 @@ public class LoggedRequest implements Request {
     }
 
     public String getLoggedDateString() {
-        return format(loggedDate);
+        return Dates.format(loggedDate);
     }
 
-    private String format(Date date) {
-        return new SimpleDateFormat(DATE_FORMAT).format(date);
-    }
 }

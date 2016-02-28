@@ -109,6 +109,11 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	}
 
     @Override
+    public MappingBuilder withCookie(String name, String value) {
+        return this;
+    }
+
+    @Override
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
