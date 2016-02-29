@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.net.URI;
 import java.util.List;
 
 
@@ -24,6 +25,7 @@ public interface FileSource {
 	void createIfNecessary();
 	FileSource child(String subDirectoryName);
 	String getPath();
+	URI getUri();
 	List<TextFile> listFilesRecursively();
 	void writeTextFile(String name, String contents);
     void writeBinaryFile(String name, byte[] contents);

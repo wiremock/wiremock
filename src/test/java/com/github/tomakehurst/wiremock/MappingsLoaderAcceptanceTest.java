@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
@@ -54,7 +54,7 @@ public class MappingsLoaderAcceptanceTest {
     @Test
 	public void mappingsLoadedFromJsonFiles() {
         buildWireMock(configuration);
-        wireMockServer.loadMappingsUsing(new JsonFileMappingsLoader(new SingleRootFileSource("src/test/resources/test-requests")));
+        wireMockServer.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource("src/test/resources/test-requests")));
 
 		WireMockResponse response = testClient.get("/canned/resource/1");
 		assertThat(response.statusCode(), is(200));
