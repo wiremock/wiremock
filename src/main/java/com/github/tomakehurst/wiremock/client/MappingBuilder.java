@@ -65,6 +65,12 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	}
 
     @Override
+    public MappingBuilder withCookie(String name, ValueMatchingStrategy cookieMatchingStrategy) {
+        requestPatternBuilder.withCookie(name, cookieMatchingStrategy);
+        return this;
+    }
+
+    @Override
     public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
         return this;

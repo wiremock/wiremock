@@ -19,14 +19,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.*;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
@@ -36,12 +38,11 @@ import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     private final String url;
     private final String absoluteUrl;
     private final RequestMethod method;
     private final HttpHeaders headers;
+    private final Map<String, Cookie> cookies;
     private final Map<String, QueryParameter> queryParams;
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
@@ -52,6 +53,7 @@ public class LoggedRequest implements Request {
             request.getAbsoluteUrl(),
             request.getMethod(),
             copyOf(request.getHeaders()),
+            ImmutableMap.copyOf(request.getCookies()),
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBodyAsBase64(),
@@ -64,6 +66,7 @@ public class LoggedRequest implements Request {
         @JsonProperty("absoluteUrl") String absoluteUrl,
         @JsonProperty("method") RequestMethod method,
         @JsonProperty("headers") HttpHeaders headers,
+        @JsonProperty("cookies") Map<String, Cookie> cookies,
         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
         @JsonProperty("loggedDate") Date loggedDate,
         @JsonProperty("bodyAsBase64") String bodyAsBase64,
@@ -73,6 +76,7 @@ public class LoggedRequest implements Request {
         this.method = method;
         this.body = Base64.decodeBase64(bodyAsBase64);
         this.headers = headers;
+        this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
@@ -120,6 +124,11 @@ public class LoggedRequest implements Request {
     }
 
     @Override
+    public Map<String, Cookie> getCookies() {
+        return cookies;
+    }
+
+    @Override
     public byte[] getBody() {
         return body;
     }
@@ -161,10 +170,7 @@ public class LoggedRequest implements Request {
     }
 
     public String getLoggedDateString() {
-        return format(loggedDate);
+        return Dates.format(loggedDate);
     }
 
-    private String format(Date date) {
-        return new SimpleDateFormat(DATE_FORMAT).format(date);
-    }
 }

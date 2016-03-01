@@ -58,7 +58,7 @@ public class ValueMatchingStrategy {
 		this.contains = contains;
 	}
 
-	public static Function<ValueMatchingStrategy, ValuePattern> toValuePattern = new Function<ValueMatchingStrategy, ValuePattern>() {
+	public static final Function<ValueMatchingStrategy, ValuePattern> toValuePattern = new Function<ValueMatchingStrategy, ValuePattern>() {
 		public ValuePattern apply(ValueMatchingStrategy input) {
 			return input.asValuePattern();
 		}
