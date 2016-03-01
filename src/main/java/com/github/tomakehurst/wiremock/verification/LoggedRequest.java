@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import com.github.tomakehurst.wiremock.matching.Cookie;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
@@ -41,6 +43,7 @@ public class LoggedRequest implements Request {
     private final String absoluteUrl;
     private final RequestMethod method;
     private final HttpHeaders headers;
+    private final Map<String, Cookie> cookies;
     private final Map<String, QueryParameter> queryParams;
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
@@ -51,6 +54,7 @@ public class LoggedRequest implements Request {
             request.getAbsoluteUrl(),
             request.getMethod(),
             copyOf(request.getHeaders()),
+            ImmutableMap.copyOf(request.getCookies()),
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBodyAsBase64(),
@@ -63,6 +67,7 @@ public class LoggedRequest implements Request {
         @JsonProperty("absoluteUrl") String absoluteUrl,
         @JsonProperty("method") RequestMethod method,
         @JsonProperty("headers") HttpHeaders headers,
+        @JsonProperty("cookies") Map<String, Cookie> cookies,
         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
         @JsonProperty("loggedDate") Date loggedDate,
         @JsonProperty("bodyAsBase64") String bodyAsBase64,
@@ -72,6 +77,7 @@ public class LoggedRequest implements Request {
         this.method = method;
         this.body = Base64.decodeBase64(bodyAsBase64);
         this.headers = headers;
+        this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
@@ -116,6 +122,11 @@ public class LoggedRequest implements Request {
     @Override
     public boolean containsHeader(String key) {
         return getHeader(key) != null;
+    }
+
+    @Override
+    public Map<String, Cookie> getCookies() {
+        return cookies;
     }
 
     @Override

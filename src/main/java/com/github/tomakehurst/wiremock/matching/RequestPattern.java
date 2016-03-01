@@ -55,6 +55,7 @@ public class RequestPattern {
 	private String urlPathPattern;
     private RequestMethod method;
     private Map<String, ValuePattern> headerPatterns;
+    private Map<String, ValuePattern> cookiePatterns;
     private Map<String, ValuePattern> queryParamPatterns;
 	private BasicCredentials basicAuthCredentials;
     private List<ValuePattern> bodyPatterns;
@@ -136,11 +137,12 @@ public class RequestPattern {
 				methodMatches(request) &&
                 requiredAbsentHeadersAreNotPresentIn(request) &&
 				headersMatch(request) &&
+				cookiesMatch(request) &&
                 queryParametersMatch(request) &&
 				bodyMatches(request));
 	}
 
-	private boolean urlIsMatch(Request request) {
+    private boolean urlIsMatch(Request request) {
 		String candidateUrl = request.getUrl();
 		boolean matched;
 		if (url != null) {
@@ -215,6 +217,11 @@ public class RequestPattern {
                 return !headerPattern.nullSafeIsAbsent();
             }
         })) == 0;
+    }
+
+    private boolean cookiesMatch(final Request request) {
+        return (cookiePatterns == null ||
+                all(cookiePatterns.entrySet(), matchCookiesIn(request)));
     }
 
     private boolean bodyMatches(Request request) {
@@ -331,6 +338,14 @@ public class RequestPattern {
         this.basicAuthCredentials = basicCredentials;
     }
 
+    public Map<String, ValuePattern> getCookies() {
+        return cookiePatterns;
+    }
+
+    public void setCookies(Map<String, ValuePattern> cookies) {
+		this.cookiePatterns = cookies;
+	}
+
 	@JsonIgnore
 	public boolean hasCustomMatcher() {
 		return matcher != defaultMatcher;
@@ -364,13 +379,11 @@ public class RequestPattern {
     public static void main(String[] args) {
         System.out.println(new RequestPatternBuilder(RequestMethod.GET, WireMock.urlEqualTo("/test")).withBasicAuth(new BasicCredentials("user", "pass")).build().toString());
     }
-
     private static final Function<Map.Entry<String,ValuePattern>,String> TO_KEYS_WHERE_VALUE_ABSENT = new Function<Map.Entry<String, ValuePattern>, String>() {
         public String apply(Map.Entry<String, ValuePattern> input) {
             return input.getValue().nullSafeIsAbsent() ? input.getKey() : null;
         }
     };
-
 
     private static final Predicate<String> REMOVING_NULL = new Predicate<String>() {
         public boolean apply(String input) {
@@ -378,21 +391,52 @@ public class RequestPattern {
         }
     };
 
-    private static Predicate<Map.Entry<String, ValuePattern>> matchHeadersIn(final Request request) {
-        return new Predicate<Map.Entry<String, ValuePattern>>() {
-            public boolean apply(Map.Entry<String, ValuePattern> headerPattern) {
-                ValuePattern headerValuePattern = headerPattern.getValue();
-                String key = headerPattern.getKey();
+    private Predicate<? super Map.Entry<String, ValuePattern>> matchHeadersIn(final Request request) {
+        return matchIn("header", request, new PatternMatcher() {
+            public boolean matches(Request request, ValuePattern valuePattern, String key) {
                 HttpHeader header = request.header(key);
+                return header.hasValueMatching(valuePattern);
+            }
+        });
+    }
 
-                boolean match = header.hasValueMatching(headerValuePattern);
+    private Predicate<? super Map.Entry<String, ValuePattern>> matchCookiesIn(final Request request) {
+        return matchIn("cookie", request, new PatternMatcher() {
+            public boolean matches(Request request, final ValuePattern valuePattern, String key) {
+                Optional<Cookie> maybeCookie = Optional.fromNullable(request.getCookies().get(key));
+                return maybeCookie.transform(new Function<Cookie, Boolean>() {
+                    public Boolean apply(Cookie cookie) {
+                        return valuePattern.isMatchFor(cookie.getValue());
+                    }
+                }).or(false);
+            }
+        });
+    }
+
+    private Predicate<? super Map.Entry<String, ValuePattern>> matchQueryParametersIn(final Request request) {
+        return matchIn("query parameter", request, new PatternMatcher() {
+            public boolean matches(Request request, ValuePattern valuePattern, String key) {
+                Optional<QueryParameter> queryParam = Optional.fromNullable(request.queryParameter(key));
+                return queryParam.isPresent() && queryParam.get().hasValueMatching(valuePattern);
+            }
+        });
+    }
+
+    private static Predicate<Map.Entry<String, ValuePattern>> matchIn(final String elementName, final Request request, final PatternMatcher patternMatcher) {
+        return new Predicate<Map.Entry<String, ValuePattern>>() {
+            public boolean apply(Map.Entry<String, ValuePattern> entry) {
+                ValuePattern pattern = entry.getValue();
+                String key = entry.getKey();
+
+                boolean match = patternMatcher.matches(request, pattern, key);
 
                 if (!match) {
                     notifier().info(String.format(
-                            "URL %s is match, but header %s is not. For a match, value should %s",
-                            request.getUrl(),
-                            key,
-                            headerValuePattern.toString()));
+                        "URL %s is match, but %s %s is not. For a match, value should %s",
+                        request.getUrl(),
+                        elementName,
+                        key,
+                        pattern.toString()));
                 }
 
                 return match;
@@ -400,24 +444,9 @@ public class RequestPattern {
         };
     }
 
-    private Predicate<? super Map.Entry<String, ValuePattern>> matchQueryParametersIn(final Request request) {
-        return new Predicate<Map.Entry<String, ValuePattern>>() {
-            public boolean apply(Map.Entry<String, ValuePattern> entry) {
-                ValuePattern valuePattern = entry.getValue();
-                String key = entry.getKey();
-                Optional<QueryParameter> queryParam = Optional.fromNullable(request.queryParameter(key));
-                boolean match = queryParam.isPresent() && queryParam.get().hasValueMatching(valuePattern);
 
-                if (!match) {
-                    notifier().info(String.format(
-                            "URL %s is match, but query parameter %s is not. For a match, value should %s",
-                            request.getUrl(),
-                            key,
-                            valuePattern.toString()));
-                }
+    static interface PatternMatcher {
+        boolean matches(Request request, ValuePattern valuePattern, String key);
 
-                return match;
-            }
-        };
     }
 }

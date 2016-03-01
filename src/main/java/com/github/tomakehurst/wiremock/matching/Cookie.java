@@ -1,10 +1,27 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class Cookie {
 
-    public static Cookie cookie() {
-        return new Cookie();
+    private String value;
+
+    @JsonCreator
+    public static Cookie cookie(String value) {
+        return new Cookie(value);
     }
 
+    public static Cookie absent() {
+        return new Cookie(null);
+    }
 
+    public Cookie(String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 }

@@ -16,16 +16,18 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.*;
-
+import com.github.tomakehurst.wiremock.matching.Cookie;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 public class MockRequestBuilder {
@@ -34,6 +36,7 @@ public class MockRequestBuilder {
 	private String url = "/";
 	private RequestMethod method = GET;
     private List<HttpHeader> individualHeaders = newArrayList();
+    private Map<String, Cookie> cookies = newHashMap();
 	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
 	private String bodyAsBase64 = "";
@@ -77,22 +80,27 @@ public class MockRequestBuilder {
         individualHeaders.add(new HttpHeader(key, value));
 		return this;
 	}
-	
+
+	public MockRequestBuilder withCookie(String key, String value) {
+		cookies.put(key, new Cookie(value));
+		return this;
+	}
+
 	public MockRequestBuilder withBody(String body) {
 		this.body = body;
 		return this;
 	}
-	
+
 	public MockRequestBuilder withBodyAsBase64(String bodyAsBase64) {
 		this.bodyAsBase64 = bodyAsBase64;
 		return this;
 	}
-	
+
 	public MockRequestBuilder asBrowserProxyRequest() {
 		this.browserProxyRequest = true;
 		return this;
 	}
-	
+
 	public Request build() {
         final HttpHeaders headers = new HttpHeaders(individualHeaders);
 
@@ -120,14 +128,15 @@ public class MockRequestBuilder {
 
             allowing(request).getHeaders(); will(returnValue(headers));
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keys())));
-			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
-			allowing(request).getBody(); will(returnValue(body.getBytes()));
+            allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
+            allowing(request).getCookies(); will(returnValue(cookies));
+            allowing(request).getBody(); will(returnValue(body.getBytes()));
 			allowing(request).getBodyAsString(); will(returnValue(body));
 			allowing(request).getBodyAsBase64(); will(returnValue(bodyAsBase64));
 			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
 			allowing(request).isBrowserProxyRequest(); will(returnValue(browserProxyRequest));
 		}});
-		
+
 		return request;
 	}
 }

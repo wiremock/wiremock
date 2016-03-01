@@ -15,22 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.matching.Cookie;
+
+import java.util.Map;
 import java.util.Set;
 
 public interface Request {
 
 	String getUrl();
 	String getAbsoluteUrl();
-	RequestMethod getMethod();
-	String getHeader(String key);
+
+    RequestMethod getMethod();
+
+    String getHeader(String key);
     HttpHeader header(String key);
     ContentTypeHeader contentTypeHeader();
     HttpHeaders getHeaders();
 	boolean containsHeader(String key);
-	Set<String> getAllHeaderKeys();
+    Set<String> getAllHeaderKeys();
+
+    Map<String, Cookie> getCookies();
+
     QueryParameter queryParameter(String key);
+
     byte[] getBody();
     String getBodyAsString();
     String getBodyAsBase64();
-	boolean isBrowserProxyRequest();
+
+    boolean isBrowserProxyRequest();
 }

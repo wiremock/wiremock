@@ -27,7 +27,7 @@ public interface LocalMappingBuilder<M extends LocalMappingBuilder, S extends Sc
     S inScenario(String scenarioName);
     M withId(UUID id);
     M withBasicAuth(String username, String password);
-    M withCookie(String name, String value);
+    M withCookie(String name, ValueMatchingStrategy value);
 
     M willReturn(ResponseDefinitionBuilder responseDefBuilder);
 

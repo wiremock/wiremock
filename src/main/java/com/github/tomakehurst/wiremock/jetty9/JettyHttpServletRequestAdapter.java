@@ -17,24 +17,31 @@ package com.github.tomakehurst.wiremock.jetty9;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.Cookie;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Iterables.find;
+import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
+import static java.util.Arrays.asList;
 import static java.util.Collections.list;
 
 public class JettyHttpServletRequestAdapter implements Request {
@@ -160,6 +167,23 @@ public class JettyHttpServletRequestAdapter implements Request {
         }
         
         return headerKeys;
+    }
+
+    @Override
+    public Map<String, Cookie> getCookies() {
+        ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
+
+        for (javax.servlet.http.Cookie cookie:
+                Optional.fromNullable(request.getCookies())
+                .or(new javax.servlet.http.Cookie[0])) {
+            builder.put(cookie.getName(), convertCookie(cookie));
+        }
+
+        return builder.build();
+    }
+
+    private static Cookie convertCookie(javax.servlet.http.Cookie servletCookie) {
+        return new Cookie(servletCookie.getValue());
     }
 
     @Override

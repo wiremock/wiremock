@@ -20,6 +20,8 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import static com.github.tomakehurst.wiremock.client.ValueMatchingStrategy.toVal
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.google.common.collect.Maps.transformValues;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class RequestPatternBuilder {
@@ -36,6 +39,7 @@ public class RequestPatternBuilder {
 	private RequestMethod method;
 	private UrlMatchingStrategy urlMatchingStrategy;
 	private Map<String, ValueMatchingStrategy> headers = newLinkedHashMap();
+	private Map<String, ValueMatchingStrategy> cookies = newLinkedHashMap();
     private Map<String, ValueMatchingStrategy> queryParameters = newLinkedHashMap();
     private Set<String> withoutHeaders = newHashSet();
 	private List<ValueMatchingStrategy> bodyPatterns = newArrayList();
@@ -73,6 +77,11 @@ public class RequestPatternBuilder {
 		headers.put(key, headerMatchingStrategy);
 		return this;
 	}
+
+	public RequestPatternBuilder withCookie(String name, ValueMatchingStrategy cookieMatchingStrategy) {
+        cookies.put(name, cookieMatchingStrategy);
+        return this;
+    }
 
     public RequestPatternBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         queryParameters.put(key, queryParamMatchingStrategy);
@@ -116,6 +125,8 @@ public class RequestPatternBuilder {
 		for (Map.Entry<String, ValueMatchingStrategy> header: headers.entrySet()) {
 			requestPattern.addHeader(header.getKey(), header.getValue().asValuePattern());
 		}
+
+        requestPattern.setCookies(transformValues(cookies, toValuePattern));
 
         for (String key: withoutHeaders) {
             requestPattern.addHeader(key, ValuePattern.absent());

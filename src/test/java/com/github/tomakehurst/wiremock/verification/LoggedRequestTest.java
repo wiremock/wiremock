@@ -15,10 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
+import com.github.tomakehurst.wiremock.matching.Cookie;
+import com.google.common.collect.ImmutableMap;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
@@ -28,6 +31,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
@@ -36,7 +40,6 @@ import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRe
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.*;
 
 @RunWith(JMock.class)
@@ -72,13 +75,17 @@ public class LoggedRequestTest {
         assertNotNull(loggedRequest.getHeader("Accept"));
     }
     
-    static  final String DATE = "2012-06-07 16:39:41";
+    static  final String DATE = "2012-06-07T16:39:41Z";
     static final String JSON_EXAMPLE = "{\n" +
             "      \"url\" : \"/my/url\",\n" +
             "      \"absoluteUrl\" : \"http://mydomain.com/my/url\",\n" +
             "      \"method\" : \"GET\",\n" +
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
+            "      },\n" +
+            "      \"cookies\" : {\n" +
+            "        \"first_cookie\"   : \"yum\",\n" +
+            "        \"monster_cookie\" : \"COOKIIIEESS\"\n" +
             "      },\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
@@ -90,14 +97,19 @@ public class LoggedRequestTest {
     @Test
     public void jsonRepresentation() throws Exception {
         HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
+        Map<String, Cookie> cookies = ImmutableMap.of(
+            "first_cookie", new Cookie("yum"),
+            "monster_cookie", new Cookie("COOKIIIEESS")
+        );
 
-        Date loggedDate = parse(DATE);
+        Date loggedDate = Dates.parse(DATE);
 
         LoggedRequest loggedRequest = new LoggedRequest(
                 "/my/url",
                 "http://mydomain.com/my/url",
                 RequestMethod.GET,
                 headers,
+                cookies,
                 true,
                 loggedDate,
                 REQUEST_BODY_AS_BASE64,
@@ -107,7 +119,6 @@ public class LoggedRequestTest {
         String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
 
         JSONAssert.assertEquals(expectedJson, Json.write(loggedRequest), false);
-//        assertThat(Json.write(loggedRequest), equalToIgnoringWhiteSpace(expectedJson));
     }
 
     @Test
@@ -117,6 +128,7 @@ public class LoggedRequestTest {
             "http://mydomain.com/my/url",
             RequestMethod.GET,
             null,
+            null,
             true,
             null,
             REQUEST_BODY_AS_BASE64,
@@ -124,10 +136,5 @@ public class LoggedRequestTest {
             );
 
         assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
-    }
-
-    private Date parse(String dateString) throws Exception {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        return df.parse(dateString);
     }
 }
