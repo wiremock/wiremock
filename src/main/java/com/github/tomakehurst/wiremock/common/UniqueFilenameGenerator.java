@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 
 import java.net.URI;
 
@@ -29,6 +26,8 @@ import static com.google.common.collect.Iterables.size;
 import static java.lang.Math.min;
 
 public class UniqueFilenameGenerator {
+    public static final int MAX_FILENAME_WITHOUT_EXTENSION = 240; 
+    
     public static String generate(Request request, String prefix, String id) {
         URI uri = URI.create(request.getUrl());
         Iterable<String> uriPathNodes = on("/").omitEmptyStrings().split(uri.getPath());
@@ -37,14 +36,17 @@ public class UniqueFilenameGenerator {
         String pathPart = nodeCount > 0 ?
                 Joiner.on("-").join(from(uriPathNodes).skip(nodeCount - min(nodeCount, 2))) :
                 "(root)";
-
-
-        return new StringBuilder(prefix)
+                
+        StringBuilder stringBuilder = new StringBuilder(prefix)
                 .append("-")
                 .append(pathPart)
                 .append("-")
-                .append(id)
-                .append(".json")
-                .toString();
+                .append(id);
+        if (stringBuilder.length() > MAX_FILENAME_WITHOUT_EXTENSION) {
+                stringBuilder.delete(MAX_FILENAME_WITHOUT_EXTENSION, Integer.MAX_VALUE);
+        }
+        stringBuilder.append(".json");
+        
+        return stringBuilder.toString();
     }
 }

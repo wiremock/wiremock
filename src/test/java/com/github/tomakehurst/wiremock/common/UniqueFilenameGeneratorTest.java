@@ -54,6 +54,16 @@ public class UniqueFilenameGeneratorTest {
 
         assertThat(fileName, is("body-thing-random123.json"));
     }
+    
+    @Test
+    public void generatesValidNameWhenRequestHasUrlTooLong() {
+        String fileName = UniqueFilenameGenerator.generate(
+                aRequest(context).withUrl("/thing").build(),
+                "body",
+                "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+
+        assertThat(fileName, is("body-thing-abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstu.json"));
+    }
 
     @Test
     public void generatesValidNameWhenRequestHasRootPath() {
