@@ -56,6 +56,7 @@ public class CommandLineOptions implements Options {
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
     private static final String HTTPS_TRUSTSTORE = "https-truststore";
     private static final String HTTPS_TRUSTSTORE_PASSWORD = "truststore-password";
+    private static final String HTTPS_TRUSTSTORE_KEY_ALIAS = "truststore-key-alias";
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
@@ -79,10 +80,11 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
         optionParser.accepts(REQUIRE_CLIENT_CERT, "Make the server require a trusted client certificate to enable a connection");
         optionParser.accepts(HTTPS_TRUSTSTORE_PASSWORD, "Password for the trust store").withRequiredArg();
-        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT).withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE_KEY_ALIAS, "This parameter is usefull only in when --proxy-all is in effect. The value of this parameter gives us the ability to specify an alias name to use during proxying to a target application server if --https-truststore contains multiple certs. If --https-truststore contains multiple certs and we do not specifiy this value then the wiremock proxy client will use the first available cert from the --https-truststore.").withRequiredArg();
+        optionParser.accepts(HTTPS_TRUSTSTORE, "Path to an alternative truststore for HTTPS client certificates. Must have a password of \"password\".").requiredIf(REQUIRE_CLIENT_CERT, HTTPS_TRUSTSTORE_KEY_ALIAS).withRequiredArg();
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
-        optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
+        optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").requiredIf(HTTPS_TRUSTSTORE_KEY_ALIAS).withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
@@ -171,11 +173,13 @@ public class CommandLineOptions implements Options {
     public HttpsSettings httpsSettings() {
         return new HttpsSettings.Builder()
                 .port(httpsPortNumber())
-                .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
-                .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
-                .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
-                .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
-                .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT)).build();
+          .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
+          .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
+          .trustStorePath((String) optionSet.valueOf(HTTPS_TRUSTSTORE))
+          .trustStorePassword((String) optionSet.valueOf(HTTPS_TRUSTSTORE_PASSWORD))
+          .needClientAuth(optionSet.has(REQUIRE_CLIENT_CERT))
+          .trustStoreKeyAlias((String) optionSet.valueOf(HTTPS_TRUSTSTORE_KEY_ALIAS))
+          .build();
     }
 
     @Override

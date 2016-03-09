@@ -55,15 +55,15 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
 	
-	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue) {
-		client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
+	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings,  String trustStoreKeyAlias, boolean preserveHostHeader, String hostHeaderValue) {
+		client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings, trustStoreKeyAlias);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
 	}
 
     public ProxyResponseRenderer() {
-        this(ProxySettings.NO_PROXY, KeyStoreSettings.NO_STORE, false, null);
+        this(ProxySettings.NO_PROXY, KeyStoreSettings.NO_STORE, null, false, null);
     }
 
 	@Override

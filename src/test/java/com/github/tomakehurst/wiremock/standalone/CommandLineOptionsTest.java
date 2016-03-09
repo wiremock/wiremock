@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.base.Optional;
+import joptsimple.OptionException;
 import org.junit.Test;
 
 import java.util.Map;
@@ -98,6 +99,22 @@ public class CommandLineOptionsTest {
                 "--truststore-password", "sometrustpwd");
         assertThat(options.httpsSettings().trustStorePath(), is("/my/truststore"));
         assertThat(options.httpsSettings().trustStorePassword(), is("sometrustpwd"));
+    }
+
+    @Test(expected= OptionException.class)
+    public void setsTrustStoreKeyAliasWithoutRequiredOptions() {
+        CommandLineOptions options = new CommandLineOptions("--truststore-key-alias", "alias-name");
+        assertThat(options.httpsSettings().trustStoreKeyAlias(), is("alias-name"));
+    }
+
+    @Test
+    public void setsTrustStoreKeyAliasWithRequiredOptions() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+          "--proxy-all", "http://someotherhost.com/site",
+          "--https-truststore", "/my/truststore",
+          "--https-keystore", "/my/keystore",
+          "--truststore-key-alias", "alias-name");
+        assertThat(options.httpsSettings().trustStoreKeyAlias(), is("alias-name"));
     }
 
     @Test

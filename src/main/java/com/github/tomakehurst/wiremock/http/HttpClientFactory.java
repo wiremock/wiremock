@@ -21,6 +21,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.PrivateKeyDetails;
+import org.apache.http.conn.ssl.PrivateKeyStrategy;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -29,7 +31,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpProcessorBuilder;
 
 import javax.net.ssl.SSLContext;
+import java.net.Socket;
 import java.security.KeyStore;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
@@ -40,7 +44,7 @@ public class HttpClientFactory {
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
 
     public static HttpClient createClient(
-            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
+            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, String trustStoreKeyAlias) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -58,7 +62,7 @@ public class HttpClientFactory {
         }
 
         if (trustStoreSettings != NO_STORE) {
-            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings));
+            builder.setSslcontext(buildSSLContextWithTrustStore(trustStoreSettings, trustStoreKeyAlias));
         } else {
             builder.setSslcontext(buildAllowAnythingSSLContext());
         }
@@ -66,14 +70,27 @@ public class HttpClientFactory {
         return builder.build();
 	}
 
-    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings) {
+    private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings, final String trustStoreKeyAlias) {
         try {
             KeyStore trustStore = trustStoreSettings.loadStore();
-            return SSLContexts.custom()
-                    .loadTrustMaterial(null, new TrustSelfSignedStrategy())
-                    .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
-                    .useTLS()
-                    .build();
+            if (trustStoreKeyAlias != null) {
+              return SSLContexts.custom()
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray(), new PrivateKeyStrategy() {
+                  @Override
+                  public String chooseAlias(Map<String, PrivateKeyDetails> aliases, Socket socket) {
+                    return trustStoreKeyAlias;
+                  }
+                })
+                .useTLS()
+                .build();
+            } else {
+              return SSLContexts.custom()
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                .loadKeyMaterial(trustStore, trustStoreSettings.password().toCharArray())
+                .useTLS()
+                .build();
+            }
         } catch (Exception e) {
             return throwUnchecked(e, SSLContext.class);
         }
@@ -88,7 +105,7 @@ public class HttpClientFactory {
     }
 
     public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
-        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
+        return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE, null);
     }
 	
 	public static HttpClient createClient(int timeoutMilliseconds) {
