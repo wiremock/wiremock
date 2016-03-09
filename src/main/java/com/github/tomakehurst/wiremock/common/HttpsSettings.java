@@ -25,14 +25,16 @@ public class HttpsSettings {
     private final String trustStorePath;
     private final String trustStorePassword;
     private final boolean needClientAuth;
+    private final String trustStoreKeyAlias;
 
-    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth, String trustStoreKeyAlias) {
         this.port = port;
         this.keyStorePath = keyStorePath;
         this.keyStorePassword = keyStorePassword;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
         this.needClientAuth = needClientAuth;
+        this.trustStoreKeyAlias = trustStoreKeyAlias;
     }
 
     public int port() {
@@ -67,6 +69,8 @@ public class HttpsSettings {
         return trustStorePath != null;
     }
 
+    public String trustStoreKeyAlias() { return trustStoreKeyAlias; }
+
     public KeyStoreSettings trustStore() {
         return trustStorePath != null ?
                 new KeyStoreSettings(trustStorePath, trustStorePassword) :
@@ -79,7 +83,8 @@ public class HttpsSettings {
                 "port=" + port +
                 ", keyStorePath='" + keyStorePath + '\'' +
                 ", trustStorePath='" + trustStorePath + '\'' +
-                ", needClientAuth=" + needClientAuth +
+                ", needClientAuth=" + needClientAuth + '\'' +
+                ", trustStoreKeyAlias="+ trustStoreKeyAlias +
                 '}';
     }
 
@@ -91,6 +96,7 @@ public class HttpsSettings {
         private String trustStorePath = null;
         private String trustStorePassword = "password";
         private boolean needClientAuth = false;
+        private String trustStoreKeyAlias = null;
 
         public Builder port(int port) {
             this.port = port;
@@ -122,8 +128,13 @@ public class HttpsSettings {
             return this;
         }
 
+        public Builder trustStoreKeyAlias(String trustStoreKeyAlias){
+            this.trustStoreKeyAlias = trustStoreKeyAlias;
+            return this;
+        }
+
         public HttpsSettings build() {
-            return new HttpsSettings(port, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
+            return new HttpsSettings(port, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth, trustStoreKeyAlias );
         }
     }
 }

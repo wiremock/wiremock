@@ -99,6 +99,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
                         new ProxyResponseRenderer(
                                 options.proxyVia(),
                                 options.httpsSettings().trustStore(),
+                                options.httpsSettings().trustStoreKeyAlias(),
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
                         )

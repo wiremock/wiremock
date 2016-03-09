@@ -36,6 +36,8 @@ Path to a keystore file containing client certificates. See :ref:`https` and :re
 ``--truststore-password``:
 Optional password to the trust store. Defaults to "password" if not specified.
 
+``--truststore-key-alias``
+This parameter is usefull only in when --proxy-all is in effect. The value of this parameter gives us the ability to specify an alias name to use during proxying to a target application server if --https-truststore contains multiple certs. If --https-truststore contains multiple certs and we do not specifiy this value then the wiremock proxy client will use the first available cert from the --https-truststore.
 ``--https-require-client-cert``:
 Force clients to authenticate with a client certificate. See :ref:`https` for details.
 
