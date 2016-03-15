@@ -42,11 +42,15 @@ public class UniqueFilenameGenerator {
                 .append(pathPart)
                 .append("-")
                 .append(id);
-        if (stringBuilder.length() > MAX_FILENAME_WITHOUT_EXTENSION) {
-                stringBuilder.delete(MAX_FILENAME_WITHOUT_EXTENSION, Integer.MAX_VALUE);
-        }
+        trimTooLongFileName(stringBuilder);
         stringBuilder.append(".json");
         
         return stringBuilder.toString();
+    }
+
+    private static void trimTooLongFileName(StringBuilder stringBuilder) {
+        if (stringBuilder.length() > MAX_FILENAME_WITHOUT_EXTENSION) {
+                stringBuilder.delete(MAX_FILENAME_WITHOUT_EXTENSION, Integer.MAX_VALUE);
+        }
     }
 }
