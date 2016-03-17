@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -25,8 +26,9 @@ import java.util.UUID;
 import static com.google.common.base.Preconditions.checkArgument;
 
 class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
-	
+
 	private RequestPatternBuilder requestPatternBuilder;
+    private NewRequestPatternBuilder newRequestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
@@ -36,6 +38,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
+        newRequestPatternBuilder = new NewRequestPatternBuilder();
 	}
 
 	public MappingBuilder(RequestMatcher requestMatcher) {

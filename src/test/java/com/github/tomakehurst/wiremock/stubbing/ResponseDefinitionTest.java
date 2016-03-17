@@ -22,13 +22,13 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static net.sf.json.test.JSONAssert.assertJsonEquals;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -81,13 +81,13 @@ public class ResponseDefinitionTest {
     }
 
     @Test
-    public void correctlyMarshalsToJsonWhenBodyIsAString() {
+    public void correctlyMarshalsToJsonWhenBodyIsAString() throws Exception {
         ResponseDefinition responseDef = responseDefinition()
                 .withStatus(200)
                 .withBody("String content")
                 .build();
 
-        assertJsonEquals(STRING_BODY, Json.write(responseDef));
+        JSONAssert.assertEquals(STRING_BODY, Json.write(responseDef), false);
     }
 
     private static final byte[] BODY = new byte[] {1, 2, 3};
@@ -106,12 +106,12 @@ public class ResponseDefinitionTest {
     }
 
     @Test
-    public void correctlyMarshalsToJsonWhenBodyIsBinary() {
+    public void correctlyMarshalsToJsonWhenBodyIsBinary() throws Exception {
         ResponseDefinition responseDef = responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
 
         String actualJson = Json.write(responseDef);
-        assertJsonEquals("Expected: " + BINARY_BODY + "\nActual: " + actualJson,
-                BINARY_BODY, actualJson);
+        JSONAssert.assertEquals(actualJson,
+                BINARY_BODY, false);
     }
 
     @Test

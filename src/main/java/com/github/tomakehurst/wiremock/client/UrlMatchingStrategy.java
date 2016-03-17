@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 
 public class UrlMatchingStrategy {
 
@@ -30,6 +32,10 @@ public class UrlMatchingStrategy {
         requestPattern.setUrlPath(urlPath);
 		requestPattern.setUrlPathPattern(urlPathPattern);
 	}
+
+    public UrlPattern toUrlPattern() {
+
+    }
 
 	public void setUrl(String url) {
 		this.url = url;

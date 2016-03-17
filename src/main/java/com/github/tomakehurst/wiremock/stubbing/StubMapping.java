@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -36,6 +37,8 @@ public class StubMapping {
 	private UUID uuid = UUID.randomUUID();
 
 	private RequestPattern request;
+	private NewRequestPattern newRequest;
+
 	private ResponseDefinition response;
 	private Integer priority;
 	private String scenarioName;
@@ -91,7 +94,15 @@ public class StubMapping {
 		this.response = response;
 	}
 
-	@Override
+    public NewRequestPattern getNewRequest() {
+        return newRequest;
+    }
+
+    public void setNewRequest(NewRequestPattern newRequest) {
+        this.newRequest = newRequest;
+    }
+
+    @Override
 	public String toString() {
 		return Json.write(this);
 	}
