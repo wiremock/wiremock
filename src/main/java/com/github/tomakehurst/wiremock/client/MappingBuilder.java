@@ -38,7 +38,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
 	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
 		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
-        newRequestPatternBuilder = new NewRequestPatternBuilder();
+        newRequestPatternBuilder = new NewRequestPatternBuilder(method, urlMatchingStrategy.toUrlPattern());
 	}
 
 	public MappingBuilder(RequestMatcher requestMatcher) {

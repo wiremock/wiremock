@@ -8,10 +8,10 @@ import java.util.Map;
 
 public class NewRequestPattern implements ValueMatcher<Request> {
 
-    private final StringValuePattern url;
+    private final UrlPattern url;
     private final RequestMethod method;
 
-    public NewRequestPattern(@JsonProperty("url") StringValuePattern url,
+    public NewRequestPattern(@JsonProperty("url") UrlPattern url,
                              @JsonProperty("method") RequestMethod method) {
         this.url = url;
         this.method = method;

@@ -1,17 +1,25 @@
 package com.github.tomakehurst.wiremock.matching;
 
-public class UrlPattern extends StringValuePattern {
+public class UrlPattern implements ValueMatcher<String> {
 
-    public UrlPattern(String testUrl) {
-        super(testUrl);
+    protected final StringValuePattern testUrl;
+
+    protected UrlPattern(StringValuePattern testUrl) {
+        this.testUrl = testUrl;
     }
 
     @Override
     public MatchResult match(String url) {
-        return null;
+        return testUrl.match(url);
     }
 
     public static UrlPattern equals(String testUrl) {
-
+        return new UrlPattern(StringValuePattern.equalTo(testUrl));
     }
+
+    public static UrlPattern matching(String urlRegex) {
+        return new UrlPattern(StringValuePattern.matches(urlRegex));
+    }
+
+
 }

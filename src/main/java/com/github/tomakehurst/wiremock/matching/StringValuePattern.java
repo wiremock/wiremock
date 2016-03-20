@@ -34,13 +34,12 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return null;
     }
 
-    public static StringValuePattern matches(String value) {
-        return null;
+    public static StringValuePattern matches(String regex) {
+        return new RegexPattern(regex);
     }
 
     public static StringValuePattern absent() {
         return null;
     }
 
-    public abstract MatchResult match(String value);
 }
