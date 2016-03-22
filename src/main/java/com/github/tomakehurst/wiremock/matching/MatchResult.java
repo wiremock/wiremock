@@ -1,5 +1,9 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import java.util.List;
+
+import static java.util.Arrays.asList;
+
 public class MatchResult {
 
     private final double distance;
@@ -32,12 +36,16 @@ public class MatchResult {
         return isMatch ? exactMatch() : noMatch();
     }
 
-    public static MatchResult aggregate(MatchResult... matches) {
+    public static MatchResult aggregate(List<MatchResult> matches) {
         double totalDistance = 0;
         for (MatchResult matchResult: matches) {
             totalDistance += matchResult.getDistance();
         }
 
-        return partialMatch(totalDistance / matches.length);
+        return partialMatch(totalDistance / matches.size());
+    }
+
+    public static MatchResult aggregate(MatchResult... matches) {
+        return aggregate(asList(matches));
     }
 }

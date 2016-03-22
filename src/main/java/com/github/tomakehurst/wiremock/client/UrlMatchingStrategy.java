@@ -16,11 +16,8 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
-
-import java.net.URI;
 
 public class UrlMatchingStrategy {
 
@@ -38,15 +35,15 @@ public class UrlMatchingStrategy {
 
     public UrlPattern toUrlPattern() {
         if (url != null) {
-            return UrlPattern.equals(url);
+            return UrlPattern.equalsTo(url);
         } else if (urlPattern != null) {
             return UrlPattern.matching(urlPattern);
         } else if (urlPath != null) {
-            return UrlPathPattern.equals(urlPath);
+            return UrlPathPattern.equalTo(urlPath);
         } else if (urlPathPattern != null) {
             return UrlPathPattern.matching(urlPathPattern);
         } else {
-            return UrlPattern.equals("/");
+            return UrlPattern.equalsTo("/");
         }
 
     }

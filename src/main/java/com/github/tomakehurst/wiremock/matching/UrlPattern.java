@@ -13,7 +13,7 @@ public class UrlPattern implements ValueMatcher<String> {
         return testUrl.match(url);
     }
 
-    public static UrlPattern equals(String testUrl) {
+    public static UrlPattern equalsTo(String testUrl) {
         return new UrlPattern(StringValuePattern.equalTo(testUrl));
     }
 

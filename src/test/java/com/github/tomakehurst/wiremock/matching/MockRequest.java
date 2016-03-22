@@ -1,15 +1,22 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Predicate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.google.common.collect.Iterables.tryFind;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MockRequest implements Request {
 
     private String url;
     private String absoluteUrl;
     private RequestMethod method;
+    private HttpHeaders headers = new HttpHeaders();
 
     public static MockRequest mockRequest() {
         return new MockRequest();
@@ -47,12 +54,16 @@ public class MockRequest implements Request {
 
     @Override
     public String getHeader(String key) {
-        return null;
+        return header(key).firstValue();
     }
 
     @Override
-    public HttpHeader header(String key) {
-        return null;
+    public HttpHeader header(final String key) {
+        return tryFind(headers.all(), new Predicate<HttpHeader>() {
+            public boolean apply(HttpHeader input) {
+                return input.keyEquals(key);
+            }
+        }).or(HttpHeader.absent(key));
     }
 
     @Override
@@ -62,7 +73,7 @@ public class MockRequest implements Request {
 
     @Override
     public HttpHeaders getHeaders() {
-        return null;
+        return headers;
     }
 
     @Override
@@ -103,5 +114,10 @@ public class MockRequest implements Request {
     @Override
     public boolean isBrowserProxyRequest() {
         return false;
+    }
+
+    public MockRequest header(String key, String value) {
+        headers = headers.plus(httpHeader(key, value));
+        return this;
     }
 }

@@ -14,7 +14,7 @@ public class UrlPathPattern extends UrlPattern {
         return super.match(path);
     }
 
-    public static UrlPathPattern equals(String testUrl) {
+    public static UrlPathPattern equalTo(String testUrl) {
         return new UrlPathPattern(StringValuePattern.equalTo(testUrl));
     }
 
