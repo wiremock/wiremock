@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -30,14 +31,14 @@ import static org.junit.Assert.assertThat;
 
 public class InMemoryRequestJournalTest {
 
-    private LoggedRequest request1, request2, request3;
+    private ServedStub request1, request2, request3;
 
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        request1 = createFrom(aRequest(context, "log1").withUrl("/logging1").build());
-        request2 = createFrom(aRequest(context, "log2").withUrl("/logging2").build());
-        request3 = createFrom(aRequest(context, "log3").withUrl("/logging3").build());
+        request1 = ServedStub.noNearMisses(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
+        request2 = ServedStub.noNearMisses(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
+        request3 = ServedStub.noNearMisses(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class InMemoryRequestJournalTest {
                 .build());
 
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.requestReceived(loggedRequest);
+        journal.requestReceived(ServedStub.noNearMisses(loggedRequest, null));
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
         assertThat(journal.countRequestsMatching(everything()), is(0));

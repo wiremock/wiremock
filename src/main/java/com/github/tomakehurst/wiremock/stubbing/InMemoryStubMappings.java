@@ -71,13 +71,13 @@ public class InMemoryStubMappings implements StubMappings {
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
 
-        requestJournal.requestReceived(request);
-
         ResponseDefinition responseDefinition = applyTransformations(request,
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        return ServedStub.noNearMisses(request, responseDefinition);
+        ServedStub servedStub = ServedStub.noNearMisses(request, responseDefinition);
+        requestJournal.requestReceived(servedStub);
+        return servedStub;
 	}
 
     private ResponseDefinition applyTransformations(Request request,

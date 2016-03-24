@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 import java.util.List;
 
@@ -37,6 +37,6 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public void requestReceived(Request request) {
+    public void requestReceived(ServedStub servedStub) {
     }
 }
