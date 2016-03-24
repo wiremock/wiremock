@@ -50,7 +50,7 @@ public class NewInMemoryStubMappings implements StubMappings {
 	}
 
 	@Override
-	public ResponseDefinition serveFor(Request request) {
+	public ServedStub serveFor(Request request) {
 		StubMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
@@ -58,7 +58,7 @@ public class NewInMemoryStubMappings implements StubMappings {
 		
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
-		return copyOf(matchingMapping.getResponse());
+		return ServedStub.noNearMisses(request, matchingMapping.getResponse());
 	}
 
 	private void notifyIfResponseNotConfigured(Request request, StubMapping matchingMapping) {

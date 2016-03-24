@@ -23,7 +23,7 @@ import java.util.List;
 
 public interface StubMappings {
 
-	ResponseDefinition serveFor(Request request);
+	ServedStub serveFor(Request request);
 	void addMapping(StubMapping mapping);
 	void editMapping(StubMapping stubMapping);
 	void reset();

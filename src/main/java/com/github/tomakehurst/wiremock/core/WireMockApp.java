@@ -84,7 +84,7 @@ public class WireMockApp implements StubServer, Admin {
     
     @Override
     public ServedStub serveStubFor(Request request) {
-        ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request);
+        ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request).responseDefinition;
         requestJournal.requestReceived(request);
 
         ResponseDefinition responseDefinition = applyTransformations(request,
