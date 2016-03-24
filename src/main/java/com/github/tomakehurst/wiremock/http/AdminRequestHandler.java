@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.AdminTasks;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -33,10 +34,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	}
 
 	@Override
-	public ResponseDefinition handleRequest(Request request) {
+	public ServedStub handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
         AdminTask adminTask = AdminTasks.taskFor(request.getMethod(), withoutAdminRoot(request.getUrl()));
-        return adminTask.execute(admin, request);
+        return ServedStub.noNearMisses(request, adminTask.execute(admin, request));
 	}
 
 	private static String withoutAdminRoot(String url) {

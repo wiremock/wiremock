@@ -29,6 +29,7 @@ import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -53,7 +54,7 @@ public class StubRequestHandlerTest {
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(ServedStub.noNearMisses(mockRequest(), new ResponseDefinition(200, "Body content"))));
 
             Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
@@ -76,7 +77,7 @@ public class StubRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request); will(returnValue(ResponseDefinition.notConfigured()));
+			allowing(stubServer).serveStubFor(request); will(returnValue(ServedStub.noNearMisses(request, ResponseDefinition.notConfigured())));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});

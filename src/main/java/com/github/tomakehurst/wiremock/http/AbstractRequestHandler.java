@@ -15,13 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Function;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Joiner.on;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
@@ -40,7 +38,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	@Override
 	public Response handle(Request request) {
-		ResponseDefinition responseDefinition = handleRequest(request);
+		ServedStub servedStub = handleRequest(request);
+		ResponseDefinition responseDefinition = servedStub.responseDefinition;
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
 
@@ -76,5 +75,5 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	protected boolean logRequests() { return false; }
 
-	protected abstract ResponseDefinition handleRequest(Request request);
+	protected abstract ServedStub handleRequest(Request request);
 }

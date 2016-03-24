@@ -24,14 +24,12 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +83,7 @@ public class WireMockApp implements StubServer, Admin {
     }
     
     @Override
-    public ResponseDefinition serveStubFor(Request request) {
+    public ServedStub serveStubFor(Request request) {
         ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request);
         requestJournal.requestReceived(request);
 
@@ -94,10 +92,10 @@ public class WireMockApp implements StubServer, Admin {
                                                                      ImmutableList.copyOf(transformers.values()));
 
         if (!responseDefinition.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
-            return ResponseDefinition.browserProxy(request);
+            return ServedStub.noNearMisses(request, ResponseDefinition.browserProxy(request));
         }
 
-        return responseDefinition;
+        return ServedStub.noNearMisses(request, responseDefinition);
     }
 
     private ResponseDefinition applyTransformations(Request request,
