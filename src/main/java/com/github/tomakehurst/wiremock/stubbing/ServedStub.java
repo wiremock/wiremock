@@ -2,18 +2,19 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ServedStub {
 
-    public final Request request;
+    public final LoggedRequest request;
     public final ResponseDefinition responseDefinition;
     public final List<StubMapping> nearMisses;
 
     public ServedStub(Request request, ResponseDefinition responseDefinition, List<StubMapping> nearMisses) {
-        this.request = request;
+        this.request = LoggedRequest.createFrom(request);
         this.responseDefinition = responseDefinition;
         this.nearMisses = nearMisses;
     }

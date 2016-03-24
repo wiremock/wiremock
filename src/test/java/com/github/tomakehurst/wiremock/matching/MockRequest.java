@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Predicate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,9 +14,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class MockRequest implements Request {
 
-    private String url;
-    private String absoluteUrl;
-    private RequestMethod method;
+    private String url = "/";
+    private RequestMethod method = RequestMethod.ANY;
     private HttpHeaders headers = new HttpHeaders();
 
     public static MockRequest mockRequest() {
@@ -24,11 +24,6 @@ public class MockRequest implements Request {
 
     public MockRequest url(String url) {
         this.url = url;
-        return this;
-    }
-
-    public MockRequest absoluteUrl(String absoluteUrl) {
-        this.absoluteUrl = absoluteUrl;
         return this;
     }
 
@@ -44,7 +39,7 @@ public class MockRequest implements Request {
 
     @Override
     public String getAbsoluteUrl() {
-        return absoluteUrl;
+        return "http://my.domain" + url;
     }
 
     @Override
@@ -68,12 +63,12 @@ public class MockRequest implements Request {
 
     @Override
     public ContentTypeHeader contentTypeHeader() {
-        return null;
+        return ContentTypeHeader.absent();
     }
 
     @Override
     public HttpHeaders getHeaders() {
-        return headers;
+        return new HttpHeaders();
     }
 
     @Override
@@ -83,17 +78,17 @@ public class MockRequest implements Request {
 
     @Override
     public Set<String> getAllHeaderKeys() {
-        return null;
+        return getHeaders().keys();
     }
 
     @Override
     public Map<String, Cookie> getCookies() {
-        return null;
+        return Collections.emptyMap();
     }
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return null;
+        return QueryParameter.absent(key);
     }
 
     @Override
@@ -103,12 +98,12 @@ public class MockRequest implements Request {
 
     @Override
     public String getBodyAsString() {
-        return null;
+        return "";
     }
 
     @Override
     public String getBodyAsBase64() {
-        return null;
+        return "";
     }
 
     @Override

@@ -58,7 +58,10 @@ public class InMemoryStubMappings implements StubMappings {
     }
 
 	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcherExtension>emptyMap(), new DisabledRequestJournal(), Collections.<String, ResponseDefinitionTransformer>emptyMap(), new SingleRootFileSource("."));
+		this(Collections.<String, RequestMatcherExtension>emptyMap(),
+             new DisabledRequestJournal(),
+             Collections.<String, ResponseDefinitionTransformer>emptyMap(),
+             new SingleRootFileSource("."));
 	}
 
 	@Override

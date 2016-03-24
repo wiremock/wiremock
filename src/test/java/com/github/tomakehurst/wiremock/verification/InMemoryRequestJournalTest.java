@@ -31,23 +31,23 @@ import static org.junit.Assert.assertThat;
 
 public class InMemoryRequestJournalTest {
 
-    private ServedStub request1, request2, request3;
+    private ServedStub servedStub1, servedStub2, servedStub3;
 
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        request1 = ServedStub.noNearMisses(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        request2 = ServedStub.noNearMisses(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        request3 = ServedStub.noNearMisses(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
+        servedStub1 = ServedStub.noNearMisses(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
+        servedStub2 = ServedStub.noNearMisses(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
+        servedStub3 = ServedStub.noNearMisses(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
     }
 
     @Test
     public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
         RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent());
 
-        journal.requestReceived(request1);
-        journal.requestReceived(request1);
-        journal.requestReceived(request2);
+        journal.requestReceived(servedStub1);
+        journal.requestReceived(servedStub1);
+        journal.requestReceived(servedStub2);
 
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(2));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
@@ -71,14 +71,14 @@ public class InMemoryRequestJournalTest {
     public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(2));
 
-        journal.requestReceived(request1);
-        journal.requestReceived(request2);
+        journal.requestReceived(servedStub1);
+        journal.requestReceived(servedStub2);
 
         assertThat(journal.countRequestsMatching(everything()), is(2));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
 
-        journal.requestReceived(request3);
+        journal.requestReceived(servedStub3);
         assertOnlyLastTwoRequestsLeft(journal);
     }
 
