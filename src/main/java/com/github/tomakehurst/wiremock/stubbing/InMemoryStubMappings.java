@@ -15,8 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Predicate;
@@ -29,7 +35,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
@@ -40,13 +46,19 @@ public class InMemoryStubMappings implements StubMappings {
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
 	private final Map<String, RequestMatcherExtension> customMatchers;
+    private final RequestJournal requestJournal;
+    private final Map<String, ResponseDefinitionTransformer> transformers;
+    private final FileSource rootFileSource;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers) {
+	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;
-	}
+        this.requestJournal = requestJournal;
+        this.transformers = transformers;
+        this.rootFileSource = rootFileSource;
+    }
 
 	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcherExtension>emptyMap());
+		this(Collections.<String, RequestMatcherExtension>emptyMap(), new DisabledRequestJournal(), Collections.<String, ResponseDefinitionTransformer>emptyMap(), new SingleRootFileSource("."));
 	}
 
 	@Override
@@ -59,8 +71,30 @@ public class InMemoryStubMappings implements StubMappings {
 		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
 
-		return ServedStub.noNearMisses(request, matchingMapping.getResponse());
+        requestJournal.requestReceived(request);
+
+        ResponseDefinition responseDefinition = applyTransformations(request,
+            matchingMapping.getResponse(),
+            ImmutableList.copyOf(transformers.values()));
+
+        return ServedStub.noNearMisses(request, responseDefinition);
 	}
+
+    private ResponseDefinition applyTransformations(Request request,
+                                                    ResponseDefinition responseDefinition,
+                                                    List<ResponseDefinitionTransformer> transformers) {
+        if (transformers.isEmpty()) {
+            return responseDefinition;
+        }
+
+        ResponseDefinitionTransformer transformer = transformers.get(0);
+        ResponseDefinition newResponseDef =
+            transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
+                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+                responseDefinition;
+
+        return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
+    }
 
 	private void notifyIfResponseNotConfigured(Request request, StubMapping matchingMapping) {
 		if (matchingMapping == NOT_CONFIGURED) {

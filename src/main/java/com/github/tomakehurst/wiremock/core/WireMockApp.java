@@ -27,9 +27,7 @@ import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +43,7 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
     private final MappingsSaver mappingsSaver;
-    private final Map<String, ResponseDefinitionTransformer> transformers;
-    private final FileSource rootFileSource;
+
 
     public WireMockApp(
             boolean browserProxyingEnabled,
@@ -62,10 +59,8 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        stubMappings = new InMemoryStubMappings(requestMatchers);
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        this.transformers = transformers;
-        this.rootFileSource = rootFileSource;
+        stubMappings = new InMemoryStubMappings(requestMatchers, requestJournal, transformers, rootFileSource);
         this.container = container;
         loadDefaultMappings();
     }
@@ -84,34 +79,13 @@ public class WireMockApp implements StubServer, Admin {
     
     @Override
     public ServedStub serveStubFor(Request request) {
-        ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request).responseDefinition;
-        requestJournal.requestReceived(request);
+        ServedStub servedStub = stubMappings.serveFor(request);
 
-        ResponseDefinition responseDefinition = applyTransformations(request,
-                                                                     baseResponseDefinition,
-                                                                     ImmutableList.copyOf(transformers.values()));
-
-        if (!responseDefinition.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
+        if (servedStub.noStubFound() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
             return ServedStub.noNearMisses(request, ResponseDefinition.browserProxy(request));
         }
 
-        return ServedStub.noNearMisses(request, responseDefinition);
-    }
-
-    private ResponseDefinition applyTransformations(Request request,
-                                                    ResponseDefinition responseDefinition,
-                                                    List<ResponseDefinitionTransformer> transformers) {
-        if (transformers.isEmpty()) {
-            return responseDefinition;
-        }
-
-        ResponseDefinitionTransformer transformer = transformers.get(0);
-        ResponseDefinition newResponseDef =
-                transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
-                responseDefinition;
-
-        return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
+        return servedStub;
     }
 
     @Override

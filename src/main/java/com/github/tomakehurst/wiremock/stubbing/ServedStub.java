@@ -21,4 +21,8 @@ public class ServedStub {
     public static ServedStub noNearMisses(Request request, ResponseDefinition responseDefinition) {
         return new ServedStub(request, responseDefinition, Collections.<StubMapping>emptyList());
     }
+
+    public boolean noStubFound() {
+        return !responseDefinition.wasConfigured();
+    }
 }
