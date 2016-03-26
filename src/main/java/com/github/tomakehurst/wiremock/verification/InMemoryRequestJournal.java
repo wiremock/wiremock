@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -30,10 +31,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Iterables.transform;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
-	private final Queue<LoggedRequest> requests = new ConcurrentLinkedQueue<LoggedRequest>();
+	private final Queue<ServedStub> servedStubs = new ConcurrentLinkedQueue<ServedStub>();
 
 	private final Optional<Integer> maxEntries;
 
@@ -46,12 +48,12 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(requests, matchedBy(requestPattern)));
+		return size(filter(getRequests(), matchedBy(requestPattern)));
 	}
 
 	@Override
 	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		return ImmutableList.copyOf(filter(requests, matchedBy(requestPattern)));
+		return ImmutableList.copyOf(filter(getRequests(), matchedBy(requestPattern)));
 	}
 
 	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
@@ -64,7 +66,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		requests.add(LoggedRequest.createFrom(request));
+		servedStubs.add(ServedStub.noNearMisses(LoggedRequest.createFrom(request), null));
 		removeOldEntries();
 	}
 
@@ -75,13 +77,21 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void reset() {
-		requests.clear();
+		servedStubs.clear();
+	}
+
+	private Iterable<LoggedRequest> getRequests() {
+		return transform(servedStubs, new Function<ServedStub, LoggedRequest>() {
+			public LoggedRequest apply(ServedStub input) {
+				return input.request;
+			}
+		});
 	}
 
 	private void removeOldEntries() {
 		if (maxEntries.isPresent()) {
-			while (requests.size() > maxEntries.get()) {
-				requests.poll();
+			while (servedStubs.size() > maxEntries.get()) {
+				servedStubs.poll();
 			}
 		}
 	}
