@@ -9,7 +9,7 @@ public class UrlPatternTest {
 
     @Test
     public void matchesExactUrlWithQuery() {
-        UrlPattern urlPattern = UrlPattern.equalsTo("/my/exact/url?one=1&two=2&three=3333333");
+        UrlPattern urlPattern = UrlPattern.equalTo("/my/exact/url?one=1&two=2&three=3333333");
         assertTrue(urlPattern.match( "/my/exact/url?one=1&two=2&three=3333333").isExactMatch());
         assertFalse(urlPattern.match("/my/wrong/url?one=1&three=3333333").isExactMatch());
     }

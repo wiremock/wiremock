@@ -1,15 +1,20 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.util.Map;
 
+import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
+
+@JsonSerialize(include = NON_NULL)
 public class NewRequestPattern implements ValueMatcher<Request> {
 
     private final UrlPattern url;
@@ -49,5 +54,32 @@ public class NewRequestPattern implements ValueMatcher<Request> {
 
     public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
         return match(request).isExactMatch();
+    }
+
+    public UrlPattern getUrl() {
+        return url;
+    }
+
+    public RequestMethod getMethod() {
+        return method;
+    }
+
+    public Map<String, MultiValuePattern> getHeaders() {
+        return headers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NewRequestPattern that = (NewRequestPattern) o;
+        return Objects.equal(url, that.url) &&
+            Objects.equal(method, that.method) &&
+            Objects.equal(headers, that.headers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(url, method, headers);
     }
 }

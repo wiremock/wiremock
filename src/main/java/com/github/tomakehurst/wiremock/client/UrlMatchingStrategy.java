@@ -35,7 +35,7 @@ public class UrlMatchingStrategy {
 
     public UrlPattern toUrlPattern() {
         if (url != null) {
-            return UrlPattern.equalsTo(url);
+            return UrlPattern.equalTo(url);
         } else if (urlPattern != null) {
             return UrlPattern.matching(urlPattern);
         } else if (urlPath != null) {
@@ -43,7 +43,7 @@ public class UrlMatchingStrategy {
         } else if (urlPathPattern != null) {
             return UrlPathPattern.matching(urlPathPattern);
         } else {
-            return UrlPattern.equalsTo("/");
+            return UrlPattern.equalTo("/");
         }
 
     }

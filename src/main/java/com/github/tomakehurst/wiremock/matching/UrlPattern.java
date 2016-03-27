@@ -1,19 +1,21 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public class UrlPattern implements ValueMatcher<String> {
 
-    protected final StringValuePattern testUrl;
+    protected final StringValuePattern pattern;
 
-    protected UrlPattern(StringValuePattern testUrl) {
-        this.testUrl = testUrl;
+    protected UrlPattern(StringValuePattern pattern) {
+        this.pattern = pattern;
     }
 
     @Override
     public MatchResult match(String url) {
-        return testUrl.match(url);
+        return pattern.match(url);
     }
 
-    public static UrlPattern equalsTo(String testUrl) {
+    public static UrlPattern equalTo(String testUrl) {
         return new UrlPattern(StringValuePattern.equalTo(testUrl));
     }
 
@@ -21,5 +23,8 @@ public class UrlPattern implements ValueMatcher<String> {
         return new UrlPattern(StringValuePattern.matches(urlRegex));
     }
 
-
+    @JsonValue
+    public StringValuePattern getPattern() {
+        return pattern;
+    }
 }

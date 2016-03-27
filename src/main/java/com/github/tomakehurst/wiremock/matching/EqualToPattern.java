@@ -20,4 +20,9 @@ public class EqualToPattern extends StringValuePattern {
         double actualDistance = getLevenshteinDistance(one, two);
         return (actualDistance / maxDistance);
     }
+
+    @Override
+    protected String description() {
+        return "equal to";
+    }
 }

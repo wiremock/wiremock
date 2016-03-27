@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -18,6 +20,7 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
         this.valuePattern = valuePattern;
     }
 
+    @JsonCreator
     public static MultiValuePattern of(StringValuePattern valuePattern) {
         return new MultiValuePattern(Optional.of(valuePattern));
     }
@@ -33,6 +36,11 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
         } else {
             return MatchResult.of(valuePattern.isPresent() == header.isPresent());
         }
+    }
+
+    @JsonValue
+    public StringValuePattern getValuePattern() {
+        return valuePattern.orNull();
     }
 
     private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {

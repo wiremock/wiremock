@@ -37,7 +37,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	public ServedStub handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
         AdminTask adminTask = AdminTasks.taskFor(request.getMethod(), withoutAdminRoot(request.getUrl()));
-        return ServedStub.noNearMisses(request, adminTask.execute(admin, request));
+        return ServedStub.exactMatch(request, adminTask.execute(admin, request));
 	}
 
 	private static String withoutAdminRoot(String url) {

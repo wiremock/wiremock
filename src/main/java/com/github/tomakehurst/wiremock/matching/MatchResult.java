@@ -4,7 +4,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class MatchResult {
+public class MatchResult implements Comparable<MatchResult> {
 
     private final double distance;
 
@@ -47,5 +47,10 @@ public class MatchResult {
 
     public static MatchResult aggregate(MatchResult... matches) {
         return aggregate(asList(matches));
+    }
+
+    @Override
+    public int compareTo(MatchResult other) {
+        return Double.compare(other.distance, distance);
     }
 }

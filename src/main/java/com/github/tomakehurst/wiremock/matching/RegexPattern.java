@@ -17,4 +17,9 @@ public class RegexPattern extends StringValuePattern {
         Matcher matcher = pattern.matcher(value);
         return MatchResult.of(matcher.matches());
     }
+
+    @Override
+    protected String description() {
+        return "matching regex";
+    }
 }

@@ -36,9 +36,9 @@ public class InMemoryRequestJournalTest {
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        servedStub1 = ServedStub.noNearMisses(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        servedStub2 = ServedStub.noNearMisses(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        servedStub3 = ServedStub.noNearMisses(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
+        servedStub1 = ServedStub.exactMatch(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
+        servedStub2 = ServedStub.exactMatch(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
+        servedStub3 = ServedStub.exactMatch(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class InMemoryRequestJournalTest {
                 .build());
 
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.requestReceived(ServedStub.noNearMisses(loggedRequest, null));
+        journal.requestReceived(ServedStub.exactMatch(loggedRequest, null));
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
         assertThat(journal.countRequestsMatching(everything()), is(0));

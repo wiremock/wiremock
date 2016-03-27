@@ -56,7 +56,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 		return ImmutableList.copyOf(filter(getRequests(), matchedBy(requestPattern)));
 	}
 
-	private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
 				return requestPattern.isMatchedBy(input);
@@ -66,14 +66,20 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		servedStubs.add(ServedStub.noNearMisses(LoggedRequest.createFrom(request), null));
+		servedStubs.add(ServedStub.exactMatch(LoggedRequest.createFrom(request), null));
 		removeOldEntries();
 	}
 
 	@Override
 	public void requestReceived(ServedStub servedStub) {
-		requestReceived(servedStub.request, null);
+		servedStubs.add(servedStub);
+        removeOldEntries();
 	}
+
+    @Override
+    public List<ServedStub> getAllServedStubs() {
+        return ImmutableList.copyOf(servedStubs);
+    }
 
 	@Override
 	public void reset() {

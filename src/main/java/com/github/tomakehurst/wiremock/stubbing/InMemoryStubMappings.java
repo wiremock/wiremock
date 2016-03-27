@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -78,7 +77,7 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServedStub servedStub = ServedStub.noNearMisses(request, responseDefinition);
+        ServedStub servedStub = ServedStub.exactMatch(request, responseDefinition);
         requestJournal.requestReceived(servedStub);
         return servedStub;
 	}

@@ -24,6 +24,9 @@ public interface RequestJournal {
 
 	int countRequestsMatching(RequestPattern requestPattern);
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
+
+    List<ServedStub> getAllServedStubs();
+
 	void reset();
 
     void requestReceived(ServedStub servedStub);

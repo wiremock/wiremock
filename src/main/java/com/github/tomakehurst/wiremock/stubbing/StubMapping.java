@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
-@JsonPropertyOrder({ "uuid", "request", "response" })
+@JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 

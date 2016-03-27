@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 public abstract class StringValuePattern implements ValueMatcher<String> {
@@ -42,4 +43,17 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return null;
     }
 
+    @JsonValue
+    public String getValue() {
+        return testValue;
+    }
+
+    @Override
+    public String toString() {
+        return description() + " " + getValue();
+    }
+
+    protected String description() {
+        return "";
+    }
 }

@@ -33,6 +33,11 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
+    public List<ServedStub> getAllServedStubs() {
+        throw new RequestJournalDisabledException();
+    }
+
+    @Override
     public void reset() {
     }
 

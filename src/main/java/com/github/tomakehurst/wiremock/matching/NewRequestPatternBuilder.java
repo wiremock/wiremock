@@ -29,7 +29,7 @@ public class NewRequestPatternBuilder {
     }
 
     public NewRequestPatternBuilder withUrl(String url) {
-        this.url = UrlPattern.equalsTo(url);
+        this.url = UrlPattern.equalTo(url);
         return this;
     }
 
