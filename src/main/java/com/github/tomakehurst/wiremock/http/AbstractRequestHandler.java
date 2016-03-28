@@ -39,7 +39,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 	@Override
 	public Response handle(Request request) {
 		ServedStub servedStub = handleRequest(request);
-		ResponseDefinition responseDefinition = servedStub.responseDefinition;
+		ResponseDefinition responseDefinition = servedStub.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
 

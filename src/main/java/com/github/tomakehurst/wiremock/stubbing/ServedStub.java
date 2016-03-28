@@ -1,18 +1,21 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
-import java.util.Collections;
 import java.util.List;
 
+import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
+
+@JsonSerialize(include = NON_NULL)
 public class ServedStub {
 
-    public final LoggedRequest request;
-    public final ResponseDefinition responseDefinition;
-    public final List<NearMiss> nearMisses;
+    private final LoggedRequest request;
+    private final ResponseDefinition responseDefinition;
+    private final List<NearMiss> nearMisses;
 
     public ServedStub(Request request, ResponseDefinition responseDefinition, List<NearMiss> nearMisses) {
         this.request = LoggedRequest.createFrom(request);
@@ -25,10 +28,22 @@ public class ServedStub {
     }
 
     public static ServedStub exactMatch(Request request, ResponseDefinition responseDefinition) {
-        return new ServedStub(request, responseDefinition, Collections.<NearMiss>emptyList());
+        return new ServedStub(request, responseDefinition, null);
     }
 
-    public boolean noStubFound() {
+    public boolean isNoExactMatch() {
         return !responseDefinition.wasConfigured();
+    }
+
+    public LoggedRequest getRequest() {
+        return request;
+    }
+
+    public ResponseDefinition getResponseDefinition() {
+        return responseDefinition;
+    }
+
+    public List<NearMiss> getNearMisses() {
+        return nearMisses;
     }
 }

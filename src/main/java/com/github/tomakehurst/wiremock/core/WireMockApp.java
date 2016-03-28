@@ -81,7 +81,7 @@ public class WireMockApp implements StubServer, Admin {
     public ServedStub serveStubFor(Request request) {
         ServedStub servedStub = stubMappings.serveFor(request);
 
-        if (servedStub.noStubFound() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
+        if (servedStub.isNoExactMatch() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
             return ServedStub.exactMatch(request, ResponseDefinition.browserProxy(request));
         }
 

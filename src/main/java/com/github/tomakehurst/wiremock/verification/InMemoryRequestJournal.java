@@ -89,7 +89,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	private Iterable<LoggedRequest> getRequests() {
 		return transform(servedStubs, new Function<ServedStub, LoggedRequest>() {
 			public LoggedRequest apply(ServedStub input) {
-				return input.request;
+				return input.getRequest();
 			}
 		});
 	}

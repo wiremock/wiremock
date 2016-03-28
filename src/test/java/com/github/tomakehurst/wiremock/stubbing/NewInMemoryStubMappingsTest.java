@@ -31,6 +31,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -54,7 +55,7 @@ public class NewInMemoryStubMappingsTest {
 	}
 
 	@Test
-    public void requestJournalEntriesContainsNearMissWhenNoMatchFound() {
+    public void requestJournalEntriesContainsNearMissesWhenNoMatchFound() {
         StubMapping stub1 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/one"),
             GET,
@@ -85,14 +86,61 @@ public class NewInMemoryStubMappingsTest {
             .method(GET)
             .header("Header-One", "h1-one"));
 
-        assertTrue(servedStub.noStubFound());
+        assertTrue(servedStub.isNoExactMatch());
 
         ServedStub journaledServedStub = requestJournal.getAllServedStubs().get(0);
 
-        assertThat(journaledServedStub.nearMisses.size(), is(3));
-        assertThat(journaledServedStub.nearMisses.get(0).getStubMapping(), is(stub1));
-        assertThat(journaledServedStub.nearMisses.get(1).getStubMapping(), is(stub2));
-        assertThat(journaledServedStub.nearMisses.get(2).getStubMapping(), is(stub3));
+        assertThat(journaledServedStub.getNearMisses().size(), is(3));
+        assertThat(journaledServedStub.getNearMisses().get(0).getStubMapping(), is(stub1));
+        assertThat(journaledServedStub.getNearMisses().get(1).getStubMapping(), is(stub2));
+        assertThat(journaledServedStub.getNearMisses().get(2).getStubMapping(), is(stub3));
+    }
+
+    @Test
+    public void requestJournalEntryContainsNoNearMissesWhenExactMatchFound() {
+        StubMapping stub1 = stubMapping(new NewRequestPattern(
+            UrlPattern.equalTo("/one"),
+            GET,
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
+        ), "1");
+        StubMapping stub2 = stubMapping(new NewRequestPattern(
+            UrlPattern.equalTo("/two"),
+            GET,
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
+        ), "2");
+        StubMapping stub3 = stubMapping(new NewRequestPattern(
+            UrlPattern.equalTo("/two"),
+            GET,
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-two")))
+        ), "3");
+        StubMapping stub4 = stubMapping(new NewRequestPattern(
+            UrlPattern.equalTo("/four"),
+            GET,
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("nonononon")))
+        ), "4");
+        inMemoryStubMappings.addMapping(stub2);
+        inMemoryStubMappings.addMapping(stub1);
+        inMemoryStubMappings.addMapping(stub3);
+        inMemoryStubMappings.addMapping(stub4);
+
+        inMemoryStubMappings.serveFor(mockRequest()
+            .url("/one")
+            .method(GET)
+            .header("Header-One", "h1-one"));
+
+        assertThat(requestJournal.getAllServedStubs().get(0).getNearMisses(), nullValue());
+    }
+
+    @Test
+    public void requestJournalContainsEmptyNearMissesCollectionWhenNoStubsWerePresent() {
+        inMemoryStubMappings.serveFor(mockRequest()
+            .url("/one")
+            .method(GET)
+            .header("Header-One", "h1-one"));
+
+        ServedStub servedStub = requestJournal.getAllServedStubs().get(0);
+        assertThat(servedStub.getRequest().getUrl(), is("/one"));
+        assertThat(servedStub.getNearMisses(), is(Collections.<NearMiss>emptyList()));
     }
 
     private StubMapping stubMapping(NewRequestPattern requestPattern, String body) {

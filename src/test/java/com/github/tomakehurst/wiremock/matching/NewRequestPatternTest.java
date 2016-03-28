@@ -1,11 +1,14 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalTo;
+import static com.github.tomakehurst.wiremock.matching.StringValuePattern.matches;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -67,5 +70,31 @@ public class NewRequestPatternTest {
         assertFalse(matchResult.isExactMatch());
     }
 
+    @Test
+    public void bindsToJsonCompatibleWithOriginalRequestPattern() throws Exception {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
+            .withHeader("Accept", MultiValuePattern.of(matches("(.*)xml(.*)")))
+            .withHeader("If-None-Match", MultiValuePattern.of(matches("([a-z0-9]*)")))
+            .build();
 
+        JSONAssert.assertEquals(
+            EXAMPLE,
+            Json.write(requestPattern),
+            true);
+    }
+
+    static final String EXAMPLE =
+            "{									                \n" +
+            "		\"method\": \"GET\",						\n" +
+            "		\"url\": \"/my/url\",               		\n" +
+            "		\"headers\": {								\n" +
+            "			\"Accept\": {							\n" +
+            "				\"matches\": \"(.*)xml(.*)\"		\n" +
+            "			},										\n" +
+            "			\"If-None-Match\": {					\n" +
+            "				\"matches\": \"([a-z0-9]*)\"		\n" +
+            "			}										\n" +
+            "		}											\n" +
+            "}												    ";
 }

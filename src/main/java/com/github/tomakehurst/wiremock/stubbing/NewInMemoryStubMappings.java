@@ -37,6 +37,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Math.min;
 
 
 public class NewInMemoryStubMappings implements StubMappings {
@@ -64,7 +65,9 @@ public class NewInMemoryStubMappings implements StubMappings {
         for (StubMapping mapping : mappings) {
             MatchResult matchResult = mapping.getNewRequest().match(request);
             if (matchResult.isExactMatch()) {
-                return ServedStub.exactMatch(request, mapping.getResponse());
+                ServedStub servedStub = ServedStub.exactMatch(request, mapping.getResponse());
+                requestJournal.requestReceived(servedStub);
+                return servedStub;
             } else {
                 nearMisses.add(new NearMiss(mapping, matchResult));
             }
@@ -72,7 +75,7 @@ public class NewInMemoryStubMappings implements StubMappings {
 
         Collections.sort(nearMisses);
 
-        ServedStub servedStub = ServedStub.noExactMatch(request, nearMisses.subList(0, MAX_NEAR_MISSES));
+        ServedStub servedStub = ServedStub.noExactMatch(request, nearMisses.subList(0, min(nearMisses.size(), MAX_NEAR_MISSES)));
         requestJournal.requestReceived(servedStub);
         return servedStub;
     }
