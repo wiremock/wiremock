@@ -4,8 +4,8 @@ import java.net.URI;
 
 public class UrlPathPattern extends UrlPattern {
 
-    protected UrlPathPattern(StringValuePattern testUrl) {
-        super(testUrl);
+    protected UrlPathPattern(StringValuePattern testUrl, boolean regex) {
+        super(testUrl, regex);
     }
 
     @Override
@@ -15,11 +15,11 @@ public class UrlPathPattern extends UrlPattern {
     }
 
     public static UrlPathPattern equalTo(String testUrl) {
-        return new UrlPathPattern(StringValuePattern.equalTo(testUrl));
+        return new UrlPathPattern(StringValuePattern.equalTo(testUrl), false);
     }
 
     public static UrlPathPattern matching(String urlRegex) {
-        return new UrlPathPattern(StringValuePattern.matches(urlRegex));
+        return new UrlPathPattern(StringValuePattern.matches(urlRegex), true);
     }
 
 

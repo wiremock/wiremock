@@ -33,12 +33,15 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
-    public NewRequestPattern build() {
-        return new NewRequestPattern(url, method, headers);
-    }
-
     public NewRequestPatternBuilder withHeader(String key, MultiValuePattern valuePattern) {
         headers.put(key, valuePattern);
         return this;
+    }
+
+    public NewRequestPattern build() {
+        return new NewRequestPattern(
+            url,
+            method,
+            headers.isEmpty() ? null : headers);
     }
 }

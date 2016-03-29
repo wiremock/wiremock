@@ -1,11 +1,14 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalTo;
+import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalToJson;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -69,5 +72,18 @@ public class MultiValuePatternTest {
             MultiValuePattern.of(equalTo("required-value"))
                 .match(httpHeader("any-key", "require1234567", "required-value", "1234567rrrr"))
                 .isExactMatch());
+    }
+
+    @Test
+    public void correctlyRendersEqualToAsJson() throws Exception {
+        String actual = Json.write(MultiValuePattern.of(equalTo("something")));
+        System.out.println(actual);
+        JSONAssert.assertEquals(
+            "{                              \n" +
+            "  \"equalTo\": \"something\"   \n" +
+            "}",
+            actual,
+            true
+        );
     }
 }

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
 public final class Json {
 	
 	private Json() {}
@@ -32,7 +34,7 @@ public final class Json {
 			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + json, ioe);
+			return throwUnchecked(ioe, clazz);
 		}
 	}
 	
@@ -41,7 +43,7 @@ public final class Json {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
+            return throwUnchecked(ioe, String.class);
 		}
 	}
 
@@ -50,7 +52,7 @@ public final class Json {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.writeValueAsBytes(object);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
+            return throwUnchecked(ioe, byte[].class);
 		}
 	}
 }

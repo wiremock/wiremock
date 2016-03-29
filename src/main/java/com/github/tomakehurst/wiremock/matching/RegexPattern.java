@@ -19,7 +19,7 @@ public class RegexPattern extends StringValuePattern {
     }
 
     @Override
-    protected String description() {
-        return "matching regex";
+    public String getName() {
+        return "matches";
     }
 }

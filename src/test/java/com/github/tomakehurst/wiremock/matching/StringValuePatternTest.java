@@ -1,9 +1,14 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class StringValuePatternTest {
 
@@ -24,5 +29,60 @@ public class StringValuePatternTest {
         StringValuePattern pattern = StringValuePattern.equalTo("matchthis");
         assertThat(pattern.match("matchthis").getDistance(), is(0.0));
     }
+
+    @Test
+    public void correctlySerialisesMatchesAsJson() throws Exception {
+        String actual = Json.write(StringValuePattern.matches("something"));
+        System.out.println(actual);
+        JSONAssert.assertEquals(
+            "{                               \n" +
+            "  \"matches\": \"something\"    \n" +
+            "}",
+            actual,
+            true
+        );
+    }
+
+    @Test
+    public void correctlyDeserialisesEqualToFromJson() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                               \n" +
+            "  \"equalTo\": \"something\"    \n" +
+            "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
+        assertThat(stringValuePattern.getValue(), is("something"));
+    }
+
+    @Test
+    public void correctlyDeserialisesMatchesFromJson() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                               \n" +
+            "  \"matches\": \"something\"    \n" +
+            "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(RegexPattern.class));
+        assertThat(stringValuePattern.getValue(), is("something"));
+    }
+
+    @Test
+    public void failsWithMeaningfulErrorWhenOperatorNotRecognised() {
+        try {
+            Json.read(
+                "{                               \n" +
+                "  \"munches\": \"something\"    \n" +
+                "}",
+                StringValuePattern.class);
+
+            fail();
+        } catch (Exception e) {
+            assertThat(e, instanceOf(JsonMappingException.class));
+            assertThat(e.getMessage(), is("munches is not a recognised operator"));
+        }
+
+    }
+
 
 }

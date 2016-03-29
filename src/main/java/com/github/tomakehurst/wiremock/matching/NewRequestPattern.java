@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -7,8 +9,6 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.util.Map;
 
@@ -21,10 +21,23 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
 
-    public NewRequestPattern(@JsonProperty("url") UrlPattern url,
+    public NewRequestPattern(UrlPattern url,
+                             RequestMethod method,
+                             Map<String, MultiValuePattern> headers) {
+        this.url = url;
+        this.method = method;
+        this.headers = headers;
+    }
+
+    @JsonCreator
+    public NewRequestPattern(@JsonProperty("url") String url,
+                             @JsonProperty("urlPattern") String urlPattern,
+                             @JsonProperty("urlPath") String urlPath,
+                             @JsonProperty("urlPathPattern") String urlPathPattern,
                              @JsonProperty("method") RequestMethod method,
                              @JsonProperty("headers") Map<String, MultiValuePattern> headers) {
-        this.url = url;
+
+        this.url = UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern);
         this.method = method;
         this.headers = headers;
     }
@@ -56,8 +69,24 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return match(request).isExactMatch();
     }
 
-    public UrlPattern getUrl() {
-        return url;
+    public String getUrl() {
+        return urlPatternOrNull(UrlPattern.class, false);
+    }
+
+    public String getUrlPattern() {
+        return urlPatternOrNull(UrlPattern.class, true);
+    }
+
+    public String getUrlPath() {
+        return urlPatternOrNull(UrlPathPattern.class, false);
+    }
+
+    public String getUrlPathPattern() {
+        return urlPatternOrNull(UrlPathPattern.class, true);
+    }
+
+    private String urlPatternOrNull(Class<? extends UrlPattern> clazz, boolean regex) {
+        return (url.getClass().equals(clazz) && url.isRegex() == regex) ? url.getPattern().getValue() : null;
     }
 
     public RequestMethod getMethod() {
@@ -66,6 +95,11 @@ public class NewRequestPattern implements ValueMatcher<Request> {
 
     public Map<String, MultiValuePattern> getHeaders() {
         return headers;
+    }
+
+    @Override
+    public String getName() {
+        return "requestMatching";
     }
 
     @Override

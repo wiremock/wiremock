@@ -22,7 +22,7 @@ public class EqualToPattern extends StringValuePattern {
     }
 
     @Override
-    protected String description() {
-        return "equal to";
+    public String getName() {
+        return "equalTo";
     }
 }

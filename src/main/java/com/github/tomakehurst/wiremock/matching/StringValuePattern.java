@@ -1,9 +1,19 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+@JsonSerialize(using = StringValuePatternJsonSerializer.class)
+@JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern implements ValueMatcher<String> {
+
+    public static final StringValuePattern ABSENT = new StringValuePattern(null) {
+        public MatchResult match(String value) {
+            return MatchResult.noMatch();
+        }
+    };
 
     protected final String testValue;
 
@@ -40,7 +50,15 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern absent() {
-        return null;
+        return ABSENT;
+    }
+
+    public boolean isPresent() {
+        return this != ABSENT;
+    }
+
+    public boolean isAbsent() {
+        return this == ABSENT;
     }
 
     @JsonValue
@@ -50,10 +68,10 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
 
     @Override
     public String toString() {
-        return description() + " " + getValue();
+        return getName() + " " + getValue();
     }
 
-    protected String description() {
+    public String getName() {
         return "";
     }
 }

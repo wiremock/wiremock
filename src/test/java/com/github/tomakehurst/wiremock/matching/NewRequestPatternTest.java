@@ -71,23 +71,76 @@ public class NewRequestPatternTest {
     }
 
     @Test
-    public void bindsToJsonCompatibleWithOriginalRequestPattern() throws Exception {
+    public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathAndHeaders() throws Exception {
         NewRequestPattern requestPattern = NewRequestPatternBuilder
             .newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
             .withHeader("Accept", MultiValuePattern.of(matches("(.*)xml(.*)")))
             .withHeader("If-None-Match", MultiValuePattern.of(matches("([a-z0-9]*)")))
             .build();
 
+        String actualJson = Json.write(requestPattern);
+
         JSONAssert.assertEquals(
-            EXAMPLE,
-            Json.write(requestPattern),
+            URL_PATH_EXAMPLE,
+            actualJson,
             true);
     }
 
-    static final String EXAMPLE =
+    @Test
+    public void bindsToJsonCompatibleWithOriginalRequestPatternForUrl() throws Exception {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(GET, UrlPattern.equalTo("/my/url"))
+            .build();
+
+        String actualJson = Json.write(requestPattern);
+
+        JSONAssert.assertEquals(
+            "{									                \n" +
+                "		\"method\": \"GET\",						\n" +
+                "		\"url\": \"/my/url\"                		\n" +
+                "}												    ",
+            actualJson,
+            true);
+    }
+
+    @Test
+    public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPattern() throws Exception {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(GET, UrlPattern.matching("/my/url"))
+            .build();
+
+        String actualJson = Json.write(requestPattern);
+
+        JSONAssert.assertEquals(
             "{									                \n" +
             "		\"method\": \"GET\",						\n" +
-            "		\"url\": \"/my/url\",               		\n" +
+            "		\"urlPattern\": \"/my/url\"           		\n" +
+            "}												    ",
+            actualJson,
+            true);
+    }
+
+    @Test
+    public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathPattern() throws Exception {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(GET, UrlPathPattern.matching("/my/url"))
+            .build();
+
+        String actualJson = Json.write(requestPattern);
+
+        JSONAssert.assertEquals(
+            "{									                \n" +
+            "		\"method\": \"GET\",						\n" +
+            "		\"urlPathPattern\": \"/my/url\"             \n" +
+            "}												    ",
+            actualJson,
+            true);
+    }
+
+    static final String URL_PATH_EXAMPLE =
+        "{									                \n" +
+            "		\"method\": \"GET\",						\n" +
+            "		\"urlPath\": \"/my/url\",             		\n" +
             "		\"headers\": {								\n" +
             "			\"Accept\": {							\n" +
             "				\"matches\": \"(.*)xml(.*)\"		\n" +

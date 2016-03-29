@@ -14,25 +14,25 @@ import static java.util.Collections.min;
 
 public class MultiValuePattern implements ValueMatcher<MultiValue> {
 
-    private final Optional<StringValuePattern> valuePattern;
+    private final StringValuePattern valuePattern;
 
-    public MultiValuePattern(Optional<StringValuePattern> valuePattern) {
+    public MultiValuePattern(StringValuePattern valuePattern) {
         this.valuePattern = valuePattern;
     }
 
     @JsonCreator
     public static MultiValuePattern of(StringValuePattern valuePattern) {
-        return new MultiValuePattern(Optional.of(valuePattern));
+        return new MultiValuePattern(valuePattern);
     }
 
     public static MultiValuePattern absent() {
-        return new MultiValuePattern(Optional.<StringValuePattern>absent());
+        return new MultiValuePattern(StringValuePattern.absent());
     }
 
     @Override
     public MatchResult match(MultiValue header) {
         if (valuePattern.isPresent() && header.isPresent()) {
-            return getBestMatch(valuePattern.get(), header.values());
+            return getBestMatch(valuePattern, header.values());
         } else {
             return MatchResult.of(valuePattern.isPresent() == header.isPresent());
         }
@@ -40,7 +40,12 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
 
     @JsonValue
     public StringValuePattern getValuePattern() {
-        return valuePattern.orNull();
+        return valuePattern;
+    }
+
+    @Override
+    public String getName() {
+        return valuePattern.getName();
     }
 
     private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {
