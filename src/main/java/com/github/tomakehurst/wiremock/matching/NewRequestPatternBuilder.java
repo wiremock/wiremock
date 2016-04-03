@@ -11,6 +11,7 @@ public class NewRequestPatternBuilder {
     private UrlPattern url;
     private RequestMethod method;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
+    private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
 
     public NewRequestPatternBuilder() {
     }
@@ -38,10 +39,16 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
+    public NewRequestPatternBuilder withQueryParam(String key, MultiValuePattern valuePattern) {
+        queryParams.put(key, valuePattern);
+        return this;
+    }
+
     public NewRequestPattern build() {
         return new NewRequestPattern(
             url,
             method,
-            headers.isEmpty() ? null : headers);
+            headers.isEmpty() ? null : headers,
+            queryParams.isEmpty() ? null : queryParams);
     }
 }

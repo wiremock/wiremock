@@ -31,7 +31,6 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -59,23 +58,23 @@ public class NewInMemoryStubMappingsTest {
         StubMapping stub1 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/one"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
-        ), "1");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "1");
         StubMapping stub2 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/two"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
-        ), "2");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "2");
         StubMapping stub3 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/two"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-two")))
-        ), "3");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-two"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "3");
         StubMapping stub4 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/four"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("nonononon")))
-        ), "4");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("nonononon"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "4");
         inMemoryStubMappings.addMapping(stub2);
         inMemoryStubMappings.addMapping(stub1);
         inMemoryStubMappings.addMapping(stub3);
@@ -101,23 +100,23 @@ public class NewInMemoryStubMappingsTest {
         StubMapping stub1 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/one"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
-        ), "1");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "1");
         StubMapping stub2 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/two"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one")))
-        ), "2");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-one"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "2");
         StubMapping stub3 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/two"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-two")))
-        ), "3");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("h1-two"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "3");
         StubMapping stub4 = stubMapping(new NewRequestPattern(
             UrlPattern.equalTo("/four"),
             GET,
-            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("nonononon")))
-        ), "4");
+            ImmutableMap.of("Header-One", MultiValuePattern.of(StringValuePattern.equalTo("nonononon"))),
+            Collections.<String, MultiValuePattern>emptyMap()), "4");
         inMemoryStubMappings.addMapping(stub2);
         inMemoryStubMappings.addMapping(stub1);
         inMemoryStubMappings.addMapping(stub3);

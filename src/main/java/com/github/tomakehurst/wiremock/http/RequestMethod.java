@@ -17,9 +17,9 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.matching.EagerMatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
 
 import static java.util.Arrays.asList;
 

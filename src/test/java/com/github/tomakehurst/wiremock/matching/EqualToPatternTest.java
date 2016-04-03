@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class StringValuePatternTest {
+public class EqualToPatternTest {
 
     @Test
     public void returnsANonZeroScoreForPartialMatchOnEquals() {
@@ -31,19 +31,6 @@ public class StringValuePatternTest {
     }
 
     @Test
-    public void correctlySerialisesMatchesAsJson() throws Exception {
-        String actual = Json.write(StringValuePattern.matches("something"));
-        System.out.println(actual);
-        JSONAssert.assertEquals(
-            "{                               \n" +
-            "  \"matches\": \"something\"    \n" +
-            "}",
-            actual,
-            true
-        );
-    }
-
-    @Test
     public void correctlyDeserialisesEqualToFromJson() {
         StringValuePattern stringValuePattern = Json.read(
             "{                               \n" +
@@ -52,18 +39,6 @@ public class StringValuePatternTest {
             StringValuePattern.class);
 
         assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
-        assertThat(stringValuePattern.getValue(), is("something"));
-    }
-
-    @Test
-    public void correctlyDeserialisesMatchesFromJson() {
-        StringValuePattern stringValuePattern = Json.read(
-            "{                               \n" +
-            "  \"matches\": \"something\"    \n" +
-            "}",
-            StringValuePattern.class);
-
-        assertThat(stringValuePattern, instanceOf(RegexPattern.class));
         assertThat(stringValuePattern.getValue(), is("something"));
     }
 

@@ -12,7 +12,11 @@ public class StringValuePatternJsonSerializer extends JsonSerializer<StringValue
     @Override
     public void serialize(StringValuePattern value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
         gen.writeStartObject();
-        gen.writeStringField(value.getName(), value.getValue());
+        if (value.isAbsent()) {
+            gen.writeBooleanField("absent", true);
+        } else {
+            gen.writeStringField(value.getName(), value.getValue());
+        }
         gen.writeEndObject();
     }
 }

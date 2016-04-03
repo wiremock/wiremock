@@ -4,39 +4,25 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class MatchResult implements Comparable<MatchResult> {
+public abstract class MatchResult implements Comparable<MatchResult> {
 
-    private final double distance;
-
-    private MatchResult(double distance) {
-        this.distance = distance;
+    public static EagerMatchResult partialMatch(double distance) {
+        return new EagerMatchResult(distance);
     }
 
-    public double getDistance() {
-        return distance;
+    public static EagerMatchResult exactMatch() {
+        return new EagerMatchResult(0);
     }
 
-    public boolean isExactMatch() {
-        return distance == 0;
+    public static EagerMatchResult noMatch() {
+        return new EagerMatchResult(1);
     }
 
-    public static MatchResult partialMatch(double distance) {
-        return new MatchResult(distance);
-    }
-
-    public static MatchResult exactMatch() {
-        return new MatchResult(0);
-    }
-
-    public static MatchResult noMatch() {
-        return new MatchResult(1);
-    }
-
-    public static MatchResult of(boolean isMatch) {
+    public static EagerMatchResult of(boolean isMatch) {
         return isMatch ? exactMatch() : noMatch();
     }
 
-    public static MatchResult aggregate(List<MatchResult> matches) {
+    public static EagerMatchResult aggregate(List<MatchResult> matches) {
         double totalDistance = 0;
         for (MatchResult matchResult: matches) {
             totalDistance += matchResult.getDistance();
@@ -45,12 +31,16 @@ public class MatchResult implements Comparable<MatchResult> {
         return partialMatch(totalDistance / matches.size());
     }
 
-    public static MatchResult aggregate(MatchResult... matches) {
+    public static EagerMatchResult aggregate(MatchResult... matches) {
         return aggregate(asList(matches));
     }
 
+    public abstract boolean isExactMatch();
+    public abstract double getDistance();
+
+
     @Override
     public int compareTo(MatchResult other) {
-        return Double.compare(other.distance, distance);
+        return Double.compare(other.getDistance(), getDistance());
     }
 }

@@ -1,8 +1,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Predicate;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +90,8 @@ public class MockRequest implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return QueryParameter.absent(key);
+        Map<String, QueryParameter> queryParams = Urls.splitQuery(URI.create(url));
+        return queryParams.get(key);
     }
 
     @Override

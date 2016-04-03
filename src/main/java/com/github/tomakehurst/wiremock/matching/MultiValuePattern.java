@@ -2,16 +2,18 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import java.util.Comparator;
 import java.util.List;
 
+import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static java.util.Collections.min;
 
+@JsonSerialize(include = NON_NULL)
 public class MultiValuePattern implements ValueMatcher<MultiValue> {
 
     private final StringValuePattern valuePattern;
@@ -30,12 +32,16 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
     }
 
     @Override
-    public MatchResult match(MultiValue header) {
-        if (valuePattern.isPresent() && header.isPresent()) {
-            return getBestMatch(valuePattern, header.values());
-        } else {
-            return MatchResult.of(valuePattern.isPresent() == header.isPresent());
+    public MatchResult match(MultiValue multiValue) {
+        if (valuePattern.isAbsent()) {
+            return MatchResult.of(!multiValue.isPresent());
         }
+
+        if (valuePattern.isPresent() && multiValue.isPresent()) {
+            return getBestMatch(valuePattern, multiValue.values());
+        }
+
+        return MatchResult.of(valuePattern.isPresent() == multiValue.isPresent());
     }
 
     @JsonValue

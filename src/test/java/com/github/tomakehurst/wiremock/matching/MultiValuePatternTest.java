@@ -2,11 +2,13 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
 import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalTo;
 import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalToJson;
 import static org.hamcrest.Matchers.is;
@@ -67,10 +69,18 @@ public class MultiValuePatternTest {
     }
 
     @Test
-    public void returnsTheBestMatchWhenSeveralValuesAreAvailableAndOneIsExact() {
+    public void returnsTheBestMatchWhenSeveralHeaderValuesAreAvailableAndOneIsExact() {
         assertTrue(
             MultiValuePattern.of(equalTo("required-value"))
                 .match(httpHeader("any-key", "require1234567", "required-value", "1234567rrrr"))
+                .isExactMatch());
+    }
+
+    @Test
+    public void returnsTheBestMatchWhenSeveralQueryParamValuesAreAvailableAndOneIsExact() {
+        assertTrue(
+            MultiValuePattern.of(equalTo("required-value"))
+                .match(queryParam("any-key", "require1234567", "required-value", "1234567rrrr"))
                 .isExactMatch());
     }
 
@@ -81,6 +91,19 @@ public class MultiValuePatternTest {
         JSONAssert.assertEquals(
             "{                              \n" +
             "  \"equalTo\": \"something\"   \n" +
+            "}",
+            actual,
+            true
+        );
+    }
+
+    @Test
+    public void correctlyRendersAbsentAsJson() throws Exception {
+        String actual = Json.write(MultiValuePattern.absent());
+        System.out.println(actual);
+            JSONAssert.assertEquals(
+            "{                   \n" +
+            "  \"absent\": true   \n" +
             "}",
             actual,
             true

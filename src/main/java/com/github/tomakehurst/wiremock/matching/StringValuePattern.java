@@ -10,6 +10,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 public abstract class StringValuePattern implements ValueMatcher<String> {
 
     public static final StringValuePattern ABSENT = new StringValuePattern(null) {
+        @Override
         public MatchResult match(String value) {
             return MatchResult.noMatch();
         }
@@ -26,7 +27,7 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern equalToJson(String value) {
-        return null;
+        return new EqualToJsonPattern(value);
     }
 
     public static StringValuePattern equalToXml(String value) {

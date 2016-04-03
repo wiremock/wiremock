@@ -48,3 +48,4 @@ copy-admin.sh
 **/.DS_Store
 
 .vagrant
+tmp*

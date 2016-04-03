@@ -16,10 +16,11 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -55,4 +56,26 @@ public final class Json {
             return throwUnchecked(ioe, byte[].class);
 		}
 	}
+
+	public static JsonNode node(String json) {
+        return read(json, JsonNode.class);
+    }
+
+    public static int deepSize(JsonNode node) {
+        int acc = 0;
+        if (node.isContainerNode()) {
+
+            for (JsonNode child : node) {
+                acc++;
+                if (child.isContainerNode()) {
+                    acc += deepSize(child);
+                }
+            }
+        } else {
+            acc++;
+        }
+
+        return acc;
+    }
+
 }

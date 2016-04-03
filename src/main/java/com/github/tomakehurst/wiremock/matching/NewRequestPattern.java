@@ -1,7 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -20,13 +19,16 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final UrlPattern url;
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
+    private final Map<String, MultiValuePattern> queryParams;
 
     public NewRequestPattern(UrlPattern url,
                              RequestMethod method,
-                             Map<String, MultiValuePattern> headers) {
+                             Map<String, MultiValuePattern> headers,
+                             Map<String, MultiValuePattern> queryParams) {
         this.url = url;
         this.method = method;
         this.headers = headers;
+        this.queryParams = queryParams;
     }
 
     @JsonCreator
@@ -35,11 +37,13 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              @JsonProperty("urlPath") String urlPath,
                              @JsonProperty("urlPathPattern") String urlPathPattern,
                              @JsonProperty("method") RequestMethod method,
-                             @JsonProperty("headers") Map<String, MultiValuePattern> headers) {
+                             @JsonProperty("headers") Map<String, MultiValuePattern> headers,
+                             @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams) {
 
         this.url = UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern);
         this.method = method;
         this.headers = headers;
+        this.queryParams = queryParams;
     }
 
     @Override
@@ -47,7 +51,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return MatchResult.aggregate(
             url.match(request.getUrl()),
             method.match(request.getMethod()),
-            allHeadersMatchResult(request)
+            allHeadersMatchResult(request),
+            allQueryParamsMatch(request)
         );
     }
 
@@ -57,6 +62,20 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                 FluentIterable.from(headers.entrySet()).transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
                     public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
                         return headerPattern.getValue().match(request.header(headerPattern.getKey()));
+                    }
+                }).toList()
+            );
+        }
+
+        return MatchResult.exactMatch();
+    }
+
+    private MatchResult allQueryParamsMatch(final Request request) {
+        if (queryParams != null && !queryParams.isEmpty()) {
+            return MatchResult.aggregate(
+                FluentIterable.from(queryParams.entrySet()).transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                    public MatchResult apply(Map.Entry<String, MultiValuePattern> queryParamPattern) {
+                        return queryParamPattern.getValue().match(request.queryParameter(queryParamPattern.getKey()));
                     }
                 }).toList()
             );
@@ -95,6 +114,10 @@ public class NewRequestPattern implements ValueMatcher<Request> {
 
     public Map<String, MultiValuePattern> getHeaders() {
         return headers;
+    }
+
+    public Map<String, MultiValuePattern> getQueryParameters() {
+        return queryParams;
     }
 
     @Override
