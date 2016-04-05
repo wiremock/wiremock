@@ -49,15 +49,70 @@ public class EqualToJsonTest {
     public void returnsLargeDistanceForTotallyDifferentDocuments() {
         assertThat(StringValuePattern.equalToJson(
             "{                  \n" +
+            "   \"one\":    1,  \n" +
+            "   \"two\":    2,  \n" +
+            "   \"three\":  3,  \n" +
+            "   \"four\":   4   \n" +
+            "}                  \n"
+        ).match(
+            "[1, 2, 3]"
+        ).getDistance(), is(1.0));
+    }
+
+    @Test
+    public void returnsLargeDistanceWhenActualDocIsAnEmptyObject() {
+        assertThat(StringValuePattern.equalToJson(
+            "{                  \n" +
+            "   \"one\":    1,  \n" +
+            "   \"two\":    2,  \n" +
+            "   \"three\":  3,  \n" +
+            "   \"four\":   4   \n" +
+            "}                  \n"
+        ).match(
+            "{}"
+        ).getDistance(), is(1.0));
+    }
+
+    @Test
+    public void returnsLargeDistanceWhenActualDocIsAnEmptyArray() {
+        assertThat(StringValuePattern.equalToJson(
+            "{                  \n" +
+            "   \"one\":    1,  \n" +
+            "   \"two\":    2,  \n" +
+            "   \"three\":  3,  \n" +
+            "   \"four\":   4   \n" +
+            "}                  \n"
+        ).match(
+            "[]"
+        ).getDistance(), is(1.0));
+    }
+
+    @Test
+    public void returnsLargeDistanceWhenExpectedDocIsAnEmptyObject() {
+        assertThat(StringValuePattern.equalToJson(
+            "{}"
+        ).match(
+            "{                  \n" +
                 "   \"one\":    1,  \n" +
                 "   \"two\":    2,  \n" +
                 "   \"three\":  3,  \n" +
                 "   \"four\":   4   \n" +
                 "}                  \n"
-        ).match(
-            "[1, 2, 3]"
-        ).getDistance(), is(0.75));
+        ).getDistance(), is(1.0));
     }
 
+    @Test
+    public void returnsLargeDistanceWhenExpectedDocIsAnEmptyArray() {
+        assertThat(StringValuePattern.equalToJson(
+            "[]"
+        ).match(
+            "{                  \n" +
+            "   \"one\":    1,  \n" +
+            "   \"two\":    2,  \n" +
+            "   \"three\":  3,  \n" +
+            "   \"four\":   4   \n" +
+            "}                  \n"
+        ).getDistance(), is(1.0));
+    }
 
 }
