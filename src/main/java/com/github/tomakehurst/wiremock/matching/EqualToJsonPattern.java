@@ -38,10 +38,10 @@ public class EqualToJsonPattern extends StringValuePattern {
         int acc = 0;
         for (JsonNode child: diff) {
             JsonNode valueNode = child.findValue("value");
+            JsonNode referencedExpectedNode = getNodeAtPath(expected, child.findValue("path"));
             if (valueNode == null) {
-                acc++;
+                acc += deepSize(referencedExpectedNode);
             } else {
-                JsonNode referencedExpectedNode = getNodeAtPath(expected, child.findValue("path"));
                 acc += maxDeepSize(referencedExpectedNode, valueNode);
             }
         }
