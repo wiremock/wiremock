@@ -26,8 +26,8 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return new EqualToPattern(value);
     }
 
-    public static StringValuePattern equalToJson(String value) {
-        return new EqualToJsonPattern(value);
+    public static StringValuePattern equalToJson(String value, EqualToJsonPattern.Parameter... parameters) {
+        return new EqualToJsonPattern(value, parameters);
     }
 
     public static StringValuePattern equalToXml(String value) {
@@ -35,10 +35,6 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern equalToXPath(String value) {
-        return null;
-    }
-
-    public static StringValuePattern equalToJson(String value, JSONCompareMode jsonCompareMode) {
         return null;
     }
 

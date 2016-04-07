@@ -13,14 +13,22 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Json.deepSize;
 import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
+import static com.google.common.collect.Iterables.getLast;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 public class EqualToJsonPattern extends StringValuePattern {
 
     private final JsonNode expected;
+    private final boolean ignoreArrayOrder;
+    private final boolean ignoreExtraElements;
 
-    public EqualToJsonPattern(String json) {
+    public EqualToJsonPattern(String json, Parameter... parameters) {
         super(json);
         expected = Json.read(json, JsonNode.class);
+        List<Parameter> paramList = asList(parameters);
+        ignoreArrayOrder = paramList.contains(Parameter.IGNORE_ARRAY_ORDER);
+        ignoreExtraElements = paramList.contains(Parameter.IGNORE_EXTRA_ELEMENTS);
     }
 
     @Override
@@ -37,16 +45,29 @@ public class EqualToJsonPattern extends StringValuePattern {
     private int diffSize(ArrayNode diff) {
         int acc = 0;
         for (JsonNode child: diff) {
-            JsonNode valueNode = child.findValue("value");
-            JsonNode referencedExpectedNode = getNodeAtPath(expected, child.findValue("path"));
-            if (valueNode == null) {
-                acc += deepSize(referencedExpectedNode);
-            } else {
-                acc += maxDeepSize(referencedExpectedNode, valueNode);
+            String operation = child.findValue("op").textValue();
+            JsonNode pathString = child.findValue("path");
+            List<String> path = getPath(pathString.textValue());
+            if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation, path)) {
+                JsonNode valueNode = child.findValue("value");
+                JsonNode referencedExpectedNode = getNodeAtPath(expected, pathString);
+                if (valueNode == null) {
+                    acc += deepSize(referencedExpectedNode);
+                } else {
+                    acc += maxDeepSize(referencedExpectedNode, valueNode);
+                }
             }
         }
 
         return acc;
+    }
+
+    private boolean extraElementsIgnoredAndIsAddition(String operation, List<String> path) {
+        return operation.equals("add") && ignoreExtraElements;
+    }
+
+    private boolean arrayOrderIgnoredAndIsArrayMove(String operation, List<String> path) {
+        return operation.equals("move") && isNumber(getLast(path)) && ignoreArrayOrder;
     }
 
     public static JsonNode getNodeAtPath(JsonNode rootNode, JsonNode path) {
@@ -77,16 +98,21 @@ public class EqualToJsonPattern extends StringValuePattern {
         return Lists.newArrayList(Iterables.transform(paths, new DecodePathFunction()));
     }
 
+    @Override
+    public String getName() {
+        return "equalToJson";
+    }
+
     private final static class DecodePathFunction implements Function<String, String> {
+
         @Override
         public String apply(String path) {
             return path.replaceAll("~1", "/").replaceAll("~0", "~"); // see http://tools.ietf.org/html/rfc6901#section-4
         }
     }
 
-    @Override
-    public String getName() {
-        return "equalToJson";
+    public enum Parameter {
+        IGNORE_EXTRA_ELEMENTS, IGNORE_ARRAY_ORDER
     }
 
 }
