@@ -1,12 +1,21 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-@JsonSerialize(using = StringValuePatternJsonSerializer.class)
+import java.lang.reflect.Constructor;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
+//@JsonSerialize(using = StringValuePatternJsonSerializer.class)
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class StringValuePattern implements ValueMatcher<String> {
 
     public static final StringValuePattern ABSENT = new StringValuePattern(null) {
@@ -26,8 +35,12 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return new EqualToPattern(value);
     }
 
-    public static StringValuePattern equalToJson(String value, EqualToJsonPattern.Parameter... parameters) {
-        return new EqualToJsonPattern(value, parameters);
+    public static StringValuePattern equalToJson(String value) {
+        return new EqualToJsonPattern(value, false, false);
+    }
+
+    public static StringValuePattern equalToJson(String value, boolean ignoreArrayOrder, boolean ignoreExtraElements) {
+        return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements);
     }
 
     public static StringValuePattern equalToXml(String value) {
@@ -50,15 +63,21 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return ABSENT;
     }
 
+    @JsonIgnore
     public boolean isPresent() {
         return this != ABSENT;
     }
 
-    public boolean isAbsent() {
+    public Boolean isAbsent() {
+        return this != ABSENT ? null : true;
+    }
+
+    @JsonIgnore
+    public Boolean nullSafeIsAbsent() {
         return this == ABSENT;
     }
 
-    @JsonValue
+    @JsonIgnore
     public String getValue() {
         return testValue;
     }
@@ -68,7 +87,21 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return getName() + " " + getValue();
     }
 
-    public String getName() {
-        return "";
+    public final String getName() {
+        Constructor<?> constructor =
+            FluentIterable.of(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
+            @Override
+            public boolean apply(Constructor<?> input) {
+                return (input.getParameterAnnotations().length > 0 &&
+                        input.getParameterAnnotations()[0].length > 0 &&
+                        input.getParameterAnnotations()[0][0] instanceof JsonProperty);
+            }
+        }).orNull();
+
+        if (constructor == null) {
+            throw new IllegalStateException("Constructor must have a first parameter annotatated with JsonProperty(\"<operator name>\")");
+        }
+        JsonProperty jsonPropertyAnnotation = (JsonProperty) constructor.getParameterAnnotations()[0][0];
+        return jsonPropertyAnnotation.value();
     }
 }

@@ -5,10 +5,12 @@ import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
 public class EqualToPatternTest {
 
@@ -43,6 +45,17 @@ public class EqualToPatternTest {
     }
 
     @Test
+    public void correctlySerialisesToJson() throws Exception {
+        assertEquals(
+            "{                               \n" +
+            "  \"equalTo\": \"something\"    \n" +
+            "}",
+            Json.write(new EqualToPattern("something")),
+            false
+        );
+    }
+
+    @Test
     public void failsWithMeaningfulErrorWhenOperatorNotRecognised() {
         try {
             Json.read(
@@ -54,7 +67,7 @@ public class EqualToPatternTest {
             fail();
         } catch (Exception e) {
             assertThat(e, instanceOf(JsonMappingException.class));
-            assertThat(e.getMessage(), is("munches is not a recognised operator"));
+            assertThat(e.getMessage(), containsString("{\"munches\":\"something\"} is not a valid comparison"));
         }
 
     }

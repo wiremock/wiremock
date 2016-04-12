@@ -1,16 +1,12 @@
 package com.github.tomakehurst.wiremock.matching;
 
-import com.flipkart.zjsonpatch.JsonDiff;
 import com.github.tomakehurst.wiremock.common.Json;
+import org.json.JSONException;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
-import static com.github.tomakehurst.wiremock.matching.EqualToJsonPattern.Parameter.IGNORE_ARRAY_ORDER;
-import static com.github.tomakehurst.wiremock.matching.EqualToJsonPattern.Parameter.IGNORE_EXTRA_ELEMENTS;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class EqualToJsonTest {
 
@@ -185,7 +181,7 @@ public class EqualToJsonTest {
     public void ignoresArrayOrderDifferenceWhenConfigured() {
         assertTrue(StringValuePattern.equalToJson(
             "[1, 2, 3, 4]",
-            IGNORE_ARRAY_ORDER)
+            true, false)
         .match(
             "[1, 3, 2, 4]"
         ).isExactMatch());
@@ -202,7 +198,7 @@ public class EqualToJsonTest {
                 "        { \"val\": 3 }\n" +
                 "    ]\n" +
                 "}",
-                IGNORE_ARRAY_ORDER)
+                true, false)
             .match(
                 "{\n" +
                 "    \"one\": 1,\n" +
@@ -224,7 +220,7 @@ public class EqualToJsonTest {
                 "   \"three\":  3,  \n" +
                 "   \"four\":   4   \n" +
                 "}                  \n",
-            IGNORE_EXTRA_ELEMENTS
+            false, true
         ).match(
             "{                  \n" +
                 "   \"one\":    1,  \n" +
@@ -246,7 +242,7 @@ public class EqualToJsonTest {
             "   \"three\":  3,          \n" +
             "   \"four\":   [1, 2, 3]   \n" +
             "}                  \n",
-            IGNORE_ARRAY_ORDER, IGNORE_EXTRA_ELEMENTS
+            true, true
         ).match(
             "{                          \n" +
             "   \"one\":    1,          \n" +
@@ -257,6 +253,60 @@ public class EqualToJsonTest {
             "   \"six\":    6           \n" +
             "}                          \n"
         ).isExactMatch());
+    }
+
+    @Test
+    public void correctlyDeserialisesFromJsonWhenAdditionalParamsPresent() {
+        StringValuePattern pattern = Json.read(
+            "{\n" +
+            "    \"equalToJson\": \"2\",\n" +
+            "    \"ignoreArrayOrder\": true,\n" +
+            "    \"ignoreExtraElements\": true\n" +
+            "}",
+            StringValuePattern.class
+        );
+
+        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+    }
+
+    @Test
+    public void correctlySerialisesToJsonWhenAdditionalParamsPresent() throws JSONException {
+        EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true);
+
+        String serialised = Json.write(pattern);
+        JSONAssert.assertEquals(
+            "{\n" +
+            "    \"equalToJson\": \"4444\",\n" +
+            "    \"ignoreArrayOrder\": true,\n" +
+            "    \"ignoreExtraElements\": true\n" +
+            "}",
+            serialised,
+            false);
+    }
+
+    @Test
+    public void correctlyDeserialisesFromJsonWhenAdditionalParamsAbsent() {
+        StringValuePattern pattern = Json.read(
+            "{\n" +
+            "    \"equalToJson\": \"2\"\n" +
+            "}",
+            StringValuePattern.class
+        );
+
+        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+    }
+
+    @Test
+    public void correctlySerialisesToJsonWhenAdditionalParamsAbsent() throws JSONException {
+        EqualToJsonPattern pattern = new EqualToJsonPattern("4444", null, null);
+
+        String serialised = Json.write(pattern);
+        JSONAssert.assertEquals(
+            "{\n" +
+            "    \"equalToJson\": \"4444\"\n" +
+            "}",
+            serialised,
+            false);
     }
 
 }

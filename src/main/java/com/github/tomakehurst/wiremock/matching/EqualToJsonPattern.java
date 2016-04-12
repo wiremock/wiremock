@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.flipkart.zjsonpatch.JsonDiff;
@@ -14,7 +15,6 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.common.Json.deepSize;
 import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
 import static com.google.common.collect.Iterables.getLast;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 
 public class EqualToJsonPattern extends StringValuePattern {
@@ -23,12 +23,25 @@ public class EqualToJsonPattern extends StringValuePattern {
     private final boolean ignoreArrayOrder;
     private final boolean ignoreExtraElements;
 
-    public EqualToJsonPattern(String json, Parameter... parameters) {
+    public EqualToJsonPattern(@JsonProperty("equalToJson") String json,
+                              @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
+                              @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
         super(json);
         expected = Json.read(json, JsonNode.class);
-        List<Parameter> paramList = asList(parameters);
-        ignoreArrayOrder = paramList.contains(Parameter.IGNORE_ARRAY_ORDER);
-        ignoreExtraElements = paramList.contains(Parameter.IGNORE_EXTRA_ELEMENTS);
+        this.ignoreArrayOrder = ignoreArrayOrder != null ? ignoreArrayOrder : false;
+        this.ignoreExtraElements = ignoreExtraElements != null ? ignoreExtraElements : false;
+    }
+
+    public String getEqualToJson() {
+        return testValue;
+    }
+
+    public boolean isIgnoreArrayOrder() {
+        return ignoreArrayOrder;
+    }
+
+    public boolean isIgnoreExtraElements() {
+        return ignoreExtraElements;
     }
 
     @Override
@@ -48,7 +61,7 @@ public class EqualToJsonPattern extends StringValuePattern {
             String operation = child.findValue("op").textValue();
             JsonNode pathString = child.findValue("path");
             List<String> path = getPath(pathString.textValue());
-            if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation, path)) {
+            if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation)) {
                 JsonNode valueNode = child.findValue("value");
                 JsonNode referencedExpectedNode = getNodeAtPath(expected, pathString);
                 if (valueNode == null) {
@@ -62,7 +75,7 @@ public class EqualToJsonPattern extends StringValuePattern {
         return acc;
     }
 
-    private boolean extraElementsIgnoredAndIsAddition(String operation, List<String> path) {
+    private boolean extraElementsIgnoredAndIsAddition(String operation) {
         return operation.equals("add") && ignoreExtraElements;
     }
 
@@ -98,21 +111,12 @@ public class EqualToJsonPattern extends StringValuePattern {
         return Lists.newArrayList(Iterables.transform(paths, new DecodePathFunction()));
     }
 
-    @Override
-    public String getName() {
-        return "equalToJson";
-    }
-
     private final static class DecodePathFunction implements Function<String, String> {
 
         @Override
         public String apply(String path) {
             return path.replaceAll("~1", "/").replaceAll("~0", "~"); // see http://tools.ietf.org/html/rfc6901#section-4
         }
-    }
-
-    public enum Parameter {
-        IGNORE_EXTRA_ELEMENTS, IGNORE_ARRAY_ORDER
     }
 
 }

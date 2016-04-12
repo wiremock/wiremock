@@ -1,11 +1,17 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
 
 public class EqualToPattern extends StringValuePattern {
 
-    public EqualToPattern(String testValue) {
+    public EqualToPattern(@JsonProperty("equalTo") String testValue) {
         super(testValue);
+    }
+
+    public String getEqualTo() {
+        return testValue;
     }
 
     @Override
@@ -21,8 +27,4 @@ public class EqualToPattern extends StringValuePattern {
         return (actualDistance / maxDistance);
     }
 
-    @Override
-    public String getName() {
-        return "equalTo";
-    }
 }

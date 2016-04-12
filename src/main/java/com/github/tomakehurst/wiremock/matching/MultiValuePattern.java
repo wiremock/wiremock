@@ -33,7 +33,7 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
 
     @Override
     public MatchResult match(MultiValue multiValue) {
-        if (valuePattern.isAbsent()) {
+        if (valuePattern.nullSafeIsAbsent()) {
             return MatchResult.of(!multiValue.isPresent());
         }
 
