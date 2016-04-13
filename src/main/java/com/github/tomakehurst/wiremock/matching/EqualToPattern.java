@@ -11,14 +11,14 @@ public class EqualToPattern extends StringValuePattern {
     }
 
     public String getEqualTo() {
-        return testValue;
+        return expectedValue;
     }
 
     @Override
     public MatchResult match(String value) {
-        return value.equals(testValue) ?
+        return value.equals(expectedValue) ?
             MatchResult.exactMatch() :
-            MatchResult.partialMatch(normalisedLevenshteinDistance(testValue, value));
+            MatchResult.partialMatch(normalisedLevenshteinDistance(expectedValue, value));
     }
 
     private double normalisedLevenshteinDistance(String one, String two) {

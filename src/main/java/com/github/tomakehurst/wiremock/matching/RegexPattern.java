@@ -15,7 +15,7 @@ public class RegexPattern extends StringValuePattern {
     }
 
     public String getMatches() {
-        return testValue;
+        return expectedValue;
     }
 
     @Override

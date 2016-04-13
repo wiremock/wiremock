@@ -2,18 +2,15 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.lang.reflect.Constructor;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-//@JsonSerialize(using = StringValuePatternJsonSerializer.class)
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class StringValuePattern implements ValueMatcher<String> {
@@ -25,10 +22,10 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         }
     };
 
-    protected final String testValue;
+    protected final String expectedValue;
 
-    public StringValuePattern(String testValue) {
-        this.testValue = testValue;
+    public StringValuePattern(String expectedValue) {
+        this.expectedValue = expectedValue;
     }
 
     public static StringValuePattern equalTo(String value) {
@@ -44,7 +41,7 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern equalToXml(String value) {
-        return null;
+        return new EqualToXmlPattern(value);
     }
 
     public static StringValuePattern equalToXPath(String value) {
@@ -79,7 +76,7 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
 
     @JsonIgnore
     public String getValue() {
-        return testValue;
+        return expectedValue;
     }
 
     @Override

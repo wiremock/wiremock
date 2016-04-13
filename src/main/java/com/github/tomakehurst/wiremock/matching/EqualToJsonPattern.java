@@ -33,7 +33,7 @@ public class EqualToJsonPattern extends StringValuePattern {
     }
 
     public String getEqualToJson() {
-        return testValue;
+        return expectedValue;
     }
 
     public boolean isIgnoreArrayOrder() {
