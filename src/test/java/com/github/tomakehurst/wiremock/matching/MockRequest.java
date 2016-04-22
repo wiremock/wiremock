@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Predicate;
 
 import java.net.URI;
@@ -117,5 +118,9 @@ public class MockRequest implements Request {
     public MockRequest header(String key, String value) {
         headers = headers.plus(httpHeader(key, value));
         return this;
+    }
+
+    public LoggedRequest asLoggedRequest() {
+        return LoggedRequest.createFrom(this);
     }
 }

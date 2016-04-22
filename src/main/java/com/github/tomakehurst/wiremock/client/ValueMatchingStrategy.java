@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -49,6 +49,22 @@ public class ValueMatchingStrategy {
         pattern.setMatchesJsonPaths(matchesJsonPath);
 		return pattern;
 	}
+
+    public MultiValuePattern asMultiValuePattern() {
+        return new MultiValuePattern(asStringValuePattern());
+    }
+
+    public StringValuePattern asStringValuePattern() {
+        if (equalTo != null) {
+            return new EqualToPattern(equalTo);
+        } else if (equalToJson != null) {
+            return new EqualToJsonPattern(equalToJson, false, false);
+        } else if (matches != null) {
+            return new RegexPattern(matches);
+        } else {
+            return null;
+        }
+    }
 	
 	public String getContains() {
 		return contains;

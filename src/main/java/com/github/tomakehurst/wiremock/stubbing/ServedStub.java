@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
 
 import java.util.List;
 
@@ -15,20 +16,18 @@ public class ServedStub {
 
     private final LoggedRequest request;
     private final ResponseDefinition responseDefinition;
-    private final List<NearMiss> nearMisses;
 
-    public ServedStub(Request request, ResponseDefinition responseDefinition, List<NearMiss> nearMisses) {
-        this.request = LoggedRequest.createFrom(request);
+    public ServedStub(LoggedRequest request, ResponseDefinition responseDefinition) {
+        this.request = request;
         this.responseDefinition = responseDefinition;
-        this.nearMisses = nearMisses;
     }
 
-    public static ServedStub noExactMatch(Request request, List<NearMiss> nearMisses) {
-        return new ServedStub(request, ResponseDefinition.notConfigured(), nearMisses);
+    public static ServedStub noExactMatch(LoggedRequest request) {
+        return new ServedStub(request, ResponseDefinition.notConfigured());
     }
 
-    public static ServedStub exactMatch(Request request, ResponseDefinition responseDefinition) {
-        return new ServedStub(request, responseDefinition, null);
+    public static ServedStub exactMatch(LoggedRequest request, ResponseDefinition responseDefinition) {
+        return new ServedStub(request, responseDefinition);
     }
 
     public boolean isNoExactMatch() {
@@ -44,6 +43,6 @@ public class ServedStub {
     }
 
     public List<NearMiss> getNearMisses() {
-        return nearMisses;
+        return null;
     }
 }

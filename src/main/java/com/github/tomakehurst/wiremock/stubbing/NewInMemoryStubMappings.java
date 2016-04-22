@@ -19,10 +19,10 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.EagerMatchResult;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -62,21 +62,23 @@ public class NewInMemoryStubMappings implements StubMappings {
     @Override
     public ServedStub serveFor(Request request) {
         List<NearMiss> nearMisses = newArrayList();
+        LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
 
         for (StubMapping mapping : mappings) {
             MatchResult matchResult = mapping.getNewRequest().match(request);
+
             if (matchResult.isExactMatch()) {
-                ServedStub servedStub = ServedStub.exactMatch(request, mapping.getResponse());
+                ServedStub servedStub = ServedStub.exactMatch(loggedRequest, mapping.getResponse());
                 requestJournal.requestReceived(servedStub);
                 return servedStub;
             } else {
-                nearMisses.add(new NearMiss(mapping, matchResult));
+                nearMisses.add(new NearMiss(loggedRequest, mapping, matchResult));
             }
         }
 
         Collections.sort(nearMisses);
 
-        ServedStub servedStub = ServedStub.noExactMatch(request, nearMisses.subList(0, min(nearMisses.size(), MAX_NEAR_MISSES)));
+        ServedStub servedStub = ServedStub.noExactMatch(loggedRequest);
         requestJournal.requestReceived(servedStub);
         return servedStub;
     }

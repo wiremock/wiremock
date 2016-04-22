@@ -45,11 +45,11 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern equalToXPath(String value) {
-        return null;
+        return new EqualToXPathPattern(value);
     }
 
     public static StringValuePattern containing(String value) {
-        return null;
+        return new ContainsPattern(value);
     }
 
     public static StringValuePattern matches(String regex) {

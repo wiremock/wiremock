@@ -21,10 +21,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -88,7 +90,26 @@ public class StubMapping {
 	
 	public void setRequest(RequestPattern request) {
 		this.request = request;
+		this.newRequest = new NewRequestPattern(
+            UrlPattern.fromOneOf(request.getUrl(), request.getUrlPattern(), request.getUrlPath(), request.getUrlPathPattern()),
+            request.getMethod(),
+            toMultiValuePatternMap(request.getHeaders()),
+            toMultiValuePatternMap(request.getQueryParameters())
+        );
 	}
+
+    private static Map<String, MultiValuePattern> toMultiValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
+        if (valuePatternMap == null) {
+            return null;
+        }
+
+        return Maps.transformValues(valuePatternMap, new Function<ValuePattern, MultiValuePattern>() {
+            @Override
+            public MultiValuePattern apply(ValuePattern input) {
+                return new MultiValuePattern(input.toStringValuePattern());
+            }
+        });
+    }
 
 	public void setResponse(ResponseDefinition response) {
 		this.response = response;

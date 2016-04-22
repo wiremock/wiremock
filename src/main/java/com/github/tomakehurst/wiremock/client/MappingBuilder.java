@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -43,10 +44,12 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(requestMatcher);
+        newRequestPatternBuilder = new NewRequestPatternBuilder();
 	}
 
 	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
+		newRequestPatternBuilder = new NewRequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
 	@Override
@@ -64,6 +67,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	@Override
 	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
 		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
+        newRequestPatternBuilder.withHeader(key, headerMatchingStrategy.asMultiValuePattern());
 		return this;
 	}
 
@@ -123,8 +127,10 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
+		NewRequestPattern newRequestPattern = newRequestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
+		mapping.setNewRequest(newRequestPattern);
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);

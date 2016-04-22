@@ -1,12 +1,17 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 import static java.util.Arrays.asList;
 
 public abstract class MatchResult implements Comparable<MatchResult> {
 
-    public static EagerMatchResult partialMatch(double distance) {
+    @JsonCreator
+    public static EagerMatchResult partialMatch(@JsonProperty("distance") double distance) {
         return new EagerMatchResult(distance);
     }
 
@@ -35,6 +40,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         return aggregate(asList(matches));
     }
 
+    @JsonIgnore
     public abstract boolean isExactMatch();
     public abstract double getDistance();
 

@@ -143,6 +143,10 @@ public class ResponseDefinition {
 		return new ResponseDefinition(HTTP_NO_CONTENT, (byte[])null);
 	}
 
+	public static <T> ResponseDefinition okForJson(T body) {
+		return ResponseDefinitionBuilder.okForJson(body).build();
+	}
+
 	public static ResponseDefinition redirectTo(String path) {
 		return new ResponseDefinitionBuilder()
 				.withHeader("Location", path)

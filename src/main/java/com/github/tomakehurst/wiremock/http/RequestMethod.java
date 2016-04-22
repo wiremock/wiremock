@@ -57,7 +57,7 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
     }
 
     public MatchResult match(RequestMethod method) {
-        return MatchResult.of(this == ANY || this == method);
+        return MatchResult.of(this.equals(ANY) || this.equals(method));
     }
 
     @Override

@@ -19,9 +19,14 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.FindServedStubsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+
+import java.util.List;
 
 public interface Admin {
 
@@ -35,6 +40,9 @@ public interface Admin {
     void resetToDefaultMappings();
 	VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
+    @Deprecated
+    FindServedStubsResult findAllUnmatchedServedStubs();
+    FindNearMissesResult findNearMissesForUnmatchedRequests();
 	void updateGlobalSettings(GlobalSettings settings);
     void shutdownServer();
 }

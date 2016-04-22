@@ -12,6 +12,7 @@ import com.google.common.collect.FluentIterable;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
+import static com.google.common.collect.FluentIterable.from;
 
 @JsonSerialize(include = NON_NULL)
 public class NewRequestPattern implements ValueMatcher<Request> {
@@ -59,7 +60,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private MatchResult allHeadersMatchResult(final Request request) {
         if (headers != null && !headers.isEmpty()) {
             return MatchResult.aggregate(
-                FluentIterable.from(headers.entrySet()).transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                from(headers.entrySet())
+                .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
                     public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
                         return headerPattern.getValue().match(request.header(headerPattern.getKey()));
                     }
@@ -73,7 +75,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private MatchResult allQueryParamsMatch(final Request request) {
         if (queryParams != null && !queryParams.isEmpty()) {
             return MatchResult.aggregate(
-                FluentIterable.from(queryParams.entrySet()).transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                from(queryParams.entrySet())
+                .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
                     public MatchResult apply(Map.Entry<String, MultiValuePattern> queryParamPattern) {
                         return queryParamPattern.getValue().match(request.queryParameter(queryParamPattern.getKey()));
                     }
@@ -105,7 +108,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     }
 
     private String urlPatternOrNull(Class<? extends UrlPattern> clazz, boolean regex) {
-        return (url.getClass().equals(clazz) && url.isRegex() == regex) ? url.getPattern().getValue() : null;
+        return (url != null && url.getClass().equals(clazz) && url.isRegex() == regex) ? url.getPattern().getValue() : null;
     }
 
     public RequestMethod getMethod() {

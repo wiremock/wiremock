@@ -447,4 +447,30 @@ public class ValuePattern {
         result = 31 * result + (matchesJsonPath != null ? matchesJsonPath.hashCode() : 0);
         return result;
     }
+
+    public StringValuePattern toStringValuePattern() {
+        if (equalTo != null) {
+            return StringValuePattern.equalTo(equalTo);
+        } else if (matches != null) {
+            return StringValuePattern.matches(matches);
+        } else if (contains != null) {
+            return StringValuePattern.containing(contains);
+        } else if (doesNotMatch != null) {
+            return null;
+        } else if (absent != null) {
+            return null;
+        } else if (equalToXml != null) {
+            return null;
+        } else if (matchesXPath != null) {
+            return null;
+        } else if (equalToJson != null) {
+            return StringValuePattern.equalToJson(equalToJson);
+        } else if (matchesJsonPath != null) {
+            return null;
+        }
+
+        throw new UnsupportedOperationException();
+//        private Map<String, String> xpathNamespaces;
+//        private JSONCompareMode jsonCompareMode;
+    }
 }

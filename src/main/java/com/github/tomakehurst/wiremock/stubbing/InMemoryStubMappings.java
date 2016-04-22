@@ -21,6 +21,8 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -48,6 +50,7 @@ public class InMemoryStubMappings implements StubMappings {
     private final RequestJournal requestJournal;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
+	private final boolean useNewRequestPattern = false;
 
 	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;
@@ -77,7 +80,7 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServedStub servedStub = ServedStub.exactMatch(request, responseDefinition);
+        ServedStub servedStub = new ServedStub(LoggedRequest.createFrom(request), responseDefinition);
         requestJournal.requestReceived(servedStub);
         return servedStub;
 	}
@@ -161,13 +164,30 @@ public class InMemoryStubMappings implements StubMappings {
     }
 
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+        if (useNewRequestPattern) {
+            return mappingMatchingAndInCorrectScenarioStateNew(request);
+        }
+
+        return mappingMatchingAndInCorrectScenarioStateOld(request);
+    }
+
+    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
-				return mapping.getRequest().isMatchedBy(request, customMatchers) &&
+				return mapping.getNewRequest().match(request).isExactMatch() &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};
 	}
+
+    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateOld(final Request request) {
+        return new Predicate<StubMapping>() {
+            public boolean apply(StubMapping mapping) {
+                return mapping.getRequest().isMatchedBy(request, customMatchers) &&
+                    (mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
+            }
+        };
+    }
 
 	private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
 		return new Predicate<StubMapping>() {

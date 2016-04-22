@@ -21,15 +21,22 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.FluentIterable.from;
 
 public class WireMockApp implements StubServer, Admin {
     
@@ -43,6 +50,7 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
     private final MappingsSaver mappingsSaver;
+    private final NearMissCalculator nearMissCalculator;
 
 
     public WireMockApp(
@@ -62,6 +70,7 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
         stubMappings = new InMemoryStubMappings(requestMatchers, requestJournal, transformers, rootFileSource);
         this.container = container;
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         loadDefaultMappings();
     }
 
@@ -82,7 +91,7 @@ public class WireMockApp implements StubServer, Admin {
         ServedStub servedStub = stubMappings.serveFor(request);
 
         if (servedStub.isNoExactMatch() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
-            return ServedStub.exactMatch(request, ResponseDefinition.browserProxy(request));
+            return ServedStub.exactMatch(LoggedRequest.createFrom(request), ResponseDefinition.browserProxy(request));
         }
 
         return servedStub;
@@ -147,6 +156,36 @@ public class WireMockApp implements StubServer, Admin {
         } catch (RequestJournalDisabledException e) {
             return FindRequestsResult.withRequestJournalDisabled();
         }
+    }
+
+    @Override
+    public FindServedStubsResult findAllUnmatchedServedStubs() {
+        List<ServedStub> servedStubs = from(requestJournal.getAllServedStubs()).filter(new Predicate<ServedStub>() {
+            @Override
+            public boolean apply(ServedStub input) {
+                return input.isNoExactMatch();
+            }
+        }).toList();
+        return new FindServedStubsResult(servedStubs);
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+        ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
+        Iterable<ServedStub> unmatchedServedStubs =
+            from(requestJournal.getAllServedStubs())
+            .filter(new Predicate<ServedStub>() {
+                @Override
+                public boolean apply(ServedStub input) {
+                    return input.isNoExactMatch();
+                }
+            });
+
+        for (ServedStub servedStub: unmatchedServedStubs) {
+            listBuilder.addAll(nearMissCalculator.findNearestFor(servedStub.getRequest()));
+        }
+
+        return new FindNearMissesResult(listBuilder.build());
     }
 
     @Override

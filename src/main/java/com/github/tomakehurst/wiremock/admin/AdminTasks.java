@@ -39,6 +39,8 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/requests/reset"), ResetRequestsTask.class)
                 .put(requestSpec(POST, "/requests/count"), GetRequestCountTask.class)
                 .put(requestSpec(POST, "/requests/find"), FindRequestsTask.class)
+                .put(requestSpec(GET,  "/requests/near-misses"), FindNearMissesForUnmatchedTask.class)
+                .put(requestSpec(GET,  "/served-stubs/unmatched"), FindUnmatchedServedStubsTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
                 .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
                 .build();

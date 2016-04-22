@@ -44,10 +44,11 @@ public class MultiValuePatternTest {
 
     @Test
     public void returnsNonMatchForAbsentHeaderWhenRequiredPresent() {
-        assertFalse(
-            MultiValuePattern.of(equalTo("required-value"))
-                .match(absent("the-key"))
-                .isExactMatch());
+        MatchResult matchResult = MultiValuePattern.of(equalTo("required-value"))
+            .match(absent("the-key"));
+
+        assertFalse(matchResult.isExactMatch());
+        assertThat(matchResult.getDistance(), is(1.0));
     }
 
     @Test

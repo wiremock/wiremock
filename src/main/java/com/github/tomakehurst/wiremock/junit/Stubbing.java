@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.List;
@@ -33,4 +34,6 @@ public interface Stubbing {
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
 
     void setGlobalFixedDelay(int milliseconds);
+
+    List<ServedStub> findAllUnmatched();
 }

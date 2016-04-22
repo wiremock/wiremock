@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import java.util.Map;
@@ -19,6 +20,9 @@ public class NewRequestPatternBuilder {
     public NewRequestPatternBuilder(RequestMethod method, UrlPattern url) {
         this.method = method;
         this.url = url;
+    }
+
+    public NewRequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
     }
 
     public static NewRequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {

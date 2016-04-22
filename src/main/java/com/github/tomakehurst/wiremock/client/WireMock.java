@@ -21,10 +21,12 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
@@ -453,5 +455,14 @@ public class WireMock {
 
     public static void shutdownServer() {
         defaultInstance.get().shutdown();
+    }
+
+    public static List<NearMiss> findAllNearMisses() {
+        return defaultInstance.get().findNearMissesForAllUnmatched();
+    }
+
+    public List<NearMiss> findNearMissesForAllUnmatched() {
+        FindNearMissesResult nearMissesResult = admin.findNearMissesForUnmatchedRequests();
+        return nearMissesResult.getNearMisses();
     }
 }

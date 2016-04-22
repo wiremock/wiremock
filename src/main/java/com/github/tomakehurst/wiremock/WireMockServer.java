@@ -35,11 +35,10 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -327,8 +326,24 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public FindServedStubsResult findAllUnmatchedServedStubs() {
+        return wireMockApp.findAllUnmatchedServedStubs();
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+        return wireMockApp.findNearMissesForUnmatchedRequests();
+    }
+
+    @Override
+    public List<ServedStub> findAllUnmatched() {
+        FindServedStubsResult servedStubsResult = wireMockApp.findAllUnmatchedServedStubs();
+        return servedStubsResult.getServedStubs();
     }
 
     @Override

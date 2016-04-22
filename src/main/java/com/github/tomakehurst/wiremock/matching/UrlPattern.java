@@ -22,8 +22,10 @@ public class UrlPattern implements ValueMatcher<String> {
             return UrlPattern.matching(urlPattern);
         } else if (urlPath != null) {
             return UrlPathPattern.equalTo(urlPath);
-        } else {
+        } else if (urlPathPattern != null) {
             return UrlPathPattern.matching(urlPathPattern);
+        } else {
+            return null;
         }
     }
 
