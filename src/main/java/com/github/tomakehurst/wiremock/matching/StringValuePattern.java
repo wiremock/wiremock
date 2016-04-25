@@ -40,12 +40,16 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements);
     }
 
+    public static StringValuePattern matchesJsonPath(String value) {
+        return new MatchesJsonPathPattern(value);
+    }
+
     public static StringValuePattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
 
-    public static StringValuePattern equalToXPath(String value) {
-        return new EqualToXPathPattern(value);
+    public static StringValuePattern matchesXPath(String value) {
+        return new MatchesXPathPattern(value);
     }
 
     public static StringValuePattern containing(String value) {

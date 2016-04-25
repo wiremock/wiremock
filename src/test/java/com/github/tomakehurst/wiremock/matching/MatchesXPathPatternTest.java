@@ -7,7 +7,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class EqualToXPathPatternTest {
+public class MatchesXPathPatternTest {
 
     @Test
     public void returnsExactMatchWhenXPathMatches() {
@@ -16,7 +16,7 @@ public class EqualToXPathPatternTest {
             + "<planet name='Venus' position='4'/></solar-system>";
 
 
-        StringValuePattern pattern = StringValuePattern.equalToXPath("//planet[@name='Earth']");
+        StringValuePattern pattern = StringValuePattern.matchesXPath("//planet[@name='Earth']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertTrue("Expected XPath match", match.isExactMatch());
@@ -29,7 +29,7 @@ public class EqualToXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.equalToXPath("//star[@name='alpha centauri']");
+        StringValuePattern pattern = StringValuePattern.matchesXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());
@@ -42,7 +42,7 @@ public class EqualToXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.equalToXPath("//\\\\&&&&&");
+        StringValuePattern pattern = StringValuePattern.matchesXPath("//\\\\&&&&&");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());
@@ -55,7 +55,7 @@ public class EqualToXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.equalToXPath("//star[@name='alpha centauri']");
+        StringValuePattern pattern = StringValuePattern.matchesXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());

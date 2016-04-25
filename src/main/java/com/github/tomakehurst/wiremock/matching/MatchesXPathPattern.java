@@ -14,11 +14,11 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
-public class EqualToXPathPattern extends StringValuePattern {
+public class MatchesXPathPattern extends StringValuePattern {
 
     private final Map<String, String> xpathNamespaces = null;
 
-    public EqualToXPathPattern(String expectedValue) {
+    public MatchesXPathPattern(String expectedValue) {
         super(expectedValue);
     }
 
