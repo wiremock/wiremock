@@ -87,4 +87,85 @@ public class EqualToXmlPatternTest {
 
         assertThat(matchResult.getDistance(), closeTo(0.14, 2));
     }
+
+    @Test
+    public void returnsExactMatchOnNamespacedXml() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+            "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+            "    <soap:Body>\n" +
+            "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+            "            <things />\n" +
+            "        </stuff>\n" +
+            "    </soap:Body>\n" +
+            "</soap:Envelope>\n"
+        );
+
+        MatchResult match = pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertThat(match.getDistance(), is(0.0));
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchOnNamespacedXmlWhenNamespacePrefixesDiffer() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<shampoo:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:shampoo=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <shampoo:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </shampoo:Body>\n" +
+                "</shampoo:Envelope>\n"
+        );
+
+        MatchResult match = pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertThat(match.getDistance(), is(0.0));
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void doesNotReturnExactMatchWhenNamespaceUriDiffers() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertFalse(pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/the-wrong-namespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        ).isExactMatch());
+    }
 }

@@ -48,6 +48,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                     .withComparisonController(ComparisonControllers.StopWhenDifferent)
                     .ignoreWhitespace()
                     .ignoreComments()
+                    .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
                     .build();
 
                 return !diff.hasDifferences();
@@ -62,6 +63,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                     .withTest(value)
                     .ignoreWhitespace()
                     .ignoreComments()
+                    .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
                     .withComparisonListeners(new ComparisonListener() {
                         @Override
                         public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
@@ -83,4 +85,16 @@ public class EqualToXmlPattern extends StringValuePattern {
             }
         };
     }
+
+    private static final DifferenceEvaluator IGNORE_UNCOUNTED_COMPARISONS = new DifferenceEvaluator() {
+        @Override
+        public ComparisonResult evaluate(Comparison comparison, ComparisonResult outcome) {
+            if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
+                return outcome;
+            }
+
+            return ComparisonResult.EQUAL;
+        }
+    };
+
 }

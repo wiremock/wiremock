@@ -470,7 +470,5 @@ public class ValuePattern {
         }
 
         throw new UnsupportedOperationException();
-//        private Map<String, String> xpathNamespaces;
-//        private JSONCompareMode jsonCompareMode;
     }
 }
