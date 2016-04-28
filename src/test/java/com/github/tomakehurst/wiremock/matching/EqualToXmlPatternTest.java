@@ -177,6 +177,31 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
+    public void returnsExactMatchWhenAttributesAreInDifferentOrder() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern("<my-attribs one=\"1\" two=\"2\" three=\"3\"/>");
+        assertTrue(pattern.match("<my-attribs two=\"2\" one=\"1\" three=\"3\"/>").isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchWhenElementsAreInDifferentOrder() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<my-elements>\n" +
+            "    <one />\n" +
+            "    <two />\n" +
+            "    <three />\n" +
+            "</my-elements>"
+        );
+
+        assertTrue(pattern.match(
+            "<my-elements>\n" +
+            "    <two />\n" +
+            "    <three />\n" +
+            "    <one />\n" +
+            "</my-elements>"
+        ).isExactMatch());
+    }
+
+    @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
         expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
         StringValuePattern.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
