@@ -2,19 +2,26 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import org.hamcrest.Matchers;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class EqualToXmlPatternTest {
 
+    private Mockery context;
+
     @Before
     public void init() {
+        context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
     }
 
@@ -167,5 +174,25 @@ public class EqualToXmlPatternTest {
                 "    </soap:Body>\n" +
                 "</soap:Envelope>\n"
         ).isExactMatch());
+    }
+
+    @Test
+    public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
+        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        StringValuePattern.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+    }
+
+    @Test
+    public void logsASensibleErrorMessageWhenTestXmlIsBadlyFormed() {
+        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        StringValuePattern.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
+    }
+
+    private void expectInfoNotification(final String message) {
+        final Notifier notifier = context.mock(Notifier.class);
+        context.checking(new Expectations() {{
+            one(notifier).info(with(containsString(message)));
+        }});
+        LocalNotifier.set(notifier);
     }
 }

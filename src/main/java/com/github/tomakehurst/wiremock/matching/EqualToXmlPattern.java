@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
@@ -43,15 +44,22 @@ public class EqualToXmlPattern extends StringValuePattern {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
-                Diff diff = DiffBuilder.compare(Input.from(expectedValue))
-                    .withTest(value)
-                    .withComparisonController(ComparisonControllers.StopWhenDifferent)
-                    .ignoreWhitespace()
-                    .ignoreComments()
-                    .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                    .build();
+                try {
+                    Diff diff = DiffBuilder.compare(Input.from(expectedValue))
+                        .withTest(value)
+                        .withComparisonController(ComparisonControllers.StopWhenDifferent)
+                        .ignoreWhitespace()
+                        .ignoreComments()
+                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
+                        .build();
 
-                return !diff.hasDifferences();
+                    return !diff.hasDifferences();
+                } catch (XMLUnitException e) {
+                    notifier().info("Failed to process XML. " + e.getMessage() +
+                        "\nExpected:\n" + expectedValue +
+                        "\n\nActual:\n" + value);
+                    return false;
+                }
             }
 
             @Override
