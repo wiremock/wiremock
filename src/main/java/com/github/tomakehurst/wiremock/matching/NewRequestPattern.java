@@ -7,8 +7,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.collect.FluentIterable;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
@@ -21,15 +21,18 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
     private final Map<String, MultiValuePattern> queryParams;
+    private final List<StringValuePattern> bodyPatterns;
 
     public NewRequestPattern(UrlPattern url,
                              RequestMethod method,
                              Map<String, MultiValuePattern> headers,
-                             Map<String, MultiValuePattern> queryParams) {
+                             Map<String, MultiValuePattern> queryParams,
+                             List<StringValuePattern> bodyPatterns) {
         this.url = url;
         this.method = method;
         this.headers = headers;
         this.queryParams = queryParams;
+        this.bodyPatterns = bodyPatterns;
     }
 
     @JsonCreator
@@ -39,12 +42,14 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              @JsonProperty("urlPathPattern") String urlPathPattern,
                              @JsonProperty("method") RequestMethod method,
                              @JsonProperty("headers") Map<String, MultiValuePattern> headers,
-                             @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams) {
+                             @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+                             @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns) {
 
         this.url = UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern);
         this.method = method;
         this.headers = headers;
         this.queryParams = queryParams;
+        this.bodyPatterns = bodyPatterns;
     }
 
     @Override
@@ -53,7 +58,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
             url.match(request.getUrl()),
             method.match(request.getMethod()),
             allHeadersMatchResult(request),
-            allQueryParamsMatch(request)
+            allQueryParamsMatch(request),
+            allBodyPatternsMatch(request)
         );
     }
 
@@ -79,6 +85,21 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                 .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
                     public MatchResult apply(Map.Entry<String, MultiValuePattern> queryParamPattern) {
                         return queryParamPattern.getValue().match(request.queryParameter(queryParamPattern.getKey()));
+                    }
+                }).toList()
+            );
+        }
+
+        return MatchResult.exactMatch();
+    }
+
+    private MatchResult allBodyPatternsMatch(final Request request) {
+        if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
+            return MatchResult.aggregate(
+                from(bodyPatterns).transform(new Function<StringValuePattern, MatchResult>() {
+                    @Override
+                    public MatchResult apply(StringValuePattern pattern) {
+                        return pattern.match(request.getBodyAsString());
                     }
                 }).toList()
             );

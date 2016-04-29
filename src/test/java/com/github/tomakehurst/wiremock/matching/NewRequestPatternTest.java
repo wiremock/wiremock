@@ -240,4 +240,36 @@ public class NewRequestPatternTest {
             actualJson,
             true);
     }
+
+    @Test
+    public void matchesExactlyWith0DistanceWhenPatternsAllMatch() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
+            .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
+            .withRequestBody(StringValuePattern.containing("two"))
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(PUT)
+            .url("/my/url")
+            .body("exactwordone approxwordtwo blah blah"));
+        assertThat(matchResult.getDistance(), is(0.0));
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void doesNotMatchExactlyWhenOnePatternDoesNotMatch() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
+            .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
+            .withRequestBody(StringValuePattern.containing("three"))
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(PUT)
+            .url("/my/url")
+            .body("exactwordone approxwordtwo blah blah"));
+
+        assertFalse(matchResult.isExactMatch());
+    }
 }

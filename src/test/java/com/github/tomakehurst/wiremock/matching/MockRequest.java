@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 
 import java.net.URI;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -20,6 +22,7 @@ public class MockRequest implements Request {
     private String url = "/";
     private RequestMethod method = RequestMethod.ANY;
     private HttpHeaders headers = new HttpHeaders();
+    private byte[] body;
 
     public static MockRequest mockRequest() {
         return new MockRequest();
@@ -32,6 +35,16 @@ public class MockRequest implements Request {
 
     public MockRequest method(RequestMethod method) {
         this.method = method;
+        return this;
+    }
+
+    public MockRequest header(String key, String value) {
+        headers = headers.plus(httpHeader(key, value));
+        return this;
+    }
+
+    public MockRequest body(String body) {
+        this.body = body.getBytes(UTF_8);
         return this;
     }
 
@@ -97,12 +110,12 @@ public class MockRequest implements Request {
 
     @Override
     public byte[] getBody() {
-        return new byte[0];
+        return body;
     }
 
     @Override
     public String getBodyAsString() {
-        return "";
+        return new String(body);
     }
 
     @Override
@@ -113,11 +126,6 @@ public class MockRequest implements Request {
     @Override
     public boolean isBrowserProxyRequest() {
         return false;
-    }
-
-    public MockRequest header(String key, String value) {
-        headers = headers.plus(httpHeader(key, value));
-        return this;
     }
 
     public LoggedRequest asLoggedRequest() {

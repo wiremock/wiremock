@@ -3,8 +3,10 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
+import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class NewRequestPatternBuilder {
@@ -13,6 +15,7 @@ public class NewRequestPatternBuilder {
     private RequestMethod method;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
+    private List<StringValuePattern> bodyPatterns = newArrayList();
 
     public NewRequestPatternBuilder() {
     }
@@ -48,11 +51,16 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
+    public NewRequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
+        this.bodyPatterns.add(valuePattern);
+        return this;
+    }
+
     public NewRequestPattern build() {
         return new NewRequestPattern(
             url,
             method,
             headers.isEmpty() ? null : headers,
-            queryParams.isEmpty() ? null : queryParams);
+            queryParams.isEmpty() ? null : queryParams, bodyPatterns);
     }
 }

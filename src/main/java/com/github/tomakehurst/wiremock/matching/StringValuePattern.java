@@ -60,6 +60,10 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         return new RegexPattern(regex);
     }
 
+    public static StringValuePattern doesNotMatch(String regex) {
+        return new NegativeRegexPattern(regex);
+    }
+
     public static StringValuePattern absent() {
         return ABSENT;
     }

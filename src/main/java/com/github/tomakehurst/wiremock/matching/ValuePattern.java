@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.jayway.jsonpath.JsonPath;
@@ -448,6 +449,13 @@ public class ValuePattern {
         return result;
     }
 
+    public static Function<ValuePattern, StringValuePattern> TO_STRING_VALUE_PATTERN = new Function<ValuePattern, StringValuePattern>() {
+        @Override
+        public StringValuePattern apply(ValuePattern input) {
+            return input.toStringValuePattern();
+        }
+    };
+
     public StringValuePattern toStringValuePattern() {
         if (equalTo != null) {
             return StringValuePattern.equalTo(equalTo);
@@ -456,17 +464,17 @@ public class ValuePattern {
         } else if (contains != null) {
             return StringValuePattern.containing(contains);
         } else if (doesNotMatch != null) {
-            return null;
+            return StringValuePattern.doesNotMatch(doesNotMatch);
         } else if (absent != null) {
-            return null;
+            return StringValuePattern.ABSENT;
         } else if (equalToXml != null) {
-            return null;
+            return StringValuePattern.equalToXml(equalToXml);
         } else if (matchesXPath != null) {
-            return null;
+            return StringValuePattern.matchesXPath(matchesXPath);
         } else if (equalToJson != null) {
             return StringValuePattern.equalToJson(equalToJson);
         } else if (matchesJsonPath != null) {
-            return null;
+            return StringValuePattern.matchesJsonPath(matchesJsonPath);
         }
 
         throw new UnsupportedOperationException();
