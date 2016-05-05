@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
@@ -21,17 +22,20 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
     private final Map<String, MultiValuePattern> queryParams;
+    private final Map<String, StringValuePattern> cookies;
     private final List<StringValuePattern> bodyPatterns;
 
     public NewRequestPattern(UrlPattern url,
                              RequestMethod method,
                              Map<String, MultiValuePattern> headers,
                              Map<String, MultiValuePattern> queryParams,
+                             Map<String, StringValuePattern> cookies,
                              List<StringValuePattern> bodyPatterns) {
         this.url = url;
         this.method = method;
         this.headers = headers;
         this.queryParams = queryParams;
+        this.cookies = cookies;
         this.bodyPatterns = bodyPatterns;
     }
 
@@ -43,7 +47,9 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              @JsonProperty("method") RequestMethod method,
                              @JsonProperty("headers") Map<String, MultiValuePattern> headers,
                              @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+                             @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                              @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns) {
+        this.cookies = cookies;
 
         this.url = UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern);
         this.method = method;
@@ -59,19 +65,39 @@ public class NewRequestPattern implements ValueMatcher<Request> {
             method.match(request.getMethod()),
             allHeadersMatchResult(request),
             allQueryParamsMatch(request),
+            allCookiesMatch(request),
             allBodyPatternsMatch(request)
         );
+    }
+
+    private MatchResult allCookiesMatch(final Request request) {
+        if (cookies != null && !cookies.isEmpty()) {
+            return MatchResult.aggregate(
+                from(cookies.entrySet())
+                    .transform(new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
+                        public MatchResult apply(Map.Entry<String, StringValuePattern> cookiePattern) {
+                            Cookie cookie = request.getCookies().get(cookiePattern.getKey());
+                            return cookie != null ?
+                                cookiePattern.getValue().match(cookie.getValue()) :
+                                MatchResult.noMatch();
+
+                        }
+                    }).toList()
+            );
+        }
+
+        return MatchResult.exactMatch();
     }
 
     private MatchResult allHeadersMatchResult(final Request request) {
         if (headers != null && !headers.isEmpty()) {
             return MatchResult.aggregate(
                 from(headers.entrySet())
-                .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
-                        return headerPattern.getValue().match(request.header(headerPattern.getKey()));
-                    }
-                }).toList()
+                    .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                        public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
+                            return headerPattern.getValue().match(request.header(headerPattern.getKey()));
+                        }
+                    }).toList()
             );
         }
 
@@ -82,11 +108,11 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         if (queryParams != null && !queryParams.isEmpty()) {
             return MatchResult.aggregate(
                 from(queryParams.entrySet())
-                .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
-                    public MatchResult apply(Map.Entry<String, MultiValuePattern> queryParamPattern) {
-                        return queryParamPattern.getValue().match(request.queryParameter(queryParamPattern.getKey()));
-                    }
-                }).toList()
+                    .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                        public MatchResult apply(Map.Entry<String, MultiValuePattern> queryParamPattern) {
+                            return queryParamPattern.getValue().match(request.queryParameter(queryParamPattern.getKey()));
+                        }
+                    }).toList()
             );
         }
 

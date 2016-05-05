@@ -16,12 +16,14 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class MockRequest implements Request {
 
     private String url = "/";
     private RequestMethod method = RequestMethod.ANY;
     private HttpHeaders headers = new HttpHeaders();
+    private Map<String, Cookie> cookies = newHashMap();
     private byte[] body;
 
     public static MockRequest mockRequest() {
@@ -40,6 +42,11 @@ public class MockRequest implements Request {
 
     public MockRequest header(String key, String value) {
         headers = headers.plus(httpHeader(key, value));
+        return this;
+    }
+
+    public MockRequest cookie(String key, String value) {
+        cookies.put(key, new Cookie(value));
         return this;
     }
 
@@ -99,7 +106,7 @@ public class MockRequest implements Request {
 
     @Override
     public Map<String, Cookie> getCookies() {
-        return Collections.emptyMap();
+        return cookies;
     }
 
     @Override

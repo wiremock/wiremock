@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 
 import java.util.List;
@@ -100,9 +99,18 @@ public class StubMapping {
             request.getMethod(),
             toMultiValuePatternMap(request.getHeaders()),
             toMultiValuePatternMap(request.getQueryParameters()),
+            toStringValuePatternMap(request.getCookies()),
             toStringValueList(request)
 		);
 	}
+
+    private Map<String, StringValuePattern> toStringValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
+        if (valuePatternMap == null) {
+            return null;
+        }
+
+        return Maps.transformValues(valuePatternMap, TO_STRING_VALUE_PATTERN);
+    }
 
     private static List<StringValuePattern> toStringValueList(RequestPattern request) {
         return (request.getBodyPatterns() != null) ?

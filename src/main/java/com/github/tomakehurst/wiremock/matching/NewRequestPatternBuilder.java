@@ -16,6 +16,7 @@ public class NewRequestPatternBuilder {
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
     private List<StringValuePattern> bodyPatterns = newArrayList();
+    private Map<String, StringValuePattern> cookies = newLinkedHashMap();
 
     public NewRequestPatternBuilder() {
     }
@@ -51,6 +52,11 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
+    public NewRequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
+        cookies.put(key, valuePattern);
+        return this;
+    }
+
     public NewRequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
         this.bodyPatterns.add(valuePattern);
         return this;
@@ -61,6 +67,8 @@ public class NewRequestPatternBuilder {
             url,
             method,
             headers.isEmpty() ? null : headers,
-            queryParams.isEmpty() ? null : queryParams, bodyPatterns);
+            queryParams.isEmpty() ? null : queryParams,
+            cookies.isEmpty() ? null : cookies,
+            bodyPatterns);
     }
 }

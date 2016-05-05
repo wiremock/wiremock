@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalTo;
@@ -242,7 +243,7 @@ public class NewRequestPatternTest {
     }
 
     @Test
-    public void matchesExactlyWith0DistanceWhenPatternsAllMatch() {
+    public void matchesExactlyWith0DistanceWhenBodyPatternsAllMatch() {
         NewRequestPattern requestPattern = NewRequestPatternBuilder
             .newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
             .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
@@ -258,7 +259,7 @@ public class NewRequestPatternTest {
     }
 
     @Test
-    public void doesNotMatchExactlyWhenOnePatternDoesNotMatch() {
+    public void doesNotMatchExactlyWhenOneBodyPatternDoesNotMatch() {
         NewRequestPattern requestPattern = NewRequestPatternBuilder
             .newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
             .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
@@ -269,6 +270,36 @@ public class NewRequestPatternTest {
             .method(PUT)
             .url("/my/url")
             .body("exactwordone approxwordtwo blah blah"));
+
+        assertFalse(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void matchesExactlyWhenAllCookiesMatch() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
+            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(POST)
+            .cookie("my_cookie", "my-cookie-value")
+            .url("/my/url"));
+
+        assertThat(matchResult.getDistance(), is(0.0));
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void doesNotMatchWhenARequiredCookieIsMissing() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
+            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(POST)
+            .url("/my/url"));
 
         assertFalse(matchResult.isExactMatch());
     }
