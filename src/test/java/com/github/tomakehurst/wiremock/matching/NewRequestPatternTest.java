@@ -303,4 +303,34 @@ public class NewRequestPatternTest {
 
         assertFalse(matchResult.isExactMatch());
     }
+
+    @Test
+    public void doesNotMatchWhenRequiredCookieValueIsWrong() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
+            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(POST)
+            .cookie("my_cookie", "wrong-value")
+            .url("/my/url"));
+
+        assertFalse(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
+        NewRequestPattern requestPattern = NewRequestPatternBuilder
+            .newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
+            .withCookie("my_cookie", StringValuePattern.absent())
+            .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+            .method(POST)
+            .cookie("my_cookie", "any-value")
+            .url("/my/url"));
+
+        assertFalse(matchResult.isExactMatch());
+    }
 }
