@@ -63,9 +63,9 @@ public class WireMockServerRunner {
 
         wireMockServer = new WireMockServer(options);
 
-        if (options.recordMappingsEnabled()) {
-            wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
-        }
+		if (options.recordMappingsEnabled()) {
+			wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource, options.recordRepeatsEnabled());
+		}
 
 		if (options.specifiesProxyUrl()) {
 			addProxyMapping(options.proxyUrl());

@@ -57,6 +57,7 @@ public class CommandLineOptions implements Options {
 	
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
+	private static final String RECORD_REPEATS = "record-repeats";
 	private static final String MATCH_HEADERS = "match-headers";
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
@@ -98,8 +99,11 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
-		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
-		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
+		optionParser.accepts(RECORD_REPEATS, "When recording requests, record each instance of a repeated request to its own mapping file.");
+		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy")
+				.withRequiredArg();
+		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and "
+								+ WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
@@ -123,9 +127,12 @@ public class CommandLineOptions implements Options {
         if (optionSet.has(RECORD_MAPPINGS) && optionSet.has(DISABLE_REQUEST_JOURNAL)) {
             throw new IllegalArgumentException("Request journal must be enabled to record stubs");
         }
+	if (optionSet.has(RECORD_REPEATS) && !optionSet.has(RECORD_MAPPINGS)) {
+		throw new IllegalArgumentException("Must enable recording of requests in order record repeated requests.");
+	}
     }
 
-    private void captureHelpTextIfRequested(OptionParser optionParser) {
+	private void captureHelpTextIfRequested(OptionParser optionParser) {
 		if (optionSet.has(HELP)) {
 			StringWriter out = new StringWriter();
 			try {
@@ -145,7 +152,11 @@ public class CommandLineOptions implements Options {
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
-	
+
+	public boolean recordRepeatsEnabled() {
+		return optionSet.has(RECORD_REPEATS);
+	}
+
 	@Override
 	public List<CaseInsensitiveKey> matchingHeaders() {
 		if (optionSet.hasArgument(MATCH_HEADERS)) {
@@ -341,7 +352,7 @@ public class CommandLineOptions implements Options {
 
         if (recordMappingsEnabled()) {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
-                    .put(MATCH_HEADERS, matchingHeaders());
+                    .put(MATCH_HEADERS, matchingHeaders()).put(RECORD_REPEATS, recordRepeatsEnabled());;
         }
 
         builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())

@@ -24,7 +24,9 @@ import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
@@ -40,13 +42,16 @@ public class StubMappingJsonRecorder implements RequestListener {
     private final FileSource filesFileSource;
     private final Admin admin;
     private final List<CaseInsensitiveKey> headersToMatch;
+	private final Boolean recordRepeats;
     private IdGenerator idGenerator;
+	private final Map<RequestPattern, String> receivedRequestsFileIds = new HashMap<RequestPattern, String>();
 
-    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch, boolean recordRepeats) {
         this.mappingsFileSource = mappingsFileSource;
         this.filesFileSource = filesFileSource;
         this.admin = admin;
         this.headersToMatch = headersToMatch;
+		this.recordRepeats = recordRepeats;
         idGenerator = new VeryShortIdGenerator();
     }
 
@@ -54,11 +59,21 @@ public class StubMappingJsonRecorder implements RequestListener {
     public void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
 
-        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
-            notifier().info(String.format("Recording mappings for %s", request.getUrl()));
-            writeToMappingAndBodyFile(request, response, requestPattern);
+        if (recordRepeats) {
+            if (response.isFromProxy()) {
+                int requestReceivedCount = getRequestReceivedCount(requestPattern);
+                notifier().info(
+                        String.format("Recording mappings for %s for the %s time", request.getUrl(),
+                                requestReceivedCount));
+                writeRepeatsToMappingAndBodyFile(request, response, requestPattern, requestReceivedCount);
+            }
         } else {
-            notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
+            if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+                notifier().info(String.format("Recording mappings for %s", request.getUrl()));
+                writeToMappingAndBodyFile(request, response, requestPattern);
+            } else {
+                notifier().info(String.format("Not recording mapping for %s as this has already been received and not recording repeats.", request.getUrl()));
+            }
         }
     }
 
@@ -114,7 +129,41 @@ public class StubMappingJsonRecorder implements RequestListener {
         filesFileSource.writeBinaryFile(bodyFileName, bodyDecompressedIfRequired(response));
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }
+	private void writeRepeatsToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern,
+			Integer requestReceivedCount) {
+		String fileId = receivedRequestsFileIds.get(requestPattern);
+		if (fileId == null) {
+			fileId = idGenerator.generate();
+			receivedRequestsFileIds.put(requestPattern, fileId);
+		}
+		writeRepeatsToMappingAndBodyFile(request, response, requestPattern, fileId, requestReceivedCount);
 
+	}
+
+	private void writeRepeatsToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern,
+			String fileId, Integer requestReceivedCount) {
+
+		String fileIdSequence = fileId + "." + requestReceivedCount;
+		String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileIdSequence);
+		String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileIdSequence);
+
+		ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition().withStatus(response.getStatus())
+				.withBodyFile(bodyFileName);
+		if (response.getHeaders().size() > 0) {
+			responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength(response.getHeaders()));
+		}
+
+		ResponseDefinition responseToWrite = responseDefinitionBuilder.build();
+
+		StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
+		mapping.setUuid(UUID.nameUUIDFromBytes(fileIdSequence.getBytes()));
+
+		mapping.setScenarioName(fileId);
+		mapping.setRequiredScenarioState("" + ((requestReceivedCount < 2) ? Scenario.STARTED : requestReceivedCount));
+		mapping.setNewScenarioState("" + (requestReceivedCount + 1));
+		filesFileSource.writeBinaryFile(bodyFileName, bodyDecompressedIfRequired(response));
+		mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
+	}
     private HttpHeaders withoutContentEncodingAndContentLength(HttpHeaders httpHeaders) {
         return new HttpHeaders(filter(httpHeaders.all(), new Predicate<HttpHeader>() {
             public boolean apply(HttpHeader header) {
@@ -136,7 +185,11 @@ public class StubMappingJsonRecorder implements RequestListener {
         verificationResult.assertRequestJournalEnabled();
         return (verificationResult.getCount() <= 1);
     }
-
+	private int getRequestReceivedCount(RequestPattern requestPattern) {
+		VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
+		verificationResult.assertRequestJournalEnabled();
+		return verificationResult.getCount();
+	}
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
