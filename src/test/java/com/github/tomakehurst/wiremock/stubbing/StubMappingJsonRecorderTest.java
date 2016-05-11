@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.IdGenerator;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
@@ -87,7 +88,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
-		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+		    allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
 			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
 					with(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
 			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.json")),
@@ -127,7 +128,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
+	        allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.json", "Recorded body content".getBytes(UTF_8));
@@ -153,7 +154,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfRequestAlreadyReceived() {
 	    context.checking(new Expectations() {{
-            atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(2)));
+            atLeast(1).of(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(2)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -168,7 +169,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfResponseNotFromProxy() {
 	    context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -203,7 +204,7 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void includesBodyInRequestPatternIfInRequest() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_BODY, STRICT_ORDER)));
@@ -260,7 +261,7 @@ public class StubMappingJsonRecorderTest {
         constructRecordingListener(MATCHING_REQUEST_HEADERS);
 
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1, STRICT_ORDER)));
@@ -307,7 +308,7 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void matchesBodyOnEqualToJsonIfJsonInRequestContentTypeHeader() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_JSON_BODY, STRICT_ORDER)));
@@ -343,7 +344,7 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void matchesBodyOnEqualToXmlIfXmlInRequestContentTypeHeader() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(
                     with(any(String.class)),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_XML_BODY, STRICT_ORDER)));
@@ -377,7 +378,7 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
         context.checking(new Expectations() {{
-            allowing(admin).countRequestsMatching(with(any(RequestPattern.class)));
+            allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class)));
             will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-gzipped-content-1$2!3.json")),
                     with(equalToJson(GZIP_REQUEST_MAPPING)));

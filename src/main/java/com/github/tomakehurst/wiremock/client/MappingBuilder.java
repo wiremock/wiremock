@@ -44,7 +44,7 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
 		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(requestMatcher);
-        newRequestPatternBuilder = new NewRequestPatternBuilder();
+        newRequestPatternBuilder = new NewRequestPatternBuilder(requestMatcher);
 	}
 
 	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
@@ -74,18 +74,21 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
     @Override
     public MappingBuilder withCookie(String name, ValueMatchingStrategy cookieMatchingStrategy) {
         requestPatternBuilder.withCookie(name, cookieMatchingStrategy);
+		newRequestPatternBuilder.withCookie(name, cookieMatchingStrategy.asStringValuePattern());
         return this;
     }
 
     @Override
     public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
         requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
+        newRequestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy.asMultiValuePattern());
         return this;
     }
 
 	@Override
 	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
 		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
+        newRequestPatternBuilder.withRequestBody(bodyMatchingStrategy.asStringValuePattern());
 		return this;
 	}
 

@@ -33,7 +33,7 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern equalToJson(String value) {
-        return new EqualToJsonPattern(value, false, false);
+        return new EqualToJsonPattern(value, null, null);
     }
 
     public static StringValuePattern equalToJson(String value, boolean ignoreArrayOrder, boolean ignoreExtraElements) {

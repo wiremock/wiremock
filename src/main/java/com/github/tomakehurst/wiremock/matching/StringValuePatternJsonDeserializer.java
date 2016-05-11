@@ -28,10 +28,15 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
         new ImmutableMap.Builder<String, Class<? extends StringValuePattern>>()
-        .put("equalTo", EqualToPattern.class)
-        .put("matches", RegexPattern.class)
-        .put("equalToJson", EqualToJsonPattern.class)
-        .build();
+            .put("equalTo", EqualToPattern.class)
+            .put("equalToJson", EqualToJsonPattern.class)
+            .put("matchesJsonPath", MatchesJsonPathPattern.class)
+            .put("equalToXml", EqualToXmlPattern.class)
+            .put("matchesXPath", MatchesXPathPattern.class)
+            .put("contains", ContainsPattern.class)
+            .put("matches", RegexPattern.class)
+            .put("doesNotMatch", NegativeRegexPattern.class)
+            .build();
 
     @Override
     public StringValuePattern deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
@@ -75,7 +80,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
                 @Override
                 public boolean apply(Constructor<?> input) {
                     return input.getParameterTypes().length == 1 &&
-                           input.getGenericParameterTypes()[0].equals(String.class);
+                        input.getGenericParameterTypes()[0].equals(String.class);
                 }
             });
 
@@ -87,7 +92,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     }
 
     private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode) throws JsonMappingException {
-        for (Map.Entry<String, JsonNode> node: ImmutableList.copyOf(rootNode.fields())) {
+        for (Map.Entry<String, JsonNode> node : ImmutableList.copyOf(rootNode.fields())) {
             Class<? extends StringValuePattern> patternClass = PATTERNS.get(node.getKey());
             if (patternClass != null) {
                 return patternClass;

@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -128,7 +129,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+    public VerificationResult countRequestsMatching(NewRequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(GetRequestCountTask.class),
                 Json.write(requestPattern),

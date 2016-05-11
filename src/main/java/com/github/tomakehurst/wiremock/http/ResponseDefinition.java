@@ -289,7 +289,7 @@ public class ResponseDefinition {
 	}
 
 	public boolean hasTransformer(AbstractTransformer transformer) {
-		return transformers != null && transformers.contains(transformer.name());
+		return transformers != null && transformers.contains(transformer.getName());
 	}
 
 	@Override

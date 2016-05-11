@@ -29,12 +29,14 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import java.net.URI;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.matching.ValuePattern.TO_STRING_VALUE_PATTERN;
 import static com.github.tomakehurst.wiremock.matching.ValuePattern.matching;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -58,8 +60,18 @@ public class RequestPattern {
     private List<ValuePattern> bodyPatterns;
 
 	private final RequestMatcher defaultMatcher = new RequestMatcher() {
-		@Override
-		public boolean isMatchedBy(Request request) {
+
+        @Override
+        public MatchResult match(Request value) {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        public boolean isMatchedBy(Request request) {
 			return RequestPattern.this.allElementsMatch(request);
 		}
 	};
@@ -119,10 +131,10 @@ public class RequestPattern {
 	public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
 		if (customMatcherDefinition != null) {
 			RequestMatcherExtension requestMatcher = customMatchers.get(customMatcherDefinition.getName());
-			return requestMatcher.isMatchedBy(request, customMatcherDefinition.getParameters());
+			return requestMatcher.match(request).isExactMatch();
 		}
 
-		return matcher.isMatchedBy(request);
+		return matcher.match(request).isExactMatch();
 	}
 
 	public boolean isMatchedBy(Request request) {
@@ -441,6 +453,44 @@ public class RequestPattern {
         };
     }
 
+    public NewRequestPattern toNewRequestPattern() {
+        return new NewRequestPattern(
+            UrlPattern.fromOneOf(getUrl(), getUrlPattern(), getUrlPath(), getUrlPathPattern()),
+            getMethod(),
+            toMultiValuePatternMap(getHeaders()),
+            toMultiValuePatternMap(getQueryParameters()),
+            toStringValuePatternMap(getCookies()),
+            getBasicAuth(),
+            toBodyPatterns(getBodyPatterns())
+        );
+    }
+
+    private Map<String, StringValuePattern> toStringValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
+        if (valuePatternMap == null) {
+            return null;
+        }
+
+        return Maps.transformValues(valuePatternMap, TO_STRING_VALUE_PATTERN);
+    }
+
+    private static List<StringValuePattern> toBodyPatterns(List<ValuePattern> bodyPatterns) {
+        return (bodyPatterns != null) ?
+            from(bodyPatterns).transform(TO_STRING_VALUE_PATTERN).toList() :
+            null;
+    }
+
+    private static Map<String, MultiValuePattern> toMultiValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
+        if (valuePatternMap == null) {
+            return null;
+        }
+
+        return Maps.transformValues(valuePatternMap, new Function<ValuePattern, MultiValuePattern>() {
+            @Override
+            public MultiValuePattern apply(ValuePattern input) {
+                return new MultiValuePattern(input.toStringValuePattern());
+            }
+        });
+    }
 
     static interface PatternMatcher {
         boolean matches(Request request, ValuePattern valuePattern, String key);

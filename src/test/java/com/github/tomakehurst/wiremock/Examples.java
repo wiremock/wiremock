@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -246,8 +247,9 @@ public class Examples extends AcceptanceTestBase {
     @Test
     public void customMatcher() {
         wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
-            public boolean isMatchedBy(Request request, Parameters parameters) {
-                return request.getBody().length > 2048;
+            @Override
+            public MatchResult match(Request request, Parameters parameters) {
+                return MatchResult.of(request.getBody().length > 2048);
             }
         }).willReturn(aResponse().withStatus(422)));
     }

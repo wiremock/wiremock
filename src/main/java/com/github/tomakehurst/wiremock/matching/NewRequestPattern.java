@@ -3,17 +3,23 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
 @JsonSerialize(include = NON_NULL)
 public class NewRequestPattern implements ValueMatcher<Request> {
@@ -23,20 +29,45 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final Map<String, MultiValuePattern> headers;
     private final Map<String, MultiValuePattern> queryParams;
     private final Map<String, StringValuePattern> cookies;
+    private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
+
+    private RequestMatcher matcher;
+
+    private final RequestMatcher defaultMatcher = new RequestMatcher() {
+        @Override
+        public MatchResult match(Request request) {
+            return MatchResult.aggregate(
+                url.match(request.getUrl()),
+                method.match(request.getMethod()),
+                allHeadersMatchResult(request),
+                allQueryParamsMatch(request),
+                allCookiesMatch(request),
+                allBodyPatternsMatch(request)
+            );
+        }
+
+        @Override
+        public String getName() {
+            return "default";
+        }
+    };
 
     public NewRequestPattern(UrlPattern url,
                              RequestMethod method,
                              Map<String, MultiValuePattern> headers,
                              Map<String, MultiValuePattern> queryParams,
                              Map<String, StringValuePattern> cookies,
+                             BasicCredentials basicAuthCredentials,
                              List<StringValuePattern> bodyPatterns) {
         this.url = url;
         this.method = method;
         this.headers = headers;
         this.queryParams = queryParams;
         this.cookies = cookies;
+        this.basicAuthCredentials = basicAuthCredentials;
         this.bodyPatterns = bodyPatterns;
+        this.matcher = defaultMatcher;
     }
 
     @JsonCreator
@@ -48,26 +79,28 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              @JsonProperty("headers") Map<String, MultiValuePattern> headers,
                              @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
                              @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
+                             @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
                              @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns) {
-        this.cookies = cookies;
 
-        this.url = UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern);
-        this.method = method;
-        this.headers = headers;
-        this.queryParams = queryParams;
-        this.bodyPatterns = bodyPatterns;
+        this(
+            UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
+            method,
+            headers,
+            queryParams,
+            cookies,
+            basicAuthCredentials,
+            bodyPatterns
+        );
+    }
+
+    public NewRequestPattern(RequestMatcher customMatcher) {
+        this(null, null, null, null, null, null, null);
+        this.matcher = customMatcher;
     }
 
     @Override
     public MatchResult match(Request request) {
-        return MatchResult.aggregate(
-            url.match(request.getUrl()),
-            method.match(request.getMethod()),
-            allHeadersMatchResult(request),
-            allQueryParamsMatch(request),
-            allCookiesMatch(request),
-            allBodyPatternsMatch(request)
-        );
+        return matcher.match(request);
     }
 
     private MatchResult allCookiesMatch(final Request request) {
@@ -90,9 +123,13 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     }
 
     private MatchResult allHeadersMatchResult(final Request request) {
-        if (headers != null && !headers.isEmpty()) {
+        Map<String, MultiValuePattern> combinedHeaders = basicAuthCredentials != null ?
+            combineBasicAuthAndOtherHeaders() :
+            headers;
+
+        if (combinedHeaders != null && !combinedHeaders.isEmpty()) {
             return MatchResult.aggregate(
-                from(headers.entrySet())
+                from(combinedHeaders.entrySet())
                     .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
                         public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
                             return headerPattern.getValue().match(request.header(headerPattern.getKey()));
@@ -102,6 +139,16 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         }
 
         return MatchResult.exactMatch();
+    }
+
+    private Map<String, MultiValuePattern> combineBasicAuthAndOtherHeaders() {
+        Map<String, MultiValuePattern> combinedHeaders = headers;
+        ImmutableMap.Builder<String, MultiValuePattern> allHeadersBuilder =
+            ImmutableMap.<String, MultiValuePattern>builder()
+                .putAll(Optional.fromNullable(combinedHeaders).or(Collections.<String, MultiValuePattern>emptyMap()));
+        allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
+        combinedHeaders = allHeadersBuilder.build();
+        return combinedHeaders;
     }
 
     private MatchResult allQueryParamsMatch(final Request request) {
@@ -170,6 +217,14 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return queryParams;
     }
 
+    public Map<String, StringValuePattern> getCookies() {
+        return cookies;
+    }
+
+    public List<StringValuePattern> getBodyPatterns() {
+        return bodyPatterns;
+    }
+
     @Override
     public String getName() {
         return "requestMatching";
@@ -188,5 +243,14 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     @Override
     public int hashCode() {
         return Objects.hashCode(url, method, headers);
+    }
+
+    public static Predicate<Request> thatMatch(final NewRequestPattern pattern) {
+        return new Predicate<Request>() {
+            @Override
+            public boolean apply(Request request) {
+                return pattern.match(request).isExactMatch();
+            }
+        };
     }
 }

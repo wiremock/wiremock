@@ -334,7 +334,7 @@ public class WireMock {
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
+        VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
         result.assertRequestJournalEnabled();
 
 		if (result.getCount() < 1) {
@@ -344,7 +344,7 @@ public class WireMock {
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
+        VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
         result.assertRequestJournalEnabled();
 
 		if (result.getCount() != count) {
@@ -354,7 +354,7 @@ public class WireMock {
 
 	public void verifyThat(CountMatchingStrategy count, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		VerificationResult result = admin.countRequestsMatching(requestPattern);
+		VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
 		result.assertRequestJournalEnabled();
 
 		if (!count.match(result.getCount())) {

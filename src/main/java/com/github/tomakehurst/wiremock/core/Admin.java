@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
@@ -38,7 +39,7 @@ public interface Admin {
 	void resetRequests();
 	void resetScenarios();
     void resetToDefaultMappings();
-	VerificationResult countRequestsMatching(RequestPattern requestPattern);
+	VerificationResult countRequestsMatching(NewRequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
     @Deprecated
     FindServedStubsResult findAllUnmatchedServedStubs();

@@ -49,8 +49,8 @@ public class InMemoryRequestJournalTest {
         journal.requestReceived(servedStub1);
         journal.requestReceived(servedStub2);
 
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(2));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build().toNewRequestPattern()), is(2));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build().toNewRequestPattern()), is(1));
     }
 
     @Test
@@ -62,9 +62,9 @@ public class InMemoryRequestJournalTest {
 
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
         journal.requestReceived(ServedStub.exactMatch(loggedRequest, null));
-        assertThat(journal.countRequestsMatching(everything()), is(1));
+        assertThat(journal.countRequestsMatching(everything().toNewRequestPattern()), is(1));
         journal.reset();
-        assertThat(journal.countRequestsMatching(everything()), is(0));
+        assertThat(journal.countRequestsMatching(everything().toNewRequestPattern()), is(0));
     }
 
     @Test
@@ -74,17 +74,17 @@ public class InMemoryRequestJournalTest {
         journal.requestReceived(servedStub1);
         journal.requestReceived(servedStub2);
 
-        assertThat(journal.countRequestsMatching(everything()), is(2));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
+        assertThat(journal.countRequestsMatching(everything().toNewRequestPattern()), is(2));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build().toNewRequestPattern()), is(1));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build().toNewRequestPattern()), is(1));
 
         journal.requestReceived(servedStub3);
         assertOnlyLastTwoRequestsLeft(journal);
     }
 
     private void assertOnlyLastTwoRequestsLeft(RequestJournal journal) {
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(0));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
-        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging3")).build()), is(1));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build().toNewRequestPattern()), is(0));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build().toNewRequestPattern()), is(1));
+        assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging3")).build().toNewRequestPattern()), is(1));
     }
 }

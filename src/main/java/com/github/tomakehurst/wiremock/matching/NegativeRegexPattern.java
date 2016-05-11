@@ -1,9 +1,15 @@
 package com.github.tomakehurst.wiremock.matching;
 
-public class NegativeRegexPattern extends RegexPattern {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public NegativeRegexPattern(String regex) {
+public class NegativeRegexPattern extends AbstractRegexPattern {
+
+    public NegativeRegexPattern(@JsonProperty("doesNotMatch") String regex) {
         super(regex);
+    }
+
+    public String getDoesNotMatch() {
+        return expectedValue;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
@@ -17,8 +18,15 @@ public class NewRequestPatternBuilder {
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
     private List<StringValuePattern> bodyPatterns = newArrayList();
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
+    private BasicCredentials basicCredentials;
+
+    private RequestMatcher customMatcher;
 
     public NewRequestPatternBuilder() {
+    }
+
+    public NewRequestPatternBuilder(RequestMatcher customMatcher) {
+        this.customMatcher = customMatcher;
     }
 
     public NewRequestPatternBuilder(RequestMethod method, UrlPattern url) {
@@ -57,18 +65,27 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
+    public NewRequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
+        this.basicCredentials = basicCredentials;
+        return this;
+    }
+
     public NewRequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
         this.bodyPatterns.add(valuePattern);
         return this;
     }
 
     public NewRequestPattern build() {
-        return new NewRequestPattern(
-            url,
-            method,
-            headers.isEmpty() ? null : headers,
-            queryParams.isEmpty() ? null : queryParams,
-            cookies.isEmpty() ? null : cookies,
-            bodyPatterns);
+        return customMatcher != null ?
+            new NewRequestPattern(customMatcher) :
+            new NewRequestPattern(
+                url,
+                method,
+                headers.isEmpty() ? null : headers,
+                queryParams.isEmpty() ? null : queryParams,
+                cookies.isEmpty() ? null : cookies,
+                basicCredentials,
+                bodyPatterns.isEmpty() ? null : bodyPatterns
+            );
     }
 }

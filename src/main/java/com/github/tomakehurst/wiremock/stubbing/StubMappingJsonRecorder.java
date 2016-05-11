@@ -132,7 +132,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
-        VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
+        VerificationResult verificationResult = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
         verificationResult.assertRequestJournalEnabled();
         return (verificationResult.getCount() <= 1);
     }

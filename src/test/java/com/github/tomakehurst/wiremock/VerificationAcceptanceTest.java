@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -461,9 +462,16 @@ public class VerificationAcceptanceTest {
             testClient.get("/custom-match-that");
 
             wireMockServer.verify(2, requestMadeFor(new RequestMatcher() {
-                public boolean isMatchedBy(Request request) {
-                    return request.getUrl().contains("custom-match");
+                @Override
+                public MatchResult match(Request request) {
+                    return MatchResult.of(request.getUrl().contains("custom-match"));
                 }
+
+                @Override
+                public String getName() {
+                    return "inline";
+                }
+
             }));
         }
 

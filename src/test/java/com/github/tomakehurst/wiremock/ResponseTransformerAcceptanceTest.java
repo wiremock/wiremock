@@ -90,7 +90,7 @@ public class ResponseTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "stub-transformer";
         }
     }
@@ -112,7 +112,7 @@ public class ResponseTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "stub-transformer-with-params";
         }
     }
@@ -127,7 +127,7 @@ public class ResponseTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "global-response-transformer";
         }
 

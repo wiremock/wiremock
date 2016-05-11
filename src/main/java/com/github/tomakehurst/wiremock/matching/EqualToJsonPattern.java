@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -20,27 +21,35 @@ import static org.apache.commons.lang3.math.NumberUtils.isNumber;
 public class EqualToJsonPattern extends StringValuePattern {
 
     private final JsonNode expected;
-    private final boolean ignoreArrayOrder;
-    private final boolean ignoreExtraElements;
+    private final Boolean ignoreArrayOrder;
+    private final Boolean ignoreExtraElements;
 
     public EqualToJsonPattern(@JsonProperty("equalToJson") String json,
                               @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
                               @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
         super(json);
         expected = Json.read(json, JsonNode.class);
-        this.ignoreArrayOrder = ignoreArrayOrder != null ? ignoreArrayOrder : false;
-        this.ignoreExtraElements = ignoreExtraElements != null ? ignoreExtraElements : false;
+        this.ignoreArrayOrder = ignoreArrayOrder;
+        this.ignoreExtraElements = ignoreExtraElements;
     }
 
     public String getEqualToJson() {
         return expectedValue;
     }
 
-    public boolean isIgnoreArrayOrder() {
+    private boolean shouldIgnoreArrayOrder() {
+        return ignoreArrayOrder != null && ignoreArrayOrder;
+    }
+
+    public Boolean isIgnoreArrayOrder() {
         return ignoreArrayOrder;
     }
 
-    public boolean isIgnoreExtraElements() {
+    private boolean shouldIgnoreExtraElements() {
+        return ignoreArrayOrder != null && ignoreExtraElements;
+    }
+
+    public Boolean isIgnoreExtraElements() {
         return ignoreExtraElements;
     }
 
@@ -76,11 +85,11 @@ public class EqualToJsonPattern extends StringValuePattern {
     }
 
     private boolean extraElementsIgnoredAndIsAddition(String operation) {
-        return operation.equals("add") && ignoreExtraElements;
+        return operation.equals("add") && shouldIgnoreExtraElements();
     }
 
     private boolean arrayOrderIgnoredAndIsArrayMove(String operation, List<String> path) {
-        return operation.equals("move") && isNumber(getLast(path)) && ignoreArrayOrder;
+        return operation.equals("move") && isNumber(getLast(path)) && shouldIgnoreArrayOrder();
     }
 
     public static JsonNode getNodeAtPath(JsonNode rootNode, JsonNode path) {

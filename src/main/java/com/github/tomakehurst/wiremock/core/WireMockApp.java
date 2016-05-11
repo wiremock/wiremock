@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -140,7 +141,7 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+    public VerificationResult countRequestsMatching(NewRequestPattern requestPattern) {
         try {
             return VerificationResult.withCount(requestJournal.countRequestsMatching(requestPattern));
         } catch (RequestJournalDisabledException e) {

@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
@@ -33,7 +35,8 @@ public class GetRequestCountTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
+        NewRequestPattern newRequestPattern = Json.read(request.getBodyAsString(), NewRequestPattern.class);
+        VerificationResult result = admin.countRequestsMatching(newRequestPattern);
 
         return responseDefinition()
                 .withStatus(HTTP_OK)

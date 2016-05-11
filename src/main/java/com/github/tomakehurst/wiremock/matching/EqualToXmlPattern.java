@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import org.xmlunit.XMLUnitException;
@@ -31,7 +32,7 @@ public class EqualToXmlPattern extends StringValuePattern {
         ATTR_NAME_LOOKUP
     );
 
-    public EqualToXmlPattern(String expectedValue) {
+    public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
         super(expectedValue);
     }
 

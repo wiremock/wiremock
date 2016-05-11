@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
@@ -57,8 +58,14 @@ public class CustomMatchingAcceptanceTest {
     @Test
     public void inlineRequestMatcher() {
         wmRule.stubFor(requestMatching(new RequestMatcher() {
-            public boolean isMatchedBy(Request request) {
-                return request.getUrl().contains("correct");
+            @Override
+            public MatchResult match(Request request) {
+                return MatchResult.of(request.getUrl().contains("correct"));
+            }
+
+            @Override
+            public String getName() {
+                return "inline";
             }
         }).willReturn(aResponse().withStatus(200)));
 
@@ -75,22 +82,23 @@ public class CustomMatchingAcceptanceTest {
     public static class MyRequestMatcher extends RequestMatcherExtension {
 
         @Override
-        public boolean isMatchedBy(Request request, Parameters parameters) {
-            return request.getUrl().contains("correct");
+        public MatchResult match(Request request, Parameters parameters) {
+            return MatchResult.of(request.getUrl().contains("correct"));
         }
     }
 
     public static class MyExtensionRequestMatcher extends RequestMatcherExtension {
 
         @Override
-        public String name() {
-            return "path-contains-param";
+        public MatchResult match(Request request, Parameters parameters) {
+            String pathSegment = parameters.getString("path");
+            return MatchResult.of(request.getUrl().contains(pathSegment));
         }
 
         @Override
-        public boolean isMatchedBy(Request request, Parameters parameters) {
-            String pathSegment = parameters.getString("path");
-            return request.getUrl().contains(pathSegment);
+        public String getName() {
+            return "path-contains-param";
         }
+
     }
 }

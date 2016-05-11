@@ -50,7 +50,7 @@ public class InMemoryStubMappings implements StubMappings {
     private final RequestJournal requestJournal;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
-	private final boolean useNewRequestPattern = false;
+	private final boolean useNewRequestPattern = true;
 
 	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;

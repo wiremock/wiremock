@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class DisabledRequestJournal implements RequestJournal {
 
     @Override
-    public int countRequestsMatching(RequestPattern requestPattern) {
+    public int countRequestsMatching(NewRequestPattern requestPattern) {
         throw new RequestJournalDisabledException();
     }
 

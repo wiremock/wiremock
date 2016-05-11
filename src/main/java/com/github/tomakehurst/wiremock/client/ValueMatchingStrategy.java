@@ -55,15 +55,7 @@ public class ValueMatchingStrategy {
     }
 
     public StringValuePattern asStringValuePattern() {
-        if (equalTo != null) {
-            return new EqualToPattern(equalTo);
-        } else if (equalToJson != null) {
-            return new EqualToJsonPattern(equalToJson, false, false);
-        } else if (matches != null) {
-            return new RegexPattern(matches);
-        } else {
-            return null;
-        }
+        return asValuePattern().toStringValuePattern();
     }
 	
 	public String getContains() {

@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
@@ -316,7 +317,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
+    public VerificationResult countRequestsMatching(NewRequestPattern requestPattern) {
         return wireMockApp.countRequestsMatching(requestPattern);
     }
 

@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -18,8 +19,12 @@ public class MatchesXPathPattern extends StringValuePattern {
 
     private final Map<String, String> xpathNamespaces = null;
 
-    public MatchesXPathPattern(String expectedValue) {
+    public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue) {
         super(expectedValue);
+    }
+
+    public String getMatchesXPath() {
+        return expectedValue;
     }
 
     @Override

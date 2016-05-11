@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -15,8 +16,12 @@ public class MatchesJsonPathPattern extends StringValuePattern {
         super(value);
     }
 
+    public String getMatchesJsonPath() {
+        return expectedValue;
+    }
+
     @Override
-    public MatchResult match(String value) {
+    public MatchResult match(@JsonProperty("matchesJsonPath") String value) {
         return MatchResult.of(isJsonPathMatch(value));
     }
 

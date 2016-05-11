@@ -56,7 +56,7 @@ public class StubMapping {
     private boolean isTransient = true;
 
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
-		this.request = requestPattern;
+		setRequest(requestPattern);
 		this.response = response;
 	}
 	
@@ -94,47 +94,14 @@ public class StubMapping {
 	
 	public void setRequest(RequestPattern request) {
 		this.request = request;
-		this.newRequest = new NewRequestPattern(
-            UrlPattern.fromOneOf(request.getUrl(), request.getUrlPattern(), request.getUrlPath(), request.getUrlPathPattern()),
-            request.getMethod(),
-            toMultiValuePatternMap(request.getHeaders()),
-            toMultiValuePatternMap(request.getQueryParameters()),
-            toStringValuePatternMap(request.getCookies()),
-            toStringValueList(request)
-		);
+		this.newRequest = request.toNewRequestPattern();
 	}
-
-    private Map<String, StringValuePattern> toStringValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
-        if (valuePatternMap == null) {
-            return null;
-        }
-
-        return Maps.transformValues(valuePatternMap, TO_STRING_VALUE_PATTERN);
-    }
-
-    private static List<StringValuePattern> toStringValueList(RequestPattern request) {
-        return (request.getBodyPatterns() != null) ?
-            from(request.getBodyPatterns()).transform(TO_STRING_VALUE_PATTERN).toList() :
-            null;
-    }
-
-    private static Map<String, MultiValuePattern> toMultiValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
-        if (valuePatternMap == null) {
-            return null;
-        }
-
-        return Maps.transformValues(valuePatternMap, new Function<ValuePattern, MultiValuePattern>() {
-            @Override
-            public MultiValuePattern apply(ValuePattern input) {
-                return new MultiValuePattern(input.toStringValuePattern());
-            }
-        });
-    }
 
 	public void setResponse(ResponseDefinition response) {
 		this.response = response;
 	}
 
+    @JsonIgnore
     public NewRequestPattern getNewRequest() {
         return newRequest;
     }
