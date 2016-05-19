@@ -33,6 +33,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 
+import java.nio.charset.StandardCharsets;
+
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static java.net.HttpURLConnection.HTTP_CREATED;
@@ -165,7 +167,7 @@ public class HttpAdminClient implements Admin {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                StringEntity stringEntity = new StringEntity(json);
+                StringEntity stringEntity = new StringEntity(json, StandardCharsets.UTF_8);
                 stringEntity.setContentType(APPLICATION_JSON.getMimeType());
                 post.setEntity(stringEntity);
             }
