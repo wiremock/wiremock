@@ -33,7 +33,7 @@ public class FindRequestsTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         RequestPattern requestPattern = buildRequestPatternFrom(request.getBodyAsString());
-        FindRequestsResult result = admin.findRequestsMatching(requestPattern);
+        FindRequestsResult result = admin.findRequestsMatching(requestPattern.toNewRequestPattern());
 
         return responseDefinition()
                 .withStatus(HTTP_OK)

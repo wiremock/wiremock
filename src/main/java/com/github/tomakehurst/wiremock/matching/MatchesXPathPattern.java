@@ -19,7 +19,8 @@ public class MatchesXPathPattern extends StringValuePattern {
 
     private final Map<String, String> xpathNamespaces = null;
 
-    public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue) {
+    public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue,
+                               @JsonProperty("namespaces") Map<String, String> namespaces) {
         super(expectedValue);
     }
 

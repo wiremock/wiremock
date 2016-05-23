@@ -190,7 +190,7 @@ public class WireMockClientTest {
 	public void shouldThrowVerificationExceptionWhenVerifyingRequestNotMatching() {
 		context.checking(new Expectations() {{
 			allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-            allowing(admin).findRequestsMatching(with(any(RequestPattern.class)));
+            allowing(admin).findRequestsMatching(with(any(NewRequestPattern.class)));
                 will(returnValue(FindRequestsResult.withRequests(ImmutableList.<LoggedRequest>of())));
 		}});
 		

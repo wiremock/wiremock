@@ -24,7 +24,7 @@ import java.util.List;
 public interface RequestJournal {
 
 	int countRequestsMatching(NewRequestPattern requestPattern);
-    List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
+    List<LoggedRequest> getRequestsMatching(NewRequestPattern requestPattern);
 
     List<ServedStub> getAllServedStubs();
 

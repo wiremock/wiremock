@@ -322,7 +322,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
+    public FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern) {
         return wireMockApp.findRequestsMatching(requestPattern);
     }
 

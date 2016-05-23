@@ -138,7 +138,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
+    public FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindRequestsTask.class),
                 Json.write(requestPattern),

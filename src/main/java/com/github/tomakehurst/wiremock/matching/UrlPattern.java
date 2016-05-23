@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.base.Objects;
 
 public class UrlPattern implements ValueMatcher<String> {
 
@@ -54,5 +55,19 @@ public class UrlPattern implements ValueMatcher<String> {
     @JsonValue
     public StringValuePattern getPattern() {
         return pattern;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UrlPattern that = (UrlPattern) o;
+        return regex == that.regex &&
+            Objects.equal(pattern, that.pattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(pattern, regex);
     }
 }

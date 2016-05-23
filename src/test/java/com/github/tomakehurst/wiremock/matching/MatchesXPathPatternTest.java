@@ -61,4 +61,14 @@ public class MatchesXPathPatternTest {
         assertFalse("Expected XPath non-match", match.isExactMatch());
         assertThat(match.getDistance(), is(1.0));
     }
+
+    @Test
+    public void matchesNamespacedXmlExactly() {
+        String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
+
+        StringValuePattern pattern = StringValuePattern.matchesXPath("//s:subThing[.='The stuff']");
+
+        MatchResult match = pattern.match(xml);
+        assertTrue(match.isExactMatch());
+    }
 }

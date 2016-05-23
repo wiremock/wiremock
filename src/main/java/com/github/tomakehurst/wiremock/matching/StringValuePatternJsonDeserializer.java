@@ -22,6 +22,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.Iterables.any;
+import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
@@ -41,6 +42,11 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     @Override
     public StringValuePattern deserialize(JsonParser parser, DeserializationContext context) throws IOException, JsonProcessingException {
         JsonNode rootNode = parser.readValueAsTree();
+
+        if (isAbsent(rootNode)) {
+            return StringValuePattern.ABSENT;
+        }
+
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
@@ -76,7 +82,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     @SuppressWarnings("unchecked")
     private static Constructor<? extends StringValuePattern> findConstructor(Class<? extends StringValuePattern> clazz) {
         Optional<Constructor<?>> optionalConstructor =
-            Iterables.tryFind(asList(clazz.getDeclaredConstructors()), new Predicate<Constructor<?>>() {
+            tryFind(asList(clazz.getDeclaredConstructors()), new Predicate<Constructor<?>>() {
                 @Override
                 public boolean apply(Constructor<?> input) {
                     return input.getParameterTypes().length == 1 &&
@@ -91,8 +97,18 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         return (Constructor<? extends StringValuePattern>) optionalConstructor.get();
     }
 
+    private static boolean isAbsent(JsonNode rootNode) {
+        for (Map.Entry<String, JsonNode> node: ImmutableList.copyOf(rootNode.fields())) {
+            if (node.getKey().equals("absent")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static Class<? extends StringValuePattern> findPatternClass(JsonNode rootNode) throws JsonMappingException {
-        for (Map.Entry<String, JsonNode> node : ImmutableList.copyOf(rootNode.fields())) {
+        for (Map.Entry<String, JsonNode> node: ImmutableList.copyOf(rootNode.fields())) {
             Class<? extends StringValuePattern> patternClass = PATTERNS.get(node.getKey());
             if (patternClass != null) {
                 return patternClass;

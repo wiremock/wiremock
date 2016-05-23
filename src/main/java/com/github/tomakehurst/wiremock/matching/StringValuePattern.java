@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
@@ -108,5 +109,18 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         }
         JsonProperty jsonPropertyAnnotation = (JsonProperty) constructor.getParameterAnnotations()[0][0];
         return jsonPropertyAnnotation.value();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StringValuePattern that = (StringValuePattern) o;
+        return Objects.equal(expectedValue, that.expectedValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(expectedValue);
     }
 }

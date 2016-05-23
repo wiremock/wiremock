@@ -454,7 +454,9 @@ public class RequestPattern {
     }
 
     public NewRequestPattern toNewRequestPattern() {
-        return new NewRequestPattern(
+        return hasCustomMatcher() ?
+            new NewRequestPattern(matcher) :
+            new NewRequestPattern(
             UrlPattern.fromOneOf(getUrl(), getUrlPattern(), getUrlPath(), getUrlPathPattern()),
             getMethod(),
             toMultiValuePatternMap(getHeaders()),

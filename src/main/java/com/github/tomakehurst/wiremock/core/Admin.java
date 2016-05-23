@@ -40,7 +40,7 @@ public interface Admin {
 	void resetScenarios();
     void resetToDefaultMappings();
 	VerificationResult countRequestsMatching(NewRequestPattern requestPattern);
-    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
+    FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern);
     @Deprecated
     FindServedStubsResult findAllUnmatchedServedStubs();
     FindNearMissesResult findNearMissesForUnmatchedRequests();

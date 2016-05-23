@@ -60,7 +60,7 @@ public class VerificationAcceptanceTest {
         @Test
         public void verifiesRequestBasedOnUrlPathPatternOnly() {
             testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathMatching("/(.*?)/got")));
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got/.*")));
         }
 
         @Test(expected=VerificationException.class)
@@ -103,7 +103,7 @@ public class VerificationAcceptanceTest {
         private static final String SAMPLE_JSON =
             "{ 													\n" +
             "	\"thing\": {									\n" +
-            "		\"importantKey\": \"Important value\",		\n" +
+            "		\"importantKey\": \"Important value\"		\n" +
             "	}												\n" +
             "}													";
 
@@ -336,7 +336,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected at least one request matching: {"),
+                        containsString("Expected at least one request matching:"),
                         containsString("/specific/thing"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
@@ -353,7 +353,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected exactly 14 requests matching: {"),
+                        containsString("Expected exactly 14 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
@@ -372,7 +372,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected less than 2 requests matching: {"),
+                        containsString("Expected less than 2 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
@@ -408,7 +408,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected exactly 12 requests matching: {"),
+                        containsString("Expected exactly 12 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
@@ -425,7 +425,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected more than or exactly 12 requests matching: {"),
+                        containsString("Expected more than or exactly 12 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));

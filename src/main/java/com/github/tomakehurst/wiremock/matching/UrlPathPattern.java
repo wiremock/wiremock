@@ -22,5 +22,4 @@ public class UrlPathPattern extends UrlPattern {
         return new UrlPathPattern(StringValuePattern.matches(urlRegex), true);
     }
 
-
 }

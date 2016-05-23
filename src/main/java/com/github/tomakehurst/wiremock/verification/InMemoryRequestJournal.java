@@ -54,8 +54,8 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	}
 
 	@Override
-	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		return ImmutableList.copyOf(filter(getRequests(), matchedBy(requestPattern)));
+	public List<LoggedRequest> getRequestsMatching(NewRequestPattern requestPattern) {
+		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
 	}
 
     private Predicate<Request> matchedBy(final RequestPattern requestPattern) {

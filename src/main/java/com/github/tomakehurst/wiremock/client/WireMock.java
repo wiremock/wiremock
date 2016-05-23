@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
@@ -333,8 +334,8 @@ public class WireMock {
 	}
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
+		NewRequestPattern requestPattern = requestPatternBuilder.build().toNewRequestPattern();
+        VerificationResult result = admin.countRequestsMatching(requestPattern);
         result.assertRequestJournalEnabled();
 
 		if (result.getCount() < 1) {
@@ -343,8 +344,8 @@ public class WireMock {
 	}
 
 	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
+		NewRequestPattern requestPattern = requestPatternBuilder.build().toNewRequestPattern();
+        VerificationResult result = admin.countRequestsMatching(requestPattern);
         result.assertRequestJournalEnabled();
 
 		if (result.getCount() != count) {
@@ -353,8 +354,8 @@ public class WireMock {
 	}
 
 	public void verifyThat(CountMatchingStrategy count, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		VerificationResult result = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
+		NewRequestPattern requestPattern = requestPatternBuilder.build().toNewRequestPattern();
+		VerificationResult result = admin.countRequestsMatching(requestPattern);
 		result.assertRequestJournalEnabled();
 
 		if (!count.match(result.getCount())) {
@@ -375,7 +376,7 @@ public class WireMock {
 	}
 
     public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
-        FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
+        FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build().toNewRequestPattern());
         result.assertRequestJournalEnabled();
         return result.getRequests();
     }

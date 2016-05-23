@@ -1,9 +1,10 @@
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.DOTALL;
+import static java.util.regex.Pattern.MULTILINE;
 
 public abstract class AbstractRegexPattern extends StringValuePattern {
 
@@ -11,7 +12,7 @@ public abstract class AbstractRegexPattern extends StringValuePattern {
 
     protected AbstractRegexPattern(String regex) {
         super(regex);
-        pattern = Pattern.compile(regex);
+        pattern = Pattern.compile(regex, DOTALL);
     }
 
     @Override

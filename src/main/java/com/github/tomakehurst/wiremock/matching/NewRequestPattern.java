@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -237,12 +238,21 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         NewRequestPattern that = (NewRequestPattern) o;
         return Objects.equal(url, that.url) &&
             Objects.equal(method, that.method) &&
-            Objects.equal(headers, that.headers);
+            Objects.equal(headers, that.headers) &&
+            Objects.equal(queryParams, that.queryParams) &&
+            Objects.equal(cookies, that.cookies) &&
+            Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
+            Objects.equal(bodyPatterns, that.bodyPatterns);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers);
+        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, matcher);
+    }
+
+    @Override
+    public String toString() {
+        return "NewRequestPattern:\n" + Json.write(this);
     }
 
     public static Predicate<Request> thatMatch(final NewRequestPattern pattern) {

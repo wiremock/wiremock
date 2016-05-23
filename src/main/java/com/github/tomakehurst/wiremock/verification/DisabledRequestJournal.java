@@ -29,7 +29,7 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+    public List<LoggedRequest> getRequestsMatching(NewRequestPattern requestPattern) {
         throw new RequestJournalDisabledException();
     }
 
