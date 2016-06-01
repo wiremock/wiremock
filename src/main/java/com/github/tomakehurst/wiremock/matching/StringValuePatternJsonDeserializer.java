@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -17,13 +19,17 @@ import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.Predicates.instanceOf;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
 
@@ -50,6 +56,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
+        } else if (patternClass.equals(MatchesXPathPattern.class)) {
+            return deserialiseMatchesXPathPattern(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -73,6 +81,31 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
         return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+    }
+
+    private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("matchesXPath")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        String operand = rootNode.findValue("matchesXPath").textValue();
+        JsonNode namespacesNode = rootNode.findValue("xPathNamespaces");
+
+        Map<String, String> namespaces = namespacesNode != null ?
+            toNamespaceMap(namespacesNode) :
+            Collections.<String, String>emptyMap() ;
+
+        return new MatchesXPathPattern(operand, namespaces);
+    }
+
+    private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields();
+        for (Map.Entry<String, JsonNode> field = fields.next(); fields.hasNext(); field = fields.next()) {
+            builder.put(field.getKey(), field.getValue().textValue());
+        }
+
+        return builder.build();
     }
 
     private static boolean fromNullable(JsonNode node) {

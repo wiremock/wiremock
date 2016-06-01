@@ -9,6 +9,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -50,7 +52,11 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     public static StringValuePattern matchesXPath(String value) {
-        return new MatchesXPathPattern(value);
+        return new MatchesXPathPattern(value, Collections.<String, String>emptyMap());
+    }
+
+    public static StringValuePattern matchesXPath(String value, Map<String, String> namespaces) {
+        return new MatchesXPathPattern(value, namespaces);
     }
 
     public static StringValuePattern containing(String value) {

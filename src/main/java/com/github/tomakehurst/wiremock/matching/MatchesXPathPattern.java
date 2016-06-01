@@ -17,15 +17,20 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class MatchesXPathPattern extends StringValuePattern {
 
-    private final Map<String, String> xpathNamespaces = null;
+    private final Map<String, String> xpathNamespaces;
 
     public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue,
                                @JsonProperty("namespaces") Map<String, String> namespaces) {
         super(expectedValue);
+        xpathNamespaces = namespaces.isEmpty() ? null : namespaces;
     }
 
     public String getMatchesXPath() {
         return expectedValue;
+    }
+
+    public Map<String, String> getXPathNamespaces() {
+        return xpathNamespaces;
     }
 
     @Override
