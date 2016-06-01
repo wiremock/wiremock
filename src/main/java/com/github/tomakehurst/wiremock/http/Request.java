@@ -20,16 +20,16 @@ import java.util.Set;
 
 public interface Request {
 
-	String getUrl();
-	String getAbsoluteUrl();
-
+    String getUrl();
+    String getAbsoluteUrl();
     RequestMethod getMethod();
+    String getClientIp();
 
     String getHeader(String key);
     HttpHeader header(String key);
     ContentTypeHeader contentTypeHeader();
     HttpHeaders getHeaders();
-	boolean containsHeader(String key);
+    boolean containsHeader(String key);
     Set<String> getAllHeaderKeys();
 
     Map<String, Cookie> getCookies();

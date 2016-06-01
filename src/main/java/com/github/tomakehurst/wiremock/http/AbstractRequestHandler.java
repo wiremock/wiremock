@@ -28,7 +28,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	protected List<RequestListener> listeners = newArrayList();
 	protected final ResponseRenderer responseRenderer;
-	
+
 	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
 		this.responseRenderer = responseRenderer;
 	}
@@ -54,16 +54,22 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		for (RequestListener listener: listeners) {
 			listener.requestReceived(request, response);
 		}
-		
+
 		return response;
 	}
 
 	private static String formatRequest(Request request) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(request.getMethod()).append(" ").append(request.getUrl());
+		sb.append(request.getClientIp())
+				.append(" - ")
+				.append(request.getMethod())
+				.append(" ")
+				.append(request.getUrl());
+
 		if (request.isBrowserProxyRequest()) {
 			sb.append(" (via browser proxy request)");
 		}
+
 		sb.append("\n\n");
 		sb.append(request.getHeaders());
 
