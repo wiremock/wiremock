@@ -15,7 +15,7 @@
             text-shadow: 0px 0px 0px #8CA8BB;
             color: #333;
         }
-        
+
         #top-bar {
             background-color: #363F45;
             background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
@@ -102,7 +102,7 @@
 
                 <hr/>
                 <ul>
-                    <li><a href="https://groups.google.com/forum/#!forum/wiremock-user">Mailing List</a><img style="margin-left: 0.5em; margin-bottom: -6px" src="_static/new.png"/></li>
+                    <li><a href="https://groups.google.com/forum/#!forum/wiremock-user">Mailing List</a></li>
                 </ul>
             </div>
             <div class="span9" id="body">
@@ -184,7 +184,7 @@ and any number of higher priority stub mappings e.g.</p>
 <h3>Standalone shortcut<a class="headerlink" href="#standalone-shortcut" title="Permalink to this headline">¶</a></h3>
 <p>It is possible to start the standalone running with the catch-all stub already configured:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.57-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
+$ java -jar wiremock-1.58-standalone.jar --proxy-all=&quot;<a class="reference external" href="http://someotherhost.com">http://someotherhost.com</a>&quot;
 </pre>
 <p>Then it&#8217;s simply a case of adding your stub mapping <tt class="docutils literal"><span class="pre">.json</span></tt> files under <tt class="docutils literal"><span class="pre">mappings</span></tt> as usual (see <a class="reference internal" href="stubbing.html#stubbing"><em>Stubbing</em></a>).</p>
 </div>
@@ -195,7 +195,7 @@ $ java -jar wiremock-1.57-standalone.jar --proxy-all=&quot;<a class="reference e
 described above, allowing you to modify specific AJAX requests or swap out CSS/Javascript files.</p>
 <p>This currently only works in standalone mode:</p>
 <pre class="literal-block">
-$ java -jar wiremock-1.57-standalone.jar --enable-browser-proxying
+$ java -jar wiremock-1.58-standalone.jar --enable-browser-proxying
 </pre>
 </div>
 <div class="section" id="proxying-via-another-proxy-server">
@@ -234,7 +234,18 @@ the certificate is configured:</p>
             1.2.2.
         </footer>
     </div>
+
+    <script id="_webengage_script_tag" type="text/javascript">
+      if (!document.cookie.includes('notification_ab_group')) {
+        var cookieValue = Math.floor(Math.random() * 2) + 1;
+        var expiresDate = new Date();
+        expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+        document.cookie = "notification_ab_group=" + cookieValue + ";expires=" + expiresDate.toGMTString() + ";path=/";
+      }
+
+      var webengage; !function(e,t,n){function o(e,t){e[t[t.length-1]]=function(){r.__queue.push([t.join("."),arguments])}}var i,s,r=e[n],g=" ",l="init options track screen onReady".split(g),a="feedback survey notification".split(g),c="options render clear abort".split(g),p="Open Close Submit Complete View Click".split(g),u="identify login logout setAttribute".split(g);if(!r||!r.__v){for(e[n]=r={__queue:[],__v:"5.0",user:{}},i=0;i<l.length;i++)o(r,[l[i]]);for(i=0;i<a.length;i++){for(r[a[i]]={},s=0;s<c.length;s++)o(r[a[i]],[a[i],c[s]]);for(s=0;s<p.length;s++)o(r[a[i]],[a[i],"on"+p[s]])}for(i=0;i<u.length;i++)o(r.user,["user",u[i]]);setTimeout(function(){var f=t.createElement("script"),d=t.getElementById("_webengage_script_tag");f.type="text/javascript",f.async=!0,f.src=("https:"==t.location.protocol?"https://ssl.widgets.webengage.com":"http://cdn.widgets.webengage.com")+"/js/widget/webengage-min-v-5.0.js",d.parentNode.insertBefore(f,d)})}}(window,document,"webengage");
+
+      webengage.init("82618004");
+  </script>
 </body>
 </html>
-
-
