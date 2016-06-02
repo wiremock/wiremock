@@ -40,6 +40,7 @@ public class LoggedRequest implements Request {
 
     private final String url;
     private final String absoluteUrl;
+    private final String clientIp;
     private final RequestMethod method;
     private final HttpHeaders headers;
     private final Map<String, Cookie> cookies;
@@ -52,6 +53,7 @@ public class LoggedRequest implements Request {
         return new LoggedRequest(request.getUrl(),
             request.getAbsoluteUrl(),
             request.getMethod(),
+            request.getClientIp(),
             copyOf(request.getHeaders()),
             ImmutableMap.copyOf(request.getCookies()),
             request.isBrowserProxyRequest(),
@@ -62,17 +64,19 @@ public class LoggedRequest implements Request {
 
     @JsonCreator
     public LoggedRequest(
-        @JsonProperty("url") String url,
-        @JsonProperty("absoluteUrl") String absoluteUrl,
-        @JsonProperty("method") RequestMethod method,
-        @JsonProperty("headers") HttpHeaders headers,
-        @JsonProperty("cookies") Map<String, Cookie> cookies,
-        @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-        @JsonProperty("loggedDate") Date loggedDate,
-        @JsonProperty("bodyAsBase64") String bodyAsBase64,
-        @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
+            @JsonProperty("url") String url,
+            @JsonProperty("absoluteUrl") String absoluteUrl,
+            @JsonProperty("method") RequestMethod method,
+            @JsonProperty("clientIp") String clientIp,
+            @JsonProperty("headers") HttpHeaders headers,
+            @JsonProperty("cookies") Map<String, Cookie> cookies,
+            @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+            @JsonProperty("loggedDate") Date loggedDate,
+            @JsonProperty("bodyAsBase64") String bodyAsBase64,
+            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
         this.url = url;
         this.absoluteUrl = absoluteUrl;
+        this.clientIp = clientIp;
         this.method = method;
         this.body = Base64.decodeBase64(bodyAsBase64);
         this.headers = headers;
@@ -95,6 +99,11 @@ public class LoggedRequest implements Request {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String getClientIp() {
+        return clientIp;
     }
 
     @Override

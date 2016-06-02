@@ -35,8 +35,9 @@ public class MockRequestBuilder {
 	private final Mockery context;
 	private String url = "/";
 	private RequestMethod method = GET;
-    private List<HttpHeader> individualHeaders = newArrayList();
-    private Map<String, Cookie> cookies = newHashMap();
+	private String clientIp = "x.x.x.x";
+	private List<HttpHeader> individualHeaders = newArrayList();
+	private Map<String, Cookie> cookies = newHashMap();
 	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
 	private String bodyAsBase64 = "";
@@ -47,16 +48,16 @@ public class MockRequestBuilder {
 	public MockRequestBuilder(Mockery context) {
 		this.context = context;
 	}
-	
+
 	public MockRequestBuilder(Mockery context, String mockName) {
 		this.mockName = mockName;
 		this.context = context;
 	}
-	
+
 	public static MockRequestBuilder aRequest(Mockery context) {
 		return new MockRequestBuilder(context);
 	}
-	
+
 	public static MockRequestBuilder aRequest(Mockery context, String mockName) {
 		return new MockRequestBuilder(context, mockName);
 	}
@@ -76,8 +77,13 @@ public class MockRequestBuilder {
 		return this;
 	}
 
+	public MockRequestBuilder withClientIp(String clientIp) {
+		this.clientIp = clientIp;
+		return this;
+	}
+
 	public MockRequestBuilder withHeader(String key, String value) {
-        individualHeaders.add(new HttpHeader(key, value));
+		individualHeaders.add(new HttpHeader(key, value));
 		return this;
 	}
 
@@ -102,35 +108,36 @@ public class MockRequestBuilder {
 	}
 
 	public Request build() {
-        final HttpHeaders headers = new HttpHeaders(individualHeaders);
+		final HttpHeaders headers = new HttpHeaders(individualHeaders);
 
 		final Request request = mockName == null ? context.mock(Request.class) : context.mock(Request.class, mockName);
 		context.checking(new Expectations() {{
 			allowing(request).getUrl(); will(returnValue(url));
 			allowing(request).getMethod(); will(returnValue(method));
+			allowing(request).getClientIp(); will(returnValue(clientIp));
 			for (HttpHeader header: headers.all()) {
 				allowing(request).containsHeader(header.key()); will(returnValue(true));
 				allowing(request).getHeader(header.key()); will(returnValue(header.firstValue()));
 			}
 
-            for (HttpHeader header: headers.all()) {
-                allowing(request).header(header.key()); will(returnValue(header));
-                if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
-                    allowing(request).contentTypeHeader(); will(returnValue(new ContentTypeHeader(header.firstValue())));
-                }
-            }
+			for (HttpHeader header: headers.all()) {
+				allowing(request).header(header.key()); will(returnValue(header));
+				if (header.key().equals(ContentTypeHeader.KEY) && header.isPresent()) {
+					allowing(request).contentTypeHeader(); will(returnValue(new ContentTypeHeader(header.firstValue())));
+				}
+			}
 
 			for (QueryParameter queryParameter: queryParameters) {
 				allowing(request).queryParameter(queryParameter.key()); will(returnValue(queryParameter));
 			}
 
-            allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));
+			allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));
 
-            allowing(request).getHeaders(); will(returnValue(headers));
+			allowing(request).getHeaders(); will(returnValue(headers));
 			allowing(request).getAllHeaderKeys(); will(returnValue(newLinkedHashSet(headers.keys())));
-            allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
-            allowing(request).getCookies(); will(returnValue(cookies));
-            allowing(request).getBody(); will(returnValue(body.getBytes()));
+			allowing(request).containsHeader(with(any(String.class))); will(returnValue(false));
+			allowing(request).getCookies(); will(returnValue(cookies));
+			allowing(request).getBody(); will(returnValue(body.getBytes()));
 			allowing(request).getBodyAsString(); will(returnValue(body));
 			allowing(request).getBodyAsBase64(); will(returnValue(bodyAsBase64));
 			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
