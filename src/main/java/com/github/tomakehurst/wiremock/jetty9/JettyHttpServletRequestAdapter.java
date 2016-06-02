@@ -31,13 +31,12 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
 public class JettyHttpServletRequestAdapter implements Request {
-    
+
     private final HttpServletRequest request;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
@@ -65,7 +64,7 @@ public class JettyHttpServletRequestAdapter implements Request {
 
         return withQueryStringIfPresent(url);
     }
-    
+
     @Override
     public String getAbsoluteUrl() {
         return withQueryStringIfPresent(request.getRequestURL().toString());
@@ -78,6 +77,17 @@ public class JettyHttpServletRequestAdapter implements Request {
     @Override
     public RequestMethod getMethod() {
         return RequestMethod.fromString(request.getMethod().toUpperCase());
+    }
+
+    @Override
+    public String getClientIp() {
+        String forwardedForHeader = this.getHeader("X-Forwarded-For");
+
+        if (forwardedForHeader != null && forwardedForHeader.length() > 0) {
+            return forwardedForHeader;
+        }
+
+        return  request.getRemoteAddr();
     }
 
     @Override
@@ -97,11 +107,11 @@ public class JettyHttpServletRequestAdapter implements Request {
     public String getBodyAsString() {
         return stringFromBytes(getBody());
     }
-    
+
     @Override
-	public String getBodyAsBase64(){
-		return Base64.encodeBase64String(getBody());
-	}
+    public String getBodyAsBase64(){
+        return Base64.encodeBase64String(getBody());
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -112,7 +122,7 @@ public class JettyHttpServletRequestAdapter implements Request {
                 return request.getHeader(currentKey);
             }
         }
-        
+
         return null;
     }
 
@@ -157,7 +167,7 @@ public class JettyHttpServletRequestAdapter implements Request {
         for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
             headerKeys.add(headerNames.nextElement());
         }
-        
+
         return headerKeys;
     }
 
@@ -167,7 +177,7 @@ public class JettyHttpServletRequestAdapter implements Request {
 
         for (javax.servlet.http.Cookie cookie:
                 Optional.fromNullable(request.getCookies())
-                .or(new javax.servlet.http.Cookie[0])) {
+                        .or(new javax.servlet.http.Cookie[0])) {
             builder.put(cookie.getName(), convertCookie(cookie));
         }
 
@@ -180,9 +190,9 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-		return Optional.fromNullable(splitQuery(request.getQueryString())
-				.get(key))
-				.or(QueryParameter.absent(key));
+        return Optional.fromNullable(splitQuery(request.getQueryString())
+                .get(key))
+                .or(QueryParameter.absent(key));
     }
 
     @Override

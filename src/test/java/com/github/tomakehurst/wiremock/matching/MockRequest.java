@@ -25,6 +25,7 @@ public class MockRequest implements Request {
     private HttpHeaders headers = new HttpHeaders();
     private Map<String, Cookie> cookies = newHashMap();
     private byte[] body;
+    private String clientIp = "1.1.1.1";
 
     public static MockRequest mockRequest() {
         return new MockRequest();
@@ -55,6 +56,11 @@ public class MockRequest implements Request {
         return this;
     }
 
+    public MockRequest clientIp(String clientIp) {
+        this.clientIp = clientIp;
+        return this;
+    }
+
     @Override
     public String getUrl() {
         return url;
@@ -68,6 +74,11 @@ public class MockRequest implements Request {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String getClientIp() {
+        return clientIp;
     }
 
     @Override

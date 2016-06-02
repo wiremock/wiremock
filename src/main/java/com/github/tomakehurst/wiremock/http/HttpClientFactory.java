@@ -50,6 +50,7 @@ public class HttpClientFactory {
                 .disableContentCompression()
                 .setMaxConnTotal(maxConnections)
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
+                .useSystemProperties()
                 .setHostnameVerifier(new AllowAllHostnameVerifier());
 
         if (proxySettings != NO_PROXY) {
@@ -95,11 +96,11 @@ public class HttpClientFactory {
     public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
     }
-	
+
 	public static HttpClient createClient(int timeoutMilliseconds) {
 		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
-	
+
 	public static HttpClient createClient() {
 		return createClient(30000);
 	}

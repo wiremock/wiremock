@@ -60,6 +60,7 @@ public class LoggedRequestTest {
         LoggedRequest loggedRequest = createFrom(aRequest(context)
                 .withUrl("/for/logging")
                 .withMethod(POST)
+                .withClientIp("14.07.17.89")
                 .withBody(REQUEST_BODY)
                 .withBodyAsBase64(REQUEST_BODY_AS_BASE64)
                 .withHeader("Content-Type", "text/plain")
@@ -73,12 +74,13 @@ public class LoggedRequestTest {
         assertTrue(loggedRequest.containsHeader("Accept"));
         assertNotNull(loggedRequest.getHeader("Accept"));
     }
-    
+
     static  final String DATE = "2012-06-07T16:39:41Z";
     static final String JSON_EXAMPLE = "{\n" +
             "      \"url\" : \"/my/url\",\n" +
             "      \"absoluteUrl\" : \"http://mydomain.com/my/url\",\n" +
             "      \"method\" : \"GET\",\n" +
+            "      \"clientIp\" : \"25.10.18.11\",\n" +
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
@@ -97,8 +99,8 @@ public class LoggedRequestTest {
     public void jsonRepresentation() throws Exception {
         HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
         Map<String, Cookie> cookies = ImmutableMap.of(
-            "first_cookie", new Cookie("yum"),
-            "monster_cookie", new Cookie("COOKIIIEESS")
+                "first_cookie", new Cookie("yum"),
+                "monster_cookie", new Cookie("COOKIIIEESS")
         );
 
         Date loggedDate = Dates.parse(DATE);
@@ -107,13 +109,14 @@ public class LoggedRequestTest {
                 "/my/url",
                 "http://mydomain.com/my/url",
                 RequestMethod.GET,
+                "25.10.18.11",
                 headers,
                 cookies,
                 true,
                 loggedDate,
                 REQUEST_BODY_AS_BASE64,
                 null
-                );
+        );
 
         String expectedJson = String.format(JSON_EXAMPLE, loggedDate.getTime());
 
@@ -123,16 +126,17 @@ public class LoggedRequestTest {
     @Test
     public void bodyEncodedAsUTF8() throws Exception {
         LoggedRequest loggedRequest = new LoggedRequest(
-            "/my/url",
-            "http://mydomain.com/my/url",
-            RequestMethod.GET,
-            null,
-            null,
-            true,
-            null,
-            REQUEST_BODY_AS_BASE64,
-            null
-            );
+                "/my/url",
+                "http://mydomain.com/my/url",
+                RequestMethod.GET,
+                null,
+                null,
+                null,
+                true,
+                null,
+                REQUEST_BODY_AS_BASE64,
+                null
+        );
 
         assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
     }
