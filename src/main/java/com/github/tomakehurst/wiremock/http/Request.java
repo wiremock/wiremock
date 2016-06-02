@@ -18,6 +18,11 @@ package com.github.tomakehurst.wiremock.http;
 import java.util.Map;
 import java.util.Set;
 
+import java.io.IOException;
+import java.util.Collection;
+
+import javax.servlet.http.Part;
+
 public interface Request {
 
     String getUrl();
@@ -33,6 +38,8 @@ public interface Request {
     Set<String> getAllHeaderKeys();
 
     Map<String, Cookie> getCookies();
+
+	Collection<Part> getParts() throws IOException;
 
     QueryParameter queryParameter(String key);
 

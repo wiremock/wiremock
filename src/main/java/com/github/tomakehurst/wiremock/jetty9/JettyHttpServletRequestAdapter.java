@@ -18,11 +18,16 @@ package com.github.tomakehurst.wiremock.jetty9;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.google.common.base.Optional;
+import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
+
+import javax.servlet.http.Part;
+import java.io.ByteArrayInputStream;
 
 import java.io.IOException;
 import java.net.URI;
@@ -111,6 +116,19 @@ public class JettyHttpServletRequestAdapter implements Request {
     @Override
     public String getBodyAsBase64(){
         return Base64.encodeBase64String(getBody());
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException {
+        getBody();
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(cachedBody);
+        MultiPartInputStreamParser multiPartInputStreamParser = new MultiPartInputStreamParser(byteArrayInputStream, getHeader("Content-Type"), null, null);
+
+        try {
+            return multiPartInputStreamParser.getParts();
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")
