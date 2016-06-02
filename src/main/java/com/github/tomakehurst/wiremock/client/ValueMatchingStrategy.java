@@ -41,7 +41,7 @@ public class ValueMatchingStrategy {
 		pattern.setEqualToJson(equalToJson);
 		pattern.setEqualToXml(equalToXml);
         pattern.setMatchesXPath(matchingXPath);
-        pattern.setWithXPathNamespaces(xpathNamespaces);
+        pattern.setXPathNamespaces(xpathNamespaces);
         pattern.setJsonCompareMode(jsonCompareMode);
 		pattern.setMatches(matches);
 		pattern.setDoesNotMatch(doesNotMatch);

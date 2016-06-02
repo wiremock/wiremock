@@ -451,21 +451,23 @@ public class RequestPattern {
     }
 
     public NewRequestPattern toNewRequestPattern() {
-        return hasCustomMatcher() ?
-            new NewRequestPattern(matcher) :
-            new NewRequestPattern(
-            UrlPattern.fromOneOf(getUrl(), getUrlPattern(), getUrlPath(), getUrlPathPattern()),
-            getMethod(),
-            toMultiValuePatternMap(getHeaders()),
-            toMultiValuePatternMap(getQueryParameters()),
-            toStringValuePatternMap(getCookies()),
-            getBasicAuth(),
-            toBodyPatterns(getBodyPatterns())
-        );
+        return customMatcherDefinition != null ?
+            new NewRequestPattern(customMatcherDefinition) :
+                hasCustomMatcher() ?
+                new NewRequestPattern(matcher) :
+                    new NewRequestPattern(
+                    UrlPattern.fromOneOf(getUrl(), getUrlPattern(), getUrlPath(), getUrlPathPattern()),
+                    getMethod(),
+                    toMultiValuePatternMap(getHeaders()),
+                    toMultiValuePatternMap(getQueryParameters()),
+                    toStringValuePatternMap(getCookies()),
+                    getBasicAuth(),
+                    toBodyPatterns(getBodyPatterns())
+                );
     }
 
     private Map<String, StringValuePattern> toStringValuePatternMap(Map<String, ValuePattern> valuePatternMap) {
-        if (valuePatternMap == null) {
+        if (valuePatternMap == null || valuePatternMap.isEmpty()) {
             return null;
         }
 

@@ -23,7 +23,7 @@ public class MatchesXPathPattern extends StringValuePattern {
     public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue,
                                @JsonProperty("namespaces") Map<String, String> namespaces) {
         super(expectedValue);
-        xpathNamespaces = namespaces.isEmpty() ? null : namespaces;
+        xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
     }
 
     public String getMatchesXPath() {

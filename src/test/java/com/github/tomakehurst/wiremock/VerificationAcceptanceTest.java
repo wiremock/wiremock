@@ -391,7 +391,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected less than or exactly 2 requests matching: {"),
+                        containsString("Expected less than or exactly 2 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));
@@ -442,7 +442,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected more than 12 requests matching: {"),
+                        containsString("Expected more than 12 requests matching:"),
                         containsString("/some/request"),
                         containsString("Requests received: "),
                         containsString("/some/request")));

@@ -33,6 +33,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
 
+    private CustomMatcherDefinition customMatcherDefinition;
     private RequestMatcher matcher;
 
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
@@ -99,8 +100,22 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         this.matcher = customMatcher;
     }
 
+    public NewRequestPattern(CustomMatcherDefinition customMatcherDefinition) {
+        this(null, null, null, null, null, null, null);
+        this.customMatcherDefinition = customMatcherDefinition;
+    }
+
     @Override
     public MatchResult match(Request request) {
+        return match(request, null);
+    }
+
+    public MatchResult match(Request request,  Map<String, RequestMatcherExtension> customMatchers) {
+        if (customMatcherDefinition != null) {
+            RequestMatcherExtension requestMatcher = customMatchers.get(customMatcherDefinition.getName());
+            return requestMatcher.match(request, customMatcherDefinition.getParameters());
+        }
+
         return matcher.match(request);
     }
 
@@ -183,7 +198,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     }
 
     public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {
-        return match(request).isExactMatch();
+        return match(request, customMatchers).isExactMatch();
     }
 
     public String getUrl() {
@@ -242,12 +257,13 @@ public class NewRequestPattern implements ValueMatcher<Request> {
             Objects.equal(queryParams, that.queryParams) &&
             Objects.equal(cookies, that.cookies) &&
             Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
-            Objects.equal(bodyPatterns, that.bodyPatterns);
+            Objects.equal(bodyPatterns, that.bodyPatterns) &&
+            Objects.equal(customMatcherDefinition, that.customMatcherDefinition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, matcher);
+        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
     }
 
     @Override

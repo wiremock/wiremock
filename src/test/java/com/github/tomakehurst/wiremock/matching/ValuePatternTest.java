@@ -28,9 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -120,7 +117,7 @@ public class ValuePatternTest {
     @Test
     public void matchesXPathWithNamespaceUsingMap() {
         valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
-        valuePattern.setWithXPathNamespaces(ImmutableMap.of("a", "http://foo.com/"));
+        valuePattern.setXPathNamespaces(ImmutableMap.of("a", "http://foo.com/"));
 
         assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
     }
@@ -128,8 +125,8 @@ public class ValuePatternTest {
     @Test
     public void matchesXPathWithNamespaceUsingStrings() {
         valuePattern.setMatchesXPath("/a:H/a:J[.=111]");
-        valuePattern.setWithXPathNamespace("a", "http://foo.com/");
-        valuePattern.setWithXPathNamespace("b", "http://bar.com/");
+        valuePattern.setXPathNamespace("a", "http://foo.com/");
+        valuePattern.setXPathNamespace("b", "http://bar.com/");
         System.out.println(Json.write(valuePattern));
         assertTrue("Expected XPath match", valuePattern.isMatchFor("<a:H xmlns:a='http://foo.com/'><a:J>111</a:J><X>222</X></a:H>"));
     }

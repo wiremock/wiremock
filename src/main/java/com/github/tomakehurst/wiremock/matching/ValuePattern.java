@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.google.common.base.Function;
@@ -283,14 +284,14 @@ public class ValuePattern {
         checkNoMoreThanOneMatchTypeSpecified();
     }
 
-    public void setWithXPathNamespaces(Map<String, String> xpathNamespaceMap) {
+    public void setXPathNamespaces(Map<String, String> xpathNamespaceMap) {
         if (xpathNamespaceMap != null) {
             checkMatchesXPath();
         }
         this.xpathNamespaces = xpathNamespaceMap;
     }
 
-    public void setWithXPathNamespace(String namespace, String namespaceUri) {
+    public void setXPathNamespace(String namespace, String namespaceUri) {
         checkMatchesXPath();
         if (this.xpathNamespaces == null) {
             this.xpathNamespaces = new HashMap<String, String>();
@@ -339,7 +340,8 @@ public class ValuePattern {
         return matchesXPath;
     }
 
-    public Map getWithXPathNamespaces() {
+    @JsonGetter("xPathNamespaces")
+    public Map getXPathNamespaces() {
         return this.xpathNamespaces;
     }
 
@@ -470,7 +472,7 @@ public class ValuePattern {
         } else if (equalToXml != null) {
             return StringValuePattern.equalToXml(equalToXml);
         } else if (matchesXPath != null) {
-            return StringValuePattern.matchesXPath(matchesXPath);
+            return StringValuePattern.matchesXPath(matchesXPath, xpathNamespaces);
         } else if (equalToJson != null) {
             return StringValuePattern.equalToJson(equalToJson);
         } else if (matchesJsonPath != null) {

@@ -104,7 +104,7 @@ public class StubRequestHandlerTest {
 
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request);
-			will(returnValue(ResponseDefinition.notConfigured()));
+			will(returnValue(ServedStub.noExactMatch(LoggedRequest.createFrom(request))));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
 

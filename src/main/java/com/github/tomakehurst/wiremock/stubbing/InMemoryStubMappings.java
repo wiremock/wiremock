@@ -174,7 +174,7 @@ public class InMemoryStubMappings implements StubMappings {
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
-				return mapping.getNewRequest().match(request).isExactMatch() &&
+				return mapping.getNewRequest().match(request, customMatchers).isExactMatch() &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};
