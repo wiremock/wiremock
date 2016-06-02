@@ -22,7 +22,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.*;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +32,8 @@ import java.util.Set;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
+
+import javax.servlet.http.Part;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
@@ -135,6 +139,11 @@ public class LoggedRequest implements Request {
     @Override
     public Map<String, Cookie> getCookies() {
         return cookies;
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException {
+        return null;
     }
 
     @Override
