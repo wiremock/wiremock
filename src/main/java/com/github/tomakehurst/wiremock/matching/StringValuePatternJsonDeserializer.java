@@ -100,8 +100,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-        Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields();
-        for (Map.Entry<String, JsonNode> field = fields.next(); fields.hasNext(); field = fields.next()) {
+        for (Iterator<Map.Entry<String, JsonNode>> fields = namespacesNode.fields(); fields.hasNext(); ) {
+            Map.Entry<String, JsonNode> field = fields.next();
             builder.put(field.getKey(), field.getValue().textValue());
         }
 

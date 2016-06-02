@@ -62,18 +62,15 @@ public class RequestPattern {
 	private final RequestMatcher defaultMatcher = new RequestMatcher() {
 
         @Override
-        public MatchResult match(Request value) {
-            return null;
+        public MatchResult match(Request request) {
+            return MatchResult.of(RequestPattern.this.allElementsMatch(request));
         }
 
         @Override
         public String getName() {
-            return null;
+            return "default";
         }
 
-        public boolean isMatchedBy(Request request) {
-			return RequestPattern.this.allElementsMatch(request);
-		}
 	};
 	private RequestMatcher matcher = defaultMatcher;
 

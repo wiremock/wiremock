@@ -3,7 +3,11 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
 import org.hamcrest.Matchers;
+import org.json.JSONException;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
@@ -91,16 +95,47 @@ public class MatchesXPathPatternTest {
 
     @Test
     public void deserialisesCorrectlyWithNamespaces() {
-        String json = "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" ,   \n" +
-            "  \"xPathNamespaces\" : {                                              \n" +
-            "      \"one\" : \"http://one.com/\",                                    \n" +
-            "      \"two\" : \"http://two.com/\"                                    \n" +
-            "  }                                                                    \n" +
+        String json =
+            "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" ,   \n" +
+            "  \"xPathNamespaces\" : {                                    \n" +
+            "      \"one\" : \"http://one.com/\",                         \n" +
+            "      \"two\" : \"http://two.com/\"                          \n" +
+            "  }                                                          \n" +
             "}";
 
         MatchesXPathPattern pattern = Json.read(json, MatchesXPathPattern.class);
 
         assertThat(pattern.getXPathNamespaces(), hasEntry("one", "http://one.com/"));
         assertThat(pattern.getXPathNamespaces(), hasEntry("two", "http://two.com/"));
+    }
+
+    @Test
+    public void serialisesCorrectlyWithNamspaces() throws JSONException {
+        MatchesXPathPattern pattern = new MatchesXPathPattern("//*", ImmutableMap.of(
+            "one", "http://one.com/",
+            "two", "http://two.com/"
+        ));
+
+        String json = Json.write(pattern);
+
+        JSONAssert.assertEquals(
+            "{ \"matchesXPath\" : \"//*\" ,   \n" +
+            "  \"xPathNamespaces\" : {                                    \n" +
+            "      \"one\" : \"http://one.com/\",                         \n" +
+            "      \"two\" : \"http://two.com/\"                          \n" +
+            "  }                                                          \n" +
+            "}",
+            json, false);
+    }
+
+    @Test
+    public void serialisesCorrectlyWithoutNamspaces() throws JSONException {
+        MatchesXPathPattern pattern = new MatchesXPathPattern("//*", Collections.<String, String>emptyMap());
+
+        String json = Json.write(pattern);
+
+        JSONAssert.assertEquals(
+            "{ \"matchesXPath\" : \"//*\" }",
+            json, false);
     }
 }
