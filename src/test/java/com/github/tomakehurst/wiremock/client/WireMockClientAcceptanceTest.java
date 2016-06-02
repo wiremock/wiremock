@@ -65,4 +65,17 @@ public class WireMockClientAcceptanceTest {
 		
 		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
 	}
+	
+	@Test
+	public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
+		WireMock wireMock = new WireMock(wireMockServer.port());
+		wireMock.register(
+				get(urlEqualTo("/my/new/resource"))
+				.willReturn(
+						aResponse()
+						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
+						.withStatus(200)));
+
+		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+	}
 }

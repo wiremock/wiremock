@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
@@ -165,8 +164,7 @@ public class HttpAdminClient implements Admin {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                StringEntity stringEntity = new StringEntity(json);
-                stringEntity.setContentType(APPLICATION_JSON.getMimeType());
+                StringEntity stringEntity = new StringEntity(json, APPLICATION_JSON);
                 post.setEntity(stringEntity);
             }
             HttpResponse response = httpClient.execute(post);
