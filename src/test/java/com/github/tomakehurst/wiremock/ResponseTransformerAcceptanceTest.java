@@ -19,9 +19,11 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.extension.TemplateTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Test;
 
@@ -66,6 +68,20 @@ public class ResponseTransformerAcceptanceTest {
         wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
 
         assertThat(client.get("/global-response-transform").firstHeader("X-Extra"), is("extra val"));
+    }
+
+    @Test
+    public void templateTransformerSubstitutesRequestProperties() {
+        startWithExtensions(TemplateTransformer.class);
+        wm.stubFor(put(urlPathEqualTo("/items")).willReturn(aResponse()
+                .withHeader("Content-Type", "$request.headers.Accept$")
+                .withStatus(200)
+                .withBody("Request body: $request.body$, Query: $request.query.param$")));
+
+        WireMockResponse response =
+                client.putWithBody("/items?param=value", "body", "text/plain", new TestHttpHeader("Accept", "test/text"));
+        assertThat(response.content(), is("Request body: body, Query: value"));
+        assertThat(response.firstHeader("Content-Type"), is("test/text"));
     }
 
     @SuppressWarnings("unchecked")
