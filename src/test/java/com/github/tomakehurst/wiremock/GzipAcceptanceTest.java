@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.GzipCompressingEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -40,4 +43,13 @@ public class GzipAcceptanceTest extends AcceptanceTestBase {
         assertThat(plainText, is("body text"));
     }
 
+    @Test
+    public void acceptsGzippedRequest() {
+        wireMockServer.stubFor(any(urlEqualTo("/gzip-request")).withRequestBody(equalTo("request body")).willReturn(aResponse().withBody("response body")));
+
+        HttpEntity compressedBody = new GzipCompressingEntity(new StringEntity("request body", ContentType.TEXT_PLAIN));
+        WireMockResponse response = testClient.post("/gzip-request", compressedBody);
+
+        assertThat(response.content(), is("response body"));
+    }
 }
