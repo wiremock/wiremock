@@ -179,8 +179,7 @@ public class HttpAdminClient implements Admin {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                StringEntity stringEntity = new StringEntity(json);
-                stringEntity.setContentType(APPLICATION_JSON.getMimeType());
+                StringEntity stringEntity = new StringEntity(json, APPLICATION_JSON);
                 post.setEntity(stringEntity);
             }
             HttpResponse response = httpClient.execute(post);

@@ -15,15 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.Cookie;
 import com.google.common.base.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
@@ -58,7 +56,7 @@ public class JettyHttpServletRequestAdapter implements Request {
         if (!isNullOrEmpty(contextPath) && url.startsWith(contextPath)) {
             url = url.substring(contextPath.length());
         }
-        if(!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
+        if (!isNullOrEmpty(urlPrefixToRemove) && url.startsWith(urlPrefixToRemove)) {
             url = url.substring(urlPrefixToRemove.length());
         }
 
@@ -94,7 +92,9 @@ public class JettyHttpServletRequestAdapter implements Request {
     public byte[] getBody() {
         if (cachedBody == null) {
             try {
-                cachedBody = toByteArray(request.getInputStream());
+                byte[] body = toByteArray(request.getInputStream());
+                boolean isGzipped = hasGzipEncoding() || Gzip.isGzipped(body);
+                cachedBody = isGzipped ? Gzip.unGzip(body) : body;
             } catch (IOException ioe) {
                 throw new RuntimeException(ioe);
             }
@@ -103,13 +103,18 @@ public class JettyHttpServletRequestAdapter implements Request {
         return cachedBody;
     }
 
+    private boolean hasGzipEncoding() {
+        String encodingHeader = request.getHeader("Content-Encoding");
+        return encodingHeader != null && encodingHeader.contains("gzip");
+    }
+
     @Override
     public String getBodyAsString() {
         return stringFromBytes(getBody());
     }
 
     @Override
-    public String getBodyAsBase64(){
+    public String getBodyAsBase64() {
         return Base64.encodeBase64String(getBody());
     }
 
@@ -117,7 +122,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     @Override
     public String getHeader(String key) {
         List<String> headerNames = list(request.getHeaderNames());
-        for (String currentKey: headerNames) {
+        for (String currentKey : headerNames) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
                 return request.getHeader(currentKey);
             }
@@ -130,7 +135,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     @SuppressWarnings("unchecked")
     public HttpHeader header(String key) {
         List<String> headerNames = list(request.getHeaderNames());
-        for (String currentKey: headerNames) {
+        for (String currentKey : headerNames) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
                 List<String> valueList = list(request.getHeaders(currentKey));
                 return new HttpHeader(key, valueList);
@@ -153,7 +158,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     @Override
     public HttpHeaders getHeaders() {
         List<HttpHeader> headerList = newArrayList();
-        for (String key: getAllHeaderKeys()) {
+        for (String key : getAllHeaderKeys()) {
             headerList.add(header(key));
         }
 
@@ -164,7 +169,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     @Override
     public Set<String> getAllHeaderKeys() {
         LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();
-        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
+        for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
             headerKeys.add(headerNames.nextElement());
         }
 
@@ -175,7 +180,7 @@ public class JettyHttpServletRequestAdapter implements Request {
     public Map<String, Cookie> getCookies() {
         ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
 
-        for (javax.servlet.http.Cookie cookie:
+        for (javax.servlet.http.Cookie cookie :
                 Optional.fromNullable(request.getCookies())
                         .or(new javax.servlet.http.Cookie[0])) {
             builder.put(cookie.getName(), convertCookie(cookie));
