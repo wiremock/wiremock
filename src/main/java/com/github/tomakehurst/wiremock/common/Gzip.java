@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayInputStream;
@@ -52,5 +51,11 @@ public class Gzip {
         } catch (IOException e) {
             return throwUnchecked(e, byte[].class);
         }
+    }
+
+    public static boolean isGzipped(byte[] content) {
+        return content.length >= 2
+                && content[0] == (byte)GZIPInputStream.GZIP_MAGIC
+                && content[1] == (byte)(GZIPInputStream.GZIP_MAGIC >> 8);
     }
 }
