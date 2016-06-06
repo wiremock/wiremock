@@ -46,6 +46,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-jmx:$versions.jetty"
     compile "com.google.guava:guava:18.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
@@ -86,8 +87,15 @@ compileTestJava {
 test {
     // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
     systemProperty 'user.timezone', 'Australia/Sydney'
-
     maxParallelForks = 3
+
+/* See com.github.tomakehurst.wiremock.JettyMBeansTest when/how to use this:
+    systemProperty 'com.sun.management.jmxremote',''
+    systemProperty 'com.sun.management.jmxremote.ssl', 'false'
+    systemProperty 'com.sun.management.jmxremote.authenticate','false'
+    systemProperty 'com.sun.management.jmxremote.port','9998'
+*/
+
 }
 
 
