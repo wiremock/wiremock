@@ -145,8 +145,7 @@ class JettyHttpServer implements HttpServer {
             int port,
             JettySettings jettySettings) {
 
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        setHeaderBufferSize(jettySettings, httpConfig);
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
 
         ServerConnector connector = createServerConnector(
                 jettySettings,
@@ -170,8 +169,7 @@ class JettyHttpServer implements HttpServer {
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        setHeaderBufferSize(jettySettings, httpConfig);
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
 
         final int port = httpsSettings.port();
@@ -186,6 +184,15 @@ class JettyHttpServer implements HttpServer {
                 ),
                 new HttpConnectionFactory(httpConfig)
         );
+    }
+
+    private HttpConfiguration createHttpConfig(JettySettings jettySettings) {
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setRequestHeaderSize(
+                jettySettings.getRequestHeaderSize().or(8192)
+        );
+        httpConfig.setSendDateHeader(false);
+        return httpConfig;
     }
 
     private ServerConnector createServerConnector(JettySettings jettySettings, int port, ConnectionFactory... connectionFactories) {
@@ -213,14 +220,6 @@ class JettyHttpServer implements HttpServer {
         if (jettySettings.getAcceptQueueSize().isPresent()) {
             connector.setAcceptQueueSize(jettySettings.getAcceptQueueSize().get());
         }
-    }
-
-    private void setHeaderBufferSize(JettySettings jettySettings, HttpConfiguration configuration) {
-        int headerBufferSize = 8192;
-        if (jettySettings.getRequestHeaderSize().isPresent()) {
-            headerBufferSize = jettySettings.getRequestHeaderSize().get();
-        }
-        configuration.setRequestHeaderSize(headerBufferSize);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked" })
