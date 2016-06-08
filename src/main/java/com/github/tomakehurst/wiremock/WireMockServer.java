@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.*;
+import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
+import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -30,9 +32,10 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
+import com.github.tomakehurst.wiremock.matching.NewLocalRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
@@ -247,27 +250,27 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public void verify(RequestPatternBuilder requestPatternBuilder) {
+    public void verify(NewRequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(requestPatternBuilder);
     }
 
     @Override
-    public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
+    public void verify(int count, NewRequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(count, requestPatternBuilder);
     }
 
     @Override
-    public void verify(LocalRequestPatternBuilder requestPatternBuilder) {
+    public void verify(NewLocalRequestPatternBuilder requestPatternBuilder) {
         verify(requestPatternBuilder.getUnderlyingBuilder());
     }
 
     @Override
-    public void verify(int count, LocalRequestPatternBuilder requestPatternBuilder) {
+    public void verify(int count, NewLocalRequestPatternBuilder requestPatternBuilder) {
         verify(count, requestPatternBuilder.getUnderlyingBuilder());
     }
 
     @Override
-    public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
+    public List<LoggedRequest> findAll(NewRequestPatternBuilder requestPatternBuilder) {
         return client.find(requestPatternBuilder);
     }
 

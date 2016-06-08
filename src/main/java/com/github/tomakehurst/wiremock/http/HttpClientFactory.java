@@ -24,6 +24,7 @@ import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.net.ssl.SSLContext;
@@ -39,7 +40,7 @@ public class HttpClientFactory {
 
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
 
-    public static HttpClient createClient(
+    public static CloseableHttpClient createClient(
             int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
@@ -93,15 +94,15 @@ public class HttpClientFactory {
         }
     }
 
-    public static HttpClient createClient(int maxConnections, int timeoutMilliseconds) {
+    public static CloseableHttpClient createClient(int maxConnections, int timeoutMilliseconds) {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
     }
 
-	public static HttpClient createClient(int timeoutMilliseconds) {
+	public static CloseableHttpClient createClient(int timeoutMilliseconds) {
 		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
 
-	public static HttpClient createClient() {
+	public static CloseableHttpClient createClient() {
 		return createClient(30000);
 	}
 }

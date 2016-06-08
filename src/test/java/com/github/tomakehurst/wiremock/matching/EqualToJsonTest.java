@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.json.JSONException;
 import org.junit.Test;
@@ -12,7 +13,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returns0DistanceForExactMatchForSingleLevelObject() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{                  \n" +
             "   \"one\":    1,  \n" +
             "   \"two\":    2,  \n" +
@@ -31,7 +32,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsNon0DistanceForPartialMatchForSingleLevelObject() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{                  \n" +
                 "   \"one\":    1,  \n" +
                 "   \"two\":    2,  \n" +
@@ -50,7 +51,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsLargeDistanceForTotallyDifferentDocuments() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{                  \n" +
             "   \"one\":    1,  \n" +
             "   \"two\":    2,  \n" +
@@ -64,7 +65,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsLargeDistanceWhenActualDocIsAnEmptyObject() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{                  \n" +
             "   \"one\":    1,  \n" +
             "   \"two\":    2,  \n" +
@@ -78,7 +79,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsLargeDistanceWhenActualDocIsAnEmptyArray() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{                  \n" +
             "   \"one\":    1,  \n" +
             "   \"two\":    2,  \n" +
@@ -92,7 +93,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsLargeDistanceWhenExpectedDocIsAnEmptyObject() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{}"
         ).match(
             "{                  \n" +
@@ -106,7 +107,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsLargeDistanceWhenExpectedDocIsAnEmptyArray() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "[]"
         ).match(
             "{                  \n" +
@@ -120,7 +121,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsMediumDistanceWhenSubtreeIsMissingFromActual() {
-        assertThat(StringValuePattern.equalToJson(
+        assertThat(WireMock.equalToJson(
             "{\n" +
                 "    \"one\": \"GET\",          \n" +
                 "    \"two\": 2,                \n" +
@@ -151,7 +152,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsExactMatchWhenObjectPropertyOrderDiffers() {
-        assertTrue(StringValuePattern.equalToJson(
+        assertTrue(WireMock.equalToJson(
             "{                  \n" +
                 "   \"one\":    1,  \n" +
                 "   \"two\":    2,  \n" +
@@ -170,7 +171,7 @@ public class EqualToJsonTest {
 
     @Test
     public void returnsNonMatchWhenArrayOrderDiffers() {
-        assertFalse(StringValuePattern.equalToJson(
+        assertFalse(WireMock.equalToJson(
             "[1, 2, 3, 4]"
         ).match(
             "[1, 3, 2, 4]"
@@ -179,7 +180,7 @@ public class EqualToJsonTest {
 
     @Test
     public void ignoresArrayOrderDifferenceWhenConfigured() {
-        assertTrue(StringValuePattern.equalToJson(
+        assertTrue(WireMock.equalToJson(
             "[1, 2, 3, 4]",
             true, false)
         .match(
@@ -189,7 +190,7 @@ public class EqualToJsonTest {
 
     @Test
     public void ignoresNestedArrayOrderDifferenceWhenConfigured() {
-        assertTrue(StringValuePattern.equalToJson(
+        assertTrue(WireMock.equalToJson(
                 "{\n" +
                 "    \"one\": 1,\n" +
                 "    \"two\": [\n" +
@@ -213,7 +214,7 @@ public class EqualToJsonTest {
 
     @Test
     public void ignoresExtraObjectAttributesWhenConfigured() {
-        assertTrue(StringValuePattern.equalToJson(
+        assertTrue(WireMock.equalToJson(
             "{                  \n" +
                 "   \"one\":    1,  \n" +
                 "   \"two\":    2,  \n" +
@@ -235,7 +236,7 @@ public class EqualToJsonTest {
 
     @Test
     public void ignoresExtraObjectAttributesAndArrayOrderWhenConfigured() {
-        assertTrue(StringValuePattern.equalToJson(
+        assertTrue(WireMock.equalToJson(
             "{                          \n" +
             "   \"one\":    1,          \n" +
             "   \"two\":    2,          \n" +

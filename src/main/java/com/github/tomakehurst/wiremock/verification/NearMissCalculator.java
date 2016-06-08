@@ -29,7 +29,7 @@ public class NearMissCalculator {
         List<StubMapping> allMappings = stubMappings.getAll();
         return from(allMappings).transform(new Function<StubMapping, NearMiss>() {
             public NearMiss apply(StubMapping stubMapping) {
-                MatchResult matchResult = stubMapping.getNewRequest().match(request);
+                MatchResult matchResult = stubMapping.getRequest().match(request);
                 return new NearMiss(request, stubMapping, matchResult);
             }
         }).toSortedList(new Comparator<NearMiss>() {

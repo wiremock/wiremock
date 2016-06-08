@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -36,6 +37,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
+
+	@BeforeClass
+	public static void setupServer() {
+		setupServerWithMappingsInFileRoot();
+	}
 
 	@Test
 	public void mappingWithExactUrlAndMethodMatch() {

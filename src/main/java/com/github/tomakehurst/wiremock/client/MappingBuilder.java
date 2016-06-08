@@ -18,18 +18,16 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+
 import java.util.UUID;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
-	private RequestPatternBuilder requestPatternBuilder;
-    private NewRequestPatternBuilder newRequestPatternBuilder;
+    private NewRequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
@@ -37,19 +35,16 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	protected String newScenarioState;
 	private UUID id;
 
-	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
-		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
-        newRequestPatternBuilder = new NewRequestPatternBuilder(method, urlMatchingStrategy.toUrlPattern());
+	public MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
+        requestPatternBuilder = new NewRequestPatternBuilder(method, urlPattern);
 	}
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
-		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(requestMatcher);
-        newRequestPatternBuilder = new NewRequestPatternBuilder(requestMatcher);
+        requestPatternBuilder = new NewRequestPatternBuilder(requestMatcher);
 	}
 
 	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
-		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
-		newRequestPatternBuilder = new NewRequestPatternBuilder(customRequestMatcherName, parameters);
+		requestPatternBuilder = new NewRequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
 	@Override
@@ -65,30 +60,26 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	}
 
 	@Override
-	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
-		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
-        newRequestPatternBuilder.withHeader(key, headerMatchingStrategy.asMultiValuePattern());
+	public MappingBuilder withHeader(String key, StringValuePattern headerPattern) {
+        requestPatternBuilder.withHeader(key, headerPattern);
 		return this;
 	}
 
     @Override
-    public MappingBuilder withCookie(String name, ValueMatchingStrategy cookieMatchingStrategy) {
-        requestPatternBuilder.withCookie(name, cookieMatchingStrategy);
-		newRequestPatternBuilder.withCookie(name, cookieMatchingStrategy.asStringValuePattern());
+    public MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
+		requestPatternBuilder.withCookie(name, cookieValuePattern);
         return this;
     }
 
     @Override
-    public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
-        requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
-        newRequestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy.asMultiValuePattern());
+    public MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern) {
+        requestPatternBuilder.withQueryParam(key, queryParamPattern);
         return this;
     }
 
 	@Override
-	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
-		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
-        newRequestPatternBuilder.withRequestBody(bodyMatchingStrategy.asStringValuePattern());
+	public MappingBuilder withRequestBody(StringValuePattern bodyPattern) {
+        requestPatternBuilder.withRequestBody(bodyPattern);
 		return this;
 	}
 
@@ -129,11 +120,9 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		NewRequestPattern newRequestPattern = newRequestPatternBuilder.build();
+		NewRequestPattern newRequestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
-		StubMapping mapping = new StubMapping(requestPattern, response);
-		mapping.setNewRequest(newRequestPattern);
+		StubMapping mapping = new StubMapping(newRequestPattern, response);
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);

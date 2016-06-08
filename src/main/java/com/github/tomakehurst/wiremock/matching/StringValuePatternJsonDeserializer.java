@@ -6,30 +6,21 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
 
@@ -43,6 +34,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("contains", ContainsPattern.class)
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
+            .put("anything", AnythingPattern.class)
             .build();
 
     @Override

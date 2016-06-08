@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -31,15 +30,16 @@ import com.github.tomakehurst.wiremock.verification.FindServedStubsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
@@ -51,7 +51,7 @@ public class HttpAdminClient implements Admin {
     private final int port;
     private final String urlPathPrefix;
 
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
     public HttpAdminClient(String scheme, String host, int port) {
         this(scheme, host, port, "");
@@ -177,28 +177,21 @@ public class HttpAdminClient implements Admin {
 
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
         HttpPost post = new HttpPost(url);
-        try {
-            if (json != null) {
-                StringEntity stringEntity = new StringEntity(json, APPLICATION_JSON);
-                post.setEntity(stringEntity);
-            }
-            HttpResponse response = httpClient.execute(post);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != expectedStatus) {
-                throw new VerificationException(
-                        "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
-            }
-
-            return getEntityAsStringAndCloseStream(response);
-        } catch (Exception e) {
-            return throwUnchecked(e, String.class);
+        if (json != null) {
+            StringEntity stringEntity = new StringEntity(json, APPLICATION_JSON);
+            post.setEntity(stringEntity);
         }
+
+        return safelyExecuteRequest(url, expectedStatus, post);
     }
 
     protected String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
         HttpGet get = new HttpGet(url);
-        try {
-            HttpResponse response = httpClient.execute(get);
+        return safelyExecuteRequest(url, expectedStatus, get);
+    }
+
+    private String safelyExecuteRequest(String url, int expectedStatus, HttpRequestBase request) {
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != expectedStatus) {
                 throw new VerificationException(
@@ -215,5 +208,4 @@ public class HttpAdminClient implements Admin {
         RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
         return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
     }
-
 }

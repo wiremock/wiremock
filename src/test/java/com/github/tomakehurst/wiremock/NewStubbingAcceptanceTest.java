@@ -59,10 +59,10 @@ public class NewStubbingAcceptanceTest {
         List<NearMiss> nearMisses = WireMock.findAllNearMisses();
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(0).getStubMapping().getNewRequest().getUrl(), is("/otherpath"));
+        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(1).getStubMapping().getNewRequest().getUrl(), is("/mypath"));
+        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(2).getStubMapping().getNewRequest().getUrl(), is("/yet/another/path"));
+        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
     }
 }

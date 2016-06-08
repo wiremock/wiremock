@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertThat;
 
 public class EditStubMappingTaskTest {
 
-	private static final StubMapping MOCK_MAPPING = new StubMapping(new RequestPattern(), new ResponseDefinition());
+	private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
 	private Mockery context;
 	private Admin mockAdmin;

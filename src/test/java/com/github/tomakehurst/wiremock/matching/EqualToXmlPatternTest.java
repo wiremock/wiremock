@@ -1,9 +1,9 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -204,13 +204,13 @@ public class EqualToXmlPatternTest {
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
         expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        StringValuePattern.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+        WireMock.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
     }
 
     @Test
     public void logsASensibleErrorMessageWhenTestXmlIsBadlyFormed() {
         expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        StringValuePattern.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
+        WireMock.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
     }
 
     private void expectInfoNotification(final String message) {

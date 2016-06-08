@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
@@ -22,6 +23,8 @@ public class NewRequestPatternBuilder {
 
     private RequestMatcher customMatcher;
 
+    private CustomMatcherDefinition customMatcherDefinition;
+
     public NewRequestPatternBuilder() {
     }
 
@@ -35,6 +38,7 @@ public class NewRequestPatternBuilder {
     }
 
     public NewRequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
+        this.customMatcherDefinition = new CustomMatcherDefinition(customRequestMatcherName, parameters);
     }
 
     public static NewRequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {
@@ -45,18 +49,35 @@ public class NewRequestPatternBuilder {
         return new NewRequestPatternBuilder();
     }
 
+    public static NewRequestPatternBuilder forCustomMatcher(RequestMatcher requestMatcher) {
+        return new NewRequestPatternBuilder(requestMatcher);
+    }
+
+    public static NewRequestPatternBuilder forCustomMatcher(String customRequestMatcherName, Parameters parameters) {
+        return new NewRequestPatternBuilder(customRequestMatcherName, parameters);
+    }
+
+    public static NewRequestPatternBuilder allRequests() {
+        return new NewRequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
+    }
+
     public NewRequestPatternBuilder withUrl(String url) {
-        this.url = UrlPattern.equalTo(url);
+        this.url = WireMock.urlEqualTo(url);
         return this;
     }
 
-    public NewRequestPatternBuilder withHeader(String key, MultiValuePattern valuePattern) {
-        headers.put(key, valuePattern);
+    public NewRequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
+        headers.put(key, MultiValuePattern.of(valuePattern));
         return this;
     }
 
-    public NewRequestPatternBuilder withQueryParam(String key, MultiValuePattern valuePattern) {
-        queryParams.put(key, valuePattern);
+    public NewRequestPatternBuilder withoutHeader(String key) {
+        headers.put(key, MultiValuePattern.absent());
+        return this;
+    }
+
+    public NewRequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
+        queryParams.put(key, MultiValuePattern.of(valuePattern));
         return this;
     }
 
@@ -75,17 +96,22 @@ public class NewRequestPatternBuilder {
         return this;
     }
 
+
+
     public NewRequestPattern build() {
         return customMatcher != null ?
             new NewRequestPattern(customMatcher) :
-            new NewRequestPattern(
-                url,
-                method,
-                headers.isEmpty() ? null : headers,
-                queryParams.isEmpty() ? null : queryParams,
-                cookies.isEmpty() ? null : cookies,
-                basicCredentials,
-                bodyPatterns.isEmpty() ? null : bodyPatterns
-            );
+            customMatcherDefinition != null ?
+                new NewRequestPattern(customMatcherDefinition) :
+                new NewRequestPattern(
+                    url,
+                    method,
+                    headers.isEmpty() ? null : headers,
+                    queryParams.isEmpty() ? null : queryParams,
+                    cookies.isEmpty() ? null : cookies,
+                    basicCredentials,
+                    bodyPatterns.isEmpty() ? null : bodyPatterns,
+                    null
+                );
     }
 }

@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -12,7 +13,7 @@ public class RegexValuePatternTest {
 
     @Test
     public void correctlySerialisesMatchesAsJson() throws Exception {
-        String actual = Json.write(StringValuePattern.matches("something"));
+        String actual = Json.write(WireMock.matching("something"));
         System.out.println(actual);
         JSONAssert.assertEquals(
             "{                               \n" +

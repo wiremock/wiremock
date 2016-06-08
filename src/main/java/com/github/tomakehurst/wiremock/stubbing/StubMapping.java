@@ -21,18 +21,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.matching.ValuePattern.TO_STRING_VALUE_PATTERN;
-import static com.google.common.collect.FluentIterable.from;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
@@ -42,8 +35,7 @@ public class StubMapping {
 
 	private UUID uuid = UUID.randomUUID();
 
-	private RequestPattern request;
-	private NewRequestPattern newRequest;
+	private NewRequestPattern request;
 
 	private ResponseDefinition response;
 	private Integer priority;
@@ -55,7 +47,7 @@ public class StubMapping {
 	private long insertionIndex;
     private boolean isTransient = true;
 
-	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
+	public StubMapping(NewRequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
 	}
@@ -65,7 +57,7 @@ public class StubMapping {
 	}
 	
 	public static final StubMapping NOT_CONFIGURED =
-	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
+	    new StubMapping(null, ResponseDefinition.notConfigured());
 
     public static StubMapping buildFrom(String mappingSpecJson) {
         return Json.read(mappingSpecJson, StubMapping.class);
@@ -84,7 +76,7 @@ public class StubMapping {
 		this.uuid = uuid;
 	}
 
-    public RequestPattern getRequest() {
+    public NewRequestPattern getRequest() {
 		return request;
 	}
 	
@@ -92,23 +84,13 @@ public class StubMapping {
 		return response;
 	}
 	
-	public void setRequest(RequestPattern request) {
+	public void setRequest(NewRequestPattern request) {
 		this.request = request;
-		this.newRequest = request.toNewRequestPattern();
 	}
 
 	public void setResponse(ResponseDefinition response) {
 		this.response = response;
 	}
-
-    @JsonIgnore
-    public NewRequestPattern getNewRequest() {
-        return newRequest;
-    }
-
-    public void setNewRequest(NewRequestPattern newRequest) {
-        this.newRequest = newRequest;
-    }
 
     @Override
 	public String toString() {

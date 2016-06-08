@@ -34,6 +34,7 @@ import org.apache.commons.codec.binary.Base64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
+import static com.google.common.base.Optional.fromNullable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -162,7 +163,7 @@ public class LoggedRequest implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return queryParams.get(key);
+        return fromNullable(queryParams.get(key)).or(QueryParameter.absent(key));
     }
 
     public HttpHeaders getHeaders() {

@@ -50,7 +50,6 @@ public class InMemoryStubMappings implements StubMappings {
     private final RequestJournal requestJournal;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
-	private final boolean useNewRequestPattern = true;
 
 	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;
@@ -164,30 +163,17 @@ public class InMemoryStubMappings implements StubMappings {
     }
 
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
-        if (useNewRequestPattern) {
-            return mappingMatchingAndInCorrectScenarioStateNew(request);
-        }
-
-        return mappingMatchingAndInCorrectScenarioStateOld(request);
+		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
 
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
-				return mapping.getNewRequest().match(request, customMatchers).isExactMatch() &&
+				return mapping.getRequest().match(request, customMatchers).isExactMatch() &&
 				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};
 	}
-
-    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateOld(final Request request) {
-        return new Predicate<StubMapping>() {
-            public boolean apply(StubMapping mapping) {
-                return mapping.getRequest().isMatchedBy(request, customMatchers) &&
-                    (mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
-            }
-        };
-    }
 
 	private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
 		return new Predicate<StubMapping>() {

@@ -134,7 +134,7 @@ public class VerificationAcceptanceTest {
         public void verifiesWithBodyEquallingJsonWithCompareMode() {
             testClient.postWithBody("/body/json/lenient", "{ \"message\": \"Hello\", \"key\": \"welcome.message\" }", "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json/lenient"))
-                    .withRequestBody(equalToJson("{ \"message\": \"Hello\" }", LENIENT)));
+                    .withRequestBody(equalToJson("{ \"message\": \"Hello\" }", true, true)));
         }
 
         @Test

@@ -52,9 +52,9 @@ public class NearMissCalculatorTest {
         List<NearMiss> nearest = nearMissCalculator.findNearestFor(mockRequest().url("/right").asLoggedRequest());
 
         assertThat(nearest.size(), is(NEAR_MISS_COUNT));
-        assertThat(nearest.get(0).getStubMapping().getNewRequest().getUrl(), is("/righ"));
-        assertThat(nearest.get(1).getStubMapping().getNewRequest().getUrl(), is("/rig"));
-        assertThat(nearest.get(2).getStubMapping().getNewRequest().getUrl(), is("/almost-right"));
+        assertThat(nearest.get(0).getStubMapping().getRequest().getUrl(), is("/righ"));
+        assertThat(nearest.get(1).getStubMapping().getRequest().getUrl(), is("/rig"));
+        assertThat(nearest.get(2).getStubMapping().getRequest().getUrl(), is("/almost-right"));
     }
 
     @Test

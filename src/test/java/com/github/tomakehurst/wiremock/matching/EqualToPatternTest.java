@@ -1,9 +1,9 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
@@ -16,19 +16,19 @@ public class EqualToPatternTest {
 
     @Test
     public void returnsANonZeroScoreForPartialMatchOnEquals() {
-        StringValuePattern pattern = StringValuePattern.equalTo("matchthis");
+        StringValuePattern pattern = WireMock.equalTo("matchthis");
         assertThat(pattern.match("matchthisbadlydone").getDistance(), is(0.5));
     }
 
     @Test
     public void returns1ForNoMatchOnEquals() {
-        StringValuePattern pattern = StringValuePattern.equalTo("matchthis");
+        StringValuePattern pattern = WireMock.equalTo("matchthis");
         assertThat(pattern.match("924387348975923").getDistance(), is(1.0));
     }
 
     @Test
     public void returns0ForExactMatchOnEquals() {
-        StringValuePattern pattern = StringValuePattern.equalTo("matchthis");
+        StringValuePattern pattern = WireMock.equalTo("matchthis");
         assertThat(pattern.match("matchthis").getDistance(), is(0.0));
     }
 

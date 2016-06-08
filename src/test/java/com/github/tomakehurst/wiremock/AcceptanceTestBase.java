@@ -32,12 +32,20 @@ public class AcceptanceTestBase {
 
 	@BeforeClass
 	public static void setupServer() {
-		setupServer(wireMockConfig());
+		setupServerWithEmptyFileRoot();
 	}
 
 	@AfterClass
 	public static void serverShutdown() {
 		wireMockServer.stop();
+	}
+
+	public static void setupServerWithEmptyFileRoot() {
+		setupServer(wireMockConfig().withRootDirectory("src/test/resources/empty"));
+	}
+
+	public static void setupServerWithMappingsInFileRoot() {
+		setupServer(wireMockConfig());
 	}
 
     public static void setupServer(WireMockConfiguration options) {

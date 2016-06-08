@@ -3,8 +3,10 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 
 import java.util.Comparator;
@@ -28,7 +30,7 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
     }
 
     public static MultiValuePattern absent() {
-        return new MultiValuePattern(StringValuePattern.absent());
+        return new MultiValuePattern(WireMock.absent());
     }
 
     @Override
@@ -66,5 +68,18 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
                 return new Double(o1.getDistance()).compareTo(o2.getDistance());
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MultiValuePattern that = (MultiValuePattern) o;
+        return Objects.equal(valuePattern, that.valuePattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(valuePattern);
     }
 }

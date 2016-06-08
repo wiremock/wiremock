@@ -31,50 +31,6 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
         this.expectedValue = expectedValue;
     }
 
-    public static StringValuePattern equalTo(String value) {
-        return new EqualToPattern(value);
-    }
-
-    public static StringValuePattern equalToJson(String value) {
-        return new EqualToJsonPattern(value, null, null);
-    }
-
-    public static StringValuePattern equalToJson(String value, boolean ignoreArrayOrder, boolean ignoreExtraElements) {
-        return new EqualToJsonPattern(value, ignoreArrayOrder, ignoreExtraElements);
-    }
-
-    public static StringValuePattern matchesJsonPath(String value) {
-        return new MatchesJsonPathPattern(value);
-    }
-
-    public static StringValuePattern equalToXml(String value) {
-        return new EqualToXmlPattern(value);
-    }
-
-    public static StringValuePattern matchesXPath(String value) {
-        return new MatchesXPathPattern(value, Collections.<String, String>emptyMap());
-    }
-
-    public static StringValuePattern matchesXPath(String value, Map<String, String> namespaces) {
-        return new MatchesXPathPattern(value, namespaces);
-    }
-
-    public static StringValuePattern containing(String value) {
-        return new ContainsPattern(value);
-    }
-
-    public static StringValuePattern matches(String regex) {
-        return new RegexPattern(regex);
-    }
-
-    public static StringValuePattern doesNotMatch(String regex) {
-        return new NegativeRegexPattern(regex);
-    }
-
-    public static StringValuePattern absent() {
-        return ABSENT;
-    }
-
     @JsonIgnore
     public boolean isPresent() {
         return this != ABSENT;

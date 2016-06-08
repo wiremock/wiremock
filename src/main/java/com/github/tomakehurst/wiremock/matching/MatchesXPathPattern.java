@@ -2,6 +2,8 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -12,6 +14,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -24,6 +27,14 @@ public class MatchesXPathPattern extends StringValuePattern {
                                @JsonProperty("namespaces") Map<String, String> namespaces) {
         super(expectedValue);
         xpathNamespaces = namespaces == null || namespaces.isEmpty() ? null : namespaces;
+    }
+
+    public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
+        Map<String, String> namespaceMap = ImmutableMap.<String, String>builder()
+            .putAll(Optional.fromNullable(xpathNamespaces).or(Collections.<String, String>emptyMap()))
+            .put(name, namespaceUri)
+            .build();
+        return new MatchesXPathPattern(expectedValue, namespaceMap);
     }
 
     public String getMatchesXPath() {

@@ -1,8 +1,8 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -25,7 +25,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Venus' position='4'/></solar-system>";
 
 
-        StringValuePattern pattern = StringValuePattern.matchesXPath("//planet[@name='Earth']");
+        StringValuePattern pattern = WireMock.matchingXPath("//planet[@name='Earth']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertTrue("Expected XPath match", match.isExactMatch());
@@ -38,7 +38,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.matchesXPath("//star[@name='alpha centauri']");
+        StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());
@@ -51,7 +51,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.matchesXPath("//\\\\&&&&&");
+        StringValuePattern pattern = WireMock.matchingXPath("//\\\\&&&&&");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());
@@ -64,7 +64,7 @@ public class MatchesXPathPatternTest {
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
             + "<planet name='Venus' position='4'/></solar-system>";
 
-        StringValuePattern pattern = StringValuePattern.matchesXPath("//star[@name='alpha centauri']");
+        StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
 
         MatchResult match = pattern.match(mySolarSystemXML);
         assertFalse("Expected XPath non-match", match.isExactMatch());
@@ -75,7 +75,7 @@ public class MatchesXPathPatternTest {
     public void matchesNamespacedXmlExactly() {
         String xml = "<t:thing xmlns:t='http://things' xmlns:s='http://subthings'><s:subThing>The stuff</s:subThing></t:thing>";
 
-        StringValuePattern pattern = StringValuePattern.matchesXPath(
+        StringValuePattern pattern = WireMock.matchingXPath(
             "//s:subThing[.='The stuff']",
             ImmutableMap.of("s", "http://subthings", "t", "http://things"));
 

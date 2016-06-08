@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.base.Objects;
 
 public class UrlPattern implements ValueMatcher<String> {
@@ -8,7 +9,7 @@ public class UrlPattern implements ValueMatcher<String> {
     protected final StringValuePattern pattern;
     private final boolean regex;
 
-    protected UrlPattern(StringValuePattern pattern, boolean regex) {
+    public UrlPattern(StringValuePattern pattern, boolean regex) {
         this.pattern = pattern;
         this.regex = regex;
     }
@@ -18,29 +19,21 @@ public class UrlPattern implements ValueMatcher<String> {
                                        String urlPath,
                                        String urlPathPattern) {
         if (url != null) {
-            return UrlPattern.equalTo(url);
+            return WireMock.urlEqualTo(url);
         } else if (urlPattern != null) {
-            return UrlPattern.matching(urlPattern);
+            return WireMock.urlMatching(urlPattern);
         } else if (urlPath != null) {
-            return UrlPathPattern.equalTo(urlPath);
+            return WireMock.urlPathEqualTo(urlPath);
         } else if (urlPathPattern != null) {
-            return UrlPathPattern.matching(urlPathPattern);
+            return WireMock.urlPathMatching(urlPathPattern);
         } else {
-            return null;
+            return WireMock.anyUrl();
         }
     }
 
     @Override
     public MatchResult match(String url) {
         return pattern.match(url);
-    }
-
-    public static UrlPattern equalTo(String testUrl) {
-        return new UrlPattern(StringValuePattern.equalTo(testUrl), false);
-    }
-
-    public static UrlPattern matching(String urlRegex) {
-        return new UrlPattern(StringValuePattern.matches(urlRegex), true);
     }
 
     @Override
@@ -69,5 +62,9 @@ public class UrlPattern implements ValueMatcher<String> {
     @Override
     public int hashCode() {
         return Objects.hashCode(pattern, regex);
+    }
+
+    public boolean isSpecified() {
+        return pattern.getClass() != AnythingPattern.class;
     }
 }

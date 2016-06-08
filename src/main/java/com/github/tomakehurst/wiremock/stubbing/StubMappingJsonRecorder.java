@@ -19,8 +19,9 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
@@ -28,11 +29,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.Iterables.filter;
-import static java.util.Arrays.asList;
-import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 public class StubMappingJsonRecorder implements RequestListener {
 
@@ -52,7 +53,7 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     @Override
     public void requestReceived(Request request, Response response) {
-        RequestPattern requestPattern = buildRequestPatternFrom(request);
+        NewRequestPattern requestPattern = buildRequestPatternFrom(request);
 
         if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
             notifier().info(String.format("Recording mappings for %s", request.getUrl()));
@@ -62,39 +63,39 @@ public class StubMappingJsonRecorder implements RequestListener {
         }
     }
 
-    private RequestPattern buildRequestPatternFrom(Request request) {
-        RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+    private NewRequestPattern buildRequestPatternFrom(Request request) {
+        NewRequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
+
         if (!headersToMatch.isEmpty()) {
             for (HttpHeader header: request.getHeaders().all()) {
                 if (headersToMatch.contains(header.caseInsensitiveKey())) {
-                    requestPattern.addHeader(header.key(), ValuePattern.equalTo(header.firstValue()));
+                    builder.withHeader(header.key(), equalTo(header.firstValue()));
                 }
             }
         }
 
         String body = request.getBodyAsString();
         if (!body.isEmpty()) {
-            ValuePattern bodyPattern = valuePatternForContentType(request);
-            requestPattern.setBodyPatterns(asList(bodyPattern));
+            builder.withRequestBody(valuePatternForContentType(request));
         }
 
-        return requestPattern;
+        return builder.build();
     }
 
-    private ValuePattern valuePatternForContentType(Request request) {
+    private StringValuePattern valuePatternForContentType(Request request) {
         String contentType = request.getHeader("Content-Type");
         if (contentType != null) {
             if (contentType.contains("json")) {
-                return ValuePattern.equalToJson(request.getBodyAsString(), LENIENT);
+                return equalToJson(request.getBodyAsString(), true, true);
             } else if (contentType.contains("xml")) {
-                return ValuePattern.equalToXml(request.getBodyAsString());
+                return equalToXml(request.getBodyAsString());
             }
         }
 
-        return ValuePattern.equalTo(request.getBodyAsString());
+        return equalTo(request.getBodyAsString());
     }
 
-    private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
+    private void writeToMappingAndBodyFile(Request request, Response response, NewRequestPattern requestPattern) {
         String fileId = idGenerator.generate();
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
@@ -131,8 +132,8 @@ public class StubMappingJsonRecorder implements RequestListener {
         return response.getBody();
     }
 
-    private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
-        VerificationResult verificationResult = admin.countRequestsMatching(requestPattern.toNewRequestPattern());
+    private boolean requestNotAlreadyReceived(NewRequestPattern requestPattern) {
+        VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
         verificationResult.assertRequestJournalEnabled();
         return (verificationResult.getCount() <= 1);
     }

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
@@ -28,10 +28,10 @@ public interface Stubbing {
     void stubFor(RemoteMappingBuilder mappingBuilder);
     void editStub(RemoteMappingBuilder mappingBuilder);
 
-    void verify(RequestPatternBuilder requestPatternBuilder);
-    void verify(int count, RequestPatternBuilder requestPatternBuilder);
+    void verify(NewRequestPatternBuilder requestPatternBuilder);
+    void verify(int count, NewRequestPatternBuilder requestPatternBuilder);
 
-    List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
+    List<LoggedRequest> findAll(NewRequestPatternBuilder requestPatternBuilder);
 
     void setGlobalFixedDelay(int milliseconds);
 

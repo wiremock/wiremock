@@ -3,8 +3,6 @@ package com.github.tomakehurst.wiremock.client;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
 import org.apache.commons.codec.binary.Base64;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -25,15 +23,10 @@ public class BasicCredentials {
         return username != null && password != null;
     }
 
-    public ValuePattern asAuthorizationHeaderValue() {
-        byte[] usernameAndPassword = (username + ":" + password).getBytes();
-        return ValuePattern.equalTo("Basic " + new String(Base64.encodeBase64(usernameAndPassword), UTF_8));
-    }
-
     public MultiValuePattern asAuthorizationMultiValuePattern() {
         byte[] usernameAndPassword = (username + ":" + password).getBytes();
         return MultiValuePattern.of(
-            StringValuePattern.equalTo(
+            WireMock.equalTo(
                 "Basic " + new String(Base64.encodeBase64(usernameAndPassword), UTF_8))
         );
     }

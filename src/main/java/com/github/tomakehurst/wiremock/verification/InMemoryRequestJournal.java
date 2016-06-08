@@ -19,21 +19,20 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.NewRequestPattern.thatMatch;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
@@ -58,10 +57,10 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
 	}
 
-    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
+    private Predicate<Request> matchedBy(final NewRequestPattern requestPattern) {
 		return new Predicate<Request>() {
 			public boolean apply(Request input) {
-				return requestPattern.isMatchedBy(input);
+				return requestPattern.isMatchedBy(input, Collections.<String, RequestMatcherExtension>emptyMap());
 			}
 		};
 	}

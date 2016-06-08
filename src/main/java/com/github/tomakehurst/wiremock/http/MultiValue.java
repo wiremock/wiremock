@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.common.base.Predicate;
 
 import java.util.List;
@@ -63,15 +63,15 @@ public class MultiValue {
         return values.contains(expectedValue);
     }
 
-    public boolean hasValueMatching(final ValuePattern valuePattern) {
+    public boolean hasValueMatching(final StringValuePattern valuePattern) {
         return (valuePattern.nullSafeIsAbsent() && !isPresent())
                 || anyValueMatches(valuePattern);
     }
 
-    private boolean anyValueMatches(final ValuePattern valuePattern) {
+    private boolean anyValueMatches(final StringValuePattern valuePattern) {
         return any(values, new Predicate<String>() {
             public boolean apply(String headerValue) {
-                return valuePattern.isMatchFor(headerValue);
+                return valuePattern.match(headerValue).isExactMatch();
             }
         });
     }

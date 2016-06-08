@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -177,13 +175,11 @@ public class WireMockClientTest {
 	@Test
 	public void shouldVerifyRequestMadeWhenCountMoreThan0() {
 		context.checking(new Expectations() {{
-            NewRequestPattern requestPattern = newRequestPattern(DELETE, UrlPattern.equalTo("/to/delete")).build();
+            NewRequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/to/delete")).build();
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(3)));
 		}});
 
-		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
-		urlStrategy.setUrl("/to/delete");
-		wireMock.verifyThat(new RequestPatternBuilder(RequestMethod.DELETE, urlStrategy));
+		wireMock.verifyThat(newRequestPattern(RequestMethod.DELETE, urlEqualTo("/to/delete")));
 	}
 	
 	@Test(expected=VerificationException.class)
@@ -194,9 +190,7 @@ public class WireMockClientTest {
                 will(returnValue(FindRequestsResult.withRequests(ImmutableList.<LoggedRequest>of())));
 		}});
 		
-		UrlMatchingStrategy urlStrategy = new UrlMatchingStrategy();
-		urlStrategy.setUrl("/wrong/url");
-		wireMock.verifyThat(new RequestPatternBuilder(RequestMethod.DELETE, urlStrategy));
+		wireMock.verifyThat(newRequestPattern(RequestMethod.DELETE, urlEqualTo("/wrong/url")));
 	}
 
     @Test

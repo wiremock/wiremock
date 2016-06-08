@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -25,7 +25,9 @@ import org.junit.Test;
 
 import java.util.Iterator;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
+import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactly;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -134,7 +136,7 @@ public class SortedConcurrentMappingSetTest {
 	}
 
 	private StubMapping aMapping(Integer priority, String url) {
-		RequestPattern requestPattern = new RequestPattern(ANY, url);
+		NewRequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
 		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
 		mapping.setPriority(priority);
 		return mapping;

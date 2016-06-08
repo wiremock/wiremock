@@ -16,13 +16,13 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
-import com.github.tomakehurst.wiremock.client.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.NewLocalRequestPatternBuilder;
 
 public interface LocalStubbing extends Stubbing {
 
     void givenThat(LocalMappingBuilder mappingBuilder);
     void stubFor(LocalMappingBuilder mappingBuilder);
 
-    void verify(LocalRequestPatternBuilder requestPatternBuilder);
-    void verify(int count, LocalRequestPatternBuilder requestPatternBuilder);
+    void verify(NewLocalRequestPatternBuilder requestPatternBuilder);
+    void verify(int count, NewLocalRequestPatternBuilder requestPatternBuilder);
 }

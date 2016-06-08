@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
@@ -61,7 +64,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              Map<String, MultiValuePattern> queryParams,
                              Map<String, StringValuePattern> cookies,
                              BasicCredentials basicAuthCredentials,
-                             List<StringValuePattern> bodyPatterns) {
+                             List<StringValuePattern> bodyPatterns,
+                             CustomMatcherDefinition customMatcherDefinition) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -70,6 +74,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         this.basicAuthCredentials = basicAuthCredentials;
         this.bodyPatterns = bodyPatterns;
         this.matcher = defaultMatcher;
+        this.customMatcherDefinition = customMatcherDefinition;
     }
 
     @JsonCreator
@@ -82,7 +87,8 @@ public class NewRequestPattern implements ValueMatcher<Request> {
                              @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
                              @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                              @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
-                             @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns) {
+                             @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
+                             @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
 
         this(
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -91,23 +97,27 @@ public class NewRequestPattern implements ValueMatcher<Request> {
             queryParams,
             cookies,
             basicAuthCredentials,
-            bodyPatterns
+            bodyPatterns,
+            customMatcherDefinition
         );
     }
 
     public NewRequestPattern(RequestMatcher customMatcher) {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }
 
     public NewRequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, null, null, null, null, null);
-        this.customMatcherDefinition = customMatcherDefinition;
+        this(null, null, null, null, null, null, null, customMatcherDefinition);
     }
 
     @Override
     public MatchResult match(Request request) {
         return match(request, null);
+    }
+
+    public static NewRequestPattern everything() {
+        return newRequestPattern(RequestMethod.ANY, anyUrl()).build();
     }
 
     public MatchResult match(Request request,  Map<String, RequestMatcherExtension> customMatchers) {
@@ -218,7 +228,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     }
 
     private String urlPatternOrNull(Class<? extends UrlPattern> clazz, boolean regex) {
-        return (url != null && url.getClass().equals(clazz) && url.isRegex() == regex) ? url.getPattern().getValue() : null;
+        return (url != null && url.getClass().equals(clazz) && url.isRegex() == regex && url.isSpecified()) ? url.getPattern().getValue() : null;
     }
 
     public RequestMethod getMethod() {
@@ -227,6 +237,10 @@ public class NewRequestPattern implements ValueMatcher<Request> {
 
     public Map<String, MultiValuePattern> getHeaders() {
         return headers;
+    }
+
+    public BasicCredentials getBasicAuthCredentials() {
+        return basicAuthCredentials;
     }
 
     public Map<String, MultiValuePattern> getQueryParameters() {
@@ -241,9 +255,17 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return bodyPatterns;
     }
 
+    public CustomMatcherDefinition getCustomMatcher() {
+        return customMatcherDefinition;
+    }
+
     @Override
     public String getName() {
         return "requestMatching";
+    }
+
+    public boolean hasCustomMatcher() {
+        return matcher != defaultMatcher;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import org.hamcrest.Description;
@@ -8,13 +9,14 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.absent;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.matching.StringValuePattern.equalTo;
-import static com.github.tomakehurst.wiremock.matching.StringValuePattern.matches;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
@@ -25,7 +27,7 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWith0DistanceWhenUrlAndMethodAreExactMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest().method(PUT).url("/my/url"));
@@ -36,7 +38,7 @@ public class NewRequestPatternTest {
     @Test
     public void returnsNon0DistanceWhenUrlDoesNotMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
             .withUrl("/my/url")
             .build();
 
@@ -48,8 +50,8 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWith0DistanceWhenAllRequiredHeadersMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
-            .withHeader("My-Header", MultiValuePattern.of(equalTo("my-expected-header-val")))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+            .withHeader("My-Header", equalTo("my-expected-header-val"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -63,9 +65,9 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchWhenHeaderDoesNotMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
-            .withHeader("My-Header", MultiValuePattern.of(equalTo("my-expected-header-val")))
-            .withHeader("My-Other-Header", MultiValuePattern.of(equalTo("my-other-expected-header-val")))
+            newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+            .withHeader("My-Header", equalTo("my-expected-header-val"))
+            .withHeader("My-Other-Header", equalTo("my-other-expected-header-val"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -80,9 +82,9 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWhenRequiredAbsentHeaderIsAbsent() {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
-            .withHeader("My-Header", MultiValuePattern.absent())
-            .withHeader("My-Other-Header", MultiValuePattern.of(equalTo("my-other-expected-header-val")))
+            newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+            .withHeader("My-Header", absent())
+            .withHeader("My-Other-Header", equalTo("my-other-expected-header-val"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -96,9 +98,9 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchWhenRequiredAbsentHeaderIsPresent() {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
-            .withHeader("My-Header", MultiValuePattern.absent())
-            .withHeader("My-Other-Header", MultiValuePattern.of(equalTo("my-other-expected-header-val")))
+            newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+            .withHeader("My-Header", absent())
+            .withHeader("My-Other-Header", equalTo("my-other-expected-header-val"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -113,7 +115,7 @@ public class NewRequestPatternTest {
     @Test
     public void bindsToJsonCompatibleWithOriginalRequestPatternForUrl() throws Exception {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPattern.equalTo("/my/url"))
+            newRequestPattern(GET, WireMock.urlEqualTo("/my/url"))
             .build();
 
         String actualJson = Json.write(requestPattern);
@@ -130,7 +132,7 @@ public class NewRequestPatternTest {
     @Test
     public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPattern() throws Exception {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPattern.matching("/my/url"))
+            newRequestPattern(GET, WireMock.urlMatching("/my/url"))
             .build();
 
         String actualJson = Json.write(requestPattern);
@@ -147,7 +149,7 @@ public class NewRequestPatternTest {
     @Test
     public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathPattern() throws Exception {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.matching("/my/url"))
+            newRequestPattern(GET, WireMock.urlPathMatching("/my/url"))
             .build();
 
         String actualJson = Json.write(requestPattern);
@@ -164,9 +166,9 @@ public class NewRequestPatternTest {
     @Test
     public void bindsToJsonCompatibleWithOriginalRequestPatternForUrlPathAndHeaders() throws Exception {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
-            .withHeader("Accept", MultiValuePattern.of(matches("(.*)xml(.*)")))
-            .withHeader("If-None-Match", MultiValuePattern.of(matches("([a-z0-9]*)")))
+            newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+            .withHeader("Accept", matching("(.*)xml(.*)"))
+            .withHeader("If-None-Match", matching("([a-z0-9]*)"))
             .build();
 
         String actualJson = Json.write(requestPattern);
@@ -194,9 +196,9 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWith0DistanceWhenAllRequiredQueryParametersMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
-            .withQueryParam("param1", MultiValuePattern.of(equalTo("1")))
-            .withQueryParam("param2", MultiValuePattern.of(equalTo("2")))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+            .withQueryParam("param1", equalTo("1"))
+            .withQueryParam("param2", equalTo("2"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -209,9 +211,9 @@ public class NewRequestPatternTest {
     @Test
     public void returnsNon0DistanceWhenRequiredQueryParameterMatchDoesNotMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
-            .withQueryParam("param1", MultiValuePattern.of(equalTo("1")))
-            .withQueryParam("param2", MultiValuePattern.of(equalTo("2")))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+            .withQueryParam("param1", equalTo("1"))
+            .withQueryParam("param2", equalTo("2"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -224,9 +226,9 @@ public class NewRequestPatternTest {
     @Test
     public void bindsToJsonCompatibleWithOriginalRequestPatternWithQueryParams() throws Exception {
         NewRequestPattern requestPattern =
-            newRequestPattern(GET, UrlPathPattern.equalTo("/my/url"))
-            .withQueryParam("param1", MultiValuePattern.of(equalTo("1")))
-            .withQueryParam("param2", MultiValuePattern.of(matches("2")))
+            newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+            .withQueryParam("param1", equalTo("1"))
+            .withQueryParam("param2", matching("2"))
             .build();
 
         String actualJson = Json.write(requestPattern);
@@ -251,9 +253,9 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWith0DistanceWhenBodyPatternsAllMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
-            .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
-            .withRequestBody(StringValuePattern.containing("two"))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+            .withRequestBody(WireMock.equalTo("exactwordone approxwordtwo blah blah"))
+            .withRequestBody(WireMock.containing("two"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -267,9 +269,9 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchExactlyWhenOneBodyPatternDoesNotMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(PUT, UrlPathPattern.equalTo("/my/url"))
-            .withRequestBody(StringValuePattern.equalTo("exactwordone approxwordtwo blah blah"))
-            .withRequestBody(StringValuePattern.containing("three"))
+            newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+            .withRequestBody(WireMock.equalTo("exactwordone approxwordtwo blah blah"))
+            .withRequestBody(WireMock.containing("three"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -283,8 +285,8 @@ public class NewRequestPatternTest {
     @Test
     public void matchesExactlyWhenAllCookiesMatch() {
         NewRequestPattern requestPattern =
-            newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
-            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+            .withCookie("my_cookie", WireMock.equalTo("my-cookie-value"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -299,8 +301,8 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchWhenARequiredCookieIsMissing() {
         NewRequestPattern requestPattern =
-            newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
-            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+            .withCookie("my_cookie", WireMock.equalTo("my-cookie-value"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -313,8 +315,8 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchWhenRequiredCookieValueIsWrong() {
         NewRequestPattern requestPattern =
-            newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
-            .withCookie("my_cookie", StringValuePattern.equalTo("my-cookie-value"))
+            newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+            .withCookie("my_cookie", WireMock.equalTo("my-cookie-value"))
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -328,8 +330,8 @@ public class NewRequestPatternTest {
     @Test
     public void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
         NewRequestPattern requestPattern =
-            newRequestPattern(POST, UrlPathPattern.equalTo("/my/url"))
-            .withCookie("my_cookie", StringValuePattern.absent())
+            newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+            .withCookie("my_cookie", absent())
             .build();
 
         MatchResult matchResult = requestPattern.match(mockRequest()
@@ -374,15 +376,15 @@ public class NewRequestPatternTest {
 
     @Test
     public void correctlySerialisesBodyPatterns() throws Exception {
-        NewRequestPattern requestPattern = newRequestPattern(RequestMethod.PUT, UrlPattern.equalTo("/all/body/patterns"))
-            .withRequestBody(StringValuePattern.equalTo("thing"))
-            .withRequestBody(StringValuePattern.equalToJson("{ \"thing\": 1 }"))
-            .withRequestBody(StringValuePattern.matchesJsonPath("@.*"))
-            .withRequestBody(StringValuePattern.equalToXml("<thing />"))
-            .withRequestBody(StringValuePattern.matchesXPath("//thing"))
-            .withRequestBody(StringValuePattern.containing("thin"))
-            .withRequestBody(StringValuePattern.matches(".*thing.*"))
-            .withRequestBody(StringValuePattern.doesNotMatch("^stuff.+"))
+        NewRequestPattern requestPattern = newRequestPattern(RequestMethod.PUT, WireMock.urlEqualTo("/all/body/patterns"))
+            .withRequestBody(WireMock.equalTo("thing"))
+            .withRequestBody(WireMock.equalToJson("{ \"thing\": 1 }"))
+            .withRequestBody(WireMock.matchingJsonPath("@.*"))
+            .withRequestBody(WireMock.equalToXml("<thing />"))
+            .withRequestBody(WireMock.matchingXPath("//thing"))
+            .withRequestBody(WireMock.containing("thin"))
+            .withRequestBody(WireMock.matching(".*thing.*"))
+            .withRequestBody(WireMock.notMatching("^stuff.+"))
             .build();
 
         String json = Json.write(requestPattern);
