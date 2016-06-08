@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 
 @RunWith(JMock.class)
 public class WireMockClientTest {
@@ -175,7 +175,7 @@ public class WireMockClientTest {
 	@Test
 	public void shouldVerifyRequestMadeWhenCountMoreThan0() {
 		context.checking(new Expectations() {{
-            NewRequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/to/delete")).build();
+            RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/to/delete")).build();
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(3)));
 		}});
 
@@ -185,8 +185,8 @@ public class WireMockClientTest {
 	@Test(expected=VerificationException.class)
 	public void shouldThrowVerificationExceptionWhenVerifyingRequestNotMatching() {
 		context.checking(new Expectations() {{
-			allowing(admin).countRequestsMatching(with(any(NewRequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-            allowing(admin).findRequestsMatching(with(any(NewRequestPattern.class)));
+			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+            allowing(admin).findRequestsMatching(with(any(RequestPattern.class)));
                 will(returnValue(FindRequestsResult.withRequests(ImmutableList.<LoggedRequest>of())));
 		}});
 		

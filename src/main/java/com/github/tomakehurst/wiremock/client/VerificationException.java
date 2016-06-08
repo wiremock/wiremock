@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.util.List;
@@ -29,17 +29,17 @@ public class VerificationException extends AssertionError {
 		super(message);
 	}
 
-    public VerificationException(NewRequestPattern expected, List<LoggedRequest> requests) {
+    public VerificationException(RequestPattern expected, List<LoggedRequest> requests) {
         super(String.format("Expected at least one request matching: %s\nRequests received: %s",
                 expected.toString(), Json.write(requests)));
     }
 
-    public VerificationException(NewRequestPattern expected, int expectedCount, List<LoggedRequest> requests) {
+    public VerificationException(RequestPattern expected, int expectedCount, List<LoggedRequest> requests) {
         super(String.format("Expected exactly %d requests matching: %s\nRequests received: %s",
                 expectedCount, expected.toString(), Json.write(requests)));
     }
 
-    public VerificationException(NewRequestPattern expected, CountMatchingStrategy count, List<LoggedRequest> requests) {
+    public VerificationException(RequestPattern expected, CountMatchingStrategy count, List<LoggedRequest> requests) {
         super(String.format("Expected %s requests matching: %s\nRequests received: %s",
                 count.toString().toLowerCase(), expected.toString(), Json.write(requests)));
     }

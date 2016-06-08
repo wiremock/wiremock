@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.*;
@@ -138,7 +138,7 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public VerificationResult countRequestsMatching(NewRequestPattern requestPattern) {
+    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
         try {
             return VerificationResult.withCount(requestJournal.countRequestsMatching(requestPattern));
         } catch (RequestJournalDisabledException e) {
@@ -147,7 +147,7 @@ public class WireMockApp implements StubServer, Admin {
     }
     
     @Override
-    public FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern) {
+    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         try {
             List<LoggedRequest> requests = requestJournal.getRequestsMatching(requestPattern);
             return FindRequestsResult.withRequests(requests);

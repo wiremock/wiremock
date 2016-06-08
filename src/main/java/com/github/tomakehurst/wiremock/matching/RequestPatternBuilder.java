@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
-public class NewRequestPatternBuilder {
+public class RequestPatternBuilder {
 
     private UrlPattern url;
     private RequestMethod method;
@@ -25,85 +25,85 @@ public class NewRequestPatternBuilder {
 
     private CustomMatcherDefinition customMatcherDefinition;
 
-    public NewRequestPatternBuilder() {
+    public RequestPatternBuilder() {
     }
 
-    public NewRequestPatternBuilder(RequestMatcher customMatcher) {
+    public RequestPatternBuilder(RequestMatcher customMatcher) {
         this.customMatcher = customMatcher;
     }
 
-    public NewRequestPatternBuilder(RequestMethod method, UrlPattern url) {
+    public RequestPatternBuilder(RequestMethod method, UrlPattern url) {
         this.method = method;
         this.url = url;
     }
 
-    public NewRequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
+    public RequestPatternBuilder(String customRequestMatcherName, Parameters parameters) {
         this.customMatcherDefinition = new CustomMatcherDefinition(customRequestMatcherName, parameters);
     }
 
-    public static NewRequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {
-        return new NewRequestPatternBuilder(method, url);
+    public static RequestPatternBuilder newRequestPattern(RequestMethod method, UrlPattern url) {
+        return new RequestPatternBuilder(method, url);
     }
 
-    public static NewRequestPatternBuilder newRequestPattern() {
-        return new NewRequestPatternBuilder();
+    public static RequestPatternBuilder newRequestPattern() {
+        return new RequestPatternBuilder();
     }
 
-    public static NewRequestPatternBuilder forCustomMatcher(RequestMatcher requestMatcher) {
-        return new NewRequestPatternBuilder(requestMatcher);
+    public static RequestPatternBuilder forCustomMatcher(RequestMatcher requestMatcher) {
+        return new RequestPatternBuilder(requestMatcher);
     }
 
-    public static NewRequestPatternBuilder forCustomMatcher(String customRequestMatcherName, Parameters parameters) {
-        return new NewRequestPatternBuilder(customRequestMatcherName, parameters);
+    public static RequestPatternBuilder forCustomMatcher(String customRequestMatcherName, Parameters parameters) {
+        return new RequestPatternBuilder(customRequestMatcherName, parameters);
     }
 
-    public static NewRequestPatternBuilder allRequests() {
-        return new NewRequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
+    public static RequestPatternBuilder allRequests() {
+        return new RequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
     }
 
-    public NewRequestPatternBuilder withUrl(String url) {
+    public RequestPatternBuilder withUrl(String url) {
         this.url = WireMock.urlEqualTo(url);
         return this;
     }
 
-    public NewRequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
+    public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
         headers.put(key, MultiValuePattern.of(valuePattern));
         return this;
     }
 
-    public NewRequestPatternBuilder withoutHeader(String key) {
+    public RequestPatternBuilder withoutHeader(String key) {
         headers.put(key, MultiValuePattern.absent());
         return this;
     }
 
-    public NewRequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
+    public RequestPatternBuilder withQueryParam(String key, StringValuePattern valuePattern) {
         queryParams.put(key, MultiValuePattern.of(valuePattern));
         return this;
     }
 
-    public NewRequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
+    public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
         cookies.put(key, valuePattern);
         return this;
     }
 
-    public NewRequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
+    public RequestPatternBuilder withBasicAuth(BasicCredentials basicCredentials) {
         this.basicCredentials = basicCredentials;
         return this;
     }
 
-    public NewRequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
+    public RequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
         this.bodyPatterns.add(valuePattern);
         return this;
     }
 
 
 
-    public NewRequestPattern build() {
+    public RequestPattern build() {
         return customMatcher != null ?
-            new NewRequestPattern(customMatcher) :
+            new RequestPattern(customMatcher) :
             customMatcherDefinition != null ?
-                new NewRequestPattern(customMatcherDefinition) :
-                new NewRequestPattern(
+                new RequestPattern(customMatcherDefinition) :
+                new RequestPattern(
                     url,
                     method,
                     headers.isEmpty() ? null : headers,

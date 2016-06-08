@@ -16,11 +16,10 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
@@ -29,7 +28,7 @@ import static com.github.tomakehurst.wiremock.WireMockServer.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.lang.System.out;
 
 public class WireMockServerRunner {
@@ -88,7 +87,7 @@ public class WireMockServerRunner {
 		wireMockServer.loadMappingsUsing(new MappingsLoader() {
 			@Override
 			public void loadMappingsInto(StubMappings stubMappings) {
-                NewRequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
+                RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
 				ResponseDefinition responseDef = responseDefinition()
 						.proxiedFrom(baseUrl)
 						.build();

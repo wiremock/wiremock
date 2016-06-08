@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -21,12 +20,12 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
 @JsonSerialize(include = NON_NULL)
-public class NewRequestPattern implements ValueMatcher<Request> {
+public class RequestPattern implements ValueMatcher<Request> {
 
     private final UrlPattern url;
     private final RequestMethod method;
@@ -58,14 +57,14 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         }
     };
 
-    public NewRequestPattern(UrlPattern url,
-                             RequestMethod method,
-                             Map<String, MultiValuePattern> headers,
-                             Map<String, MultiValuePattern> queryParams,
-                             Map<String, StringValuePattern> cookies,
-                             BasicCredentials basicAuthCredentials,
-                             List<StringValuePattern> bodyPatterns,
-                             CustomMatcherDefinition customMatcherDefinition) {
+    public RequestPattern(UrlPattern url,
+                          RequestMethod method,
+                          Map<String, MultiValuePattern> headers,
+                          Map<String, MultiValuePattern> queryParams,
+                          Map<String, StringValuePattern> cookies,
+                          BasicCredentials basicAuthCredentials,
+                          List<StringValuePattern> bodyPatterns,
+                          CustomMatcherDefinition customMatcherDefinition) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -78,17 +77,17 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     }
 
     @JsonCreator
-    public NewRequestPattern(@JsonProperty("url") String url,
-                             @JsonProperty("urlPattern") String urlPattern,
-                             @JsonProperty("urlPath") String urlPath,
-                             @JsonProperty("urlPathPattern") String urlPathPattern,
-                             @JsonProperty("method") RequestMethod method,
-                             @JsonProperty("headers") Map<String, MultiValuePattern> headers,
-                             @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
-                             @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
-                             @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
-                             @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
-                             @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
+    public RequestPattern(@JsonProperty("url") String url,
+                          @JsonProperty("urlPattern") String urlPattern,
+                          @JsonProperty("urlPath") String urlPath,
+                          @JsonProperty("urlPathPattern") String urlPathPattern,
+                          @JsonProperty("method") RequestMethod method,
+                          @JsonProperty("headers") Map<String, MultiValuePattern> headers,
+                          @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+                          @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
+                          @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
+                          @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
+                          @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
 
         this(
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -102,12 +101,12 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         );
     }
 
-    public NewRequestPattern(RequestMatcher customMatcher) {
+    public RequestPattern(RequestMatcher customMatcher) {
         this(null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }
 
-    public NewRequestPattern(CustomMatcherDefinition customMatcherDefinition) {
+    public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
         this(null, null, null, null, null, null, null, customMatcherDefinition);
     }
 
@@ -116,7 +115,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return match(request, null);
     }
 
-    public static NewRequestPattern everything() {
+    public static RequestPattern everything() {
         return newRequestPattern(RequestMethod.ANY, anyUrl()).build();
     }
 
@@ -272,7 +271,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        NewRequestPattern that = (NewRequestPattern) o;
+        RequestPattern that = (RequestPattern) o;
         return Objects.equal(url, that.url) &&
             Objects.equal(method, that.method) &&
             Objects.equal(headers, that.headers) &&
@@ -293,7 +292,7 @@ public class NewRequestPattern implements ValueMatcher<Request> {
         return "NewRequestPattern:\n" + Json.write(this);
     }
 
-    public static Predicate<Request> thatMatch(final NewRequestPattern pattern) {
+    public static Predicate<Request> thatMatch(final RequestPattern pattern) {
         return new Predicate<Request>() {
             @Override
             public boolean apply(Request request) {

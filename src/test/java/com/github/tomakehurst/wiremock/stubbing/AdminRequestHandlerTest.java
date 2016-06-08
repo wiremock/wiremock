@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -32,7 +32,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
@@ -139,7 +139,7 @@ public class AdminRequestHandlerTest {
 	@Test
 	public void shouldReturnCountOfMatchingRequests() {
 		context.checking(new Expectations() {{
-			NewRequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
+			RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
 		}});
 		

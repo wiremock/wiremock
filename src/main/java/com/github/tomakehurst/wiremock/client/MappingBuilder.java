@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 
-    private NewRequestPatternBuilder requestPatternBuilder;
+    private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
@@ -36,15 +36,15 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	private UUID id;
 
 	public MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
-        requestPatternBuilder = new NewRequestPatternBuilder(method, urlPattern);
+        requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
-        requestPatternBuilder = new NewRequestPatternBuilder(requestMatcher);
+        requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 
 	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
-		requestPatternBuilder = new NewRequestPatternBuilder(customRequestMatcherName, parameters);
+		requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
 	@Override
@@ -120,9 +120,9 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
-		NewRequestPattern newRequestPattern = requestPatternBuilder.build();
+		RequestPattern requestPattern = requestPatternBuilder.build();
 		ResponseDefinition response = responseDefBuilder.build();
-		StubMapping mapping = new StubMapping(newRequestPattern, response);
+		StubMapping mapping = new StubMapping(requestPattern, response);
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);

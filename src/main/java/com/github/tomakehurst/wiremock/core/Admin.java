@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -34,8 +34,8 @@ public interface Admin {
 	void resetRequests();
 	void resetScenarios();
     void resetToDefaultMappings();
-	VerificationResult countRequestsMatching(NewRequestPattern requestPattern);
-    FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern);
+	VerificationResult countRequestsMatching(RequestPattern requestPattern);
+    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
     @Deprecated
     FindServedStubsResult findAllUnmatchedServedStubs();
     FindNearMissesResult findNearMissesForUnmatchedRequests();

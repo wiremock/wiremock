@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.allRequests;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
 
 public class WireMock {
@@ -316,8 +316,8 @@ public class WireMock {
 		return new ResponseDefinitionBuilder();
 	}
 
-	public void verifyThat(NewRequestPatternBuilder requestPatternBuilder) {
-		NewRequestPattern requestPattern = requestPatternBuilder.build();
+	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
+		RequestPattern requestPattern = requestPatternBuilder.build();
         VerificationResult result = admin.countRequestsMatching(requestPattern);
         result.assertRequestJournalEnabled();
 
@@ -326,8 +326,8 @@ public class WireMock {
 		}
 	}
 
-	public void verifyThat(int count, NewRequestPatternBuilder requestPatternBuilder) {
-		NewRequestPattern requestPattern = requestPatternBuilder.build();
+	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
+		RequestPattern requestPattern = requestPatternBuilder.build();
         VerificationResult result = admin.countRequestsMatching(requestPattern);
         result.assertRequestJournalEnabled();
 
@@ -336,8 +336,8 @@ public class WireMock {
 		}
 	}
 
-	public void verifyThat(CountMatchingStrategy count, NewRequestPatternBuilder requestPatternBuilder) {
-		NewRequestPattern requestPattern = requestPatternBuilder.build();
+	public void verifyThat(CountMatchingStrategy count, RequestPatternBuilder requestPatternBuilder) {
+		RequestPattern requestPattern = requestPatternBuilder.build();
 		VerificationResult result = admin.countRequestsMatching(requestPattern);
 		result.assertRequestJournalEnabled();
 
@@ -346,66 +346,66 @@ public class WireMock {
 		}
 	}
 
-	public static void verify(NewRequestPatternBuilder requestPatternBuilder) {
+	public static void verify(RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(requestPatternBuilder);
 	}
 
-	public static void verify(int count, NewRequestPatternBuilder requestPatternBuilder) {
+	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(count, requestPatternBuilder);
 	}
 
-	public static void verify(CountMatchingStrategy countMatchingStrategy, NewRequestPatternBuilder requestPatternBuilder) {
+	public static void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(countMatchingStrategy, requestPatternBuilder);
 	}
 
-    public List<LoggedRequest> find(NewRequestPatternBuilder requestPatternBuilder) {
+    public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
         FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
         result.assertRequestJournalEnabled();
         return result.getRequests();
     }
 
-    public static List<LoggedRequest> findAll(NewRequestPatternBuilder requestPatternBuilder) {
+    public static List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static NewRequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.GET, urlPattern);
+	public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder postRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.POST, urlPattern);
+	public static RequestPatternBuilder postRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.POST, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder putRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.PUT, urlPattern);
+	public static RequestPatternBuilder putRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.PUT, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder deleteRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.DELETE, urlPattern);
+	public static RequestPatternBuilder deleteRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.DELETE, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder patchRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.PATCH, urlPattern);
+	public static RequestPatternBuilder patchRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.PATCH, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder headRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.HEAD, urlPattern);
+	public static RequestPatternBuilder headRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.HEAD, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder optionsRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.OPTIONS, urlPattern);
+	public static RequestPatternBuilder optionsRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.OPTIONS, urlPattern);
 	}
 
-	public static NewRequestPatternBuilder traceRequestedFor(UrlPattern urlPattern) {
-		return new NewRequestPatternBuilder(RequestMethod.TRACE, urlPattern);
+	public static RequestPatternBuilder traceRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.TRACE, urlPattern);
 	}
 
-    public static NewRequestPatternBuilder requestMadeFor(String customMatcherName, Parameters parameters) {
-        return NewRequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
+    public static RequestPatternBuilder requestMadeFor(String customMatcherName, Parameters parameters) {
+        return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static NewLocalRequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
-		return NewLocalRequestPatternBuilder.forCustomMatcher(requestMatcher);
+	public static LocalRequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+		return LocalRequestPatternBuilder.forCustomMatcher(requestMatcher);
 	}
 
 	public static void setGlobalFixedDelay(int milliseconds) {

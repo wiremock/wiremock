@@ -21,15 +21,13 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.FindServedStubsResult;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -82,7 +80,7 @@ public class HttpAdminClient implements Admin {
         }
 
         postJsonAssertOkAndReturnBody(
-                urlFor(NewStubMappingTask.class),
+                urlFor(StubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_CREATED);
     }
@@ -129,7 +127,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public VerificationResult countRequestsMatching(NewRequestPattern requestPattern) {
+    public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(GetRequestCountTask.class),
                 Json.write(requestPattern),
@@ -138,7 +136,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public FindRequestsResult findRequestsMatching(NewRequestPattern requestPattern) {
+    public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindRequestsTask.class),
                 Json.write(requestPattern),

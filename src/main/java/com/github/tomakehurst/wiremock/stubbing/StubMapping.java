@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Objects;
@@ -35,7 +35,7 @@ public class StubMapping {
 
 	private UUID uuid = UUID.randomUUID();
 
-	private NewRequestPattern request;
+	private RequestPattern request;
 
 	private ResponseDefinition response;
 	private Integer priority;
@@ -47,7 +47,7 @@ public class StubMapping {
 	private long insertionIndex;
     private boolean isTransient = true;
 
-	public StubMapping(NewRequestPattern requestPattern, ResponseDefinition response) {
+	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
 	}
@@ -76,7 +76,7 @@ public class StubMapping {
 		this.uuid = uuid;
 	}
 
-    public NewRequestPattern getRequest() {
+    public RequestPattern getRequest() {
 		return request;
 	}
 	
@@ -84,7 +84,7 @@ public class StubMapping {
 		return response;
 	}
 	
-	public void setRequest(NewRequestPattern request) {
+	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
 

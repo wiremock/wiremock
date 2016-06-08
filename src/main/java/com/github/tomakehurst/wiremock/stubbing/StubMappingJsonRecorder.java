@@ -19,8 +19,8 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
-import com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
@@ -32,7 +32,7 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.r
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.Iterables.filter;
 
 public class StubMappingJsonRecorder implements RequestListener {
@@ -53,7 +53,7 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     @Override
     public void requestReceived(Request request, Response response) {
-        NewRequestPattern requestPattern = buildRequestPatternFrom(request);
+        RequestPattern requestPattern = buildRequestPatternFrom(request);
 
         if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
             notifier().info(String.format("Recording mappings for %s", request.getUrl()));
@@ -63,8 +63,8 @@ public class StubMappingJsonRecorder implements RequestListener {
         }
     }
 
-    private NewRequestPattern buildRequestPatternFrom(Request request) {
-        NewRequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
+    private RequestPattern buildRequestPatternFrom(Request request) {
+        RequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
 
         if (!headersToMatch.isEmpty()) {
             for (HttpHeader header: request.getHeaders().all()) {
@@ -95,7 +95,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         return equalTo(request.getBodyAsString());
     }
 
-    private void writeToMappingAndBodyFile(Request request, Response response, NewRequestPattern requestPattern) {
+    private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
         String fileId = idGenerator.generate();
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
@@ -132,7 +132,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         return response.getBody();
     }
 
-    private boolean requestNotAlreadyReceived(NewRequestPattern requestPattern) {
+    private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
         VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
         verificationResult.assertRequestJournalEnabled();
         return (verificationResult.getCount() <= 1);

@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.matching.NewRequestPattern.everything;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
 import static org.hamcrest.Matchers.is;

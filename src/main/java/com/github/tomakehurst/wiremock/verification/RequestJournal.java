@@ -15,15 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.matching.NewRequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 import java.util.List;
 
 public interface RequestJournal {
 
-	int countRequestsMatching(NewRequestPattern requestPattern);
-    List<LoggedRequest> getRequestsMatching(NewRequestPattern requestPattern);
+	int countRequestsMatching(RequestPattern requestPattern);
+    List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
 
     List<ServedStub> getAllServedStubs();
 
