@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -34,6 +35,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.stubbing.ServedStub.NOT_MATCHED;
+import static com.github.tomakehurst.wiremock.stubbing.ServedStub.TO_LOGGED_REQUEST;
 import static com.google.common.collect.FluentIterable.from;
 
 public class WireMockApp implements StubServer, Admin {
@@ -157,14 +160,17 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public FindServedStubsResult findAllUnmatchedServedStubs() {
-        List<ServedStub> servedStubs = from(requestJournal.getAllServedStubs()).filter(new Predicate<ServedStub>() {
-            @Override
-            public boolean apply(ServedStub input) {
-                return input.isNoExactMatch();
-            }
-        }).toList();
-        return new FindServedStubsResult(servedStubs);
+    public FindRequestsResult findUnmatchedRequests() {
+        try {
+            List<LoggedRequest> requests =
+                from(requestJournal.getAllServedStubs())
+                .filter(NOT_MATCHED)
+                .transform(TO_LOGGED_REQUEST)
+                .toList();
+            return FindRequestsResult.withRequests(requests);
+        } catch (RequestJournalDisabledException e) {
+            return FindRequestsResult.withRequestJournalDisabled();
+        }
     }
 
     @Override
@@ -180,10 +186,16 @@ public class WireMockApp implements StubServer, Admin {
             });
 
         for (ServedStub servedStub: unmatchedServedStubs) {
-            listBuilder.addAll(nearMissCalculator.findNearestFor(servedStub.getRequest()));
+            listBuilder.addAll(nearMissCalculator.findNearestTo(servedStub.getRequest()));
         }
 
         return new FindNearMissesResult(listBuilder.build());
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
+        List<NearMiss> nearMisses = nearMissCalculator.findNearestTo(loggedRequest);
+        return new FindNearMissesResult(nearMisses);
     }
 
     @Override

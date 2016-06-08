@@ -280,6 +280,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public List<LoggedRequest> findAllUnmatchedRequests() {
+        return client.findAllUnmatchedRequests();
+    }
+
+    @Override
     public void addStubMapping(StubMapping stubMapping) {
         wireMockApp.addStubMapping(stubMapping);
     }
@@ -330,8 +335,8 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public FindServedStubsResult findAllUnmatchedServedStubs() {
-        return wireMockApp.findAllUnmatchedServedStubs();
+    public FindRequestsResult findUnmatchedRequests() {
+        return wireMockApp.findUnmatchedRequests();
     }
 
     @Override
@@ -345,9 +350,8 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public List<ServedStub> findAllUnmatched() {
-        FindServedStubsResult servedStubsResult = wireMockApp.findAllUnmatchedServedStubs();
-        return servedStubsResult.getServedStubs();
+    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
+        return wireMockApp.findNearMissesFor(loggedRequest);
     }
 
     @Override

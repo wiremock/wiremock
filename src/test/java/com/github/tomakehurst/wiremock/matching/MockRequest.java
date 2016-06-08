@@ -102,12 +102,12 @@ public class MockRequest implements Request {
 
     @Override
     public HttpHeaders getHeaders() {
-        return new HttpHeaders();
+        return headers;
     }
 
     @Override
     public boolean containsHeader(String key) {
-        return false;
+        return headers.getHeader(key).isPresent();
     }
 
     @Override

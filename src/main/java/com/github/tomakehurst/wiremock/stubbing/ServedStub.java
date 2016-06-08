@@ -6,6 +6,8 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import java.util.List;
 
@@ -45,4 +47,18 @@ public class ServedStub {
     public List<NearMiss> getNearMisses() {
         return null;
     }
+
+    public static final Function<ServedStub, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServedStub, LoggedRequest>() {
+        @Override
+        public LoggedRequest apply(ServedStub servedStub) {
+            return servedStub.getRequest();
+        }
+    };
+
+    public static final Predicate<ServedStub> NOT_MATCHED = new Predicate<ServedStub>() {
+        @Override
+        public boolean apply(ServedStub servedStub) {
+            return servedStub.isNoExactMatch();
+        }
+    };
 }

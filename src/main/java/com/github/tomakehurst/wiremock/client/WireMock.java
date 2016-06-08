@@ -441,12 +441,32 @@ public class WireMock {
         defaultInstance.get().shutdown();
     }
 
+    @Deprecated
     public static List<NearMiss> findAllNearMisses() {
         return defaultInstance.get().findNearMissesForAllUnmatched();
     }
 
+    @Deprecated
     public List<NearMiss> findNearMissesForAllUnmatched() {
         FindNearMissesResult nearMissesResult = admin.findNearMissesForUnmatchedRequests();
+        return nearMissesResult.getNearMisses();
+    }
+
+    public static List<LoggedRequest> findUnmatchedRequests() {
+        return defaultInstance.get().findAllUnmatchedRequests();
+    }
+
+    public List<LoggedRequest> findAllUnmatchedRequests() {
+        FindRequestsResult unmatchedResult = admin.findUnmatchedRequests();
+        return unmatchedResult.getRequests();
+    }
+
+    public static List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest) {
+        return defaultInstance.get().findTopNearMissesFor(loggedRequest);
+    }
+
+    public List<NearMiss> findTopNearMissesFor(LoggedRequest loggedRequest) {
+        FindNearMissesResult nearMissesResult = admin.findNearMissesFor(loggedRequest);
         return nearMissesResult.getNearMisses();
     }
 }

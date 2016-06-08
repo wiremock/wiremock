@@ -24,10 +24,7 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.FindServedStubsResult;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -145,14 +142,27 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public FindServedStubsResult findAllUnmatchedServedStubs() {
-        String body = getJsonAssertOkAndReturnBody(urlFor(FindUnmatchedServedStubsTask.class), HTTP_OK);
-        return Json.read(body, FindServedStubsResult.class);
+    public FindRequestsResult findUnmatchedRequests() {
+        String body = getJsonAssertOkAndReturnBody(
+            urlFor(FindUnmatchedRequestsTask.class),
+            HTTP_OK);
+        return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class), HTTP_OK);
+        return Json.read(body, FindNearMissesResult.class);
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
+        String body = postJsonAssertOkAndReturnBody(
+            urlFor(FindNearMissesForRequestTask.class),
+            Json.write(loggedRequest),
+            HTTP_OK
+        );
+
         return Json.read(body, FindNearMissesResult.class);
     }
 

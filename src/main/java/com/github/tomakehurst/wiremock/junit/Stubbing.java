@@ -35,5 +35,5 @@ public interface Stubbing {
 
     void setGlobalFixedDelay(int milliseconds);
 
-    List<ServedStub> findAllUnmatched();
+    List<LoggedRequest> findAllUnmatchedRequests();
 }
