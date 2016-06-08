@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
@@ -17,7 +18,9 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -78,5 +81,17 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+    }
+
+    @Test
+    public void returnsRequestNearMissesForARequestPattern() {
+        testClient.get("/actual11");
+        testClient.get("/actual42");
+
+        List<NearMiss> nearMisses = WireMock.findNearMissesFor(newRequestPattern(GET, urlEqualTo("/actual4")));
+
+        assertThat(nearMisses.size(), is(2));
+        assertThat(nearMisses.get(0).getRequest().getUrl(), is("/actual42"));
+        assertThat(nearMisses.get(1).getRequest().getUrl(), is("/actual11"));
     }
 }

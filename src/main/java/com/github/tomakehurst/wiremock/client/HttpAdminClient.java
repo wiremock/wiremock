@@ -34,6 +34,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.net.HttpURLConnection.*;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
@@ -167,6 +168,17 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
+        String body = postJsonAssertOkAndReturnBody(
+            urlFor(FindNearMissesForRequestPatternTask.class),
+            Json.write(requestPattern),
+            HTTP_OK
+        );
+
+        return Json.read(body, FindNearMissesResult.class);
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings settings) {
         postJsonAssertOkAndReturnBody(
                 urlFor(GlobalSettingsUpdateTask.class),
@@ -214,6 +226,7 @@ public class HttpAdminClient implements Admin {
 
     private String urlFor(Class<? extends AdminTask> taskClass) {
         RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
+        checkNotNull(requestSpec, "No admin task URL is registered for " + taskClass.getSimpleName());
         return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
     }
 }

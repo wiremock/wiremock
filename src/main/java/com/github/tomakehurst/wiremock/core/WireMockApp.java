@@ -194,8 +194,12 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
-        List<NearMiss> nearMisses = nearMissCalculator.findNearestTo(loggedRequest);
-        return new FindNearMissesResult(nearMisses);
+        return new FindNearMissesResult(nearMissCalculator.findNearestTo(loggedRequest));
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
+        return new FindNearMissesResult(nearMissCalculator.findNearestTo(requestPattern));
     }
 
     @Override

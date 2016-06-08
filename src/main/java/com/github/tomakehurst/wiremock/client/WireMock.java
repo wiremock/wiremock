@@ -469,4 +469,13 @@ public class WireMock {
         FindNearMissesResult nearMissesResult = admin.findNearMissesFor(loggedRequest);
         return nearMissesResult.getNearMisses();
     }
+
+    public static List<NearMiss> findNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
+        return defaultInstance.get().findAllNearMissesFor(requestPatternBuilder);
+    }
+
+    public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
+        FindNearMissesResult nearMissesResult = admin.findNearMissesFor(requestPatternBuilder.build());
+        return nearMissesResult.getNearMisses();
+    }
 }

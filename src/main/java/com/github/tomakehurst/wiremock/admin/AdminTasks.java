@@ -41,6 +41,7 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/requests/find"), FindRequestsTask.class)
                 .put(requestSpec(GET,  "/requests/unmatched"), FindUnmatchedRequestsTask.class)
                 .put(requestSpec(POST, "/near-misses/request"), FindNearMissesForRequestTask.class)
+                .put(requestSpec(POST, "/near-misses/request-pattern"), FindNearMissesForRequestPatternTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
                 .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
                 .build();

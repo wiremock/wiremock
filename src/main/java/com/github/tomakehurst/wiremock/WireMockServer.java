@@ -355,6 +355,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
+        return wireMockApp.findNearMissesFor(requestPattern);
+    }
+
+    @Override
     public void shutdownServer() {
         shutdown();
     }

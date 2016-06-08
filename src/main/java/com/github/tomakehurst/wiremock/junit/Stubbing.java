@@ -36,4 +36,5 @@ public interface Stubbing {
     void setGlobalFixedDelay(int milliseconds);
 
     List<LoggedRequest> findAllUnmatchedRequests();
+
 }

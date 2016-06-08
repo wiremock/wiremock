@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -36,6 +37,7 @@ public interface Admin {
 
     FindRequestsResult findUnmatchedRequests();
     FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest);
+    FindNearMissesResult findNearMissesFor(RequestPattern requestPattern);
 
     @Deprecated
     FindNearMissesResult findNearMissesForUnmatchedRequests();
