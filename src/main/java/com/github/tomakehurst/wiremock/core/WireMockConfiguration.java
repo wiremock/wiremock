@@ -44,8 +44,10 @@ public class WireMockConfiguration implements Options {
     private int httpsPort = -1;
     private String keyStorePath = Resources.getResource("keystore").toString();
     private String keyStorePassword = "password";
+    private String keyStoreType = "JKS";
     private String trustStorePath;
     private String trustStorePassword = "password";
+    private String trustStoreType = "JKS";
     private boolean needClientAuth;
 
     private boolean browserProxyingEnabled = false;
@@ -238,8 +240,10 @@ public class WireMockConfiguration implements Options {
                 .port(httpsPort)
                 .keyStorePath(keyStorePath)
                 .keyStorePassword(keyStorePassword)
+                .keyStoreType(keyStoreType)
                 .trustStorePath(trustStorePath)
                 .trustStorePassword(trustStorePassword)
+                .trustStoreType(trustStoreType)
                 .needClientAuth(needClientAuth)
                 .build();
     }
