@@ -1,7 +1,6 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -13,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.common.collect.FluentIterable.from;
-import static java.lang.Math.log;
 import static java.lang.Math.min;
 
 public class NearMissCalculator {

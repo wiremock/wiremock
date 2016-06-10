@@ -1,7 +1,9 @@
-package com.github.tomakehurst.wiremock.matching;
+package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;

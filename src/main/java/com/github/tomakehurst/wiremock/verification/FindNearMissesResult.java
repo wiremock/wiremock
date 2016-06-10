@@ -2,7 +2,6 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.matching.NearMiss;
 
 import java.util.List;
 

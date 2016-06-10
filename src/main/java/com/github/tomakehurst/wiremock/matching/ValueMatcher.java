@@ -8,4 +8,7 @@ public interface ValueMatcher<T> {
 
     @JsonIgnore
     String getName();
+
+    @JsonIgnore
+    String getExpected();
 }

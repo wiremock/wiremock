@@ -74,6 +74,11 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
     }
 
     @Override
+    public String getExpected() {
+        return toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

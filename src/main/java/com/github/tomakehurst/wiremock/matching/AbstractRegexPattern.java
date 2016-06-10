@@ -20,4 +20,5 @@ public abstract class AbstractRegexPattern extends StringValuePattern {
         Matcher matcher = pattern.matcher(value);
         return MatchResult.of(matcher.matches());
     }
+
 }

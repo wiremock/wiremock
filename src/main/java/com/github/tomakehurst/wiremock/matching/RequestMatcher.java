@@ -17,4 +17,10 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.http.Request;
 
-public interface RequestMatcher extends ValueMatcher<Request> {}
+public abstract class RequestMatcher implements ValueMatcher<Request> {
+
+    @Override
+    public String getExpected() {
+        return "(custom request matcher - override this for meaningful diff)";
+    }
+}

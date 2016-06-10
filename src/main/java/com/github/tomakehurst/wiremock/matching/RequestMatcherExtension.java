@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import static com.github.tomakehurst.wiremock.matching.MatchResult.exactMatch;
 import static com.github.tomakehurst.wiremock.matching.MatchResult.noMatch;
 
-public abstract class RequestMatcherExtension implements Extension, RequestMatcher {
+public abstract class RequestMatcherExtension extends RequestMatcher implements Extension {
 
     @Override
     public MatchResult match(Request request) {

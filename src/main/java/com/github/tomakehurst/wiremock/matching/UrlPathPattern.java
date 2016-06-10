@@ -1,7 +1,5 @@
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-
 import java.net.URI;
 
 public class UrlPathPattern extends UrlPattern {
@@ -16,4 +14,8 @@ public class UrlPathPattern extends UrlPattern {
         return super.match(path);
     }
 
+    @Override
+    public String toString() {
+        return "path " + pattern.toString();
+    }
 }

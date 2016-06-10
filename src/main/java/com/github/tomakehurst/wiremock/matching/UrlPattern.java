@@ -51,6 +51,16 @@ public class UrlPattern implements ValueMatcher<String> {
     }
 
     @Override
+    public String getExpected() {
+        return pattern.expectedValue;
+    }
+
+    @Override
+    public String toString() {
+        return "path and query " + pattern.toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

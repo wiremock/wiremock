@@ -1,11 +1,10 @@
-package com.github.tomakehurst.wiremock.matching;
+package com.github.tomakehurst.wiremock.verification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-
-import static com.google.common.base.Optional.fromNullable;
 
 public class NearMiss implements Comparable<NearMiss> {
 

@@ -1,7 +1,6 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.NearMiss;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import org.jmock.Expectations;

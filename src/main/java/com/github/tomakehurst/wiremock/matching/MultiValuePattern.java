@@ -56,6 +56,11 @@ public class MultiValuePattern implements ValueMatcher<MultiValue> {
         return valuePattern.getName();
     }
 
+    @Override
+    public String getExpected() {
+        return valuePattern.expectedValue;
+    }
+
     private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {
         List<MatchResult> allResults = Lists.transform(values, new Function<String, MatchResult>() {
             public MatchResult apply(String input) {
