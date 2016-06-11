@@ -62,12 +62,12 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
 
     @Override
     public String getName() {
-        return "methodMatching";
+        return name;
     }
 
     @Override
     public String getExpected() {
-        return toString();
+        return getName();
     }
 
     @Override

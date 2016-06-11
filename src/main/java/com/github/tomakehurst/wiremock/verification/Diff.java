@@ -1,15 +1,22 @@
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.collect.FluentIterable.from;
 
 public class Diff {
@@ -27,34 +34,62 @@ public class Diff {
     @Override
     public String toString() {
         ImmutableList.Builder<Section<?>> builder = ImmutableList.builder();
-        builder.add(new Section<>(requestPattern.getUrlMatcher(), request.getUrl(), requestPattern.getUrlMatcher().getExpected()));
 
-        for (HttpHeader header: request.getHeaders().all()) {
-            MultiValuePattern headerPattern = requestPattern.getHeaders().get(header.key());
-            String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
-            builder.add(new Section<>(headerPattern, header, printedPatternValue));
+        builder.add(new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName()));
+
+        builder.add(new Section<>(requestPattern.getUrlMatcher(),
+            request.getUrl(),
+            requestPattern.getUrlMatcher().getExpected()));
+
+        Map<String, MultiValuePattern> headerPatterns = requestPattern.getHeaders();
+        if (headerPatterns != null && !headerPatterns.isEmpty()) {
+            for (String key : getCombinedHeaderKeys()) {
+                HttpHeader header = request.header(key);
+                MultiValuePattern headerPattern = headerPatterns.get(header.key());
+                String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
+                builder.add(new Section<>(headerPattern, header, printedPatternValue));
+            }
         }
 
-        ImmutableList<Section<?>> sections = from(builder.build()).filter(SHOULD_BE_INCLUDED).toList();
+        List<StringValuePattern> bodyPatterns = requestPattern.getBodyPatterns();
+        if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
+            for (StringValuePattern pattern: bodyPatterns) {
+                String body = pattern.getClass().equals(EqualToJsonPattern.class) ?
+                    Json.prettyPrint(request.getBodyAsString()) :
+                    request.getBodyAsString();
+                builder.add(new Section<>(pattern, body, pattern.getExpected()));
+            }
+        }
 
-        String expected = Joiner.on("\n").join(
-            from(sections).transform(EXPECTED)
-        );
-        String actual = Joiner.on("\n").join(
-            from(sections).transform(ACTUAL)
-        );
+        ImmutableList<Section<?>> sections =
+            from(builder.build())
+            .filter(SHOULD_BE_INCLUDED)
+            .toList();
+
+        String expected = Joiner.on("\n")
+            .join(from(sections).transform(EXPECTED));
+        String actual = Joiner.on("\n")
+            .join(from(sections).transform(ACTUAL));
 
         return sections.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
     }
 
+    private Set<String> getCombinedHeaderKeys() {
+        return ImmutableSet.<String>builder()
+            .addAll(request.getAllHeaderKeys())
+            .addAll(fromNullable(requestPattern.getHeaders())
+                .or(Collections.<String, MultiValuePattern>emptyMap()).keySet())
+            .build();
+    }
+
     public static String junitStyleDiffMessage(Object expected, Object actual) {
         return "\n" +
-            "Expected: is \"\n" +
+            "Expected: " +
             expected +
-            "\"\n" +
-            "     but: was \"\n" +
+            "\n" +
+            "     but: was " +
             actual +
-            "\"\n\n";
+            "\n\n";
     }
 
     private class Section<V> {

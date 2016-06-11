@@ -310,4 +310,27 @@ public class EqualToJsonTest {
             false);
     }
 
+    @Test
+    public void returnsNoExactMatchForVerySimilarNestedDocs() {
+        assertFalse(
+            new EqualToJsonPattern(
+                "{\n" +
+                    "    \"outer\": {\n" +
+                    "        \"inner:\": {\n" +
+                    "            \"wrong\": 1\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}", false, false
+            ).match(
+                "{\n" +
+                "    \"outer\": {\n" +
+                "        \"inner:\": {\n" +
+                "            \"thing\": 1\n" +
+                "        }\n" +
+                "    }\n" +
+                "}"
+            ).isExactMatch()
+        );
+    }
+
 }

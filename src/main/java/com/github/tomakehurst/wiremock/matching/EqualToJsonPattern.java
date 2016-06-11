@@ -54,6 +54,11 @@ public class EqualToJsonPattern extends StringValuePattern {
     }
 
     @Override
+    public String getExpected() {
+        return Json.prettyPrint(getValue());
+    }
+
+    @Override
     public MatchResult match(String value) {
         JsonNode actual = Json.read(value, JsonNode.class);
         ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual);
@@ -68,7 +73,7 @@ public class EqualToJsonPattern extends StringValuePattern {
         int acc = 0;
         for (JsonNode child: diff) {
             String operation = child.findValue("op").textValue();
-            JsonNode pathString = child.findValue("path");
+            JsonNode pathString = getFromPathString(operation, child);
             List<String> path = getPath(pathString.textValue());
             if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation)) {
                 JsonNode valueNode = child.findValue("value");
@@ -82,6 +87,14 @@ public class EqualToJsonPattern extends StringValuePattern {
         }
 
         return acc;
+    }
+
+    private static JsonNode getFromPathString(String operation, JsonNode node) {
+        if (operation.equals("move")) {
+            return node.findValue("from");
+        }
+
+        return node.findValue("path");
     }
 
     private boolean extraElementsIgnoredAndIsAddition(String operation) {

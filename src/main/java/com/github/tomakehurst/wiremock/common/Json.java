@@ -30,7 +30,7 @@ public final class Json {
 
     public static <T> T read(String json, Class<T> clazz) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
@@ -41,16 +41,20 @@ public final class Json {
 	
 	public static <T> String write(T object) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 		} catch (IOException ioe) {
             return throwUnchecked(ioe, String.class);
 		}
 	}
 
-	public static byte[] toByteArray(Object object) {
+    private static ObjectMapper getObjectMapper() {
+        return new ObjectMapper();
+    }
+
+    public static byte[] toByteArray(Object object) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			return mapper.writeValueAsBytes(object);
 		} catch (IOException ioe) {
             return throwUnchecked(ioe, byte[].class);
@@ -86,4 +90,14 @@ public final class Json {
         return acc;
     }
 
+    public static String prettyPrint(String json) {
+        ObjectMapper mapper = getObjectMapper();
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+                mapper.readValue(json, JsonNode.class)
+            );
+        } catch (IOException e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
 }

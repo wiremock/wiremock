@@ -75,7 +75,7 @@ public abstract class StringValuePattern implements ValueMatcher<String> {
 
     @Override
     public String getExpected() {
-        return toString();
+        return getValue();
     }
 
     @Override
