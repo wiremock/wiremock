@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Xml;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import org.xmlunit.XMLUnitException;
@@ -38,6 +39,11 @@ public class EqualToXmlPattern extends StringValuePattern {
 
     public String getEqualToXml() {
         return expectedValue;
+    }
+
+    @Override
+    public String getExpected() {
+        return Xml.prettyPrint(getValue());
     }
 
     @Override

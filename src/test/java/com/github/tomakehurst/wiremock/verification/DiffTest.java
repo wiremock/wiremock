@@ -38,14 +38,13 @@ public class DiffTest {
                 .build(),
             mockRequest()
                 .method(POST)
-                .url("/thing"),
-            false
+                .url("/thing")
         );
 
         assertThat(diff.toString(), is(
             junitStyleDiffMessage(
-                "GET",
-                "POST")
+                "GET\n",
+                "POST\n")
         ));
     }
 
@@ -53,25 +52,23 @@ public class DiffTest {
     public void showsDiffForUrlEqualToWhereRequestPatternIsExpected() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/expected")).build(),
-            mockRequest().url("/actual"),
-            false
+            mockRequest().url("/actual")
         );
 
         assertThat(diff.toString(), is(
-            junitStyleDiffMessage("/expected", "/actual")
+            junitStyleDiffMessage("/expected\n", "/actual\n")
         ));
     }
 
     @Test
     public void showsDiffForUrlEqualToWhereRequestIsExpected() {
         Diff diff = new Diff(
-            newRequestPattern(ANY, urlEqualTo("/actual")).build(),
             mockRequest().url("/expected"),
-            true
+            newRequestPattern(ANY, urlEqualTo("/actual")).build()
         );
 
         assertThat(diff.toString(), is(
-            junitStyleDiffMessage("/expected", "/actual")
+            junitStyleDiffMessage("/expected\n", "/actual\n")
         ));
     }
 
@@ -79,8 +76,7 @@ public class DiffTest {
     public void showsNoDiffForUrlEqualToWhenUrlsAreTheSame() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/expected")).build(),
-            mockRequest().url("/expected"),
-            false
+            mockRequest().url("/expected")
         );
 
         assertThat(diff.toString(), is(""));
@@ -90,32 +86,30 @@ public class DiffTest {
     public void showsDiffForUrlPathMatchingWhereRequestPatternIsExpected() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlPathMatching("/expected/.*")).build(),
-            mockRequest().url("/actual"),
-            false
+            mockRequest().url("/actual")
         );
 
         assertThat(diff.toString(), is(
-            junitStyleDiffMessage("/expected/.*", "/actual")
+            junitStyleDiffMessage("/expected/.*\n", "/actual\n")
         ));
     }
 
     @Test
     public void showsDiffsForsingleNonMatchingHeader() {
         Diff diff = new Diff(
-            newRequestPattern(ANY, urlEqualTo("/thing"))
-                .withHeader("Content-Type", equalTo("application/json"))
-                .withHeader("X-My-Header", equalTo("actual"))
-                .build(),
             mockRequest().url("/thing")
                 .header("Content-Type", "application/json")
                 .header("X-My-Header", "expected"),
-            true
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withHeader("Content-Type", equalTo("application/json"))
+                .withHeader("X-My-Header", equalTo("actual"))
+                .build()
         );
 
         assertThat(diff.toString(), is(
             junitStyleDiffMessage(
-                "X-My-Header: expected",
-                "X-My-Header: actual")
+                "X-My-Header: expected\n",
+                "X-My-Header: actual\n")
         ));
     }
 
@@ -125,14 +119,13 @@ public class DiffTest {
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withHeader("X-My-Header", equalTo("expected"))
                 .build(),
-            mockRequest().url("/thing"),
-            false
+            mockRequest().url("/thing")
         );
 
         assertThat(diff.toString(), is(
             junitStyleDiffMessage(
-                "X-My-Header: expected",
-                "")
+                "X-My-Header: expected\n",
+                "\n")
         ));
     }
 
@@ -140,8 +133,7 @@ public class DiffTest {
     public void showsNoDiffWhenHeaderIsPresentInRequestAndExpectedAbsentInRequestPattern() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing")).build(),
-            mockRequest().url("/thing").header("X-My-Header", "not-expected"),
-            false
+            mockRequest().url("/thing").header("X-My-Header", "not-expected")
         );
 
         assertThat(diff.toString(), is(""));
@@ -153,23 +145,21 @@ public class DiffTest {
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withHeader("X-My-Header", equalTo("expected"))
                 .build(),
-            mockRequest().url("/thing"),
-            false
+            mockRequest().url("/thing")
         );
 
         assertThat(diff.toString(), is(
             junitStyleDiffMessage(
-                "X-My-Header: expected",
-                "")
+                "X-My-Header: expected\n",
+                "\n")
         ));
     }
 
     @Test
     public void showsNoDiffWhenHeaderIsExpectedPresentInRequestAndAbsentFromRequestPattern() {
         Diff diff = new Diff(
-            newRequestPattern(ANY, urlEqualTo("/thing")).build(),
             mockRequest().url("/thing").header("X-My-Header", "not-expected"),
-            true
+            newRequestPattern(ANY, urlEqualTo("/thing")).build()
         );
 
         assertThat(diff.toString(), is(""));
@@ -192,8 +182,7 @@ public class DiffTest {
                     "{\n" +
                     "    \"outer\": {}\n" +
                     "}"
-            ),
-            false
+            )
         );
 
         assertThat(diff.toString(), is(
@@ -220,8 +209,7 @@ public class DiffTest {
                 .build(),
             mockRequest().url("/thing").body(
                 "{\"outer\": {}}"
-            ),
-            false
+            )
         );
 
         assertThat(diff.toString(), is(
@@ -254,8 +242,7 @@ public class DiffTest {
                 "        }\n" +
                 "    }\n" +
                 "}"
-            ),
-            false
+            )
         );
 
 
@@ -280,13 +267,41 @@ public class DiffTest {
         ));
     }
 
+    @Test
+    public void prettyPrintsXml() {
+        Diff diff = new Diff(
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withRequestBody(equalToXml(
+                    "<my-elements><one attr-one=\"1111\" /><two /><three /></my-elements>"))
+                .build(),
+            mockRequest().url("/thing").body(
+                "<my-elements><one attr-one=\"2222\" /><two /><three /></my-elements>"
+            )
+        );
+
+        assertThat(diff.toString(), is(
+            junitStyleDiffMessage(
+                "<my-elements>\n" +
+                "  <one attr-one=\"1111\"/>\n" +
+                "  <two/>\n" +
+                "  <three/>\n" +
+                "</my-elements>\n",
+
+                "<my-elements>\n" +
+                "  <one attr-one=\"2222\"/>\n" +
+                "  <two/>\n" +
+                "  <three/>\n" +
+                "</my-elements>\n")
+        ));
+    }
+
     @Ignore
     @Test
     public void printIt() {
         Diff diff = new Diff(
-            newRequestPattern(GET, urlEqualTo("/expected"))
+            newRequestPattern(GET, urlPathMatching("/expected/.*"))
                 .withHeader("X-One", equalTo("one-expected"))
-                .withHeader("X-Two", equalTo("two-expected"))
+                .withHeader("X-Two", matching(".*-expected"))
                 .withRequestBody(equalToJson(
                     "{\n" +
                     "    \"outer\": {\n" +
@@ -297,8 +312,10 @@ public class DiffTest {
                     "}"))
                 .build(),
             mockRequest()
+                .method(POST)
                 .url("/actual")
                 .header("X-One", "one-actual")
+                .header("X-Two", "two-actual")
                 .body(
                     "{\n" +
                     "    \"outer\": {\n" +
@@ -307,8 +324,27 @@ public class DiffTest {
                     "        }\n" +
                     "    }\n" +
                     "}"
-            ),
-            false
+            )
+        );
+
+        throw new VerificationException(diff.toString());
+    }
+
+    @Ignore
+    @Test
+    public void printIt2() {
+        Diff diff = new Diff(
+            newRequestPattern(GET, urlPathMatching("/expected/.*"))
+                .withHeader("X-One", equalTo("one-expected"))
+                .withHeader("X-Two", matching(".*-expected"))
+                .withRequestBody(equalToXml("<my-elements><one attr-one=\"1111\" /><two /><three><three-inner/></three></my-elements>"))
+                .build(),
+            mockRequest()
+                .method(POST)
+                .url("/actual")
+                .header("X-One", "one-actual")
+                .header("X-Two", "two-actual")
+                .body("<my-elements><one attr-one=\"555555\" /><two /><three /></my-elements>")
         );
 
         throw new VerificationException(diff.toString());

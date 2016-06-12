@@ -1,9 +1,11 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -25,7 +27,15 @@ public class Diff {
     private final Request request;
     private final boolean requestIsExpected;
 
-    public Diff(RequestPattern requestPattern, Request request, boolean requestIsExpected) {
+    public Diff(RequestPattern expected, Request actual) {
+        this(expected, actual, false);
+    }
+
+    public Diff(Request expected, RequestPattern actual) {
+        this(actual, expected, true);
+    }
+
+    private Diff(RequestPattern requestPattern, Request request, boolean requestIsExpected) {
         this.requestPattern = requestPattern;
         this.request = request;
         this.requestIsExpected = requestIsExpected;
@@ -35,28 +45,41 @@ public class Diff {
     public String toString() {
         ImmutableList.Builder<Section<?>> builder = ImmutableList.builder();
 
-        builder.add(new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName()));
+        Section<RequestMethod> methodSection = new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
+        builder.add(methodSection);
 
-        builder.add(new Section<>(requestPattern.getUrlMatcher(),
+        Section<String> urlSection = new Section<>(requestPattern.getUrlMatcher(),
             request.getUrl(),
-            requestPattern.getUrlMatcher().getExpected()));
+            requestPattern.getUrlMatcher().getExpected());
+        builder.add(urlSection);
 
+        if (methodSection.shouldBeIncluded() || urlSection.shouldBeIncluded()) {
+            builder.add(SPACER);
+        }
+
+        boolean anyHeaderSections = false;
         Map<String, MultiValuePattern> headerPatterns = requestPattern.getHeaders();
         if (headerPatterns != null && !headerPatterns.isEmpty()) {
             for (String key : getCombinedHeaderKeys()) {
                 HttpHeader header = request.header(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
                 String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
-                builder.add(new Section<>(headerPattern, header, printedPatternValue));
+                Section<MultiValue> section = new Section<>(headerPattern, header, printedPatternValue);
+                if (section.shouldBeIncluded()) {
+                    anyHeaderSections = true;
+                }
+                builder.add(section);
             }
+        }
+
+        if (anyHeaderSections) {
+            builder.add(SPACER);
         }
 
         List<StringValuePattern> bodyPatterns = requestPattern.getBodyPatterns();
         if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
             for (StringValuePattern pattern: bodyPatterns) {
-                String body = pattern.getClass().equals(EqualToJsonPattern.class) ?
-                    Json.prettyPrint(request.getBodyAsString()) :
-                    request.getBodyAsString();
+                String body = formatIfJsonOrXml(pattern);
                 builder.add(new Section<>(pattern, body, pattern.getExpected()));
             }
         }
@@ -72,6 +95,14 @@ public class Diff {
             .join(from(sections).transform(ACTUAL));
 
         return sections.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
+    }
+
+    private String formatIfJsonOrXml(StringValuePattern pattern) {
+        return pattern.getClass().equals(EqualToJsonPattern.class) ?
+            Json.prettyPrint(request.getBodyAsString()) :
+            pattern.getClass().equals(EqualToXmlPattern.class) ?
+                Xml.prettyPrint(request.getBodyAsString()) :
+                request.getBodyAsString();
     }
 
     private Set<String> getCombinedHeaderKeys() {
@@ -91,6 +122,13 @@ public class Diff {
             actual +
             "\n\n";
     }
+
+    final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "") {
+        @Override
+        public boolean shouldBeIncluded() {
+            return true;
+        }
+    };
 
     private class Section<V> {
         private final ValueMatcher<V> pattern;
