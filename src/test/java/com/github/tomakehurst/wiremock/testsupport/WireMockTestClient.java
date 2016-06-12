@@ -152,10 +152,10 @@ public class WireMockTestClient {
         return post(url, new InputStreamEntity(new ByteArrayInputStream(body), -1));
     }
 
-    public WireMockResponse post(String url, HttpEntity entity) {
+    public WireMockResponse post(String url, HttpEntity entity, TestHttpHeader... headers) {
         HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
         httpPost.setEntity(entity);
-        return executeMethodAndConvertExceptions(httpPost);
+        return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
     public WireMockResponse patchWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {

@@ -20,15 +20,7 @@ public class DiffTest {
     public void correctlyRendersJUnitStyleDiffMessage() {
         String diff = Diff.junitStyleDiffMessage("expected", "actual");
 
-        assertThat(diff, is(
-            "\n" +
-                "Expected: " +
-                "expected" +
-                "\n" +
-                "     but: was " +
-                "actual" +
-                "\n\n"
-        ));
+        assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
     }
 
     @Test

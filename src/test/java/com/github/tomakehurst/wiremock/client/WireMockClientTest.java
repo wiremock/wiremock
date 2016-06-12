@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.collect.ImmutableList;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -31,6 +29,8 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
@@ -188,6 +188,7 @@ public class WireMockClientTest {
 			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             allowing(admin).findRequestsMatching(with(any(RequestPattern.class)));
                 will(returnValue(FindRequestsResult.withRequests(ImmutableList.<LoggedRequest>of())));
+			allowing(admin).findNearMissesFor(with(any(RequestPattern.class))); will(returnValue(new FindNearMissesResult(Collections.<NearMiss>emptyList())));
 		}});
 		
 		wireMock.verifyThat(newRequestPattern(RequestMethod.DELETE, urlEqualTo("/wrong/url")));

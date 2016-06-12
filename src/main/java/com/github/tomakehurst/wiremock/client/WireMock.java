@@ -319,29 +319,51 @@ public class WireMock {
         result.assertRequestJournalEnabled();
 
 		if (result.getCount() < 1) {
-			throw new VerificationException(requestPattern, find(allRequests()));
+            List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
+            if (nearMisses.size() > 0) {
+                Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
+                throw new VerificationException(diff);
+            }
+
+            throw new VerificationException(requestPattern, find(allRequests()));
 		}
 	}
 
-	public void verifyThat(int count, RequestPatternBuilder requestPatternBuilder) {
+	public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
         VerificationResult result = admin.countRequestsMatching(requestPattern);
         result.assertRequestJournalEnabled();
 
-		if (result.getCount() != count) {
-            throw new VerificationException(requestPattern, count, find(allRequests()));
+        int actualCount = result.getCount();
+        if (actualCount != expectedCount) {
+            throw actualCount == 0 ?
+                verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
+                new VerificationException(requestPattern, expectedCount, actualCount);
 		}
 	}
 
-	public void verifyThat(CountMatchingStrategy count, RequestPatternBuilder requestPatternBuilder) {
+	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
 		RequestPattern requestPattern = requestPatternBuilder.build();
 		VerificationResult result = admin.countRequestsMatching(requestPattern);
 		result.assertRequestJournalEnabled();
 
-		if (!count.match(result.getCount())) {
-			throw new VerificationException(requestPattern, count, find(allRequests()));
+        int actualCount = result.getCount();
+        if (!expectedCount.match(actualCount)) {
+            throw actualCount == 0 ?
+                verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
+			    new VerificationException(requestPattern, expectedCount, actualCount);
 		}
 	}
+
+    private VerificationException verificationExceptionForNearMisses(RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
+        List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
+        if (nearMisses.size() > 0) {
+            Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
+            return new VerificationException(diff);
+        }
+
+        return new VerificationException(requestPattern, find(allRequests()));
+    }
 
 	public static void verify(RequestPatternBuilder requestPatternBuilder) {
 		defaultInstance.get().verifyThat(requestPatternBuilder);

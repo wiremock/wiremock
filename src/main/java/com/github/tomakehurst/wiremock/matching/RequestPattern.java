@@ -301,7 +301,7 @@ public class RequestPattern implements ValueMatcher<Request> {
 
     @Override
     public String toString() {
-        return "NewRequestPattern:\n" + Json.write(this);
+        return Json.write(this);
     }
 
     public static Predicate<Request> thatMatch(final RequestPattern pattern) {

@@ -60,7 +60,7 @@ public class Diff {
         boolean anyHeaderSections = false;
         Map<String, MultiValuePattern> headerPatterns = requestPattern.getHeaders();
         if (headerPatterns != null && !headerPatterns.isEmpty()) {
-            for (String key : getCombinedHeaderKeys()) {
+            for (String key : headerPatterns.keySet()) {
                 HttpHeader header = request.header(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
                 String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
@@ -105,22 +105,8 @@ public class Diff {
                 request.getBodyAsString();
     }
 
-    private Set<String> getCombinedHeaderKeys() {
-        return ImmutableSet.<String>builder()
-            .addAll(request.getAllHeaderKeys())
-            .addAll(fromNullable(requestPattern.getHeaders())
-                .or(Collections.<String, MultiValuePattern>emptyMap()).keySet())
-            .build();
-    }
-
     public static String junitStyleDiffMessage(Object expected, Object actual) {
-        return "\n" +
-            "Expected: " +
-            expected +
-            "\n" +
-            "     but: was " +
-            actual +
-            "\n\n";
+        return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
     }
 
     final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "") {
