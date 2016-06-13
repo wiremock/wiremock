@@ -356,7 +356,7 @@ public class WireMock {
 	}
 
     private VerificationException verificationExceptionForNearMisses(RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
-        List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
+        List<NearMiss> nearMisses = findNearMissesFor(requestPatternBuilder);
         if (nearMisses.size() > 0) {
             Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
             return new VerificationException(diff);
@@ -460,13 +460,11 @@ public class WireMock {
         defaultInstance.get().shutdown();
     }
 
-    @Deprecated
-    public static List<NearMiss> findAllNearMisses() {
-        return defaultInstance.get().findNearMissesForAllUnmatched();
+    public static List<NearMiss> findNearMissesForAllUnmatched() {
+        return defaultInstance.get().findNearMissesForAllUnmatchedRequests();
     }
 
-    @Deprecated
-    public List<NearMiss> findNearMissesForAllUnmatched() {
+    public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
         FindNearMissesResult nearMissesResult = admin.findNearMissesForUnmatchedRequests();
         return nearMissesResult.getNearMisses();
     }

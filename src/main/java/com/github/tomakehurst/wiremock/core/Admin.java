@@ -39,7 +39,6 @@ public interface Admin {
     FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest);
     FindNearMissesResult findNearMissesFor(RequestPattern requestPattern);
 
-    @Deprecated
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 
     void updateGlobalSettings(GlobalSettings settings);

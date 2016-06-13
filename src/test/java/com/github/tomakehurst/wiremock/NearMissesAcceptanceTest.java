@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 
 public class NearMissesAcceptanceTest extends AcceptanceTestBase {
 
-    @Ignore("to be deleted")
+//    @Ignore("to be deleted")
     @Test
     public void nearMisses() {
         stubFor(get(urlEqualTo("/mypath")).withHeader("My-Header", equalTo("matched"))
@@ -30,7 +30,7 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
 
         testClient.get("/otherpath", withHeader("My-Header", "notmatched"));
 
-        List<NearMiss> nearMisses = WireMock.findAllNearMisses();
+        List<NearMiss> nearMisses = WireMock.findNearMissesForAllUnmatched();
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
