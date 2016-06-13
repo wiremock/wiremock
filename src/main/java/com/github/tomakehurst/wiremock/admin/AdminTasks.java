@@ -32,6 +32,7 @@ public class AdminTasks {
                 .put(requestSpec(GET, ""), RootRedirectTask.class)
                 .put(requestSpec(POST, "/reset"), ResetTask.class)
                 .put(requestSpec(POST, "/mappings/new"), NewStubMappingTask.class)
+                .put(requestSpec(POST, "/mappings/remove"), RemoveStubMappingTask.class)
                 .put(requestSpec(POST, "/mappings/edit"), EditStubMappingTask.class)
                 .put(requestSpec(POST, "/scenarios/reset"), ResetScenariosTask.class)
                 .put(requestSpec(POST, "/mappings/save"), SaveMappingsTask.class)

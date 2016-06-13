@@ -28,7 +28,13 @@ import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
+import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -119,6 +125,10 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void addStubMapping(StubMapping stubMapping) {
         stubMappings.addMapping(stubMapping);
+    }
+    @Override
+    public void removeStubMapping(StubMapping stubMapping) {
+        stubMappings.removeMapping(stubMapping);
     }
 
     @Override

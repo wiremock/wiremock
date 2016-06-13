@@ -15,7 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.AdminTasks;
+import com.github.tomakehurst.wiremock.admin.EditStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.FindRequestsTask;
+import com.github.tomakehurst.wiremock.admin.GetRequestCountTask;
+import com.github.tomakehurst.wiremock.admin.GlobalSettingsUpdateTask;
+import com.github.tomakehurst.wiremock.admin.NewStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.ResetRequestsTask;
+import com.github.tomakehurst.wiremock.admin.ResetScenariosTask;
+import com.github.tomakehurst.wiremock.admin.ResetTask;
+import com.github.tomakehurst.wiremock.admin.ResetToDefaultMappingsTask;
+import com.github.tomakehurst.wiremock.admin.RootTask;
+import com.github.tomakehurst.wiremock.admin.SaveMappingsTask;
+import com.github.tomakehurst.wiremock.admin.ShutdownServerTask;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -90,6 +104,11 @@ public class HttpAdminClient implements Admin {
                 urlFor(EditStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_NO_CONTENT);
+    }
+
+    @Override
+    public void removeStubMapping(StubMapping stubbMapping) {
+        throw new AdminException("Not Supported");
     }
 
     @Override

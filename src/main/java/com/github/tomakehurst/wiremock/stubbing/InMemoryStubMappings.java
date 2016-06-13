@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.google.common.base.Optional;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -73,6 +73,12 @@ public class InMemoryStubMappings implements StubMappings {
 		updateSenarioMapIfPresent(mapping);
 		mappings.add(mapping);
 	}
+	@Override
+	public void removeMapping(StubMapping mapping) {
+
+		removeFromSenarioMapIfPresent(mapping);
+		mappings.remove(mapping);
+	}
 
 	@Override
 	public void editMapping(StubMapping stubMapping) {
@@ -96,7 +102,11 @@ public class InMemoryStubMappings implements StubMappings {
 
 		mappings.replace(existingMapping, stubMapping);
 	}
-
+	private void removeFromSenarioMapIfPresent(StubMapping mapping) {
+		if (mapping.isInScenario()) {
+			scenarioMap.remove(mapping.getScenarioName(), Scenario.inStartedState());
+		}
+	}
 	private void updateSenarioMapIfPresent(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());

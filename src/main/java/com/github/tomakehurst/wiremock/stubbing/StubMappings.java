@@ -25,6 +25,7 @@ public interface StubMappings {
 
 	ResponseDefinition serveFor(Request request);
 	void addMapping(StubMapping mapping);
+	void removeMapping(StubMapping mapping);
 	void editMapping(StubMapping stubMapping);
 	void reset();
 	void resetScenarios();

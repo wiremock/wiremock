@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -27,6 +26,7 @@ public interface Admin {
 
 	void addStubMapping(StubMapping stubMapping);
 	void editStubMapping(StubMapping stubMapping);
+	void removeStubMapping(StubMapping stubbMapping);
     ListStubMappingsResult listAllStubMappings();
     void saveMappings();
 	void resetMappings();

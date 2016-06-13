@@ -15,7 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.*;
+import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
+import com.github.tomakehurst.wiremock.client.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Notifier;
@@ -28,7 +32,14 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -234,6 +245,10 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void editStub(RemoteMappingBuilder mappingBuilder) {
         client.editStubMapping(mappingBuilder);
+    }
+    @Override
+    public void removeStubMapping(StubMapping stubMapping){
+        wireMockApp.removeStubMapping(stubMapping);
     }
 
     @Override
