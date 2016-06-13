@@ -339,7 +339,10 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), containsString(
                     junitStyleDiffMessage(
+                        "GET\n" +
                         "/a-near-miss\n",
+
+                        "GET\n" +
                         "/my-near-miss\n"
                     )
                 ));
@@ -377,8 +380,8 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), containsString(
                     junitStyleDiffMessage(
-                        "/hit\n",
-                        "/miss\n"
+                        "GET\n/hit\n",
+                        "GET\n/miss\n"
                     )
                 ));
             }
@@ -417,7 +420,10 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), containsString(
                     junitStyleDiffMessage(
+                        "GET\n" +
                         "/hit\n",
+
+                        "GET\n" +
                         "/miss\n"
                     )
                 ));

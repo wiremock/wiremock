@@ -60,7 +60,13 @@ public class EqualToJsonPattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        JsonNode actual = Json.read(value, JsonNode.class);
+        JsonNode actual = null;
+        try {
+            actual = Json.read(value, JsonNode.class);
+        } catch (Exception e) {
+            return MatchResult.noMatch();
+        }
+
         ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual);
 
         double maxNodes = maxDeepSize(expected, actual);

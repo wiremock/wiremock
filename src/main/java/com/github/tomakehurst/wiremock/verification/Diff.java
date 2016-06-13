@@ -25,20 +25,10 @@ public class Diff {
 
     private final RequestPattern requestPattern;
     private final Request request;
-    private final boolean requestIsExpected;
 
     public Diff(RequestPattern expected, Request actual) {
-        this(expected, actual, false);
-    }
-
-    public Diff(Request expected, RequestPattern actual) {
-        this(actual, expected, true);
-    }
-
-    private Diff(RequestPattern requestPattern, Request request, boolean requestIsExpected) {
-        this.requestPattern = requestPattern;
-        this.request = request;
-        this.requestIsExpected = requestIsExpected;
+        this.requestPattern = expected;
+        this.request = actual;
     }
 
     @Override
@@ -58,7 +48,7 @@ public class Diff {
         }
 
         boolean anyHeaderSections = false;
-        Map<String, MultiValuePattern> headerPatterns = requestPattern.getHeaders();
+        Map<String, MultiValuePattern> headerPatterns = requestPattern.combineBasicAuthAndOtherHeaders();
         if (headerPatterns != null && !headerPatterns.isEmpty()) {
             for (String key : headerPatterns.keySet()) {
                 HttpHeader header = request.header(key);
@@ -84,10 +74,12 @@ public class Diff {
             }
         }
 
-        ImmutableList<Section<?>> sections =
-            from(builder.build())
-            .filter(SHOULD_BE_INCLUDED)
-            .toList();
+//        ImmutableList<Section<?>> sections =
+//            from(builder.build())
+//            .filter(SHOULD_BE_INCLUDED)
+//            .toList();
+
+        List<Section<?>> sections = builder.build();
 
         String expected = Joiner.on("\n")
             .join(from(sections).transform(EXPECTED));
@@ -109,12 +101,7 @@ public class Diff {
         return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
     }
 
-    final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "") {
-        @Override
-        public boolean shouldBeIncluded() {
-            return true;
-        }
-    };
+    final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "");
 
     private class Section<V> {
         private final ValueMatcher<V> pattern;
@@ -128,24 +115,19 @@ public class Diff {
         }
 
         public Object getExpected() {
-            return requestIsExpected ? value : printedPatternValue;
+            return shouldBeIncluded() ?
+                printedPatternValue :
+                value;
         }
 
         public Object getActual() {
-            return requestIsExpected ? printedPatternValue : value;
+            return value;
         }
 
-        public boolean shouldBeIncluded() {
+        private boolean shouldBeIncluded() {
             return !pattern.match(value).isExactMatch();
         }
     }
-
-    private static Predicate<Section<?>> SHOULD_BE_INCLUDED = new Predicate<Section<?>>() {
-        @Override
-        public boolean apply(Section<?> section) {
-            return section.shouldBeIncluded();
-        }
-    };
 
     private static Function<Section<?>, Object> EXPECTED = new Function<Section<?>, Object>() {
         @Override

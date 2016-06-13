@@ -31,7 +31,7 @@ public class VerificationException extends AssertionError {
 	}
 
     public VerificationException(Diff diff) {
-        super("No requests exactly matched. Most similar: " + diff.toString());
+        super("No requests exactly matched. Most similar request was: " + diff.toString());
     }
 
     public VerificationException(RequestPattern expected, List<LoggedRequest> requests) {

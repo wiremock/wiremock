@@ -1,10 +1,9 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -23,7 +22,7 @@ import static org.junit.Assert.fail;
 public class NearMissesRuleAcceptanceTest {
 
     @ClassRule
-    public static WireMockRule wm = new WireMockRule(options().dynamicPort());
+    public static WireMockRule wm = new WireMockRule(options().dynamicPort().withRootDirectory("src/main/resources/empty"));
 
     WireMockTestClient client;
 
@@ -32,34 +31,28 @@ public class NearMissesRuleAcceptanceTest {
         client = new WireMockTestClient(wm.port());
     }
 
-    @Test
-    public void verificationErrorMessageReportsNearMisses() {
-        client.get("/my-near-miss");
-        client.get("/near-miss");
-
-        try {
-            wm.verify(getRequestedFor(urlEqualTo("/a-near-miss")));
-            fail();
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString(
-                junitStyleDiffMessage(
-                    "/a-near-miss\n",
-                    "/my-near-miss\n"
-                )
-            ));
-        }
-    }
-
     @Ignore
     @Test
     public void showFullUnmatchedRequest() throws Exception {
+        client.get("/some-other-thing");
+        client.get("/totally-something-else");
+        client.get("/whatever");
         client.post("/my-near-miss",
             new StringEntity("{\"data\": { \"one\": 1}}", APPLICATION_JSON),
-            withHeader("Content-Type", "application/json")
+            withHeader("Content-Type", "application/json"),
+            withHeader("X-Expected", "yes"),
+            withHeader("X-Matched-1", "yes"),
+            withHeader("Cookie", "this=that"),
+            withHeader("Authorization", new BasicCredentials("user", "wrong-pass").asAuthorizationHeaderValue())
         );
 
-        wm.verify(putRequestedFor(urlEqualTo("/a-near-miss"))
+        wm.verify(postRequestedFor(urlEqualTo("/a-near-miss"))
             .withHeader("Content-Type", equalTo("text/json"))
+            .withHeader("X-Expected", equalTo("yes"))
+            .withHeader("X-Matched-1", matching("ye.*"))
+            .withHeader("X-Matched-2", containing("no"))
+            .withCookie("this", equalTo("other"))
+            .withBasicAuth(new BasicCredentials("user", "pass"))
             .withRequestBody(equalToJson("{\"data\": { \"two\": 1}}")));
     }
 

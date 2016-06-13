@@ -333,4 +333,21 @@ public class EqualToJsonTest {
         );
     }
 
+    @Test
+    public void doesNotMatchWhenValueIsEmptyString() {
+        assertFalse(
+            new EqualToJsonPattern(
+                "{\n" +
+                    "    \"outer\": {\n" +
+                    "        \"inner:\": {\n" +
+                    "            \"wrong\": 1\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}", false, false
+            ).match(
+                ""
+            ).isExactMatch()
+        );
+    }
+
 }

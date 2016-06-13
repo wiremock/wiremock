@@ -150,9 +150,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     }
 
     private MatchResult allHeadersMatchResult(final Request request) {
-        Map<String, MultiValuePattern> combinedHeaders = basicAuthCredentials != null ?
-            combineBasicAuthAndOtherHeaders() :
-            headers;
+        Map<String, MultiValuePattern> combinedHeaders = combineBasicAuthAndOtherHeaders();
 
         if (combinedHeaders != null && !combinedHeaders.isEmpty()) {
             return MatchResult.aggregate(
@@ -168,7 +166,11 @@ public class RequestPattern implements ValueMatcher<Request> {
         return MatchResult.exactMatch();
     }
 
-    private Map<String, MultiValuePattern> combineBasicAuthAndOtherHeaders() {
+    public Map<String, MultiValuePattern> combineBasicAuthAndOtherHeaders() {
+        if (basicAuthCredentials == null) {
+            return headers;
+        }
+
         Map<String, MultiValuePattern> combinedHeaders = headers;
         ImmutableMap.Builder<String, MultiValuePattern> allHeadersBuilder =
             ImmutableMap.<String, MultiValuePattern>builder()
@@ -194,7 +196,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     }
 
     private MatchResult allBodyPatternsMatch(final Request request) {
-        if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
+        if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
             return MatchResult.aggregate(
                 from(bodyPatterns).transform(new Function<StringValuePattern, MatchResult>() {
                     @Override
