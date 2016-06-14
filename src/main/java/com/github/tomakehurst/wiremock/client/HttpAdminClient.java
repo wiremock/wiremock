@@ -109,10 +109,7 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void removeStubMapping(StubMapping stubbMapping) {
-        if (stubbMapping.getRequest().hasCustomMatcher()) {
-            throw new AdminException("Custom matchers can't be used when administering a remote WireMock server. " +
-                    "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
-        }
+
         postJsonAssertOkAndReturnBody(
                 urlFor(RemoveStubMappingTask.class),
                 Json.write(stubbMapping),

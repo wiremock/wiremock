@@ -56,7 +56,7 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 	public boolean remove(StubMapping mapping) {
 		if(mappingSet.size()>0){
 			for(StubMapping sm: mappingSet){
-				if(mapping.getRequest().equals(sm.getRequest())){
+				if(mapping.getUuid().equals(sm.getUuid())){
 					mappingSet.remove(sm);
 					return true;
 				}
