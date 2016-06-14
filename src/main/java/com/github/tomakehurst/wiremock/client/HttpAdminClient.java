@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.admin.FindRequestsTask;
 import com.github.tomakehurst.wiremock.admin.GetRequestCountTask;
 import com.github.tomakehurst.wiremock.admin.GlobalSettingsUpdateTask;
 import com.github.tomakehurst.wiremock.admin.NewStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.RemoveStubMappingTask;
 import com.github.tomakehurst.wiremock.admin.RequestSpec;
 import com.github.tomakehurst.wiremock.admin.ResetRequestsTask;
 import com.github.tomakehurst.wiremock.admin.ResetScenariosTask;
@@ -108,7 +109,15 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void removeStubMapping(StubMapping stubbMapping) {
-        throw new AdminException("Not Supported");
+        if (stubbMapping.getRequest().hasCustomMatcher()) {
+            throw new AdminException("Custom matchers can't be used when administering a remote WireMock server. " +
+                    "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
+        }
+        postJsonAssertOkAndReturnBody(
+                urlFor(RemoveStubMappingTask.class),
+                Json.write(stubbMapping),
+                HTTP_OK);
+
     }
 
     @Override

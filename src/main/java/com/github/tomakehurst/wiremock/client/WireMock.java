@@ -170,7 +170,9 @@ public class WireMock {
 	public void editStubMapping(RemoteMappingBuilder mappingBuilder) {
 		admin.editStubMapping(mappingBuilder.build());
 	}
-
+	public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+		admin.removeStubMapping(mappingBuilder.build());
+	}
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
     }
@@ -454,4 +456,6 @@ public class WireMock {
     public static void shutdownServer() {
         defaultInstance.get().shutdown();
     }
+
+
 }
