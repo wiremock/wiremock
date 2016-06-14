@@ -28,7 +28,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.0.11-beta'
+version = '2.1.0-beta'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -339,22 +339,23 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
+    def baseVersion = '2.1'
     def filesWithVersion = [
-            'build.gradle'                      : { "version = '2.0.${it}-beta" },
-            'docs/source/conf.py'               : { "version = '2.0.${it}-beta'" },
+            'build.gradle'                      : { "version = '${baseVersion}.${it}-beta" },
+            'docs/source/conf.py'               : { "version = '${baseVersion}.${it}-beta'" },
             'docs/source/getting-started.rst'   : [
-                    { "<version>2.0.${it}-beta</version>" },
-                    { "wiremock-standalone/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
-                    { "wiremock:2.0.${it}-beta" },
-                    { "wiremock-standalone:2.0.${it}-beta" },
+                    { "<version>${baseVersion}.${it}-beta</version>" },
+                    { "wiremock-standalone/${baseVersion}.${it}-beta/wiremock-standalone-${baseVersion}.${it}-beta.jar" },
+                    { "wiremock:${baseVersion}.${it}-beta" },
+                    { "wiremock-standalone:${baseVersion}.${it}-beta" },
             ],
-            'docs/source/running-standalone.rst': { "wiremock-standalone/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
-            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
+            'docs/source/running-standalone.rst': { "wiremock-standalone/${baseVersion}.${it}-beta/wiremock-standalone-${baseVersion}.${it}-beta.jar" },
+            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:${baseVersion}.${it}-beta" },
     ]
 
     def gradleBuildFile = new File('build.gradle')
     int currentMinorVersion
-    gradleBuildFile.text.find ~/version = '2.0.([0-9]+)/, { match, minorVersion ->
+    gradleBuildFile.text.find ~/version = '${baseVersion}.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
 
