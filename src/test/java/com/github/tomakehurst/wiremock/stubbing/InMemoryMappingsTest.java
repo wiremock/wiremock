@@ -199,17 +199,6 @@ public class InMemoryMappingsTest {
     }
 
     @Test
-    public void notifiesWhenNoMappingFound() {
-        context.checking(new Expectations() {{
-            one(notifier).info("No mapping found matching URL /match/not/found");
-        }});
-
-        LocalNotifier.set(notifier);
-
-        mappings.serveFor(aRequest(context).withMethod(GET).withUrl("/match/not/found").build());
-    }
-
-    @Test
     public void scenariosShouldBeResetWhenMappingsAreReset() {
         StubMapping firstMapping = aBasicMappingInScenario("Starting content");
         firstMapping.setRequiredScenarioState(Scenario.STARTED);

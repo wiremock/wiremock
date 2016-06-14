@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -37,7 +38,10 @@ public class CustomMatchingAcceptanceTest {
 
     @SuppressWarnings("unchecked")
     @Rule
-    public WireMockRule wmRule = new WireMockRule(wireMockConfig().dynamicPort().extensions(MyExtensionRequestMatcher.class));
+    public WireMockRule wmRule = new WireMockRule(options()
+        .dynamicPort()
+        .extensions(MyExtensionRequestMatcher.class),
+        false);
 
     WireMockTestClient client;
     WireMock wm;

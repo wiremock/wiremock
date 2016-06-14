@@ -20,12 +20,11 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -72,7 +71,6 @@ public class InMemoryStubMappings implements StubMappings {
 				mappingMatchingAndInCorrectScenarioState(request),
 				StubMapping.NOT_CONFIGURED);
 		
-		notifyIfResponseNotConfigured(request, matchingMapping);
 		matchingMapping.updateScenarioStateIfRequired();
 
         ResponseDefinition responseDefinition = applyTransformations(request,
@@ -99,12 +97,6 @@ public class InMemoryStubMappings implements StubMappings {
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
     }
-
-	private void notifyIfResponseNotConfigured(Request request, StubMapping matchingMapping) {
-		if (matchingMapping == NOT_CONFIGURED) {
-		    notifier().info("No mapping found matching URL " + request.getUrl());
-		}
-	}
 
 	@Override
 	public void addMapping(StubMapping mapping) {

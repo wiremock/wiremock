@@ -15,10 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -27,13 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -100,49 +97,19 @@ public class StubRequestHandlerTest {
 				.withClientIp("1.2.3.5")
 				.build();
 
-		final TestNotifier notifier = new TestNotifier();
-
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request);
 			will(returnValue(ServedStub.noExactMatch(LoggedRequest.createFrom(request))));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
 
-		LocalNotifier.set(notifier);
+		TestNotifier notifier = TestNotifier.createAndSet();
 		requestHandler.handle(request);
-		LocalNotifier.set(null);
+		notifier.revert();
 
 		assertThat(notifier.getErrorMessages().isEmpty(), is(true));
 		assertThat(notifier.getInfoMessages().size(), is(1));
 		assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
 	}
 
-	private class TestNotifier implements Notifier {
-		private List<String> info;
-		private List<String> error;
-
-		TestNotifier() {
-			this.info = new ArrayList<String>();
-			this.error = new ArrayList<String>();
-		}
-
-		@Override
-		public void info(String message) {
-			this.info.add(message);
-		}
-
-		@Override
-		public void error(String message) {
-			this.error.add(message);
-		}
-
-		@Override
-		public void error(String message, Throwable t) {
-			this.error.add(message);
-		}
-
-		public List<String> getInfoMessages() { return info; }
-
-		public List<String> getErrorMessages() { return error; }
-	}
 }

@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServedStub.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServedStub.TO_LOGGED_REQUEST;
 import static com.google.common.collect.FluentIterable.from;
@@ -90,11 +91,25 @@ public class WireMockApp implements StubServer, Admin {
     public ServedStub serveStubFor(Request request) {
         ServedStub servedStub = stubMappings.serveFor(request);
 
-        if (servedStub.isNoExactMatch() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
-            return ServedStub.exactMatch(LoggedRequest.createFrom(request), ResponseDefinition.browserProxy(request));
+        if (servedStub.isNoExactMatch()) {
+            LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+            if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
+                return ServedStub.exactMatch(loggedRequest, ResponseDefinition.browserProxy(request));
+            }
+
+            logUnmatchedRequest(loggedRequest);
         }
 
         return servedStub;
+    }
+
+    private void logUnmatchedRequest(LoggedRequest request) {
+        List<NearMiss> nearest = nearMissCalculator.findNearestTo(request);
+        String message = "Request was not matched:\n" + request;
+        if (!nearest.isEmpty()) {
+            message += "\nClosest match:\n" + nearest.get(0).getStubMapping().getRequest();
+        }
+        notifier().error(message);
     }
 
     @Override

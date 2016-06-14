@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
 
 import java.net.URI;
@@ -183,4 +184,8 @@ public class LoggedRequest implements Request {
         return Dates.format(loggedDate);
     }
 
+    @Override
+    public String toString() {
+        return Json.write(this);
+    }
 }

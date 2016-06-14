@@ -35,7 +35,6 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-@Ignore("Run when validating documentation")
 public class Examples extends AcceptanceTestBase {
 
     @Test

@@ -32,6 +32,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
@@ -540,7 +541,10 @@ public class VerificationAcceptanceTest {
 
     public static class JournalMaxEntriesRestricted {
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().maxRequestJournalEntries(Optional.of(2)));
+        public WireMockRule wireMockRule = new WireMockRule(options()
+            .dynamicPort()
+            .maxRequestJournalEntries(Optional.of(2)),
+            false);
 
         @Test
         public void maxLengthIs2() {

@@ -90,6 +90,8 @@ test {
     // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
     systemProperty 'user.timezone', 'Australia/Sydney'
 
+    exclude 'ignored/**'
+
     maxParallelForks = 3
 }
 
