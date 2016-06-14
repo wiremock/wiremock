@@ -43,7 +43,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffForUrlEqualToWhereRequestIsExpected() {
+    public void showsDiffForUrlEqualTo() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/expected")).build(),
             mockRequest().url("/actual")
@@ -60,7 +60,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffForUrlPathMatchingWhereRequestPatternIsExpected() {
+    public void showsDiffForUrlPathMatching() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlPathMatching("/expected/.*")).build(),
             mockRequest().url("/actual")
@@ -77,7 +77,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffsForsingleNonMatchingHeader() {
+    public void showsDiffsForSingleNonMatchingHeaderAndMatchingHeader() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
             .withHeader("Content-Type", equalTo("application/json"))
@@ -125,7 +125,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffWhenHeaderIsExpectedPresentInRequestPatternAndAbsentFromRequest() {
+    public void showsHeaders() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withHeader("X-My-Header", equalTo("expected"))
@@ -145,7 +145,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffWhenRequestPatternJsonBodyDoesNotEqualRequestJsonBody() {
+    public void showsRequestBody() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withRequestBody(equalToJson(
@@ -185,7 +185,7 @@ public class DiffTest {
     }
 
     @Test
-    public void prettyPrintsJsonWhenJsonBodiesDiffer() {
+    public void prettyPrintsJsonRequestBody() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withRequestBody(equalToJson(
@@ -217,7 +217,7 @@ public class DiffTest {
     }
 
     @Test
-    public void showsDiffWhenRequestJsonBodyDoesNotMatchMultipleJsonPaths() {
+    public void showsJsonPathExpectations() {
         Diff diff = new Diff(
             newRequestPattern(ANY, urlEqualTo("/thing"))
                 .withRequestBody(matchingJsonPath("@.notfound"))
@@ -292,58 +292,47 @@ public class DiffTest {
         ));
     }
 
-    @Ignore
     @Test
-    public void printIt() {
+    public void showsCookiesInDiffWhenNotMatching() {
         Diff diff = new Diff(
-            newRequestPattern(GET, urlPathMatching("/expected/.*"))
-                .withHeader("X-One", equalTo("one-expected"))
-                .withHeader("X-Two", matching(".*-expected"))
-                .withRequestBody(equalToJson(
-                    "{\n" +
-                    "    \"outer\": {\n" +
-                    "        \"inner:\": {\n" +
-                    "            \"wrong\": 1\n" +
-                    "        }\n" +
-                    "    }\n" +
-                    "}"))
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withCookie("my_cookie", equalTo("expected-cookie"))
                 .build(),
-            mockRequest()
-                .method(POST)
-                .url("/actual")
-                .header("X-One", "one-actual")
-                .header("X-Two", "two-actual")
-                .body(
-                    "{\n" +
-                    "    \"outer\": {\n" +
-                    "        \"inner:\": {\n" +
-                    "            \"thing\": 1\n" +
-                    "        }\n" +
-                    "    }\n" +
-                    "}"
-            )
+            mockRequest().url("/thing")
+                .cookie("my_cookie", "actual-cookie")
         );
 
-        throw new VerificationException(diff.toString());
+        assertThat(diff.toString(), is(
+            junitStyleDiffMessage(
+                "ANY\n" +
+                "/thing\n" +
+                "Cookie: my_cookie=expected-cookie\n",
+
+                "ANY\n" +
+                "/thing\n" +
+                "Cookie: my_cookie=actual-cookie\n"
+            )
+        ));
     }
 
-    @Ignore
     @Test
-    public void printIt2() {
+    public void showsCookiesInDiffAbsentFromRequest() {
         Diff diff = new Diff(
-            newRequestPattern(GET, urlPathMatching("/expected/.*"))
-                .withHeader("X-One", equalTo("one-expected"))
-                .withHeader("X-Two", matching(".*-expected"))
-                .withRequestBody(equalToXml("<my-elements><one attr-one=\"1111\" /><two /><three><three-inner/></three></my-elements>"))
+            newRequestPattern(ANY, urlEqualTo("/thing"))
+                .withCookie("my_cookie", equalTo("expected-cookie"))
                 .build(),
-            mockRequest()
-                .method(POST)
-                .url("/actual")
-                .header("X-One", "one-actual")
-                .header("X-Two", "two-actual")
-                .body("<my-elements><one attr-one=\"555555\" /><two /><three /></my-elements>")
+            mockRequest().url("/thing")
         );
 
-        throw new VerificationException(diff.toString());
+        assertThat(diff.toString(), is(
+            junitStyleDiffMessage(
+                "ANY\n" +
+                "/thing\n" +
+                "Cookie: my_cookie=expected-cookie\n",
+
+                "ANY\n" +
+                "/thing\n\n"
+            )
+        ));
     }
 }

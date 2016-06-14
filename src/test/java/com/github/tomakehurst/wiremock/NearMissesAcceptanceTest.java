@@ -18,7 +18,6 @@ import static org.junit.Assert.assertThat;
 
 public class NearMissesAcceptanceTest extends AcceptanceTestBase {
 
-//    @Ignore("to be deleted")
     @Test
     public void nearMisses() {
         stubFor(get(urlEqualTo("/mypath")).withHeader("My-Header", equalTo("matched"))

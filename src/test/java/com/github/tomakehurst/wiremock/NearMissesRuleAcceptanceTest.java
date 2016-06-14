@@ -17,7 +17,9 @@ import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 public class NearMissesRuleAcceptanceTest {
 
     @ClassRule
-    public static WireMockRule wm = new WireMockRule(options().dynamicPort().withRootDirectory("src/main/resources/empty"));
+    public static WireMockRule wm = new WireMockRule(options()
+        .dynamicPort()
+        .withRootDirectory("src/main/resources/empty"));
 
     WireMockTestClient client;
 

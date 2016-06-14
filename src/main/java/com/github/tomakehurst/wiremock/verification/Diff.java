@@ -2,10 +2,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Xml;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -66,6 +63,27 @@ public class Diff {
             builder.add(SPACER);
         }
 
+        boolean anyCookieSections = false;
+        if (requestPattern.getCookies() != null) {
+            Map<String, Cookie> cookies = fromNullable(request.getCookies()).or(Collections.<String, Cookie>emptyMap());
+            for (Map.Entry<String, StringValuePattern> entry: requestPattern.getCookies().entrySet()) {
+                String key = entry.getKey();
+                StringValuePattern pattern = entry.getValue();
+                Cookie cookie = fromNullable(cookies.get(key)).or(Cookie.absent());
+                Section<String> section = new Section<>(
+                    pattern,
+                    cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",
+                    "Cookie: " + key + "=" + pattern.getValue()
+                );
+                builder.add(section);
+                anyCookieSections = true;
+            }
+        }
+
+        if (anyCookieSections) {
+            builder.add(SPACER);
+        }
+
         List<StringValuePattern> bodyPatterns = requestPattern.getBodyPatterns();
         if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
             for (StringValuePattern pattern: bodyPatterns) {
@@ -73,11 +91,6 @@ public class Diff {
                 builder.add(new Section<>(pattern, body, pattern.getExpected()));
             }
         }
-
-//        ImmutableList<Section<?>> sections =
-//            from(builder.build())
-//            .filter(SHOULD_BE_INCLUDED)
-//            .toList();
 
         List<Section<?>> sections = builder.build();
 
