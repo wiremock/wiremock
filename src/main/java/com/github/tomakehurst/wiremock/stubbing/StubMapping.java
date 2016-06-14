@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
-@JsonPropertyOrder({ "uuid", "request", "response" })
+@JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
@@ -36,6 +36,7 @@ public class StubMapping {
 	private UUID uuid = UUID.randomUUID();
 
 	private RequestPattern request;
+
 	private ResponseDefinition response;
 	private Integer priority;
 	private String scenarioName;
@@ -47,7 +48,7 @@ public class StubMapping {
     private boolean isTransient = true;
 
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
-		this.request = requestPattern;
+		setRequest(requestPattern);
 		this.response = response;
 	}
 	
@@ -56,7 +57,7 @@ public class StubMapping {
 	}
 	
 	public static final StubMapping NOT_CONFIGURED =
-	    new StubMapping(new RequestPattern(), ResponseDefinition.notConfigured());
+	    new StubMapping(null, ResponseDefinition.notConfigured());
 
     public static StubMapping buildFrom(String mappingSpecJson) {
         return Json.read(mappingSpecJson, StubMapping.class);
@@ -91,7 +92,7 @@ public class StubMapping {
 		this.response = response;
 	}
 
-	@Override
+    @Override
 	public String toString() {
 		return Json.write(this);
 	}

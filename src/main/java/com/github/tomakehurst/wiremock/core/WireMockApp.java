@@ -21,19 +21,23 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.stubbing.ServedStub.NOT_MATCHED;
+import static com.github.tomakehurst.wiremock.stubbing.ServedStub.TO_LOGGED_REQUEST;
+import static com.google.common.collect.FluentIterable.from;
 
 public class WireMockApp implements StubServer, Admin {
     
@@ -47,8 +51,8 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsLoader defaultMappingsLoader;
     private final Container container;
     private final MappingsSaver mappingsSaver;
-    private final Map<String, ResponseDefinitionTransformer> transformers;
-    private final FileSource rootFileSource;
+    private final NearMissCalculator nearMissCalculator;
+
 
     public WireMockApp(
             boolean browserProxyingEnabled,
@@ -64,11 +68,10 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = defaultMappingsLoader;
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
-        stubMappings = new InMemoryStubMappings(requestMatchers);
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        this.transformers = transformers;
-        this.rootFileSource = rootFileSource;
+        stubMappings = new InMemoryStubMappings(requestMatchers, requestJournal, transformers, rootFileSource);
         this.container = container;
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         loadDefaultMappings();
     }
 
@@ -85,35 +88,28 @@ public class WireMockApp implements StubServer, Admin {
     }
     
     @Override
-    public ResponseDefinition serveStubFor(Request request) {
-        ResponseDefinition baseResponseDefinition = stubMappings.serveFor(request);
-        requestJournal.requestReceived(request);
+    public ServedStub serveStubFor(Request request) {
+        ServedStub servedStub = stubMappings.serveFor(request);
 
-        ResponseDefinition responseDefinition = applyTransformations(request,
-                                                                     baseResponseDefinition,
-                                                                     ImmutableList.copyOf(transformers.values()));
+        if (servedStub.isNoExactMatch()) {
+            LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
+            if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
+                return ServedStub.exactMatch(loggedRequest, ResponseDefinition.browserProxy(request));
+            }
 
-        if (!responseDefinition.wasConfigured() && request.isBrowserProxyRequest() && browserProxyingEnabled) {
-            return ResponseDefinition.browserProxy(request);
+            logUnmatchedRequest(loggedRequest);
         }
 
-        return responseDefinition;
+        return servedStub;
     }
 
-    private ResponseDefinition applyTransformations(Request request,
-                                                    ResponseDefinition responseDefinition,
-                                                    List<ResponseDefinitionTransformer> transformers) {
-        if (transformers.isEmpty()) {
-            return responseDefinition;
+    private void logUnmatchedRequest(LoggedRequest request) {
+        List<NearMiss> nearest = nearMissCalculator.findNearestTo(request);
+        String message = "Request was not matched:\n" + request;
+        if (!nearest.isEmpty()) {
+            message += "\nClosest match:\n" + nearest.get(0).getStubMapping().getRequest();
         }
-
-        ResponseDefinitionTransformer transformer = transformers.get(0);
-        ResponseDefinition newResponseDef =
-                transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
-                responseDefinition;
-
-        return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
+        notifier().error(message);
     }
 
     @Override
@@ -175,6 +171,49 @@ public class WireMockApp implements StubServer, Admin {
         } catch (RequestJournalDisabledException e) {
             return FindRequestsResult.withRequestJournalDisabled();
         }
+    }
+
+    @Override
+    public FindRequestsResult findUnmatchedRequests() {
+        try {
+            List<LoggedRequest> requests =
+                from(requestJournal.getAllServedStubs())
+                .filter(NOT_MATCHED)
+                .transform(TO_LOGGED_REQUEST)
+                .toList();
+            return FindRequestsResult.withRequests(requests);
+        } catch (RequestJournalDisabledException e) {
+            return FindRequestsResult.withRequestJournalDisabled();
+        }
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+        ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
+        Iterable<ServedStub> unmatchedServedStubs =
+            from(requestJournal.getAllServedStubs())
+            .filter(new Predicate<ServedStub>() {
+                @Override
+                public boolean apply(ServedStub input) {
+                    return input.isNoExactMatch();
+                }
+            });
+
+        for (ServedStub servedStub: unmatchedServedStubs) {
+            listBuilder.addAll(nearMissCalculator.findNearestTo(servedStub.getRequest()));
+        }
+
+        return new FindNearMissesResult(listBuilder.build());
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
+        return new FindNearMissesResult(nearMissCalculator.findNearestTo(loggedRequest));
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
+        return new FindNearMissesResult(nearMissCalculator.findNearestTo(requestPattern));
     }
 
     @Override

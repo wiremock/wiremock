@@ -20,7 +20,8 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
@@ -28,11 +29,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.collect.Iterables.filter;
-import static java.util.Arrays.asList;
-import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 public class StubMappingJsonRecorder implements RequestListener {
 
@@ -63,35 +64,35 @@ public class StubMappingJsonRecorder implements RequestListener {
     }
 
     private RequestPattern buildRequestPatternFrom(Request request) {
-        RequestPattern requestPattern = new RequestPattern(request.getMethod(), request.getUrl());
+        RequestPatternBuilder builder = newRequestPattern(request.getMethod(), urlEqualTo(request.getUrl()));
+
         if (!headersToMatch.isEmpty()) {
             for (HttpHeader header: request.getHeaders().all()) {
                 if (headersToMatch.contains(header.caseInsensitiveKey())) {
-                    requestPattern.addHeader(header.key(), ValuePattern.equalTo(header.firstValue()));
+                    builder.withHeader(header.key(), equalTo(header.firstValue()));
                 }
             }
         }
 
         String body = request.getBodyAsString();
         if (!body.isEmpty()) {
-            ValuePattern bodyPattern = valuePatternForContentType(request);
-            requestPattern.setBodyPatterns(asList(bodyPattern));
+            builder.withRequestBody(valuePatternForContentType(request));
         }
 
-        return requestPattern;
+        return builder.build();
     }
 
-    private ValuePattern valuePatternForContentType(Request request) {
+    private StringValuePattern valuePatternForContentType(Request request) {
         String contentType = request.getHeader("Content-Type");
         if (contentType != null) {
             if (contentType.contains("json")) {
-                return ValuePattern.equalToJson(request.getBodyAsString(), LENIENT);
+                return equalToJson(request.getBodyAsString(), true, true);
             } else if (contentType.contains("xml")) {
-                return ValuePattern.equalToXml(request.getBodyAsString());
+                return equalToXml(request.getBodyAsString());
             }
         }
 
-        return ValuePattern.equalTo(request.getBodyAsString());
+        return equalTo(request.getBodyAsString());
     }
 
     private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {

@@ -16,10 +16,13 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public final class Json {
 	
@@ -27,30 +30,74 @@ public final class Json {
 
     public static <T> T read(String json, Class<T> clazz) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to bind JSON to object. Reason: " + ioe.getMessage() + "  JSON:" + json, ioe);
+			return throwUnchecked(ioe, clazz);
 		}
 	}
 	
 	public static <T> String write(T object) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
+            return throwUnchecked(ioe, String.class);
 		}
 	}
 
-	public static byte[] toByteArray(Object object) {
+    private static ObjectMapper getObjectMapper() {
+        return new ObjectMapper();
+    }
+
+    public static byte[] toByteArray(Object object) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = getObjectMapper();
 			return mapper.writeValueAsBytes(object);
 		} catch (IOException ioe) {
-			throw new RuntimeException("Unable to generate JSON from object. Reason: " + ioe.getMessage(), ioe);
+            return throwUnchecked(ioe, byte[].class);
 		}
 	}
+
+	public static JsonNode node(String json) {
+        return read(json, JsonNode.class);
+    }
+
+    public static int maxDeepSize(JsonNode one, JsonNode two) {
+        return Math.max(deepSize(one), deepSize(two));
+    }
+
+    public static int deepSize(JsonNode node) {
+        if (node == null) {
+            return 0;
+        }
+
+        int acc = 0;
+        if (node.isContainerNode()) {
+
+            for (JsonNode child : node) {
+                acc++;
+                if (child.isContainerNode()) {
+                    acc += deepSize(child);
+                }
+            }
+        } else {
+            acc++;
+        }
+
+        return acc;
+    }
+
+    public static String prettyPrint(String json) {
+        ObjectMapper mapper = getObjectMapper();
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+                mapper.readValue(json, JsonNode.class)
+            );
+        } catch (IOException e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
 }

@@ -184,7 +184,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "example";
         }
     }
@@ -200,7 +200,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "multi1";
         }
     }
@@ -216,7 +216,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "multi2";
         }
     }
@@ -237,7 +237,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "local";
         }
     }
@@ -250,7 +250,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "example";
         }
     }
@@ -264,7 +264,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "filesource";
         }
     }
@@ -279,7 +279,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "params";
         }
     }

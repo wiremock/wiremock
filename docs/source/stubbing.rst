@@ -433,9 +433,9 @@ or:
             "url": "/xpath",
             "bodyPatterns" : [
               	{ "matchesXPath" : "/stuff:outer/stuff:inner[.=111]" ,
-              	    "withXPathNamespaces" : {
-                        "stuff" : "http://foo.com/"
-                    }
+                  "xPathNamespaces" : {
+                      "stuff" : "http://foo.com/"
+                  }
                 },
             ]
     	},

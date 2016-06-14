@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Optional;
 import org.junit.Test;
@@ -291,7 +292,7 @@ public class CommandLineOptionsTest {
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
         
         @Override
-        public String name() { return "ResponseDefinitionTransformer_One"; }
+        public String getName() { return "ResponseDefinitionTransformer_One"; }
     }
     
     public static class ResponseDefinitionTransformerExt2 extends ResponseDefinitionTransformer {
@@ -299,15 +300,17 @@ public class CommandLineOptionsTest {
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
         
         @Override
-        public String name() { return "ResponseDefinitionTransformer_Two"; }
+        public String getName() { return "ResponseDefinitionTransformer_Two"; }
     }
     
     public static class RequestExt1 extends RequestMatcherExtension {
-        
-        @Override
-        public String name() { return "RequestMatcherExtension_One"; }
 
         @Override
-        public boolean isMatchedBy(Request request, Parameters parameters) { return false; }
+        public MatchResult match(Request request, Parameters parameters) {
+            return MatchResult.noMatch();
+        }
+
+        @Override
+        public String getName() { return "RequestMatcherExtension_One"; }
     }
 }

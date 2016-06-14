@@ -63,6 +63,49 @@ public class JsonTest {
 		assertNotNull(pojo);
 		assertThat(TEST_VALUE, is(pojo.property));
 	}
+
+	@Test
+    public void countsAllNodesInADocument() {
+        int count = Json.deepSize(Json.node(
+            "{\n" +
+            "    \"one\": \"GET\",\n" +
+            "    \"two\": 2,\n" +
+            "    \"queryParameters\": {\n" +
+            "        \"param1\": {\n" +
+            "            \"equalTo\": \"1\"\n" +
+            "        },\n" +
+            "        \"param2\": {\n" +
+            "            \"matches\": \"2\"\n" +
+            "        }\n" +
+            "    },\n" +
+            "    \"things\": [1, 2, 3],\n" +
+            "    \"deepThings\": [\n" +
+            "        { \"deep1\": 1 },\n" +
+            "        { \"deep2\": 2 }\n" +
+            "    ]\n" +
+            "}"
+        ));
+
+        assertThat(count, is(16));
+    }
+
+    @Test
+    public void counts0ForEmptyArray() {
+        int count = Json.deepSize(Json.node(
+            "[]"
+        ));
+
+        assertThat(count, is(0));
+    }
+
+    @Test
+    public void counts0ForEmptyObject() {
+        int count = Json.deepSize(Json.node(
+            "{}"
+        ));
+
+        assertThat(count, is(0));
+    }
 	
 	private static class TestPojo {
 		public String property;

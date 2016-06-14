@@ -18,15 +18,16 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+
 import java.util.UUID;
+
 import static com.google.common.base.Preconditions.checkArgument;
 
 class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
-	
-	private RequestPatternBuilder requestPatternBuilder;
+
+    private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
@@ -34,16 +35,16 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	protected String newScenarioState;
 	private UUID id;
 
-	public MappingBuilder(RequestMethod method, UrlMatchingStrategy urlMatchingStrategy) {
-		requestPatternBuilder = new RequestPatternBuilder(method, urlMatchingStrategy);
+	public MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
+        requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
 	public MappingBuilder(RequestMatcher requestMatcher) {
-		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(requestMatcher);
+        requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 
 	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
-		requestPatternBuilder = RequestPatternBuilder.forCustomMatcher(customRequestMatcherName, parameters);
+		requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
 	@Override
@@ -59,26 +60,26 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
 	}
 
 	@Override
-	public MappingBuilder withHeader(String key, ValueMatchingStrategy headerMatchingStrategy) {
-		requestPatternBuilder.withHeader(key, headerMatchingStrategy);
+	public MappingBuilder withHeader(String key, StringValuePattern headerPattern) {
+        requestPatternBuilder.withHeader(key, headerPattern);
 		return this;
 	}
 
     @Override
-    public MappingBuilder withCookie(String name, ValueMatchingStrategy cookieMatchingStrategy) {
-        requestPatternBuilder.withCookie(name, cookieMatchingStrategy);
+    public MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
+		requestPatternBuilder.withCookie(name, cookieValuePattern);
         return this;
     }
 
     @Override
-    public MappingBuilder withQueryParam(String key, ValueMatchingStrategy queryParamMatchingStrategy) {
-        requestPatternBuilder.withQueryParam(key, queryParamMatchingStrategy);
+    public MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern) {
+        requestPatternBuilder.withQueryParam(key, queryParamPattern);
         return this;
     }
 
 	@Override
-	public MappingBuilder withRequestBody(ValueMatchingStrategy bodyMatchingStrategy) {
-		requestPatternBuilder.withRequestBody(bodyMatchingStrategy);
+	public MappingBuilder withRequestBody(StringValuePattern bodyPattern) {
+        requestPatternBuilder.withRequestBody(bodyPattern);
 		return this;
 	}
 
