@@ -232,7 +232,7 @@ publishing {
         maven {
             URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
             URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
-            println "Publishing to $repoUrl"
+
             url repoUrl
             credentials {
                 username repoUser
@@ -291,6 +291,10 @@ publishing {
             }
         }
     }
+}
+
+publish.doFirst {
+    println "Publishing to $repoUrl"
 }
 
 task checkReleasePreconditions << {
