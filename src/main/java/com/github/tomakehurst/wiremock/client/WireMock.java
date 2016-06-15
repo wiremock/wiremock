@@ -483,7 +483,7 @@ public class WireMock {
     }
 
     public List<NearMiss> findTopNearMissesFor(LoggedRequest loggedRequest) {
-        FindNearMissesResult nearMissesResult = admin.findNearMissesFor(loggedRequest);
+        FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(loggedRequest);
         return nearMissesResult.getNearMisses();
     }
 
@@ -492,7 +492,7 @@ public class WireMock {
     }
 
     public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
-        FindNearMissesResult nearMissesResult = admin.findNearMissesFor(requestPatternBuilder.build());
+        FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(requestPatternBuilder.build());
         return nearMissesResult.getNearMisses();
     }
 }

@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 
 import java.util.List;
 
@@ -36,5 +37,8 @@ public interface Stubbing {
     void setGlobalFixedDelay(int milliseconds);
 
     List<LoggedRequest> findAllUnmatchedRequests();
+    List<NearMiss> findNearMissesForAllUnmatchedRequests();
+    List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest);
+    List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder);
 
 }

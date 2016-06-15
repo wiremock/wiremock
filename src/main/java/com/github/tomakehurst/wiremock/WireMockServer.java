@@ -33,13 +33,12 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
 import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -285,6 +284,21 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
+        return client.findNearMissesForAllUnmatchedRequests();
+    }
+
+    @Override
+    public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
+        return client.findAllNearMissesFor(requestPatternBuilder);
+    }
+
+    @Override
+    public List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest) {
+        return client.findTopNearMissesFor(loggedRequest);
+    }
+
+    @Override
     public void addStubMapping(StubMapping stubMapping) {
         wireMockApp.addStubMapping(stubMapping);
     }
@@ -350,13 +364,13 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
-        return wireMockApp.findNearMissesFor(loggedRequest);
+    public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
+        return wireMockApp.findTopNearMissesFor(loggedRequest);
     }
 
     @Override
-    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
-        return wireMockApp.findNearMissesFor(requestPattern);
+    public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
+        return wireMockApp.findTopNearMissesFor(requestPattern);
     }
 
     @Override

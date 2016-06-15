@@ -526,7 +526,10 @@ public class VerificationAcceptanceTest {
     public static class JournalDisabled {
 
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().disableRequestJournal());
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
+            .dynamicPort()
+            .disableRequestJournal(),
+            false);
 
         @Test(expected=RequestJournalDisabledException.class)
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {

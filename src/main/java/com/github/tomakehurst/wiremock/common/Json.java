@@ -49,7 +49,7 @@ public final class Json {
 		}
 	}
 
-    
+
     private static ObjectMapper getObjectMapper() {
         if (objectMapperHolder.get() == null) {
             objectMapperHolder.set(new ObjectMapper());

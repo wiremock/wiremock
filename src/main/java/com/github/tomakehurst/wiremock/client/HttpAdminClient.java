@@ -157,7 +157,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest) {
+    public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(FindNearMissesForRequestTask.class),
             Json.write(loggedRequest),
@@ -168,7 +168,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public FindNearMissesResult findNearMissesFor(RequestPattern requestPattern) {
+    public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(FindNearMissesForRequestPatternTask.class),
             Json.write(requestPattern),

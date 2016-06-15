@@ -188,7 +188,7 @@ public class WireMockClientTest {
 			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             allowing(admin).findRequestsMatching(with(any(RequestPattern.class)));
                 will(returnValue(FindRequestsResult.withRequests(ImmutableList.<LoggedRequest>of())));
-			allowing(admin).findNearMissesFor(with(any(RequestPattern.class))); will(returnValue(new FindNearMissesResult(Collections.<NearMiss>emptyList())));
+			allowing(admin).findTopNearMissesFor(with(any(RequestPattern.class))); will(returnValue(new FindNearMissesResult(Collections.<NearMiss>emptyList())));
 		}});
 		
 		wireMock.verifyThat(newRequestPattern(RequestMethod.DELETE, urlEqualTo("/wrong/url")));

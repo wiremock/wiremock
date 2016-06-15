@@ -36,8 +36,8 @@ public interface Admin {
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 
     FindRequestsResult findUnmatchedRequests();
-    FindNearMissesResult findNearMissesFor(LoggedRequest loggedRequest);
-    FindNearMissesResult findNearMissesFor(RequestPattern requestPattern);
+    FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
+    FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
 
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 

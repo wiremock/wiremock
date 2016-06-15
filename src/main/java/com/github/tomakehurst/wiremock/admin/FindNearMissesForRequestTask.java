@@ -12,7 +12,7 @@ public class FindNearMissesForRequestTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         LoggedRequest loggedRequest = Json.read(request.getBodyAsString(), LoggedRequest.class);
-        FindNearMissesResult nearMissesResult = admin.findNearMissesFor(loggedRequest);
+        FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(loggedRequest);
         return ResponseDefinition.okForJson(nearMissesResult);
     }
 }
