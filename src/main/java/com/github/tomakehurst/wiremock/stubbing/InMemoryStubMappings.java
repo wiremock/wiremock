@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
@@ -37,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 

@@ -17,12 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.Joiner.on;
-import static com.google.common.collect.Iterables.transform;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	

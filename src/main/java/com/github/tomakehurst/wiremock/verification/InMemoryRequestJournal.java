@@ -18,8 +18,8 @@ package com.github.tomakehurst.wiremock.verification;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -32,7 +32,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Iterables.transform;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 

@@ -2,8 +2,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 

@@ -20,9 +20,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.Diff;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
-import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
 
 import java.util.List;
 

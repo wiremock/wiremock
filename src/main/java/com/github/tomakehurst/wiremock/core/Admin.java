@@ -17,10 +17,12 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public interface Admin {
 

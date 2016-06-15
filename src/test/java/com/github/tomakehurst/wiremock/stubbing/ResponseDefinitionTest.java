@@ -24,8 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Collections;
-
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;

@@ -5,11 +5,10 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;

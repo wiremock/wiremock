@@ -16,15 +16,24 @@
 package com.github.tomakehurst.wiremock.jetty9;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Optional;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;

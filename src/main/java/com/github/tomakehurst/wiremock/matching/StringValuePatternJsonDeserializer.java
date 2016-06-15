@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.tryFind;
 import static java.util.Arrays.asList;
 

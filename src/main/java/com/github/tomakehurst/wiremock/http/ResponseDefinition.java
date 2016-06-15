@@ -30,7 +30,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 @JsonSerialize(include=Inclusion.NON_NULL)
 public class ResponseDefinition {

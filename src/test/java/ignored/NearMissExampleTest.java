@@ -2,23 +2,23 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.junit.*;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class NearMissExampleTest {
 

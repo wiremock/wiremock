@@ -7,13 +7,31 @@ import com.google.common.collect.ImmutableList;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.*;
+import org.xmlunit.diff.Comparison;
+import org.xmlunit.diff.ComparisonControllers;
+import org.xmlunit.diff.ComparisonListener;
+import org.xmlunit.diff.ComparisonResult;
+import org.xmlunit.diff.ComparisonType;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.DifferenceEvaluator;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static org.xmlunit.diff.ComparisonType.*;
+import static org.xmlunit.diff.ComparisonType.ATTR_NAME_LOOKUP;
+import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
+import static org.xmlunit.diff.ComparisonType.CHILD_LOOKUP;
+import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_LENGTH;
+import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_SEQUENCE;
+import static org.xmlunit.diff.ComparisonType.ELEMENT_NUM_ATTRIBUTES;
+import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
+import static org.xmlunit.diff.ComparisonType.NODE_TYPE;
+import static org.xmlunit.diff.ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
+import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_DATA;
+import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_TARGET;
+import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
+import static org.xmlunit.diff.ComparisonType.TEXT_VALUE;
 
 public class EqualToXmlPattern extends StringValuePattern {
 

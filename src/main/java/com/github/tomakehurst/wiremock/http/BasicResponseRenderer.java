@@ -15,11 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.google.common.base.Optional;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
