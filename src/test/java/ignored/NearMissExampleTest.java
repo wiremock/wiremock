@@ -5,10 +5,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
@@ -25,11 +22,11 @@ import static org.junit.Assert.assertThat;
 
 public class NearMissExampleTest {
 
-    @ClassRule
-    public static WireMockRule wm = new WireMockRule(options()
+    @Rule
+    public WireMockRule wm = new WireMockRule(options()
         .dynamicPort()
         .withRootDirectory("src/main/resources/empty"),
-        false);
+        true);
 
     WireMockTestClient client;
 
@@ -39,7 +36,7 @@ public class NearMissExampleTest {
     }
 
     @Test
-    public void showFullUnmatchedRequest() throws Exception {
+    public void showFullUnmatchedVerification() throws Exception {
         client.get("/some-other-thing");
         client.get("/totally-something-else");
         client.get("/whatever");
@@ -60,6 +57,20 @@ public class NearMissExampleTest {
             .withCookie("this", equalTo("other"))
             .withBasicAuth(new BasicCredentials("user", "pass"))
             .withRequestBody(equalToJson("{\"data\": { \"two\": 1}}")));
+    }
+
+    @Test
+    public void showSingleUnmatchedRequest() {
+        wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+        client.get("/near-misssss");
+    }
+
+    @Test
+    public void showManyUnmatchedRequests() {
+        wm.stubFor(get(urlEqualTo("/hit")).willReturn(aResponse().withStatus(200)));
+        client.get("/near-misssss");
+        client.get("/hat");
+        client.get("/whatevs");
     }
 
 }

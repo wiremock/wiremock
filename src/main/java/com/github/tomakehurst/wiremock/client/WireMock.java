@@ -322,7 +322,7 @@ public class WireMock {
             List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
             if (nearMisses.size() > 0) {
                 Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
-                throw new VerificationException(diff);
+                throw VerificationException.forUnmatchedRequestPattern(diff);
             }
 
             throw new VerificationException(requestPattern, find(allRequests()));
@@ -359,7 +359,7 @@ public class WireMock {
         List<NearMiss> nearMisses = findNearMissesFor(requestPatternBuilder);
         if (nearMisses.size() > 0) {
             Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
-            return new VerificationException(diff);
+            return VerificationException.forUnmatchedRequestPattern(diff);
         }
 
         return new VerificationException(requestPattern, find(allRequests()));

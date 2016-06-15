@@ -19,8 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -84,10 +83,9 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 
     private void checkForUnmatchedRequests() {
         if (failOnUnmatchedStubs) {
-            FindNearMissesResult nearMisses = findNearMissesForUnmatchedRequests();
-            List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
-            if (!unmatchedRequests.isEmpty()) {
-                throw new VerificationException(unmatchedRequests.size() + " requests were unmatched by any stub mapping. See the log for details.");
+            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+            if (!nearMisses.isEmpty()) {
+                throw VerificationException.forUnmatchedRequests(nearMisses);
             }
         }
     }
