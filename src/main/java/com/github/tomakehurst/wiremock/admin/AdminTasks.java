@@ -31,6 +31,7 @@ public class AdminTasks {
                 .put(requestSpec(GET, "/"), RootTask.class)
                 .put(requestSpec(GET, ""), RootRedirectTask.class)
                 .put(requestSpec(POST, "/reset"), ResetTask.class)
+                .put(requestSpec(POST, "/mappings/new"), StubMappingTask.class)
                 .put(requestSpec(POST, "/mappings/new"), NewStubMappingTask.class)
                 .put(requestSpec(POST, "/mappings/remove"), RemoveStubMappingTask.class)
                 .put(requestSpec(POST, "/mappings/edit"), EditStubMappingTask.class)
@@ -40,6 +41,10 @@ public class AdminTasks {
                 .put(requestSpec(POST, "/requests/reset"), ResetRequestsTask.class)
                 .put(requestSpec(POST, "/requests/count"), GetRequestCountTask.class)
                 .put(requestSpec(POST, "/requests/find"), FindRequestsTask.class)
+                .put(requestSpec(GET,  "/requests/unmatched"), FindUnmatchedRequestsTask.class)
+                .put(requestSpec(GET, "/requests/unmatched/near-misses"), FindNearMissesForUnmatchedTask.class)
+                .put(requestSpec(POST, "/near-misses/request"), FindNearMissesForRequestTask.class)
+                .put(requestSpec(POST, "/near-misses/request-pattern"), FindNearMissesForRequestPatternTask.class)
                 .put(requestSpec(POST, "/settings"), GlobalSettingsUpdateTask.class)
                 .put(requestSpec(POST, "/shutdown"), ShutdownServerTask.class)
                 .build();

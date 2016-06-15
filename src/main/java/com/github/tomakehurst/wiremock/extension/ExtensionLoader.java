@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -46,7 +45,7 @@ public class ExtensionLoader {
                 extensions,
                 new Function<Extension, String>() {
                     public String apply(Extension extension) {
-                        return extension.name();
+                        return extension.getName();
                     }
                 });
     }

@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class NewStubMappingTask implements AdminTask {
+public class StubMappingTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {

@@ -1,0 +1,223 @@
+package com.github.tomakehurst.wiremock.matching;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+
+public class EqualToXmlPatternTest {
+
+    private Mockery context;
+
+    @Before
+    public void init() {
+        context = new Mockery();
+        LocalNotifier.set(new ConsoleNotifier(true));
+    }
+
+    @After
+    public void cleanup() {
+        LocalNotifier.set(null);
+    }
+
+    @Test
+    public void returnsExactMatchWhenDocumentsAreIdentical() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        );
+
+        assertTrue(pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchWhenDocumentsAreIdenticalOtherThanWhitespace() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        );
+
+        assertTrue(pattern.match(
+            "<things><thing characteristic=\"tepid\"/><thing characteristic=\"tedious\"/></things>"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void returnsNoMatchAnd1DistanceWhenDocumentsAreTotallyDifferent() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        );
+
+        MatchResult matchResult = pattern.match("<no-things-at-all />");
+
+        assertFalse(matchResult.isExactMatch());
+        assertThat(matchResult.getDistance(), is(0.375)); //Not high enough really, some more tweaking needed
+    }
+
+    @Test
+    public void returnsLowDistanceWhenActualDocumentHasMissingElement() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        );
+
+        MatchResult matchResult = pattern.match(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "</things>"
+        );
+
+        assertThat(matchResult.getDistance(), closeTo(0.14, 2));
+    }
+
+    @Test
+    public void returnsExactMatchOnNamespacedXml() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+            "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+            "    <soap:Body>\n" +
+            "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+            "            <things />\n" +
+            "        </stuff>\n" +
+            "    </soap:Body>\n" +
+            "</soap:Envelope>\n"
+        );
+
+        MatchResult match = pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertThat(match.getDistance(), is(0.0));
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchOnNamespacedXmlWhenNamespacePrefixesDiffer() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<shampoo:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:shampoo=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <shampoo:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </shampoo:Body>\n" +
+                "</shampoo:Envelope>\n"
+        );
+
+        MatchResult match = pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertThat(match.getDistance(), is(0.0));
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void doesNotReturnExactMatchWhenNamespaceUriDiffers() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/mynamespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        );
+
+        assertFalse(pattern.match(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "    <soap:Body>\n" +
+                "        <stuff xmlns=\"https://example.com/the-wrong-namespace\">\n" +
+                "            <things />\n" +
+                "        </stuff>\n" +
+                "    </soap:Body>\n" +
+                "</soap:Envelope>\n"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchWhenAttributesAreInDifferentOrder() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern("<my-attribs one=\"1\" two=\"2\" three=\"3\"/>");
+        assertTrue(pattern.match("<my-attribs two=\"2\" one=\"1\" three=\"3\"/>").isExactMatch());
+    }
+
+    @Test
+    public void returnsExactMatchWhenElementsAreInDifferentOrder() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<my-elements>\n" +
+            "    <one />\n" +
+            "    <two />\n" +
+            "    <three />\n" +
+            "</my-elements>"
+        );
+
+        assertTrue(pattern.match(
+            "<my-elements>\n" +
+            "    <two />\n" +
+            "    <three />\n" +
+            "    <one />\n" +
+            "</my-elements>"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
+        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        WireMock.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+    }
+
+    @Test
+    public void logsASensibleErrorMessageWhenTestXmlIsBadlyFormed() {
+        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
+        WireMock.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
+    }
+
+    private void expectInfoNotification(final String message) {
+        final Notifier notifier = context.mock(Notifier.class);
+        context.checking(new Expectations() {{
+            one(notifier).info(with(containsString(message)));
+        }});
+        LocalNotifier.set(notifier);
+    }
+}

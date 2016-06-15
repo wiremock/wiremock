@@ -22,10 +22,10 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -93,7 +93,7 @@ public class InMemoryStubMappingsTest {
 	}
 
 	private StubMapping aMapping(Integer priority, String url) {
-		RequestPattern requestPattern = new RequestPattern(ANY, url);
+		RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
 		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
 		mapping.setPriority(priority);
 		return mapping;

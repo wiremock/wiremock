@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public class Cookie {
@@ -20,8 +21,23 @@ public class Cookie {
         this.value = value;
     }
 
+    @JsonIgnore
+    public boolean isPresent() {
+        return value != null;
+    }
+
+    @JsonIgnore
+    public boolean isAbsent() {
+        return value == null;
+    }
+
     @JsonValue
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return isAbsent() ? "(absent)" : value;
     }
 }

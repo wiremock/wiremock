@@ -16,6 +16,9 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
+import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.LocalRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
@@ -41,16 +44,16 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.junit.LocalStubbing;
+import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -298,6 +301,26 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public List<LoggedRequest> findAllUnmatchedRequests() {
+        return client.findAllUnmatchedRequests();
+    }
+
+    @Override
+    public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
+        return client.findNearMissesForAllUnmatchedRequests();
+    }
+
+    @Override
+    public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
+        return client.findAllNearMissesFor(requestPatternBuilder);
+    }
+
+    @Override
+    public List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest) {
+        return client.findTopNearMissesFor(loggedRequest);
+    }
+
+    @Override
     public void addStubMapping(StubMapping stubMapping) {
         wireMockApp.addStubMapping(stubMapping);
     }
@@ -348,8 +371,28 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public FindRequestsResult findUnmatchedRequests() {
+        return wireMockApp.findUnmatchedRequests();
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
+    }
+
+    @Override
+    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+        return wireMockApp.findNearMissesForUnmatchedRequests();
+    }
+
+    @Override
+    public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
+        return wireMockApp.findTopNearMissesFor(loggedRequest);
+    }
+
+    @Override
+    public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
+        return wireMockApp.findTopNearMissesFor(requestPattern);
     }
 
     @Override

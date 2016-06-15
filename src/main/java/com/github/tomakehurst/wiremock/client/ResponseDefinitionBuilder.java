@@ -142,6 +142,13 @@ public class ResponseDefinitionBuilder {
 		return new ResponseDefinitionBuilder();
 	}
 
+	public static <T> ResponseDefinitionBuilder okForJson(T body) {
+        return responseDefinition()
+            .withStatus(HTTP_OK)
+            .withBody(Json.write(body))
+            .withHeader("Content-Type", "application/json");
+    }
+
 	public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
 		this.headers = ImmutableList.copyOf(headers.all());
 		return this;

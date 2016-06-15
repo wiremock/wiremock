@@ -86,21 +86,6 @@ public class WireMockJUnitRuleTest {
         }
     }
 
-    public static class WireMockRuleFailThenPass {
-
-        @Ignore("Generates a failure to illustrate a Rule bug whereby a failed test would cause BindExceptions on subsequent (otherwise passing) tests")
-        @Test
-        public void fail() {
-            assertTrue(false);
-        }
-
-        @Test
-        public void succeed() {
-            assertTrue(true);
-        }
-
-    }
-
     public static class WireMockRuleAsJUnit411ClassRule {
 
         @ClassRule

@@ -28,6 +28,7 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
@@ -181,8 +182,7 @@ public class JettyHttpServletRequestAdapter implements Request {
         ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
 
         for (javax.servlet.http.Cookie cookie :
-                Optional.fromNullable(request.getCookies())
-                        .or(new javax.servlet.http.Cookie[0])) {
+            firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
             builder.put(cookie.getName(), convertCookie(cookie));
         }
 
@@ -195,9 +195,9 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return Optional.fromNullable(splitQuery(request.getQueryString())
-                .get(key))
-                .or(QueryParameter.absent(key));
+        return firstNonNull((splitQuery(request.getQueryString())
+                .get(key)),
+            QueryParameter.absent(key));
     }
 
     @Override

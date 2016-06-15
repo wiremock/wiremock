@@ -32,6 +32,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.Collections;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Optional.fromNullable;
 
 public class WireMockWebContextListener implements ServletContextListener {
@@ -49,8 +50,7 @@ public class WireMockWebContextListener implements ServletContextListener {
 
         Optional<Integer> maxRequestJournalEntries = readMaxRequestJournalEntries(context);
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
-                fromNullable(context.getInitParameter("verboseLoggingEnabled"))
-                        .or("true"));
+            firstNonNull(context.getInitParameter("verboseLoggingEnabled"), "true"));
 
         JsonFileMappingsSource defaultMappingsLoader = new JsonFileMappingsSource(fileSource.child("mappings"));
         MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();

@@ -28,7 +28,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.0.11-beta'
+version = '2.1.0-beta'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -51,14 +51,16 @@ dependencies {
             "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5"
-    compile "org.skyscreamer:jsonassert:1.2.3"
-    compile "xmlunit:xmlunit:1.6"
+    compile 'org.xmlunit:xmlunit-core:2.1.1'
+    compile 'org.xmlunit:xmlunit-legacy:2.1.1'
     compile "com.jayway.jsonpath:json-path:2.0.0"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "net.sf.jopt-simple:jopt-simple:4.9"
     compile("junit:junit:4.12") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.2.1'
 
     testCompile "org.hamcrest:hamcrest-all:1.3"
     testCompile("org.jmock:jmock:2.5.1") {
@@ -71,7 +73,8 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
-    testCompile "net.sf.json-lib:json-lib:2.4:jdk15"
+    testCompile "org.skyscreamer:jsonassert:1.2.3"
+
     testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
 
@@ -86,6 +89,8 @@ compileTestJava {
 test {
     // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
     systemProperty 'user.timezone', 'Australia/Sydney'
+
+    exclude 'ignored/**'
 
     maxParallelForks = 3
 }
@@ -227,7 +232,7 @@ publishing {
         maven {
             URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
             URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
-            println "Publishing to $repoUrl"
+
             url repoUrl
             credentials {
                 username repoUser
@@ -288,6 +293,10 @@ publishing {
     }
 }
 
+publish.doFirst {
+    println "Publishing to $repoUrl"
+}
+
 task checkReleasePreconditions << {
     println "Using Java version: ${System.getProperty('java.runtime.version')}"
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
@@ -330,22 +339,23 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
+    def baseVersion = '2.1'
     def filesWithVersion = [
-            'build.gradle'                      : { "version = '2.0.${it}-beta" },
-            'docs/source/conf.py'               : { "version = '2.0.${it}-beta'" },
+            'build.gradle'                      : { "version = '${baseVersion}.${it}-beta" },
+            'docs/source/conf.py'               : { "version = '${baseVersion}.${it}-beta'" },
             'docs/source/getting-started.rst'   : [
-                    { "<version>2.0.${it}-beta</version>" },
-                    { "wiremock-standalone/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
-                    { "wiremock:2.0.${it}-beta" },
-                    { "wiremock-standalone:2.0.${it}-beta" },
+                    { "<version>${baseVersion}.${it}-beta</version>" },
+                    { "wiremock-standalone/${baseVersion}.${it}-beta/wiremock-standalone-${baseVersion}.${it}-beta.jar" },
+                    { "wiremock:${baseVersion}.${it}-beta" },
+                    { "wiremock-standalone:${baseVersion}.${it}-beta" },
             ],
-            'docs/source/running-standalone.rst': { "wiremock-standalone/2.0.${it}-beta/wiremock-standalone-2.0.${it}-beta.jar" },
-            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:2.0.${it}-beta" },
+            'docs/source/running-standalone.rst': { "wiremock-standalone/${baseVersion}.${it}-beta/wiremock-standalone-${baseVersion}.${it}-beta.jar" },
+            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:${baseVersion}.${it}-beta" },
     ]
 
     def gradleBuildFile = new File('build.gradle')
     int currentMinorVersion
-    gradleBuildFile.text.find ~/version = '2.0.([0-9]+)/, { match, minorVersion ->
+    gradleBuildFile.text.find ~/version = '${baseVersion}.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
 
