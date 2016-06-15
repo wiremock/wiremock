@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class MatchesXPathPattern extends StringValuePattern {
 
@@ -31,7 +32,7 @@ public class MatchesXPathPattern extends StringValuePattern {
 
     public MatchesXPathPattern withXPathNamespace(String name, String namespaceUri) {
         Map<String, String> namespaceMap = ImmutableMap.<String, String>builder()
-            .putAll(Optional.fromNullable(xpathNamespaces).or(Collections.<String, String>emptyMap()))
+            .putAll(firstNonNull(xpathNamespaces, Collections.<String, String>emptyMap()))
             .put(name, namespaceUri)
             .build();
         return new MatchesXPathPattern(expectedValue, namespaceMap);

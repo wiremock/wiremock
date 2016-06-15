@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 
 public class Diff {
@@ -65,11 +65,11 @@ public class Diff {
 
         boolean anyCookieSections = false;
         if (requestPattern.getCookies() != null) {
-            Map<String, Cookie> cookies = fromNullable(request.getCookies()).or(Collections.<String, Cookie>emptyMap());
+            Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.<String, Cookie>emptyMap());
             for (Map.Entry<String, StringValuePattern> entry: requestPattern.getCookies().entrySet()) {
                 String key = entry.getKey();
                 StringValuePattern pattern = entry.getValue();
-                Cookie cookie = fromNullable(cookies.get(key)).or(Cookie.absent());
+                Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
                 Section<String> section = new Section<>(
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",

@@ -9,10 +9,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
+import com.google.common.base.*;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
@@ -22,6 +19,7 @@ import java.util.Map;
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
@@ -174,7 +172,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         Map<String, MultiValuePattern> combinedHeaders = headers;
         ImmutableMap.Builder<String, MultiValuePattern> allHeadersBuilder =
             ImmutableMap.<String, MultiValuePattern>builder()
-                .putAll(Optional.fromNullable(combinedHeaders).or(Collections.<String, MultiValuePattern>emptyMap()));
+                .putAll(firstNonNull(combinedHeaders, Collections.<String, MultiValuePattern>emptyMap()));
         allHeadersBuilder.put(AUTHORIZATION, basicAuthCredentials.asAuthorizationMultiValuePattern());
         combinedHeaders = allHeadersBuilder.build();
         return combinedHeaders;
