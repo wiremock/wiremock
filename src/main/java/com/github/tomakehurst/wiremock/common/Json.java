@@ -20,11 +20,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public final class Json {
+
+    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<>();
 	
 	private Json() {}
 
@@ -48,8 +49,13 @@ public final class Json {
 		}
 	}
 
+    
     private static ObjectMapper getObjectMapper() {
-        return new ObjectMapper();
+        if (objectMapperHolder.get() == null) {
+            objectMapperHolder.set(new ObjectMapper());
+        }
+
+        return objectMapperHolder.get();
     }
 
     public static byte[] toByteArray(Object object) {
