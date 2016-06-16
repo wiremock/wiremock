@@ -143,6 +143,13 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	@Test
+	public void doesNotMatchOnUrlPathWhenPathShorter() {
+	    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+
+	    assertThat(testClient.get("/matching").statusCode(), is(404));
+	}
+
+	@Test
 	public void matchesOnUrlPathPatternAndQueryParameters() {
 		stubFor(get(urlPathMatching("/path(.*)/match"))
 				.withQueryParam("search", containing("WireMock"))
@@ -150,6 +157,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				.willReturn(aResponse().withStatus(200)));
 
 		assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
+	}
+
+	@Test
+	public void doesNotMatchOnUrlPathPatternWhenPathShorter() {
+	    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+
+	    assertThat(testClient.get("/matching").statusCode(), is(404));
+	}
+
+	@Test
+	public void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
+	    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+
+	    assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
 	}
 
 	@Test
