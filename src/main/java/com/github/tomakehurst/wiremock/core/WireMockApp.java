@@ -123,6 +123,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public void removeStubMapping(StubMapping stubbMapping) {
+        stubMappings.removeMapping(stubbMapping);
+    }
+
+    @Override
     public ListStubMappingsResult listAllStubMappings() {
         return new ListStubMappingsResult(stubMappings.getAll());
     }

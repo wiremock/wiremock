@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-import static com.github.tomakehurst.wiremock.stubbing.StubMapping.NOT_CONFIGURED;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 
@@ -128,6 +127,12 @@ public class InMemoryStubMappings implements StubMappings {
 		mappings.replace(existingMapping, stubMapping);
 	}
 
+	@Override
+	public void removeMapping(StubMapping mapping) {
+		removeFromSenarioMapIfPresent(mapping);
+		mappings.remove(mapping);
+	}
+
 	private void updateSenarioMapIfPresent(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
@@ -154,6 +159,11 @@ public class InMemoryStubMappings implements StubMappings {
         return ImmutableList.copyOf(mappings);
     }
 
+	private void removeFromSenarioMapIfPresent(StubMapping mapping) {
+		if (mapping.isInScenario()) {
+			scenarioMap.remove(mapping.getScenarioName(), Scenario.inStartedState());
+		}
+	}
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }

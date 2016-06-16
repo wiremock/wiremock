@@ -239,6 +239,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+        client.removeStubMapping(mappingBuilder);
+    }
+
+    @Override
     public void givenThat(LocalMappingBuilder mappingBuilder) {
         stubFor(mappingBuilder);
     }
@@ -306,6 +311,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         wireMockApp.editStubMapping(stubMapping);
+    }
+
+    @Override
+    public void removeStubMapping(StubMapping stubbMapping) {
+        wireMockApp.removeStubMapping(stubbMapping);
     }
 
     @Override

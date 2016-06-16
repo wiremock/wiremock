@@ -55,7 +55,27 @@ public class InMemoryStubMappingsTest {
 		assertThat(allMappings.get(0), is(newMapping));
 		assertThat(newMapping.getInsertionIndex(), is(existingMapping.getInsertionIndex()));
 	}
+	@Test
+	public void testRemoveMapping() throws Exception{
 
+		List<StubMapping> allMapings = inMemoryStubMappings.getAll();
+		assertThat(allMapings,hasSize(0));
+
+		StubMapping existingMapping = aMapping(1,"priority1/1");
+		inMemoryStubMappings.addMapping(existingMapping);
+		existingMapping = aMapping(2,"priority2/2");
+		StubMapping mappingToRemove = existingMapping;
+		inMemoryStubMappings.addMapping(existingMapping);
+		existingMapping = aMapping(3,"priority3/3");
+		inMemoryStubMappings.addMapping(existingMapping);
+		allMapings = inMemoryStubMappings.getAll();
+		assertThat(allMapings,hasSize(3));
+
+		inMemoryStubMappings.removeMapping(mappingToRemove);
+
+		allMapings = inMemoryStubMappings.getAll();
+		assertThat(allMapings,hasSize(2));
+	}
 	@Test
 	public void testEditMappingNotPresent() throws Exception {
 
