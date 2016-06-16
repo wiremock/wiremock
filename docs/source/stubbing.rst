@@ -617,6 +617,46 @@ in Java or posting a request with an empty body to ``http://<host>:<port>/__admi
 
 Note that this feature is not available when running WireMock from a servlet container.
 
+Removing stubs
+============
+
+Stub mappings which have been created can be removed via ``mappings`` directory via a call to ``WireMock.removeStubMapping``
+in Java or posting a request with body that has the stub to ``http://<host>:<port>/__admin/mappings/remove``.
+
+WireMock tries to match UUID is it is passed in the body of the stup to a post request and if it finds the stub it removes it.
+if match is not found, then it tries to match the request object found in the stub with existing mappings and removes the first one that it finds.
+
+For Example - posting following stub as body to ``http://<host>:<port>/__admin/mappings/remove``. will find first mapping with
+request that matches url="/v8/asd/26", and method "method": "GET".
+
+.. code-block:: javascript
+{
+      "request": {
+        "url": "/v8/asd/26",
+        "method": "GET"
+      },
+      "response": {
+        "status": 202,
+        "body": "response for test",
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    }
+
+This is because body does not have UUID.
+if it had an element like "uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef",in addition to "request" and "response" then wiremock will remove the one that matches the uuid provided.
+removing via uuid has precedence over removing via request match.
+
+if the remove request UUID does not match with any of the stubs, then it proceeds to match with request. it will still remove the first stub with with request
+match even though UUID did not match/was not provided.
+
+Note that this api only removes one mapping and not multiple ones if they exist
+Note that this feature is not available when running WireMock from a servlet container.
+
+
+
+
 .. _stubbing-reset:
 
 Reset

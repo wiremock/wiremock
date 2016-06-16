@@ -213,6 +213,9 @@ public class WireMock {
 		admin.editStubMapping(mappingBuilder.build());
 	}
 
+	public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+		admin.removeStubMapping(mappingBuilder.build());
+	}
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
     }
