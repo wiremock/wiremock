@@ -15,7 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.AdminTasks;
+import com.github.tomakehurst.wiremock.admin.EditStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.FindNearMissesForRequestPatternTask;
+import com.github.tomakehurst.wiremock.admin.FindNearMissesForRequestTask;
+import com.github.tomakehurst.wiremock.admin.FindNearMissesForUnmatchedTask;
+import com.github.tomakehurst.wiremock.admin.FindRequestsTask;
+import com.github.tomakehurst.wiremock.admin.FindUnmatchedRequestsTask;
+import com.github.tomakehurst.wiremock.admin.GetRequestCountTask;
+import com.github.tomakehurst.wiremock.admin.GlobalSettingsUpdateTask;
+import com.github.tomakehurst.wiremock.admin.RemoveStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.ResetRequestsTask;
+import com.github.tomakehurst.wiremock.admin.ResetScenariosTask;
+import com.github.tomakehurst.wiremock.admin.ResetTask;
+import com.github.tomakehurst.wiremock.admin.ResetToDefaultMappingsTask;
+import com.github.tomakehurst.wiremock.admin.RootTask;
+import com.github.tomakehurst.wiremock.admin.SaveMappingsTask;
+import com.github.tomakehurst.wiremock.admin.ShutdownServerTask;
+import com.github.tomakehurst.wiremock.admin.StubMappingTask;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -24,7 +43,10 @@ import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -35,7 +57,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
@@ -89,6 +113,16 @@ public class HttpAdminClient implements Admin {
                 urlFor(EditStubMappingTask.class),
                 Json.write(stubMapping),
                 HTTP_NO_CONTENT);
+    }
+
+    @Override
+    public void removeStubMapping(StubMapping stubbMapping) {
+
+        postJsonAssertOkAndReturnBody(
+                urlFor(RemoveStubMappingTask.class),
+                Json.write(stubbMapping),
+                HTTP_OK);
+
     }
 
     @Override

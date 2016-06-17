@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.DOTALL;
-import static java.util.regex.Pattern.MULTILINE;
 
 public abstract class AbstractRegexPattern extends StringValuePattern {
 

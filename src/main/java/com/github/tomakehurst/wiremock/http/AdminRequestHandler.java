@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
 

@@ -2,8 +2,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 
 import java.util.Collection;
 import java.util.Map;

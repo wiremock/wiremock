@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 

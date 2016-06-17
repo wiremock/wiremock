@@ -9,10 +9,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import java.lang.reflect.Constructor;
-import java.util.Collections;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)

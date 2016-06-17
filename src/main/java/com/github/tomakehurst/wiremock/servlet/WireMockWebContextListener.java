@@ -22,7 +22,11 @@ import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.google.common.base.Optional;
@@ -33,7 +37,6 @@ import javax.servlet.ServletContextListener;
 import java.util.Collections;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Optional.fromNullable;
 
 public class WireMockWebContextListener implements ServletContextListener {
 
