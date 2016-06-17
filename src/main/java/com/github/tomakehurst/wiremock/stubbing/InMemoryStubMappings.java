@@ -99,20 +99,18 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void addMapping(StubMapping mapping) {
-
 		updateSenarioMapIfPresent(mapping);
 		mappings.add(mapping);
 	}
+
 	@Override
 	public void removeMapping(StubMapping mapping) {
-
 		removeFromSenarioMapIfPresent(mapping);
 		mappings.remove(mapping);
 	}
 
 	@Override
 	public void editMapping(StubMapping stubMapping) {
-
 		final Optional<StubMapping> optionalExistingMapping = tryFind(
 				mappings,
 				mappingMatchingUuid(stubMapping.getUuid())
@@ -132,11 +130,13 @@ public class InMemoryStubMappings implements StubMappings {
 
 		mappings.replace(existingMapping, stubMapping);
 	}
+
 	private void removeFromSenarioMapIfPresent(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.remove(mapping.getScenarioName(), Scenario.inStartedState());
 		}
 	}
+
 	private void updateSenarioMapIfPresent(StubMapping mapping) {
 		if (mapping.isInScenario()) {
 			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());

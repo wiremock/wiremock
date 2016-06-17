@@ -60,8 +60,8 @@ public class InMemoryStubMappingsTest {
 	@Test
 	public void testRemoveMapping() throws Exception{
 
-		List<StubMapping> allMapings = inMemoryStubMappings.getAll();
-		assertThat(allMapings,hasSize(0));
+		List<StubMapping> allMappings = inMemoryStubMappings.getAll();
+		assertThat(allMappings,hasSize(0));
 
 		StubMapping existingMapping = aMapping(1,"priority1/1");
 		inMemoryStubMappings.addMapping(existingMapping);
@@ -70,13 +70,13 @@ public class InMemoryStubMappingsTest {
 		inMemoryStubMappings.addMapping(existingMapping);
 		existingMapping = aMapping(3,"priority3/3");
 		inMemoryStubMappings.addMapping(existingMapping);
-		allMapings = inMemoryStubMappings.getAll();
-		assertThat(allMapings,hasSize(3));
+		allMappings = inMemoryStubMappings.getAll();
+		assertThat(allMappings,hasSize(3));
 
 		inMemoryStubMappings.removeMapping(mappingToRemove);
 
-		allMapings = inMemoryStubMappings.getAll();
-		assertThat(allMapings,hasSize(2));
+		allMappings = inMemoryStubMappings.getAll();
+		assertThat(allMappings,hasSize(2));
 	}
 	@Test
 	public void testEditMappingNotPresent() throws Exception {

@@ -10,17 +10,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
-
-    private synchronized int getMatchingStubCount(String s1,String s2){
-        return from(wireMockServer.listAllStubMappings().getMappings()).filter(withUrl(s1)).size()
-                +
-                from(wireMockServer.listAllStubMappings().getMappings()).filter(withUrl(s2)).size();
-    }
     @Test
     public void removeStubThatExistsUsingUUID() {
 
@@ -156,13 +151,17 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(getMatchingStubCount("/stb-1","/stb-2"), is(2));
 
     }
-
-    private Predicate<StubMapping> withUrl(final String url) {
+    private Predicate<StubMapping> withAnyOf(final String... urls) {
         return new Predicate<StubMapping>() {
             public boolean apply(StubMapping mapping) {
-                return (mapping.getRequest().getUrl() != null && mapping.getRequest().getUrl().equals(url));
+                return mapping.getRequest().getUrl() != null &&
+                    asList(urls).contains(mapping.getRequest().getUrl());
             }
         };
+    }
+
+    private synchronized int getMatchingStubCount(String url1, String url2){
+        return from(wireMockServer.listAllStubMappings().getMappings()).filter(withAnyOf(url1, url2)).size();
     }
 
 
