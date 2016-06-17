@@ -70,20 +70,62 @@ public class VerificationAcceptanceTest {
 
         @Test
         public void verifiesRequestBasedOnUrlOnly() {
-            testClient.get("/this/got/requested");
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requested?query")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenQueryMissing() {
+            testClient.get("/this/got/requested?query");
             verify(getRequestedFor(urlEqualTo("/this/got/requested")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenPathShorter() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requeste?query")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenExtraPathPresent() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requested/?query")));
         }
 
         @Test
         public void verifiesRequestBasedOnUrlPathOnly() {
-            testClient.get("/this/got/requested");
+            testClient.get("/this/got/requested?query");
             verify(getRequestedFor(urlPathEqualTo("/this/got/requested")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathEqualsWhenPathShorter() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requeste")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathEqualsWhenExtraPathPresent() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requested/")));
         }
 
         @Test
         public void verifiesRequestBasedOnUrlPathPatternOnly() {
             testClient.get("/this/got/requested");
             verify(getRequestedFor(urlPathMatching("/(.*?)/got/.*")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathPatternWhenOnlyPrefixMatching() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got/")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathPatternWhenOnlySuffixMatching() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/got/.*")));
         }
 
         @Test(expected=VerificationException.class)
