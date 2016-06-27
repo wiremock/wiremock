@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty6;
+package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.ClassUtils;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Enumeration;
@@ -33,17 +36,17 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
-public class Jetty6HttpServletRequestAdapter implements Request {
+public class WireMockHttpServletRequestAdapter implements Request {
     
     private final HttpServletRequest request;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
 
-    public Jetty6HttpServletRequestAdapter(HttpServletRequest request) {
+    public WireMockHttpServletRequestAdapter(HttpServletRequest request) {
         this.request = request;
     }
 
-    public Jetty6HttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
+    public WireMockHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
         this.request = request;
         this.urlPrefixToRemove = urlPrefixToRemove;
     }
@@ -163,13 +166,32 @@ public class Jetty6HttpServletRequestAdapter implements Request {
 
     @Override
     public boolean isBrowserProxyRequest() {
-        if (request instanceof org.mortbay.jetty.Request) {
+        if (isJettyRequest()) {
             org.mortbay.jetty.Request jettyRequest = (org.mortbay.jetty.Request) request;
             URI uri = URI.create(jettyRequest.getUri().toString());
             return uri.isAbsolute();
         }
 
         return false;
+    }
+
+    private boolean isJettyRequest() {
+        if (!isPresent("org.mortbay.jetty.Request")) {
+            return false;
+        }
+        if (request instanceof org.mortbay.jetty.Request) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isPresent(String className) {
+        try {
+            ClassUtils.getClass(className);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
