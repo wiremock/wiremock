@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.MimeTypes;
@@ -40,7 +41,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.*;
-import static com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet.*;
+import static com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet.*;
 import static com.google.common.collect.Maps.*;
 
 class Jetty6HttpServer implements HttpServer {
@@ -203,7 +204,7 @@ class Jetty6HttpServer implements HttpServer {
 
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
-        ServletHolder servletHolder = mockServiceContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
@@ -227,7 +228,7 @@ class Jetty6HttpServer implements HttpServer {
             Notifier notifier
     ) {
         Context adminContext = new Context(jettyServer, ADMIN_CONTEXT_ROOT);
-        ServletHolder servletHolder = adminContext.addServlet(Jetty6HandlerDispatchingServlet.class, "/");
+        ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);

@@ -26,7 +26,7 @@
 
   <servlet>
   	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
-  	<servlet-class>com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet</servlet-class>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.StubRequestHandler</param-value>
@@ -47,7 +47,7 @@
   
   <servlet>
   	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
-  	<servlet-class>com.github.tomakehurst.wiremock.jetty6.Jetty6HandlerDispatchingServlet</servlet-class>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet</servlet-class>
   	<init-param>
   		<param-name>RequestHandlerClass</param-name>
   		<param-value>com.github.tomakehurst.wiremock.http.AdminRequestHandler</param-value>
