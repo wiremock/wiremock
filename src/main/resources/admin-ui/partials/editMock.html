@@ -1,0 +1,289 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{ title }}</h3>
+</div>
+<div class="modal-body">
+    <tabset>
+        <tab heading="Request">
+            <form class="modal-tab-form">
+                <div class="form-group">
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineCheckbox1" ng-model="tempData.urlType" value="url"> URL
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineCheckbox2" ng-model="tempData.urlType" value="urlPattern"> URL Pattern
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineCheckbox3" ng-model="tempData.urlType" value="urlPath"> URL Path
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="inlineRadioOptions" id="inlineCheckbox4" ng-model="tempData.urlType" value="urlPathPattern"> URL Path Pattern
+                    </label>
+                </div>
+                <div class="form-group" ng-if="tempData.urlType == 'url'">
+                    <label for="req-url">URL</label>
+                    <input id="req-url" class="form-control" ng-model="mock.request.url">
+                </div>
+                <div class="form-group" ng-if="tempData.urlType == 'urlPattern'">
+                    <label for="req-url-pattern">URL Pattern</label>
+                    <input id="req-url-pattern" class="form-control" ng-model="mock.request.urlPattern" >
+                </div>
+                <div class="form-group" ng-if="tempData.urlType == 'urlPath'">
+                    <label for="req-url-path">URL Path</label>
+                    <input id="req-url-path" class="form-control" ng-model="mock.request.urlPath">
+                </div>
+                <div class="form-group" ng-if="tempData.urlType == 'urlPathPattern'">
+                    <label for="req-url-path-pattern">URL Path Pattern</label>
+                    <input id="req-url-path-pattern" class="form-control" ng-model="mock.request.urlPathPattern">
+                </div>
+                <div class="form-group">
+                    <label for="method">Method</label>
+                    <select id="method" class="form-control" ng-model="mock.request.method">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                        <option>DELETE</option>
+                        <option>PATCH</option>
+                        <option>OPTIONS</option>
+                        <option>HEAD</option>
+                        <option>TRACE</option>
+                        <option>ANY</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="req-url">Scenario Name</label>
+                            <input id="scenarioName" class="form-control" ng-model="mock.scenarioName">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="requiredScenarioState">Required Scenario State</label>
+                            <input id="requiredScenarioState" class="form-control" ng-model="mock.requiredScenarioState">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="newScenarioState">New Scenario State</label>
+                            <input id="newScenarioState" class="form-control" ng-model="mock.newScenarioState">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="req-header">Header Patterns</label>
+                    <ul id="req-header" class="list-group">
+                        <li class="list-group-item" ng-repeat="(header, pattern) in mock.request.headers">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Header</label>
+                                    <span class="form-control" disabled>{{ header }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Predicate</label>
+                                    <span class="form-control" ng-bind="getFirstPropertyKey(pattern)" disabled></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Pattern</label>
+                                    <input class="form-control" ng-model="pattern[getFirstPropertyKey(pattern)]">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger form-inline-btn" ng-click="removeHeaderParameter(header)">
+                                        X
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Header</label>
+                                    <input class="form-control" ng-model="tempData.addHeaderParam">
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Predicate</label>
+                                    <select class="form-control" ng-model="tempData.addHeaderPredicate">
+                                        <option ng-repeat="option in predicates">{{ option }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Pattern</label>
+                                    <input class="form-control" ng-model="tempData.addHeaderPattern">
+                                </div>
+                                <div class="col-md-1">
+                                    <button
+                                            type="button"
+                                            class="btn btn-success form-inline-btn"
+                                            ng-click="addHeaderParameter()"
+                                            ng-disabled="!tempData.addHeaderParam || !tempData.addHeaderPredicate || !tempData.addHeaderPattern">
+                                        <b>+</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label for="req-query-params">Query Parameters</label>
+                    <ul id="req-query-params" class="list-group">
+                        <li class="list-group-item" ng-repeat="(query, pattern) in mock.request.queryParameters">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Param</label>
+                                    <span class="form-control" disabled>{{ query }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Predicate</label>
+                                    <span class="form-control" ng-bind="getFirstPropertyKey(pattern)" disabled></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Pattern</label>
+                                    <input class="form-control" ng-model="pattern[getFirstPropertyKey(pattern)]">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger form-inline-btn" ng-click="removeQueryParameter(query)">
+                                        X
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Param</label>
+                                    <input class="form-control" ng-model="tempData.addQueryParam">
+                                </div>
+                                <div class="col-md-2">
+                                    <label>Predicate</label>
+                                    <select class="form-control" ng-model="tempData.addQueryPredicate">
+                                        <option ng-repeat="option in predicates">{{ option }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Pattern</label>
+                                    <input class="form-control" ng-model="tempData.addQueryPattern">
+                                </div>
+                                <div class="col-md-1">
+                                    <button
+                                            type="button"
+                                            class="btn btn-success form-inline-btn"
+                                            ng-click="addQueryParameter()"
+                                            ng-disabled="!tempData.addQueryParam || !tempData.addQueryPredicate || !tempData.addQueryPattern">
+                                        <b>+</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group" >
+                    <label for="req-body-patterns">Body Patterns</label>
+                    <ul id="req-body-patterns" class="list-group">
+                        <li class="list-group-item" ng-repeat="pattern in mock.request.bodyPatterns">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Predicate</label>
+                                    <span class="form-control" ng-bind="getFirstPropertyKey(pattern)" disabled></span>
+                                </div>
+                                <div class="col-md-8">
+                                    <label>Pattern</label>
+                                    <textarea class="form-control" ng-model="pattern[getFirstPropertyKey(pattern)]"></textarea>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger form-inline-btn" ng-click="removeBodyParameter(pattern)">
+                                        X
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Predicate</label>
+                                    <select class="form-control" ng-model="tempData.addBodyPredicate">
+                                        <option ng-repeat="option in predicates">{{ option }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-8">
+                                    <label>Pattern</label>
+                                    <textarea class="form-control" ng-model="tempData.addBodyPattern"></textarea>
+                                </div>
+                                <div class="col-md-1">
+                                    <button
+                                            type="button"
+                                            class="btn btn-success form-inline-btn"
+                                            ng-click="addBodyParameter()"
+                                            ng-disabled="!tempData.addBodyPredicate || !tempData.addBodyPattern">
+                                        <b>+</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </tab>
+        <tab heading="Response">
+            <form class="modal-tab-form">
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <input id="status" class="form-control" ng-model="mock.response.status">
+                </div>
+                <div class="form-group" ng-if="!mock.response.bodyFileName">
+                    <label for="respBody">Body</label>
+                    <textarea id="respBody" rows="10" class="form-control" ng-model="mock.response.body"></textarea>
+                </div>
+                <div class="form-group" ng-if="!mock.response.body && mock.response.bodyFileName">
+                    <label for="respBodyFile">Body File Name</label>
+                    <span id="respBodyFile" class="form-control">{{ mock.response.bodyFileName }}</span>
+                </div>
+                <div class="form-group" ng-if="!mock.response.body && mock.response.bodyFileName">
+                    <label for="respBodyFileData">Body File Data</label>
+                    <textarea id="respBodyFileData" rows="10" ng-model="tempData.bodyFileData" ng-change="tempData.bodyFileDataChanged=true" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="resp-headers">Headers</label>
+                    <ul id="resp-headers" class="list-group">
+                        <li class="list-group-item" ng-repeat="(header, value) in mock.response.headers">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Header</label>
+                                    <span class="form-control" disabled>{{ header }}</span>
+                                </div>
+                                <div class="col-md-8">
+                                    <label>Value</label>
+                                    <input class="form-control" ng-model="value">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-danger form-inline-btn" ng-click="removeResponseHeader(header)">
+                                        X
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>Header</label>
+                                    <input class="form-control" ng-model="tempData.addRespHeader">
+                                </div>
+                                <div class="col-md-8">
+                                    <label>Value</label>
+                                    <input class="form-control" ng-model="tempData.addRespHeaderValue">
+                                </div>
+                                <div class="col-md-1">
+                                    <button
+                                            type="button"
+                                            class="btn btn-success form-inline-btn"
+                                            ng-click="addResponseHeader()"
+                                            ng-disabled="!tempData.addRespHeader || !tempData.addRespHeaderValue">
+                                        <b>+</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </tab>
+    </tabset>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn" type="button" ng-click="cancel()">Cancel</button>
+</div>

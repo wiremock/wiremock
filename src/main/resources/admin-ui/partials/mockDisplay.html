@@ -1,0 +1,137 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="h2" style="margin-top: 0">
+                    <span class="label label-primary">Request</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary pull-right" ng-click="editMock()">Edit</button>
+            </div>
+        </div>
+        <form>
+            <div class="form-group" ng-if="mock.request.url">
+                <label for="req-url">URL</label>
+                <span id="req-url" class="form-control">{{ mock.request.url }}</span>
+            </div>
+            <div class="form-group" ng-if="mock.request.urlPattern">
+                <label for="req-url-pattern">URL Pattern</label>
+                <span id="req-url-pattern" class="form-control">{{ mock.request.urlPattern }}</span>
+            </div>
+            <div class="form-group" ng-if="mock.request.urlPath">
+                <label for="req-url-path">URL Path</label>
+                <span id="req-url-path" class="form-control">{{ mock.request.urlPath }}</span>
+            </div>
+            <div class="form-group" ng-if="mock.request.urlPathPattern">
+                <label for="req-url-path-pattern">URL Path Pattern</label>
+                <span id="req-url-path-pattern" class="form-control">{{ mock.request.urlPathPattern }}</span>
+            </div>
+            <div class="form-group">
+                <label for="method">Method</label>
+                <span id="method" class="form-control">{{ mock.request.method }}</span>
+            </div>
+            <div class="form-group" ng-if="mock.scenarioName || mock.requiredScenarioState || mock.newScenarioState">
+                <div class="row">
+                    <div class="col-md-4" ng-if="mock.scenarioName">
+                        <label for="scenarioName">Scenario Name</label>
+                        <span id="scenarioName" class="form-control">{{ mock.scenarioName }}</span>
+                    </div>
+                    <div class="col-md-4" ng-if="mock.requiredScenarioState">
+                        <label for="requiredScenarioState">Required Scenario State</label>
+                        <span id="requiredScenarioState" class="form-control">{{ mock.requiredScenarioState }}</span>
+                    </div>
+                    <div class="col-md-4" ng-if="mock.newScenarioState">
+                        <label for="newScenarioState">New Scenario State</label>
+                        <span id="newScenarioState" class="form-control">{{ mock.newScenarioState }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-if="mock.request.headers && getObjectKeysLength(mock.request.headers) > 0">
+                <label for="req-header">Header Patterns</label>
+                <ul id="req-header" class="list-group">
+                    <li class="list-group-item" ng-repeat="(header, pattern) in mock.request.headers">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Header</label>
+                                <span class="form-control">{{ header }}</span>
+                            </div>
+                            <div class="col-md-9">
+                                <label>Predicate Pattern</label>
+                                <pre>{{ pattern }}</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group" ng-if="mock.request.queryParameters && getObjectKeysLength(mock.request.queryParameters) > 0">
+                <label for="req-query-params">Query Parameters</label>
+                <ul id="req-query-params" class="list-group">
+                    <li class="list-group-item" ng-repeat="(query, pattern) in mock.request.queryParameters">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Param</label>
+                                <span class="form-control">{{ query }}</span>
+                            </div>
+                            <div class="col-md-9">
+                                <label>Predicate Pattern</label>
+                                <pre>{{ pattern }}</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="form-group" ng-if="mock.request.bodyPatterns && mock.request.bodyPatterns.length > 0">
+                <label for="req-body-patterns">Body Patterns</label>
+                <ul id="req-body-patterns" class="list-group">
+                    <li class="list-group-item" ng-repeat="pattern in mock.request.bodyPatterns">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Predicate Pattern</label>
+                                <pre>{{ pattern }}</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </form>
+        <h2>
+            <span class="label label-success">Response</span>
+        </h2>
+        <form>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <span id="status" class="form-control">{{ mock.response.status }}</span>
+            </div>
+            <div class="form-group" ng-if="bodyData">
+                <label for="respBody">Body</label>
+                <pre id="respBody" class="response-body">{{ bodyData }}</pre>
+            </div>
+            <div class="form-group" ng-if="!mock.response.body && mock.response.bodyFileName">
+                <label for="respBodyFile">Body File Name</label>
+                <span id="respBodyFile" class="form-control">{{ mock.response.bodyFileName }}</span>
+            </div>
+            <div class="form-group" ng-if="!mock.response.body && mock.response.bodyFileName">
+                <label for="respBodyFileData">Body File Data</label>
+                <pre id="respBodyFileData" class="response-body">{{ bodyFileData }}</pre>
+            </div>
+            <div class="form-group" ng-if="mock.response.headers && getObjectKeysLength(mock.response.headers) > 0">
+                <label for="resp-headers">Headers</label>
+                <ul id="resp-headers" class="list-group">
+                    <li class="list-group-item" ng-repeat="(header, value) in mock.response.headers">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Header</label>
+                                <span class="form-control">{{ header }}</span>
+                            </div>
+                            <div class="col-md-9">
+                                <label>Value</label>
+                                <pre>{{ value }}</pre>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+</div>

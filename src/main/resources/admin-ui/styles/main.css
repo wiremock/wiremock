@@ -1,0 +1,93 @@
+
+body {
+    padding-top: 50px;
+}
+
+.response-body {
+    max-height: 300px;
+}
+
+.main-title {
+    font-size: 30px;
+}
+
+code {
+    color: black;
+    background-color: transparent;
+}
+
+.sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+}
+
+.nav-sidebar {
+    margin-right: -21px;
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+    font-size: 18px;
+}
+
+.dashboard-label {
+    color: #5c9500;
+    display: block;
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.dashboard-item-title {
+    font-size: 30px;
+    display: block;
+    color: darkgray;
+}
+
+.dashboard-item-img {
+    height: 250px;
+    padding-top: 10px;
+}
+
+.dashboard-item {
+    display: inline-block;
+    text-align: center;
+}
+
+.margin-top {
+    margin-top: 15px;
+}
+
+.alert {
+    margin-bottom: 0;
+}
+
+.alert-successful {
+    background-color: #dff0d8;
+    border-color: #becfb7;
+    border-width: 1px;
+}
+
+.form-inline-btn {
+    margin-top: 25px;
+}
+
+.modal-body {
+    height: 600px;
+    overflow: auto;
+}
+
+.modal-tab-form {
+    margin-top: 15px;
+}
