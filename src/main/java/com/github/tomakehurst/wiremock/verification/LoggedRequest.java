@@ -29,7 +29,8 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.codec.binary.Base64;
+import com.google.common.io.BaseEncoding;
+import com.google.common.base.Charsets;
 
 import java.net.URI;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class LoggedRequest implements Request {
         this.absoluteUrl = absoluteUrl;
         this.clientIp = clientIp;
         this.method = method;
-        this.body = Base64.decodeBase64(bodyAsBase64);
+        this.body = BaseEncoding.base64().decode(bodyAsBase64);
         this.headers = headers;
         this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
@@ -157,7 +158,7 @@ public class LoggedRequest implements Request {
     @Override
     @JsonProperty("bodyAsBase64")
     public String getBodyAsBase64() {
-        return Base64.encodeBase64String(body);
+        return BaseEncoding.base64().encode(getBody().toString().getBytes(Charsets.US_ASCII));
     }
 
     @Override

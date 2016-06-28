@@ -24,7 +24,8 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.codec.binary.Base64;
+import com.google.common.io.BaseEncoding;
+import com.google.common.base.Charsets;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -125,7 +126,7 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public String getBodyAsBase64() {
-        return Base64.encodeBase64String(getBody());
+        return BaseEncoding.base64().encode(getBody().toString().getBytes(Charsets.US_ASCII));
     }
 
     @SuppressWarnings("unchecked")
