@@ -19,13 +19,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Strings;
+import com.google.common.io.BaseEncoding;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
-import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
-import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class Body {
 
@@ -63,7 +62,7 @@ public class Body {
         if (bytes != null) return new Body(bytes);
         if (str != null) return new Body(str);
         if (json != null && !(json instanceof NullNode)) return new Body(json);
-        if (base64 != null) return new Body(parseBase64Binary(base64), true);
+        if (base64 != null) return new Body(BaseEncoding.base64().decode(base64), true);
 
         return none();
     }
@@ -81,7 +80,7 @@ public class Body {
     }
 
     public String asBase64() {
-        return content != null ? printBase64Binary(content) : null;
+        return content != null ? BaseEncoding.base64().encode(content) : null;
     }
 
     public boolean isBinary() {
