@@ -272,6 +272,7 @@ public class ResponseDefinition {
 		return browserProxyUrl != null || proxyBaseUrl != null;
 	}
 
+	@JsonIgnore
 	public Request getOriginalRequest() {
 		return originalRequest;
 	}
