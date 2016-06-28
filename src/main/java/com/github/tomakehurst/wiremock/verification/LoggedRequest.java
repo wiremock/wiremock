@@ -158,7 +158,7 @@ public class LoggedRequest implements Request {
     @Override
     @JsonProperty("bodyAsBase64")
     public String getBodyAsBase64() {
-        return   BaseEncoding.base64().encode(getBody().toString().getBytes(Charsets.US_ASCII));
+        return BaseEncoding.base64().encode(getBody().toString().getBytes(Charsets.US_ASCII));
     }
 
     @Override
