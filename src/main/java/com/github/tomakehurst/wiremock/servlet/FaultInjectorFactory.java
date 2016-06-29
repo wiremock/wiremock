@@ -21,10 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 
-/**
- * @author Dave Syer
- *
- */
 public interface FaultInjectorFactory {
 
     String INJECTOR_CLASS_KEY = "FaultHandlerFactoryClass";

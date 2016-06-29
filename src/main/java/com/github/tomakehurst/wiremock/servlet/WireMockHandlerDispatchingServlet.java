@@ -15,20 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty9.JettyFaultInjector;
-import com.github.tomakehurst.wiremock.jetty9.JettyHttpsFaultInjector;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,9 +62,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
 			". Normalized mapped under returned '" + mappedUnder + "'");
         requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
-        if (faultInjectorFactoryClassName!=null) {
-            faultHandlerFactory = (FaultInjectorFactory) context.getAttribute(faultInjectorFactoryClassName);
-        }
+
+        faultHandlerFactory = faultInjectorFactoryClassName != null ?
+            (FaultInjectorFactory) context.getAttribute(faultInjectorFactoryClassName) :
+            new NoFaultInjectorFactory();
+
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 	

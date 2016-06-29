@@ -222,6 +222,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration httpServerFactory(HttpServerFactory serverFactory) {
+        httpServerFactory = serverFactory;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -313,5 +318,4 @@ public class WireMockConfiguration implements Options {
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
         return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
-
 }
