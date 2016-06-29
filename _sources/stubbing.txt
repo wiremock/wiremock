@@ -58,6 +58,41 @@ To create the stub described above via the JSON API, the following document can 
 HTTP methods currently supported are: ``GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS``. You can specify ``ANY`` if you
 want the stub mapping to match on any request method.
 
+
+Setting the response status message
+-----------------------------------
+In addition to the status code, the status message can optionally also be set:
+
+.. code-block:: java
+
+    @Test
+    public void statusMessage() {
+        stubFor(get(urlEqualTo("/some/thing"))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withStatusMessage("Everything was just fine!")
+                    .withHeader("Content-Type", "text/plain")));
+
+        assertThat(testClient.get("/some/thing").statusCode(), is(200));
+        assertThat(testClient.get("/some/thing/else").statusCode(), is(404));
+    }
+
+Or
+
+.. code-block:: javascript
+
+    {
+    	"request": {
+    		"method": "GET",
+    		"url": "/some/thing"
+    	},
+    	"response": {
+    		"status": 200,
+    		"statusMessage": "Everything was just fine!"
+    	}
+    }
+
+
 .. _stubbing-url-matching:
 
 URL matching
@@ -159,6 +194,35 @@ Or
     		"status": 200
     	}
     }
+
+
+Basic Authentication
+--------------------
+Although HTTP basic authentication can be supported by requiring a correctly encoded Authorization header, you can also do this more simply via the API:
+
+
+.. code-block:: java
+
+    stubFor(get(urlEqualTo("/basic-auth")).withBasicAuth("user", "pass")
+
+Or
+
+.. code-block:: javascript
+
+    {
+        "request": {
+            "method": "GET",
+            "url": "/basic-auth",
+            "basicAuth" : {
+                "username" : "user",
+                "password" : "pass"
+            }
+        },
+        "response": {
+            "status": 200
+        }
+    }
+
 
 .. _stubbing-query-parameter-matching:
 
@@ -369,9 +433,9 @@ or:
             "url": "/xpath",
             "bodyPatterns" : [
               	{ "matchesXPath" : "/stuff:outer/stuff:inner[.=111]" ,
-              	    "withXPathNamespaces" : {
-                        "stuff" : "http://foo.com/"
-                    }
+                  "xPathNamespaces" : {
+                      "stuff" : "http://foo.com/"
+                  }
                 },
             ]
     	},
@@ -552,6 +616,41 @@ Stub mappings which have been created can be persisted to the ``mappings`` direc
 in Java or posting a request with an empty body to ``http://<host>:<port>/__admin/mappings/save``.
 
 Note that this feature is not available when running WireMock from a servlet container.
+
+Removing stubs
+============
+
+Stub mappings which have been created can be removed via ``mappings`` directory via a call to ``WireMock.removeStubMapping``
+in Java or posting a request with body that has the stub to ``http://<host>:<port>/__admin/mappings/remove``.
+
+WireMock tries to match UUID is it is passed in the body of the stup to a post request and if it finds the stub it removes it.
+if match is not found, then it tries to match the request object found in the stub with existing mappings and removes the first one that it finds.
+
+For Example - posting following stub as body to http://<host>:<port>/__admin/mappings/remove will find first mapping with
+request that matches url="/v8/asd/26", and method "method": "GET".
+
+.. code-block:: javascript
+{
+      "request": {
+        "url": "/v8/asd/26",
+        "method": "GET"
+      },
+      "response": {
+        "status": 202,
+        "body": "response for test",
+        "headers": {
+          "Content-Type": "text/plain"
+        }
+      }
+    }
+
+This is because body does not have UUID. if it had an element like
+"uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef",in addition to "request" and "response" then wiremock will remove the one that matches the uuid provided.
+removing via uuid has precedence over removing via request match.
+
+Note that this api only removes one mapping and not multiple ones if they exist
+Note that this feature is not available when running WireMock from a servlet container.
+
 
 .. _stubbing-reset:
 

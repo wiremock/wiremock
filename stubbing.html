@@ -15,7 +15,7 @@
             text-shadow: 0px 0px 0px #8CA8BB;
             color: #333;
         }
-
+        
         #top-bar {
             background-color: #363F45;
             background-image: -moz-linear-gradient(top, #CCC, #8CA8BB);
@@ -81,9 +81,15 @@
 <li class="toctree-l1"><a class="reference internal" href="junit-rule.html">The JUnit 4.x Rule</a></li>
 <li class="toctree-l1"><a class="reference internal" href="java-usage.html">Java (Non-JUnit) Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Stubbing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-stubbing">Basic stubbing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-stubbing">Basic stubbing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-the-response-status-message">Setting the response status message</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#url-matching">URL matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-header-matching">Request header matching</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-authentication">Basic Authentication</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#query-parameter-matching">Query parameter matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#request-body-matching">Request body matching</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#json-body-matching">JSON body matching</a></li>
@@ -95,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#sending-response-headers">Sending response headers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-the-response-body">Specifying the response body</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#saving-stubs">Saving stubs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-stubs">Removing stubs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reset">Reset</a></li>
 </ul>
 </li>
@@ -108,7 +115,7 @@
 
                 <hr/>
                 <ul>
-                    <li><a href="https://groups.google.com/forum/#!forum/wiremock-user">Mailing List</a></li>
+                    <li><a href="https://groups.google.com/forum/#!forum/wiremock-user">Mailing List</a><img style="margin-left: 0.5em; margin-bottom: -6px" src="_static/new.png"/></li>
                 </ul>
             </div>
             <div class="span9" id="body">
@@ -158,6 +165,36 @@ matches <tt class="docutils literal"><span class="pre">/some/thing</span></tt> (
 </div>
 <p>HTTP methods currently supported are: <tt class="docutils literal"><span class="pre">GET,</span> <span class="pre">POST,</span> <span class="pre">PUT,</span> <span class="pre">DELETE,</span> <span class="pre">HEAD,</span> <span class="pre">TRACE,</span> <span class="pre">OPTIONS</span></tt>. You can specify <tt class="docutils literal"><span class="pre">ANY</span></tt> if you
 want the stub mapping to match on any request method.</p>
+<div class="section" id="setting-the-response-status-message">
+<h3>Setting the response status message<a class="headerlink" href="#setting-the-response-status-message" title="Permalink to this headline">¶</a></h3>
+<p>In addition to the status code, the status message can optionally also be set:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">statusMessage</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/some/thing&quot;</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withStatusMessage</span><span class="o">(</span><span class="s">&quot;Everything was just fine!&quot;</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">&quot;Content-Type&quot;</span><span class="o">,</span> <span class="s">&quot;text/plain&quot;</span><span class="o">)));</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/some/thing&quot;</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">200</span><span class="o">));</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/some/thing/else&quot;</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">404</span><span class="o">));</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Or</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/some/thing&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="s2">&quot;statusMessage&quot;</span><span class="o">:</span> <span class="s2">&quot;Everything was just fine!&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="url-matching">
 <span id="stubbing-url-matching"></span><h2>URL matching<a class="headerlink" href="#url-matching" title="Permalink to this headline">¶</a></h2>
@@ -238,6 +275,29 @@ matching (<a class="reference internal" href="#stubbing-query-parameter-matching
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
+</div>
+<div class="section" id="basic-authentication">
+<h3>Basic Authentication<a class="headerlink" href="#basic-authentication" title="Permalink to this headline">¶</a></h3>
+<p>Although HTTP basic authentication can be supported by requiring a correctly encoded Authorization header, you can also do this more simply via the API:</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">&quot;/basic-auth&quot;</span><span class="o">)).</span><span class="na">withBasicAuth</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;pass&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Or</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;request&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/basic-auth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;basicAuth&quot;</span> <span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;username&quot;</span> <span class="o">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span> <span class="o">:</span> <span class="s2">&quot;pass&quot;</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;response&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="o">:</span> <span class="mi">200</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="query-parameter-matching">
@@ -404,9 +464,9 @@ elements are returned by the XPath evaluation.</p>
         <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;/xpath&quot;</span><span class="p">,</span>
         <span class="s2">&quot;bodyPatterns&quot;</span> <span class="o">:</span> <span class="p">[</span>
             <span class="p">{</span> <span class="s2">&quot;matchesXPath&quot;</span> <span class="o">:</span> <span class="s2">&quot;/stuff:outer/stuff:inner[.=111]&quot;</span> <span class="p">,</span>
-                <span class="s2">&quot;withXPathNamespaces&quot;</span> <span class="o">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;stuff&quot;</span> <span class="o">:</span> <span class="s2">&quot;http://foo.com/&quot;</span>
-                <span class="p">}</span>
+              <span class="s2">&quot;xPathNamespaces&quot;</span> <span class="o">:</span> <span class="p">{</span>
+                  <span class="s2">&quot;stuff&quot;</span> <span class="o">:</span> <span class="s2">&quot;http://foo.com/&quot;</span>
+              <span class="p">}</span>
             <span class="p">},</span>
         <span class="p">]</span>
     <span class="p">},</span>
@@ -555,6 +615,46 @@ in other character sets, whether by JVM configuration or body file encoding will
 in Java or posting a request with an empty body to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/save</span></tt>.</p>
 <p>Note that this feature is not available when running WireMock from a servlet container.</p>
 </div>
+<div class="section" id="removing-stubs">
+<h2>Removing stubs<a class="headerlink" href="#removing-stubs" title="Permalink to this headline">¶</a></h2>
+<p>Stub mappings which have been created can be removed via <tt class="docutils literal"><span class="pre">mappings</span></tt> directory via a call to <tt class="docutils literal"><span class="pre">WireMock.removeStubMapping</span></tt>
+in Java or posting a request with body that has the stub to <tt class="docutils literal"><span class="pre">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/remove</span></tt>.</p>
+<p>WireMock tries to match UUID is it is passed in the body of the stup to a post request and if it finds the stub it removes it.
+if match is not found, then it tries to match the request object found in the stub with existing mappings and removes the first one that it finds.</p>
+<p>For Example - posting following stub as body to <a class="reference external" href="http:/">http:/</a>/&lt;host&gt;:&lt;port&gt;/__admin/mappings/remove will find first mapping with
+request that matches url=&#8221;/v8/asd/26&#8221;, and method &#8220;method&#8221;: &#8220;GET&#8221;.</p>
+<div class="highlight-javascript"><div class="highlight"><pre>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>{</dt>
+<dd><blockquote class="first">
+<div><dl class="docutils">
+<dt>&#8220;request&#8221;: {</dt>
+<dd>&#8220;url&#8221;: &#8220;/v8/asd/26&#8221;,
+&#8220;method&#8221;: &#8220;GET&#8221;</dd>
+</dl>
+<p>},
+&#8220;response&#8221;: {</p>
+<blockquote>
+<div><p>&#8220;status&#8221;: 202,
+&#8220;body&#8221;: &#8220;response for test&#8221;,
+&#8220;headers&#8221;: {</p>
+<blockquote>
+<div>&#8220;Content-Type&#8221;: &#8220;text/plain&#8221;</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>This is because body does not have UUID. if it had an element like
+&#8220;uuid&#8221;: &#8220;aa85aed3-66c8-42bb-a79b-38e3264ff2ef&#8221;,in addition to &#8220;request&#8221; and &#8220;response&#8221; then wiremock will remove the one that matches the uuid provided.
+removing via uuid has precedence over removing via request match.</p>
+<p>Note that this api only removes one mapping and not multiple ones if they exist
+Note that this feature is not available when running WireMock from a servlet container.</p>
+</div>
 <div class="section" id="reset">
 <span id="stubbing-reset"></span><h2>Reset<a class="headerlink" href="#reset" title="Permalink to this headline">¶</a></h2>
 <p>The WireMock server can be reset at any time, removing all stub mappings and deleting the request log. If you&#8217;re using
@@ -576,18 +676,7 @@ do a reset you can call <tt class="docutils literal"><span class="pre">WireMock.
             1.2.2.
         </footer>
     </div>
-
-    <script id="_webengage_script_tag" type="text/javascript">
-      if (!document.cookie.includes('notification_ab_group')) {
-        var cookieValue = Math.floor(Math.random() * 2) + 1;
-        var expiresDate = new Date();
-        expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
-        document.cookie = "notification_ab_group=" + cookieValue + ";expires=" + expiresDate.toGMTString() + ";path=/";
-      }
-
-      var webengage; !function(e,t,n){function o(e,t){e[t[t.length-1]]=function(){r.__queue.push([t.join("."),arguments])}}var i,s,r=e[n],g=" ",l="init options track screen onReady".split(g),a="feedback survey notification".split(g),c="options render clear abort".split(g),p="Open Close Submit Complete View Click".split(g),u="identify login logout setAttribute".split(g);if(!r||!r.__v){for(e[n]=r={__queue:[],__v:"5.0",user:{}},i=0;i<l.length;i++)o(r,[l[i]]);for(i=0;i<a.length;i++){for(r[a[i]]={},s=0;s<c.length;s++)o(r[a[i]],[a[i],c[s]]);for(s=0;s<p.length;s++)o(r[a[i]],[a[i],"on"+p[s]])}for(i=0;i<u.length;i++)o(r.user,["user",u[i]]);setTimeout(function(){var f=t.createElement("script"),d=t.getElementById("_webengage_script_tag");f.type="text/javascript",f.async=!0,f.src=("https:"==t.location.protocol?"https://ssl.widgets.webengage.com":"http://cdn.widgets.webengage.com")+"/js/widget/webengage-min-v-5.0.js",d.parentNode.insertBefore(f,d)})}}(window,document,"webengage");
-
-      webengage.init("82618004");
-  </script>
 </body>
 </html>
+
+
