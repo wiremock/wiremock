@@ -50,6 +50,7 @@ import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 
@@ -245,10 +246,12 @@ class JettyHttpServer implements HttpServer {
 
         mockServiceContext.addServlet(DefaultServlet.class, FILES_URL_MATCH);
 
+        mockServiceContext.setAttribute(JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory());
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
+        servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
         MimeTypes mimeTypes = new MimeTypes();

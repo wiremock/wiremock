@@ -47,7 +47,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -6602042274260495538L;
 	
-	private RequestHandler requestHandler;
+    private RequestHandler requestHandler;
+    private FaultInjectorFactory faultHandlerFactory;
 	private String mappedUnder;
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
@@ -62,11 +63,15 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
 		
-		String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+        String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
 		mappedUnder = getNormalizedMappedUnder(config);
 		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
-			". Normlized mapped under returned '" + mappedUnder + "'");
-		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
+			". Normalized mapped under returned '" + mappedUnder + "'");
+        requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
+        if (faultInjectorFactoryClassName!=null) {
+            faultHandlerFactory = (FaultInjectorFactory) context.getAttribute(faultInjectorFactoryClassName);
+        }
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 	
@@ -109,7 +114,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		}
 	}
 
-    public static void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         Fault fault = response.getFault();
         if (fault != null) {
 			FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
@@ -133,12 +138,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         writeAndTranslateExceptions(httpServletResponse, response.getBody());
     }
 
-	private static FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-		if (httpServletRequest.getScheme().equals("https")) {
-			return new JettyHttpsFaultInjector(httpServletResponse);
-		}
-
-		return new JettyFaultInjector(httpServletResponse);
+	private FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+	    return faultHandlerFactory.buildFaultInjector(httpServletRequest, httpServletResponse);
 	}
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
