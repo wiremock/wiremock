@@ -12,7 +12,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.1.1-beta/wiremock-standalone-2.1.1-beta.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.1.2-rc1/wiremock-standalone-2.1.2-rc1.jar>`_.
 
 Supported command line options are:
 

@@ -10,22 +10,30 @@ and can be used from within a unit test or deployed into a test environment.
 Although it's written in Java, there's also a JSON API so you can use it with pretty much any language out there.
 
 
-New new new! Version 2.0 in beta
---------------------------------
-WireMock 2.0 is now in development. We're using the major version bump to make a few breaking changes (but nothing too major, so don't worry!).
+News - WireMock 2.0 RC
+----------------------
+A release candidate is now available for WireMock 2.0.
 
-Among the changes we're making or considering are:
+This also means that changes are now taking place on the master branch again, so please direct your PRs to master rather than the 2.0-beta branch.
 
-* Dropping support for JDK 6 and 7, which allows us to use some newer libraries we previously couldn't.
-* Upgrading to Jetty 9.3, which is higher performing, and fixes some bugs.
-* Upgrading to JSONPath 2.0.0.
-* Improving the extensions API, probably to support transforming ``Response`` s directly in addition to ``ResponseDefinition`` s, but TBD.
+Here are the major changes made between 1.x and 2.x:
+
+* Total re-write of the matching code to introduce the idea of "distance", which is a 0-1 normalised value representing distance between and request pattern and a request. This supports a couple of new features - a "near misses" API supporting querying for stubs that almost matched a request or requests that almost matched a pattern, and much better reporting of test failures by the @Rule, including IntelliJ style diffs.
+* Drop support for JDK 6.
+* Upgrade to Jetty 9.2, which is higher performing, fixes some bugs and paves the way for HTTP/2 (which unfortunately requires JDK 7 to be dropped).
+* Upgrade to JSONPath 2.0.0.
+* Upgrade to XMLUnit 2.0 internally
+* Improving the extensions API, with support for transforming ``Response`` s directly in addition to ``ResponseDefinition``, writing custom matchers and parameterising extensions.
 * Adding some additional type safety to the Java DSL.
 * Putting the standalone JAR under its own Maven artifact so it can have it's own POM (avoiding the need to exlclude all large swathes of dependencies).
+* Matching on cookies and pre-emptive basic auth
+* GZip support (request and response body)
+* Edit and remove stub mappings
+* Better Android support - can now be built and run on Android without modification. See `Sam Edwards' blog post <http://handstandsam.com/2016/01/30/running-wiremock-on-android/>`_ for details.
 
-If there's something you'd like to see added, particularly something involving a breaking change, please post a topic on the `mailing list <https://groups.google.com/forum/#!forum/wiremock-user>`_.
+Also, watch this space for a brandspanking new website.
 
-If you'd like to raise a pull request (having discussed it on the list first :-) please do so against the 2.0-beta branch, not master.
+The `1.x docs are preserved here <http://one.wiremock.org>`_.
 
 
 What's it for?
