@@ -3,8 +3,6 @@ WireMock - a web service test double for all occasions
 
 [![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
 
-**PLEASE NOTE: The 2.0-beta branch is now the active line of development so we're no longer taking pull requests against version 1.x (master)**
-
 Key Features
 ------------
 	
@@ -40,3 +38,16 @@ on the mailing list to generate a discussion. This will avoid significant amount
 * Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
 more difficult.
 
+Building WireMock locally
+-------------------------
+To run all of WireMock's tests:
+```bash
+./gradlew clean test
+```
+
+To build both JARs (thin and standalone):
+```bash
+./gradlew jar shadowJar
+```
+
+The built JARs will be placed under ``build/libs``.
