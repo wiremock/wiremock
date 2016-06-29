@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
@@ -43,17 +43,17 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
-public class JettyHttpServletRequestAdapter implements Request {
+public class WireMockHttpServletRequestAdapter implements Request {
 
     private final HttpServletRequest request;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
 
-    public JettyHttpServletRequestAdapter(HttpServletRequest request) {
+    public WireMockHttpServletRequestAdapter(HttpServletRequest request) {
         this.request = request;
     }
 
-    public JettyHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
+    public WireMockHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
         this.request = request;
         this.urlPrefixToRemove = urlPrefixToRemove;
     }
@@ -211,12 +211,30 @@ public class JettyHttpServletRequestAdapter implements Request {
 
     @Override
     public boolean isBrowserProxyRequest() {
+        if (!isJetty()) {
+            return false;
+        }
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
             return URI.create(jettyRequest.getUri().toString()).isAbsolute();
         }
 
         return false;
+    }
+
+    private boolean isJetty() {
+        try {
+            getClass("org.eclipse.jetty.server.Request");
+            return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    private void getClass(String type) throws ClassNotFoundException {
+        ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = contextCL == null ? WireMockHttpServletRequestAdapter.class.getClassLoader() : contextCL;
+        Class.forName(type, false, loader);
     }
 
     @Override

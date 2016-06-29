@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -21,6 +21,8 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.jetty9.JettyFaultInjector;
+import com.github.tomakehurst.wiremock.jetty9.JettyHttpsFaultInjector;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -38,14 +40,15 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 
-public class JettyHandlerDispatchingServlet extends HttpServlet {
+public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
 	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
 	public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
 	private static final long serialVersionUID = -6602042274260495538L;
 	
-	private RequestHandler requestHandler;
+    private RequestHandler requestHandler;
+    private FaultInjectorFactory faultHandlerFactory;
 	private String mappedUnder;
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
@@ -60,11 +63,15 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
 		
-		String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+        String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
+		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
 		mappedUnder = getNormalizedMappedUnder(config);
 		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
-			". Normlized mapped under returned '" + mappedUnder + "'");
-		requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
+			". Normalized mapped under returned '" + mappedUnder + "'");
+        requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
+        if (faultInjectorFactoryClassName!=null) {
+            faultHandlerFactory = (FaultInjectorFactory) context.getAttribute(faultInjectorFactoryClassName);
+        }
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 	
@@ -92,7 +99,7 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 		
-		Request request = new JettyHttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, mappedUnder);
 
 		Response response = requestHandler.handle(request);
         if (Thread.currentThread().isInterrupted()) {
@@ -107,7 +114,7 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
 		}
 	}
 
-    public static void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         Fault fault = response.getFault();
         if (fault != null) {
 			FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
@@ -131,12 +138,8 @@ public class JettyHandlerDispatchingServlet extends HttpServlet {
         writeAndTranslateExceptions(httpServletResponse, response.getBody());
     }
 
-	private static FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-		if (httpServletRequest.getScheme().equals("https")) {
-			return new JettyHttpsFaultInjector(httpServletResponse);
-		}
-
-		return new JettyFaultInjector(httpServletResponse);
+	private FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+	    return faultHandlerFactory.buildFaultInjector(httpServletRequest, httpServletResponse);
 	}
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
