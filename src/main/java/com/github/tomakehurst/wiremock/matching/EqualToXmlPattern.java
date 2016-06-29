@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.xmlunit.diff.ComparisonType.ATTR_NAME_LOOKUP;
 import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
 import static org.xmlunit.diff.ComparisonType.CHILD_LOOKUP;
@@ -69,6 +70,10 @@ public class EqualToXmlPattern extends StringValuePattern {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
+                if (isNullOrEmpty(value)) {
+                    return false;
+                }
+
                 try {
                     Diff diff = DiffBuilder.compare(Input.from(expectedValue))
                         .withTest(value)
@@ -89,6 +94,10 @@ public class EqualToXmlPattern extends StringValuePattern {
 
             @Override
             public double getDistance() {
+                if (isNullOrEmpty(value)) {
+                    return 1.0;
+                }
+
                 final AtomicInteger totalComparisons = new AtomicInteger(0);
                 final AtomicInteger differences = new AtomicInteger(0);
 

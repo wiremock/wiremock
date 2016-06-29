@@ -33,6 +33,21 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
+    public void returnsNoMatchAnd1DistanceWhenActualIsNull() {
+        EqualToXmlPattern pattern = new EqualToXmlPattern(
+            "<things>\n" +
+            "    <thing characteristic=\"tepid\"/>\n" +
+            "    <thing characteristic=\"tedious\"/>\n" +
+            "</things>"
+        );
+
+        MatchResult matchResult = pattern.match(null);
+
+        assertFalse(matchResult.isExactMatch());
+        assertThat(matchResult.getDistance(), is(1.0));
+    }
+
+    @Test
     public void returnsExactMatchWhenDocumentsAreIdentical() {
         EqualToXmlPattern pattern = new EqualToXmlPattern(
             "<things>\n" +
