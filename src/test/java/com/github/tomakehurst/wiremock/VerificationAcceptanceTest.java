@@ -17,7 +17,10 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
@@ -26,14 +29,39 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.moreThan;
+import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.requestMadeFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
 
 @RunWith(Enclosed.class)
 public class VerificationAcceptanceTest {
@@ -42,20 +70,62 @@ public class VerificationAcceptanceTest {
 
         @Test
         public void verifiesRequestBasedOnUrlOnly() {
-            testClient.get("/this/got/requested");
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requested?query")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenQueryMissing() {
+            testClient.get("/this/got/requested?query");
             verify(getRequestedFor(urlEqualTo("/this/got/requested")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenPathShorter() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requeste?query")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlEqualsWhenExtraPathPresent() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlEqualTo("/this/got/requested/?query")));
         }
 
         @Test
         public void verifiesRequestBasedOnUrlPathOnly() {
-            testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathEqualTo("/this/got")));
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requested")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathEqualsWhenPathShorter() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requeste")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathEqualsWhenExtraPathPresent() {
+            testClient.get("/this/got/requested?query");
+            verify(getRequestedFor(urlPathEqualTo("/this/got/requested/")));
         }
 
         @Test
         public void verifiesRequestBasedOnUrlPathPatternOnly() {
             testClient.get("/this/got/requested");
-            verify(getRequestedFor(urlPathMatching("/(.*?)/got")));
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got/.*")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathPatternWhenOnlyPrefixMatching() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/(.*?)/got/")));
+        }
+
+        @Test(expected=VerificationException.class)
+        public void throwsVerificationExceptionOnUrlPathPatternWhenOnlySuffixMatching() {
+            testClient.get("/this/got/requested");
+            verify(getRequestedFor(urlPathMatching("/got/.*")));
         }
 
         @Test(expected=VerificationException.class)
@@ -80,8 +150,8 @@ public class VerificationAcceptanceTest {
                     withHeader("X-Thing", "Three"));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
-                .withHeader("X-Thing", equalTo("Two"))
-                .withHeader("X-Thing", matching("Thr.*")));
+                    .withHeader("X-Thing", equalTo("Two"))
+                    .withHeader("X-Thing", matching("Thr.*")));
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
                     .withHeader("X-Thing", equalTo("Three")));
@@ -98,7 +168,7 @@ public class VerificationAcceptanceTest {
         private static final String SAMPLE_JSON =
             "{ 													\n" +
             "	\"thing\": {									\n" +
-            "		\"importantKey\": \"Important value\",		\n" +
+            "		\"importantKey\": \"Important value\"		\n" +
             "	}												\n" +
             "}													";
 
@@ -115,7 +185,7 @@ public class VerificationAcceptanceTest {
             testClient.postWithBody("/body/contains", SAMPLE_JSON, "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/contains"))
                     .withRequestBody(matchingJsonPath("$.thing"))
-                    .withRequestBody(matchingJsonPath("$..*[?(@.importantKey == 'Important value')]")));
+                    .withRequestBody(matchingJsonPath("$..thing[?(@.importantKey == 'Important value')]")));
         }
 
         @Test
@@ -129,7 +199,7 @@ public class VerificationAcceptanceTest {
         public void verifiesWithBodyEquallingJsonWithCompareMode() {
             testClient.postWithBody("/body/json/lenient", "{ \"message\": \"Hello\", \"key\": \"welcome.message\" }", "application/json", "utf-8");
             verify(postRequestedFor(urlEqualTo("/body/json/lenient"))
-                    .withRequestBody(equalToJson("{ \"message\": \"Hello\" }", LENIENT)));
+                    .withRequestBody(equalToJson("{ \"message\": \"Hello\" }", true, true)));
         }
 
         @Test
@@ -210,6 +280,102 @@ public class VerificationAcceptanceTest {
             verify(4, getRequestedFor(urlEqualTo("/add/to/count")));
         }
 
+        private void getCountableRequests(int count) {
+            for (int i = 0; i < count; i++) {
+                testClient.get("/add/to/count");
+            }
+        }
+
+        @Test
+        public void verifiesLessThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesLessThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyLessThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(lessThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesExactlyThanCountWithExactRequests() {
+            getCountableRequests(5);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyExactCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(exactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanOrExactlyCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanOrExactlyCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThanOrExactly(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithLessRequests() {
+            getCountableRequests(4);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void doesNotVerifyMoreThanCountWithEqualRequests() {
+            getCountableRequests(5);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
+        @Test
+        public void verifiesMoreThanCountWithMoreRequests() {
+            getCountableRequests(6);
+            verify(moreThan(5), getRequestedFor(urlEqualTo("/add/to/count")));
+        }
+
         @Test
         public void verifiesHeaderAbsent() {
             testClient.get("/without/header", withHeader("Content-Type", "application/json"));
@@ -226,35 +392,167 @@ public class VerificationAcceptanceTest {
         }
 
         @Test
-        @SuppressWarnings("unchecked")
-        public void showsExpectedAndReceivedRequestsOnVerificationException() {
-            testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
+        public void showsDiffWithNearestMissWhenNoRequestsMatchedAndNearMissesAreAvailable() {
+            testClient.get("/my-near-miss");
+            testClient.get("/near-miss");
 
             try {
-                verify(getRequestedFor(urlEqualTo("/specific/thing")));
+                verify(getRequestedFor(urlEqualTo("/a-near-miss")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), containsString(
+                    junitStyleDiffMessage(
+                        "GET\n" +
+                        "/a-near-miss\n",
+
+                        "GET\n" +
+                        "/my-near-miss\n"
+                    )
+                ));
+            }
+        }
+
+        @Test
+        public void showsExpectedRequestAndCountShortfallWhenNotEnoughMatchingRequestsAreReceived() {
+            testClient.get("/hit");
+            testClient.get("/hit");
+
+            try {
+                verify(3, getRequestedFor(urlEqualTo("/hit")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), is(
+                        "Expected exactly 3 requests matching the following pattern but received only 2:\n" +
+                        "{\n" +
+                        "  \"url\" : \"/hit\",\n" +
+                        "  \"method\" : \"GET\"\n" +
+                        "}"
+                    )
+                );
+            }
+        }
+
+        @Test
+        public void showsNearMissDiffWhenCountSpecifiedAndNoMatchingRequestsAreReceived() {
+            testClient.get("/miss");
+            testClient.get("/miss");
+
+            try {
+                verify(3, getRequestedFor(urlEqualTo("/hit")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), containsString(
+                    junitStyleDiffMessage(
+                        "GET\n/hit\n",
+                        "GET\n/miss\n"
+                    )
+                ));
+            }
+        }
+
+        @Test
+        public void showsExpectedRequestAndCountShortfallWhenWrongNumberOfMatchingRequestsAreReceived() {
+            testClient.get("/hit");
+            testClient.get("/hit");
+            testClient.get("/hit");
+            testClient.get("/hit");
+
+            try {
+                verify(lessThan(2), getRequestedFor(urlEqualTo("/hit")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), is(
+                    "Expected less than 2 requests matching the following pattern but received 4:\n" +
+                    "{\n" +
+                    "  \"url\" : \"/hit\",\n" +
+                    "  \"method\" : \"GET\"\n" +
+                    "}"
+                    )
+                );
+            }
+        }
+
+        @Test
+        public void showsNearMissDiffWhenCountMatchSpecifiedAndNoMatchingRequestsAreReceived() {
+            testClient.get("/miss");
+            testClient.get("/miss");
+
+            try {
+                verify(moreThanOrExactly(4), getRequestedFor(urlEqualTo("/hit")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), containsString(
+                    junitStyleDiffMessage(
+                        "GET\n" +
+                        "/hit\n",
+
+                        "GET\n" +
+                        "/miss\n"
+                    )
+                ));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThan() {
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+
+            try {
+                verify(lessThan(2), getRequestedFor(urlEqualTo("/some/request")));
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected at least one request matching: {"),
-                        containsString("/specific/thing"),
-                        containsString("Requests received: "),
+                        containsString("Expected less than 2 requests matching"),
                         containsString("/some/request")));
             }
         }
 
         @Test
         @SuppressWarnings("unchecked")
-        public void showsReceivedRequestsOnVerificationException() {
-            testClient.put("/some/request", withHeader("X-My-Stuff", "things"));
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForLessThanOrExactly() {
+            testClient.get("/some/request");
+            testClient.get("/some/request");
+            testClient.get("/some/request");
 
             try {
-                verify(14, getRequestedFor(urlEqualTo("/specific/thing")));
+                verify(lessThanOrExactly(2), getRequestedFor(urlEqualTo("/some/request")));
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), allOf(
-                        containsString("Expected exactly 14 requests matching: {"),
-                        containsString("/specific/thing"),
-                        containsString("Requests received: "),
+                        containsString("Expected less than or exactly 2 requests matching"),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForExactly() {
+            testClient.get("/some/request");
+
+            try {
+                verify(exactly(12), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected exactly 12 requests matching"),
+                        containsString("/some/request")));
+            }
+        }
+
+        @Test
+        @SuppressWarnings("unchecked")
+        public void showsExpectedAndReceivedRequestsOnVerificationExceptionForMoreThan() {
+            testClient.get("/some/request");
+
+            try {
+                verify(moreThan(12), getRequestedFor(urlEqualTo("/some/request")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), allOf(
+                        containsString("Expected more than 12 requests matching"),
                         containsString("/some/request")));
             }
         }
@@ -265,12 +563,35 @@ public class VerificationAcceptanceTest {
             verify(patchRequestedFor(urlEqualTo("/patch/this"))
                     .withRequestBody(matching(".*\"importantKey\": \"Important value\".*")));
         }
+
+        @Test
+        public void verifiesRequestsViaCustomMatcher() {
+            testClient.get("/custom-match-this");
+            testClient.get("/custom-match-that");
+
+            wireMockServer.verify(2, requestMadeFor(new RequestMatcher() {
+                @Override
+                public MatchResult match(Request request) {
+                    return MatchResult.of(request.getUrl().contains("custom-match"));
+                }
+
+                @Override
+                public String getName() {
+                    return "inline";
+                }
+
+            }));
+        }
+
     }
 
     public static class JournalDisabled {
 
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().disableRequestJournal());
+        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
+            .dynamicPort()
+            .disableRequestJournal(),
+            false);
 
         @Test(expected=RequestJournalDisabledException.class)
         public void verifyThrowsExceptionWhenVerificationAttemptedAndRequestJournalDisabled() {
@@ -285,7 +606,10 @@ public class VerificationAcceptanceTest {
 
     public static class JournalMaxEntriesRestricted {
         @Rule
-        public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().maxRequestJournalEntries(Optional.of(2)));
+        public WireMockRule wireMockRule = new WireMockRule(options()
+            .dynamicPort()
+            .maxRequestJournalEntries(Optional.of(2)),
+            false);
 
         @Test
         public void maxLengthIs2() {

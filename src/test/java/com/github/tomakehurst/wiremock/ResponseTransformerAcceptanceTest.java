@@ -15,18 +15,20 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.junit.After;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -36,220 +38,103 @@ public class ResponseTransformerAcceptanceTest {
     WireMockTestClient client;
 
     @Test
-    public void transformerSpecifiedByClassTransformsHeadersStatusAndBody() {
-        startWithExtensions("com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$ExampleTransformer");
-        createStub("/to-transform");
+    public void transformsStubResponse() {
+        startWithExtensions(StubResponseTransformer.class);
 
-        WireMockResponse response = client.get("/to-transform");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.firstHeader("MyHeader"), is("Transformed"));
-        assertThat(response.content(), is("Transformed body"));
+        wm.stubFor(get(urlEqualTo("/response-transform")).willReturn(aResponse().withBody("Original body")));
+
+        assertThat(client.get("/response-transform").content(), is("Modified body"));
     }
 
     @Test
-    public void supportsMultipleTransformers() {
-        startWithExtensions(
-                "com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$MultiTransformer1",
-                "com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$MultiTransformer2");
-        createStub("/to-multi-transform");
+    public void acceptsTransformerParameters() {
+        startWithExtensions(StubResponseTransformerWithParams.class);
 
-        WireMockResponse response = client.get("/to-multi-transform");
-        assertThat(response.statusCode(), is(201));
-        assertThat(response.content(), is("Expect this"));
+        wm.stubFor(get(urlEqualTo("/response-transform-with-params")).willReturn(
+                aResponse()
+                        .withTransformerParameter("name", "John")
+                        .withTransformerParameter("number", 66)
+                        .withTransformerParameter("flag", true)
+                        .withBody("Original body")));
+
+        assertThat(client.get("/response-transform-with-params").content(), is("John, 66, true"));
     }
 
     @Test
-    public void supportsSpecifiyingExtensionsByClass() {
-        wm = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(ExampleTransformer.class, MultiTransformer1.class));
-        wm.start();
-        client = new WireMockTestClient(wm.port());
-        createStub("/to-class-transform");
+    public void globalTransformAppliedWithLocalParameters() {
+        startWithExtensions(GlobalResponseTransformer.class);
 
-        WireMockResponse response = client.get("/to-class-transform");
-        assertThat(response.statusCode(), is(201));
-        assertThat(response.content(), is("Transformed body"));
+        wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
+
+        assertThat(client.get("/global-response-transform").firstHeader("X-Extra"), is("extra val"));
     }
 
-    @Test
-    public void supportsSpecifiyingExtensionsByInstance() {
-        wm = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(new ExampleTransformer(), new MultiTransformer2()));
-        wm.start();
-        client = new WireMockTestClient(wm.port());
-        createStub("/to-instance-transform");
-
-        WireMockResponse response = client.get("/to-instance-transform");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), is("Expect this"));
-    }
-
-    @Test
-    public void doesNotApplyNonGlobalExtensionsWhenNotExplicitlySpecfiedByStub() {
-        wm = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(new ExampleTransformer(), new NonGlobalTransformer()));
-        wm.start();
-        client = new WireMockTestClient(wm.port());
-        createStub("/non-global-transform");
-
-        WireMockResponse response = client.get("/non-global-transform");
-        assertThat(response.content(), is("Transformed body"));
-    }
-
-    @Test
-    public void appliesNonGlobalExtensionsWhenSpecifiedByStub() {
-        wm = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(new NonGlobalTransformer()));
-        wm.start();
-        client = new WireMockTestClient(wm.port());
-
-        wm.stubFor(get(urlEqualTo("/local-transform")).willReturn(aResponse()
-                .withStatus(200)
-                .withBody("Should not see this")
-                .withTransformers("local")));
-
-        WireMockResponse response = client.get("/local-transform");
-        assertThat(response.content(), is("Non-global transformed body"));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     @SuppressWarnings("unchecked")
-    public void preventsMoreThanOneExtensionWithTheSameNameFromBeingAdded() {
-        new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(ExampleTransformer.class, AnotherExampleTransformer.class));
-    }
-
-    @Test
-    public void supportsAccessingTheFilesFileSource() {
-        startWithExtensions(
-                "com.github.tomakehurst.wiremock.ResponseTransformerAcceptanceTest$FileAccessTransformer");
-        createStub("/files-access-transform");
-
-        WireMockResponse response = client.get("/files-access-transform");
-        assertThat(response.content(), is("Some example test from a file"));
-    }
-
-    private void startWithExtensions(String... extensions) {
-        wm = new WireMockServer(wireMockConfig()
-                .dynamicPort()
-                .extensions(extensions));
+    private void startWithExtensions(Class<? extends Extension> extensionClasses) {
+        wm = new WireMockServer(wireMockConfig().dynamicPort().extensions(extensionClasses));
         wm.start();
         client = new WireMockTestClient(wm.port());
     }
 
-    @After
-    public void cleanup() {
-        if (wm != null) {
-            wm.stop();
-        }
-    }
-
-    private void createStub(String url) {
-        wm.stubFor(get(urlEqualTo(url)).willReturn(aResponse()
-                .withHeader("MyHeader", "Initial")
-                .withStatus(300)
-                .withBody("Should not see this")));
-    }
-
-    public static class ExampleTransformer extends ResponseTransformer {
+    public static class StubResponseTransformer extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return new ResponseDefinitionBuilder()
-                    .withHeader("MyHeader", "Transformed")
-                    .withStatus(200)
-                    .withBody("Transformed body")
-                    .build();
-        }
-
-        @Override
-        public String name() {
-            return "example";
-        }
-    }
-
-    public static class MultiTransformer1 extends ResponseTransformer {
-
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return ResponseDefinitionBuilder
-                    .like(responseDefinition).but()
-                    .withStatus(201)
-                    .build();
-        }
-
-        @Override
-        public String name() {
-            return "multi1";
-        }
-    }
-
-    public static class MultiTransformer2 extends ResponseTransformer {
-
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return ResponseDefinitionBuilder
-                    .like(responseDefinition).but()
-                    .withBody("Expect this")
-                    .build();
-        }
-
-        @Override
-        public String name() {
-            return "multi2";
-        }
-    }
-
-    public static class NonGlobalTransformer extends ResponseTransformer {
-
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return ResponseDefinitionBuilder
-                    .like(responseDefinition).but()
-                    .withBody("Non-global transformed body")
+        public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+            return Response.Builder.like(response)
+                    .but().body("Modified body")
                     .build();
         }
 
         @Override
         public boolean applyGlobally() {
-            return false;
+            return true;
         }
 
         @Override
-        public String name() {
-            return "local";
-        }
-    }
-
-    public static class AnotherExampleTransformer extends ResponseTransformer {
-
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return responseDefinition;
-        }
-
-        @Override
-        public String name() {
-            return "example";
+        public String getName() {
+            return "stub-transformer";
         }
     }
 
-    public static class FileAccessTransformer extends ResponseTransformer {
+    public static class StubResponseTransformerWithParams extends ResponseTransformer {
 
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) {
-            return ResponseDefinitionBuilder.like(responseDefinition).but()
-                    .withBody(files.getBinaryFileNamed("plain-example.txt").readContents()).build();
+        public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+            return Response.Builder.like(response)
+                    .but().body(parameters.getString("name") + ", "
+                            + parameters.getInt("number") + ", "
+                            + parameters.getBoolean("flag"))
+                    .build();
         }
 
         @Override
-        public String name() {
-            return "filesource";
+        public boolean applyGlobally() {
+            return true;
+        }
+
+        @Override
+        public String getName() {
+            return "stub-transformer-with-params";
+        }
+    }
+
+    public static class GlobalResponseTransformer extends ResponseTransformer {
+
+        @Override
+        public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+            return Response.Builder.like(response).but()
+                    .headers(response.getHeaders().plus(httpHeader("X-Extra", "extra val")))
+                    .build();
+        }
+
+        @Override
+        public String getName() {
+            return "global-response-transformer";
+        }
+
+        @Override
+        public boolean applyGlobally() {
+            return true;
         }
     }
 }

@@ -15,10 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
@@ -28,11 +32,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
-import static com.github.tomakehurst.wiremock.testsupport.RequestResponseMappingBuilder.aMapping;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -63,12 +69,11 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(admin).addStubMapping(aMapping()
-                    .withMethod(RequestMethod.GET)
-                    .withUrl("/a/registered/resource")
-                    .withResponseStatus(401)
-                    .withResponseBody("Not allowed!")
-                    .withHeader("Content-Type", "text/plain")
+			one(admin).addStubMapping(WireMock.get(urlEqualTo("/a/registered/resource"))
+					.willReturn(aResponse()
+                    .withStatus(401)
+                    .withBody("Not allowed!")
+                    .withHeader("Content-Type", "text/plain"))
                     .build());
 		}});
 		
@@ -138,7 +143,7 @@ public class AdminRequestHandlerTest {
 	@Test
 	public void shouldReturnCountOfMatchingRequests() {
 		context.checking(new Expectations() {{
-			RequestPattern requestPattern = new RequestPattern(DELETE, "/some/resource");
+			RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
 		}});
 		

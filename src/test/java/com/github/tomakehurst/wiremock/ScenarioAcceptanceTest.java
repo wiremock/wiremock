@@ -90,17 +90,26 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 		assertThat(testClient.get("/stateful/resource").content(), is("Expected content"));
 	}
 
-    @Test(expected = IllegalStateException.class)
-    public void scenarioStateCannotBeSetIfScenarioIsNotNamed() {
-        givenThat(get(urlEqualTo("/some/resource"))
-                .willReturn(aResponse().withBody("Initial"))
-                .whenScenarioStateIs(STARTED));
+    @Test(expected = IllegalArgumentException.class)
+    public void settingScenarioNameToNullCausesException() {
+        get(urlEqualTo("/some/resource"))
+                .willReturn(aResponse())
+                .inScenario(null);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void scenarioStateTransitionCannotBeSetIfScenarioIsNotNamed() {
-        givenThat(put(urlEqualTo("/some/resource"))
-                .willReturn(aResponse().withStatus(HTTP_OK))
-                .willSetStateTo("BodyModified"));
+    @Test
+    public void scenarioBuilderMethodsDoNotNeedToBeContiguous() {
+        // This test has no assertions, but is here to ensure that the following compiles - i.e. that
+        // whenScenarioStatesIs and willSetStateTo don't have to immediately follow inScenario() calls, but can have
+        // other builder calls in between them.
+        //
+        // It should *not* be possible to call either before inScenario is called, however. We can't add a test for that
+        // of course, as it doesn't compile!
+        get(urlEqualTo("/"))
+                .inScenario("Scenario")
+                .willReturn(aResponse())
+                .whenScenarioStateIs("Prior State")
+                .atPriority(1)
+                .willSetStateTo("Next State");
     }
 }

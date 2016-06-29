@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.ByteArrayEntity;
@@ -136,6 +137,6 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static Date parse(String dateString) throws ParseException {
-        return new SimpleDateFormat(LoggedRequest.DATE_FORMAT).parse(dateString);
+        return Dates.parse(dateString);
     }
 }

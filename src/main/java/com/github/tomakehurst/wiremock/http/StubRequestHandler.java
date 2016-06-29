@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
-
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	
@@ -27,14 +26,14 @@ public class StubRequestHandler extends AbstractRequestHandler {
 		super(responseRenderer);
 		this.stubServer = stubServer;
 	}
-	
+
 	@Override
-	public ResponseDefinition handleRequest(Request request) {
-        notifier().info("Request received:\n" + request);
-
-		ResponseDefinition responseDef = stubServer.serveStubFor(request);
-
-		return responseDef;
+	public ServedStub handleRequest(Request request) {
+		return stubServer.serveStubFor(request);
 	}
 
+	@Override
+	protected boolean logRequests() {
+		return true;
+	}
 }

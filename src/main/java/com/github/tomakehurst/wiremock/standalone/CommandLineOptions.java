@@ -15,6 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -23,23 +28,30 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Maps;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.io.Resources;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
-import static com.github.tomakehurst.wiremock.common.ProxySettings.*;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.*;
 
 public class CommandLineOptions implements Options {
 	
@@ -144,8 +156,21 @@ public class CommandLineOptions implements Options {
 
 		return Collections.emptyList();
 	}
-	
-	private boolean specifiesPortNumber() {
+
+    @Override
+    public HttpServerFactory httpServerFactory() {
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            Class<?> cls = loader.loadClass(
+                    "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
+            );
+            return (HttpServerFactory) cls.newInstance();
+        } catch (Exception e) {
+            return throwUnchecked(e, null);
+        }
+    }
+
+    private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
 	}
 	
@@ -231,10 +256,13 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-    public <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType) {
+    @SuppressWarnings("unchecked")
+    public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
         if (optionSet.has(EXTENSIONS)) {
             String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            return ExtensionLoader.loadExtension(classNames.split(","));
+            return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
+                classNames.split(",")),
+                valueAssignableFrom(extensionType));
         }
 
         return Collections.emptyMap();

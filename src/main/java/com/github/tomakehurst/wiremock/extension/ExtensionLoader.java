@@ -16,12 +16,12 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 
@@ -44,7 +44,7 @@ public class ExtensionLoader {
                 extensions,
                 new Function<Extension, String>() {
                     public String apply(Extension extension) {
-                        return extension.name();
+                        return extension.getName();
                     }
                 });
     }
@@ -58,7 +58,6 @@ public class ExtensionLoader {
             @SuppressWarnings("unchecked")
             public Extension apply(Class<? extends Extension> extensionClass) {
                 try {
-                    checkArgument(ResponseTransformer.class.isAssignableFrom(extensionClass), "Extension classes must implement ResponseTransformer");
                     return extensionClass.newInstance();
                 } catch (Exception e) {
                     return throwUnchecked(e, Extension.class);
@@ -77,6 +76,14 @@ public class ExtensionLoader {
                 } catch (ClassNotFoundException e) {
                     return throwUnchecked(e, Class.class);
                 }
+            }
+        };
+    }
+
+    public static <T extends Extension> Predicate<Map.Entry<String, Extension>> valueAssignableFrom(final Class<T> extensionType) {
+        return new Predicate<Map.Entry<String, Extension>>() {
+            public boolean apply(Map.Entry<String, Extension> input) {
+                return extensionType.isAssignableFrom(input.getValue().getClass());
             }
         };
     }

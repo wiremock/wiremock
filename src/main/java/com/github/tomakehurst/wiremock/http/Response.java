@@ -15,30 +15,38 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.google.common.base.Optional;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.Iterables.transform;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 public class Response {
 
 	private final int status;
+    private final String statusMessage;
 	private final byte[] body;
 	private final HttpHeaders headers;
 	private final boolean configured;
 	private final Fault fault;
 	private final boolean fromProxy;
+    private final Optional<ResponseDefinition> renderedFromDefinition;
 	
 	public static Response notConfigured() {
-        Response response = new Response(HTTP_NOT_FOUND,
+        Response response = new Response(
+                HTTP_NOT_FOUND,
+                null,
                 (byte[]) null,
                 noHeaders(),
                 false,
                 null,
-                false);
+                false,
+                Optional.<ResponseDefinition>absent());
 		return response;
 	}
 
@@ -46,18 +54,22 @@ public class Response {
         return new Builder();
     }
 
-	public Response(int status, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+	public Response(int status, String statusMessage, byte[] body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
 		this.status = status;
+        this.statusMessage = statusMessage;
         this.body = body;
         this.headers = headers;
         this.configured = configured;
         this.fault = fault;
         this.fromProxy = fromProxy;
-	}
+        this.renderedFromDefinition = renderedFromDefinition;
+    }
 
-    public Response(int status, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy) {
+    public Response(int status, String statusMessage, String body, HttpHeaders headers, boolean configured, Fault fault, boolean fromProxy, Optional<ResponseDefinition> renderedFromDefinition) {
         this.status = status;
+        this.statusMessage = statusMessage;
         this.headers = headers;
+        this.renderedFromDefinition = renderedFromDefinition;
         this.body = body == null ? null : body.getBytes(encodingFromContentTypeHeaderOrUtf8());
         this.configured = configured;
         this.fault = fault;
@@ -67,6 +79,10 @@ public class Response {
 	public int getStatus() {
 		return status;
 	}
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
 
     public byte[] getBody() {
         return body;
@@ -103,32 +119,62 @@ public class Response {
 
     @Override
     public String toString() {
-        return "Response [status=" + status + ", body=" + Arrays.toString(body) + ", headers=" + headers
-                + ", configured=" + configured + ", fault=" + fault + ", fromProxy=" + fromProxy + "]";
+        StringBuilder sb = new StringBuilder();
+        sb.append("HTTP/1.1 ").append(status).append("\n");
+        sb.append(headers).append("\n");
+        if (body != null) {
+            sb.append(getBodyAsString()).append("\n");
+        }
+
+        return sb.toString();
     }
 
     public static class Builder {
         private int status = HTTP_OK;
+        private String statusMessage;
         private byte[] body;
         private String bodyString;
         private HttpHeaders headers = new HttpHeaders();
         private boolean configured = true;
         private Fault fault;
         private boolean fromProxy;
+        private Optional<ResponseDefinition> renderedFromDefinition;
+
+        public static Builder like(Response response) {
+            Builder responseBuilder = new Builder();
+            responseBuilder.status = response.getStatus();
+            responseBuilder.body = response.getBody();
+            responseBuilder.headers = response.getHeaders();
+            responseBuilder.configured = response.wasConfigured();
+            responseBuilder.fault = response.getFault();
+            responseBuilder.fromProxy = response.isFromProxy();
+            return responseBuilder;
+        }
+
+        public Builder but() {
+            return this;
+        }
 
         public Builder status(int status) {
             this.status = status;
             return this;
         }
 
+        public Builder statusMessage(String statusMessage) {
+            this.statusMessage = statusMessage;
+            return this;
+        }
+
         public Builder body(byte[] body) {
             this.body = body;
+            this.bodyString = null;
             ensureOnlyOneBodySet();
             return this;
         }
 
         public Builder body(String body) {
             this.bodyString = body;
+            this.body = null;
             ensureOnlyOneBodySet();
             return this;
         }
@@ -159,13 +205,18 @@ public class Response {
             return this;
         }
 
+        public Builder renderedFromDefinition(ResponseDefinition renderedFromDefinition) {
+            this.renderedFromDefinition = Optional.fromNullable(renderedFromDefinition);
+            return this;
+        }
+
         public Response build() {
             if (body != null) {
-                return new Response(status, body, headers, configured, fault, fromProxy);
+                return new Response(status, statusMessage, body, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else if (bodyString != null) {
-                return new Response(status, bodyString, headers, configured, fault, fromProxy);
+                return new Response(status, statusMessage, bodyString, headers, configured, fault, fromProxy, renderedFromDefinition);
             } else {
-                return new Response(status, new byte[0], headers, configured, fault, fromProxy);
+                return new Response(status, statusMessage, new byte[0], headers, configured, fault, fromProxy, renderedFromDefinition);
             }
         }
     }

@@ -51,4 +51,27 @@ public class HttpHeader extends MultiValue {
         return CaseInsensitiveKey.from(key);
     }
 
+    public boolean keyEquals(String candidateKey) {
+        return CaseInsensitiveKey.from(candidateKey).equals(caseInsensitiveKey());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        HttpHeader that = (HttpHeader) o;
+
+        if (key != null ? !key.toLowerCase().equals(that.key.toLowerCase()) : that.key != null) return false;
+        if (values != null ? !values.equals(that.values) : that.values != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key != null ? key.toLowerCase().hashCode() : 0;
+        result = 31 * result + (values != null ? values.hashCode() : 0);
+        return result;
+    }
 }

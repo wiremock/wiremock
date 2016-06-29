@@ -17,10 +17,12 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
 import static java.util.Arrays.asList;
 
-public class RequestMethod {
+public class RequestMethod implements ValueMatcher<RequestMethod> {
 
     public static final RequestMethod GET = new RequestMethod("GET");
     public static final RequestMethod POST = new RequestMethod("POST");
@@ -51,6 +53,20 @@ public class RequestMethod {
 
     public boolean isOneOf(RequestMethod... methods) {
         return asList(methods).contains(this);
+    }
+
+    public MatchResult match(RequestMethod method) {
+        return MatchResult.of(this.equals(ANY) || this.equals(method));
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getExpected() {
+        return getName();
     }
 
     @Override

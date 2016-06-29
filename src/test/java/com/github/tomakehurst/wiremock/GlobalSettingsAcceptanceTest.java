@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.LogNormal;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -35,5 +36,30 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
         
         assertThat(duration, greaterThanOrEqualTo(500));
 	}
-	
+
+	@Test
+	public void settingGlobalRandomDistributionDelayCausesADelay() {
+		WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
+		givenThat(get(urlEqualTo("/globally/random/delayed/resource")).willReturn(aResponse().withStatus(200)));
+
+		long start = System.currentTimeMillis();
+		testClient.get("/globally/random/delayed/resource");
+		int duration = (int) (System.currentTimeMillis() - start);
+
+		assertThat(duration, greaterThanOrEqualTo(60));
+	}
+
+	@Test
+	public void canCombineFixedAndRandomDelays() {
+		WireMock.setGlobalRandomDelay(new LogNormal(90, 0.1));
+		WireMock.setGlobalFixedDelay(30);
+		givenThat(get(urlEqualTo("/globally/random/delayed/resource")).willReturn(aResponse().withStatus(200)));
+
+		long start = System.currentTimeMillis();
+		testClient.get("/globally/random/delayed/resource");
+		int duration = (int) (System.currentTimeMillis() - start);
+
+		assertThat(duration, greaterThanOrEqualTo(90));
+	}
+
 }

@@ -15,12 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.matching.ValuePattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.any;
 
 public class MultiValue {
@@ -63,26 +66,28 @@ public class MultiValue {
         return values.contains(expectedValue);
     }
 
-    public boolean hasValueMatching(final ValuePattern valuePattern) {
+    public boolean hasValueMatching(final StringValuePattern valuePattern) {
         return (valuePattern.nullSafeIsAbsent() && !isPresent())
                 || anyValueMatches(valuePattern);
     }
 
-    private boolean anyValueMatches(final ValuePattern valuePattern) {
+    private boolean anyValueMatches(final StringValuePattern valuePattern) {
         return any(values, new Predicate<String>() {
             public boolean apply(String headerValue) {
-                return valuePattern.isMatchFor(headerValue);
+                return valuePattern.match(headerValue).isExactMatch();
             }
         });
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (String value : values) {
-            sb.append(key).append(": ").append(value).append("\n");
-        }
-
-        return sb.toString();
+        return Joiner.on("\n").join(
+            from(values).transform(new Function<String, String>() {
+                @Override
+                public String apply(String value) {
+                    return key + ": " + value;
+                }
+            })
+        );
     }
 }

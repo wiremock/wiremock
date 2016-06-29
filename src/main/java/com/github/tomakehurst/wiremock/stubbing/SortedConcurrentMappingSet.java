@@ -15,10 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.google.common.base.Predicate;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.google.common.collect.Iterables.removeIf;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
@@ -37,8 +41,8 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 				if (priorityComparison != 0) {
 					return priorityComparison;
 				}
-				
-				return (two.getInsertionIndex() > one.getInsertionIndex()) ? 1 : -1;
+
+				return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
 			}
 		};
 	}
@@ -52,7 +56,36 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 		mapping.setInsertionIndex(insertionCount.getAndIncrement());
 		mappingSet.add(mapping);
 	}
-	
+
+	public boolean remove(final StubMapping mappingToRemove) {
+		boolean removedByUuid = removeIf(mappingSet, new Predicate<StubMapping>() {
+            @Override
+            public boolean apply(StubMapping mapping) {
+                return mappingToRemove.getUuid() != null &&
+                    mapping.getUuid() != null &&
+                    mappingToRemove.getUuid().equals(mapping.getUuid());
+            }
+        });
+
+        boolean removedByRequestPattern = !removedByUuid && removeIf(mappingSet, new Predicate<StubMapping>() {
+            @Override
+            public boolean apply(StubMapping mapping) {
+                return mappingToRemove.getRequest().equals(mapping.getRequest());
+            }
+        });
+
+        return removedByUuid || removedByRequestPattern;
+	}
+
+	public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+
+		if ( mappingSet.remove(existingStubMapping) ) {
+			mappingSet.add(newStubMapping);
+			return true;
+		}
+		return false;
+	}
+
 	public void clear() {
 		mappingSet.clear();
 	}

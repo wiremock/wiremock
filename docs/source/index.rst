@@ -10,32 +10,22 @@ and can be used from within a unit test or deployed into a test environment.
 Although it's written in Java, there's also a JSON API so you can use it with pretty much any language out there.
 
 
-Video - Using WireMock in Practice
-----------------------------------
-Rob Elliot and I recently gave a presentation at Skillsmatter to the London Java Community demonstrating some of the ways
-we use WireMock in practice after 4 years of using it.
-
-.. raw:: html
-
-   <p><a href="https://skillsmatter.com/skillscasts/6853-scalable-management-of-test-data-making-tests-readable#video" target="_blank">Watch the video here</a>.</p>
-
-
 New new new! Version 2.0 in beta
 --------------------------------
 WireMock 2.0 is now in development. We're using the major version bump to make a few breaking changes (but nothing too major, so don't worry!).
 
-Changes from 1.x include:
+Among the changes we're making or considering are:
 
 * Dropping support for JDK 6 and 7, which allows us to use some newer libraries we previously couldn't.
-* Upgrading to Jetty 9.2, which is higher performing, and fixes some bugs.
+* Upgrading to Jetty 9.3, which is higher performing, and fixes some bugs.
 * Upgrading to JSONPath 2.0.0.
-* Improving the extensions API, supporting ``Response`` transformations directly in addition to ``ResponseDefinition``.
-* Support for custom matchers.
+* Improving the extensions API, probably to support transforming ``Response`` s directly in addition to ``ResponseDefinition`` s, but TBD.
+* Adding some additional type safety to the Java DSL.
 * Putting the standalone JAR under its own Maven artifact so it can have it's own POM (avoiding the need to exlclude all large swathes of dependencies).
-* Better logging.
 
 If there's something you'd like to see added, particularly something involving a breaking change, please post a topic on the `mailing list <https://groups.google.com/forum/#!forum/wiremock-user>`_.
 
+If you'd like to raise a pull request (having discussed it on the list first :-) please do so against the 2.0-beta branch, not master.
 
 
 What's it for?

@@ -43,6 +43,7 @@ import static java.util.Arrays.asList;
 public class ClasspathFileSource implements FileSource {
 
     private final String path;
+    private URI pathUri;
     private ZipFile zipFile;
     private File rootDirectory;
 
@@ -54,12 +55,14 @@ public class ClasspathFileSource implements FileSource {
                     currentThread().getContextClassLoader(),
                     Resources.class.getClassLoader())
                         .getResource(path);
+
             if (resource == null) {
                 rootDirectory = new File(path);
+                this.pathUri = rootDirectory.toURI();
                 return;
             }
 
-            URI pathUri = resource.toURI();
+            this.pathUri = resource.toURI();
 
             if (asList("jar", "war", "ear", "zip").contains(pathUri.getScheme())) {
                 String jarFileUri = pathUri.getSchemeSpecificPart().split("!")[0];
@@ -108,6 +111,11 @@ public class ClasspathFileSource implements FileSource {
     @Override
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public URI getUri() {
+        return pathUri;
     }
 
     @Override

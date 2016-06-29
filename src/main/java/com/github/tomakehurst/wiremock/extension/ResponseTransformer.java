@@ -17,13 +17,11 @@ package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.Response;
 
-public abstract class ResponseTransformer implements Extension {
+public abstract class ResponseTransformer extends AbstractTransformer<Response> {
 
-    public abstract ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files);
+    @Override
+    public abstract Response transform(Request request, Response response, FileSource files, Parameters parameters);
 
-    public boolean applyGlobally() {
-        return true;
-    }
 }

@@ -16,7 +16,14 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.ResponseRenderer;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -26,7 +33,9 @@ import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -50,7 +59,8 @@ public class StubRequestHandlerTest {
 	@Test
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(new ResponseDefinition(200, "Body content")));
+			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(
+				ServedStub.exactMatch(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content"))));
 
             Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
@@ -73,11 +83,36 @@ public class StubRequestHandlerTest {
 		requestHandler.addRequestListener(listener);
 		
 		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request); will(returnValue(ResponseDefinition.notConfigured()));
+			allowing(stubServer).serveStubFor(request); will(returnValue(
+                ServedStub.exactMatch(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
 		
 		requestHandler.handle(request);
 	}
+
+	@Test
+	public void shouldLogInfoOnRequest() {
+		final Request request = aRequest(context)
+				.withUrl("/")
+				.withMethod(GET)
+				.withClientIp("1.2.3.5")
+				.build();
+
+		context.checking(new Expectations() {{
+			allowing(stubServer).serveStubFor(request);
+			will(returnValue(ServedStub.noExactMatch(LoggedRequest.createFrom(request))));
+			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+		}});
+
+		TestNotifier notifier = TestNotifier.createAndSet();
+		requestHandler.handle(request);
+		notifier.revert();
+
+		assertThat(notifier.getErrorMessages().isEmpty(), is(true));
+		assertThat(notifier.getInfoMessages().size(), is(1));
+		assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
+	}
+
 }

@@ -16,21 +16,41 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import org.junit.Ignore;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-@Ignore("Run when validating documentation")
 public class Examples extends AcceptanceTestBase {
 
     @Test
@@ -102,7 +122,7 @@ public class Examples extends AcceptanceTestBase {
     public void binaryBody() {
         stubFor(get(urlEqualTo("/binary-body"))
                 .willReturn(aResponse()
-                        .withBody(new byte[] { 1, 2, 3, 4 })));
+                        .withBody(new byte[]{1, 2, 3, 4})));
     }
 
     @Test(expected=VerificationException.class)
@@ -205,4 +225,48 @@ public class Examples extends AcceptanceTestBase {
                         .withXPathNamespace("stuff", "http://foo.com"))
                 .willReturn(aResponse().withStatus(200)));
     }
+
+    @Test
+    public void transformerParameters() {
+        stubFor(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformerParameter("newValue", 66)
+                        .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))));
+
+        System.out.println(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformerParameter("newValue", 66)
+                        .withTransformerParameter("inner", ImmutableMap.of("thing", "value"))).build());
+    }
+
+    @Test
+    public void transformerWithParameters() {
+        stubFor(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformer("body-transformer", "newValue", 66)));
+
+        System.out.println(get(urlEqualTo("/transform")).willReturn(
+                aResponse()
+                        .withTransformer("body-transformer", "newValue", 66)).build());
+    }
+
+    @Test
+    public void customMatcherName() {
+        stubFor(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)));
+
+        System.out.println(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+                .willReturn(aResponse().withStatus(422)).build());
+    }
+
+    @Test
+    public void customMatcher() {
+        wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
+            @Override
+            public MatchResult match(Request request, Parameters parameters) {
+                return MatchResult.of(request.getBody().length > 2048);
+            }
+        }).willReturn(aResponse().withStatus(422)));
+    }
+
 }

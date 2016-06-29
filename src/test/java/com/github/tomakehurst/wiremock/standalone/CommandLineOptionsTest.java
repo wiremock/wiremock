@@ -17,16 +17,25 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -210,9 +219,9 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultsContainerThreadsTo200() {
+    public void defaultsContainerThreadsTo10() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.containerThreads(), is(200));
+        assertThat(options.containerThreads(), is(10));
     }
 
     @Test
@@ -260,25 +269,54 @@ public class CommandLineOptionsTest {
     public void returnsExtensionsSpecifiedAsClassNames() {
         CommandLineOptions options = new CommandLineOptions(
                 "--extensions",
-                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$Ext2");
-        Map<String, ResponseTransformer> extensions = options.extensionsOfType(ResponseTransformer.class);
-        assertThat(extensions.get("one"), instanceOf(Ext1.class));
-        assertThat(extensions.get("two"), instanceOf(Ext2.class));
+                "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt2,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1");
+        Map<String, ResponseDefinitionTransformer> extensions = options.extensionsOfType(ResponseDefinitionTransformer.class);
+        assertThat(extensions.entrySet(), hasSize(2));
+        assertThat(extensions.get("ResponseDefinitionTransformer_One"), instanceOf(ResponseDefinitionTransformerExt1.class));
+        assertThat(extensions.get("ResponseDefinitionTransformer_Two"), instanceOf(ResponseDefinitionTransformerExt2.class));
     }
     
-    public static class Ext1 extends ResponseTransformer {
-        @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
-
-        @Override
-        public String name() { return "one"; }
+    @Test
+    public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions(
+                        "--extensions",
+                        "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$RequestExt1,com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$ResponseDefinitionTransformerExt1");
+        Map<String, RequestMatcherExtension> extensions = options.extensionsOfType(RequestMatcherExtension.class);
+        assertThat(extensions.entrySet(), hasSize(1));
+        assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
     }
-
-    public static class Ext2 extends ResponseTransformer {
+    
+    @Test
+    public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
+        CommandLineOptions options = new CommandLineOptions();
+        Map<String, RequestMatcherExtension> extensions = options.extensionsOfType(RequestMatcherExtension.class);
+        assertThat(extensions.entrySet(), hasSize(0));
+    }
+    
+    public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
-        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files) { return null; }
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
+        
+        @Override
+        public String getName() { return "ResponseDefinitionTransformer_One"; }
+    }
+    
+    public static class ResponseDefinitionTransformerExt2 extends ResponseDefinitionTransformer {
+        @Override
+        public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
+        
+        @Override
+        public String getName() { return "ResponseDefinitionTransformer_Two"; }
+    }
+    
+    public static class RequestExt1 extends RequestMatcherExtension {
 
         @Override
-        public String name() { return "two"; }
+        public MatchResult match(Request request, Parameters parameters) {
+            return MatchResult.noMatch();
+        }
+
+        @Override
+        public String getName() { return "RequestMatcherExtension_One"; }
     }
 }

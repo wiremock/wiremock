@@ -16,14 +16,17 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static net.sf.json.test.JSONAssert.assertJsonEquals;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -34,15 +37,22 @@ public class ResponseDefinitionTest {
 
     @Test
     public void copyProducesEqualObject() {
-        ResponseDefinition response = new ResponseDefinition();
-        response.setBody("blah");
-        response.setBodyFileName("name.json");
-        response.setFault(Fault.EMPTY_RESPONSE);
-        response.setHeaders(new HttpHeaders(httpHeader("thing", "thingvalue")));
-        response.setFixedDelayMilliseconds(1112);
-        response.setProxyBaseUrl("http://base.com");
-        response.setStatus(222);
-        
+        ResponseDefinition response = new ResponseDefinition(
+                222,
+                null,
+                "blah",
+                null,
+                null,
+                "name.json",
+                new HttpHeaders(httpHeader("thing", "thingvalue")),
+                null,
+                1112,
+                null,
+                "http://base.com",
+                Fault.EMPTY_RESPONSE,
+                ImmutableList.of("transformer-1"),
+                Parameters.one("name", "Jeff"));
+
         ResponseDefinition copiedResponse = copyOf(response);
         
         assertTrue(response.equals(copiedResponse));
@@ -69,12 +79,13 @@ public class ResponseDefinitionTest {
     }
 
     @Test
-    public void correctlyMarshalsToJsonWhenBodyIsAString() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBody("String content");
+    public void correctlyMarshalsToJsonWhenBodyIsAString() throws Exception {
+        ResponseDefinition responseDef = responseDefinition()
+                .withStatus(200)
+                .withBody("String content")
+                .build();
 
-        assertJsonEquals(STRING_BODY, Json.write(responseDef));
+        JSONAssert.assertEquals(STRING_BODY, Json.write(responseDef), false);
     }
 
     private static final byte[] BODY = new byte[] {1, 2, 3};
@@ -93,20 +104,17 @@ public class ResponseDefinitionTest {
     }
 
     @Test
-    public void correctlyMarshalsToJsonWhenBodyIsBinary() {
-        ResponseDefinition responseDef = new ResponseDefinition();
-        responseDef.setStatus(200);
-        responseDef.setBase64Body(BASE64_BODY);
+    public void correctlyMarshalsToJsonWhenBodyIsBinary() throws Exception {
+        ResponseDefinition responseDef = responseDefinition().withStatus(200).withBase64Body(BASE64_BODY).build();
 
         String actualJson = Json.write(responseDef);
-        assertJsonEquals("Expected: " + BINARY_BODY + "\nActual: " + actualJson,
-                BINARY_BODY, actualJson);
+        JSONAssert.assertEquals(actualJson,
+                BINARY_BODY, false);
     }
 
     @Test
     public void indicatesBodyFileIfBodyContentIsNotAlsoSpecified() {
-        ResponseDefinition responseDefinition = new ResponseDefinition();
-        responseDefinition.setBodyFileName("my-file");
+        ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").build();
 
         assertTrue(responseDefinition.specifiesBodyFile());
         assertFalse(responseDefinition.specifiesBodyContent());
@@ -114,9 +122,7 @@ public class ResponseDefinitionTest {
 
     @Test
     public void doesNotIndicateBodyFileIfBodyContentIsAlsoSpecified() {
-        ResponseDefinition responseDefinition = new ResponseDefinition();
-        responseDefinition.setBodyFileName("my-file");
-        responseDefinition.setBody("hello");
+        ResponseDefinition responseDefinition = responseDefinition().withBodyFile("my-file").withBody("hello").build();
 
         assertFalse(responseDefinition.specifiesBodyFile());
         assertTrue(responseDefinition.specifiesBodyContent());

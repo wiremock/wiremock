@@ -15,8 +15,8 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.MappingBuilder;
-import com.github.tomakehurst.wiremock.client.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
+import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -26,31 +26,41 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.*;
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.jetty6.Jetty6HttpServerFactory;
-import com.github.tomakehurst.wiremock.jetty6.LoggerAdapter;
-import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
+import com.github.tomakehurst.wiremock.junit.LocalStubbing;
+import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSaver;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.mortbay.log.Log;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
 
-public class WireMockServer implements Container, Stubbing, Admin {
+public class WireMockServer implements Container, LocalStubbing, Admin {
 
 	public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -71,18 +81,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
         this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
 
-        RequestDelayControl requestDelayControl = new ThreadSafeRequestDelayControl();
-        MappingsLoader defaultMappingsLoader = makeDefaultMappingsLoader();
-        JsonFileMappingsSaver mappingsSaver = new JsonFileMappingsSaver(fileSource.child(MAPPINGS_ROOT));
+        JsonFileMappingsSource mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 
         wireMockApp = new WireMockApp(
-                requestDelayControl,
                 options.browserProxyingEnabled(),
-                defaultMappingsLoader,
-                mappingsSaver,
+                mappingsSource,
+                mappingsSource,
                 options.requestJournalDisabled(),
                 options.maxRequestJournalEntries(),
-                options.extensionsOfType(ResponseTransformer.class),
+                options.extensionsOfType(ResponseDefinitionTransformer.class),
+                options.extensionsOfType(RequestMatcherExtension.class),
                 fileSource,
                 this
         );
@@ -101,29 +109,17 @@ public class WireMockServer implements Container, Stubbing, Admin {
                                 options.httpsSettings().trustStore(),
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
-                        )
-                )
+                        ),
+                        ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values()))
         );
-        HttpServerFactory httpServerFactory = new Jetty6HttpServerFactory();
+        HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,
                 adminRequestHandler,
-                stubRequestHandler,
-                requestDelayControl
+                stubRequestHandler
         );
 
-        Log.setLog(new LoggerAdapter(notifier));
-
         client = new WireMock(wireMockApp);
-    }
-
-    private MappingsLoader makeDefaultMappingsLoader() {
-        FileSource mappingsFileSource = fileSource.child("mappings");
-        if (mappingsFileSource.exists()) {
-            return new JsonFileMappingsLoader(mappingsFileSource);
-        } else {
-            return new NoOpMappingsLoader();
-        }
     }
 
     public WireMockServer(int port, Integer httpsPort, FileSource fileSource, boolean enableBrowserProxying, ProxySettings proxySettings, Notifier notifier) {
@@ -150,21 +146,21 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 .fileSource(fileSource)
                 .enableBrowserProxying(enableBrowserProxying));
     }
-	
-	public WireMockServer(int port) {
+
+    public WireMockServer(int port) {
 		this(wireMockConfig().port(port));
 	}
 
     public WireMockServer(int port, Integer httpsPort) {
         this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
-	
-	public WireMockServer() {
+
+    public WireMockServer() {
 		this(wireMockConfig());
 	}
 	
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
-		wireMockApp.loadMappingsUsing(mappingsLoader);
+        wireMockApp.loadMappingsUsing(mappingsLoader);
 	}
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
@@ -178,10 +174,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
-	    notifier.info("Recording mappings to " + mappingsFileSource.getPath());
+        notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
-	
-	public void stop() {
+
+    public void stop() {
         httpServer.stop();
 	}
 	
@@ -239,13 +235,38 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void givenThat(MappingBuilder mappingBuilder) {
+    public void givenThat(RemoteMappingBuilder mappingBuilder) {
         client.register(mappingBuilder);
     }
 
     @Override
-    public void stubFor(MappingBuilder mappingBuilder) {
+    public void stubFor(RemoteMappingBuilder mappingBuilder) {
         givenThat(mappingBuilder);
+    }
+
+    @Override
+    public void editStub(RemoteMappingBuilder mappingBuilder) {
+        client.editStubMapping(mappingBuilder);
+    }
+
+    @Override
+    public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+        client.removeStubMapping(mappingBuilder);
+    }
+
+    @Override
+    public void removeStubMapping(StubMapping stubMapping){
+        wireMockApp.removeStubMapping(stubMapping);
+    }
+
+    @Override
+    public void givenThat(LocalMappingBuilder mappingBuilder) {
+        stubFor(mappingBuilder);
+    }
+
+    @Override
+    public void stubFor(LocalMappingBuilder mappingBuilder) {
+        client.register(mappingBuilder.build());
     }
 
     @Override
@@ -259,6 +280,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public void verify(LocalRequestPatternBuilder requestPatternBuilder) {
+        verify(requestPatternBuilder.getUnderlyingBuilder());
+    }
+
+    @Override
+    public void verify(int count, LocalRequestPatternBuilder requestPatternBuilder) {
+        verify(count, requestPatternBuilder.getUnderlyingBuilder());
+    }
+
+    @Override
     public List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder) {
         return client.find(requestPatternBuilder);
     }
@@ -269,13 +300,33 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void addRequestProcessingDelay(int milliseconds) {
-        client.addDelayBeforeProcessingRequests(milliseconds);
+    public List<LoggedRequest> findAllUnmatchedRequests() {
+        return client.findAllUnmatchedRequests();
+    }
+
+    @Override
+    public List<NearMiss> findNearMissesForAllUnmatchedRequests() {
+        return client.findNearMissesForAllUnmatchedRequests();
+    }
+
+    @Override
+    public List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder) {
+        return client.findAllNearMissesFor(requestPatternBuilder);
+    }
+
+    @Override
+    public List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest) {
+        return client.findTopNearMissesFor(loggedRequest);
     }
 
     @Override
     public void addStubMapping(StubMapping stubMapping) {
         wireMockApp.addStubMapping(stubMapping);
+    }
+
+    @Override
+    public void editStubMapping(StubMapping stubMapping) {
+        wireMockApp.editStubMapping(stubMapping);
     }
 
     @Override
@@ -319,24 +370,32 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public FindRequestsResult findUnmatchedRequests() {
+        return wireMockApp.findUnmatchedRequests();
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
     }
 
     @Override
-    public void addSocketAcceptDelay(RequestDelaySpec delaySpec) {
-        wireMockApp.addSocketAcceptDelay(delaySpec);
+    public FindNearMissesResult findNearMissesForUnmatchedRequests() {
+        return wireMockApp.findNearMissesForUnmatchedRequests();
+    }
+
+    @Override
+    public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
+        return wireMockApp.findTopNearMissesFor(loggedRequest);
+    }
+
+    @Override
+    public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
+        return wireMockApp.findTopNearMissesFor(requestPattern);
     }
 
     @Override
     public void shutdownServer() {
         shutdown();
-    }
-
-    private static class NoOpMappingsLoader implements MappingsLoader {
-        @Override
-        public void loadMappingsInto(StubMappings stubMappings) {
-            // do nothing
-        }
     }
 }

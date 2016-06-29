@@ -16,21 +16,31 @@
 package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class WireMockRule extends WireMockServer implements MethodRule, TestRule {
 
+    private final boolean failOnUnmatchedStubs;
+
     public WireMockRule(Options options) {
+        this(options, true);
+    }
+
+    public WireMockRule(Options options, boolean failOnUnmatchedStubs) {
         super(options);
+        this.failOnUnmatchedStubs = failOnUnmatchedStubs;
     }
 
     public WireMockRule(int port) {
@@ -60,6 +70,7 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 				try {
                     before();
                     base.evaluate();
+                    checkForUnmatchedRequests();
                 } finally {
                     after();
                     stop();
@@ -68,6 +79,15 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 
 		};
 	}
+
+    private void checkForUnmatchedRequests() {
+        if (failOnUnmatchedStubs) {
+            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+            if (!nearMisses.isEmpty()) {
+                throw VerificationException.forUnmatchedRequests(nearMisses);
+            }
+        }
+    }
 
     protected void before() {
         // NOOP

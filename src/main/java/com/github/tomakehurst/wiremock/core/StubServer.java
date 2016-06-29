@@ -16,9 +16,9 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 
 public interface StubServer {
 
-    ResponseDefinition serveStubFor(Request request);
+    ServedStub serveStubFor(Request request);
 }

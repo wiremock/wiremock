@@ -20,10 +20,15 @@ import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
-import com.github.tomakehurst.wiremock.global.NotImplementedRequestDelayControl;
-import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsLoader;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
+import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.google.common.base.Optional;
 
 import javax.servlet.ServletContext;
@@ -31,7 +36,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.Collections;
 
-import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class WireMockWebContextListener implements ServletContextListener {
 
@@ -48,19 +53,18 @@ public class WireMockWebContextListener implements ServletContextListener {
 
         Optional<Integer> maxRequestJournalEntries = readMaxRequestJournalEntries(context);
         boolean verboseLoggingEnabled = Boolean.parseBoolean(
-                fromNullable(context.getInitParameter("verboseLoggingEnabled"))
-                        .or("true"));
+            firstNonNull(context.getInitParameter("verboseLoggingEnabled"), "true"));
 
-        JsonFileMappingsLoader defaultMappingsLoader = new JsonFileMappingsLoader(fileSource.child("mappings"));
+        JsonFileMappingsSource defaultMappingsLoader = new JsonFileMappingsSource(fileSource.child("mappings"));
         MappingsSaver mappingsSaver = new NotImplementedMappingsSaver();
         WireMockApp wireMockApp = new WireMockApp(
-                new NotImplementedRequestDelayControl(),
                 false,
                 defaultMappingsLoader,
                 mappingsSaver,
                 false,
                 maxRequestJournalEntries,
-                Collections.<String, ResponseTransformer>emptyMap(),
+                Collections.<String, ResponseDefinitionTransformer>emptyMap(),
+                Collections.<String, RequestMatcherExtension>emptyMap(),
                 fileSource,
                 new NotImplementedContainer()
         );
@@ -68,7 +72,8 @@ public class WireMockWebContextListener implements ServletContextListener {
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer()));
+                        new ProxyResponseRenderer(),
+                        Collections.<ResponseTransformer>emptyList()));
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);

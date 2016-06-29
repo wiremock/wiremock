@@ -15,11 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.google.common.base.Predicate;
+import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.google.common.collect.Maps;
 import com.google.common.base.Optional;
 import com.google.common.io.Resources;
@@ -27,6 +28,7 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
@@ -56,6 +58,7 @@ public class WireMockConfiguration implements Options {
 
     private boolean preserveHostHeader;
     private String proxyHostHeader;
+    private HttpServerFactory httpServerFactory = new JettyHttpServerFactory();
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
     private Integer jettyHeaderBufferSize;
@@ -64,6 +67,10 @@ public class WireMockConfiguration implements Options {
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
+    }
+
+    public static WireMockConfiguration options() {
+        return wireMockConfig();
     }
 
     public WireMockConfiguration port(int portNumber) {
@@ -215,6 +222,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration httpServerFactory(HttpServerFactory serverFactory) {
+        httpServerFactory = serverFactory;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -287,6 +299,11 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
+    public HttpServerFactory httpServerFactory() {
+        return httpServerFactory;
+    }
+
+    @Override
     public boolean shouldPreserveHostHeader() {
         return preserveHostHeader;
     }
@@ -299,10 +316,6 @@ public class WireMockConfiguration implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
-        return (Map<String, T>) Maps.filterEntries(extensions, new Predicate<Map.Entry<String, Extension>>() {
-            public boolean apply(Map.Entry<String, Extension> input) {
-                return extensionType.isAssignableFrom(input.getValue().getClass());
-            }
-        });
+        return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
     }
 }

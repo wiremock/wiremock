@@ -20,13 +20,14 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.Network;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -49,7 +50,7 @@ public class WarDeploymentAcceptanceTest {
         int port = Network.findFreePort();
 		jetty = new Server(port);
 		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
-		jetty.addHandler(context);
+		jetty.setHandler(context);
 		jetty.start();
 		
 		WireMock.configureFor("localhost", port, "/wiremock");
@@ -75,16 +76,6 @@ public class WarDeploymentAcceptanceTest {
 		
 		assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
 	}
-
-    @Test
-    public void tryingToAddSocketAcceptDelayGives500() {
-        try {
-            addRequestProcessingDelay(1000);
-            fail("Expected a VerificationException");
-        } catch (VerificationException e) {
-            assertThat(e.getMessage(), containsString("500"));
-        }
-    }
 
     @Test
     public void tryingToShutDownGives500() {

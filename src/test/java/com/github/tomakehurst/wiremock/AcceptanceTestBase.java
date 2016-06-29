@@ -32,7 +32,7 @@ public class AcceptanceTestBase {
 
 	@BeforeClass
 	public static void setupServer() {
-		setupServer(wireMockConfig());
+		setupServerWithEmptyFileRoot();
 	}
 
 	@AfterClass
@@ -40,9 +40,17 @@ public class AcceptanceTestBase {
 		wireMockServer.stop();
 	}
 
+	public static void setupServerWithEmptyFileRoot() {
+		setupServer(wireMockConfig().withRootDirectory("src/test/resources/empty"));
+	}
+
+	public static void setupServerWithMappingsInFileRoot() {
+		setupServer(wireMockConfig());
+	}
+
     public static void setupServer(WireMockConfiguration options) {
         if(options.portNumber() == Options.DEFAULT_PORT) {
-            options.dynamicPort();
+			options.dynamicPort();
         }
 
         wireMockServer = new WireMockServer(options);

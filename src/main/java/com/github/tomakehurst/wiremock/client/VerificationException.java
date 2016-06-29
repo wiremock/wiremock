@@ -17,9 +17,15 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.verification.Diff;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.NearMiss;
+import com.google.common.base.Joiner;
 
 import java.util.List;
+
+import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.collect.FluentIterable.from;
 
 public class VerificationException extends AssertionError {
 
@@ -29,13 +35,55 @@ public class VerificationException extends AssertionError {
 		super(message);
 	}
 
-    public VerificationException(RequestPattern expected, List<LoggedRequest> requests) {
-        super(String.format("Expected at least one request matching: %s\nRequests received: %s",
-                expected.toString(), Json.write(requests)));
+    public static VerificationException forUnmatchedRequestPattern(Diff diff) {
+        return new VerificationException("No requests exactly matched. Most similar request was:", diff);
     }
 
-    public VerificationException(RequestPattern expected, int expectedCount, List<LoggedRequest> requests) {
-        super(String.format("Expected exactly %d requests matching: %s\nRequests received: %s",
-                expectedCount, expected.toString(), Json.write(requests)));
+    public static VerificationException forSingleUnmatchedRequest(Diff diff) {
+        return new VerificationException("A request was unmatched by any stub mapping. Closest stub mapping was:", diff);
+    }
+
+    public static VerificationException forUnmatchedRequests(List<NearMiss> nearMisses) {
+        if (nearMisses.size() == 1) {
+            return forSingleUnmatchedRequest(nearMisses.get(0).getDiff());
+        }
+
+        return new VerificationException(nearMisses.size() +
+            " requests were unmatched by any stub mapping. Shown with closest stub mappings:\n" +
+            renderNearMisses(nearMisses));
+
+    }
+
+    private static String renderNearMisses(List<NearMiss> nearMisses) {
+        return Joiner.on("\n\n").join(
+            from(nearMisses).transform(toStringFunction())
+        );
+    }
+
+    public VerificationException(String messageStart, Diff diff) {
+        super(messageStart + " " + diff.toString());
+    }
+
+    public VerificationException(RequestPattern expected, List<LoggedRequest> requests) {
+        super(String.format(
+            "Expected at least one request matching: %s\nRequests received: %s",
+            expected.toString(),
+            Json.write(requests)));
+    }
+
+    public VerificationException(RequestPattern expected, int expectedCount, int actualCount) {
+        super(String.format(
+            "Expected exactly %d requests matching the following pattern but received only %d:\n%s",
+            expectedCount,
+            actualCount,
+            expected.toString()));
+    }
+
+    public VerificationException(RequestPattern expected, CountMatchingStrategy expectedCount, int actualCount) {
+        super(String.format(
+            "Expected %s requests matching the following pattern but received %d:\n%s",
+            expectedCount.toString().toLowerCase(),
+            actualCount,
+            expected.toString()));
     }
 }

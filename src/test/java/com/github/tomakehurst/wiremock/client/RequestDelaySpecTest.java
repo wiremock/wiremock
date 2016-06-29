@@ -18,17 +18,17 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
-import static net.sf.json.test.JSONAssert.assertJsonEquals;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RequestDelaySpecTest {
 
     @Test
-    public void canSerialiseToJson() {
+    public void canSerialiseToJson() throws Exception {
         String json = Json.write(new RequestDelaySpec(500));
-        assertJsonEquals("{ \"milliseconds\": 500 }", json);
+        JSONAssert.assertEquals("{ \"milliseconds\": 500 }", json, false);
     }
 
     @Test

@@ -54,6 +54,10 @@ public class BinaryFile {
 		}
 	}
 
+	public URI getUri() {
+		return uri;
+	}
+
 	public String name() {
 		return uri.toString();
 	}

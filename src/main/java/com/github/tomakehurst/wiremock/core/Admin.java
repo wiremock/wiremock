@@ -16,16 +16,19 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
 public interface Admin {
 
 	void addStubMapping(StubMapping stubMapping);
+	void editStubMapping(StubMapping stubMapping);
+	void removeStubMapping(StubMapping stubbMapping);
     ListStubMappingsResult listAllStubMappings();
     void saveMappings();
 	void resetMappings();
@@ -34,7 +37,14 @@ public interface Admin {
     void resetToDefaultMappings();
 	VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
-	void updateGlobalSettings(GlobalSettings settings);
-    void addSocketAcceptDelay(RequestDelaySpec spec);
+
+    FindRequestsResult findUnmatchedRequests();
+    FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
+    FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
+
+    FindNearMissesResult findNearMissesForUnmatchedRequests();
+
+    void updateGlobalSettings(GlobalSettings settings);
+
     void shutdownServer();
 }

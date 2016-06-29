@@ -15,6 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import java.util.List;
+
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -27,7 +34,7 @@ public interface Options {
 
     public static final int DEFAULT_PORT = 8080;
     public static final int DYNAMIC_PORT = 0;
-    public static final int DEFAULT_CONTAINER_THREADS = 200;
+    public static final int DEFAULT_CONTAINER_THREADS = 10;
     public static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
@@ -44,5 +51,6 @@ public interface Options {
     List<CaseInsensitiveKey> matchingHeaders();
     public boolean shouldPreserveHostHeader();
     String proxyHostHeader();
+    HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
 }

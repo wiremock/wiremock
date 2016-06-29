@@ -21,6 +21,7 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -56,6 +57,11 @@ public abstract class AbstractFileSource implements FileSource {
     @Override
     public String getPath() {
     	return rootDirectory.getPath();
+    }
+
+    @Override
+    public URI getUri() {
+        return rootDirectory.toURI();
     }
 
     @Override

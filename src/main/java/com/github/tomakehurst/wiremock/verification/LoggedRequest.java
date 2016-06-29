@@ -19,96 +19,109 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.base.Charsets;
+import com.github.tomakehurst.wiremock.common.Dates;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.codec.binary.Base64;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	
-	private final String url;
-	private final String absoluteUrl;
-	private final RequestMethod method;
-	private final HttpHeaders headers;
+    private final String url;
+    private final String absoluteUrl;
+    private final String clientIp;
+    private final RequestMethod method;
+    private final HttpHeaders headers;
+    private final Map<String, Cookie> cookies;
     private final Map<String, QueryParameter> queryParams;
-	private final byte[] body;
-	private final boolean isBrowserProxyRequest;
+    private final byte[] body;
+    private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
-	
-	public static LoggedRequest createFrom(Request request) {
+
+    public static LoggedRequest createFrom(Request request) {
         return new LoggedRequest(request.getUrl(),
-                request.getAbsoluteUrl(),
-                request.getMethod(),
-                copyOf(request.getHeaders()),
-                request.getBody(),
-                request.isBrowserProxyRequest(),
-                new Date());
-	}
+            request.getAbsoluteUrl(),
+            request.getMethod(),
+            request.getClientIp(),
+            copyOf(request.getHeaders()),
+            ImmutableMap.copyOf(request.getCookies()),
+            request.isBrowserProxyRequest(),
+            new Date(),
+            request.getBodyAsBase64(),
+            null);
+    }
 
-    public LoggedRequest(String url,
-                         String absoluteUrl,
-                         RequestMethod method,
-                         HttpHeaders headers,
-                         byte[] body,
-                         boolean isBrowserProxyRequest,
-                         Date loggedDate) {
-
+    @JsonCreator
+    public LoggedRequest(
+            @JsonProperty("url") String url,
+            @JsonProperty("absoluteUrl") String absoluteUrl,
+            @JsonProperty("method") RequestMethod method,
+            @JsonProperty("clientIp") String clientIp,
+            @JsonProperty("headers") HttpHeaders headers,
+            @JsonProperty("cookies") Map<String, Cookie> cookies,
+            @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+            @JsonProperty("loggedDate") Date loggedDate,
+            @JsonProperty("bodyAsBase64") String bodyAsBase64,
+            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
         this.url = url;
         this.absoluteUrl = absoluteUrl;
+        this.clientIp = clientIp;
         this.method = method;
-        this.body = body;
+        this.body = Base64.decodeBase64(bodyAsBase64);
         this.headers = headers;
+        this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
     }
 
-    @JsonCreator
-    public LoggedRequest(@JsonProperty("url") String url,
-                         @JsonProperty("absoluteUrl") String absoluteUrl,
-                         @JsonProperty("method") RequestMethod method,
-                         @JsonProperty("headers") HttpHeaders headers,
-                         @JsonProperty("body") String body,
-                         @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-                         @JsonProperty("loggedDate") Date loggedDate) {
-        this(url, absoluteUrl, method, headers, body.getBytes(Charsets.UTF_8), isBrowserProxyRequest, loggedDate);
+    @Override
+    public String getUrl() {
+        return url;
     }
 
-	@Override
-	public String getUrl() {
-		return url;
-	}
-	
-	@Override
-	public String getAbsoluteUrl() {
-		return absoluteUrl;
-	}
+    @Override
+    public String getAbsoluteUrl() {
+        return absoluteUrl;
+    }
 
-	@Override
-	public RequestMethod getMethod() {
-		return method;
-	}
+    @Override
+    public RequestMethod getMethod() {
+        return method;
+    }
 
-	@Override
+    @Override
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    @Override
     @JsonIgnore
-	public String getHeader(String key) {
-		HttpHeader header = header(key);
+    public String getHeader(String key) {
+        HttpHeader header = header(key);
         if (header.isPresent()) {
             return header.firstValue();
         }
-		
-		return null;
-	}
+
+        return null;
+    }
 
     @Override
     public HttpHeader header(String key) {
@@ -121,50 +134,62 @@ public class LoggedRequest implements Request {
     }
 
     @Override
-	public boolean containsHeader(String key) {
-		return getHeader(key) != null;
-	}
+    public boolean containsHeader(String key) {
+        return getHeader(key) != null;
+    }
+
+    @Override
+    public Map<String, Cookie> getCookies() {
+        return cookies;
+    }
 
     @Override
     public byte[] getBody() {
         return body;
     }
 
-	@Override
+    @Override
     @JsonProperty("body")
-	public String getBodyAsString() {
-        return new String(body, Charsets.UTF_8);
-	}
+    public String getBodyAsString() {
+        return stringFromBytes(body);
+    }
 
-	@Override
+    @Override
+    @JsonProperty("bodyAsBase64")
+    public String getBodyAsBase64() {
+        return Base64.encodeBase64String(body);
+    }
+
+    @Override
     @JsonIgnore
-	public Set<String> getAllHeaderKeys() {
-		return headers.keys();
-	}
+    public Set<String> getAllHeaderKeys() {
+        return headers.keys();
+    }
 
     @Override
     public QueryParameter queryParameter(String key) {
-        return queryParams.get(key);
+        return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
     }
 
     public HttpHeaders getHeaders() {
         return headers;
     }
-	
-	@Override
-	public boolean isBrowserProxyRequest() {
-		return isBrowserProxyRequest;
-	}
+
+    @Override
+    public boolean isBrowserProxyRequest() {
+        return isBrowserProxyRequest;
+    }
 
     public Date getLoggedDate() {
         return loggedDate;
     }
 
     public String getLoggedDateString() {
-        return format(loggedDate);
+        return Dates.format(loggedDate);
     }
 
-    private String format(Date date) {
-        return new SimpleDateFormat(DATE_FORMAT).format(date);
+    @Override
+    public String toString() {
+        return Json.write(this);
     }
 }

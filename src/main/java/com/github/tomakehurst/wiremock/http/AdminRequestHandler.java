@@ -17,27 +17,12 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.AdminTasks;
-import com.github.tomakehurst.wiremock.admin.RequestSpec;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.global.RequestDelaySpec;
-import com.github.tomakehurst.wiremock.http.AbstractRequestHandler;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.http.ResponseRenderer;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
-import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
-import static com.github.tomakehurst.wiremock.matching.RequestPattern.buildRequestPatternFrom;
-import static java.net.HttpURLConnection.HTTP_OK;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
 
@@ -49,10 +34,10 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	}
 
 	@Override
-	public ResponseDefinition handleRequest(Request request) {
+	public ServedStub handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
         AdminTask adminTask = AdminTasks.taskFor(request.getMethod(), withoutAdminRoot(request.getUrl()));
-        return adminTask.execute(admin, request);
+        return ServedStub.exactMatch(LoggedRequest.createFrom(request), adminTask.execute(admin, request));
 	}
 
 	private static String withoutAdminRoot(String url) {

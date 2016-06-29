@@ -25,7 +25,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
@@ -72,6 +72,7 @@ public class StandaloneAcceptanceTest {
     private ByteArrayOutputStream err;
 
 	private File mappingsDirectory;
+	private File filesDirectory;
 	
 	@Before
 	public void init() throws Exception {
@@ -82,6 +83,7 @@ public class StandaloneAcceptanceTest {
 		FILE_SOURCE_ROOT.mkdirs();
 		
 		mappingsDirectory = new File(FILE_SOURCE_ROOT, MAPPINGS);
+		filesDirectory = new File(FILE_SOURCE_ROOT, FILES);
 		
 		runner = new WireMockServerRunner();
 
@@ -308,6 +310,24 @@ public class StandaloneAcceptanceTest {
 		
 		assertThat(mappingsDirectory, containsAFileContaining("/please/record-headers"));
 		assertThat(contentsOfFirstFileNamedLike("please-record-headers"), containsString("\"Accept\" : {"));
+	}
+
+	@Test
+	public void recordsGzippedResponseBodiesDecompressed() throws Exception {
+		WireMock otherServerClient = startOtherServerAndClient();
+		startRunner("--record-mappings");
+		givenThat(get(urlEqualTo("/record-zip"))
+				.willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+		otherServerClient.register(
+				get(urlEqualTo("/record-zip"))
+						.willReturn(aResponse()
+								.withStatus(HTTP_OK)
+								.withBody("gzipped body")));
+
+		testClient.get("/record-zip", withHeader("Accept-Encoding", "gzip,deflate"));
+
+		assertThat(mappingsDirectory, containsAFileContaining("/record-zip"));
+		assertThat(filesDirectory, containsAFileContaining("gzipped body"));
 	}
 
     @Test
