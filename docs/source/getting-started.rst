@@ -19,7 +19,7 @@ To add the standard WireMock JAR as a project dependency, put the following in t
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock</artifactId>
-        <version>2.1.3-rc2</version>
+        <version>2.1.4-rc3</version>
     </dependency>
 
 Or to use the standalone JAR:
@@ -29,7 +29,7 @@ Or to use the standalone JAR:
     <dependency>
         <groupId>com.github.tomakehurst</groupId>
         <artifactId>wiremock-standalone</artifactId>
-        <version>2.1.3-rc2</version>
+        <version>2.1.4-rc3</version>
     </dependency>
 
 
@@ -39,13 +39,13 @@ Gradle
 
 .. code-block:: groovy
 
-    testCompile "com.github.tomakehurst:wiremock:2.1.3-rc2"
+    testCompile "com.github.tomakehurst:wiremock:2.1.4-rc3"
 
 Or
 
 .. code-block:: groovy
 
-    testCompile "com.github.tomakehurst:wiremock-standalone:2.1.3-rc2"
+    testCompile "com.github.tomakehurst:wiremock-standalone:2.1.4-rc3"
 
 
 JUnit 4.x
@@ -171,7 +171,7 @@ This will start the server on port 8080:
 
     $ java -jar wiremock-|version|-standalone.jar
 
-You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.1.3-rc2/wiremock-standalone-2.1.3-rc2.jar>`_.
+You can `download the standalone JAR from here <http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.1.4-rc3/wiremock-standalone-2.1.4-rc3.jar>`_.
 
 See :ref:`running-standalone` for more details and commandline options.
 
