@@ -298,7 +298,7 @@ task checkReleasePreconditions << {
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
 
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    assert currentGitBranch == '2.0-beta', 'Must be on the beta branch in order to release'
+    assert currentGitBranch == 'master', 'Must be on the master branch in order to release'
 }
 publish.dependsOn checkReleasePreconditions
 
