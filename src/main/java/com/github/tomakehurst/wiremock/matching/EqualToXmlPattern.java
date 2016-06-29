@@ -101,23 +101,31 @@ public class EqualToXmlPattern extends StringValuePattern {
                 final AtomicInteger totalComparisons = new AtomicInteger(0);
                 final AtomicInteger differences = new AtomicInteger(0);
 
-                Diff diff = DiffBuilder.compare(Input.from(expectedValue))
-                    .withTest(value)
-                    .ignoreWhitespace()
-                    .ignoreComments()
-                    .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                    .withComparisonListeners(new ComparisonListener() {
-                        @Override
-                        public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-                            if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
-                                totalComparisons.incrementAndGet();
-                                if (outcome == ComparisonResult.DIFFERENT) {
-                                    differences.incrementAndGet();
+                Diff diff = null;
+                try {
+                    diff = DiffBuilder.compare(Input.from(expectedValue))
+                        .withTest(value)
+                        .ignoreWhitespace()
+                        .ignoreComments()
+                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
+                        .withComparisonListeners(new ComparisonListener() {
+                            @Override
+                            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                                if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
+                                    totalComparisons.incrementAndGet();
+                                    if (outcome == ComparisonResult.DIFFERENT) {
+                                        differences.incrementAndGet();
+                                    }
                                 }
                             }
-                        }
-                    })
-                    .build();
+                        })
+                        .build();
+                } catch (XMLUnitException e) {
+                    notifier().info("Failed to process XML. " + e.getMessage() +
+                        "\nExpected:\n" + expectedValue +
+                        "\n\nActual:\n" + value);
+                    return 1.0;
+                }
 
                 notifier().info(
                     Joiner.on("\n").join(diff.getDifferences())

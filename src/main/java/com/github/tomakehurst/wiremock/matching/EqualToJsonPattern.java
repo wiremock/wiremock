@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.tomakehurst.wiremock.common.Json.deepSize;
 import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
@@ -59,19 +60,28 @@ public class EqualToJsonPattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        JsonNode actual = null;
         try {
-            actual = Json.read(value, JsonNode.class);
+            final JsonNode actual = Json.read(value, JsonNode.class);
+
+            return new MatchResult() {
+                @Override
+                public boolean isExactMatch() {
+                    // Try to do it the fast way first, then fall back to doing the full diff
+                    return (!shouldIgnoreArrayOrder() && !shouldIgnoreExtraElements() && Objects.equals(actual, expected))
+                        || getDistance() == 0.0;
+                }
+
+                @Override
+                public double getDistance() {
+                    ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual);
+
+                    double maxNodes = maxDeepSize(expected, actual);
+                    return diffSize(diff) / maxNodes;
+                }
+            };
         } catch (Exception e) {
             return MatchResult.noMatch();
         }
-
-        ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual);
-
-        double maxNodes = maxDeepSize(expected, actual);
-        double distance = diffSize(diff) / maxNodes;
-
-        return MatchResult.partialMatch(distance);
     }
 
     private int diffSize(ArrayNode diff) {
