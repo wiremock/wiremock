@@ -423,9 +423,9 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
                         "Expected exactly 3 requests matching the following pattern but received only 2:\n" +
-                        "{\n" +
-                        "  \"url\" : \"/hit\",\n" +
-                        "  \"method\" : \"GET\"\n" +
+                        "{" + System.lineSeparator() +
+                        "  \"url\" : \"/hit\"," + System.lineSeparator() +
+                        "  \"method\" : \"GET\"" + System.lineSeparator() +
                         "}"
                     )
                 );
@@ -463,9 +463,9 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
                     "Expected less than 2 requests matching the following pattern but received 4:\n" +
-                    "{\n" +
-                    "  \"url\" : \"/hit\",\n" +
-                    "  \"method\" : \"GET\"\n" +
+                    "{" + System.lineSeparator() +
+                    "  \"url\" : \"/hit\"," + System.lineSeparator() +
+                    "  \"method\" : \"GET\"" + System.lineSeparator() +
                     "}"
                     )
                 );

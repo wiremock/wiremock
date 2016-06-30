@@ -171,18 +171,18 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "{\n" +
-                "  \"outer\" : {\n" +
-                "    \"inner\" : {\n" +
-                "      \"thing\" : 1\n" +
-                "    }\n" +
-                "  }\n" +
+                "{" + System.lineSeparator() +
+                "  \"outer\" : {" + System.lineSeparator() +
+                "    \"inner\" : {" + System.lineSeparator() +
+                "      \"thing\" : 1" + System.lineSeparator() +
+                "    }" + System.lineSeparator() +
+                "  }" + System.lineSeparator() +
                 "}",
 
                 "ANY\n" +
                 "/thing\n" +
-                "{\n" +
-                "  \"outer\" : { }\n" +
+                "{" + System.lineSeparator() +
+                "  \"outer\" : { }" + System.lineSeparator() +
                 "}")
         ));
     }
@@ -203,18 +203,18 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "{\n" +
-                "  \"outer\" : {\n" +
-                "    \"inner:\" : {\n" +
-                "      \"thing\" : 1\n" +
-                "    }\n" +
-                "  }\n" +
+                "{" + System.lineSeparator() +
+                "  \"outer\" : {" + System.lineSeparator() +
+                "    \"inner:\" : {" + System.lineSeparator() +
+                "      \"thing\" : 1" + System.lineSeparator() +
+                "    }" + System.lineSeparator() +
+                "  }" + System.lineSeparator() +
                 "}",
 
                 "ANY\n" +
                 "/thing\n" +
-                "{\n" +
-                "  \"outer\" : { }\n" +
+                "{" + System.lineSeparator() +
+                "  \"outer\" : { }" + System.lineSeparator() +
                 "}")
         ));
     }
@@ -279,19 +279,19 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "<my-elements>\n" +
-                "  <one attr-one=\"1111\"/>\n" +
-                "  <two/>\n" +
-                "  <three/>\n" +
-                "</my-elements>\n",
+                "<my-elements>" + System.lineSeparator() +
+                "  <one attr-one=\"1111\"/>" + System.lineSeparator() +
+                "  <two/>" + System.lineSeparator() +
+                "  <three/>" + System.lineSeparator() +
+                "</my-elements>" + System.lineSeparator(),
 
                 "ANY\n" +
                 "/thing\n" +
-                "<my-elements>\n" +
-                "  <one attr-one=\"2222\"/>\n" +
-                "  <two/>\n" +
-                "  <three/>\n" +
-                "</my-elements>\n")
+                "<my-elements>" + System.lineSeparator() +
+                "  <one attr-one=\"2222\"/>" + System.lineSeparator() +
+                "  <two/>" + System.lineSeparator() +
+                "  <three/>" + System.lineSeparator() +
+                "</my-elements>" + System.lineSeparator())
         ));
     }
 
