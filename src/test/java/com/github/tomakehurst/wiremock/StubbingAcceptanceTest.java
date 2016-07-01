@@ -188,6 +188,24 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
     @Test
+    public void doesNotMatchIfSpecifiedAbsentQueryParameterIsPresentInRequest() {
+        stubFor(get(urlPathEqualTo("/path-and-query/match"))
+            .withQueryParam("search", absent())
+            .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/path-and-query/match?search=presentwhoops").statusCode(), is(404));
+    }
+
+    @Test
+    public void matchesIfSpecifiedAbsentQueryParameterIsAbsentFromRequest() {
+        stubFor(get(urlPathEqualTo("/path-and-query/match"))
+            .withQueryParam("search", absent())
+            .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/path-and-query/match?anotherparam=present").statusCode(), is(200));
+    }
+
+    @Test
 	public void responseBodyLoadedFromFile() {
 		stubFor(get(urlEqualTo("/my/file")).willReturn(
 			aResponse()
