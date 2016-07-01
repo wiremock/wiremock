@@ -38,7 +38,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	public JsonFileMappingsSource(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 		idGenerator = new VeryShortIdGenerator();
-		fileNameMap = new HashMap<UUID, String>();
+		fileNameMap = new HashMap<>();
 	}
 
 	@Override
@@ -82,6 +82,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	private String getFileName(TextFile mappingFile) {
-		return mappingFile.getUri().getPath().replace(mappingsFileSource.getUri().getPath(), "");
+		return mappingFile.getUri().toString().replaceAll("^.*/", "");
+//		return mappingFile.getUri().getPath().replace(mappingsFileSource.getUri().getPath(), "");
 	}
 }

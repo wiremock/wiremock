@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
@@ -48,7 +49,7 @@ public class JsonFileMappingsSourceTest {
 	}
 
 	@Test
-	public void testLoadMappings() throws Exception {
+	public void loadsMappingsFromFile() throws Exception {
 
 		final StubMappings stubMappings = new InMemoryStubMappings();
 
@@ -74,7 +75,7 @@ public class JsonFileMappingsSourceTest {
 	}
 
 	@Test
-	public void testSaveNewMappings() throws Exception {
+	public void savesMappingToFile() throws Exception {
 
 		final StubMapping stubMapping = new StubMapping();
 		stubMapping.setTransient(true);
@@ -94,12 +95,12 @@ public class JsonFileMappingsSourceTest {
 	}
 
 	@Test
-	public void testSaveEditedMappings() throws Exception {
+	public void savesEditedMappingToTheFileItOriginatedFrom() throws Exception {
 
 		final StubMappings stubMappings = new InMemoryStubMappings();
 
-		final String mappingFileName = "/testmapping.json";
-		final URI fileUri = this.getClass().getResource("/mappings" + mappingFileName).toURI();
+		final String mappingFileName = "testmapping.json";
+		final URI fileUri = this.getClass().getResource("/mappings/" + mappingFileName).toURI();
 		final TextFile textFile = new TextFile(fileUri);
 
 		final String mappingFileSource = fileUri.getPath().replace(mappingFileName, "");
@@ -127,5 +128,16 @@ public class JsonFileMappingsSourceTest {
 
 		jsonFileMappingsSource.saveMappings(stubMappings);
 		assertThat(stubMapping.isTransient(), is(false));
+	}
+
+	@Test
+	public void loadsMappingsViaClasspathFileSource() {
+		ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
+		JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
+		StubMappings stubMappings = new InMemoryStubMappings();
+
+		source.loadMappingsInto(stubMappings);
+
+		assertThat(stubMappings.getAll().get(0).getRequest().getUrl(), is("/test"));
 	}
 }
