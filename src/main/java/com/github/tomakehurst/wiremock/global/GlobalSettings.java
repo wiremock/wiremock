@@ -15,13 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.global;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 
 import java.util.Objects;
 
-@JsonSerialize(include=Inclusion.NON_NULL)
 public class GlobalSettings {
 
 	private Integer fixedDelay;

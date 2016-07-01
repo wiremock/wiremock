@@ -7,11 +7,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -81,7 +77,10 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         testClient.get("/actual11");
         testClient.get("/actual42");
 
-        List<NearMiss> nearMisses = WireMock.findNearMissesFor(newRequestPattern(GET, urlEqualTo("/actual4")));
+        List<NearMiss> nearMisses = WireMock.findNearMissesFor(
+            getRequestedFor(urlEqualTo("/actual4"))
+                .withRequestBody(containing("thing"))
+        );
 
         assertThat(nearMisses.size(), is(2));
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/actual42"));

@@ -27,7 +27,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonSerialize(include=Inclusion.NON_NULL)
 @JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
 public class StubMapping {
 	

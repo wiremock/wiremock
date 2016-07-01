@@ -3,7 +3,6 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -11,7 +10,6 @@ import com.google.common.collect.FluentIterable;
 import java.lang.reflect.Constructor;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public abstract class StringValuePattern implements ValueMatcher<String> {
 
     public static final StringValuePattern ABSENT = new StringValuePattern(null) {

@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock;
+package ignored;
 
+import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -23,28 +27,14 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -269,4 +259,77 @@ public class Examples extends AcceptanceTestBase {
         }).willReturn(aResponse().withStatus(422)));
     }
 
+    @Test
+    public void configuration() {
+        WireMockConfiguration.options()
+            // Statically set the HTTP port number. Defaults to 8080.
+            .port(8000)
+
+            // Statically set the HTTPS port number. Defaults to 8443.
+            .httpsPort(8001)
+
+            // Randomly assign the HTTP port on startup
+            .dynamicPort()
+
+            // Randomly asssign the HTTPS port on startup
+            .dynamicHttpsPort()
+
+            // Bind the WireMock server to this IP address locally. Defaults to the loopback adaptor.
+            .bindAddress("192.168.1.111")
+
+            // Set the number of request handling threads in Jetty. Defaults to 10.
+            .containerThreads(5)
+
+            // Set the number of connection acceptor threads in Jetty. Defaults to 2.
+            .jettyAcceptors(4)
+
+            // Set the Jetty accept queue size. Defaults to Jetty's default of unbounded.
+            .jettyAcceptQueueSize(100)
+
+            // Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.
+            .jettyHeaderBufferSize(16834)
+
+            // Set the keystore containing the HTTPS certificate
+            .keystorePath("/path/to/https-certs-keystore.jks")
+
+            // Set the password to the keystore
+            .keystorePassword("verysecret!")
+
+            // Require a client calling WireMock to present a client certificate
+            .needClientAuth(true)
+
+            // Path to the trust store containing the client certificate required in by the previous parameter
+            .trustStorePath("/path/to/trust-store.jks")
+
+            // The password to the trust store
+            .trustStorePassword("trustme")
+
+            // Make WireMock behave as a forward proxy e.g. via browser proxy settings
+            .enableBrowserProxying(true)
+
+            // Send the Host header in the original request onwards to the system being proxied to
+            .preserveHostHeader(false)
+
+            // Override the Host header sent when reverse proxying to another system (this and the previous parameter are mutually exclusive)
+            .proxyHostHeader("my.otherdomain.com")
+
+            // When reverse proxying, also route via the specified forward proxy (useful inside corporate firewalls)
+            .proxyVia("my.corporate.proxy", 8080)
+
+            // Set the root of the filesystem WireMock will look under for files and mappings
+            .usingFilesUnderDirectory("/path/to/files-and-mappings-root")
+
+            // Set a path within the classpath as the filesystem root
+            .usingFilesUnderClasspath("root/path/under/classpath")
+
+            // Do not record received requests. Typically needed during load testing to avoid JVM heap exhaustion.
+            .disableRequestJournal()
+
+            // Limit the size of the request log (for the same reason as above).
+            .maxRequestJournalEntries(Optional.of(100))
+
+            // Provide an alternative notifier.
+            .notifier(new ConsoleNotifier(true)
+        );
+    }
 }

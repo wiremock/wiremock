@@ -1,6 +1,5 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
@@ -9,9 +8,6 @@ import com.google.common.base.Predicate;
 
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
-
-@JsonSerialize(include = NON_NULL)
 public class ServedStub {
 
     private final LoggedRequest request;

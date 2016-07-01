@@ -25,7 +25,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
-@JsonSerialize(include = NON_NULL)
 public class RequestPattern implements ValueMatcher<Request> {
 
     private final UrlPattern url;

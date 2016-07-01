@@ -15,7 +15,6 @@ import java.util.List;
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static java.util.Collections.min;
 
-@JsonSerialize(include = NON_NULL)
 public class MultiValuePattern implements ValueMatcher<MultiValue> {
 
     private final StringValuePattern valuePattern;

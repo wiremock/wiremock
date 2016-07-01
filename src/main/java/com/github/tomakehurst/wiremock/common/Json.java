@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,7 +53,9 @@ public final class Json {
 
     private static ObjectMapper getObjectMapper() {
         if (objectMapperHolder.get() == null) {
-            objectMapperHolder.set(new ObjectMapper());
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapperHolder.set(objectMapper);
         }
 
         return objectMapperHolder.get();
