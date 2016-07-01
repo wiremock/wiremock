@@ -57,6 +57,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
+import static java.lang.System.lineSeparator;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -423,9 +424,9 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
                         "Expected exactly 3 requests matching the following pattern but received only 2:\n" +
-                        "{" + System.lineSeparator() +
-                        "  \"url\" : \"/hit\"," + System.lineSeparator() +
-                        "  \"method\" : \"GET\"" + System.lineSeparator() +
+                        "{" + lineSeparator() +
+                        "  \"url\" : \"/hit\"," + lineSeparator() +
+                        "  \"method\" : \"GET\"" + lineSeparator() +
                         "}"
                     )
                 );
@@ -463,9 +464,9 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
                     "Expected less than 2 requests matching the following pattern but received 4:\n" +
-                    "{" + System.lineSeparator() +
-                    "  \"url\" : \"/hit\"," + System.lineSeparator() +
-                    "  \"method\" : \"GET\"" + System.lineSeparator() +
+                    "{" + lineSeparator() +
+                    "  \"url\" : \"/hit\"," + lineSeparator() +
+                    "  \"method\" : \"GET\"" + lineSeparator() +
                     "}"
                     )
                 );

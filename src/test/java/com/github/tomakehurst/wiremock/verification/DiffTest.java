@@ -14,6 +14,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
+import static java.lang.System.lineSeparator;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -171,18 +172,18 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "{" + System.lineSeparator() +
-                "  \"outer\" : {" + System.lineSeparator() +
-                "    \"inner\" : {" + System.lineSeparator() +
-                "      \"thing\" : 1" + System.lineSeparator() +
-                "    }" + System.lineSeparator() +
-                "  }" + System.lineSeparator() +
+                "{" + lineSeparator() +
+                "  \"outer\" : {" + lineSeparator() +
+                "    \"inner\" : {" + lineSeparator() +
+                "      \"thing\" : 1" + lineSeparator() +
+                "    }" + lineSeparator() +
+                "  }" + lineSeparator() +
                 "}",
 
                 "ANY\n" +
                 "/thing\n" +
-                "{" + System.lineSeparator() +
-                "  \"outer\" : { }" + System.lineSeparator() +
+                "{" + lineSeparator() +
+                "  \"outer\" : { }" + lineSeparator() +
                 "}")
         ));
     }
@@ -203,18 +204,18 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "{" + System.lineSeparator() +
-                "  \"outer\" : {" + System.lineSeparator() +
-                "    \"inner:\" : {" + System.lineSeparator() +
-                "      \"thing\" : 1" + System.lineSeparator() +
-                "    }" + System.lineSeparator() +
-                "  }" + System.lineSeparator() +
+                "{" + lineSeparator() +
+                "  \"outer\" : {" + lineSeparator() +
+                "    \"inner:\" : {" + lineSeparator() +
+                "      \"thing\" : 1" + lineSeparator() +
+                "    }" + lineSeparator() +
+                "  }" + lineSeparator() +
                 "}",
 
                 "ANY\n" +
                 "/thing\n" +
-                "{" + System.lineSeparator() +
-                "  \"outer\" : { }" + System.lineSeparator() +
+                "{" + lineSeparator() +
+                "  \"outer\" : { }" + lineSeparator() +
                 "}")
         ));
     }
@@ -279,19 +280,19 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
-                "<my-elements>" + System.lineSeparator() +
-                "  <one attr-one=\"1111\"/>" + System.lineSeparator() +
-                "  <two/>" + System.lineSeparator() +
-                "  <three/>" + System.lineSeparator() +
-                "</my-elements>" + System.lineSeparator(),
+                "<my-elements>" + lineSeparator() +
+                "  <one attr-one=\"1111\"/>" + lineSeparator() +
+                "  <two/>" + lineSeparator() +
+                "  <three/>" + lineSeparator() +
+                "</my-elements>" + lineSeparator(),
 
                 "ANY\n" +
                 "/thing\n" +
-                "<my-elements>" + System.lineSeparator() +
-                "  <one attr-one=\"2222\"/>" + System.lineSeparator() +
-                "  <two/>" + System.lineSeparator() +
-                "  <three/>" + System.lineSeparator() +
-                "</my-elements>" + System.lineSeparator())
+                "<my-elements>" + lineSeparator() +
+                "  <one attr-one=\"2222\"/>" + lineSeparator() +
+                "  <two/>" + lineSeparator() +
+                "  <three/>" + lineSeparator() +
+                "</my-elements>" + lineSeparator())
         ));
     }
 
