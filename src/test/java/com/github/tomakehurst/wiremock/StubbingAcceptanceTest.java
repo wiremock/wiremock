@@ -409,6 +409,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
     }
 
+    @Test
+    public void matchesQueryParamsUnencoded() {
+        stubFor(get(urlPathEqualTo("/query"))
+            .withQueryParam("param-one", equalTo("one two three ?"))
+            .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
+        assertThat(response.statusCode(), is(200));
+    }
+
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {

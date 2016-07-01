@@ -22,11 +22,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Maps;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.transform;
 import static java.util.Arrays.asList;
 
@@ -45,7 +48,7 @@ public class Urls {
                 builder.putAll(queryElement, "");
             } else {
                 String key = queryElement.substring(0, firstEqualsIndex);
-                String value = queryElement.substring(firstEqualsIndex + 1);
+                String value = decode(queryElement.substring(firstEqualsIndex + 1));
                 builder.putAll(key, value);
             }
         }
@@ -63,5 +66,13 @@ public class Urls {
         }
 
         return splitQuery(uri.getQuery());
+    }
+
+    public static String decode(String encoded) {
+        try {
+            return URLDecoder.decode(encoded, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            return throwUnchecked(e, String.class);
+        }
     }
 }
