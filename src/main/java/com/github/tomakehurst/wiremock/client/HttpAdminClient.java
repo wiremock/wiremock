@@ -54,8 +54,11 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import java.io.UnsupportedEncodingException;
+
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
@@ -232,11 +235,14 @@ public class HttpAdminClient implements Admin {
     private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
         HttpPost post = new HttpPost(url);
         if (json != null) {
-            StringEntity stringEntity = new StringEntity(json, APPLICATION_JSON);
-            post.setEntity(stringEntity);
+            post.setEntity(jsonStringEntity(json));
         }
 
         return safelyExecuteRequest(url, expectedStatus, post);
+    }
+
+    private static StringEntity jsonStringEntity(String json) {
+        return new StringEntity(json, UTF_8.name());
     }
 
     protected String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {

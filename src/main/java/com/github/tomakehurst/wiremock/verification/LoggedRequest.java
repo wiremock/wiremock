@@ -21,21 +21,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.codec.binary.Base64;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
+import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
@@ -84,7 +79,7 @@ public class LoggedRequest implements Request {
         this.absoluteUrl = absoluteUrl;
         this.clientIp = clientIp;
         this.method = method;
-        this.body = Base64.decodeBase64(bodyAsBase64);
+        this.body = decodeBase64(bodyAsBase64);
         this.headers = headers;
         this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
@@ -157,7 +152,7 @@ public class LoggedRequest implements Request {
     @Override
     @JsonProperty("bodyAsBase64")
     public String getBodyAsBase64() {
-        return Base64.encodeBase64String(body);
+        return encodeBase64(body);
     }
 
     @Override
