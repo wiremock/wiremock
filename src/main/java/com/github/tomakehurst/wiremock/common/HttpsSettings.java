@@ -22,16 +22,20 @@ public class HttpsSettings {
     private final int port;
     private final String keyStorePath;
     private final String keyStorePassword;
+    private final String keyStoreType;
     private final String trustStorePath;
     private final String trustStorePassword;
+    private final String trustStoreType;
     private final boolean needClientAuth;
 
-    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String trustStorePath, String trustStorePassword, boolean needClientAuth) {
+    public HttpsSettings(int port, String keyStorePath, String keyStorePassword, String keyStoreType,  String trustStorePath, String trustStorePassword, String trustStoreType, boolean needClientAuth) {
         this.port = port;
         this.keyStorePath = keyStorePath;
         this.keyStorePassword = keyStorePassword;
+        this.keyStoreType = keyStoreType;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
+        this.trustStoreType = trustStoreType;
         this.needClientAuth = needClientAuth;
     }
 
@@ -47,6 +51,10 @@ public class HttpsSettings {
         return keyStorePassword;
     }
 
+    public String keyStoreType() {
+        return keyStoreType;
+    }
+
     public boolean enabled() {
         return port > -1;
     }
@@ -57,6 +65,10 @@ public class HttpsSettings {
 
     public String trustStorePassword() {
         return trustStorePassword;
+    }
+
+    public String trustStoreType() {
+        return trustStoreType;
     }
 
     public boolean needClientAuth() {
@@ -78,7 +90,9 @@ public class HttpsSettings {
         return "HttpsSettings{" +
                 "port=" + port +
                 ", keyStorePath='" + keyStorePath + '\'' +
+                ", keyStoreType='" + keyStoreType + '\'' +
                 ", trustStorePath='" + trustStorePath + '\'' +
+                ", trustStoreType='" + trustStoreType + '\'' +
                 ", needClientAuth=" + needClientAuth +
                 '}';
     }
@@ -88,8 +102,10 @@ public class HttpsSettings {
         private int port;
         private String keyStorePath = Resources.getResource("keystore").toString();
         private String keyStorePassword = "password";
+        private String keyStoreType = "JKS";
         private String trustStorePath = null;
         private String trustStorePassword = "password";
+        private String trustStoreType = "JKS";
         private boolean needClientAuth = false;
 
         public Builder port(int port) {
@@ -107,6 +123,11 @@ public class HttpsSettings {
             return this;
         }
 
+        public Builder keyStoreType(String keyStoreType) {
+            this.keyStoreType = keyStoreType;
+            return this;
+        }
+
         public Builder trustStorePath(String trustStorePath) {
             this.trustStorePath = trustStorePath;
             return this;
@@ -117,13 +138,18 @@ public class HttpsSettings {
             return this;
         }
 
+        public Builder trustStoreType(String trustStoreType) {
+            this.trustStoreType = trustStoreType;
+            return this;
+        }
+
         public Builder needClientAuth(boolean needClientAuth) {
             this.needClientAuth = needClientAuth;
             return this;
         }
 
         public HttpsSettings build() {
-            return new HttpsSettings(port, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword, needClientAuth);
+            return new HttpsSettings(port, keyStorePath, keyStorePassword,  keyStoreType,  trustStorePath, trustStorePassword, trustStoreType, needClientAuth);
         }
     }
 }
