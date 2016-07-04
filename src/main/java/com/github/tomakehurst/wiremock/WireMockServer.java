@@ -250,7 +250,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+    public void removeStub(RemoteMappingBuilder mappingBuilder) {
         client.removeStubMapping(mappingBuilder);
     }
 

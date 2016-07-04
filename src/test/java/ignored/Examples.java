@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Fault;
@@ -257,6 +258,28 @@ public class Examples extends AcceptanceTestBase {
                 return MatchResult.of(request.getBody().length > 2048);
             }
         }).willReturn(aResponse().withStatus(422)));
+    }
+
+    @Test
+    public void tmp() {
+        System.out.println(Json.write(
+            any(urlPathEqualTo("/everything"))
+            .withHeader("Accept", containing("xml"))
+            .withCookie("session", matching(".*12345.*"))
+            .withQueryParam("search_term", equalTo("WireMock"))
+            .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
+            .withRequestBody(equalToXml("<search-results />"))
+            .withRequestBody(matchingXPath("//search-results"))
+            .willReturn(aResponse()).build()));
+
+        stubFor(any(urlPathEqualTo("/everything"))
+            .withHeader("Accept", containing("xml"))
+            .withCookie("session", matching(".*12345.*"))
+            .withQueryParam("search_term", equalTo("WireMock"))
+            .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
+            .withRequestBody(equalToXml("<search-results />"))
+            .withRequestBody(matchingXPath("//search-results"))
+            .willReturn(aResponse()));
     }
 
     @Test
