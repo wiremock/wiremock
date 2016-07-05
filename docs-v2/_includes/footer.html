@@ -29,25 +29,35 @@
 </div>
 
 <script type="text/javascript">
-  window.onload = function() {
-    window.setTimeout(function() {
-      $("#dialog").dialog({
-        dialogClass: 'mocklab-popup',
-        draggable: false,
-        resizable: false,
-        modal: true,
-        show: {
-            effect: 'fade',
-            duration: 1000
-        },
-        buttons: [{
-          class: 'mocklab-popup__confirm-button',
-          text: "Learn More",
-          click: function() {
-            window.location.href = "http://get.mocklab.io"
-          }
-        }]
-      });
-    }, 500);
-  };
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
 </script>
