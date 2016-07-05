@@ -640,7 +640,8 @@ request that matches url="/v8/asd/26", and method "method": "GET".
             "status": 202,
             "body": "response for test",
             "headers": {
-            "Content-Type": "text/plain"
+                "Content-Type": "text/plain"
+            }
         }
     }
 
