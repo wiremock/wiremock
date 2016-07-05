@@ -647,7 +647,7 @@ request that matches url="/v8/asd/26", and method "method": "GET".
 
 If it had an element like "uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef",in addition to "request" and "response" then wiremock will remove the one that matches the uuid provided.
 
-Note: remove api uses UUID to find match and also uses request object to find a match and removes all maps that match the request.
+Note: remove api uses UUID to find match and also uses request object to find a match and removes all mappings that match the request.
 
 .. _stubbing-reset:
 
