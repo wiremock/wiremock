@@ -620,6 +620,7 @@ Note that this feature is not available when running WireMock from a servlet con
 Removing stubs
 ============
 
+
 Stub mappings which have been created can be removed via a call to ``WireMock.removeStubMapping``
 in Java or posting a request with body that has the stub to ``http://<host>:<port>/__admin/mappings/remove``.
 
@@ -631,23 +632,22 @@ For Example - posting following stub as body to http://<host>:<port>/__admin/map
 request that matches url="/v8/asd/26", and method "method": "GET".
 
 .. code-block:: javascript
+
     {
         "request": {
-            "url": "/v8/asd/26",
-            "method": "GET"
+            "method": "GET",
+            "url": "/v8/asd/26"
         },
         "response": {
-            "status": 202,
-            "body": "response for test",
-            "headers": {
-                "Content-Type": "text/plain"
-            }
+            "status": 200,
+            "body" : "response for test"
         }
     }
 
 If it had an element like "uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef",in addition to "request" and "response" then wiremock will remove the one that matches the uuid provided.
 
 Note: remove api uses UUID to find match and also uses request object to find a match and removes all mappings that match the request.
+
 
 .. _stubbing-reset:
 
