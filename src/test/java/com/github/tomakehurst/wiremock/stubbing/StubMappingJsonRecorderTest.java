@@ -69,7 +69,8 @@ public class StubMappingJsonRecorderTest {
 	}
 
     private void constructRecordingListener(List<String> headersToRecord) {
-        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+        boolean recordRepeats = false;
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS), recordRepeats);
         listener.setIdGenerator(fixedIdGenerator("1$2!3"));
     }
 
