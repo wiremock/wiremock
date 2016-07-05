@@ -15,3 +15,12 @@
 .mocklab-popup__title {
   margin-top: 0;
 }
+
+.mocklab-popup__confirm-button {
+  border: 1px solid #ffaf0f !important;
+	background: #FF9800 url("/images/ui-bg_inset-soft_30_FF9800_1x100.png") 50% 50% repeat-x  !important;
+
+  .ui-button-text {
+    font-weight: bold;
+  }
+}
