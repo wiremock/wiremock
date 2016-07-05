@@ -1,0 +1,17 @@
+.mocklab-popup {
+  width: 400px !important;
+  maxWidth: 800px !important;
+
+  @include breakpoint($small) {
+    width: 600px !important;
+  }
+
+  .ui-dialog-titlebar {
+    background: none !important;
+    border: 0 !important;
+  }
+}
+
+.mocklab-popup__title {
+  margin-top: 0;
+}

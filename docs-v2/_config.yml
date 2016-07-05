@@ -11,10 +11,10 @@ title                    : "WireMock"
 title_separator          : "-"
 name                     : "Tom Akehurst"
 description              : "WireMock is a flexible API mocking tool for fast, robust and comprehensive testing."
-url                      : "http://localhost:4000"
+# url                      : "http://localhost:4000"
 baseurl                  :
 # url                      : "http://wiremock.org/"
-url                      : "http://new.wiremock.org"
+# url                      : "http://new.wiremock.org"
 # baseurl                  : "/wiremock2"
 gh_repo                  :
 teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"

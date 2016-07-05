@@ -11,6 +11,7 @@
 @import "variables";
 @import "mixins";
 @import "vendor/susy/susy";
+@import "vendor/jquery-ui";
 
 @import "reset";
 @import "base";
@@ -34,5 +35,6 @@
 
 @import "vendor/font-awesome/font-awesome";
 @import "vendor/magnific-popup/magnific-popup";
-@import "vendor/jquery-ui/jquery-ui";
 @import "print";
+
+@import "mocklab-popup";

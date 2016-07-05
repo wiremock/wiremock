@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^6.3.5",
-    "node-sass": "^3.4.2",
+    "node-sass": "3.8.0",
     "npm-run-all": "^1.7.0",
     "onchange": "^2.2.0",
     "postcss-cli": "^2.5.1",
