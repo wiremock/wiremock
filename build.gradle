@@ -347,6 +347,7 @@ task 'bump-version' << {
             ],
             'docs/source/running-standalone.rst': { "wiremock-standalone/${baseVersion}.${it}-beta/wiremock-standalone-${baseVersion}.${it}-beta.jar" },
             'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:${baseVersion}.${it}-beta" },
+            'docs-v2/_config.yml'               : { "wiremock_version: ${baseVersion}.${it}-beta" },
     ]
 
     def gradleBuildFile = new File('build.gradle')

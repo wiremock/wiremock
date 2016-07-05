@@ -115,7 +115,7 @@ you to modify specific AJAX requests or swap out CSS/Javascript files.
 To configure your browser to proxy via WireMock, first start WireMock with browser proxying enabled:
 
 ```bash
-$ java -jar wiremock-standalone-2.1.0-beta.jar --enable-browser-proxying --port 9999
+$ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar --enable-browser-proxying --port 9999
 ```
 
 Then open your browser's proxy settings and point them to the running server:

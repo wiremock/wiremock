@@ -24,7 +24,7 @@ following in the dependencies section of your POM:
 <dependency>
     <groupId>com.github.tomakehurst</groupId>
     <artifactId>wiremock</artifactId>
-    <version>2.1.0-beta</version>
+    <version>{{ site.wiremock_version }}</version>
 </dependency>
 ```
 
@@ -34,20 +34,20 @@ Or to use the standalone JAR:
 <dependency>
     <groupId>com.github.tomakehurst</groupId>
     <artifactId>wiremock-standalone</artifactId>
-    <version>2.1.0-beta</version>
+    <version>{{ site.wiremock_version }}</version>
 </dependency>
 ```
 
 ## Gradle
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock:2.1.0-beta"
+testCompile "com.github.tomakehurst:wiremock:{{ site.wiremock_version }}"
 ```
 
 Or
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock-standalone:2.1.0-beta"
+testCompile "com.github.tomakehurst:wiremock-standalone:{{ site.wiremock_version }}"
 ```
 
 ## JUnit 4.x
@@ -172,7 +172,7 @@ the Java API, JSON over HTTP or JSON files.
 This will start the server on port 8080:
 
 You can [download the standalone JAR from
-here](http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.1.0-beta/wiremock-standalone-2.1.0-beta.jar).
+here](http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar).
 
 See [Running as a Standalone Process](/docs/running-standalone/) running-standalone for more details and commandline options.
 
