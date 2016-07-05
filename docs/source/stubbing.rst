@@ -631,18 +631,17 @@ For Example - posting following stub as body to http://<host>:<port>/__admin/map
 request that matches url="/v8/asd/26", and method "method": "GET".
 
 .. code-block:: javascript
-{
-      "request": {
-        "url": "/v8/asd/26",
-        "method": "GET"
-      },
-      "response": {
-        "status": 202,
-        "body": "response for test",
-        "headers": {
-          "Content-Type": "text/plain"
+    {
+        "request": {
+            "url": "/v8/asd/26",
+            "method": "GET"
+        },
+        "response": {
+            "status": 202,
+            "body": "response for test",
+            "headers": {
+            "Content-Type": "text/plain"
         }
-      }
     }
 
 If it had an element like "uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef",in addition to "request" and "response" then wiremock will remove the one that matches the uuid provided.
