@@ -620,6 +620,7 @@ Note that this feature is not available when running WireMock from a servlet con
 Removing stubs
 ============
 
+
 Stub mappings which have been created can be removed via ``mappings`` directory via a call to ``WireMock.removeStubMapping``
 in Java or posting a request with body that has the stub to ``http://<host>:<port>/__admin/mappings/remove``.
 
