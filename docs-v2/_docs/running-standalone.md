@@ -23,6 +23,8 @@ The following can optionally be specified on the command line:
 
 `--https-port`: If specified, enables HTTPS on the supplied port.
 
+`--bind-address`: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.
+
 `--https-keystore`: Path to a keystore file containing an SSL
 certificate to use with HTTPS. The keystore must have a password of
 "password". This option will only work if `--https-port` is specified.

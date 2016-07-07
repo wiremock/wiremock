@@ -15,8 +15,16 @@ your tests.**
 
 Recording is done by starting the standalone runner like this:
 
+```bash
+$ java -jar wiremock-2.1.4-rc3-standalone.jar --proxy-all="http://search.twitter.com" --record-mappings --verbose
+```
+
 Once it's started you send requests to it as if it was the remote
 service:
+
+```bash
+$ curl "http://localhost:8080/search.json?q=from:sirbonar&result_type=recent&rpp=1"
+```
 
 Now if you look under `mappings` and `__files` (under the current
 directory you're running WireMock in) you'll see that a new file has
