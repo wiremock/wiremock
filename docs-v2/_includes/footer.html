@@ -51,6 +51,7 @@
             class: 'mocklab-popup__confirm-button',
             text: "Learn More",
             click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
               window.location.href = "http://get.mocklab.io"
             }
           }]
