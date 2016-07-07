@@ -83,6 +83,5 @@ public class JsonFileMappingsSource implements MappingsSource {
 
 	private String getFileName(TextFile mappingFile) {
 		return mappingFile.getUri().toString().replaceAll("^.*/", "");
-//		return mappingFile.getUri().getPath().replace(mappingsFileSource.getUri().getPath(), "");
 	}
 }
