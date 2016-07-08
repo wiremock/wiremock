@@ -52,11 +52,11 @@
 .users-of {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
 
   &__logo {
     margin: 1em;
     width: auto;
-    height: 40px;
+    height: 50px;
   }
 }
