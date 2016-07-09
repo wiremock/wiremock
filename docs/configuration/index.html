@@ -1,0 +1,553 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Configuration - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Configuring WireMockServer and the JUnit rule programmatically.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Configuration">
+
+
+
+
+  <meta property="og:description" content="Configuring WireMockServer and the JUnit rule programmatically.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  
+    <link rel="next" href="/docs/extending-wiremock/" title="Extending WireMock">
+  
+  
+    <link rel="prev" href="/docs/android/" title="Android">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/" class="nav__list-item--selected">
+        
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Configuration">
+    <meta itemprop="description" content="Both WireMockServer and the WireMockRule take a configuration builder as the parameter to their constructor e.g.">
+    <meta itemprop="datePublished" content="July 09, 2016">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Configuration
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>Both <code class="highlighter-rouge">WireMockServer</code> and the <code class="highlighter-rouge">WireMockRule</code> take a configuration builder as the parameter to their constructor e.g.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">static</span> <span class="n">com</span><span class="o">.</span><span class="na">github</span><span class="o">.</span><span class="na">tomakehurst</span><span class="o">.</span><span class="na">wiremock</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">WireMockConfiguration</span><span class="o">.</span><span class="na">options</span><span class="o">;</span>
+
+<span class="n">WireMockServer</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">(</span><span class="n">options</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">2345</span><span class="o">));</span>
+
+<span class="nd">@Rule</span>
+<span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">2345</span><span class="o">));</span>
+</code></pre>
+</div>
+
+<p>Every option has a sensible default, so only options that you require an override for should be specified.</p>
+
+<h2 id="network-ports-and-binding">Network ports and binding</h2>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Statically set the HTTP port number. Defaults to 8080.</span>
+<span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8000</span><span class="o">)</span>
+
+<span class="c1">// Statically set the HTTPS port number. Defaults to 8443.</span>
+<span class="o">.</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8001</span><span class="o">)</span>
+
+<span class="c1">// Randomly assign the HTTP port on startup</span>
+<span class="o">.</span><span class="na">dynamicPort</span><span class="o">()</span>
+
+<span class="c1">// Randomly asssign the HTTPS port on startup</span>
+<span class="o">.</span><span class="na">dynamicHttpsPort</span><span class="o">()</span>
+
+<span class="c1">// Bind the WireMock server to this IP address locally. Defaults to the loopback adaptor.</span>
+<span class="o">.</span><span class="na">bindAddress</span><span class="o">(</span><span class="s">"192.168.1.111"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="jetty-configuration">Jetty configuration</h2>
+
+<p>Typically it is only necessary to tweak these settings if you are doing performance testing under significant loads.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Set the number of request handling threads in Jetty. Defaults to 10.</span>
+<span class="o">.</span><span class="na">containerThreads</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+
+<span class="c1">// Set the number of connection acceptor threads in Jetty. Defaults to 2.</span>
+<span class="o">.</span><span class="na">jettyAcceptors</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span>
+
+<span class="c1">// Set the Jetty accept queue size. Defaults to Jetty's default of unbounded.</span>
+<span class="o">.</span><span class="na">jettyAcceptQueueSize</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span>
+
+ <span class="c1">// Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.</span>
+<span class="o">.</span><span class="na">jettyHeaderBufferSize</span><span class="o">(</span><span class="mi">16834</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="https-configuration">HTTPS configuration</h2>
+
+<p>WireMock can accept HTTPS connections from clients, require a client to present a certificate for authentication, and pass a client certificate on to another service when proxying.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Set the keystore containing the HTTPS certificate</span>
+<span class="o">.</span><span class="na">keystorePath</span><span class="o">(</span><span class="s">"/path/to/https-certs-keystore.jks"</span><span class="o">)</span>
+
+<span class="c1">// Set the password to the keystore</span>
+<span class="o">.</span><span class="na">keystorePassword</span><span class="o">(</span><span class="s">"verysecret!"</span><span class="o">)</span>
+
+<span class="c1">// Set the keystore type</span>
+<span class="o">.</span><span class="na">keystoreType</span><span class="o">(</span><span class="s">"BKS"</span><span class="o">)</span>
+
+<span class="c1">// Require a client calling WireMock to present a client certificate</span>
+<span class="o">.</span><span class="na">needClientAuth</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+
+<span class="c1">// Path to the trust store containing the client certificate required in by the previous parameter</span>
+<span class="o">.</span><span class="na">trustStorePath</span><span class="o">(</span><span class="s">"/path/to/trust-store.jks"</span><span class="o">)</span>
+
+<span class="c1">// The password to the trust store</span>
+<span class="o">.</span><span class="na">trustStorePassword</span><span class="o">(</span><span class="s">"trustme"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>The client certificate in the trust store defined in the last two options will also be used when proxying to another service that requires a client certificate for authentication.</p>
+
+<h2 id="proxy-settings">Proxy settings</h2>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Make WireMock behave as a forward proxy e.g. via browser proxy settings</span>
+<span class="o">.</span><span class="na">enableBrowserProxying</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+
+<span class="c1">// Send the Host header in the original request onwards to the system being proxied to</span>
+<span class="o">.</span><span class="na">preserveHostHeader</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+
+ <span class="c1">// Override the Host header sent when reverse proxying to another system (this and the previous parameter are mutually exclusive)</span>
+<span class="o">.</span><span class="na">proxyHostHeader</span><span class="o">(</span><span class="s">"my.otherdomain.com"</span><span class="o">)</span>
+
+ <span class="c1">// When reverse proxying, also route via the specified forward proxy (useful inside corporate firewalls)</span>
+<span class="o">.</span><span class="na">proxyVia</span><span class="o">(</span><span class="s">"my.corporate.proxy"</span><span class="o">,</span> <span class="mi">8080</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="file-locations">File locations</h2>
+
+<p>WireMock, when started programmatically, will default to <code class="highlighter-rouge">src/test/resources</code> as a filesystem root if not configured otherwise.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Set the root of the filesystem WireMock will look under for files and mappings</span>
+<span class="o">.</span><span class="na">usingFilesUnderDirectory</span><span class="o">(</span><span class="s">"/path/to/files-and-mappings-root"</span><span class="o">)</span>
+
+<span class="c1">// Set a path within the classpath as the filesystem root</span>
+<span class="o">.</span><span class="na">usingFilesUnderClasspath</span><span class="o">(</span><span class="s">"root/path/under/classpath"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h2 id="request-journal">Request journal</h2>
+
+<p>The request journal records requests received by WireMock. It is required by the verification features, so these will throw errors if it is disabled.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Do not record received requests. Typically needed during load testing to avoid JVM heap exhaustion.</span>
+<span class="o">.</span><span class="na">disableRequestJournal</span><span class="o">()</span>
+
+<span class="c1">// Limit the size of the request log (for the same reason as above).</span>
+<span class="o">.</span><span class="na">maxRequestJournalEntries</span><span class="o">(</span><span class="n">Optional</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">100</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<h2 id="notification-logging">Notification (logging)</h2>
+
+<p>WireMock wraps all logging in its own <code class="highlighter-rouge">Notifier</code> interface. It ships with no-op, Slf4j and console (stdout) implementations.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Provide an alternative notifier. The default logs to slf4j.</span>
+<span class="o">.</span><span class="na">notifier</span><span class="o">(</span><span class="k">new</span> <span class="n">ConsoleNotifier</span><span class="o">(</span><span class="kc">true</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<h2 id="extensions">Extensions</h2>
+
+<p>For details see <a href="/docs/extending-wiremock/">Extending WireMock</a>.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Add extensions</span>
+<span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="s">"com.mycorp.ExtensionOne"</span><span class="o">,</span> <span class="s">"com.mycorp.ExtensionTwo"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+

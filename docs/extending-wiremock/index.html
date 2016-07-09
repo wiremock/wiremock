@@ -1,0 +1,699 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Extending WireMock - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Extending WireMock via custom code.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Extending WireMock">
+
+
+
+
+  <meta property="og:description" content="Extending WireMock via custom code.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  
+    <link rel="next" href="/docs/getting-started/" title="Getting Started">
+  
+  
+    <link rel="prev" href="/docs/configuration/" title="Configuration">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/" class="nav__list-item--selected">
+        
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Extending WireMock">
+    <meta itemprop="description" content="Registering Extensions">
+    <meta itemprop="datePublished" content="July 09, 2016">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Extending WireMock
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <h2 id="registering-extensions">Registering Extensions</h2>
+
+<p>You can register the extension programmatically via its class name,
+class or an instance:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="k">new</span> <span class="nf">WireMockServer</span><span class="p">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="s">"com.mycorp.BodyContentTransformer"</span><span class="o">,</span> <span class="s">"com.mycorp.HeaderMangler"</span><span class="o">));</span>
+
+<span class="k">new</span> <span class="nf">WireMockServer</span><span class="p">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="n">BodyContentTransformer</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">HeaderMangler</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+
+<span class="k">new</span> <span class="nf">WireMockServer</span><span class="p">(</span><span class="n">wireMockConfig</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">BodyContentTransformer</span><span class="o">(),</span> <span class="k">new</span> <span class="n">HeaderMangler</span><span class="o">()));</span>
+</code></pre>
+</div>
+
+<p>See <a href="/docs/running-standalone/">Running as a Standalone Process</a> for details on running with extensions from the command line.</p>
+
+<h2 id="transforming-responses">Transforming Responses</h2>
+
+<p>Sometimes, returning wholly static responses to stub requests isn’t
+practical e.g. when there are transaction IDs being passed between
+request/responses, dates that must be current. Via WireMock’s extension
+mechanism it is possible to dynamically modify responses, allowing
+header re-writing and templated responses amongst other things.</p>
+
+<p>There are two ways to dynamically transform output from WireMock.
+WireMock stub mappings consist in part of a <code class="highlighter-rouge">ResponseDefinition</code>. This
+is essentially a description that WireMock (sometimes) combines with
+other information when producing the final response. A basic
+<code class="highlighter-rouge">ResponseDefinition</code> closely resembles an actual response in that it has
+status, headers and body fields, but it can also indicate to WireMock
+that the actual response should be the result of a proxy request to
+another system or a fault of some kind.</p>
+
+<p><code class="highlighter-rouge">ResponseDefinition</code> objects are “rendered” by WireMock into a
+<code class="highlighter-rouge">Response</code>, and it is possible to interject either before or after this
+process when writing an extension, meaning you can either transform the
+<code class="highlighter-rouge">ResponseDefinition</code> prior to rendering, or the rendered <code class="highlighter-rouge">Response</code>
+afterwards.</p>
+
+<h2 id="parameters">Parameters</h2>
+
+<p>Transformer extensions can have parameters passed to them on a per-stub
+basis via a <code class="highlighter-rouge">Parameters</code> object passed to their primary method.
+<code class="highlighter-rouge">Parameters</code> derives from Java’s <code class="highlighter-rouge">Map</code> and can be therefore arbitrarily
+deeply nested. Only types compatible with JSON (strings, numbers,
+booleans, maps and lists) can be used.</p>
+
+<h2 id="response-definition-transformation">Response definition transformation</h2>
+
+<p>To transform <code class="highlighter-rouge">ResponseDefinition</code>, extend the
+<code class="highlighter-rouge">ResponseDefinitionTransformer</code> class:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExampleTransformer</span> <span class="kd">extends</span> <span class="n">ResponseDefinitionTransformer</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">ResponseDefinition</span> <span class="n">transform</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">ResponseDefinition</span> <span class="n">responseDefinition</span><span class="o">,</span> <span class="n">FileSource</span> <span class="n">files</span><span class="o">,</span> <span class="n">Parameters</span> <span class="n">parameters</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="n">ResponseDefinitionBuilder</span><span class="o">()</span>
+                    <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"MyHeader"</span><span class="o">,</span> <span class="s">"Transformed"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Transformed body"</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"example"</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Transformer classes must have a no-args constructor unless you only
+intend to register them via an instance as described below.</p>
+
+<h3 id="supplying-parameters">Supplying parameters</h3>
+
+<p>Parameters are supplied on a per stub mapping basis:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/transform"</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span>
+        <span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withTransformerParameter</span><span class="o">(</span><span class="s">"newValue"</span><span class="o">,</span> <span class="mi">66</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withTransformerParameter</span><span class="o">(</span><span class="s">"inner"</span><span class="o">,</span> <span class="n">ImmutableMap</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"thing"</span><span class="o">,</span> <span class="s">"value"</span><span class="o">))));</span> <span class="c1">// ImmutableMap is from Guava, but any Map will do</span>
+</code></pre>
+</div>
+
+<p>or:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"url"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/transform"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"newValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">66</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"inner"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"thing"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"value"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="non-global-transformations">Non-global transformations</h3>
+
+<p>By default transformations will be applied globally. If you only want
+them to apply in certain cases you can refer to make them non-global by
+adding this to your transformer class:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">applyGlobally</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Then you add the transformation to specific stubs via its name:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/local-transform"</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Original body"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">"my-transformer"</span><span class="o">,</span> <span class="s">"other-transformer"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>or:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/local-transform"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Original body"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"my-transformer"</span><span class="p">,</span><span class="w"> </span><span class="s2">"other-transformer"</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The Java API also has a convenience method for adding transformers and
+parameters in one call:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/transform"</span><span class="o">)).</span><span class="na">willReturn</span><span class="o">(</span>
+        <span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withTransformer</span><span class="o">(</span><span class="s">"body-transformer"</span><span class="o">,</span> <span class="s">"newValue"</span><span class="o">,</span> <span class="mi">66</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<h3 id="response-transformation">Response transformation</h3>
+
+<p>A response transformer extension class is identical to
+<code class="highlighter-rouge">ResponseDefinitionTransformer</code> with the exception that it takes a
+<code class="highlighter-rouge">Response</code> in its transform method’s parameter list and returns a
+<code class="highlighter-rouge">Response</code>.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">StubResponseTransformerWithParams</span> <span class="kd">extends</span> <span class="n">ResponseTransformer</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">Response</span> <span class="n">transform</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">Response</span> <span class="n">response</span><span class="o">,</span> <span class="n">FileSource</span> <span class="n">files</span><span class="o">,</span> <span class="n">Parameters</span> <span class="n">parameters</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="o">.</span><span class="na">Builder</span><span class="o">.</span><span class="na">like</span><span class="o">(</span><span class="n">response</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">but</span><span class="o">().</span><span class="na">body</span><span class="o">(</span><span class="n">parameters</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"name"</span><span class="o">)</span> <span class="o">+</span> <span class="s">", "</span>
+                            <span class="o">+</span> <span class="n">parameters</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">"number"</span><span class="o">)</span> <span class="o">+</span> <span class="s">", "</span>
+                            <span class="o">+</span> <span class="n">parameters</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="s">"flag"</span><span class="o">))</span>
+                    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"stub-transformer-with-params"</span><span class="o">;</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h2 id="custom-request-matchers">Custom Request Matchers</h2>
+
+<p>If WireMock’s standard set of request matching strategies isn’t
+sufficient, you can register one or more request matcher classes
+containing your own logic.</p>
+
+<p>Custom matchers can be attached directly to stubs via the Java API when
+using the local admin interface (by calling <code class="highlighter-rouge">stubFor(...)</code> on
+<code class="highlighter-rouge">WireMockServer</code> or <code class="highlighter-rouge">WireMockRule</code>). They can also be added via the
+extension mechanism and used with individual stubs by referring to them
+by name as described above for response transformers.</p>
+
+<p>As with response transformers, per stub mapping parameters can be passed
+to matchers.</p>
+
+<p>To add a matcher directly to a stub mapping:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wireMockServer</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">requestMatching</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestMatcher</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">isMatchedBy</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">Parameters</span> <span class="n">parameters</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="na">getBody</span><span class="o">().</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">2048</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">422</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>In Java 8 and above this can be achieved using a lambda:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wireMockServer</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">requestMatching</span><span class="o">(</span><span class="n">request</span> <span class="o">-&gt;</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">getBody</span><span class="o">().</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">2048</span><span class="o">;</span>
+<span class="o">).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">422</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>To create a matcher to be referred to by name, create a class extending
+<code class="highlighter-rouge">RequestMatcher</code> and register it as an extension as per the instructions
+at the top of this page e.g.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">BodyLengthMatcher</span> <span class="kd">extends</span> <span class="n">RequestMatcher</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">"body-too-long"</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">isMatchedBy</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">Parameters</span> <span class="n">parameters</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">maxLength</span> <span class="o">=</span> <span class="n">parameters</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">"maxLength"</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="na">getBody</span><span class="o">().</span><span class="na">length</span> <span class="o">&gt;</span> <span class="n">maxLength</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Then define a stub with it:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">requestMatching</span><span class="o">(</span><span class="s">"body-too-long"</span><span class="o">,</span> <span class="n">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"maxLemgth"</span><span class="o">,</span> <span class="mi">2048</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">422</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>or via JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"customMatcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"body-too-long"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"parameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"maxLemgth"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">2048</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">422</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="listening-for-requests">Listening for requests</h2>
+
+<p>If you’re using the JUnit rule or you’ve started <code class="highlighter-rouge">WireMockServer</code>
+programmatically, you can register listeners to be called when a request
+is received.</p>
+
+<p>e.g. with the JUnit rule:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">Request</span><span class="o">&gt;</span> <span class="n">requests</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Request</span><span class="o">&gt;();</span>
+<span class="n">rule</span><span class="o">.</span><span class="na">addMockServiceRequestListener</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestListener</span><span class="o">()</span> <span class="o">{</span>
+     <span class="nd">@Override</span>
+     <span class="kd">public</span> <span class="kt">void</span> <span class="n">requestReceived</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">,</span> <span class="n">Response</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+         <span class="n">requests</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">LoggedRequest</span><span class="o">.</span><span class="na">createFrom</span><span class="o">(</span><span class="n">request</span><span class="o">));</span>
+     <span class="o">}</span>
+<span class="o">});</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="n">Request</span> <span class="nl">request:</span> <span class="n">requests</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getUrl</span><span class="o">(),</span> <span class="n">containsString</span><span class="o">(</span><span class="s">"docId=92837592847"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+

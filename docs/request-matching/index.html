@@ -1,0 +1,906 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Request Matching - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Matching and filtering HTTP requests in WireMock.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Request Matching">
+
+
+
+
+  <meta property="og:description" content="Matching and filtering HTTP requests in WireMock.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  
+    <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
+  
+  
+    <link rel="prev" href="/docs/record-playback/" title="Record and Playback">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/" class="nav__list-item--selected">
+        
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Request Matching">
+    <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
+    <meta itemprop="datePublished" content="July 09, 2016">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Request Matching
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>WireMock supports matching of requests to stubs and verification queries using the following attributes:</p>
+
+<ul>
+  <li>URL</li>
+  <li>HTTP Method</li>
+  <li>Query parameters</li>
+  <li>Headers</li>
+  <li>Basic authentication (a special case of header matching)</li>
+  <li>Cookies</li>
+  <li>Request body</li>
+</ul>
+
+<p>Here’s an example showing all attributes being matched using WireMock’s in-built match operators. It is also possible to write <a href="/docs/extending-wiremock/#custom-request-matchers">custom matching logic</a> if
+you need more precise control:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">any</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/everything"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"xml"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withCookie</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">matching</span><span class="o">(</span><span class="s">".*12345.*"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search_term"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"WireMock"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withBasicAuth</span><span class="o">(</span><span class="s">"jeff@example.com"</span><span class="o">,</span> <span class="s">"jeffteenjefftyjeff"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;search-results /&gt;"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">"//search-results"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()));</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/everything"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"contains"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"xml"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"queryParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"search_term"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"equalTo"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WireMock"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"cookies"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"session"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"matches"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">".*12345.*"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"equalToXml"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;search-results /&gt;"</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesXPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"//search-results"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"basicAuthCredentials"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"username"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"jeff@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"password"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"jeffteenjefftyjeff"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The following sections describe each type of matching strategy in detail.</p>
+
+<h2 id="url-matching">URL matching</h2>
+
+<p>URLs can be matched either by equality or by regular expression. You also have a choice of whether to match just the path part of the URL or the path and query together.</p>
+
+<p>It is usually preferable to match on path only if you want to match multiple query parameters in an order invariant manner.</p>
+
+<h3 id="equality-matching-on-path-and-query">Equality matching on path and query</h3>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/your/url?and=query"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/url?and=query"</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="regex-matching-on-path-and-query">Regex matching on path and query</h3>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/your/([a-z]*)?and=query"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/([a-z]*)?and=query"</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="equality-matching-on-the-path-only">Equality matching on the path only</h3>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/your/url"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/url"</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="regex-matching-on-the-path-only">Regex matching on the path only</h3>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/your/([a-z]*)"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPathPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/([a-z]*)"</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="matching-other-attributes">Matching other attributes</h2>
+
+<p>All request attributes other the the URL can be matched using the following set of operators.</p>
+
+<h3 id="equality">Equality</h3>
+
+<p>Deems a match if the entire attribute value equals the expected value.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"equalTo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="substring-contains">Substring (contains)</h3>
+
+<p>Deems a match if the a portion of the attribute value equals the expected value.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withCookie</span><span class="o">(</span><span class="s">"my_profile"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"johnsmith@example.com"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"cookies"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"my_profile"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"contains"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"johnsmith@example.com"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="regular-expression">Regular expression</h3>
+
+<p>Deems a match if the entire attribute value matched the expected regular expression.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search_term"</span><span class="o">,</span> <span class="n">matches</span><span class="o">(</span><span class="s">"^(.*)wiremock([A-Za-z]+)$"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"queryParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"search_term"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"matches"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"^(.*)wiremock([A-Za-z]+)$"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>It is also possible to perform a negative match i.e. the match succeeds when the attribute value does not match the regex:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search_term"</span><span class="o">,</span> <span class="n">notMatching</span><span class="o">(</span><span class="s">"^(.*)wiremock([A-Za-z]+)$"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"queryParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"search_term"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"doesNotMatch"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"^(.*)wiremock([A-Za-z]+)$"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="json-equality">JSON equality</h3>
+
+<p>Deems a match if the attribute (most likely the request body in practice) is valid JSON and is a semantic match for the expected value.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToJson</span><span class="o">(</span><span class="s">"{ \"total_results\": 4 }"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"equalToJson"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{ \"total_results\": 4 }"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>By default different array orderings and additional object attributes will trigger a non-match. However, both of these conditions can be disabled individually.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToJson</span><span class="o">(</span><span class="s">"{ \"total_results\": 4  }"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">true</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"equalToJson"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"{ \"total_results\": 4  }"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="json-path">JSON Path</h3>
+
+<p>Deems a match if the attribute value is valid JSON and matches the <a href="http://goessner.net/articles/JsonPath/">JSON Path</a> expression supplied. A JSON body will be considered to match a path expression if the expression returns either a non-null single value (string, integer etc.), or a non-empty object or array.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.things[?(@.name == 'RequiredThing')]"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.things[?(@.name == 'RequiredThing')]"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="xml-equality">XML equality</h3>
+
+<p>Deems a match if the attribute value is valid XML and is semantically equal to the expected XML document. The underlying engine for determining XML equality is <a href="http://www.xmlunit.org/">XMLUnit</a>.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;thing&gt;Hello&lt;/thing&gt;"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"equalToXml"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;thing&gt;Hello&lt;/thing&gt;"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="xpath">XPath</h3>
+
+<p>Deems a match if the attribute value is valid XML and matches the XPath expression supplied. An XML document will be considered to match if any elements are returned by the XPath evaluation. WireMock delegates to Java’s in-built XPath engine (via XMLUnit), therefore up to (at least) Java 8 it supports XPath version 1.0.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">"/todo-list[count(todo-item) = 3]"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesXPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/todo-list[count(todo-item) = 3]"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The above example will only work with non-namespaced XML. If you need to match a namespaced document with  it is necessary to declare the namespaces:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">"/stuff:outer/more:inner[.=111]"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withXPathNamespace</span><span class="o">(</span><span class="s">"stuff"</span><span class="o">,</span> <span class="s">"http://stuff.example.com"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withXPathNamespace</span><span class="o">(</span><span class="s">"more"</span><span class="o">,</span> <span class="s">"http://more.example.com"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesXPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/stuff:outer/more:inner[.=111]"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"xPathNamespaces"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"stuff"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://stuff.example.com"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"more"</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://more.example.com"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="absence">Absence</h3>
+
+<p>Deems a match if the attribute specified is absent from the request.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withCookie</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">absent</span><span class="o">())</span>
+<span class="o">.</span><span class="na">withQueryParam</span><span class="o">(</span><span class="s">"search_term"</span><span class="o">,</span> <span class="n">absent</span><span class="o">())</span>
+<span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Absent"</span><span class="o">,</span> <span class="n">absent</span><span class="o">())</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"headers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"X-Absent"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"absent"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"queryParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"search_term"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"absent"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"cookies"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"session"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"absent"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="basic-authentication">Basic Authentication</h2>
+
+<p>Although matching on HTTP basic authentication could be supported via a
+correctly encoded <code class="highlighter-rouge">Authorization</code> header, you can also do this more simply
+via the API.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/basic-auth"</span><span class="o">)).</span><span class="na">withBasicAuth</span><span class="o">(</span><span class="s">"user"</span><span class="o">,</span> <span class="s">"pass"</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/basic-auth"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"basicAuth"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"username"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"password"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"pass"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,432 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Home - WireMock User Documentation - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="WireMock’s user documentation.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Home - WireMock User Documentation">
+
+
+
+
+  <meta property="og:description" content="WireMock’s user documentation.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  
+    <link rel="next" href="/docs/java-usage/" title="Java (Non-JUnit) Usage">
+  
+  
+    <link rel="prev" href="/docs/https/" title="HTTPS">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Home - WireMock User Documentation">
+    <meta itemprop="description" content="WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) andthat captures incoming requests so that they can be checked later (verification).">
+    <meta itemprop="datePublished" content="July 09, 2016">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Home - WireMock User Documentation
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) and
+that captures incoming requests so that they can be checked later (verification).</p>
+
+<p>It also has an assortment of other useful features including record/playback of interactions with other APIs, injection of faults and delays,
+simulation of stateful behaviour.</p>
+
+<p>It can be used as a library by any JVM application, or run as a standalone process either on the same host as the system under test or a remote server.</p>
+
+<p>All of WireMock’s features are accessible via its REST (JSON) interface and its Java API. Additionally, stubs can be configured via JSON files.</p>
+
+<p>If you have any questions that aren’t answered here please post them on the <a href="https://groups.google.com/forum/#!forum/wiremock-user">mailing list</a>.</p>
+
+<p>Ready to try it? Head to the <a href="/docs/getting-started/">Getting Started</a> page.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+

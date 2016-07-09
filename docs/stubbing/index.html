@@ -1,0 +1,790 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Stubbing - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Returning stubbed HTTP responses to specific requests.">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Stubbing">
+
+
+
+
+  <meta property="og:description" content="Returning stubbed HTTP responses to specific requests.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  
+    <link rel="next" href="/docs/verifying/" title="Verifying">
+  
+  
+    <link rel="prev" href="/docs/stateful-behaviour/" title="Stateful Behaviour">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/" class="nav__list-item--selected">
+        
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Stubbing">
+    <meta itemprop="description" content="A core feature of WireMock is the ability to return canned HTTPresponses for requests matching criteria. These are described in detail in Request Matching.">
+    <meta itemprop="datePublished" content="July 09, 2016">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Stubbing
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>A core feature of WireMock is the ability to return canned HTTP
+responses for requests matching criteria. These are described in detail in <a href="/docs/request-matching/">Request Matching</a>.</p>
+
+<h2 id="basic-stubbing">Basic stubbing</h2>
+
+<p>The following code will configure a response with a status of 200 to be
+returned when the relative URL exactly matches <code class="highlighter-rouge">/some/thing</code> (including
+query parameters). The body of the response will be “Hello world!” and a
+<code class="highlighter-rouge">Content-Type</code> header will be sent with a value of <code class="highlighter-rouge">text-plain</code>.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">exactUrlOnly</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/plain"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Hello world!"</span><span class="o">)));</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">200</span><span class="o">));</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing/else"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">404</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>If you’d prefer to use slightly more BDDish language in your tests you
+can replace <code class="highlighter-rouge">stubFor</code> with <code class="highlighter-rouge">givenThat</code>.</p>
+</blockquote>
+
+<p>To create the stub described above via the JSON API, the following
+document can either be posted to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/new</code> or placed in a file with a
+<code class="highlighter-rouge">.json</code> extension under the <code class="highlighter-rouge">mappings</code> directory:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world!"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>HTTP methods currently supported are:
+<code class="highlighter-rouge">GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS</code>. You can specify <code class="highlighter-rouge">ANY</code> if
+you want the stub mapping to match on any request method.</p>
+
+<h3 id="setting-the-response-status-message">Setting the response status message</h3>
+
+<p>In addition to the status code, the status message can optionally also
+be set.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">statusMessage</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withStatusMessage</span><span class="o">(</span><span class="s">"Everything was just fine!"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/plain"</span><span class="o">)));</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">200</span><span class="o">));</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing/else"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">404</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"statusMessage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Everything was just fine!"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="stub-priority">Stub priority</h2>
+
+<p>It is sometimes the case that you’ll want to declare two or more stub
+mappings that “overlap”, in that a given request would be a match for
+more than one of them. By default, WireMock will use the most recently
+added matching stub to satisfy the request. However, in some cases it is
+useful to exert more control.</p>
+
+<p>One example of this might be where you want to define a catch-all stub
+for any URL that doesn’t match any more specific cases. Adding a
+priority to a stub mapping facilitates this:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Catch-all case</span>
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)).</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">401</span><span class="o">)));</span>
+
+<span class="c1">//Specific case</span>
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/api/specific-resource"</span><span class="o">)).</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="c1">//1 is highest</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Resource state"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>Priority is set via the <code class="highlighter-rouge">priority</code> attribute in JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/specific-resource"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="sending-response-headers">Sending response headers</h2>
+
+<p>In addition to matching on request headers, it’s also possible to send response headers:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/whatever"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"application/json"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Cache-Control"</span><span class="o">,</span> <span class="s">"no-cache"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>Or</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/whatever"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"Cache-Control"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-cache"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="specifying-the-response-body">Specifying the response body</h2>
+
+<p>The simplest way to specify a response body is as a string literal.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Literal text to put in the body"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Literal text to put in the body"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>If you’re specifying a JSON body via the JSON API, you can avoid having to escape it like this:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w">    </span><span class="s2">"response"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"arbitrary_json"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>To read the body content from a file, place the file under the <code class="highlighter-rouge">__files</code>
+directory. By default this is expected to be under <code class="highlighter-rouge">src/test/resources</code>
+when running from the JUnit rule. When running standalone it will be
+under the current directory in which the server was started. To make
+your stub use the file, simply call <code class="highlighter-rouge">bodyFile()</code> on the response builder
+with the file’s path relative to <code class="highlighter-rouge">__files</code>:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body-file"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withBodyFile</span><span class="o">(</span><span class="s">"path/to/myfile.xml"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>Or</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body-file"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"bodyFileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"path/to/myfile.xml"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>All strings used by WireMock, including the contents of body files are
+expected to be in <code class="highlighter-rouge">UTF-8</code> format. Passing strings in other character
+sets, whether by JVM configuration or body file encoding will most
+likely produce strange behaviour.</p>
+</blockquote>
+
+<p>A response body in binary format can be specified as a <code class="highlighter-rouge">byte[]</code> via an
+overloaded <code class="highlighter-rouge">body()</code>:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/binary-body"</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="k">new</span> <span class="kt">byte</span><span class="o">[]</span> <span class="o">{</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span> <span class="o">})));</span>
+</code></pre>
+</div>
+
+<p>The JSON API accepts this as a base64 string (to avoid stupidly long
+JSON documents):</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/binary-body"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"base64Body"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WUVTIElOREVFRCE="</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="saving-stubs">Saving stubs</h2>
+
+<p>Stub mappings which have been created can be persisted to the <code class="highlighter-rouge">mappings</code>
+directory via a call to <code class="highlighter-rouge">WireMock.saveAllMappings</code> in Java or posting a
+request with an empty body to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/save</code>.</p>
+
+<blockquote>
+  <p><strong>note</strong>
+Note that this feature is not available when running WireMock from a servlet container.</p>
+</blockquote>
+
+<h2 id="editing-stubs">Editing stubs</h2>
+
+<p>Existing stub mappings can be modified, provided they have been assigned an ID.</p>
+
+<p>In Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wireMockServer</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withId</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Original"</span><span class="o">)));</span>
+
+<span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">).</span><span class="na">content</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="s">"Original"</span><span class="o">));</span>
+
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">editStub</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">withId</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Modified"</span><span class="o">)));</span>
+
+<span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">).</span><span class="na">content</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="s">"Modified"</span><span class="o">));</span>
+</code></pre>
+</div>
+
+<p>To do the equivalent via the JSON API, <code class="highlighter-rouge">POST</code> the edited stub mapping, with the same ID to <code class="highlighter-rouge">/__admin/mappings/edit</code>:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"uuid"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"4c4508c4-3fbd-43b8-9b5a-2775b8eefa27"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/edit-me"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="removing-stubs">Removing stubs</h2>
+
+<p>Stub mappings which have been created can be removed via <code class="highlighter-rouge">mappings</code>
+directory via a call to <code class="highlighter-rouge">WireMock.removeStubMapping</code> in Java or posting
+a request with body that has the stub to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/remove</code>.</p>
+
+<p>WireMock tries to match UUID is it is passed in the body of the stup to
+a post request and if it finds the stub it removes it. if match is not
+found, then it tries to match the request object found in the stub with
+existing mappings and removes the first one that it finds.</p>
+
+<p>For Example - posting following stub as body to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/remove</code>. will find first mapping
+with request that matches url=”/v8/asd/26”, and method “method”: “GET”.</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v8/asd/26"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">202</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"response for test"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>This is because body does not have UUID. If it had an element like
+<code class="highlighter-rouge">"uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef"</code>, in addition to “request”
+and “response” then WireMock will remove the one that matches the uuid
+provided. removing via uuid has precedence over removing via request
+match.</p>
+
+<p>If the remove request UUID does not match with any of the stubs, then it
+proceeds to remove the first request whose attributes are equal.</p>
+
+<blockquote>
+  <p><strong>note</strong>
+This api only removes one mapping and not multiple ones if they exist</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>note</strong>
+This feature is not available when running WireMock from a servlet container.</p>
+</blockquote>
+
+<h2 id="reset">Reset</h2>
+
+<p>The WireMock server can be reset at any time, removing all stub mappings
+and deleting the request log. If you’re using either of the JUnit rules
+this will happen automatically at the start of every test case. However
+you can do it yourself via a call to <code class="highlighter-rouge">WireMock.reset()</code> in Java or
+posting a request with an empty body to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/reset</code>.</p>
+
+<p>If you’ve created some file based stub mappings to be loaded at startup
+and you don’t want these to disappear when you do a reset you can call
+<code class="highlighter-rouge">WireMock.resetToDefault()</code> instead, or post an empty request to
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/reset</code>.</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  if (!document.cookie.includes('mocklab_notification_seen')) {
+    window.onload = function() {
+      window.setTimeout(function() {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+              effect: 'fade',
+              duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function() {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+      }, 500);
+    };
+  }
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+
