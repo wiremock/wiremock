@@ -47,6 +47,7 @@ import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -63,6 +64,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.HttpHeaders.HOST;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
@@ -73,6 +75,7 @@ public class HttpAdminClient implements Admin {
     private final String host;
     private final int port;
     private final String urlPathPrefix;
+    private final String hostHeader;
 
     private final CloseableHttpClient httpClient;
 
@@ -85,10 +88,15 @@ public class HttpAdminClient implements Admin {
     }
 
     public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
+        this(scheme, host, port, urlPathPrefix, null);
+    }
+
+    public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.urlPathPrefix = urlPathPrefix;
+        this.hostHeader = hostHeader;
 
         httpClient = HttpClientFactory.createClient();
     }
@@ -251,6 +259,10 @@ public class HttpAdminClient implements Admin {
     }
 
     private String safelyExecuteRequest(String url, int expectedStatus, HttpRequestBase request) {
+        if (hostHeader != null) {
+            request.addHeader(HOST, hostHeader);
+        }
+
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != expectedStatus) {
