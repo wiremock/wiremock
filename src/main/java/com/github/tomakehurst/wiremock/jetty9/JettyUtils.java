@@ -15,11 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import java.net.URI;
 
 public class JettyUtils {
 
@@ -30,5 +32,21 @@ public class JettyUtils {
         }
 
         return (Response) httpServletResponse;
+    }
+
+    public static URI getUri(Request request) {
+        try {
+            return toUri(request.getClass().getDeclaredMethod("getUri").invoke(request));
+        } catch (Exception ignored) {
+            try {
+                return toUri(request.getClass().getDeclaredMethod("getHttpURI").invoke(request));
+            } catch (Exception ignored2) {
+                throw new IllegalArgumentException(request + " does not have a getUri or getHttpURI method");
+            }
+        }
+    }
+
+    private static URI toUri(Object httpURI) {
+        return URI.create(httpURI.toString());
     }
 }

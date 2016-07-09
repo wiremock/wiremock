@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
 import com.google.common.collect.ImmutableMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -206,7 +207,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            return URI.create(jettyRequest.getUri().toString()).isAbsolute();
+            return JettyUtils.getUri(jettyRequest).isAbsolute();
         }
 
         return false;
