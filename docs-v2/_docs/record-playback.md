@@ -16,7 +16,7 @@ your tests.**
 Recording is done by starting the standalone runner like this:
 
 ```bash
-$ java -jar wiremock-2.1.4-rc3-standalone.jar --proxy-all="http://search.twitter.com" --record-mappings --verbose
+$ java -jar wiremock-{{ site.wiremock_version }}-standalone.jar --proxy-all="http://search.twitter.com" --record-mappings --verbose
 ```
 
 Once it's started you send requests to it as if it was the remote
