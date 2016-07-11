@@ -17,9 +17,9 @@
             {% endif %}
 
             {% if link.new_window %}
-            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}" target="_blank">{{ link.title }}</a></li>
+            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}" title="{{ link.title }}" target="_blank">{{ link.title }}</a></li>
             {% else %}
-            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}">{{ link.title }}</a></li>
+            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}" title="{{ link.title }}">{{ link.title }}</a></li>
             {% endif %}
 
           {% endfor %}
