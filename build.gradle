@@ -28,7 +28,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.1.6'
+version = '2.1.7'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
