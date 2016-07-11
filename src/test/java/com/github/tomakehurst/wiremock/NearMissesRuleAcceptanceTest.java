@@ -1,6 +1,10 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import ignored.ManyUnmatchedRequestsTest;
@@ -9,22 +13,21 @@ import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+@RunWith(Enclosed.class)
 public class NearMissesRuleAcceptanceTest {
 
     static TestNotifier testNotifier = new TestNotifier();
@@ -107,4 +110,40 @@ public class NearMissesRuleAcceptanceTest {
         return message.get();
     }
 
+    public static class CustomMatcherWithNearMissesTest {
+
+        @ClassRule
+        public static WireMockRule wm = new WireMockRule(options()
+            .dynamicPort()
+            .withRootDirectory("src/main/resources/empty")
+            .extensions(new RequestMatcherExtension() {
+                @Override
+                public MatchResult match(Request request, Parameters parameters) {
+                    return MatchResult.partialMatch(0.5);
+                }
+
+                @Override
+                public String getName() {
+                    return "always-match";
+                }
+            }),
+            false);
+
+        WireMockTestClient client;
+
+        @Before
+        public void init() {
+            client = new WireMockTestClient(wm.port());
+        }
+
+        @Test
+        public void successfullyCalculatesNearMissesWhenACustomMatcherIsRegistered() {
+            wm.stubFor(requestMatching("always-match").willReturn(aResponse()));
+
+            client.get("/");
+
+            assertThat(wm.findNearMissesForAllUnmatchedRequests().size(), is(1));
+        }
+
+    }
 }

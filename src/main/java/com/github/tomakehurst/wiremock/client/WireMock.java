@@ -325,7 +325,7 @@ public class WireMock {
         return new MappingBuilder(RequestMethod.fromString(method), urlPattern);
     }
 
-	public static MappingBuilder requestMatching(String customRequestMatcherName) {
+	public static LocalMappingBuilder requestMatching(String customRequestMatcherName) {
 		return new MappingBuilder(customRequestMatcherName, Parameters.empty());
 	}
 

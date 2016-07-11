@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -113,7 +114,7 @@ public class RequestPattern implements ValueMatcher<Request> {
 
     @Override
     public MatchResult match(Request request) {
-        return match(request, null);
+        return match(request, Collections.<String, RequestMatcherExtension>emptyMap());
     }
 
     public static RequestPattern everything() {
@@ -122,7 +123,8 @@ public class RequestPattern implements ValueMatcher<Request> {
 
     public MatchResult match(Request request,  Map<String, RequestMatcherExtension> customMatchers) {
         if (customMatcherDefinition != null) {
-            RequestMatcherExtension requestMatcher = customMatchers.get(customMatcherDefinition.getName());
+            RequestMatcherExtension requestMatcher =
+                firstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
             return requestMatcher.match(request, customMatcherDefinition.getParameters());
         }
 
