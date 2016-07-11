@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-07-09T23:16:12+01:00">
+  <meta property="article:published_time" content="2016-07-11T10:04:41+01:00">
   
     <link rel="next" href="/docs/proxying/" title="Proxying">
   
@@ -128,49 +128,49 @@
             
 
             
-            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            <li class="masthead__menu-item"><a href="/support-and-training/" title="Support & Training">Support & Training</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" title="MockLab" target="_blank">MockLab</a></li>
             
 
           
@@ -294,7 +294,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="The JUnit 4.x Rule">
     <meta itemprop="description" content="The JUnit rule provides a convenient way to include WireMock in yourtest cases. It handles the lifecycle for you, starting the server beforeeach test method and stopping afterwards.">
-    <meta itemprop="datePublished" content="July 09, 2016">
+    <meta itemprop="datePublished" content="July 11, 2016">
     
 
     <div class="page__inner-wrap">
@@ -418,7 +418,7 @@ each e.g.</p>
 <div class="page__footer-follow">
   <ul class="social-icons">
     
-      <li><strong>Follow:</strong></li>
+    <li><strong>Follow:</strong></li>
     
     
     
@@ -428,7 +428,10 @@ each e.g.</p>
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
+  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
+</div>
 
 <div id="dialog" style="display: none">
   <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
@@ -442,22 +445,26 @@ each e.g.</p>
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  if (!document.cookie.includes('mocklab_notification_seen')) {
-    window.onload = function() {
-      window.setTimeout(function() {
+  window.onload = function () {
+    $("a[title='MockLab']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    if (!document.cookie.includes('mocklab_notification_seen')) {
+      window.setTimeout(function () {
         $("#dialog").dialog({
           dialogClass: 'mocklab-popup',
           draggable: false,
           resizable: false,
           modal: true,
           show: {
-              effect: 'fade',
-              duration: 1000
+            effect: 'fade',
+            duration: 1000
           },
           buttons: [{
             class: 'mocklab-popup__confirm-button',
             text: "Learn More",
-            click: function() {
+            click: function () {
               _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
               window.location.href = "http://get.mocklab.io"
             }
@@ -465,9 +472,11 @@ each e.g.</p>
         });
 
         setNotificationSeenCookie();
+        _gaq.push(['_trackEvent', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0]);
       }, 500);
-    };
-  }
+
+    }
+  };
 </script>
 
       </footer>

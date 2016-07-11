@@ -117,49 +117,49 @@
             
 
             
-            <li class="masthead__menu-item"><a href="/docs/">Docs</a></li>
+            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/support-and-training/">Support & Training</a></li>
+            <li class="masthead__menu-item"><a href="/support-and-training/" title="Support & Training">Support & Training</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/about/">About</a></li>
+            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" target="_blank">GitHub</a></li>
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" target="_blank">Mailing List</a></li>
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="/external-resources/">External Resources</a></li>
+            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
             
 
           
             
 
             
-            <li class="masthead__menu-item"><a href="http://get.mocklab.io" target="_blank">MockLab</a></li>
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" title="MockLab" target="_blank">MockLab</a></li>
             
 
           
@@ -246,7 +246,7 @@
 <div class="page__footer-follow">
   <ul class="social-icons">
     
-      <li><strong>Follow:</strong></li>
+    <li><strong>Follow:</strong></li>
     
     
     
@@ -256,7 +256,10 @@
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
+  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
+</div>
 
 <div id="dialog" style="display: none">
   <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
@@ -270,22 +273,26 @@
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
-  if (!document.cookie.includes('mocklab_notification_seen')) {
-    window.onload = function() {
-      window.setTimeout(function() {
+  window.onload = function () {
+    $("a[title='MockLab']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    if (!document.cookie.includes('mocklab_notification_seen')) {
+      window.setTimeout(function () {
         $("#dialog").dialog({
           dialogClass: 'mocklab-popup',
           draggable: false,
           resizable: false,
           modal: true,
           show: {
-              effect: 'fade',
-              duration: 1000
+            effect: 'fade',
+            duration: 1000
           },
           buttons: [{
             class: 'mocklab-popup__confirm-button',
             text: "Learn More",
-            click: function() {
+            click: function () {
               _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
               window.location.href = "http://get.mocklab.io"
             }
@@ -293,9 +300,11 @@
         });
 
         setNotificationSeenCookie();
+        _gaq.push(['_trackEvent', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0]);
       }, 500);
-    };
-  }
+
+    }
+  };
 </script>
 
       </footer>
