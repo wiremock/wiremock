@@ -24,6 +24,7 @@ public interface LocalMappingBuilder<M extends LocalMappingBuilder, S extends Sc
     M atPriority(Integer priority);
     M withHeader(String key, StringValuePattern headerPattern);
     M withQueryParam(String key, StringValuePattern queryParamPattern);
+	M withFormParam(String key, StringValuePattern formParamPattern);
     M withRequestBody(StringValuePattern bodyPattern);
     S inScenario(String scenarioName);
     M withId(UUID id);

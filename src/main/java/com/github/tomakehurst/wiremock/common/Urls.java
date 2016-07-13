@@ -15,25 +15,55 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 
+import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
 public class Urls {
+
+	public static Map<String, FormParameter> splitForm(String form) {
+		if (form == null || form.length() == 0) {
+			return Collections.emptyMap();
+		}
+
+		final Multimap<String, String> entries = HashMultimap.create();
+		for (final NameValuePair nvp : URLEncodedUtils.parse(form, Charset.forName("UTF-8"))) {
+			entries.put(nvp.getName(), nvp.getValue() == null ? "" : nvp.getValue());
+		}
+
+		final Map<String, FormParameter> params = newHashMap();
+		for (final String key : entries.keySet()) {
+			final Collection<String> values = entries.get(key);
+			params.put(key, FormParameter.formParam(key, values.toArray(new String[values.size()])));
+		}
+		return params;
+	}
 
     public static Map<String, QueryParameter> splitQuery(String query) {
         if (query == null) {

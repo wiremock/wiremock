@@ -141,6 +141,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
 	@Test
+	public void matchesOnUrlPathAndFormParameters() {
+		stubFor(post(urlPathEqualTo("/path-and-form/match"))
+				.withFormParam("search", containing("WireMock"))
+				.withFormParam("since", equalTo("2014-10-14"))
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.postWithBody("/path-and-form/match", "since=2014-10-14&search=WireMock%20stubbing", "application/x-www-form-urlencoded", "utf-8")
+				.statusCode(), is(200));
+	}
+
+	@Test
 	public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
 		stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
 
@@ -176,6 +187,36 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
 
 	    assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
+	}
+
+	@Test
+	public void doesNotMatchIfSpecifiedFormParameterNotInRequest() {
+		stubFor(post(urlPathEqualTo("/path-and-form/match"))
+				.withFormParam("search", containing("WireMock"))
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.postWithBody("/path-and-form/match", "wrongParam=wrongVal", "application/x-www-form-urlencoded", "utf-8")
+				.statusCode(), is(404));
+	}
+
+	@Test
+	public void doesNotMatchIfSpecifiedAbsentFormParameterIsPresentInRequest() {
+		stubFor(post(urlPathEqualTo("/path-and-form/match"))
+				.withFormParam("search", absent())
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.postWithBody("/path-and-form/match", "search=presentwhoops", "application/x-www-form-urlencoded", "utf-8")
+				.statusCode(), is(404));
+	}
+
+	@Test
+	public void matchesIfSpecifiedAbsentFormParameterIsAbsentFromRequest() {
+		stubFor(post(urlPathEqualTo("/path-and-form/match"))
+				.withFormParam("search", absent())
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.postWithBody("/path-and-form/match", "", "application/x-www-form-urlencoded", "utf-8")
+				.statusCode(), is(200));
 	}
 
 	@Test
@@ -436,6 +477,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
         assertThat(response.statusCode(), is(200));
     }
+
+	@Test
+	public void matchesFormParamsUnencoded() {
+		stubFor(post(urlPathEqualTo("/form"))
+				.withFormParam("param-one", equalTo("one two three ?"))
+				.willReturn(aResponse().withStatus(200)));
+
+		assertThat(testClient.postWithBody("/form", "param-one=one%20two%20three%20%3F", "application/x-www-form-urlencoded", "utf-8")
+				.statusCode(), is(200));
+	}
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;

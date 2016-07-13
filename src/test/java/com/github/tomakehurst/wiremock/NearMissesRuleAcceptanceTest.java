@@ -142,7 +142,7 @@ public class NearMissesRuleAcceptanceTest {
 
             client.get("/");
 
-            assertThat(wm.findNearMissesForAllUnmatchedRequests().size(), is(1));
+			assertThat(wm.findNearMissesForAllUnmatchedRequests().size(), is(1));
         }
 
     }

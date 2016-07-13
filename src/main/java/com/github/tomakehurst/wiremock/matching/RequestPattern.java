@@ -32,6 +32,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     private final RequestMethod method;
     private final Map<String, MultiValuePattern> headers;
     private final Map<String, MultiValuePattern> queryParams;
+	private final Map<String, MultiValuePattern> formParams;
     private final Map<String, StringValuePattern> cookies;
     private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
@@ -47,6 +48,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                 method.match(request.getMethod()),
                 allHeadersMatchResult(request),
                 allQueryParamsMatch(request),
+				allFormParamsMatch(request),
                 allCookiesMatch(request),
                 allBodyPatternsMatch(request)
             );
@@ -63,6 +65,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                           RequestMethod method,
                           Map<String, MultiValuePattern> headers,
                           Map<String, MultiValuePattern> queryParams,
+						  Map<String, MultiValuePattern> formParams,
                           Map<String, StringValuePattern> cookies,
                           BasicCredentials basicAuthCredentials,
                           List<StringValuePattern> bodyPatterns,
@@ -71,6 +74,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         this.method = method;
         this.headers = headers;
         this.queryParams = queryParams;
+		this.formParams = formParams;
         this.cookies = cookies;
         this.basicAuthCredentials = basicAuthCredentials;
         this.bodyPatterns = bodyPatterns;
@@ -86,6 +90,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                           @JsonProperty("method") RequestMethod method,
                           @JsonProperty("headers") Map<String, MultiValuePattern> headers,
                           @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
+						  @JsonProperty("formParameters") Map<String, MultiValuePattern> formParams,
                           @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                           @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
                           @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
@@ -96,6 +101,7 @@ public class RequestPattern implements ValueMatcher<Request> {
             method,
             headers,
             queryParams,
+			formParams,
             cookies,
             basicAuthCredentials,
             bodyPatterns,
@@ -104,12 +110,12 @@ public class RequestPattern implements ValueMatcher<Request> {
     }
 
     public RequestPattern(RequestMatcher customMatcher) {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, null, null, null, null, null, customMatcherDefinition);
+        this(null, null, null, null, null, null, null, null, customMatcherDefinition);
     }
 
     @Override
@@ -196,6 +202,21 @@ public class RequestPattern implements ValueMatcher<Request> {
         return MatchResult.exactMatch();
     }
 
+	private MatchResult allFormParamsMatch(final Request request) {
+		if (formParams != null && !formParams.isEmpty()) {
+			return MatchResult.aggregate(
+					from(formParams.entrySet())
+							.transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+								public MatchResult apply(Map.Entry<String, MultiValuePattern> formParamPattern) {
+									return formParamPattern.getValue().match(request.formParameter(formParamPattern.getKey()));
+								}
+							}).toList()
+			);
+		}
+
+		return MatchResult.exactMatch();
+	}
+
     private MatchResult allBodyPatternsMatch(final Request request) {
         if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
             return MatchResult.aggregate(
@@ -256,7 +277,11 @@ public class RequestPattern implements ValueMatcher<Request> {
         return queryParams;
     }
 
-    public Map<String, StringValuePattern> getCookies() {
+	public Map<String, MultiValuePattern> getFormParams() {
+		return formParams;
+	}
+
+	public Map<String, StringValuePattern> getCookies() {
         return cookies;
     }
 
@@ -291,6 +316,7 @@ public class RequestPattern implements ValueMatcher<Request> {
             Objects.equal(method, that.method) &&
             Objects.equal(headers, that.headers) &&
             Objects.equal(queryParams, that.queryParams) &&
+			Objects.equal(formParams, that.formParams) &&
             Objects.equal(cookies, that.cookies) &&
             Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
             Objects.equal(bodyPatterns, that.bodyPatterns) &&
@@ -299,7 +325,7 @@ public class RequestPattern implements ValueMatcher<Request> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
+        return Objects.hashCode(url, method, headers, queryParams, formParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
     }
 
     @Override

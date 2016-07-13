@@ -39,6 +39,7 @@ public class MockRequestBuilder {
 	private List<HttpHeader> individualHeaders = newArrayList();
 	private Map<String, Cookie> cookies = newHashMap();
 	private List<QueryParameter> queryParameters = newArrayList();
+	private List<FormParameter> formParameters = newArrayList();
 	private String body = "";
 	private String bodyAsBase64 = "";
 
@@ -69,6 +70,11 @@ public class MockRequestBuilder {
 
 	public MockRequestBuilder withQueryParameter(String key, String... values) {
 		queryParameters.add(new QueryParameter(key, Arrays.asList(values)));
+		return this;
+	}
+
+	public MockRequestBuilder withFormParameter(String key, String... values) {
+		formParameters.add(new FormParameter(key, Arrays.asList(values)));
 		return this;
 	}
 
@@ -129,6 +135,9 @@ public class MockRequestBuilder {
 
 			for (QueryParameter queryParameter: queryParameters) {
 				allowing(request).queryParameter(queryParameter.key()); will(returnValue(queryParameter));
+			}
+			for (FormParameter formParameter : formParameters) {
+				allowing(request).formParameter(formParameter.key()); will(returnValue(queryParameters));
 			}
 
 			allowing(request).header(with(any(String.class))); will(returnValue(httpHeader("key", "value")));

@@ -82,6 +82,12 @@ class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
     }
 
 	@Override
+	public MappingBuilder withFormParam(String key, StringValuePattern formParamPattern) {
+		requestPatternBuilder.withFormParam(key, formParamPattern);
+		return this;
+	}
+
+	@Override
 	public MappingBuilder withRequestBody(StringValuePattern bodyPattern) {
         requestPatternBuilder.withRequestBody(bodyPattern);
 		return this;
