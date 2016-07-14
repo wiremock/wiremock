@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import org.junit.Test;
 
@@ -27,28 +28,46 @@ import static org.junit.Assert.assertThat;
 
 public class UrlsTest {
 
-    private Map<String, QueryParameter> params;
+    private Map<String, QueryParameter> qParams;
+	private Map<String, FormParameter> fParams;
 
     @Test
-    public void copesWithEqualsInParamValues() {
-        params = Urls.splitQuery(URI.create("/thing?param1=one&param2=one==two=three"));
-        assertThat(params.get("param1").firstValue(), is("one"));
-        assertThat(params.get("param2").firstValue(), is("one==two=three"));
+    public void splitQueryCopesWithEqualsInParamValues() {
+        qParams = Urls.splitQuery(URI.create("/thing?param1=one&param2=one==two=three"));
+        assertThat(qParams.get("param1").firstValue(), is("one"));
+        assertThat(qParams.get("param2").firstValue(), is("one==two=three"));
     }
 
     @Test
-    public void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
-        params = Urls.splitQuery(URI.create("/thing?param1&param2&param3"));
-        assertThat(params.get("param1").firstValue(), is(""));
-        assertThat(params.get("param2").firstValue(), is(""));
-        assertThat(params.get("param3").firstValue(), is(""));
+    public void splitQueryReturnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
+        qParams = Urls.splitQuery(URI.create("/thing?param1&param2&param3"));
+        assertThat(qParams.get("param1").firstValue(), is(""));
+        assertThat(qParams.get("param2").firstValue(), is(""));
+        assertThat(qParams.get("param3").firstValue(), is(""));
     }
 
     @Test
-    public void supportsMultiValuedParameters() {
-        params = Urls.splitQuery(URI.create("/thing?param1=1&param2=two&param1=2&param1=3"));
-        assertThat(params.size(), is(2));
-        assertThat(params.get("param1").isSingleValued(), is(false));
-        assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
+    public void splitQuerySupportsMultiValuedParameters() {
+        qParams = Urls.splitQuery(URI.create("/thing?param1=1&param2=two&param1=2&param1=3"));
+        assertThat(qParams.size(), is(2));
+        assertThat(qParams.get("param1").isSingleValued(), is(false));
+        assertThat(qParams.get("param1").values(), hasItems("1", "2", "3"));
     }
+
+	@Test
+	public void splitFormSupportsMultiValuesParameters() {
+		fParams = Urls.splitForm("param1=1&param1=2");
+		assertThat(fParams.size(), is(1));
+		assertThat(fParams.get("param1").isSingleValued(), is(false));
+		assertThat(fParams.get("param1").values(), hasItems("1", "2"));
+	}
+
+	@Test
+	public void splitFormReturnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
+		fParams = Urls.splitForm("param1&param2&param3");
+		assertThat(fParams.size(), is(3));
+		assertThat(fParams.get("param1").firstValue(), is(""));
+		assertThat(fParams.get("param2").firstValue(), is(""));
+		assertThat(fParams.get("param3").firstValue(), is(""));
+	}
 }

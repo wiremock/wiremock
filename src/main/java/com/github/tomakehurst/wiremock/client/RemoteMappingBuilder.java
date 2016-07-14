@@ -24,6 +24,7 @@ public interface RemoteMappingBuilder<M extends RemoteMappingBuilder, S extends 
     M atPriority(Integer priority);
     M withHeader(String key, StringValuePattern headerPattern);
     M withQueryParam(String key, StringValuePattern queryParamPattern);
+	M withFormParam(String key, StringValuePattern formParamPattern);
     M withRequestBody(StringValuePattern bodyPattern);
     S inScenario(String scenarioName);
     M withId(UUID id);

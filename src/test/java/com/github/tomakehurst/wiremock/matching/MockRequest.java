@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.FormParameter;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
@@ -128,7 +129,13 @@ public class MockRequest implements Request {
         return queryParams.get(key);
     }
 
-    @Override
+	@Override
+	public FormParameter formParameter(String key) {
+		Map<String, FormParameter> formParams = Urls.splitForm(getBodyAsString());
+		return formParams.get(key);
+	}
+
+	@Override
     public byte[] getBody() {
         return body;
     }

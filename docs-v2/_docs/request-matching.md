@@ -10,6 +10,7 @@ WireMock supports matching of requests to stubs and verification queries using t
 * URL
 * HTTP Method
 * Query parameters
+* Form parameters
 * Headers
 * Basic authentication (a special case of header matching)
 * Cookies
@@ -25,6 +26,7 @@ stubFor(any(urlPathEqualTo("/everything"))
   .withHeader("Accept", containing("xml"))
   .withCookie("session", matching(".*12345.*"))
   .withQueryParam("search_term", equalTo("WireMock"))
+  .withFormParam("key", equalTo("value"))
   .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
   .withRequestBody(equalToXml("<search-results />"))
   .withRequestBody(matchingXPath("//search-results"))
@@ -46,6 +48,11 @@ JSON:
     "queryParameters" : {
       "search_term" : {
         "equalTo" : "WireMock"
+      }
+    },
+    "formParameters" : {
+      "key" : {
+        "equalTo" : "value"
       }
     },
     "cookies" : {

@@ -17,6 +17,7 @@ public class RequestPatternBuilder {
     private RequestMethod method;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
+	private Map<String, MultiValuePattern> formParams = newLinkedHashMap();
     private List<StringValuePattern> bodyPatterns = newArrayList();
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
     private BasicCredentials basicCredentials;
@@ -81,6 +82,11 @@ public class RequestPatternBuilder {
         return this;
     }
 
+	public RequestPatternBuilder withFormParam(String key, StringValuePattern valuePattern) {
+		formParams.put(key, MultiValuePattern.of(valuePattern));
+		return this;
+	}
+
     public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
         cookies.put(key, valuePattern);
         return this;
@@ -108,6 +114,7 @@ public class RequestPatternBuilder {
                     method,
                     headers.isEmpty() ? null : headers,
                     queryParams.isEmpty() ? null : queryParams,
+					formParams.isEmpty() ? null : formParams,
                     cookies.isEmpty() ? null : cookies,
                     basicCredentials,
                     bodyPatterns.isEmpty() ? null : bodyPatterns,

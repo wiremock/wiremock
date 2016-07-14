@@ -15,31 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
-public interface Request {
+import static java.util.Arrays.asList;
 
-    String getUrl();
-    String getAbsoluteUrl();
-    RequestMethod getMethod();
-    String getClientIp();
+public class FormParameter extends MultiValue {
 
-    String getHeader(String key);
-    HttpHeader header(String key);
-    ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
-    boolean containsHeader(String key);
-    Set<String> getAllHeaderKeys();
+	public FormParameter(String key, List<String> values) {
+		super(key, values);
+	}
 
-    Map<String, Cookie> getCookies();
+	public static FormParameter formParam(String key, String... values) {
+		return new FormParameter(key, asList(values));
+	}
 
-    QueryParameter queryParameter(String key);
-	FormParameter formParameter(String key);
-
-    byte[] getBody();
-    String getBodyAsString();
-    String getBodyAsBase64();
-
-    boolean isBrowserProxyRequest();
+	public static FormParameter absent(String key) {
+		return new FormParameter(key, Collections.<String>emptyList());
+	}
 }

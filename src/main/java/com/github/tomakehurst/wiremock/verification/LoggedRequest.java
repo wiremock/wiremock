@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import java.util.Set;
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.Urls.splitForm;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -46,6 +48,7 @@ public class LoggedRequest implements Request {
     private final HttpHeaders headers;
     private final Map<String, Cookie> cookies;
     private final Map<String, QueryParameter> queryParams;
+	private final Map<String, FormParameter> formParams;
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
@@ -85,6 +88,13 @@ public class LoggedRequest implements Request {
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
+
+		if (headers != null && contentTypeHeader() != null
+				&& contentTypeHeader().or("").mimeTypePart().equals("application/x-www-form-urlencoded")) {
+			this.formParams = splitForm(new String(decodeBase64(bodyAsBase64)));
+		} else {
+			this.formParams = Collections.emptyMap();
+		}
     }
 
     @Override
@@ -166,7 +176,12 @@ public class LoggedRequest implements Request {
         return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
     }
 
-    public HttpHeaders getHeaders() {
+	@Override
+	public FormParameter formParameter(String key) {
+		return firstNonNull(formParams.get(key), FormParameter.absent(key));
+	}
+
+	public HttpHeaders getHeaders() {
         return headers;
     }
 

@@ -25,11 +25,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
+import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.Urls.splitForm;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.repeat;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
@@ -200,7 +203,13 @@ public class WireMockHttpServletRequestAdapter implements Request {
             QueryParameter.absent(key));
     }
 
-    @Override
+	@Override
+	public FormParameter formParameter(String key) {
+		return firstNonNull(splitForm(getBodyAsString()).get(key),
+				FormParameter.absent(key));
+	}
+
+	@Override
     public boolean isBrowserProxyRequest() {
         if (!isJetty()) {
             return false;
