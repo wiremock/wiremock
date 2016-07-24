@@ -29,7 +29,12 @@ import static com.google.common.collect.Iterables.size;
 import static java.lang.Math.min;
 
 public class UniqueFilenameGenerator {
+
     public static String generate(Request request, String prefix, String id) {
+        return generate(request, prefix, id, "json");
+    }
+
+    public static String generate(Request request, String prefix, String id, String extension) {
         URI uri = URI.create(request.getUrl());
         Iterable<String> uriPathNodes = on("/").omitEmptyStrings().split(uri.getPath());
         int nodeCount = size(uriPathNodes);
@@ -44,7 +49,8 @@ public class UniqueFilenameGenerator {
                 .append(pathPart)
                 .append("-")
                 .append(id)
-                .append(".json")
+                .append(".")
+                .append(extension)
                 .toString();
     }
 }

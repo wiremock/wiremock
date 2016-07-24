@@ -16,19 +16,9 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.common.IdGenerator;
-import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
-import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -39,10 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.write;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -110,8 +97,17 @@ public class StubMappingJsonRecorder implements RequestListener {
 
     private void writeToMappingAndBodyFile(Request request, Response response, RequestPattern requestPattern) {
         String fileId = idGenerator.generate();
+        byte[] body = bodyDecompressedIfRequired(response);
+
         String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
-        String bodyFileName = UniqueFilenameGenerator.generate(request, "body", fileId);
+        String bodyFileName = UniqueFilenameGenerator.generate(
+            request,
+            "body",
+            fileId,
+            ContentTypes.determineFileExtension(
+                request.getUrl(),
+                response.getHeaders().getContentTypeHeader(),
+                body));
 
         ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
                 .withStatus(response.getStatus())
@@ -125,7 +121,7 @@ public class StubMappingJsonRecorder implements RequestListener {
         StubMapping mapping = new StubMapping(requestPattern, responseToWrite);
         mapping.setUuid(UUID.nameUUIDFromBytes(fileId.getBytes()));
 
-        filesFileSource.writeBinaryFile(bodyFileName, bodyDecompressedIfRequired(response));
+        filesFileSource.writeBinaryFile(bodyFileName, body);
         mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
     }
 
