@@ -61,6 +61,7 @@ dependencies {
     }
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.flipkart.zjsonpatch:zjsonpatch:0.2.1'
+//    compile 'net.sf.jmimemagic:jmimemagic:0.1.4'
 
     testCompile "org.hamcrest:hamcrest-all:1.3"
     testCompile("org.jmock:jmock:2.5.1") {
@@ -125,10 +126,12 @@ shadowJar {
 
     relocate "org.mortbay", 'wiremock.org.mortbay'
     relocate "org.eclipse", 'wiremock.org.eclipse'
+    relocate "org.codehaus", 'wiremock.org.codehaus'
     relocate "com.google.common", 'wiremock.com.google.common'
     relocate "com.fasterxml.jackson", 'wiremock.com.fasterxml.jackson'
-    relocate "org.apache.http", 'wiremock.org.apache.http'
-    relocate "org.apache.commons", 'wiremock.org.apache.commons'
+    relocate "org.apache", 'wiremock.org.apache'
+    relocate "org.xmlunit", 'wiremock.org.xmlunit'
+    relocate "org.hamcrest", 'wiremock.org.hamcrest'
     relocate "joptsimple", 'wiremock.joptsimple'
     relocate "org.skyscreamer", 'wiremock.org.skyscreamer'
     relocate "org.json", 'wiremock.org.json'
@@ -136,6 +139,8 @@ shadowJar {
     relocate "com.jayway", 'wiremock.com.jayway'
     relocate "org.objectweb", 'wiremock.org.objectweb'
     relocate "org.custommonkey", "wiremock.org.custommonkey"
+    relocate "com.flipkart", "wiremock.com.flipkart"
+    relocate "net.sf", "wiremock.net.sf"
 
     dependencies {
         exclude(dependency('junit:junit'))
