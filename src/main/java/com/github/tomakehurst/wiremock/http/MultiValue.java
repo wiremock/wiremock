@@ -50,7 +50,6 @@ public class MultiValue {
     }
 
     public List<String> values() {
-        checkPresent();
         return values;
     }
 

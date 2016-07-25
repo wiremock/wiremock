@@ -61,11 +61,6 @@ public class HttpHeaderTest {
         HttpHeader.absent("Something").firstValue();
     }
 
-    @Test(expected=IllegalStateException.class)
-    public void throwsExceptionWhenAttemptingToAccessValuesWhenAbsent() {
-        HttpHeader.absent("Something").values();
-    }
-
     @Test
     public void shouldMatchSingleValueToValuePattern() {
         HttpHeader header = new HttpHeader("My-Header", "my-value");
