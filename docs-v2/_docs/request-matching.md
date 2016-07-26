@@ -103,7 +103,7 @@ JSON:
 Java:
 
 ```java
-urlMatching("/your/([a-z]*)?and=query")
+urlMatching("/your/([a-z]*)\\?and=query")
 ```
 
 
@@ -112,7 +112,7 @@ JSON:
 ```json
 {
   "request": {
-    "urlPattern": "/your/([a-z]*)?and=query"
+    "urlPattern": "/your/([a-z]*)\\?and=query"
     ...
   },
   ...
