@@ -19,12 +19,20 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.google.common.io.Resources;
+import guru.nidi.ramltester.RamlDefinition;
+import guru.nidi.ramltester.RamlLoaders;
+import guru.nidi.ramltester.httpcomponents.RamlHttpClient;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,8 +40,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static guru.nidi.ramltester.junit.RamlMatchers.checks;
+import static guru.nidi.ramltester.junit.RamlMatchers.validates;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.APPLICATION_XML;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -435,6 +446,33 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         WireMockResponse response = testClient.get("/query?param-one=one%20two%20three%20%3F");
         assertThat(response.statusCode(), is(200));
+    }
+
+	@Test
+    public void raml() throws Exception {
+        RamlDefinition api = RamlLoaders.fromClasspath().load("wiremock-api.raml");
+        assertThat(api.validate(), validates());
+
+        RamlHttpClient client = api.createHttpClient();
+        HttpPost post = new HttpPost("http://localhost:" + wireMockServer.port() + "/__admin/mappings/new");
+        post.setHeader("Content-Type", APPLICATION_JSON.getMimeType());
+        post.setEntity(new StringEntity("{\n" +
+            "                \"request\": {\n" +
+            "                    \"method\": \"GET\",\n" +
+            "                    \"url\": \"/some/thing\"\n" +
+            "                },\n" +
+            "                \"response\": {\n" +
+            "                    \"status\": 200,\n" +
+            "                    \"body\": \"Hello world!\",\n" +
+            "                    \"headers\": {\n" +
+            "                        \"Content-Type\": \"text/plain\"\n" +
+            "                    }\n" +
+            "                }\n" +
+            "            }"));
+        HttpResponse response = client.execute(post);
+        EntityUtils.consume(response.getEntity());
+
+        assertThat(client.getLastReport(), checks());
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

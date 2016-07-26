@@ -1,0 +1,104 @@
+#%RAML 0.8
+---
+title: WireMock
+version: v2
+mediaType: application/json
+
+documentation:
+  - title: WireMock
+    content: |
+       Welcome to the WireMock API documentation
+
+
+/__admin/:
+  description: Root
+  get:
+    description: Get all stub mappings
+    responses:
+      200:
+        description: All stub mappings
+
+/__admin/mappings/new:
+  description: New mapping
+  post:
+    description: Create a new stub mapping
+    body:
+      application/json:
+        example: |
+            {
+                "request": {
+                    "method": "GET",
+                    "url": "/some/thing"
+                },
+                "response": {
+                    "status": 200,
+                    "body": "Hello world!",
+                    "headers": {
+                        "Content-Type": "text/plain"
+                    }
+                }
+            }
+
+    responses:
+      201:
+        description: Successfully created
+
+
+/__admin/mappings/edit:
+  description: Existing stub mapping
+  post:
+    description: Edit a stub mapping
+    body:
+      application/json:
+        example: |
+            {
+                "uuid": "sdlkf9-sdkjfh01-sidfsd",
+                "request": {
+                    "method": "GET",
+                    "url": "/some/thing"
+                },
+                "response": {
+                    "status": 200,
+                    "body": "Hello world!",
+                    "headers": {
+                        "Content-Type": "text/plain"
+                    }
+                }
+            }
+
+    responses:
+      200:
+        description: Successfully updated
+
+/__admin/requests/unmatched:
+    description: Unmatched requests.
+    get:
+        description: Get all unmatched requests since the last reset
+        responses:
+          200:
+            description: Details of all requests received but unmatched since the last reset
+            body:
+              application/json:
+                example: |
+                  {
+                    "requests" : [ {
+                      "url" : "/nomatch",
+                      "absoluteUrl" : "http://localhost:8080/nomatch",
+                      "method" : "GET",
+                      "clientIp" : "0:0:0:0:0:0:0:1",
+                      "headers" : {
+                        "User-Agent" : "curl/7.30.0",
+                        "Accept" : "*/*",
+                        "Host" : "localhost:8080"
+                      },
+                      "cookies" : { },
+                      "browserProxyRequest" : false,
+                      "loggedDate" : 1467402464520,
+                      "bodyAsBase64" : "",
+                      "body" : "",
+                      "loggedDateString" : "2016-07-01T19:47:44Z"
+                    } ],
+                    "requestJournalDisabled" : false
+                  }
+
+

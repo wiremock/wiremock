@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
+import guru.nidi.ramltester.RamlDefinition;
+import guru.nidi.ramltester.RamlLoaders;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -60,12 +62,16 @@ public class WireMockTestClient {
     private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
     private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
 
-    private int port;
-    private String address;
+    private final int port;
+    private final String address;
+
+    private final RamlDefinition raml;
 
     public WireMockTestClient(int port, String address) {
         this.port = port;
         this.address = address;
+
+        raml = RamlLoaders.fromClasspath().load("wiremock-api.raml");
     }
 
     public WireMockTestClient(int port) {
