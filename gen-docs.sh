@@ -1,10 +1,11 @@
 #!/bin/bash
 
-pushd docs
-make html
-popd
+set -euo pipefail
 
-cp -r docs/build/html/* ../wiremock-gh-pages
+pushd docs-v2
+bundle exec jekyll build
+cp -rf _site/* ../../wiremock-gh-pages/
+popd
 
 pushd ../wiremock-gh-pages
 git add --all
