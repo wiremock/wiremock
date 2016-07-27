@@ -62,6 +62,7 @@ public class ResponseDefinitionBuilder {
 		builder.base64Body = responseDefinition.getBase64Body();
 		builder.bodyFileName = responseDefinition.getBodyFileName();
 		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
+		builder.delayDistribution = responseDefinition.getDelayDistribution();
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
