@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-07-11T21:30:37+01:00">
+  <meta property="article:published_time" content="2016-07-27T13:59:50+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -294,7 +294,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="July 11, 2016">
+    <meta itemprop="datePublished" content="July 27, 2016">
     
 
     <div class="page__inner-wrap">
@@ -402,7 +402,7 @@ you need more precise control:</p>
 
 <p>Java:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/your/([a-z]*)?and=query"</span><span class="o">)</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/your/([a-z]*)\\?and=query"</span><span class="o">)</span>
 </code></pre>
 </div>
 
@@ -410,7 +410,7 @@ you need more precise control:</p>
 
 <div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/([a-z]*)?and=query"</span><span class="w">
+    </span><span class="nt">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/your/([a-z]*)\\?and=query"</span><span class="w">
     </span><span class="err">...</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="err">...</span><span class="w">
