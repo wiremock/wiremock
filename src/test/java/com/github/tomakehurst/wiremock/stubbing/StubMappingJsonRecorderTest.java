@@ -45,6 +45,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.transform;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
 
@@ -439,6 +440,33 @@ public class StubMappingJsonRecorderTest {
     @Test
     public void detectsIcoExtensionFromResponseContentTypeHeader() throws Exception {
         assertResultingFileExtension("/noext", "ico", "image/x-icon");
+    }
+
+    @Test
+    public void sanitisesFilenamesBySwappingSymbolsForUnderscores() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class)));
+            will(returnValue(VerificationResult.withCount(0)));
+            allowing(mappingsFileSource).writeTextFile(
+                with(Expectations.<String>anything()),
+                with(Expectations.<String>anything()));
+            one(filesFileSource).writeBinaryFile(
+                with(containsString("body-my_oddly__named_file-url")),
+                with(any(byte[].class)));
+        }});
+
+        Request request = new MockRequestBuilder(context)
+            .withMethod(RequestMethod.GET)
+            .withUrl("/my:oddly;~named!file/url")
+            .build();
+
+        Response.Builder responseBuilder = response()
+            .status(200)
+            .fromProxy(true);
+
+        Response response = responseBuilder.build();
+
+        listener.requestReceived(request, response);
     }
 
     private void assertResultingFileExtension(String url, final String expectedExension) throws Exception {

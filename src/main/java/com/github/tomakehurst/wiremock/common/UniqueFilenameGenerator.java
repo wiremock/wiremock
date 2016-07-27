@@ -40,7 +40,12 @@ public class UniqueFilenameGenerator {
         int nodeCount = size(uriPathNodes);
 
         String pathPart = nodeCount > 0 ?
-                Joiner.on("-").join(from(uriPathNodes).skip(nodeCount - min(nodeCount, 2))) :
+                sanitise(
+                    Joiner.on("-")
+                    .join(from(uriPathNodes)
+                        .skip(nodeCount - min(nodeCount, 2))
+                    )
+                ):
                 "(root)";
 
 
@@ -52,5 +57,9 @@ public class UniqueFilenameGenerator {
                 .append(".")
                 .append(extension)
                 .toString();
+    }
+
+    private static String sanitise(String input) {
+        return input.replaceAll("[,~:/?#\\[\\]@!\\$&'()*+;=]", "_");
     }
 }
