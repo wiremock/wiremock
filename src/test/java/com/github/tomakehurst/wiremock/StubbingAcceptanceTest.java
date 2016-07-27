@@ -437,6 +437,17 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
     }
 
+	@Test
+    public void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
+        stubFor(get(urlPathEqualTo("/empty-header"))
+            .withHeader("X-My-Header", equalTo(""))
+            .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response = testClient.get("/empty-header", withHeader("X-My-Header", ""));
+
+        assertThat(response.statusCode(), is(200));
+    }
+
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {

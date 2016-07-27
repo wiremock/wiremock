@@ -47,6 +47,10 @@ public class HttpHeader extends MultiValue {
         return new HttpHeader(key);
     }
 
+    public static HttpHeader empty(String key) {
+        return httpHeader(key, "");
+    }
+
     public CaseInsensitiveKey caseInsensitiveKey() {
         return CaseInsensitiveKey.from(key);
     }

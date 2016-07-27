@@ -139,6 +139,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
         for (String currentKey : headerNames) {
             if (currentKey.toLowerCase().equals(key.toLowerCase())) {
                 List<String> valueList = list(request.getHeaders(currentKey));
+                if (valueList.isEmpty()) {
+                    return HttpHeader.empty(key);
+                }
+
                 return new HttpHeader(key, valueList);
             }
         }
