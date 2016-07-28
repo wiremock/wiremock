@@ -1,0 +1,58 @@
+package com.github.tomakehurst.wiremock;
+
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.Rule;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+public class ConcurrentProxyingTest {
+
+    @Rule
+    public WireMockRule wm = new WireMockRule(options().dynamicPort(), false);
+
+    @Rule
+    public WireMockRule target = new WireMockRule(options().dynamicPort().usingFilesUnderDirectory("src/test/resources"), false);
+
+    WireMockTestClient client;
+
+    @Test
+    public void concurrent() throws Exception {
+        client = new WireMockTestClient(wm.port());
+
+        wm.stubFor(any(anyUrl())
+            .atPriority(10)
+            .willReturn(aResponse()
+                .proxiedFrom("http://localhost:" + target.port())));
+
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+
+        List<Future<?>> results = newArrayList();
+        for (int i = 0; i < 100; i++) {
+            results.add(executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    assertThat(client.get("/plain-example1.txt").content(), is("Example 1"));
+                    assertThat(client.get("/plain-example2.txt").content(), is("Example 2"));
+                    assertThat(client.get("/plain-example3.txt").content(), is("Example 3"));
+                    assertThat(client.get("/plain-example4.txt").content(), is("Example 4"));
+                    assertThat(client.get("/plain-example5.txt").content(), is("Example 5"));
+                }
+            }));
+        }
+
+        for (Future<?> result: results) {
+            result.get();
+        }
+    }
+}

@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 
@@ -76,7 +77,7 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServedStub servedStub = new ServedStub(LoggedRequest.createFrom(request), responseDefinition);
+        ServedStub servedStub = new ServedStub(LoggedRequest.createFrom(request), copyOf(responseDefinition));
         requestJournal.requestReceived(servedStub);
         return servedStub;
 	}
