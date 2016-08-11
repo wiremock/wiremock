@@ -24,6 +24,9 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -58,6 +61,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -582,6 +586,19 @@ public class VerificationAcceptanceTest {
                 }
 
             }));
+        }
+
+        @Test
+        public void copesWithAttemptedXmlBodyMatchWhenRequestHasNoXmlBody() {
+            testClient.post("/missing-xml", new StringEntity("", TEXT_PLAIN));
+
+            try {
+                verify(postRequestedFor(urlEqualTo("/missing-xml"))
+                    .withRequestBody(equalToXml("<my-stuff />")));
+                fail();
+            } catch (VerificationException e) {
+                assertThat(e.getMessage(), containsString("No requests exactly matched."));
+            }
         }
 
     }

@@ -125,11 +125,15 @@ public class Diff {
     }
 
     private String formatIfJsonOrXml(StringValuePattern pattern) {
-        return pattern.getClass().equals(EqualToJsonPattern.class) ?
-            Json.prettyPrint(request.getBodyAsString()) :
-            pattern.getClass().equals(EqualToXmlPattern.class) ?
-                Xml.prettyPrint(request.getBodyAsString()) :
-                request.getBodyAsString();
+        try {
+            return pattern.getClass().equals(EqualToJsonPattern.class) ?
+                Json.prettyPrint(request.getBodyAsString()) :
+                pattern.getClass().equals(EqualToXmlPattern.class) ?
+                    Xml.prettyPrint(request.getBodyAsString()) :
+                    request.getBodyAsString();
+        } catch (Exception e) {
+            return request.getBodyAsString();
+        }
     }
 
     public static String junitStyleDiffMessage(Object expected, Object actual) {
