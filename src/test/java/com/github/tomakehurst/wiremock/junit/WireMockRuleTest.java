@@ -73,4 +73,14 @@ public class WireMockRuleTest {
         rule.verify(1, getRequestedFor(urlEqualTo("/")));
     }
 
+    @Test
+    public void shouldFindNearMatchWithHeaderVerification() throws IOException {
+        WireMockTestClient testClient = new WireMockTestClient(rule.port());
+        testClient.get(String.format("http://localhost:%d/", rule.port()));
+
+        thrown.expect(com.github.tomakehurst.wiremock.client.VerificationException.class);
+        thrown.expectMessage("No requests exactly matched. Most similar request was:");
+
+        rule.verify(1, getRequestedFor(urlEqualTo("/")).withHeader("asdf", matching(".*")));
+    }
 }

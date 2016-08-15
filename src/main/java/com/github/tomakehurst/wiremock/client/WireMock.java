@@ -364,7 +364,7 @@ public class WireMock {
 	}
 
     private VerificationException verificationExceptionForNearMisses(RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
-        List<NearMiss> nearMisses = findNearMissesFor(requestPatternBuilder);
+        List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
         if (nearMisses.size() > 0) {
             Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
             return VerificationException.forUnmatchedRequestPattern(diff);
