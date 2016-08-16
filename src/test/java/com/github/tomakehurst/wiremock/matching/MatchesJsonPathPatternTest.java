@@ -72,7 +72,7 @@ public class MatchesJsonPathPatternTest {
 
     @Test
     public void providesSensibleNotificationWhenJsonMatchFailsDueToInvalidJson() {
-        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Property ['something'] not found in path $'");
+        expectInfoNotification("Warning: JSON path expression '$.something' failed to match document 'Not a JSON document' because of error 'Expected to find an object with property ['something'] in path $ but found 'java.lang.String'. This is not a json object according to the JsonProvider: 'com.jayway.jsonpath.spi.json.JsonSmartJsonProvider'.'");
 
         StringValuePattern pattern = WireMock.matchingJsonPath("$.something");
         assertFalse("Expected the match to fail", pattern.match("Not a JSON document").isExactMatch());

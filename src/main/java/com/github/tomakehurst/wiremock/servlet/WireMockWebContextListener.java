@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
@@ -68,7 +69,8 @@ public class WireMockWebContextListener implements ServletContextListener {
                 fileSource,
                 new NotImplementedContainer()
         );
-        AdminRequestHandler adminRequestHandler = new AdminRequestHandler(wireMockApp, new BasicResponseRenderer());
+        AdminRoutes adminRoutes = AdminRoutes.defaults();
+        AdminRequestHandler adminRequestHandler = new AdminRequestHandler(adminRoutes, wireMockApp, new BasicResponseRenderer());
         StubRequestHandler stubRequestHandler = new StubRequestHandler(wireMockApp,
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),

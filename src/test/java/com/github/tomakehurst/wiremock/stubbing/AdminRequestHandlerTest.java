@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -57,7 +58,7 @@ public class AdminRequestHandlerTest {
 		context = new Mockery();
         admin = context.mock(Admin.class);
 
-		handler = new AdminRequestHandler(admin, new BasicResponseRenderer());
+		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer());
 	}
 	
 	@Test

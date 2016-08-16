@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -45,7 +46,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -95,9 +96,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
                 this
         );
 
+        AdminRoutes adminRoutes = AdminRoutes.defaults();
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(
-                wireMockApp,
-                new BasicResponseRenderer()
+            adminRoutes,
+            wireMockApp,
+            new BasicResponseRenderer()
         );
         stubRequestHandler = new StubRequestHandler(
                 wireMockApp,
@@ -158,7 +161,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     public WireMockServer() {
 		this(wireMockConfig());
 	}
-	
+
 	public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
         wireMockApp.loadMappingsUsing(mappingsLoader);
 	}
@@ -170,7 +173,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     public void addMockServiceRequestListener(RequestListener listener) {
 		stubRequestHandler.addRequestListener(listener);
 	}
-	
+
 	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource) {
 	    addMockServiceRequestListener(
                 new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders()));
@@ -180,7 +183,7 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     public void stop() {
         httpServer.stop();
 	}
-	
+
 	public void start() {
         try {
 		    httpServer.start();

@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.stubbing;
+package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.admin.Paginator;
+import com.github.tomakehurst.wiremock.admin.model.PaginatedResult;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
 
-public class ListStubMappingsResult {
-
-    private final List<StubMapping> mappings;
+public class ListStubMappingsResult extends PaginatedResult<StubMapping> {
 
     @JsonCreator
-    public ListStubMappingsResult(@JsonProperty("stubMappings") List<StubMapping> mappings) {
-        this.mappings = mappings;
+    public ListStubMappingsResult(@JsonProperty("mappings") List<StubMapping> mappings,
+                                  @JsonProperty("meta") Meta meta) {
+        super(mappings, meta);
+    }
+
+    public ListStubMappingsResult(Paginator<StubMapping> paginator) {
+        super(paginator);
     }
 
     public List<StubMapping> getMappings() {
-        return mappings;
+        return select();
     }
 }

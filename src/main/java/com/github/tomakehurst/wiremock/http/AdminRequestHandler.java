@@ -15,28 +15,36 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.AdminTasks;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+
+import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 
 public class AdminRequestHandler extends AbstractRequestHandler {
 
+    private final AdminRoutes adminRoutes;
     private final Admin admin;
 
-	public AdminRequestHandler(Admin admin, ResponseRenderer responseRenderer) {
+	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer) {
 		super(responseRenderer);
+        this.adminRoutes = adminRoutes;
         this.admin = admin;
 	}
 
 	@Override
 	public ServedStub handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
-        AdminTask adminTask = AdminTasks.taskFor(request.getMethod(), withoutAdminRoot(request.getUrl()));
+        String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
+        AdminTask adminTask = adminRoutes.taskFor(
+            request.getMethod(),
+            path
+        );
         return ServedStub.exactMatch(LoggedRequest.createFrom(request), adminTask.execute(admin, request));
 	}
 
