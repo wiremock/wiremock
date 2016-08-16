@@ -15,124 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
 
-import static com.google.common.base.Preconditions.checkArgument;
+public interface MappingBuilder {
 
-class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
+    MappingBuilder atPriority(Integer priority);
+    MappingBuilder withHeader(String key, StringValuePattern headerPattern);
+    MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    MappingBuilder withRequestBody(StringValuePattern bodyPattern);
+    ScenarioMappingBuilder inScenario(String scenarioName);
+    MappingBuilder withId(UUID id);
+    MappingBuilder withBasicAuth(String username, String password);
+    MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
-    private RequestPatternBuilder requestPatternBuilder;
-	private ResponseDefinitionBuilder responseDefBuilder;
-	private Integer priority;
-	private String scenarioName;
-	protected String requiredScenarioState;
-	protected String newScenarioState;
-	private UUID id;
+    MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 
-	public MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
-        requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
-	}
-
-	public MappingBuilder(RequestMatcher requestMatcher) {
-        requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
-	}
-
-	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
-		requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
-	}
-
-	@Override
-	public MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
-		this.responseDefBuilder = responseDefBuilder;
-		return this;
-	}
-
-	@Override
-	public MappingBuilder atPriority(Integer priority) {
-		this.priority = priority;
-		return this;
-	}
-
-	@Override
-	public MappingBuilder withHeader(String key, StringValuePattern headerPattern) {
-        requestPatternBuilder.withHeader(key, headerPattern);
-		return this;
-	}
-
-    @Override
-    public MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
-		requestPatternBuilder.withCookie(name, cookieValuePattern);
-        return this;
-    }
-
-    @Override
-    public MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern) {
-        requestPatternBuilder.withQueryParam(key, queryParamPattern);
-        return this;
-    }
-
-	@Override
-	public MappingBuilder withRequestBody(StringValuePattern bodyPattern) {
-        requestPatternBuilder.withRequestBody(bodyPattern);
-		return this;
-	}
-
-	@Override
-    public MappingBuilder inScenario(String scenarioName) {
-        checkArgument(scenarioName != null, "Scenario name must not be null");
-
-		this.scenarioName = scenarioName;
-		return this;
-	}
-
-    @Override
-	public MappingBuilder whenScenarioStateIs(String stateName) {
-		this.requiredScenarioState = stateName;
-		return this;
-	}
-
-    @Override
-	public MappingBuilder willSetStateTo(String stateName) {
-		this.newScenarioState = stateName;
-		return this;
-	}
-
-	@Override
-	public MappingBuilder withId(UUID id) {
-		this.id = id;
-		return this;
-	}
-
-	@Override
-	public MappingBuilder withBasicAuth(String username, String password) {
-		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
-		return this;
-	}
-
-    @Override
-	public StubMapping build() {
-		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
-			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
-		}
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		ResponseDefinition response = responseDefBuilder.build();
-		StubMapping mapping = new StubMapping(requestPattern, response);
-		mapping.setPriority(priority);
-		mapping.setScenarioName(scenarioName);
-		mapping.setRequiredScenarioState(requiredScenarioState);
-		mapping.setNewScenarioState(newScenarioState);
-		mapping.setUuid(id);
-		return mapping;
-	}
-
+    StubMapping build();
 }

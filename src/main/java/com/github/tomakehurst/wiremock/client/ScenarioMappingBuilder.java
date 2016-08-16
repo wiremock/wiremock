@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-public interface ScenarioMappingBuilder extends RemoteMappingBuilder<ScenarioMappingBuilder, ScenarioMappingBuilder> {
+public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder whenScenarioStateIs(String stateName);
     ScenarioMappingBuilder willSetStateTo(String stateName);
 }

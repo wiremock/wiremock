@@ -16,21 +16,18 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
 
-public interface RemoteMappingBuilder<M extends RemoteMappingBuilder, S extends ScenarioMappingBuilder> {
-    M atPriority(Integer priority);
-    M withHeader(String key, StringValuePattern headerPattern);
-    M withQueryParam(String key, StringValuePattern queryParamPattern);
-    M withRequestBody(StringValuePattern bodyPattern);
-    S inScenario(String scenarioName);
-    M withId(UUID id);
-    M withBasicAuth(String username, String password);
-    M withCookie(String name, StringValuePattern cookieValuePattern);
+public interface RemoteMappingBuilder extends MappingBuilder {
+    RemoteMappingBuilder atPriority(Integer priority);
+    RemoteMappingBuilder withHeader(String key, StringValuePattern headerPattern);
+    RemoteMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    RemoteMappingBuilder withRequestBody(StringValuePattern bodyPattern);
+    RemoteScenarioMappingBuilder inScenario(String scenarioName);
+    RemoteMappingBuilder withId(UUID id);
+    RemoteMappingBuilder withBasicAuth(String username, String password);
+    RemoteMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
-    M willReturn(ResponseDefinitionBuilder responseDefBuilder);
-
-    StubMapping build();
+    RemoteMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

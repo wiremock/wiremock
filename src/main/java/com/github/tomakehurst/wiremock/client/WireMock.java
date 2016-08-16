@@ -104,7 +104,7 @@ public class WireMock {
 		givenThat(mappingBuilder);
 	}
 
-	public static void editStub(MappingBuilder mappingBuilder) {
+	public static void editStub(RemoteMappingBuilder mappingBuilder) {
 		defaultInstance.get().editStubMapping(mappingBuilder);
 	}
 
@@ -286,55 +286,55 @@ public class WireMock {
 	}
 
 	public static RemoteMappingBuilder get(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.GET, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
 	}
 
 	public static RemoteMappingBuilder post(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.POST, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
 	}
 
 	public static RemoteMappingBuilder put(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.PUT, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
 	}
 
 	public static RemoteMappingBuilder delete(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.DELETE, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
 	}
 
 	public static RemoteMappingBuilder patch(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.PATCH, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
 	}
 
 	public static RemoteMappingBuilder head(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.HEAD, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
 	}
 
 	public static RemoteMappingBuilder options(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.OPTIONS, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
 	}
 
 	public static RemoteMappingBuilder trace(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.TRACE, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
 	}
 
 	public static RemoteMappingBuilder any(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.ANY, urlPattern);
+		return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
 	}
 
     public static RemoteMappingBuilder request(String method, UrlPattern urlPattern) {
-        return new MappingBuilder(RequestMethod.fromString(method), urlPattern);
+        return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
     }
 
 	public static LocalMappingBuilder requestMatching(String customRequestMatcherName) {
-		return new MappingBuilder(customRequestMatcherName, Parameters.empty());
+		return new BasicMappingBuilder(customRequestMatcherName, Parameters.empty());
 	}
 
 	public static RemoteMappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
-		return new MappingBuilder(customRequestMatcherName, parameters);
+		return new BasicMappingBuilder(customRequestMatcherName, parameters);
 	}
 
 	public static LocalMappingBuilder requestMatching(RequestMatcher requestMatcher) {
-		return new MappingBuilder(requestMatcher);
+		return new BasicMappingBuilder(requestMatcher);
 	}
 
 	public static ResponseDefinitionBuilder aResponse() {
