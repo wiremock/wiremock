@@ -1,12 +1,19 @@
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.Iterables;
+
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.google.common.collect.Iterables.tryFind;
 
 public class AdminRoutes {
 
@@ -30,11 +37,13 @@ public class AdminRoutes {
 
         router.add(GET,  "/mappings", GetAllStubMappingsTask.class);
         router.add(POST, "/mappings", CreateStubMappingTask.class);
+
         router.add(POST, "/mappings/new", StubMappingTask.class); // Deprecated
         router.add(POST, "/mappings/remove", RemoveStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/edit", EditStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
         router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // Deprecated
+        router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
 
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // Deprecated
 
@@ -55,11 +64,18 @@ public class AdminRoutes {
     protected void initAdditionalRoutes(Router router) {
     }
 
-    public AdminTask taskFor(RequestMethod method, String path) {
-        Class<? extends AdminTask> taskClass = routes.get(requestSpec(method, path));
-        if (taskClass == null) {
-            return new NotFoundAdminTask();
-        }
+    public AdminTask taskFor(final RequestMethod method, final String path) {
+        Class<? extends AdminTask> taskClass = tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, Class<? extends AdminTask>>>() {
+            @Override
+            public boolean apply(Map.Entry<RequestSpec, Class<? extends AdminTask>> entry) {
+                return entry.getKey().matches(method, path);
+            }
+        }).transform(new Function<Map.Entry<RequestSpec,Class<? extends AdminTask>>, Class<? extends AdminTask>>() {
+            @Override
+            public Class<? extends AdminTask> apply(Map.Entry<RequestSpec, Class<? extends AdminTask>> input) {
+                return input.getValue();
+            }
+        }).or(NotFoundAdminTask.class);
 
         try {
             return taskClass.newInstance();

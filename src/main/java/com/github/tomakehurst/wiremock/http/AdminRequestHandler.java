@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -45,7 +47,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             request.getMethod(),
             path
         );
-        return ServedStub.exactMatch(LoggedRequest.createFrom(request), adminTask.execute(admin, request));
+
+        AdminUriTemplate uriTemplate = adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
+        PathParams pathParams = uriTemplate.parse(path);
+
+        return ServedStub.exactMatch(
+            LoggedRequest.createFrom(request),
+            adminTask.execute(admin, request, pathParams)
+        );
 	}
 
 	private static String withoutAdminRoot(String url) {

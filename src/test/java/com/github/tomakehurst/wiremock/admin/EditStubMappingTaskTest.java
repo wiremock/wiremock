@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.admin.tasks.EditStubMappingTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -60,7 +62,7 @@ public class EditStubMappingTaskTest {
 			oneOf(mockAdmin).editStubMapping(with(any(StubMapping.class)));
 		}});
 
-		editStubMappingTask.execute(mockAdmin, mockRequest);
+		editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 	}
 
 	@Test
@@ -72,7 +74,7 @@ public class EditStubMappingTaskTest {
 			oneOf(mockAdmin).editStubMapping(with(any(StubMapping.class)));
 		}});
 
-		ResponseDefinition response = editStubMappingTask.execute(mockAdmin, mockRequest);
+		ResponseDefinition response = editStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
 		assertThat(response.getStatus(), is(HttpURLConnection.HTTP_NO_CONTENT));
 	}

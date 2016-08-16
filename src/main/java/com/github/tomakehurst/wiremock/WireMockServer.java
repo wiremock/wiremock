@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -55,9 +57,11 @@ import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
@@ -336,6 +340,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public ListStubMappingsResult listAllStubMappings() {
         return wireMockApp.listAllStubMappings();
+    }
+
+    @Override
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return wireMockApp.getStubMapping(id);
     }
 
     @Override

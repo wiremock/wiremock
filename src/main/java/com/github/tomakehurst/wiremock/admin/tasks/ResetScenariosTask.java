@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class StubMappingTask implements AdminTask {
-
+public class ResetScenariosTask implements AdminTask {
     @Override
-    public ResponseDefinition execute(Admin admin, Request request) {
-        StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
-        admin.addStubMapping(newMapping);
-        return ResponseDefinition.created();
+    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+        admin.resetScenarios();
+        return ResponseDefinition.ok();
     }
 }

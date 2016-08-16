@@ -17,6 +17,8 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -47,6 +49,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServedStub.NOT_MATCHED;
@@ -143,6 +146,11 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public ListStubMappingsResult listAllStubMappings() {
         return new ListStubMappingsResult(LimitAndOffsetPaginator.none(stubMappings.getAll()));
+    }
+
+    @Override
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return SingleStubMappingResult.fromOptional(stubMappings.get(id));
     }
 
     @Override

@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
@@ -24,6 +26,9 @@ import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.google.common.base.Optional;
+
+import java.util.UUID;
 
 public interface Admin {
 
@@ -31,6 +36,7 @@ public interface Admin {
 	void editStubMapping(StubMapping stubMapping);
 	void removeStubMapping(StubMapping stubbMapping);
     ListStubMappingsResult listAllStubMappings();
+    SingleStubMappingResult getStubMapping(UUID id);
     void saveMappings();
 	void resetMappings();
 	void resetRequests();

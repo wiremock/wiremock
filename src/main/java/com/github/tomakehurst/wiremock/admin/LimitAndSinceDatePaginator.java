@@ -8,8 +8,8 @@ import com.google.common.collect.FluentIterable;
 import java.util.Date;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.admin.model.Conversions.toDate;
-import static com.github.tomakehurst.wiremock.admin.model.Conversions.toInt;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toDate;
+import static com.github.tomakehurst.wiremock.admin.Conversions.toInt;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 

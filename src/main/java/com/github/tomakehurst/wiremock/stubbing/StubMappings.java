@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 
 import com.github.tomakehurst.wiremock.http.Request;
+import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface StubMappings {
 
@@ -30,4 +32,5 @@ public interface StubMappings {
 	void resetScenarios();
 
     List<StubMapping> getAll();
+	Optional<StubMapping> get(UUID id);
 }

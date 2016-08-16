@@ -16,14 +16,14 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.*;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -32,6 +32,8 @@ import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
@@ -91,6 +93,7 @@ public class HttpAdminClient implements Admin {
 
         executeRequest(
             adminRoutes.requestSpecForTask(CreateStubMappingTask.class),
+            PathParams.empty(),
             stubMapping,
             Void.class,
             201
@@ -120,6 +123,16 @@ public class HttpAdminClient implements Admin {
         return executeRequest(
             adminRoutes.requestSpecForTask(GetAllStubMappingsTask.class),
             ListStubMappingsResult.class
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetStubMappingTask.class),
+            PathParams.single("id", id),
+            SingleStubMappingResult.class
         );
     }
 
@@ -246,15 +259,19 @@ public class HttpAdminClient implements Admin {
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, B requestBody, Class<R> responseType) {
-        return executeRequest(requestSpec, requestBody, responseType, 200);
+        return executeRequest(requestSpec, PathParams.empty(),requestBody, responseType, 200);
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
-        return executeRequest(requestSpec, null, responseType, 200);
+        return executeRequest(requestSpec, PathParams.empty(), null, responseType, 200);
     }
 
-    private <B, R> R executeRequest(RequestSpec requestSpec, B requestBody, Class<R> responseType, int expectedStatus) {
-        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, Class<R> responseType) {
+        return executeRequest(requestSpec, pathParams, null, responseType, 200);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType, int expectedStatus) {
+        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
         RequestBuilder requestBuilder = RequestBuilder
             .create(requestSpec.method().getName())
             .setUri(url);

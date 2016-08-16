@@ -164,7 +164,17 @@ public class InMemoryStubMappings implements StubMappings {
         return ImmutableList.copyOf(mappings);
     }
 
-    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+	@Override
+	public Optional<StubMapping> get(final UUID id) {
+		return tryFind(mappings, new Predicate<StubMapping>() {
+			@Override
+			public boolean apply(StubMapping input) {
+				return input.getUuid().equals(id);
+			}
+		});
+	}
+
+	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
 

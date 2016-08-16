@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.admin.tasks.RemoveStubMappingTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -59,7 +61,7 @@ public class RemoveStubMappingTaskTest {
             oneOf(mockAdmin).removeStubMapping(with(any(StubMapping.class)));
         }});
 
-        removeStubMappingTask.execute(mockAdmin, mockRequest);
+        removeStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
     }
     @Test
     public void returnsOKResponse() {
@@ -70,7 +72,7 @@ public class RemoveStubMappingTaskTest {
             oneOf(mockAdmin).removeStubMapping(with(any(StubMapping.class)));
         }});
 
-        ResponseDefinition response = removeStubMappingTask.execute(mockAdmin, mockRequest);
+        ResponseDefinition response = removeStubMappingTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
     }

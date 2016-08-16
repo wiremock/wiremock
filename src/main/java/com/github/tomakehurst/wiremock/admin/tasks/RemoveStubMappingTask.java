@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-
-public class GlobalSettingsUpdateTask implements AdminTask {
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+public class RemoveStubMappingTask implements AdminTask {
 
     @Override
-    public ResponseDefinition execute(Admin admin, Request request) {
-        GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
-        admin.updateGlobalSettings(newSettings);
+    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+        StubMapping removeMapping = StubMapping.buildFrom(request.getBodyAsString());
+        admin.removeStubMapping(removeMapping);
         return ResponseDefinition.ok();
     }
 }

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,14 +34,12 @@ public final class Json {
     public static <T> T read(String json, Class<T> clazz) {
 		try {
 			ObjectMapper mapper = getObjectMapper();
-			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
 			return throwUnchecked(ioe, clazz);
 		}
 	}
-	
+
 	public static <T> String write(T object) {
 		try {
 			ObjectMapper mapper = getObjectMapper();
@@ -55,6 +54,8 @@ public final class Json {
         if (objectMapperHolder.get() == null) {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+            objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
             objectMapperHolder.set(objectMapper);
         }
 

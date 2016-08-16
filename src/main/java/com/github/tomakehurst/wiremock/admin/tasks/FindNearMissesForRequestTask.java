@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-
-public class RootRedirectTask implements AdminTask {
+public class FindNearMissesForRequestTask implements AdminTask {
 
     @Override
-    public ResponseDefinition execute(Admin admin, Request request) {
-        return ResponseDefinition.redirectTo(ADMIN_CONTEXT_ROOT + "/");
+    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+        LoggedRequest loggedRequest = Json.read(request.getBodyAsString(), LoggedRequest.class);
+        FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(loggedRequest);
+        return ResponseDefinition.okForJson(nearMissesResult);
     }
 }

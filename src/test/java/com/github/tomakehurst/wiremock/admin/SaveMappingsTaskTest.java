@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.admin.tasks.SaveMappingsTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -53,7 +55,7 @@ public class SaveMappingsTaskTest {
             oneOf(mockAdmin).saveMappings();
         }});
 
-        saveMappingsTask.execute(mockAdmin, mockRequest);
+        saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
     }
 
     @Test
@@ -62,7 +64,7 @@ public class SaveMappingsTaskTest {
             oneOf(mockAdmin).saveMappings();
         }});
 
-        ResponseDefinition response = saveMappingsTask.execute(mockAdmin, mockRequest);
+        ResponseDefinition response = saveMappingsTask.execute(mockAdmin, mockRequest, PathParams.empty());
 
         assertThat(response.getStatus(), is(HttpURLConnection.HTTP_OK));
     }

@@ -1,6 +1,5 @@
 package com.github.tomakehurst.wiremock.admin;
 
-import com.github.tomakehurst.wiremock.admin.model.Conversions;
 import com.github.tomakehurst.wiremock.http.Request;
 
 import java.util.List;

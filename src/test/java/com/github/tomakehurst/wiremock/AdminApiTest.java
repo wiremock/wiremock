@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Date;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -90,6 +91,33 @@ public class AdminApiTest extends AcceptanceTestBase {
             "}",
             body,
             false
+        );
+    }
+
+    @Test
+    public void getStubMappingById() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        dsl.stubFor(trace(urlEqualTo("/my-addressable-stub"))
+            .withId(id)
+            .willReturn(aResponse().withStatus(451))
+        );
+
+        String body = testClient.get("/__admin/mappings/" + id).content();
+
+        JSONAssert.assertEquals(
+            "{                                          \n" +
+            "    \"uuid\": \"" + id + "\",              \n" +
+            "    \"request\" : {                        \n" +
+            "      \"url\" : \"/my-addressable-stub\",  \n" +
+            "      \"method\" : \"TRACE\"               \n" +
+            "    },                                     \n" +
+            "    \"response\" : {                       \n" +
+            "      \"status\" : 451                     \n" +
+            "    }                                      \n" +
+            "}",
+            body,
+            true
         );
     }
 

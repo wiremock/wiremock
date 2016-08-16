@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 
-public class FindNearMissesForRequestPatternTask implements AdminTask {
+public class GlobalSettingsUpdateTask implements AdminTask {
 
     @Override
-    public ResponseDefinition execute(Admin admin, Request request) {
-        RequestPattern requestPattern = Json.read(request.getBodyAsString(), RequestPattern.class);
-        FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(requestPattern);
-        return ResponseDefinition.okForJson(nearMissesResult);
+    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+        GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
+        admin.updateGlobalSettings(newSettings);
+        return ResponseDefinition.ok();
     }
 }
