@@ -15,8 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
-import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -235,38 +234,28 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public void givenThat(RemoteMappingBuilder mappingBuilder) {
+    public void givenThat(MappingBuilder mappingBuilder) {
         client.register(mappingBuilder);
     }
 
     @Override
-    public void stubFor(RemoteMappingBuilder mappingBuilder) {
+    public void stubFor(MappingBuilder mappingBuilder) {
         givenThat(mappingBuilder);
     }
 
     @Override
-    public void editStub(RemoteMappingBuilder mappingBuilder) {
+    public void editStub(MappingBuilder mappingBuilder) {
         client.editStubMapping(mappingBuilder);
     }
 
     @Override
-    public void removeStub(RemoteMappingBuilder mappingBuilder) {
+    public void removeStub(MappingBuilder mappingBuilder) {
         client.removeStubMapping(mappingBuilder);
     }
 
     @Override
     public void removeStubMapping(StubMapping stubMapping){
         wireMockApp.removeStubMapping(stubMapping);
-    }
-
-    @Override
-    public void givenThat(LocalMappingBuilder mappingBuilder) {
-        stubFor(mappingBuilder);
-    }
-
-    @Override
-    public void stubFor(LocalMappingBuilder mappingBuilder) {
-        client.register(mappingBuilder.build());
     }
 
     @Override
