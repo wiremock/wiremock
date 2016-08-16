@@ -20,15 +20,18 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
 
-public interface RemoteMappingBuilder extends IMappingBuilder {
-    RemoteMappingBuilder atPriority(Integer priority);
-    RemoteMappingBuilder withHeader(String key, StringValuePattern headerPattern);
-    RemoteMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
-    RemoteMappingBuilder withRequestBody(StringValuePattern bodyPattern);
-    RemoteScenarioMappingBuilder inScenario(String scenarioName);
-    RemoteMappingBuilder withId(UUID id);
-    RemoteMappingBuilder withBasicAuth(String username, String password);
-    RemoteMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+public interface IMappingBuilder {
 
-    RemoteMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
+    IMappingBuilder atPriority(Integer priority);
+    IMappingBuilder withHeader(String key, StringValuePattern headerPattern);
+    IMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    IMappingBuilder withRequestBody(StringValuePattern bodyPattern);
+    ScenarioMappingBuilder inScenario(String scenarioName);
+    IMappingBuilder withId(UUID id);
+    IMappingBuilder withBasicAuth(String username, String password);
+    IMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+    IMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
+
+    StubMapping build();
 }

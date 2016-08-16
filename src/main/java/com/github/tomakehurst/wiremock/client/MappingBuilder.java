@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
+class MappingBuilder implements LocalScenarioMappingBuilder, RemoteScenarioMappingBuilder {
 
     private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
