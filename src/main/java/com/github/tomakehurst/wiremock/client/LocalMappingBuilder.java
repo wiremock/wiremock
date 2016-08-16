@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 import java.util.UUID;
 
-public interface LocalMappingBuilder extends IMappingBuilder {
+public interface LocalMappingBuilder extends MappingBuilder {
     LocalMappingBuilder atPriority(Integer priority);
     LocalMappingBuilder withHeader(String key, StringValuePattern headerPattern);
     LocalMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);

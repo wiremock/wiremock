@@ -16,11 +16,10 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
 
-public interface RemoteMappingBuilder extends IMappingBuilder {
+public interface RemoteMappingBuilder extends MappingBuilder {
     RemoteMappingBuilder atPriority(Integer priority);
     RemoteMappingBuilder withHeader(String key, StringValuePattern headerPattern);
     RemoteMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
