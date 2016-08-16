@@ -29,25 +29,25 @@ import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-class MappingBuilder implements LocalMappingBuilder, ScenarioMappingBuilder {
+class MappingBuilder implements LocalScenarioMappingBuilder {
 
     private RequestPatternBuilder requestPatternBuilder;
 	private ResponseDefinitionBuilder responseDefBuilder;
 	private Integer priority;
 	private String scenarioName;
-	protected String requiredScenarioState;
-	protected String newScenarioState;
+	private String requiredScenarioState;
+	private String newScenarioState;
 	private UUID id;
 
-	public MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
+	MappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
-	public MappingBuilder(RequestMatcher requestMatcher) {
+	MappingBuilder(RequestMatcher requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 
-	public MappingBuilder(String customRequestMatcherName, Parameters parameters) {
+	MappingBuilder(String customRequestMatcherName, Parameters parameters) {
 		requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
 	}
 
