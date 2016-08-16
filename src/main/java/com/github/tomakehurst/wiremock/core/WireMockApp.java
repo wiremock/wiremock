@@ -15,7 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.admin.Paginator;
+import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
+import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -141,7 +142,7 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public ListStubMappingsResult listAllStubMappings() {
-        return new ListStubMappingsResult(Paginator.none(stubMappings.getAll()));
+        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(stubMappings.getAll()));
     }
 
     @Override
@@ -169,6 +170,19 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void resetScenarios() {
         stubMappings.resetScenarios();
+    }
+
+    @Override
+    public GetServedStubsResult getServedStubs() {
+        try {
+            return GetServedStubsResult.requestJournalEnabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            );
+        } catch (RequestJournalDisabledException e) {
+            return GetServedStubsResult.requestJournalDisabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            );
+        }
     }
 
     @Override

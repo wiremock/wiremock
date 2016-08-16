@@ -17,9 +17,7 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.admin.Paginator;
-import com.github.tomakehurst.wiremock.admin.model.PaginatedResult;
-import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
@@ -32,7 +30,7 @@ public class ListStubMappingsResult extends PaginatedResult<StubMapping> {
         super(mappings, meta);
     }
 
-    public ListStubMappingsResult(Paginator<StubMapping> paginator) {
+    public ListStubMappingsResult(LimitAndOffsetPaginator<StubMapping> paginator) {
         super(paginator);
     }
 

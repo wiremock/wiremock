@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
+import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -355,6 +356,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void resetToDefaultMappings() {
         wireMockApp.resetToDefaultMappings();
+    }
+
+    @Override
+    public GetServedStubsResult getServedStubs() {
+        return wireMockApp.getServedStubs();
     }
 
     @Override

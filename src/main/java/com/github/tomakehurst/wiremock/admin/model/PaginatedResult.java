@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.Paginator;
-import com.github.tomakehurst.wiremock.http.Request;
 
 import java.util.List;
 
@@ -18,16 +17,12 @@ public abstract class PaginatedResult<T> {
 
     protected PaginatedResult(Paginator<T> paginator) {
         selection = paginator.select();
-        meta = new Meta(selection.size());
+        meta = new Meta(paginator.getTotal());
     }
 
     protected PaginatedResult(List<T> source, Meta meta) {
         this.selection = source;
         this.meta = meta;
-    }
-
-    protected PaginatedResult(List<T> source, Request request) {
-        this(Paginator.fromRequest(source, request));
     }
 
     public Meta getMeta() {

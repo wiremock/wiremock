@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -145,6 +146,14 @@ public class HttpAdminClient implements Admin {
     @Override
     public void resetToDefaultMappings() {
         postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null, HTTP_OK);
+    }
+
+    @Override
+    public GetServedStubsResult getServedStubs() {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
+            GetServedStubsResult.class
+        );
     }
 
     @Override

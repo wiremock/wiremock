@@ -1,13 +1,15 @@
 package com.github.tomakehurst.wiremock;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.toomuchcoding.jsonassert.JsonAssertion;
-import org.junit.BeforeClass;
+import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.Date;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertThat;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
@@ -89,6 +91,70 @@ public class AdminApiTest extends AcceptanceTestBase {
             body,
             false
         );
+    }
+
+    @Test
+    public void getLoggedRequests() throws Exception {
+        for (int i = 1; i <= 5; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        String body = testClient.get("/__admin/requests").content();
+
+        System.out.println(body);
+        JsonVerifiable check = JsonAssertion.assertThat(body);
+        check.field("meta").field("total").isEqualTo(5);
+        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
+        check.field("servedStubs").hasSize(5);
+    }
+
+    @Test
+    public void getLoggedRequestsWithLimit() throws Exception {
+        for (int i = 1; i <= 7; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        String body = testClient.get("/__admin/requests?limit=2").content();
+
+        JsonVerifiable check = JsonAssertion.assertThat(body);
+        check.field("meta").field("total").isEqualTo(7);
+        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/7");
+        check.field("servedStubs").elementWithIndex(1).field("request").field("url").isEqualTo("/received-request/6");
+        check.field("servedStubs").hasSize(2);
+    }
+
+    @Test
+    public void getLoggedRequestsWithLimitAndSinceDate() throws Exception {
+        for (int i = 1; i <= 5; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        String midPoint = new ISO8601DateFormat().format(new Date());
+
+        for (int i = 6; i <= 9; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        String body = testClient.get("/__admin/requests?since=" + midPoint + "&limit=3").content();
+
+        JsonVerifiable check = JsonAssertion.assertThat(body);
+        check.field("meta").field("total").isEqualTo(9);
+        check.field("servedStubs").hasSize(3);
+        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
+        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
+    }
+
+    @Test
+    public void getLoggedRequestsWithLimitLargerThanResults() throws Exception {
+        for (int i = 1; i <= 3; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        String body = testClient.get("/__admin/requests?limit=3000").content();
+
+        JsonVerifiable check = JsonAssertion.assertThat(body);
+        check.field("meta").field("total").isEqualTo(3);
+        check.field("servedStubs").hasSize(3);
     }
 
 }

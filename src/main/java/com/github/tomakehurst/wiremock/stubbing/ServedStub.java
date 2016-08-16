@@ -22,15 +22,22 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ServedStub {
 
+    private final UUID id;
     private final LoggedRequest request;
     private final ResponseDefinition responseDefinition;
 
-    public ServedStub(LoggedRequest request, ResponseDefinition responseDefinition) {
+    public ServedStub(UUID id, LoggedRequest request, ResponseDefinition responseDefinition) {
+        this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
+    }
+
+    public ServedStub(LoggedRequest request, ResponseDefinition responseDefinition) {
+        this(UUID.randomUUID(), request, responseDefinition);
     }
 
     public static ServedStub noExactMatch(LoggedRequest request) {
@@ -43,6 +50,10 @@ public class ServedStub {
 
     public boolean isNoExactMatch() {
         return !responseDefinition.wasConfigured();
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public LoggedRequest getRequest() {

@@ -11,7 +11,7 @@ public class GetAllStubMappingsTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request) {
         ListStubMappingsResult result = new ListStubMappingsResult(
-            Paginator.fromRequest(admin.listAllStubMappings().getMappings(), request)
+            LimitAndOffsetPaginator.fromRequest(admin.listAllStubMappings().getMappings(), request)
         );
 
         return ResponseDefinitionBuilder.jsonResponse(result);

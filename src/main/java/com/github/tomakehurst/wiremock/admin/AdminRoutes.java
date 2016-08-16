@@ -38,6 +38,7 @@ public class AdminRoutes {
 
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // Deprecated
 
+        router.add(GET,  "/requests", GetAllRequestsTask.class);
         router.add(POST, "/requests/reset", ResetRequestsTask.class);  // Deprecated
         router.add(POST, "/requests/count", GetRequestCountTask.class);
         router.add(POST, "/requests/find", FindRequestsTask.class);
