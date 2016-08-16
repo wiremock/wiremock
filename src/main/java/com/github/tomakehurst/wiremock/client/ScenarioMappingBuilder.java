@@ -15,7 +15,23 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-public interface ScenarioMappingBuilder extends RemoteMappingBuilder<ScenarioMappingBuilder, ScenarioMappingBuilder> {
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+
+import java.util.UUID;
+
+public interface ScenarioMappingBuilder extends RemoteMappingBuilder {
+
     ScenarioMappingBuilder whenScenarioStateIs(String stateName);
     ScenarioMappingBuilder willSetStateTo(String stateName);
+
+    ScenarioMappingBuilder atPriority(Integer priority);
+    ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
+    ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    ScenarioMappingBuilder withRequestBody(StringValuePattern bodyPattern);
+    ScenarioMappingBuilder inScenario(String scenarioName);
+    ScenarioMappingBuilder withId(UUID id);
+    ScenarioMappingBuilder withBasicAuth(String username, String password);
+    ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+    ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

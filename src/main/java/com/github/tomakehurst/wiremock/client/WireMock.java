@@ -104,7 +104,7 @@ public class WireMock {
 		givenThat(mappingBuilder);
 	}
 
-	public static void editStub(MappingBuilder mappingBuilder) {
+	public static void editStub(RemoteMappingBuilder mappingBuilder) {
 		defaultInstance.get().editStubMapping(mappingBuilder);
 	}
 
