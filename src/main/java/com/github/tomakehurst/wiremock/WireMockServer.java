@@ -37,8 +37,7 @@ import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
-import com.github.tomakehurst.wiremock.junit.LocalStubbing;
-import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -59,7 +58,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
 
-public class WireMockServer implements Container, LocalStubbing, Admin {
+public class WireMockServer implements Container, Stubbing, Admin {
 
 	public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -266,16 +265,6 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(count, requestPatternBuilder);
-    }
-
-    @Override
-    public void verify(LocalRequestPatternBuilder requestPatternBuilder) {
-        verify(requestPatternBuilder.getUnderlyingBuilder());
-    }
-
-    @Override
-    public void verify(int count, LocalRequestPatternBuilder requestPatternBuilder) {
-        verify(count, requestPatternBuilder.getUnderlyingBuilder());
     }
 
     @Override
