@@ -79,6 +79,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
+	private static final String RECORD_REQUEST_BODY = "record-request-body";
 
     private final OptionSet optionSet;
 	private String helpText;
@@ -97,7 +98,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
-		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+	    optionParser.accepts(RECORD_REQUEST_BODY, "Save request body to mapping files also");
+		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files").requiredIf(RECORD_REQUEST_BODY);
 		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
 		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
@@ -109,7 +111,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(HELP, "Print this message");
-		
+
 		optionSet = optionParser.parse(args);
         validate();
 		captureHelpTextIfRequested(optionParser);
@@ -144,6 +146,10 @@ public class CommandLineOptions implements Options {
 	
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
+	}
+
+	public boolean recordRequestBodyEnabled() {
+		return optionSet.has(RECORD_REQUEST_BODY);
 	}
 	
 	@Override
@@ -343,6 +349,10 @@ public class CommandLineOptions implements Options {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
                     .put(MATCH_HEADERS, matchingHeaders());
         }
+
+	    if (recordRequestBodyEnabled()) {
+		    builder.put(RECORD_REQUEST_BODY, recordRequestBodyEnabled());
+	    }
 
         builder.put(DISABLE_REQUEST_JOURNAL, requestJournalDisabled())
                .put(VERBOSE, verboseLoggingEnabled());

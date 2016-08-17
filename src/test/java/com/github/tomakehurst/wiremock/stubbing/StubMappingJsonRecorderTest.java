@@ -70,7 +70,8 @@ public class StubMappingJsonRecorderTest {
 	}
 
     private void constructRecordingListener(List<String> headersToRecord) {
-        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+	    // TODO SDV: Create test for request body record enabled
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS), false);
         listener.setIdGenerator(fixedIdGenerator("1$2!3"));
     }
 

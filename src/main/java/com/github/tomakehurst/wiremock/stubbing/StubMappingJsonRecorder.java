@@ -42,11 +42,14 @@ public class StubMappingJsonRecorder implements RequestListener {
     private final Admin admin;
     private final List<CaseInsensitiveKey> headersToMatch;
     private IdGenerator idGenerator;
+    private boolean recordRequestBody;
 
-    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch, boolean recordRequestBody) {
         this.mappingsFileSource = mappingsFileSource;
         this.filesFileSource = filesFileSource;
         this.admin = admin;
+        // TODO SDV: Use it!
+        this.recordRequestBody = recordRequestBody;
         this.headersToMatch = headersToMatch;
         idGenerator = new VeryShortIdGenerator();
     }
