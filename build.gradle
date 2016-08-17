@@ -28,7 +28,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.1.10'
+version = '2.1.10-mocklab'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -299,11 +299,13 @@ publishing {
 }
 
 task checkReleasePreconditions << {
+    def REQUIRED_GIT_BRANCH = 'new-admin-apis'
+
     println "Using Java version: ${System.getProperty('java.runtime.version')}"
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
 
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    assert currentGitBranch == 'master', 'Must be on the master branch in order to release'
+    assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release"
 }
 publish.dependsOn checkReleasePreconditions
 
@@ -317,6 +319,9 @@ task addGitTag << {
 task signAll {
     dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
 }
+
+
+install.dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
 
 task release {
     dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
