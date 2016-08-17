@@ -15,13 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ServedStub {
@@ -30,7 +31,10 @@ public class ServedStub {
     private final LoggedRequest request;
     private final ResponseDefinition responseDefinition;
 
-    public ServedStub(UUID id, LoggedRequest request, ResponseDefinition responseDefinition) {
+    @JsonCreator
+    public ServedStub(@JsonProperty("id") UUID id,
+                      @JsonProperty("request") LoggedRequest request,
+                      @JsonProperty("responseDefinition") ResponseDefinition responseDefinition) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
@@ -48,6 +52,7 @@ public class ServedStub {
         return new ServedStub(request, responseDefinition);
     }
 
+    @JsonIgnore
     public boolean isNoExactMatch() {
         return !responseDefinition.wasConfigured();
     }
@@ -62,10 +67,6 @@ public class ServedStub {
 
     public ResponseDefinition getResponseDefinition() {
         return responseDefinition;
-    }
-
-    public List<NearMiss> getNearMisses() {
-        return null;
     }
 
     public static final Function<ServedStub, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServedStub, LoggedRequest>() {

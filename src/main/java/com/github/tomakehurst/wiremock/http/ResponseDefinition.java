@@ -52,7 +52,7 @@ public class ResponseDefinition {
 	private final Parameters transformerParameters;
 
 	private String browserProxyUrl;
-	private boolean wasConfigured = true;
+	private Boolean wasConfigured = true;
 	private Request originalRequest;
 
 	@JsonCreator
@@ -69,8 +69,9 @@ public class ResponseDefinition {
 							  @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
 							  @JsonProperty("fault") Fault fault,
 							  @JsonProperty("transformers") List<String> transformers,
-							  @JsonProperty("extensionParameters") Parameters transformerParameters) {
-		this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters);
+							  @JsonProperty("extensionParameters") Parameters transformerParameters,
+							  @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
+		this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
 	}
 
 	public ResponseDefinition(int status,
@@ -86,8 +87,9 @@ public class ResponseDefinition {
 							  String proxyBaseUrl,
 							  Fault fault,
 							  List<String> transformers,
-							  Parameters transformerParameters) {
-		this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters);
+							  Parameters transformerParameters,
+                              Boolean wasConfigured) {
+		this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
 	}
 
 	private ResponseDefinition(int status,
@@ -101,7 +103,8 @@ public class ResponseDefinition {
 							   String proxyBaseUrl,
 							   Fault fault,
 							   List<String> transformers,
-							   Parameters transformerParameters) {
+							   Parameters transformerParameters,
+                               Boolean wasConfigured) {
 		this.status = status > 0 ? status : 200;
 		this.statusMessage = statusMessage;
 
@@ -116,18 +119,19 @@ public class ResponseDefinition {
 		this.fault = fault;
 		this.transformers = transformers;
 		this.transformerParameters = transformerParameters;
+		this.wasConfigured = wasConfigured == null ? true : wasConfigured;
 	}
 
 	public ResponseDefinition(final int statusCode, final String bodyContent) {
-		this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
 	}
 
 	public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-		this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
 	}
 
 	public ResponseDefinition() {
-		this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty());
+		this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
 	}
 
 	public static ResponseDefinition notFound() {
@@ -182,9 +186,9 @@ public class ResponseDefinition {
 				original.proxyBaseUrl,
 				original.fault,
 				original.transformers,
-				original.transformerParameters
+				original.transformerParameters,
+				original.wasConfigured
 		);
-		newResponseDef.wasConfigured = original.wasConfigured;
 		return newResponseDef;
 	}
 
@@ -226,8 +230,12 @@ public class ResponseDefinition {
 		return bodyFileName;
 	}
 
-	public boolean wasConfigured() {
-		return wasConfigured;
+    public boolean wasConfigured() {
+        return wasConfigured == null || wasConfigured;
+    }
+
+	public Boolean isFromConfiguredStub() {
+		return wasConfigured == null || wasConfigured ? null : false;
 	}
 
 	public Integer getFixedDelayMilliseconds() {

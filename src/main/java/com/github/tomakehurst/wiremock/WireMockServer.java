@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
 import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -49,7 +47,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -303,6 +301,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
+    public List<ServedStub> getAllServedStubs() {
+        return client.getServedStubs();
+    }
+
+    @Override
     public void setGlobalFixedDelay(int milliseconds) {
         client.setGlobalFixedDelayVariable(milliseconds);
     }
@@ -370,6 +373,11 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public GetServedStubsResult getServedStubs() {
         return wireMockApp.getServedStubs();
+    }
+
+    @Override
+    public SingleServedStubResult getServedStub(UUID id) {
+        return wireMockApp.getServedStub(id);
     }
 
     @Override

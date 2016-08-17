@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.Iterables;
 
 import java.util.Map;
 
@@ -53,6 +52,8 @@ public class AdminRoutes {
         router.add(POST, "/requests/find", FindRequestsTask.class);
         router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
         router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
+        router.add(GET,  "/requests/{id}", GetServedStubTask.class);
+
 
         router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
         router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
@@ -85,7 +86,11 @@ public class AdminRoutes {
     }
 
     public RequestSpec requestSpecForTask(Class<? extends AdminTask> taskClass) {
-        return routes.inverse().get(taskClass);
+        RequestSpec requestSpec = routes.inverse().get(taskClass);
+        if (requestSpec == null) {
+            throw new NotFoundException("No route could be found for " + taskClass.getSimpleName());
+        }
+        return requestSpec;
     }
 
     protected static class Router {

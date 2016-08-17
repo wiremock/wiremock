@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.Diff;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -415,7 +416,15 @@ public class WireMock {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
+	public static List<ServedStub> getAllServedStubs() {
+        return defaultInstance.get().getServedStubs();
+    }
+
+    public List<ServedStub> getServedStubs() {
+        return admin.getServedStubs().getServedStubs();
+    }
+
+    public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}
 

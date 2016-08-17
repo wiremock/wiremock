@@ -15,12 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -44,7 +41,8 @@ public interface Admin {
     void resetToDefaultMappings();
 
     GetServedStubsResult getServedStubs();
-	VerificationResult countRequestsMatching(RequestPattern requestPattern);
+    SingleServedStubResult getServedStub(UUID id);
+    VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findUnmatchedRequests();
 

@@ -17,8 +17,10 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DisabledRequestJournal implements RequestJournal {
 
@@ -34,6 +36,11 @@ public class DisabledRequestJournal implements RequestJournal {
 
     @Override
     public List<ServedStub> getAllServedStubs() {
+        throw new RequestJournalDisabledException();
+    }
+
+    @Override
+    public Optional<ServedStub> getAllServedStub(UUID id) {
         throw new RequestJournalDisabledException();
     }
 

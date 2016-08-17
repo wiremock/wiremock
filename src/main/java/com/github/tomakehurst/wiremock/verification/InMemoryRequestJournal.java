@@ -29,12 +29,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
@@ -83,6 +82,16 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
     public List<ServedStub> getAllServedStubs() {
         return ImmutableList.copyOf(servedStubs).reverse();
     }
+
+	@Override
+	public Optional<ServedStub> getAllServedStub(final UUID id) {
+		return tryFind(servedStubs, new Predicate<ServedStub>() {
+			@Override
+			public boolean apply(ServedStub input) {
+				return input.getId().equals(id);
+			}
+		});
+	}
 
 	@Override
 	public void reset() {

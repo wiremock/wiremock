@@ -170,6 +170,15 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public SingleServedStubResult getServedStub(UUID id) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetServedStubTask.class),
+            PathParams.single("id", id),
+            SingleServedStubResult.class
+        );
+    }
+
+    @Override
     public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(GetRequestCountTask.class),

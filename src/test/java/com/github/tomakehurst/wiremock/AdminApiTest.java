@@ -2,15 +2,21 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
@@ -183,6 +189,25 @@ public class AdminApiTest extends AcceptanceTestBase {
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(3);
         check.field("servedStubs").hasSize(3);
+    }
+
+    @Test
+    public void getLoggedRequestById() throws Exception {
+        for (int i = 1; i <= 3; i++) {
+            testClient.get("/received-request/" + i);
+        }
+
+        List<ServedStub> servedStubs = dsl.getAllServedStubs();
+        UUID servedStubId = servedStubs.get(1).getId();
+
+        WireMockResponse response = testClient.get("/__admin/requests/" + servedStubId);
+        String body = response.content();
+        System.out.println("BODY:" + body);
+
+        assertThat(response.statusCode(), is(200));
+        JsonVerifiable check = JsonAssertion.assertThat(body);
+        check.field("id").isEqualTo(servedStubId);
+        check.field("request").field("url").isEqualTo("/received-request/2");
     }
 
 }

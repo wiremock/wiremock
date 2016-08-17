@@ -50,6 +50,7 @@ public class ResponseDefinitionBuilder {
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
 	protected Map<String, Object> transformerParameters = newHashMap();
+	protected Boolean wasConfigured = true;
 
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
@@ -66,6 +67,7 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
+		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
 
@@ -232,7 +234,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters) :
+						transformerParameters,
+                        wasConfigured) :
 				new ResponseDefinition(
 						status,
 						statusMessage,
@@ -247,7 +250,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters
+						transformerParameters,
+					    wasConfigured
 				);
 	}
 }

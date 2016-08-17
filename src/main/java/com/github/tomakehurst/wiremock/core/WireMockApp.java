@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleItemResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -29,7 +27,6 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
@@ -191,6 +188,11 @@ public class WireMockApp implements StubServer, Admin {
                 LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
             );
         }
+    }
+
+    @Override
+    public SingleServedStubResult getServedStub(UUID id) {
+        return SingleServedStubResult.fromOptional(requestJournal.getAllServedStub(id));
     }
 
     @Override
