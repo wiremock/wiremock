@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
@@ -33,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -50,7 +48,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     private final Map<String, StringValuePattern> cookies;
     private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
-    private String bodyFileName;
+    private String extraBodyFileName;
 
     private CustomMatcherDefinition customMatcherDefinition;
     private RequestMatcher matcher;
@@ -83,7 +81,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                           BasicCredentials basicAuthCredentials,
                           List<StringValuePattern> bodyPatterns,
                           CustomMatcherDefinition customMatcherDefinition,
-                          String bodyFileName) {
+                          String extraBodyFileName) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -93,7 +91,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         this.bodyPatterns = bodyPatterns;
         this.matcher = defaultMatcher;
         this.customMatcherDefinition = customMatcherDefinition;
-        this.bodyFileName = bodyFileName;
+        this.extraBodyFileName = extraBodyFileName;
     }
 
     @JsonCreator
@@ -108,7 +106,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                           @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
                           @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
                           @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition,
-                          @JsonProperty("bodyFileName") String bodyFileName) {
+                          @JsonProperty("extraBodyFileName") String extraBodyFileName) {
 
         this(
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -119,7 +117,7 @@ public class RequestPattern implements ValueMatcher<Request> {
             basicAuthCredentials,
             bodyPatterns,
             customMatcherDefinition,
-            bodyFileName
+            extraBodyFileName
         );
     }
 
@@ -288,12 +286,12 @@ public class RequestPattern implements ValueMatcher<Request> {
         return customMatcherDefinition;
     }
 
-    public String getBodyFileName() {
-        return bodyFileName;
+    public String getExtraBodyFileName() {
+        return extraBodyFileName;
     }
 
-    public void setBodyFileName(String bodyFileName) {
-        this.bodyFileName = bodyFileName;
+    public void setExtraBodyFileName(String extraBodyFileName) {
+        this.extraBodyFileName = extraBodyFileName;
     }
 
     @Override
@@ -323,12 +321,12 @@ public class RequestPattern implements ValueMatcher<Request> {
             Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
             Objects.equal(bodyPatterns, that.bodyPatterns) &&
             Objects.equal(customMatcherDefinition, that.customMatcherDefinition) &&
-            Objects.equal(bodyFileName, that.bodyFileName);
+            Objects.equal(extraBodyFileName, that.extraBodyFileName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher, bodyFileName);
+        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher, extraBodyFileName);
     }
 
     @Override

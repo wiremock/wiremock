@@ -124,7 +124,7 @@ public class StubMappingJsonRecorder implements RequestListener {
                             request.getUrl(),
                             response.getHeaders().getContentTypeHeader(),
                             body));
-            requestPattern.setBodyFileName(requestBodyFileName);
+            requestPattern.setExtraBodyFileName(requestBodyFileName);
             byte[] requestBody = bodyDecompressedIfRequired(request);
             filesFileSource.writeBinaryFile(requestBodyFileName, requestBody);
         }
