@@ -50,6 +50,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     private final Map<String, StringValuePattern> cookies;
     private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
+    private String bodyFileName;
 
     private CustomMatcherDefinition customMatcherDefinition;
     private RequestMatcher matcher;
@@ -81,7 +82,8 @@ public class RequestPattern implements ValueMatcher<Request> {
                           Map<String, StringValuePattern> cookies,
                           BasicCredentials basicAuthCredentials,
                           List<StringValuePattern> bodyPatterns,
-                          CustomMatcherDefinition customMatcherDefinition) {
+                          CustomMatcherDefinition customMatcherDefinition,
+                          String bodyFileName) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -91,6 +93,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         this.bodyPatterns = bodyPatterns;
         this.matcher = defaultMatcher;
         this.customMatcherDefinition = customMatcherDefinition;
+        this.bodyFileName = bodyFileName;
     }
 
     @JsonCreator
@@ -104,7 +107,8 @@ public class RequestPattern implements ValueMatcher<Request> {
                           @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                           @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
                           @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
-                          @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
+                          @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition,
+                          @JsonProperty("bodyFileName") String bodyFileName) {
 
         this(
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -114,17 +118,18 @@ public class RequestPattern implements ValueMatcher<Request> {
             cookies,
             basicAuthCredentials,
             bodyPatterns,
-            customMatcherDefinition
+            customMatcherDefinition,
+            bodyFileName
         );
     }
 
     public RequestPattern(RequestMatcher customMatcher) {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, null, null, null, null, null, customMatcherDefinition);
+        this(null, null, null, null, null, null, null, customMatcherDefinition, null);
     }
 
     @Override
@@ -283,6 +288,14 @@ public class RequestPattern implements ValueMatcher<Request> {
         return customMatcherDefinition;
     }
 
+    public String getBodyFileName() {
+        return bodyFileName;
+    }
+
+    public void setBodyFileName(String bodyFileName) {
+        this.bodyFileName = bodyFileName;
+    }
+
     @Override
     public String getName() {
         return "requestMatching";
@@ -309,12 +322,13 @@ public class RequestPattern implements ValueMatcher<Request> {
             Objects.equal(cookies, that.cookies) &&
             Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
             Objects.equal(bodyPatterns, that.bodyPatterns) &&
-            Objects.equal(customMatcherDefinition, that.customMatcherDefinition);
+            Objects.equal(customMatcherDefinition, that.customMatcherDefinition) &&
+            Objects.equal(bodyFileName, that.bodyFileName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
+        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher, bodyFileName);
     }
 
     @Override

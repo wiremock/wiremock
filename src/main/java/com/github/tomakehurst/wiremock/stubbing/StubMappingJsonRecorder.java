@@ -42,14 +42,13 @@ public class StubMappingJsonRecorder implements RequestListener {
     private final Admin admin;
     private final List<CaseInsensitiveKey> headersToMatch;
     private IdGenerator idGenerator;
-    private boolean recordRequestBody;
+    private boolean recordMappingsExtra;
 
-    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch, boolean recordRequestBody) {
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch, boolean recordMappingsExtra) {
         this.mappingsFileSource = mappingsFileSource;
         this.filesFileSource = filesFileSource;
         this.admin = admin;
-        // TODO SDV: Use it!
-        this.recordRequestBody = recordRequestBody;
+        this.recordMappingsExtra = recordMappingsExtra;
         this.headersToMatch = headersToMatch;
         idGenerator = new VeryShortIdGenerator();
     }
@@ -115,6 +114,21 @@ public class StubMappingJsonRecorder implements RequestListener {
         ResponseDefinitionBuilder responseDefinitionBuilder = responseDefinition()
                 .withStatus(response.getStatus())
                 .withBodyFile(bodyFileName);
+
+        if (recordMappingsExtra && request.getBody().length > 0) {
+            String requestBodyFileName = UniqueFilenameGenerator.generate(
+                    request,
+                    "requestbody",
+                    fileId,
+                    ContentTypes.determineFileExtension(
+                            request.getUrl(),
+                            response.getHeaders().getContentTypeHeader(),
+                            body));
+            requestPattern.setBodyFileName(requestBodyFileName);
+            byte[] requestBody = bodyDecompressedIfRequired(request);
+            filesFileSource.writeBinaryFile(requestBodyFileName, requestBody);
+        }
+
         if (response.getHeaders().size() > 0) {
             responseDefinitionBuilder.withHeaders(withoutContentEncodingAndContentLength(response.getHeaders()));
         }
@@ -136,12 +150,12 @@ public class StubMappingJsonRecorder implements RequestListener {
         }));
     }
 
-    private byte[] bodyDecompressedIfRequired(Response response) {
-        if (response.getHeaders().getHeader("Content-Encoding").containsValue("gzip")) {
-            return Gzip.unGzip(response.getBody());
+    private byte[] bodyDecompressedIfRequired(HTTPBasicMessage httpBasicMessage) {
+        if (httpBasicMessage.getHeaders().getHeader("Content-Encoding").containsValue("gzip")) {
+            return Gzip.unGzip(httpBasicMessage.getBody());
         }
 
-        return response.getBody();
+        return httpBasicMessage.getBody();
     }
 
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {

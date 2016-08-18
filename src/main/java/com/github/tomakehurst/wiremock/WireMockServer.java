@@ -169,9 +169,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
 		stubRequestHandler.addRequestListener(listener);
 	}
 	
-	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource, boolean recordRequestBody) {
+	public void enableRecordMappings(FileSource mappingsFileSource, FileSource filesFileSource, boolean recordMappingsExtra) {
 	    addMockServiceRequestListener(
-                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders(), recordRequestBody));
+                new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, wireMockApp, options.matchingHeaders(), recordMappingsExtra));
         notifier.info("Recording mappings to " + mappingsFileSource.getPath());
 	}
 

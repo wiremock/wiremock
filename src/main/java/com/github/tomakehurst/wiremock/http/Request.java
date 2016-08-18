@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import java.util.Map;
 import java.util.Set;
 
-public interface Request {
+public interface Request extends HTTPBasicMessage {
 
     String getUrl();
     String getAbsoluteUrl();
@@ -28,7 +28,6 @@ public interface Request {
     String getHeader(String key);
     HttpHeader header(String key);
     ContentTypeHeader contentTypeHeader();
-    HttpHeaders getHeaders();
     boolean containsHeader(String key);
     Set<String> getAllHeaderKeys();
 
@@ -36,7 +35,6 @@ public interface Request {
 
     QueryParameter queryParameter(String key);
 
-    byte[] getBody();
     String getBodyAsString();
     String getBodyAsBase64();
 
