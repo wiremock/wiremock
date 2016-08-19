@@ -66,12 +66,12 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-        constructRecordingListener(Collections.<String>emptyList());
+        constructRecordingListener(Collections.<String>emptyList(), false);
 	}
 
-    private void constructRecordingListener(List<String> headersToRecord) {
+    private void constructRecordingListener(List<String> headersToRecord, boolean recordMappingsExtra) {
 	    // TODO SDV: Create test for request body record enabled
-        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS), false);
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS), recordMappingsExtra);
         listener.setIdGenerator(fixedIdGenerator("1$2!3"));
     }
 
@@ -260,7 +260,7 @@ public class StubMappingJsonRecorderTest {
     
     @Test
     public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {
-        constructRecordingListener(MATCHING_REQUEST_HEADERS);
+        constructRecordingListener(MATCHING_REQUEST_HEADERS, false);
 
         context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
