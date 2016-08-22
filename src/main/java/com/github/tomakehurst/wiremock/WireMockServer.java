@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.admin.model.*;
-import com.github.tomakehurst.wiremock.client.LocalMappingBuilder;
-import com.github.tomakehurst.wiremock.client.RemoteMappingBuilder;
+import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -40,8 +42,7 @@ import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
-import com.github.tomakehurst.wiremock.junit.LocalStubbing;
-import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
@@ -64,7 +65,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.base.Preconditions.checkState;
 
-public class WireMockServer implements Container, LocalStubbing, Admin {
+public class WireMockServer implements Container, Stubbing, Admin {
 
 	public static final String FILES_ROOT = "__files";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -241,38 +242,28 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     }
 
     @Override
-    public void givenThat(RemoteMappingBuilder mappingBuilder) {
+    public void givenThat(MappingBuilder mappingBuilder) {
         client.register(mappingBuilder);
     }
 
     @Override
-    public void stubFor(RemoteMappingBuilder mappingBuilder) {
+    public void stubFor(MappingBuilder mappingBuilder) {
         givenThat(mappingBuilder);
     }
 
     @Override
-    public void editStub(RemoteMappingBuilder mappingBuilder) {
+    public void editStub(MappingBuilder mappingBuilder) {
         client.editStubMapping(mappingBuilder);
     }
 
     @Override
-    public void removeStub(RemoteMappingBuilder mappingBuilder) {
+    public void removeStub(MappingBuilder mappingBuilder) {
         client.removeStubMapping(mappingBuilder);
     }
 
     @Override
     public void removeStubMapping(StubMapping stubMapping){
         wireMockApp.removeStubMapping(stubMapping);
-    }
-
-    @Override
-    public void givenThat(LocalMappingBuilder mappingBuilder) {
-        stubFor(mappingBuilder);
-    }
-
-    @Override
-    public void stubFor(LocalMappingBuilder mappingBuilder) {
-        client.register(mappingBuilder.build());
     }
 
     @Override
@@ -283,16 +274,6 @@ public class WireMockServer implements Container, LocalStubbing, Admin {
     @Override
     public void verify(int count, RequestPatternBuilder requestPatternBuilder) {
         client.verifyThat(count, requestPatternBuilder);
-    }
-
-    @Override
-    public void verify(LocalRequestPatternBuilder requestPatternBuilder) {
-        verify(requestPatternBuilder.getUnderlyingBuilder());
-    }
-
-    @Override
-    public void verify(int count, LocalRequestPatternBuilder requestPatternBuilder) {
-        verify(count, requestPatternBuilder.getUnderlyingBuilder());
     }
 
     @Override

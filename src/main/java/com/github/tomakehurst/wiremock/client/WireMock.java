@@ -15,37 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.AnythingPattern;
-import com.github.tomakehurst.wiremock.matching.ContainsPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
-import com.github.tomakehurst.wiremock.matching.LocalRequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
-import com.github.tomakehurst.wiremock.matching.MatchesXPathPattern;
-import com.github.tomakehurst.wiremock.matching.NegativeRegexPattern;
-import com.github.tomakehurst.wiremock.matching.RegexPattern;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.Diff;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -97,11 +77,11 @@ public class WireMock {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
 
-	public static void givenThat(RemoteMappingBuilder mappingBuilder) {
+	public static void givenThat(MappingBuilder mappingBuilder) {
 		defaultInstance.get().register(mappingBuilder);
 	}
 
-	public static void stubFor(RemoteMappingBuilder mappingBuilder) {
+	public static void stubFor(MappingBuilder mappingBuilder) {
 		givenThat(mappingBuilder);
 	}
 
@@ -109,7 +89,7 @@ public class WireMock {
 		defaultInstance.get().editStubMapping(mappingBuilder);
 	}
 
-	public static void removeStub(RemoteMappingBuilder mappingBuilder) {
+	public static void removeStub(MappingBuilder mappingBuilder) {
 		defaultInstance.get().removeStubMapping(mappingBuilder);
 	}
 
@@ -225,7 +205,7 @@ public class WireMock {
         defaultInstance.get().resetToDefaultMappings();
     }
 
-	public void register(RemoteMappingBuilder mappingBuilder) {
+	public void register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
 		register(mapping);
 	}
@@ -234,11 +214,11 @@ public class WireMock {
         admin.addStubMapping(mapping);
     }
 
-	public void editStubMapping(RemoteMappingBuilder mappingBuilder) {
+	public void editStubMapping(MappingBuilder mappingBuilder) {
 		admin.editStubMapping(mappingBuilder.build());
 	}
 
-	public void removeStubMapping(RemoteMappingBuilder mappingBuilder) {
+	public void removeStubMapping(MappingBuilder mappingBuilder) {
 		admin.removeStubMapping(mappingBuilder.build());
 	}
 
@@ -286,56 +266,56 @@ public class WireMock {
 		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, expected);
 	}
 
-	public static RemoteMappingBuilder get(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.GET, urlPattern);
+	public static MappingBuilder get(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
 	}
 
-	public static RemoteMappingBuilder post(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.POST, urlPattern);
+	public static MappingBuilder post(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
 	}
 
-	public static RemoteMappingBuilder put(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.PUT, urlPattern);
+	public static MappingBuilder put(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
 	}
 
-	public static RemoteMappingBuilder delete(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.DELETE, urlPattern);
+	public static MappingBuilder delete(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
 	}
 
-	public static RemoteMappingBuilder patch(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.PATCH, urlPattern);
+	public static MappingBuilder patch(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
 	}
 
-	public static RemoteMappingBuilder head(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.HEAD, urlPattern);
+	public static MappingBuilder head(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
 	}
 
-	public static RemoteMappingBuilder options(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.OPTIONS, urlPattern);
+	public static MappingBuilder options(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
 	}
 
-	public static RemoteMappingBuilder trace(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.TRACE, urlPattern);
+	public static MappingBuilder trace(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
 	}
 
-	public static RemoteMappingBuilder any(UrlPattern urlPattern) {
-		return new MappingBuilder(RequestMethod.ANY, urlPattern);
+	public static MappingBuilder any(UrlPattern urlPattern) {
+		return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
 	}
 
-    public static RemoteMappingBuilder request(String method, UrlPattern urlPattern) {
-        return new MappingBuilder(RequestMethod.fromString(method), urlPattern);
+    public static MappingBuilder request(String method, UrlPattern urlPattern) {
+        return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
     }
 
-	public static LocalMappingBuilder requestMatching(String customRequestMatcherName) {
-		return new MappingBuilder(customRequestMatcherName, Parameters.empty());
+	public static MappingBuilder requestMatching(String customRequestMatcherName) {
+		return new BasicMappingBuilder(customRequestMatcherName, Parameters.empty());
 	}
 
-	public static RemoteMappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
-		return new MappingBuilder(customRequestMatcherName, parameters);
+	public static MappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
+		return new BasicMappingBuilder(customRequestMatcherName, parameters);
 	}
 
-	public static LocalMappingBuilder requestMatching(RequestMatcher requestMatcher) {
-		return new MappingBuilder(requestMatcher);
+	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
+		return new BasicMappingBuilder(requestMatcher);
 	}
 
 	public static ResponseDefinitionBuilder aResponse() {
@@ -460,8 +440,8 @@ public class WireMock {
         return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static LocalRequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
-		return LocalRequestPatternBuilder.forCustomMatcher(requestMatcher);
+	public static RequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+		return RequestPatternBuilder.forCustomMatcher(requestMatcher);
 	}
 
 	public static void setGlobalFixedDelay(int milliseconds) {
