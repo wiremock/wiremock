@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
@@ -38,25 +39,28 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void getAllStubMappings() throws Exception {
-        dsl.stubFor(get(urlEqualTo("/my-test-url")).willReturn(aResponse().withStatus(418)));
+        StubMapping stubMapping = dsl.stubFor(get(urlEqualTo("/my-test-url"))
+            .willReturn(aResponse().withStatus(418)));
 
         String body = testClient.get("/__admin/mappings").content();
 
         JSONAssert.assertEquals(
-            "{                                      \n" +
-            "  \"mappings\" : [ {                   \n" +
-            "    \"request\" : {                    \n" +
-            "      \"url\" : \"/my-test-url\",      \n" +
-            "      \"method\" : \"GET\"             \n" +
-            "    },                                 \n" +
-            "    \"response\" : {                   \n" +
-            "      \"status\" : 418                 \n" +
-            "    }                                  \n" +
-            "  } ],                                 \n" +
-            "                                       \n" +
-            "  \"meta\": {                          \n" +
-            "    \"total\": 1                       \n" +
-            "  }                                    \n" +
+            "{                                              \n" +
+            "  \"mappings\" : [ {                           \n" +
+            "    \"id\" : \"" + stubMapping.getId() + "\",  \n" +
+            "    \"uuid\" : \"" + stubMapping.getId() + "\",\n" +
+            "    \"request\" : {                            \n" +
+            "      \"url\" : \"/my-test-url\",              \n" +
+            "      \"method\" : \"GET\"                     \n" +
+            "    },                                         \n" +
+            "    \"response\" : {                           \n" +
+            "      \"status\" : 418                         \n" +
+            "    }                                          \n" +
+            "  } ],                                         \n" +
+            "                                               \n" +
+            "  \"meta\": {                                  \n" +
+            "    \"total\": 1                               \n" +
+            "  }                                            \n" +
             "}",
         body,
             true
@@ -127,6 +131,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JSONAssert.assertEquals(
             "{                                          \n" +
+            "    \"id\": \""   + id + "\",              \n" +
             "    \"uuid\": \"" + id + "\",              \n" +
             "    \"request\" : {                        \n" +
             "      \"url\" : \"/my-addressable-stub\",  \n" +

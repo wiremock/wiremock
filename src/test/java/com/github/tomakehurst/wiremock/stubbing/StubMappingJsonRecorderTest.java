@@ -366,6 +366,7 @@ public class StubMappingJsonRecorderTest {
 
     private static final String GZIP_REQUEST_MAPPING =
                     "{ 													             \n" +
+                    "   \"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",            \n" +
                     "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n" +
                     "	\"request\": {									             \n" +
                     "		\"method\": \"GET\",						             \n" +
