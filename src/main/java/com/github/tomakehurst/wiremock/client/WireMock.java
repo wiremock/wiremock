@@ -77,12 +77,12 @@ public class WireMock {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
 
-	public static void givenThat(MappingBuilder mappingBuilder) {
-		defaultInstance.get().register(mappingBuilder);
+	public static StubMapping givenThat(MappingBuilder mappingBuilder) {
+		return defaultInstance.get().register(mappingBuilder);
 	}
 
-	public static void stubFor(MappingBuilder mappingBuilder) {
-		givenThat(mappingBuilder);
+	public static StubMapping stubFor(MappingBuilder mappingBuilder) {
+		return givenThat(mappingBuilder);
 	}
 
 	public static void editStub(MappingBuilder mappingBuilder) {
@@ -205,9 +205,10 @@ public class WireMock {
         defaultInstance.get().resetToDefaultMappings();
     }
 
-	public void register(MappingBuilder mappingBuilder) {
+	public StubMapping register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
 		register(mapping);
+		return mapping;
 	}
 
     public void register(StubMapping mapping) {

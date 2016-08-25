@@ -37,7 +37,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
-	private UUID id;
+	private UUID id = UUID.randomUUID();
 
 	BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);

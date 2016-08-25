@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,6 +30,8 @@ public class AcceptanceTestBase {
 
 	protected static WireMockServer wireMockServer;
 	protected static WireMockTestClient testClient;
+
+	protected static Stubbing wm;
 
 	@BeforeClass
 	public static void setupServer() {
@@ -57,6 +60,7 @@ public class AcceptanceTestBase {
         wireMockServer.start();
         testClient = new WireMockTestClient(wireMockServer.port());
         WireMock.configureFor(wireMockServer.port());
+        wm = wireMockServer;
     }
 
 	@Before

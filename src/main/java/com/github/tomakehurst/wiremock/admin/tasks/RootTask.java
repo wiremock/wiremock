@@ -15,6 +15,4 @@
  */
 package com.github.tomakehurst.wiremock.admin.tasks;
 
-import com.github.tomakehurst.wiremock.admin.tasks.GetAllStubMappingsTask;
-
 public class RootTask extends GetAllStubMappingsTask {}

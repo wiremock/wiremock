@@ -242,13 +242,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void givenThat(MappingBuilder mappingBuilder) {
-        client.register(mappingBuilder);
+    public StubMapping givenThat(MappingBuilder mappingBuilder) {
+        return client.register(mappingBuilder);
     }
 
     @Override
-    public void stubFor(MappingBuilder mappingBuilder) {
-        givenThat(mappingBuilder);
+    public StubMapping stubFor(MappingBuilder mappingBuilder) {
+        return givenThat(mappingBuilder);
     }
 
     @Override

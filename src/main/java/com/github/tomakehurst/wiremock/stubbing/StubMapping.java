@@ -70,6 +70,14 @@ public class StubMapping {
 		return uuid;
 	}
 
+	public void setId(UUID uuid) {
+		this.uuid = uuid;
+	}
+
+	public UUID getId() {
+		return uuid;
+	}
+
 	@VisibleForTesting
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;

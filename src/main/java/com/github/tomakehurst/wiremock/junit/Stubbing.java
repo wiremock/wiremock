@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.junit;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 
@@ -25,8 +26,8 @@ import java.util.List;
 
 public interface Stubbing {
 
-    void givenThat(MappingBuilder mappingBuilder);
-    void stubFor(MappingBuilder mappingBuilder);
+    StubMapping givenThat(MappingBuilder mappingBuilder);
+    StubMapping stubFor(MappingBuilder mappingBuilder);
     void editStub(MappingBuilder mappingBuilder);
     void removeStub(MappingBuilder mappingBuilder);
     void verify(RequestPatternBuilder requestPatternBuilder);

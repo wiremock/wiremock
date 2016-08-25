@@ -31,9 +31,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -442,6 +440,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/empty-header", withHeader("X-My-Header", ""));
 
         assertThat(response.statusCode(), is(200));
+    }
+
+	@Test
+	public void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
+        StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aResponse()));
+        assertThat(stubMapping.getId(), notNullValue());
+
+        StubMapping localStubMapping = wm.stubFor(get(anyUrl()).willReturn(aResponse()));
+        assertThat(localStubMapping.getId(), notNullValue());
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
