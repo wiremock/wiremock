@@ -30,36 +30,27 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
-import com.github.tomakehurst.wiremock.http.HttpServer;
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.ProxyResponseRenderer;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.http.StubResponseRenderer;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.base.Optional;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -100,12 +91,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
                 this
         );
 
-        AdminRoutes adminRoutes = AdminRoutes.defaults();
+        AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
+             options.extensionsOfType(AdminApiExtension.class).values()
+        );
         AdminRequestHandler adminRequestHandler = new AdminRequestHandler(
             adminRoutes,
             wireMockApp,
             new BasicResponseRenderer()
         );
+
+        Map<String, PostServeAction> postServeActions = options.extensionsOfType(PostServeAction.class);
         stubRequestHandler = new StubRequestHandler(
                 wireMockApp,
                 new StubResponseRenderer(
@@ -117,7 +112,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
                                 options.shouldPreserveHostHeader(),
                                 options.proxyHostHeader()
                         ),
-                        ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values()))
+                        ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
+                ),
+            wireMockApp,
+            postServeActions
         );
         HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
@@ -282,7 +280,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<ServedStub> getAllServedStubs() {
+    public List<ServeEvent> getAllServedStubs() {
         return client.getServedStubs();
     }
 

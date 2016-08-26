@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
@@ -29,17 +29,19 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
 		this.responseRenderer = responseRenderer;
-	}
+    }
 
 	@Override
 	public void addRequestListener(RequestListener requestListener) {
 		listeners.add(requestListener);
 	}
 
+    protected void afterHandle(ServeEvent serveEvent, Response response) {}
+
 	@Override
-	public Response handle(Request request) {
-		ServedStub servedStub = handleRequest(request);
-		ResponseDefinition responseDefinition = servedStub.getResponseDefinition();
+	public void handle(Request request, HttpResponder httpResponder) {
+		ServeEvent serveEvent = handleRequest(request);
+		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
 
@@ -54,7 +56,9 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 			listener.requestReceived(request, response);
 		}
 
-		return response;
+		httpResponder.respond(request, response);
+
+        afterHandle(serveEvent, response);
 	}
 
 	private static String formatRequest(Request request) {
@@ -81,5 +85,5 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	protected boolean logRequests() { return false; }
 
-	protected abstract ServedStub handleRequest(Request request);
+	protected abstract ServeEvent handleRequest(Request request);
 }

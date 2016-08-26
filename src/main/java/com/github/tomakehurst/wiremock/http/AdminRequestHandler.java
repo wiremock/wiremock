@@ -21,10 +21,12 @@ import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.net.URI;
+import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -41,7 +43,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 	}
 
 	@Override
-	public ServedStub handleRequest(Request request) {
+	public ServeEvent handleRequest(Request request) {
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
         String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
 
@@ -51,12 +53,12 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             AdminUriTemplate uriTemplate = adminRoutes.requestSpecForTask(adminTask.getClass()).getUriTemplate();
             PathParams pathParams = uriTemplate.parse(path);
 
-            return ServedStub.exactMatch(
+            return ServeEvent.of(
                 LoggedRequest.createFrom(request),
                 adminTask.execute(admin, request, pathParams)
             );
         } catch (NotFoundException e) {
-            return ServedStub.noExactMatch(LoggedRequest.createFrom(request));
+            return ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request));
         }
     }
 

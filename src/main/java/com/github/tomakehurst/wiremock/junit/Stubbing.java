@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
@@ -35,7 +35,7 @@ public interface Stubbing {
 
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
 
-    List<ServedStub> getAllServedStubs();
+    List<ServeEvent> getAllServedStubs();
 
     void setGlobalFixedDelay(int milliseconds);
 

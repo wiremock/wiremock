@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -97,10 +97,10 @@ public class NearMissCalculatorTest {
             one(requestJournal).getAllServedStubs();
             will(returnValue(
                 asList(
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
                 )
             ));
         }});
@@ -122,7 +122,7 @@ public class NearMissCalculatorTest {
             one(requestJournal).getAllServedStubs();
             will(returnValue(
                 singletonList(
-                    new ServedStub(
+                    ServeEvent.of(
                         LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")),
                         new ResponseDefinition()
                     )

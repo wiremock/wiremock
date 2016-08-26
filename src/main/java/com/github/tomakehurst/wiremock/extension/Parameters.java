@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -56,5 +57,13 @@ public class Parameters extends HashMap<String, Object> {
 
     public static Parameters one(String name, Object value) {
         return from(ImmutableMap.of(name, value));
+    }
+
+    public <T> T as(Class<T> myDataClass) {
+        return Json.mapToObject(this, myDataClass);
+    }
+
+    public static <T> Parameters of(T myData) {
+        return from(Json.objectToMap(myData));
     }
 }

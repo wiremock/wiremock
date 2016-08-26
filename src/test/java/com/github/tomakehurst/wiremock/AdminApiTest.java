@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
@@ -216,8 +216,8 @@ public class AdminApiTest extends AcceptanceTestBase {
             testClient.get("/received-request/" + i);
         }
 
-        List<ServedStub> servedStubs = dsl.getAllServedStubs();
-        UUID servedStubId = servedStubs.get(1).getId();
+        List<ServeEvent> serveEvents = dsl.getAllServedStubs();
+        UUID servedStubId = serveEvents.get(1).getId();
 
         WireMockResponse response = testClient.get("/__admin/requests/" + servedStubId);
         String body = response.content();

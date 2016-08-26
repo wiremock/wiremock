@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -27,10 +27,10 @@ public interface RequestJournal {
 	int countRequestsMatching(RequestPattern requestPattern);
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
 
-    List<ServedStub> getAllServedStubs();
-    Optional<ServedStub> getAllServedStub(UUID id);
+    List<ServeEvent> getAllServedStubs();
+    Optional<ServeEvent> getAllServedStub(UUID id);
 
 	void reset();
 
-    void requestReceived(ServedStub servedStub);
+    void requestReceived(ServeEvent serveEvent);
 }

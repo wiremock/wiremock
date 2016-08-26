@@ -17,20 +17,20 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
 public class FindServedStubsResult {
 
-    private final List<ServedStub> servedStubs;
+    private final List<ServeEvent> serveEvents;
 
     @JsonCreator
-    public FindServedStubsResult(@JsonProperty("servedStubs") List<ServedStub> servedStubs) {
-        this.servedStubs = servedStubs;
+    public FindServedStubsResult(@JsonProperty("servedStubs") List<ServeEvent> serveEvents) {
+        this.serveEvents = serveEvents;
     }
 
-    public List<ServedStub> getServedStubs() {
-        return servedStubs;
+    public List<ServeEvent> getServeEvents() {
+        return serveEvents;
     }
 }

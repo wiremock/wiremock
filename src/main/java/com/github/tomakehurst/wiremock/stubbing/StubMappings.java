@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public interface StubMappings {
 
-	ServedStub serveFor(Request request);
+	ServeEvent serveFor(Request request);
 	void addMapping(StubMapping mapping);
 	void removeMapping(StubMapping mapping);
 	void editMapping(StubMapping stubMapping);

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -30,6 +31,8 @@ public interface MappingBuilder {
     MappingBuilder withId(UUID id);
     MappingBuilder withBasicAuth(String username, String password);
     MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+    <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
 
     MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 

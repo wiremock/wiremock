@@ -18,32 +18,32 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.Paginator;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
-public class GetServedStubsResult extends RequestJournalDependentResult<ServedStub> {
+public class GetServedStubsResult extends RequestJournalDependentResult<ServeEvent> {
 
     @JsonCreator
-    public GetServedStubsResult(@JsonProperty("servedStubs") List<ServedStub> source,
+    public GetServedStubsResult(@JsonProperty("servedStubs") List<ServeEvent> source,
                                 @JsonProperty("meta") Meta meta,
                                 @JsonProperty("requestJournalDisabled") boolean requestJournalDisabled) {
         super(source, meta, requestJournalDisabled);
     }
 
-    public GetServedStubsResult(Paginator<ServedStub> paginator, boolean requestJournalDisabled) {
+    public GetServedStubsResult(Paginator<ServeEvent> paginator, boolean requestJournalDisabled) {
         super(paginator, requestJournalDisabled);
     }
 
-    public static GetServedStubsResult requestJournalEnabled(Paginator<ServedStub> paginator) {
+    public static GetServedStubsResult requestJournalEnabled(Paginator<ServeEvent> paginator) {
         return new GetServedStubsResult(paginator, false);
     }
 
-    public static GetServedStubsResult requestJournalDisabled(Paginator<ServedStub> paginator) {
+    public static GetServedStubsResult requestJournalDisabled(Paginator<ServeEvent> paginator) {
         return new GetServedStubsResult(paginator, true);
     }
 
-    public List<ServedStub> getServedStubs() {
+    public List<ServeEvent> getServedStubs() {
         return select();
     }
 }

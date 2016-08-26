@@ -25,9 +25,13 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
@@ -38,6 +42,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private UUID id = UUID.randomUUID();
+
+	private Map<String, Parameters> postServeActions = newLinkedHashMap();
 
 	BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
@@ -120,6 +126,15 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	}
 
     @Override
+    public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
+        Parameters params = parameters instanceof Parameters ?
+            (Parameters) parameters :
+            Parameters.of(parameters);
+        postServeActions.put(extensionName, params);
+        return this;
+    }
+
+    @Override
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
@@ -132,6 +147,9 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
 		mapping.setUuid(id);
+
+        mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
+
 		return mapping;
 	}
 
