@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -50,7 +51,10 @@ public class PostServeActionExtensionTest {
             .extensions(new NamedCounterAction()));
 
         wm.stubFor(get(urlPathEqualTo("/count-me"))
-            .withPostServeAction("count-request", new CounterNameParameter("things"))
+            .withPostServeAction("count-request",
+                counterNameParameter()
+                    .withName("things")
+            )
             .willReturn(aResponse()));
 
         client.get("/count-me");
@@ -102,10 +106,23 @@ public class PostServeActionExtensionTest {
 
     public static class CounterNameParameter {
 
-        public final String counterName;
+        public String counterName;
 
         public CounterNameParameter(@JsonProperty("counterName") String counterName) {
             this.counterName = counterName;
         }
+
+        public CounterNameParameter() {
+        }
+
+        public static CounterNameParameter counterNameParameter() {
+            return new CounterNameParameter();
+        }
+
+        public CounterNameParameter withName(String name) {
+            this.counterName = name;
+            return this;
+        }
+
     }
 }
