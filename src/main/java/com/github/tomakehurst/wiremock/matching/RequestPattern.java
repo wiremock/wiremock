@@ -152,11 +152,10 @@ public class RequestPattern implements ValueMatcher<Request> {
                 from(cookies.entrySet())
                     .transform(new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
                         public MatchResult apply(Map.Entry<String, StringValuePattern> cookiePattern) {
-                            Cookie cookie = request.getCookies().get(cookiePattern.getKey());
-                            return cookie != null ?
-                                cookiePattern.getValue().match(cookie.getValue()) :
-                                MatchResult.noMatch();
+                            Cookie cookie =
+                                firstNonNull(request.getCookies().get(cookiePattern.getKey()), Cookie.absent());
 
+                            return cookiePattern.getValue().match(cookie.getValue());
                         }
                     }).toList()
             );

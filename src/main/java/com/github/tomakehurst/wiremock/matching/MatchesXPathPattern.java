@@ -67,6 +67,10 @@ public class MatchesXPathPattern extends StringValuePattern {
     }
 
     private boolean isXPathMatch(String value) {
+        if (value == null) {
+            return false;
+        }
+
         try {
             Document inDocument = XMLUnit.buildControlDocument(value);
             XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
