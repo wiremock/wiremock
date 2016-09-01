@@ -66,6 +66,21 @@ public class PostServeActionExtensionTest {
         assertThat(count, is("4"));
     }
 
+    @Test
+    public void continuesWithNoEffectIfANonExistentActionIsReferenced() {
+        initWithOptions(options().dynamicPort());
+
+        wm.stubFor(get(urlPathEqualTo("/as-normal"))
+            .withPostServeAction("does-not-exist",
+                counterNameParameter()
+                    .withName("things")
+            )
+            .willReturn(aResponse().withStatus(200))
+        );
+
+        assertThat(client.get("/as-normal").statusCode(), is(200));
+    }
+
     public static class NamedCounterAction extends PostServeAction {
 
         private final ConcurrentHashMap<String, Integer> counters = new ConcurrentHashMap<>();

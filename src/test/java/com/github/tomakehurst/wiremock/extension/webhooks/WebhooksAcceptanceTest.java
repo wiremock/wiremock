@@ -21,6 +21,8 @@ import static com.github.tomakehurst.wiremock.extension.webhooks.Webhooks.webhoo
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class WebhooksAcceptanceTest extends AcceptanceTestBase {
 
@@ -73,12 +75,18 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
 
         client.post("/something-async", new StringEntity("", TEXT_PLAIN));
 
-        latch.await(1, SECONDS);
+        waitForRequestToTargetServer();
 
         verify(1, postRequestedFor(urlEqualTo("/callback"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withRequestBody(equalToJson("{ \"result\": \"SUCCESS\" }"))
         );
+    }
+
+    private void waitForRequestToTargetServer() throws Exception {
+        latch.await(2, SECONDS);
+        assertThat("Timed out waiting for target server to receive a request",
+            latch.getCount(), is(0L));
     }
 
 }

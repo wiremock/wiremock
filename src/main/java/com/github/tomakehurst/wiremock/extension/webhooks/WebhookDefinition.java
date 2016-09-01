@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.extension.webhooks;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -22,12 +23,12 @@ public class WebhookDefinition {
     @JsonCreator
     public WebhookDefinition(@JsonProperty("method") RequestMethod method,
                              @JsonProperty("url") URI url,
-                             @JsonProperty("headers") List<HttpHeader> headers,
-                             @JsonProperty("body") String base64Body,
-                             @JsonProperty("base64Body") String body) {
+                             @JsonProperty("headers") HttpHeaders headers,
+                             @JsonProperty("body") String body,
+                             @JsonProperty("base64Body") String base64Body) {
         this.method = method;
         this.url = url;
-        this.headers = headers;
+        this.headers = newArrayList(headers.all());
         this.body = Body.fromOneOf(null, body, null, base64Body);
     }
 
@@ -52,6 +53,11 @@ public class WebhookDefinition {
 
     public String getBody() {
         return body.isBinary() ? null : body.asString();
+    }
+
+    @JsonIgnore
+    public byte[] getBinaryBody() {
+        return body.asBytes();
     }
 
     public WebhookDefinition withMethod(RequestMethod method) {

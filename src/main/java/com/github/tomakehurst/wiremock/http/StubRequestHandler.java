@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 
@@ -62,11 +63,15 @@ public class StubRequestHandler extends AbstractRequestHandler {
             postServeAction.doGlobalAction(serveEvent, admin);
         }
 
-        Map<String, Parameters> postServeActions = serveEvent.getPostServeActions();
-        for (Map.Entry<String, Parameters> postServeActionEntries: postServeActions.entrySet()) {
-            PostServeAction action = this.postServeActions.get(postServeActionEntries.getKey());
-            Parameters parameters = postServeActionEntries.getValue();
-            action.doAction(serveEvent, admin, parameters);
+        Map<String, Parameters> postServeActionRefs = serveEvent.getPostServeActions();
+        for (Map.Entry<String, Parameters> postServeActionEntry: postServeActionRefs.entrySet()) {
+            PostServeAction action = postServeActions.get(postServeActionEntry.getKey());
+            if (action != null) {
+                Parameters parameters = postServeActionEntry.getValue();
+                action.doAction(serveEvent, admin, parameters);
+            } else {
+                notifier().error("No extension was found named \"" + postServeActionEntry.getKey() + "\"");
+            }
         }
     }
 }

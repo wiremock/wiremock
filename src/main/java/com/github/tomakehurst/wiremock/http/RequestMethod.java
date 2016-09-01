@@ -80,6 +80,10 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
 
     }
 
+    public boolean hasEntity() {
+        return (asList(PUT, PATCH, POST).contains(this));
+    }
+
     @Override
     public int hashCode() {
         return name.hashCode();
