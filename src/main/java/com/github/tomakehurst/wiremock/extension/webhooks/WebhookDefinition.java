@@ -18,7 +18,7 @@ public class WebhookDefinition {
     private RequestMethod method;
     private URI url;
     private List<HttpHeader> headers;
-    private Body body;
+    private Body body = Body.none();
 
     @JsonCreator
     public WebhookDefinition(@JsonProperty("method") RequestMethod method,

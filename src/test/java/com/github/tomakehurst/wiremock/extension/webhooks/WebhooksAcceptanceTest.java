@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.extension.webhooks.Webhooks.webhook;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
@@ -99,6 +100,24 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
             containsString("/callback returned status"),
             containsString("200")
         )));
+    }
+
+    @Test
+    public void firesMinimalWebhook() throws Exception {
+        rule.stubFor(post(urlPathEqualTo("/something-async"))
+            .willReturn(aResponse().withStatus(200))
+            .withPostServeAction("webhook", webhook()
+                .withMethod(GET)
+                .withUrl("http://localhost:" + wireMockServer.port() + "/callback"))
+        );
+
+        verify(0, postRequestedFor(anyUrl()));
+
+        client.post("/something-async", new StringEntity("", TEXT_PLAIN));
+
+        waitForRequestToTargetServer();
+
+        verify(1, getRequestedFor(urlEqualTo("/callback")));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
