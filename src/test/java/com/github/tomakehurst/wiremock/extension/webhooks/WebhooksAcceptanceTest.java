@@ -1,11 +1,13 @@
 package com.github.tomakehurst.wiremock.extension.webhooks;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
@@ -21,6 +23,8 @@ import static com.github.tomakehurst.wiremock.extension.webhooks.Webhooks.webhoo
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,6 +33,8 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
     static Webhooks webhooks = new Webhooks();
 
     static CountDownLatch latch;
+    static WireMockServer targetServer;
+    static TestNotifier notifier = new TestNotifier();
 
     WireMockTestClient client;
 
@@ -36,26 +42,32 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
     public static WireMockRule wm = new WireMockRule(
         options()
             .dynamicPort()
+            .notifier(notifier)
             .extensions(webhooks));
 
 
 
     @BeforeClass
     public static void initClass() {
-        stubFor(get(anyUrl())
-            .willReturn(aResponse().withStatus(200)));
+        targetServer = wireMockServer;
 
-        wireMockServer.addMockServiceRequestListener(new RequestListener() {
+        targetServer.addMockServiceRequestListener(new RequestListener() {
             @Override
             public void requestReceived(Request request, Response response) {
                 latch.countDown();
             }
         });
+
+        System.out.println("Target server port: " + targetServer.port());
+        System.out.println("Under test server port: " + wm.port());
     }
 
     @Before
     public void init() {
         reset();
+        notifier.reset();
+        targetServer.stubFor(any(anyUrl())
+            .willReturn(aResponse().withStatus(200)));
         latch = new CountDownLatch(1);
         client = new WireMockTestClient(wm.port());
     }
@@ -81,6 +93,10 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
             .withHeader("Content-Type", equalTo("application/json"))
             .withRequestBody(equalToJson("{ \"result\": \"SUCCESS\" }"))
         );
+
+        assertThat(notifier.getInfoMessages(), hasItem(
+            containsString("Webhook POST request to http://localhost:" + targetServer.port() + "/callback returned status HTTP/1.1 200 OK")
+        ));
     }
 
     private void waitForRequestToTargetServer() throws Exception {

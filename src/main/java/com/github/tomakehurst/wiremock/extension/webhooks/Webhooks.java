@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.extension.webhooks;
 
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
@@ -40,28 +41,17 @@ public class Webhooks extends PostServeAction {
     @Override
     public void doAction(ServeEvent serveEvent, Admin admin, Parameters parameters) {
         final WebhookDefinition definition = parameters.as(WebhookDefinition.class);
+        final Notifier notifier = notifier();
 
         scheduler.schedule(
             new Runnable() {
                 @Override
                 public void run() {
-                    HttpUriRequest request = getHttpRequestFor(
-                            definition.getMethod(),
-                            definition.getUrl().toString()
-                    );
-
-                    for (HttpHeader header: definition.getHeaders().all()) {
-                        request.addHeader(header.key(), header.firstValue());
-                    }
-
-                    if (definition.getMethod().hasEntity()) {
-                        HttpEntityEnclosingRequestBase entityRequest = (HttpEntityEnclosingRequestBase) request;
-                        entityRequest.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
-                    }
+                    HttpUriRequest request = buildRequest(definition);
 
                     try {
                         HttpResponse response = httpClient.execute(request);
-                        notifier().info(
+                        notifier.info(
                             String.format("Webhook %s request to %s returned status %s\n\n%s",
                                 definition.getMethod(),
                                 definition.getUrl(),
@@ -77,6 +67,24 @@ public class Webhooks extends PostServeAction {
             0L,
             SECONDS
         );
+    }
+
+    private static HttpUriRequest buildRequest(WebhookDefinition definition) {
+        HttpUriRequest request = getHttpRequestFor(
+                definition.getMethod(),
+                definition.getUrl().toString()
+        );
+
+        for (HttpHeader header: definition.getHeaders().all()) {
+            request.addHeader(header.key(), header.firstValue());
+        }
+
+        if (definition.getMethod().hasEntity()) {
+            HttpEntityEnclosingRequestBase entityRequest = (HttpEntityEnclosingRequestBase) request;
+            entityRequest.setEntity(new ByteArrayEntity(definition.getBinaryBody()));
+        }
+
+        return request;
     }
 
     public static WebhookDefinition webhook() {
