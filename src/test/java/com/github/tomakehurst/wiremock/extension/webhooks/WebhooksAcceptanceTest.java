@@ -49,7 +49,9 @@ public class WebhooksAcceptanceTest {
         targetServer.addMockServiceRequestListener(new RequestListener() {
             @Override
             public void requestReceived(Request request, Response response) {
-                latch.countDown();
+                if (request.getUrl().startsWith("/callback")) {
+                    latch.countDown();
+                }
             }
         });
         reset();
