@@ -23,9 +23,7 @@ import static com.github.tomakehurst.wiremock.extension.webhooks.Webhooks.webhoo
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class WebhooksAcceptanceTest extends AcceptanceTestBase {
@@ -96,9 +94,11 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
             .withRequestBody(equalToJson("{ \"result\": \"SUCCESS\" }"))
         );
 
-        assertThat(notifier.getInfoMessages(), hasItem(
-            containsString("Webhook POST request to http://localhost:" + targetServer.port() + "/callback returned status HTTP/1.1 200 OK")
-        ));
+        assertThat(notifier.getInfoMessages(), hasItem(allOf(
+            containsString("Webhook POST request to"),
+            containsString("/callback returned status"),
+            containsString("200")
+        )));
     }
 
     private void waitForRequestToTargetServer() throws Exception {
