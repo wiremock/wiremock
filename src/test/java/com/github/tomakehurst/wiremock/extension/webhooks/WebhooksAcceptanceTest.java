@@ -2,9 +2,9 @@ package com.github.tomakehurst.wiremock.extension.webhooks;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
@@ -34,12 +34,13 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
 
     static CountDownLatch latch;
     static WireMockServer targetServer;
+    static WireMock wm;
     static TestNotifier notifier = new TestNotifier();
 
     WireMockTestClient client;
 
     @ClassRule
-    public static WireMockRule wm = new WireMockRule(
+    public static WireMockRule rule = new WireMockRule(
         options()
             .dynamicPort()
             .notifier(notifier)
@@ -50,6 +51,7 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
     @BeforeClass
     public static void initClass() {
         targetServer = wireMockServer;
+        wm = new WireMock(rule.port());
 
         targetServer.addMockServiceRequestListener(new RequestListener() {
             @Override
@@ -59,7 +61,7 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
         });
 
         System.out.println("Target server port: " + targetServer.port());
-        System.out.println("Under test server port: " + wm.port());
+        System.out.println("Under test server port: " + rule.port());
     }
 
     @Before
@@ -69,12 +71,12 @@ public class WebhooksAcceptanceTest extends AcceptanceTestBase {
         targetServer.stubFor(any(anyUrl())
             .willReturn(aResponse().withStatus(200)));
         latch = new CountDownLatch(1);
-        client = new WireMockTestClient(wm.port());
+        client = new WireMockTestClient(rule.port());
     }
 
     @Test
     public void firesASingleWebhookWhenRequested() throws Exception {
-        wm.stubFor(post(urlPathEqualTo("/something-async"))
+        rule.stubFor(post(urlPathEqualTo("/something-async"))
             .willReturn(aResponse().withStatus(200))
             .withPostServeAction("webhook", webhook()
                 .withMethod(POST)
