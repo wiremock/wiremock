@@ -162,10 +162,10 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public GetServedStubsResult getServedStubs() {
+    public GetServeEventsResult getServeEvents() {
         return executeRequest(
             adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
-            GetServedStubsResult.class
+            GetServeEventsResult.class
         );
     }
 

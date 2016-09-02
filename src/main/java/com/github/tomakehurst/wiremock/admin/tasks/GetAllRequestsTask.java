@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.LimitAndSinceDatePaginator;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -31,13 +31,13 @@ public class GetAllRequestsTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        GetServedStubsResult servedStubsResult = admin.getServedStubs();
-        GetServedStubsResult result = new GetServedStubsResult(
+        GetServeEventsResult serveEventsResult = admin.getServeEvents();
+        GetServeEventsResult result = new GetServeEventsResult(
             LimitAndSinceDatePaginator.fromRequest(
-                servedStubsResult.getServedStubs(),
+                serveEventsResult.getRequests(),
                 request
             ),
-            servedStubsResult.isRequestJournalDisabled()
+            serveEventsResult.isRequestJournalDisabled()
         );
 
         return responseDefinition()

@@ -65,7 +65,7 @@ public class InMemoryStubMappings implements StubMappings {
 	}
 
 	@Override
-	public ServedStub serveFor(Request request) {
+	public ServeEvent serveFor(Request request) {
 		StubMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
@@ -77,9 +77,9 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServedStub servedStub = new ServedStub(LoggedRequest.createFrom(request), copyOf(responseDefinition));
-        requestJournal.requestReceived(servedStub);
-        return servedStub;
+        ServeEvent serveEvent = new ServeEvent(LoggedRequest.createFrom(request), copyOf(responseDefinition));
+        requestJournal.requestReceived(serveEvent);
+        return serveEvent;
 	}
 
     private ResponseDefinition applyTransformations(Request request,

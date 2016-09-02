@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 
@@ -397,12 +397,12 @@ public class WireMock {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static List<ServedStub> getAllServedStubs() {
-        return defaultInstance.get().getServedStubs();
+	public static List<ServeEvent> getAllServeEvents() {
+        return defaultInstance.get().getServeEvents();
     }
 
-    public List<ServedStub> getServedStubs() {
-        return admin.getServedStubs().getServedStubs();
+    public List<ServeEvent> getServeEvents() {
+        return admin.getServeEvents().getRequests();
     }
 
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {

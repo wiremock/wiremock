@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
@@ -48,7 +48,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -56,7 +56,6 @@ import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -282,8 +281,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<ServedStub> getAllServedStubs() {
-        return client.getServedStubs();
+    public List<ServeEvent> getAllServeEvents() {
+        return client.getServeEvents();
     }
 
     @Override
@@ -352,8 +351,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public GetServedStubsResult getServedStubs() {
-        return wireMockApp.getServedStubs();
+    public GetServeEventsResult getServeEvents() {
+        return wireMockApp.getServeEvents();
     }
 
     @Override

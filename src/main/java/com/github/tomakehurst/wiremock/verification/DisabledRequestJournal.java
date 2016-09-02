@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -35,12 +35,12 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public List<ServedStub> getAllServedStubs() {
+    public List<ServeEvent> getAllServeEvents() {
         throw new RequestJournalDisabledException();
     }
 
     @Override
-    public Optional<ServedStub> getAllServedStub(UUID id) {
+    public Optional<ServeEvent> getAllServedStub(UUID id) {
         throw new RequestJournalDisabledException();
     }
 
@@ -49,6 +49,6 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public void requestReceived(ServedStub servedStub) {
+    public void requestReceived(ServeEvent serveEvent) {
     }
 }

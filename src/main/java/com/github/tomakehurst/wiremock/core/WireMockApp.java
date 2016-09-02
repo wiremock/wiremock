@@ -27,7 +27,7 @@ import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
@@ -49,8 +49,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.stubbing.ServedStub.NOT_MATCHED;
-import static com.github.tomakehurst.wiremock.stubbing.ServedStub.TO_LOGGED_REQUEST;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
+import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
 import static com.google.common.collect.FluentIterable.from;
 
 public class WireMockApp implements StubServer, Admin {
@@ -102,19 +102,19 @@ public class WireMockApp implements StubServer, Admin {
     }
     
     @Override
-    public ServedStub serveStubFor(Request request) {
-        ServedStub servedStub = stubMappings.serveFor(request);
+    public ServeEvent serveStubFor(Request request) {
+        ServeEvent serveEvent = stubMappings.serveFor(request);
 
-        if (servedStub.isNoExactMatch()) {
+        if (serveEvent.isNoExactMatch()) {
             LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
             if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
-                return ServedStub.exactMatch(loggedRequest, ResponseDefinition.browserProxy(request));
+                return ServeEvent.exactMatch(loggedRequest, ResponseDefinition.browserProxy(request));
             }
 
             logUnmatchedRequest(loggedRequest);
         }
 
-        return servedStub;
+        return serveEvent;
     }
 
     private void logUnmatchedRequest(LoggedRequest request) {
@@ -178,14 +178,14 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public GetServedStubsResult getServedStubs() {
+    public GetServeEventsResult getServeEvents() {
         try {
-            return GetServedStubsResult.requestJournalEnabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            return GetServeEventsResult.requestJournalEnabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         } catch (RequestJournalDisabledException e) {
-            return GetServedStubsResult.requestJournalDisabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            return GetServeEventsResult.requestJournalDisabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         }
     }
@@ -218,7 +218,7 @@ public class WireMockApp implements StubServer, Admin {
     public FindRequestsResult findUnmatchedRequests() {
         try {
             List<LoggedRequest> requests =
-                from(requestJournal.getAllServedStubs())
+                from(requestJournal.getAllServeEvents())
                 .filter(NOT_MATCHED)
                 .transform(TO_LOGGED_REQUEST)
                 .toList();
@@ -231,17 +231,17 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
-        Iterable<ServedStub> unmatchedServedStubs =
-            from(requestJournal.getAllServedStubs())
-            .filter(new Predicate<ServedStub>() {
+        Iterable<ServeEvent> unmatchedServeEvents =
+            from(requestJournal.getAllServeEvents())
+            .filter(new Predicate<ServeEvent>() {
                 @Override
-                public boolean apply(ServedStub input) {
+                public boolean apply(ServeEvent input) {
                     return input.isNoExactMatch();
                 }
             });
 
-        for (ServedStub servedStub: unmatchedServedStubs) {
-            listBuilder.addAll(nearMissCalculator.findNearestTo(servedStub.getRequest()));
+        for (ServeEvent serveEvent : unmatchedServeEvents) {
+            listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
         }
 
         return new FindNearMissesResult(listBuilder.build());

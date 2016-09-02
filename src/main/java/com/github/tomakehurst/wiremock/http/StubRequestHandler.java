@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.StubServer;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	
@@ -28,7 +28,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 	}
 
 	@Override
-	public ServedStub handleRequest(Request request) {
+	public ServeEvent handleRequest(Request request) {
 		return stubServer.serveStubFor(request);
 	}
 

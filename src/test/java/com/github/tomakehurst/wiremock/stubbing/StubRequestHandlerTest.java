@@ -60,7 +60,7 @@ public class StubRequestHandlerTest {
 	public void returnsResponseIndicatedByMappings() {
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(
-				ServedStub.exactMatch(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content"))));
+				ServeEvent.exactMatch(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content"))));
 
             Response response = response().status(200).body("Body content").build();
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
@@ -84,7 +84,7 @@ public class StubRequestHandlerTest {
 		
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request); will(returnValue(
-                ServedStub.exactMatch(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
+                ServeEvent.exactMatch(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
@@ -102,7 +102,7 @@ public class StubRequestHandlerTest {
 
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request);
-			will(returnValue(ServedStub.noExactMatch(LoggedRequest.createFrom(request))));
+			will(returnValue(ServeEvent.noExactMatch(LoggedRequest.createFrom(request))));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
 		}});
 

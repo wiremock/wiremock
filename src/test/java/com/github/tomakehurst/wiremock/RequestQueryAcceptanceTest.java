@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
@@ -29,7 +29,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -127,7 +126,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void getsAllServedStubs() {
+    public void getsAllServeEvents() {
         dsl.stubFor(get(urlPathEqualTo("/two"))
             .willReturn(aResponse().withStatus(200)));
 
@@ -135,17 +134,17 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         testClient.get("/two");
         testClient.get("/three");
 
-        List<ServedStub> servedStubs = getAllServedStubs();
+        List<ServeEvent> serveEvents = getAllServeEvents();
 
-        ServedStub three = servedStubs.get(0);
+        ServeEvent three = serveEvents.get(0);
         assertThat(three.isNoExactMatch(), is(true));
         assertThat(three.getRequest().getUrl(), is("/three"));
 
-        ServedStub two = servedStubs.get(1);
+        ServeEvent two = serveEvents.get(1);
         assertThat(two.isNoExactMatch(), is(false));
         assertThat(two.getRequest().getUrl(), is("/two"));
 
-        assertThat(servedStubs.get(2).isNoExactMatch(), is(true));
+        assertThat(serveEvents.get(2).isNoExactMatch(), is(true));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {

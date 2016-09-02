@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -37,7 +37,7 @@ import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
-	private final Queue<ServedStub> servedStubs = new ConcurrentLinkedQueue<ServedStub>();
+	private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
 
 	private final Optional<Integer> maxEntries;
 
@@ -68,26 +68,26 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		servedStubs.add(ServedStub.exactMatch(LoggedRequest.createFrom(request), null));
+		serveEvents.add(ServeEvent.exactMatch(LoggedRequest.createFrom(request), null));
 		removeOldEntries();
 	}
 
 	@Override
-	public void requestReceived(ServedStub servedStub) {
-		servedStubs.add(servedStub);
+	public void requestReceived(ServeEvent serveEvent) {
+		serveEvents.add(serveEvent);
         removeOldEntries();
 	}
 
     @Override
-    public List<ServedStub> getAllServedStubs() {
-        return ImmutableList.copyOf(servedStubs).reverse();
+    public List<ServeEvent> getAllServeEvents() {
+        return ImmutableList.copyOf(serveEvents).reverse();
     }
 
 	@Override
-	public Optional<ServedStub> getAllServedStub(final UUID id) {
-		return tryFind(servedStubs, new Predicate<ServedStub>() {
+	public Optional<ServeEvent> getAllServedStub(final UUID id) {
+		return tryFind(serveEvents, new Predicate<ServeEvent>() {
 			@Override
-			public boolean apply(ServedStub input) {
+			public boolean apply(ServeEvent input) {
 				return input.getId().equals(id);
 			}
 		});
@@ -95,12 +95,12 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void reset() {
-		servedStubs.clear();
+		serveEvents.clear();
 	}
 
 	private Iterable<LoggedRequest> getRequests() {
-		return transform(servedStubs, new Function<ServedStub, LoggedRequest>() {
-			public LoggedRequest apply(ServedStub input) {
+		return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
+			public LoggedRequest apply(ServeEvent input) {
 				return input.getRequest();
 			}
 		});
@@ -108,8 +108,8 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	private void removeOldEntries() {
 		if (maxEntries.isPresent()) {
-			while (servedStubs.size() > maxEntries.get()) {
-				servedStubs.poll();
+			while (serveEvents.size() > maxEntries.get()) {
+				serveEvents.poll();
 			}
 		}
 	}

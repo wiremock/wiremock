@@ -17,12 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
-import org.apache.http.entity.ContentType;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -158,8 +157,8 @@ public class AdminApiTest extends AcceptanceTestBase {
         System.out.println(body);
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(5);
-        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
-        check.field("servedStubs").hasSize(5);
+        check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
+        check.field("requests").hasSize(5);
     }
 
     @Test
@@ -172,9 +171,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(7);
-        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/7");
-        check.field("servedStubs").elementWithIndex(1).field("request").field("url").isEqualTo("/received-request/6");
-        check.field("servedStubs").hasSize(2);
+        check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/7");
+        check.field("requests").elementWithIndex(1).field("request").field("url").isEqualTo("/received-request/6");
+        check.field("requests").hasSize(2);
     }
 
     @Test
@@ -193,9 +192,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(9);
-        check.field("servedStubs").hasSize(3);
-        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
-        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
+        check.field("requests").hasSize(3);
+        check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
+        check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
     }
 
     @Test
@@ -208,7 +207,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(3);
-        check.field("servedStubs").hasSize(3);
+        check.field("requests").hasSize(3);
     }
 
     @Test
@@ -217,8 +216,8 @@ public class AdminApiTest extends AcceptanceTestBase {
             testClient.get("/received-request/" + i);
         }
 
-        List<ServedStub> servedStubs = dsl.getAllServedStubs();
-        UUID servedStubId = servedStubs.get(1).getId();
+        List<ServeEvent> serveEvents = dsl.getAllServeEvents();
+        UUID servedStubId = serveEvents.get(1).getId();
 
         WireMockResponse response = testClient.get("/__admin/requests/" + servedStubId);
         String body = response.content();

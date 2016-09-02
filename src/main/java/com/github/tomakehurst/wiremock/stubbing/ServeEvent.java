@@ -25,14 +25,14 @@ import com.google.common.base.Predicate;
 
 import java.util.UUID;
 
-public class ServedStub {
+public class ServeEvent {
 
     private final UUID id;
     private final LoggedRequest request;
     private final ResponseDefinition responseDefinition;
 
     @JsonCreator
-    public ServedStub(@JsonProperty("id") UUID id,
+    public ServeEvent(@JsonProperty("id") UUID id,
                       @JsonProperty("request") LoggedRequest request,
                       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition) {
         this.id = id;
@@ -40,16 +40,16 @@ public class ServedStub {
         this.responseDefinition = responseDefinition;
     }
 
-    public ServedStub(LoggedRequest request, ResponseDefinition responseDefinition) {
+    public ServeEvent(LoggedRequest request, ResponseDefinition responseDefinition) {
         this(UUID.randomUUID(), request, responseDefinition);
     }
 
-    public static ServedStub noExactMatch(LoggedRequest request) {
-        return new ServedStub(request, ResponseDefinition.notConfigured());
+    public static ServeEvent noExactMatch(LoggedRequest request) {
+        return new ServeEvent(request, ResponseDefinition.notConfigured());
     }
 
-    public static ServedStub exactMatch(LoggedRequest request, ResponseDefinition responseDefinition) {
-        return new ServedStub(request, responseDefinition);
+    public static ServeEvent exactMatch(LoggedRequest request, ResponseDefinition responseDefinition) {
+        return new ServeEvent(request, responseDefinition);
     }
 
     @JsonIgnore
@@ -69,17 +69,17 @@ public class ServedStub {
         return responseDefinition;
     }
 
-    public static final Function<ServedStub, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServedStub, LoggedRequest>() {
+    public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServeEvent, LoggedRequest>() {
         @Override
-        public LoggedRequest apply(ServedStub servedStub) {
-            return servedStub.getRequest();
+        public LoggedRequest apply(ServeEvent serveEvent) {
+            return serveEvent.getRequest();
         }
     };
 
-    public static final Predicate<ServedStub> NOT_MATCHED = new Predicate<ServedStub>() {
+    public static final Predicate<ServeEvent> NOT_MATCHED = new Predicate<ServeEvent>() {
         @Override
-        public boolean apply(ServedStub servedStub) {
-            return servedStub.isNoExactMatch();
+        public boolean apply(ServeEvent serveEvent) {
+            return serveEvent.isNoExactMatch();
         }
     };
 }
