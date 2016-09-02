@@ -40,7 +40,7 @@ public class RemoveStubMappingTaskTest {
     private Admin mockAdmin;
 
     private Request mockRequest;
-    private RemoveStubMappingTask removeStubMappingTask;
+    private OldRemoveStubMappingTask removeStubMappingTask;
 
 
     @Before
@@ -50,7 +50,7 @@ public class RemoveStubMappingTaskTest {
         mockAdmin = context.mock(Admin.class);
         mockRequest = context.mock(Request.class);
 
-        removeStubMappingTask = new RemoveStubMappingTask();
+        removeStubMappingTask = new OldRemoveStubMappingTask();
 
     }
     @Test

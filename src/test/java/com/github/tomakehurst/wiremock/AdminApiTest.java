@@ -229,4 +229,22 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("request").field("url").isEqualTo("/received-request/2");
     }
 
+    @Test
+    public void deleteStubMappingById() throws Exception {
+        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/get/this"))
+            .willReturn(aResponse().withStatus(200))
+        );
+
+        assertThat(testClient.get("/get/this").statusCode(), is(200));
+
+        testClient.delete("/__admin/mappings/" + stubMapping.getId());
+
+        assertThat(testClient.get("/get/this").statusCode(), is(404));
+    }
+
+    @Test
+    public void returns404WhenAttemptingToDeleteNonExistentStubMapping() {
+        assertThat(testClient.delete("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+    }
+
 }

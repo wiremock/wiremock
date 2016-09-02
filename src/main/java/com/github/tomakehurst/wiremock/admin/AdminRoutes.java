@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.google.common.collect.Iterables.tryFind;
@@ -53,16 +54,17 @@ public class AdminRoutes {
         router.add(POST, "/mappings", CreateStubMappingTask.class);
 
         router.add(POST, "/mappings/new", StubMappingTask.class); // Deprecated
-        router.add(POST, "/mappings/remove", RemoveStubMappingTask.class);  // Deprecated
-        router.add(POST, "/mappings/edit", EditStubMappingTask.class);  // Deprecated
+        router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // To deprecate
+        router.add(POST, "/mappings/edit", EditStubMappingTask.class);  // To deprecate
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
-        router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // Deprecated
+        router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // To deprecate
         router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
+        router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
-        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // Deprecated
+        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // To deprecate
 
         router.add(GET,  "/requests", GetAllRequestsTask.class);
-        router.add(POST, "/requests/reset", ResetRequestsTask.class);  // Deprecated
+        router.add(POST, "/requests/reset", ResetRequestsTask.class);  // To deprecate
         router.add(POST, "/requests/count", GetRequestCountTask.class);
         router.add(POST, "/requests/find", FindRequestsTask.class);
         router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
