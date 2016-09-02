@@ -51,7 +51,7 @@ public class AdminRoutes {
         router.add(GET,  "/mappings", GetAllStubMappingsTask.class);
         router.add(POST, "/mappings", CreateStubMappingTask.class);
 
-        router.add(POST, "/mappings/new", StubMappingTask.class); // Deprecated
+        router.add(POST, "/mappings/new", OldCreateStubMappingTask.class); // Deprecated
         router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/edit", OldEditStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
