@@ -25,9 +25,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.google.common.collect.Iterables.tryFind;
 
 public class AdminRoutes {
@@ -54,11 +52,12 @@ public class AdminRoutes {
         router.add(POST, "/mappings", CreateStubMappingTask.class);
 
         router.add(POST, "/mappings/new", StubMappingTask.class); // Deprecated
-        router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // To deprecate
-        router.add(POST, "/mappings/edit", EditStubMappingTask.class);  // To deprecate
+        router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // Deprecated
+        router.add(POST, "/mappings/edit", OldEditStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
         router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // To deprecate
         router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
+        router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // To deprecate

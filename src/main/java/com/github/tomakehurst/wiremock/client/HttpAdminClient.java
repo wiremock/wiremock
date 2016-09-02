@@ -103,7 +103,7 @@ public class HttpAdminClient implements Admin {
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         postJsonAssertOkAndReturnBody(
-            urlFor(EditStubMappingTask.class),
+            urlFor(OldEditStubMappingTask.class),
             Json.write(stubMapping),
             HTTP_NO_CONTENT);
     }

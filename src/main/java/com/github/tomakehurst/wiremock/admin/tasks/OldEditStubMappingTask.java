@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class EditStubMappingTask implements AdminTask {
+public class OldEditStubMappingTask implements AdminTask {
 
 	@Override
 	public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {

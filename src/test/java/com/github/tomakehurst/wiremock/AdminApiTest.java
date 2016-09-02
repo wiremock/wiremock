@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
+import org.apache.http.entity.ContentType;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -231,20 +232,50 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void deleteStubMappingById() throws Exception {
-        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/get/this"))
+        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/delete/this"))
             .willReturn(aResponse().withStatus(200))
         );
 
-        assertThat(testClient.get("/get/this").statusCode(), is(200));
+        assertThat(testClient.get("/delete/this").statusCode(), is(200));
 
         testClient.delete("/__admin/mappings/" + stubMapping.getId());
 
-        assertThat(testClient.get("/get/this").statusCode(), is(404));
+        assertThat(testClient.get("/delete/this").statusCode(), is(404));
     }
 
     @Test
     public void returns404WhenAttemptingToDeleteNonExistentStubMapping() {
         assertThat(testClient.delete("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+    }
+
+    @Test
+    public void editStubMappingById() throws Exception {
+        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/put/this"))
+            .willReturn(aResponse().withStatus(200))
+        );
+
+        assertThat(testClient.get("/put/this").statusCode(), is(200));
+
+        testClient.putWithBody("/__admin/mappings/" + stubMapping.getId(),
+            "{                                  \n" +
+            "    \"request\": {                 \n" +
+            "        \"method\": \"GET\",       \n" +
+            "        \"url\": \"/put/this\"     \n" +
+            "    },                             \n" +
+            "    \"response\": {                \n" +
+            "        \"status\": 418            \n" +
+            "    }                              \n" +
+            "}",
+            "application/json");
+
+        assertThat(testClient.get("/put/this").statusCode(), is(418));
+    }
+
+    @Test
+    public void returns404WhenAttemptingToEditNonExistentStubMapping() {
+        assertThat(
+            testClient.putWithBody("/__admin/mappings/" + UUID.randomUUID(), "{}", "application/json"
+        ).statusCode(), is(404));
     }
 
 }
