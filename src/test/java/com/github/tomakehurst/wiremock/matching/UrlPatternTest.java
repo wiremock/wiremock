@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class UrlPatternTest {
@@ -51,5 +53,23 @@ public class UrlPatternTest {
         assertFalse(urlPathPattern.match("/my/12345/path").isExactMatch());
     }
 
+    @Test
+    public void noMatchOnNullValueForUrlEquality() {
+        assertThat(WireMock.urlEqualTo("/things").match(null).isExactMatch(), is(false));
+    }
 
+    @Test
+    public void noMatchOnNullValueForUrlPathEquality() {
+        assertThat(WireMock.urlPathEqualTo("/things").match(null).isExactMatch(), is(false));
+    }
+
+    @Test
+    public void noMatchOnNullValueForUrlRegex() {
+        assertThat(WireMock.urlMatching("/things/.*").match(null).isExactMatch(), is(false));
+    }
+
+    @Test
+    public void noMatchOnNullValueForUrlPathRegex() {
+        assertThat(WireMock.urlPathMatching("/things/.*").match(null).isExactMatch(), is(false));
+    }
 }

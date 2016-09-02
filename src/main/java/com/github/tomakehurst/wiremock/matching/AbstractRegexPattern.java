@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.DOTALL;
@@ -31,8 +30,9 @@ public abstract class AbstractRegexPattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        Matcher matcher = pattern.matcher(value);
-        return MatchResult.of(matcher.matches());
+        return MatchResult.of(
+            value != null && pattern.matcher(value).matches()
+        );
     }
 
 }

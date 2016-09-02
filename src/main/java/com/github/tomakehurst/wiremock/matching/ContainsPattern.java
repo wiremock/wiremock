@@ -29,6 +29,6 @@ public class ContainsPattern extends StringValuePattern {
 
     @Override
     public MatchResult match(String value) {
-        return MatchResult.of(value.contains(expectedValue));
+        return MatchResult.of(value != null && value.contains(expectedValue));
     }
 }

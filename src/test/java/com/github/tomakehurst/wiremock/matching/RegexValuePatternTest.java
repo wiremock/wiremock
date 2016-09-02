@@ -51,4 +51,9 @@ public class RegexValuePatternTest {
         assertThat(stringValuePattern.getValue(), is("something"));
     }
 
+    @Test
+    public void noMatchWhenValueIsNull() {
+        assertThat(WireMock.matching(".*").match(null).isExactMatch(), is(false));
+    }
+
 }
