@@ -146,6 +146,10 @@ public class ResponseDefinition {
 		return new ResponseDefinition(HTTP_CREATED, (byte[])null);
 	}
 
+	public static ResponseDefinition created(String body) {
+		return new ResponseDefinition(HTTP_CREATED, body);
+	}
+
 	public static ResponseDefinition noContent() {
 		return new ResponseDefinition(HTTP_NO_CONTENT, (byte[])null);
 	}

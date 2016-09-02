@@ -277,4 +277,23 @@ public class AdminApiTest extends AcceptanceTestBase {
         ).statusCode(), is(404));
     }
 
+    @Test
+    public void createStubMappingReturnsTheCreatedMapping() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{                                  \n" +
+                "    \"request\": {                 \n" +
+                "        \"method\": \"GET\",       \n" +
+                "        \"url\": \"/put/this\"     \n" +
+                "    },                             \n" +
+                "    \"response\": {                \n" +
+                "        \"status\": 418            \n" +
+                "    }                              \n" +
+                "}"
+        );
+
+        assertThat(response.statusCode(), is(201));
+        String body = response.content();
+        JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
+    }
+
 }

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -45,6 +46,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class WireMockTestClient {
 
@@ -160,6 +162,12 @@ public class WireMockTestClient {
     public WireMockResponse post(String url, HttpEntity entity, TestHttpHeader... headers) {
         HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
         httpPost.setEntity(entity);
+        return executeMethodAndConvertExceptions(httpPost, headers);
+    }
+
+    public WireMockResponse postJson(String url, String body, TestHttpHeader... headers) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(new StringEntity(body, APPLICATION_JSON));
         return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
