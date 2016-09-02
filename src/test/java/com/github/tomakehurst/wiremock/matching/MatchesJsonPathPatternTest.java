@@ -24,7 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class MatchesJsonPathPatternTest {
@@ -97,6 +99,11 @@ public class MatchesJsonPathPatternTest {
         StringValuePattern pattern = WireMock.matchingJsonPath("$.RequestDetail.?(@=='test222')");
         MatchResult match = pattern.match(json);
         assertFalse(match.isExactMatch());
+    }
+
+    @Test
+    public void noMatchOnNullValue() {
+        assertThat(WireMock.matchingJsonPath("$..*").match(null).isExactMatch(), is(false));
     }
 
     private void expectInfoNotification(final String message) {

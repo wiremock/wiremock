@@ -153,4 +153,9 @@ public class MatchesXPathPatternTest {
             "{ \"matchesXPath\" : \"//*\" }",
             json, false);
     }
+
+    @Test
+    public void noMatchOnNullValue() {
+        assertThat(WireMock.matchingXPath("//*").match(null).isExactMatch(), is(false));
+    }
 }

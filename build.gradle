@@ -134,7 +134,6 @@ shadowJar {
     relocate "org.apache", 'wiremock.org.apache'
     relocate "org.xmlunit", 'wiremock.org.xmlunit'
     relocate "org.hamcrest", 'wiremock.org.hamcrest'
-    relocate "joptsimple", 'wiremock.joptsimple'
     relocate "org.skyscreamer", 'wiremock.org.skyscreamer'
     relocate "org.json", 'wiremock.org.json'
     relocate "net.minidev", 'wiremock.net.minidev'

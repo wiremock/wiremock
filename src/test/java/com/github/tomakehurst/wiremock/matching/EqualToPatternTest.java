@@ -87,5 +87,10 @@ public class EqualToPatternTest {
 
     }
 
+    @Test
+    public void noMatchOnNullValue() {
+        assertThat(WireMock.equalTo("this_thing").match(null).isExactMatch(), is(false));
+    }
+
 
 }
