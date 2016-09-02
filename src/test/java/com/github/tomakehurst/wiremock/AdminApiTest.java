@@ -292,6 +292,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         );
 
         assertThat(response.statusCode(), is(201));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
         String body = response.content();
         JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
     }
