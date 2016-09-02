@@ -27,7 +27,7 @@ public interface RequestJournal {
 	int countRequestsMatching(RequestPattern requestPattern);
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
 
-    List<ServeEvent> getAllServedStubs();
+    List<ServeEvent> getAllServeEvents();
     Optional<ServeEvent> getAllServedStub(UUID id);
 
 	void reset();

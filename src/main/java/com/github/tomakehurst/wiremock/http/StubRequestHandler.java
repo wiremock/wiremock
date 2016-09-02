@@ -20,16 +20,10 @@ import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.collect.FluentIterable.from;
 
 public class StubRequestHandler extends AbstractRequestHandler {
 	

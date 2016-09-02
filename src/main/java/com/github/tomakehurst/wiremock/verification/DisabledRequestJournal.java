@@ -35,7 +35,7 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public List<ServeEvent> getAllServedStubs() {
+    public List<ServeEvent> getAllServeEvents() {
         throw new RequestJournalDisabledException();
     }
 

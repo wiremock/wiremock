@@ -126,7 +126,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void getsAllServedStubs() {
+    public void getsAllServeEvents() {
         dsl.stubFor(get(urlPathEqualTo("/two"))
             .willReturn(aResponse().withStatus(200)));
 
@@ -134,7 +134,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         testClient.get("/two");
         testClient.get("/three");
 
-        List<ServeEvent> serveEvents = getAllServedStubs();
+        List<ServeEvent> serveEvents = getAllServeEvents();
 
         ServeEvent three = serveEvents.get(0);
         assertThat(three.isNoExactMatch(), is(true));

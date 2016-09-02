@@ -29,7 +29,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
 		this.responseRenderer = responseRenderer;
-    }
+	}
 
 	@Override
 	public void addRequestListener(RequestListener requestListener) {

@@ -16,34 +16,40 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.admin.Paginator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
-public class GetServedStubsResult extends RequestJournalDependentResult<ServeEvent> {
+public class GetServeEventsResult extends RequestJournalDependentResult<ServeEvent> {
 
     @JsonCreator
-    public GetServedStubsResult(@JsonProperty("servedStubs") List<ServeEvent> source,
+    public GetServeEventsResult(@JsonProperty("requests") List<ServeEvent> source,
                                 @JsonProperty("meta") Meta meta,
                                 @JsonProperty("requestJournalDisabled") boolean requestJournalDisabled) {
         super(source, meta, requestJournalDisabled);
     }
 
-    public GetServedStubsResult(Paginator<ServeEvent> paginator, boolean requestJournalDisabled) {
+    public GetServeEventsResult(Paginator<ServeEvent> paginator, boolean requestJournalDisabled) {
         super(paginator, requestJournalDisabled);
     }
 
-    public static GetServedStubsResult requestJournalEnabled(Paginator<ServeEvent> paginator) {
-        return new GetServedStubsResult(paginator, false);
+    public static GetServeEventsResult requestJournalEnabled(Paginator<ServeEvent> paginator) {
+        return new GetServeEventsResult(paginator, false);
     }
 
-    public static GetServedStubsResult requestJournalDisabled(Paginator<ServeEvent> paginator) {
-        return new GetServedStubsResult(paginator, true);
+    public static GetServeEventsResult requestJournalDisabled(Paginator<ServeEvent> paginator) {
+        return new GetServeEventsResult(paginator, true);
     }
 
-    public List<ServeEvent> getServedStubs() {
+    public List<ServeEvent> getRequests() {
+        return getServeEvents();
+    }
+
+    @JsonIgnore
+    public List<ServeEvent> getServeEvents() {
         return select();
     }
 }

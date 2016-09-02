@@ -178,14 +178,14 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public GetServedStubsResult getServedStubs() {
+    public GetServeEventsResult getServeEvents() {
         try {
-            return GetServedStubsResult.requestJournalEnabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            return GetServeEventsResult.requestJournalEnabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         } catch (RequestJournalDisabledException e) {
-            return GetServedStubsResult.requestJournalDisabled(
-                LimitAndOffsetPaginator.none(requestJournal.getAllServedStubs())
+            return GetServeEventsResult.requestJournalDisabled(
+                LimitAndOffsetPaginator.none(requestJournal.getAllServeEvents())
             );
         }
     }
@@ -218,7 +218,7 @@ public class WireMockApp implements StubServer, Admin {
     public FindRequestsResult findUnmatchedRequests() {
         try {
             List<LoggedRequest> requests =
-                from(requestJournal.getAllServedStubs())
+                from(requestJournal.getAllServeEvents())
                 .filter(NOT_MATCHED)
                 .transform(TO_LOGGED_REQUEST)
                 .toList();
@@ -231,8 +231,8 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
-        Iterable<ServeEvent> unmatchedServedStubs =
-            from(requestJournal.getAllServedStubs())
+        Iterable<ServeEvent> unmatchedServeEvents =
+            from(requestJournal.getAllServeEvents())
             .filter(new Predicate<ServeEvent>() {
                 @Override
                 public boolean apply(ServeEvent input) {
@@ -240,7 +240,7 @@ public class WireMockApp implements StubServer, Admin {
                 }
             });
 
-        for (ServeEvent serveEvent : unmatchedServedStubs) {
+        for (ServeEvent serveEvent : unmatchedServeEvents) {
             listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
         }
 

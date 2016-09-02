@@ -397,12 +397,12 @@ public class WireMock {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static List<ServeEvent> getAllServedStubs() {
-        return defaultInstance.get().getServedStubs();
+	public static List<ServeEvent> getAllServeEvents() {
+        return defaultInstance.get().getServeEvents();
     }
 
-    public List<ServeEvent> getServedStubs() {
-        return admin.getServedStubs().getServedStubs();
+    public List<ServeEvent> getServeEvents() {
+        return admin.getServeEvents().getRequests();
     }
 
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {

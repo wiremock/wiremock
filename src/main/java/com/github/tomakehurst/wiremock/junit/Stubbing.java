@@ -35,7 +35,7 @@ public interface Stubbing {
 
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
 
-    List<ServeEvent> getAllServedStubs();
+    List<ServeEvent> getAllServeEvents();
 
     void setGlobalFixedDelay(int milliseconds);
 

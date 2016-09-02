@@ -27,8 +27,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.google.common.collect.Iterables.tryFind;
 
 public class AdminRoutes {
@@ -52,37 +51,39 @@ public class AdminRoutes {
         routes = routeBuilder.build();
     }
 
-    private void initDefaultRoutes(Router routeBuilder) {
-        routeBuilder.add(GET,  "/", RootTask.class);
-        routeBuilder.add(GET,  "", RootRedirectTask.class);
-        routeBuilder.add(POST, "/reset", ResetTask.class);
+    private void initDefaultRoutes(Router router) {
+        router.add(GET,  "/", RootTask.class);
+        router.add(GET,  "", RootRedirectTask.class);
+        router.add(POST, "/reset", ResetTask.class);
 
-        routeBuilder.add(GET,  "/mappings", GetAllStubMappingsTask.class);
-        routeBuilder.add(POST, "/mappings", CreateStubMappingTask.class);
+        router.add(GET,  "/mappings", GetAllStubMappingsTask.class);
+        router.add(POST, "/mappings", CreateStubMappingTask.class);
 
-        routeBuilder.add(POST, "/mappings/new", StubMappingTask.class); // Deprecated
-        routeBuilder.add(POST, "/mappings/remove", RemoveStubMappingTask.class);  // Deprecated
-        routeBuilder.add(POST, "/mappings/edit", EditStubMappingTask.class);  // Deprecated
-        routeBuilder.add(POST, "/mappings/save", SaveMappingsTask.class);
-        routeBuilder.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // Deprecated
-        routeBuilder.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
+        router.add(POST, "/mappings/new", OldCreateStubMappingTask.class); // Deprecated
+        router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // Deprecated
+        router.add(POST, "/mappings/edit", OldEditStubMappingTask.class);  // Deprecated
+        router.add(POST, "/mappings/save", SaveMappingsTask.class);
+        router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // To deprecate
+        router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
+        router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
+        router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
-        routeBuilder.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // Deprecated
+        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // To deprecate
 
-        routeBuilder.add(GET,  "/requests", GetAllRequestsTask.class);
-        routeBuilder.add(POST, "/requests/reset", ResetRequestsTask.class);  // Deprecated
-        routeBuilder.add(POST, "/requests/count", GetRequestCountTask.class);
-        routeBuilder.add(POST, "/requests/find", FindRequestsTask.class);
-        routeBuilder.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
-        routeBuilder.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
-        routeBuilder.add(GET,  "/requests/{id}", GetServedStubTask.class);
+        router.add(GET,  "/requests", GetAllRequestsTask.class);
+        router.add(POST, "/requests/reset", ResetRequestsTask.class);  // To deprecate
+        router.add(POST, "/requests/count", GetRequestCountTask.class);
+        router.add(POST, "/requests/find", FindRequestsTask.class);
+        router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
+        router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
+        router.add(GET,  "/requests/{id}", GetServedStubTask.class);
 
 
-        routeBuilder.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
-        routeBuilder.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
+        router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
+        router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
 
-        routeBuilder.add(POST, "/settings", GlobalSettingsUpdateTask.class);
-        routeBuilder.add(POST, "/shutdown", ShutdownServerTask.class);
+        router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
+        router.add(POST, "/shutdown", ShutdownServerTask.class);
     }
 
     protected void initAdditionalRoutes(Router routeBuilder) {

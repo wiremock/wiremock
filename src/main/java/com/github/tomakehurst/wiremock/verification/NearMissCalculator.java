@@ -59,7 +59,7 @@ public class NearMissCalculator {
     }
 
     public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {
-        List<ServeEvent> serveEvents = requestJournal.getAllServedStubs();
+        List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
         return sortAndTruncate(from(serveEvents).transform(new Function<ServeEvent, NearMiss>() {
             public NearMiss apply(ServeEvent serveEvent) {
                 MatchResult matchResult = requestPattern.match(serveEvent.getRequest());

@@ -157,8 +157,8 @@ public class AdminApiTest extends AcceptanceTestBase {
         System.out.println(body);
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(5);
-        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
-        check.field("servedStubs").hasSize(5);
+        check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
+        check.field("requests").hasSize(5);
     }
 
     @Test
@@ -171,9 +171,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(7);
-        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/7");
-        check.field("servedStubs").elementWithIndex(1).field("request").field("url").isEqualTo("/received-request/6");
-        check.field("servedStubs").hasSize(2);
+        check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/7");
+        check.field("requests").elementWithIndex(1).field("request").field("url").isEqualTo("/received-request/6");
+        check.field("requests").hasSize(2);
     }
 
     @Test
@@ -192,9 +192,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(9);
-        check.field("servedStubs").hasSize(3);
-        check.field("servedStubs").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
-        check.field("servedStubs").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
+        check.field("requests").hasSize(3);
+        check.field("requests").elementWithIndex(0).field("request").field("url").isEqualTo("/received-request/9");
+        check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/7");
     }
 
     @Test
@@ -207,7 +207,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("meta").field("total").isEqualTo(3);
-        check.field("servedStubs").hasSize(3);
+        check.field("requests").hasSize(3);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class AdminApiTest extends AcceptanceTestBase {
             testClient.get("/received-request/" + i);
         }
 
-        List<ServeEvent> serveEvents = dsl.getAllServedStubs();
+        List<ServeEvent> serveEvents = dsl.getAllServeEvents();
         UUID servedStubId = serveEvents.get(1).getId();
 
         WireMockResponse response = testClient.get("/__admin/requests/" + servedStubId);
@@ -227,6 +227,54 @@ public class AdminApiTest extends AcceptanceTestBase {
         JsonVerifiable check = JsonAssertion.assertThat(body);
         check.field("id").isEqualTo(servedStubId);
         check.field("request").field("url").isEqualTo("/received-request/2");
+    }
+
+    @Test
+    public void deleteStubMappingById() throws Exception {
+        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/delete/this"))
+            .willReturn(aResponse().withStatus(200))
+        );
+
+        assertThat(testClient.get("/delete/this").statusCode(), is(200));
+
+        testClient.delete("/__admin/mappings/" + stubMapping.getId());
+
+        assertThat(testClient.get("/delete/this").statusCode(), is(404));
+    }
+
+    @Test
+    public void returns404WhenAttemptingToDeleteNonExistentStubMapping() {
+        assertThat(testClient.delete("/__admin/mappings/" + UUID.randomUUID()).statusCode(), is(404));
+    }
+
+    @Test
+    public void editStubMappingById() throws Exception {
+        StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/put/this"))
+            .willReturn(aResponse().withStatus(200))
+        );
+
+        assertThat(testClient.get("/put/this").statusCode(), is(200));
+
+        testClient.putWithBody("/__admin/mappings/" + stubMapping.getId(),
+            "{                                  \n" +
+            "    \"request\": {                 \n" +
+            "        \"method\": \"GET\",       \n" +
+            "        \"url\": \"/put/this\"     \n" +
+            "    },                             \n" +
+            "    \"response\": {                \n" +
+            "        \"status\": 418            \n" +
+            "    }                              \n" +
+            "}",
+            "application/json");
+
+        assertThat(testClient.get("/put/this").statusCode(), is(418));
+    }
+
+    @Test
+    public void returns404WhenAttemptingToEditNonExistentStubMapping() {
+        assertThat(
+            testClient.putWithBody("/__admin/mappings/" + UUID.randomUUID(), "{}", "application/json"
+        ).statusCode(), is(404));
     }
 
 }

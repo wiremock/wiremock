@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.admin.model.GetServedStubsResult;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
@@ -280,8 +280,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<ServeEvent> getAllServedStubs() {
-        return client.getServedStubs();
+    public List<ServeEvent> getAllServeEvents() {
+        return client.getServeEvents();
     }
 
     @Override
@@ -350,8 +350,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public GetServedStubsResult getServedStubs() {
-        return wireMockApp.getServedStubs();
+    public GetServeEventsResult getServeEvents() {
+        return wireMockApp.getServeEvents();
     }
 
     @Override

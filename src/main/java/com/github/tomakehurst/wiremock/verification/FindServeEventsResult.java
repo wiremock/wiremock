@@ -21,12 +21,12 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
-public class FindServedStubsResult {
+public class FindServeEventsResult {
 
     private final List<ServeEvent> serveEvents;
 
     @JsonCreator
-    public FindServedStubsResult(@JsonProperty("servedStubs") List<ServeEvent> serveEvents) {
+    public FindServeEventsResult(@JsonProperty("serveEvents") List<ServeEvent> serveEvents) {
         this.serveEvents = serveEvents;
     }
 

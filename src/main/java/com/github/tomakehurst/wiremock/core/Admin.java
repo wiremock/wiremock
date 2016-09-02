@@ -40,7 +40,7 @@ public interface Admin {
 	void resetScenarios();
     void resetToDefaultMappings();
 
-    GetServedStubsResult getServedStubs();
+    GetServeEventsResult getServeEvents();
     SingleServedStubResult getServedStub(UUID id);
     VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);

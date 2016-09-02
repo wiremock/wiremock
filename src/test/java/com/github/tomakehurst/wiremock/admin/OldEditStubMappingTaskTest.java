@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.admin.tasks.EditStubMappingTask;
+import com.github.tomakehurst.wiremock.admin.tasks.OldEditStubMappingTask;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -32,7 +32,7 @@ import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildJsonStri
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class EditStubMappingTaskTest {
+public class OldEditStubMappingTaskTest {
 
 	private static final StubMapping MOCK_MAPPING = new StubMapping(null, new ResponseDefinition());
 
@@ -41,7 +41,7 @@ public class EditStubMappingTaskTest {
 
 	private Request mockRequest;
 
-	private EditStubMappingTask editStubMappingTask;
+	private OldEditStubMappingTask editStubMappingTask;
 
 	@Before
 	public void setUp() {
@@ -50,7 +50,7 @@ public class EditStubMappingTaskTest {
 		mockAdmin = context.mock(Admin.class);
 		mockRequest = context.mock(Request.class);
 
-		editStubMappingTask = new EditStubMappingTask();
+		editStubMappingTask = new OldEditStubMappingTask();
 	}
 
 	@Test

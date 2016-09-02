@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
@@ -28,9 +27,6 @@ import com.google.common.base.Predicate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class ServeEvent {
 

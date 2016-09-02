@@ -94,7 +94,7 @@ public class NearMissCalculatorTest {
     @Test
     public void returns3NearestMissesForTheGivenRequestPattern() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(
                 asList(
                     ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
@@ -119,7 +119,7 @@ public class NearMissCalculatorTest {
     @Test
     public void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(
                 singletonList(
                     ServeEvent.of(
@@ -141,7 +141,7 @@ public class NearMissCalculatorTest {
     @Test
     public void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(emptyList()));
         }});
 

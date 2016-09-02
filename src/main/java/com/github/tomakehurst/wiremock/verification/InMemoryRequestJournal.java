@@ -79,7 +79,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	}
 
     @Override
-    public List<ServeEvent> getAllServedStubs() {
+    public List<ServeEvent> getAllServeEvents() {
         return ImmutableList.copyOf(serveEvents).reverse();
     }
 
