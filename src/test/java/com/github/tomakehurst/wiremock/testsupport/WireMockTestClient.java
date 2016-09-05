@@ -24,12 +24,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
@@ -178,19 +173,24 @@ public class WireMockTestClient {
         return executeMethodAndConvertExceptions(httpPatch);
     }
 
+    public WireMockResponse options(String url, TestHttpHeader... headers) {
+        HttpOptions httpOptions = new HttpOptions(mockServiceUrlFor(url));
+        return executeMethodAndConvertExceptions(httpOptions, headers);
+    }
+
     public void addResponse(String responseSpecJson) {
         int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
         if (status != HTTP_CREATED) {
             throw new RuntimeException("Returned status code was " + status);
         }
     }
-
     public void editMapping(String mappingSpecJson) {
         int status = postJsonAndReturnStatus(editMappingUrl(), mappingSpecJson);
         if (status != HTTP_NO_CONTENT) {
             throw new RuntimeException("Returned status code was " + status);
         }
     }
+
     public void removeMapping(String mappingSpecJson) {
         int status = postJsonAndReturnStatus(removeMappingUrl(), mappingSpecJson);
         if (status != HTTP_OK) {
@@ -287,5 +287,4 @@ public class WireMockTestClient {
             .setDefaultCredentialsProvider(credsProvider)
             .build();
     }
-
 }
