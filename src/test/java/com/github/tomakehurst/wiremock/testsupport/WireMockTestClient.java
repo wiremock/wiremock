@@ -186,6 +186,11 @@ public class WireMockTestClient {
         return executeMethodAndConvertExceptions(httpDelete);
     }
 
+    public WireMockResponse options(String url, TestHttpHeader... headers) {
+        HttpOptions httpOptions = new HttpOptions(mockServiceUrlFor(url));
+        return executeMethodAndConvertExceptions(httpOptions, headers);
+    }
+
     public void addResponse(String responseSpecJson) {
         int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
         if (status != HTTP_CREATED) {
