@@ -17,10 +17,16 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+
+import java.net.HttpURLConnection;
+
+import static java.net.HttpURLConnection.HTTP_CREATED;
 
 public class CreateStubMappingTask implements AdminTask {
 
@@ -28,6 +34,6 @@ public class CreateStubMappingTask implements AdminTask {
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         StubMapping newMapping = StubMapping.buildFrom(request.getBodyAsString());
         admin.addStubMapping(newMapping);
-        return ResponseDefinition.created();
+        return ResponseDefinitionBuilder.jsonResponse(newMapping, HTTP_CREATED);
     }
 }

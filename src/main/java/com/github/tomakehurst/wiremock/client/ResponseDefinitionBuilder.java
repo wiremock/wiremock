@@ -71,10 +71,14 @@ public class ResponseDefinitionBuilder {
 		return builder;
 	}
 
-	public static ResponseDefinition jsonResponse(Object body) {
+    public static ResponseDefinition jsonResponse(Object body) {
+        return jsonResponse(body, HTTP_OK);
+    }
+
+	public static ResponseDefinition jsonResponse(Object body, int status) {
 		return new ResponseDefinitionBuilder()
 				.withBody(Json.write(body))
-				.withStatus(HTTP_OK)
+				.withStatus(status)
 				.withHeader("Content-Type", "application/json")
 				.build();
 	}

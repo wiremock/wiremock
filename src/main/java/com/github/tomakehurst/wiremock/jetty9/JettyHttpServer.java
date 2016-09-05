@@ -22,6 +22,7 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import com.google.common.collect.ImmutableMap;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Handler;
@@ -33,8 +34,10 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -283,6 +286,16 @@ class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
+
+        FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
+        filterHolder.setInitParameters(ImmutableMap.of(
+            "chainPreflight", "false",
+            "allowedOrigins", "*",
+            "allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization",
+            "allowedMethods", "OPTIONS,GET,POST,PUT"));
+
+        adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+
         return adminContext;
     }
 

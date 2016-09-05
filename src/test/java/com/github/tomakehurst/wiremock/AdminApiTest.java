@@ -229,6 +229,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("request").field("url").isEqualTo("/received-request/2");
     }
 
+
     @Test
     public void deleteStubMappingById() throws Exception {
         StubMapping stubMapping = dsl.stubFor(get(urlPathEqualTo("/delete/this"))
@@ -275,6 +276,40 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(
             testClient.putWithBody("/__admin/mappings/" + UUID.randomUUID(), "{}", "application/json"
         ).statusCode(), is(404));
+    }
+
+    @Test
+    public void createStubMappingReturnsTheCreatedMapping() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{                                  \n" +
+                "    \"request\": {                 \n" +
+                "        \"method\": \"GET\",       \n" +
+                "        \"url\": \"/put/this\"     \n" +
+                "    },                             \n" +
+                "    \"response\": {                \n" +
+                "        \"status\": 418            \n" +
+                "    }                              \n" +
+                "}"
+        );
+
+        assertThat(response.statusCode(), is(201));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        String body = response.content();
+        JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
+    }
+
+    @Test
+    public void resetStubMappings() {
+        dsl.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
+        dsl.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/reset-this").statusCode(), is(200));
+        assertThat(testClient.get("/reset-this/too").statusCode(), is(200));
+
+        testClient.delete("/__admin/mappings");
+
+        assertThat(testClient.get("/reset-this").statusCode(), is(404));
+        assertThat(testClient.get("/reset-this/too").statusCode(), is(404));
     }
 
 }

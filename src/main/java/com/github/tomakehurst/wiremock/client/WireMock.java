@@ -174,7 +174,7 @@ public class WireMock {
     }
 
 	public void resetMappings() {
-		admin.resetMappings();
+		admin.resetAll();
 	}
 
 	public static void reset() {

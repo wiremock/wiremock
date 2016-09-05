@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -45,6 +46,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class WireMockTestClient {
 
@@ -163,6 +165,12 @@ public class WireMockTestClient {
         return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
+    public WireMockResponse postJson(String url, String body, TestHttpHeader... headers) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(new StringEntity(body, APPLICATION_JSON));
+        return executeMethodAndConvertExceptions(httpPost, headers);
+    }
+
     public WireMockResponse patchWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
         return patch(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
     }
@@ -176,6 +184,11 @@ public class WireMockTestClient {
     public WireMockResponse delete(String url) {
         HttpDelete httpDelete = new HttpDelete(mockServiceUrlFor(url));
         return executeMethodAndConvertExceptions(httpDelete);
+    }
+
+    public WireMockResponse options(String url, TestHttpHeader... headers) {
+        HttpOptions httpOptions = new HttpOptions(mockServiceUrlFor(url));
+        return executeMethodAndConvertExceptions(httpOptions, headers);
     }
 
     public void addResponse(String responseSpecJson) {

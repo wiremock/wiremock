@@ -110,7 +110,7 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(admin).resetMappings();
+			one(admin).resetAll();
 		}});
 
         handler.handle(request, httpResponder);

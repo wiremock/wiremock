@@ -142,7 +142,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void resetMappings() {
+    public void resetAll() {
         postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
     }
 
@@ -154,6 +154,11 @@ public class HttpAdminClient implements Admin {
     @Override
     public void resetScenarios() {
         postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
+    }
+
+    @Override
+    public void resetMappings() {
+        postJsonAssertOkAndReturnBody(urlFor(ResetStubMappingsTask.class), null, HTTP_OK);
     }
 
     @Override

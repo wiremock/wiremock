@@ -58,6 +58,7 @@ public class AdminRoutes {
 
         router.add(GET,  "/mappings", GetAllStubMappingsTask.class);
         router.add(POST, "/mappings", CreateStubMappingTask.class);
+        router.add(DELETE, "/mappings", ResetStubMappingsTask.class);
 
         router.add(POST, "/mappings/new", OldCreateStubMappingTask.class); // Deprecated
         router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // Deprecated

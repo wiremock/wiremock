@@ -156,7 +156,7 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public void resetMappings() {
+    public void resetAll() {
         stubMappings.reset();
         requestJournal.reset();
     }
@@ -168,13 +168,18 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void resetToDefaultMappings() {
-        resetMappings();
+        resetAll();
         loadDefaultMappings();
     }
 
     @Override
     public void resetScenarios() {
         stubMappings.resetScenarios();
+    }
+
+    @Override
+    public void resetMappings() {
+        stubMappings.reset();
     }
 
     @Override
