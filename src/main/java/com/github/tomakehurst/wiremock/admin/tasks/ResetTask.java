@@ -25,7 +25,7 @@ public class ResetTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        admin.resetMappings();
+        admin.resetAll();
         return ResponseDefinition.ok();
     }
 }

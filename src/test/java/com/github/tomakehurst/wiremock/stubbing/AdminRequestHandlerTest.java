@@ -109,7 +109,7 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(admin).resetMappings();
+			one(admin).resetAll();
 		}});
 		
 		Response response = handler.handle(request);

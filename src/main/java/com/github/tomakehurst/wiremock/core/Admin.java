@@ -35,9 +35,10 @@ public interface Admin {
     ListStubMappingsResult listAllStubMappings();
     SingleStubMappingResult getStubMapping(UUID id);
     void saveMappings();
-	void resetMappings();
 	void resetRequests();
-	void resetScenarios();
+    void resetScenarios();
+    void resetMappings();
+    void resetAll();
     void resetToDefaultMappings();
 
     GetServeEventsResult getServeEvents();

@@ -336,8 +336,8 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void resetMappings() {
-        wireMockApp.resetMappings();
+    public void resetAll() {
+        wireMockApp.resetAll();
     }
 
     @Override
@@ -363,6 +363,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void resetScenarios() {
         wireMockApp.resetScenarios();
+    }
+
+    @Override
+    public void resetMappings() {
+        wireMockApp.resetMappings();
     }
 
     @Override

@@ -297,4 +297,18 @@ public class AdminApiTest extends AcceptanceTestBase {
         JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
     }
 
+    @Test
+    public void resetStubMappings() {
+        dsl.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
+        dsl.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/reset-this").statusCode(), is(200));
+        assertThat(testClient.get("/reset-this/too").statusCode(), is(200));
+
+        testClient.delete("/__admin/mappings");
+
+        assertThat(testClient.get("/reset-this").statusCode(), is(404));
+        assertThat(testClient.get("/reset-this/too").statusCode(), is(404));
+    }
+
 }
