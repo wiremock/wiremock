@@ -5,4 +5,4 @@ jdk:
   - openjdk7
 
 install: echo 'Doing nothing on install'
-script: ./gradlew test -i
+script: ./gradlew test

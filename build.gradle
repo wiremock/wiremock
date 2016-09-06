@@ -96,6 +96,11 @@ test {
     exclude 'ignored/**'
 
     maxParallelForks = 3
+
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }
 
 
