@@ -33,10 +33,18 @@ public class EqualToPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(String value) {
-        return Objects.equals(expectedValue, value) ?
-            MatchResult.exactMatch() :
-            MatchResult.partialMatch(normalisedLevenshteinDistance(expectedValue, value));
+    public MatchResult match(final String value) {
+        return new MatchResult() {
+            @Override
+            public boolean isExactMatch() {
+                return Objects.equals(expectedValue, value);
+            }
+
+            @Override
+            public double getDistance() {
+                return normalisedLevenshteinDistance(expectedValue, value);
+            }
+        };
     }
 
     private double normalisedLevenshteinDistance(String one, String two) {
