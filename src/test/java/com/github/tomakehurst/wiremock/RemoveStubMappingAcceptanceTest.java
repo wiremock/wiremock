@@ -21,9 +21,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
@@ -36,7 +34,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         UUID id1 = UUID.randomUUID();
 
-        wireMockServer.stubFor(get(urlEqualTo("/stub-1"))
+        stubFor(get(urlEqualTo("/stub-1"))
                 .withId(id1)
                 .willReturn(aResponse()
                         .withBody("Stub-1-Body")));
@@ -44,7 +42,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stub-1").content(), is("Stub-1-Body"));
 
         UUID id2 = UUID.randomUUID();
-        wireMockServer.stubFor(get(urlEqualTo("/stub-2"))
+        stubFor(get(urlEqualTo("/stub-2"))
                 .withId(id2)
                 .willReturn(aResponse()
                         .withBody("Stub-2-Body")));
@@ -53,13 +51,13 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(getMatchingStubCount("/stub-1","/stub-2"), is(2));
 
-        wireMockServer.removeStub(get(urlEqualTo("/stub-2"))
+        removeStub(get(urlEqualTo("/stub-2"))
                         .withId(id2)
                         .willReturn(aResponse().withBody("Stub-2-Body")));
 
         assertThat(getMatchingStubCount("/stub-1","/stub-2"), is(1));
 
-        wireMockServer.removeStub(get(urlEqualTo("/stub-1"))
+        removeStub(get(urlEqualTo("/stub-1"))
                 .withId(id1)
                 .willReturn(aResponse().withBody("Stub-1-Body")));
 
@@ -71,7 +69,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         UUID id1 = UUID.randomUUID();
 
-        wireMockServer.stubFor(get(urlEqualTo("/stub-11"))
+        stubFor(get(urlEqualTo("/stub-11"))
                 .withId(id1)
                 .willReturn(aResponse()
                         .withBody("Stub-11-Body")));
@@ -79,7 +77,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stub-11").content(), is("Stub-11-Body"));
 
         UUID id2 = UUID.randomUUID();
-        wireMockServer.stubFor(get(urlEqualTo("/stub-22"))
+        stubFor(get(urlEqualTo("/stub-22"))
                 .withId(id2)
                 .willReturn(aResponse()
                         .withBody("Stub-22-Body")));
@@ -89,14 +87,14 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(getMatchingStubCount("/stub-11","/stub-22"), is(2));
 
         UUID id3 = UUID.randomUUID();
-        wireMockServer.removeStub(get(urlEqualTo("/stub-22"))
+        removeStub(get(urlEqualTo("/stub-22"))
                 .withId(id3)
                 .willReturn(aResponse().withBody("Stub-22-Body")));
 
         assertThat(getMatchingStubCount("/stub-11","/stub-22"), is(1));
 
         UUID id4 = UUID.randomUUID();
-        wireMockServer.removeStub(get(urlEqualTo("/stub-11"))
+        removeStub(get(urlEqualTo("/stub-11"))
                 .withId(id4)
                 .willReturn(aResponse().withBody("Stub-11-Body")));
 
@@ -108,7 +106,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         UUID id1 = UUID.randomUUID();
 
-        wireMockServer.stubFor(get(urlEqualTo("/stub-111"))
+        stubFor(get(urlEqualTo("/stub-111"))
                 .withId(id1)
                 .willReturn(aResponse()
                         .withBody("Stub-111-Body")));
@@ -116,7 +114,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stub-111").content(), is("Stub-111-Body"));
 
         UUID id2 = UUID.randomUUID();
-        wireMockServer.stubFor(get(urlEqualTo("/stub-222"))
+        stubFor(get(urlEqualTo("/stub-222"))
                 .withId(id2)
                 .willReturn(aResponse()
                         .withBody("Stub-222-Body")));
@@ -125,12 +123,12 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(getMatchingStubCount("/stub-111","/stub-222"), is(2));
 
-        wireMockServer.removeStub(get(urlEqualTo("/stub-222"))
+        removeStub(get(urlEqualTo("/stub-222"))
                 .willReturn(aResponse().withBody("Stub-222-Body")));
 
         assertThat(getMatchingStubCount("/stub-111","/stub-222"), is(1));
 
-        wireMockServer.removeStub(get(urlEqualTo("/stub-111"))
+        removeStub(get(urlEqualTo("/stub-111"))
                 .willReturn(aResponse().withBody("Stub-111-Body")));
 
         assertThat(getMatchingStubCount("/stub-111","/stub-222"), is(0));
@@ -141,7 +139,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
 
         UUID id1 = UUID.randomUUID();
 
-        wireMockServer.stubFor(get(urlEqualTo("/stb-1"))
+        stubFor(get(urlEqualTo("/stb-1"))
                 .withId(id1)
                 .willReturn(aResponse()
                         .withBody("Stb-1-Body")));
@@ -149,7 +147,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stb-1").content(), is("Stb-1-Body"));
 
         UUID id2 = UUID.randomUUID();
-        wireMockServer.stubFor(get(urlEqualTo("/stb-2"))
+        stubFor(get(urlEqualTo("/stb-2"))
                 .withId(id2)
                 .willReturn(aResponse()
                         .withBody("Stb-2-Body")));
@@ -159,7 +157,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
         assertThat(getMatchingStubCount("/stb-1","/stb-2"), is(2));
 
         UUID id3 = UUID.randomUUID();
-        wireMockServer.removeStub(get(urlEqualTo("/stb-3"))
+        removeStub(get(urlEqualTo("/stb-3"))
                 .withId(id3)
                 .willReturn(aResponse().withBody("Stb-3-Body")));
 
@@ -176,7 +174,7 @@ public class RemoveStubMappingAcceptanceTest extends AcceptanceTestBase {
     }
 
     private synchronized int getMatchingStubCount(String url1, String url2){
-        return from(wireMockServer.listAllStubMappings().getMappings()).filter(withAnyOf(url1, url2)).size();
+        return from(listAllStubMappings().getMappings()).filter(withAnyOf(url1, url2)).size();
     }
 
 
