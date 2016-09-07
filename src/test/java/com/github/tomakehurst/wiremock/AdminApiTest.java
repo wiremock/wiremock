@@ -298,7 +298,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void resetStubMappings() {
+    public void resetStubMappingsViaDELETE() {
         dsl.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
         dsl.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
 
@@ -309,6 +309,20 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(testClient.get("/reset-this").statusCode(), is(404));
         assertThat(testClient.get("/reset-this/too").statusCode(), is(404));
+    }
+
+    @Test
+    public void resetReqestJournalViaDELETE() {
+        testClient.get("/one");
+        testClient.get("/two");
+        testClient.get("/three");
+
+        assertThat(dsl.getAllServeEvents().size(), is(3));
+
+        WireMockResponse response = testClient.delete("/__admin/requests");
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(dsl.getAllServeEvents().size(), is(0));
     }
 
 }
