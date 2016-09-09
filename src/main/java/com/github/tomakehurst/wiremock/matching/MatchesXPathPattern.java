@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -67,7 +69,7 @@ public class MatchesXPathPattern extends StringValuePattern {
     }
 
     private boolean isXPathMatch(String value) {
-        if (value == null) {
+        if (!isXml(value)) {
             return false;
         }
 
@@ -91,5 +93,15 @@ public class MatchesXPathPattern extends StringValuePattern {
             notifier().info("Warning: failed to evaluate the XPath expression " + expectedValue);
             return false;
         }
+    }
+
+    private boolean isXml(String value) {
+        if (value == null || value.trim().isEmpty() || !value.trim().startsWith("<")) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile("<(\\S+?)(.*?)>(.*?)</\\1>",
+                                          Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
+        Matcher matcher = pattern.matcher(value);
+        return matcher.matches();
     }
 }
