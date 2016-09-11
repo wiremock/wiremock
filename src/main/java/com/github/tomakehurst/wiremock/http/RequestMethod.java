@@ -33,6 +33,8 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
     public static final RequestMethod HEAD = new RequestMethod("HEAD");
     public static final RequestMethod TRACE = new RequestMethod("TRACE");
     public static final RequestMethod ANY = new RequestMethod("ANY");
+    public static final RequestMethod PUSH = new RequestMethod("PUSH");
+    public static final RequestMethod PURGE = new RequestMethod("PURGE");
 
     private final String name;
 
@@ -91,6 +93,6 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
     }
 
     public static RequestMethod[] values() {
-        return new RequestMethod[] { GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY };
+        return new RequestMethod[] { GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, TRACE, ANY, PUSH, PURGE };
     }
 }
