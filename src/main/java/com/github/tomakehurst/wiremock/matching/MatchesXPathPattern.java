@@ -98,7 +98,7 @@ public class MatchesXPathPattern extends StringValuePattern {
     }
 
     private boolean isXml(String value) {
-        if (value == null || value.trim().isEmpty() || !value.trim().startsWith("<")) {
+        if (value == null) {
             return false;
         }
 
