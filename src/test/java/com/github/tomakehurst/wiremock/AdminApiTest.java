@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -312,7 +314,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void resetReqestJournalViaDELETE() {
+    public void resetRequestJournalViaDELETE() {
         testClient.get("/one");
         testClient.get("/two");
         testClient.get("/three");
@@ -323,6 +325,27 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(response.statusCode(), is(200));
         assertThat(dsl.getAllServeEvents().size(), is(0));
+    }
+
+    @Test
+    public void resetScenariosViaDELETE() {
+        dsl.stubFor(get(urlEqualTo("/stateful"))
+            .inScenario("changing-states")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("final")
+            .willReturn(aResponse().withBody("Initial")));
+
+        dsl.stubFor(get(urlEqualTo("/stateful"))
+            .inScenario("changing-states")
+            .whenScenarioStateIs("final")
+            .willReturn(aResponse().withBody("Final")));
+
+        assertThat(testClient.get("/stateful").content(), is("Initial"));
+        assertThat(testClient.get("/stateful").content(), is("Final"));
+
+        testClient.delete("/__admin/scenarios");
+
+        assertThat(testClient.get("/stateful").content(), is("Initial"));
     }
 
 }
