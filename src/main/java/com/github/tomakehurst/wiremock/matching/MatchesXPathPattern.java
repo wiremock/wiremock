@@ -38,6 +38,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class MatchesXPathPattern extends StringValuePattern {
 
+    private final static  Pattern xmlPattern = Pattern.compile("<(\\S+?)(.*?)>(.*?)</\\1>",
+                                                            Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
     private final Map<String, String> xpathNamespaces;
 
     public MatchesXPathPattern(@JsonProperty("matchesXPath") String expectedValue,
@@ -99,9 +101,8 @@ public class MatchesXPathPattern extends StringValuePattern {
         if (value == null || value.trim().isEmpty() || !value.trim().startsWith("<")) {
             return false;
         }
-        Pattern pattern = Pattern.compile("<(\\S+?)(.*?)>(.*?)</\\1>",
-                                          Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
-        Matcher matcher = pattern.matcher(value);
+
+        Matcher matcher = xmlPattern.matcher(value);
         return matcher.matches();
     }
 }

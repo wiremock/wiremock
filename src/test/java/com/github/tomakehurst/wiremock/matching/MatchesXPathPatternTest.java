@@ -48,6 +48,20 @@ public class MatchesXPathPatternTest {
     }
 
     @Test
+    public void returnsExactMatchWhenXPathMatchesForMultilineXml() {
+        String mySolarSystemXML = "<solar-system>\n"
+                + "<planet name='Earth' position='3' supportsLife='yes'/>"
+                + "<planet name='Venus' position='4'/></solar-system>";
+
+
+        StringValuePattern pattern = WireMock.matchingXPath("//planet[@name='Earth']");
+
+        MatchResult match = pattern.match(mySolarSystemXML);
+        assertTrue("Expected XPath match", match.isExactMatch());
+        assertThat(match.getDistance(), is(0.0));
+    }
+
+    @Test
     public void returnsNoExactMatchWhenXPathDoesNotMatch() {
         String mySolarSystemXML = "<solar-system>"
             + "<planet name='Earth' position='3' supportsLife='yes'/>"
@@ -88,7 +102,9 @@ public class MatchesXPathPatternTest {
 
     @Test
     public void returnsNoExactMatchForNonXml() {
-        String mySolarSystemXML = "asd";
+        String mySolarSystemXML = "asd<solar-system>\n" +
+                "<planet name='Earth' position='3' supportsLife='yes'/>" +
+                "<planet name='Venus' position='4></solar-system>";
 
         StringValuePattern pattern = WireMock.matchingXPath("//star[@name='alpha centauri']");
 
