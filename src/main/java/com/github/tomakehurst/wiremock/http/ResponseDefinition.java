@@ -142,16 +142,20 @@ public class ResponseDefinition {
         return new ResponseDefinition(HTTP_OK, (byte[]) null);
     }
 
+    public static ResponseDefinition okEmptyJson() {
+        return ResponseDefinitionBuilder.okForEmptyJson().build();
+    }
+
+    public static <T> ResponseDefinition okForJson(T body) {
+        return ResponseDefinitionBuilder.okForJson(body).build();
+    }
+
     public static ResponseDefinition created() {
         return new ResponseDefinition(HTTP_CREATED, (byte[]) null);
     }
 
     public static ResponseDefinition noContent() {
         return new ResponseDefinition(HTTP_NO_CONTENT, (byte[]) null);
-    }
-
-    public static <T> ResponseDefinition okForJson(T body) {
-        return ResponseDefinitionBuilder.okForJson(body).build();
     }
 
     public static ResponseDefinition redirectTo(String path) {

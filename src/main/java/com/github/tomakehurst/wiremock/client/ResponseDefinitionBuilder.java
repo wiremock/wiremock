@@ -162,6 +162,13 @@ public class ResponseDefinitionBuilder {
             .withHeader("Content-Type", "application/json");
     }
 
+	public static <T> ResponseDefinitionBuilder okForEmptyJson() {
+		return responseDefinition()
+			.withStatus(HTTP_OK)
+			.withBody("{}")
+			.withHeader("Content-Type", "application/json");
+	}
+
 	public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
 		this.headers = ImmutableList.copyOf(headers.all());
 		return this;

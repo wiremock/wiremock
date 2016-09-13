@@ -239,8 +239,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(testClient.get("/delete/this").statusCode(), is(200));
 
-        testClient.delete("/__admin/mappings/" + stubMapping.getId());
+        WireMockResponse response = testClient.delete("/__admin/mappings/" + stubMapping.getId());
 
+        assertThat(response.content(), is("{}"));
         assertThat(testClient.get("/delete/this").statusCode(), is(404));
     }
 
@@ -307,8 +308,9 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(testClient.get("/reset-this").statusCode(), is(200));
         assertThat(testClient.get("/reset-this/too").statusCode(), is(200));
 
-        testClient.delete("/__admin/mappings");
+        WireMockResponse response = testClient.delete("/__admin/mappings");
 
+        assertThat(response.content(), is("{}"));
         assertThat(testClient.get("/reset-this").statusCode(), is(404));
         assertThat(testClient.get("/reset-this/too").statusCode(), is(404));
     }
@@ -323,6 +325,8 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         WireMockResponse response = testClient.delete("/__admin/requests");
 
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        assertThat(response.content(), is("{}"));
         assertThat(response.statusCode(), is(200));
         assertThat(dsl.getAllServeEvents().size(), is(0));
     }
@@ -343,8 +347,10 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stateful").content(), is("Initial"));
         assertThat(testClient.get("/stateful").content(), is("Final"));
 
-        testClient.delete("/__admin/scenarios");
+        WireMockResponse response = testClient.delete("/__admin/scenarios");
 
+        assertThat(response.content(), is("{}"));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
         assertThat(testClient.get("/stateful").content(), is("Initial"));
     }
 

@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
 
+import static java.util.Collections.emptyMap;
+
 public class RemoveStubMappingTask implements AdminTask {
 
     @Override
@@ -38,6 +40,6 @@ public class RemoveStubMappingTask implements AdminTask {
         }
 
         admin.removeStubMapping(stubMappingResult.getItem());
-        return ResponseDefinition.ok();
+        return ResponseDefinition.okEmptyJson();
     }
 }
