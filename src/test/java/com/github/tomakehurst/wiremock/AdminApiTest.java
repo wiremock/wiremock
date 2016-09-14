@@ -150,6 +150,8 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void getLoggedRequests() throws Exception {
+        dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
+
         for (int i = 1; i <= 5; i++) {
             testClient.get("/received-request/" + i);
         }
@@ -161,6 +163,8 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("meta").field("total").isEqualTo(5);
         check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
         check.field("requests").hasSize(5);
+        check.field("requests").elementWithIndex(1).field("wasMatched").isEqualTo(true);
+        check.field("requests").elementWithIndex(3).field("wasMatched").isEqualTo(false);
     }
 
     @Test

@@ -34,14 +34,15 @@ public class ServeEvent {
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,
                       @JsonProperty("request") LoggedRequest request,
-                      @JsonProperty("responseDefinition") ResponseDefinition responseDefinition) {
+                      @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
+                      @JsonProperty("wasMatched") boolean ignoredReadOnly) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
     }
 
     public ServeEvent(LoggedRequest request, ResponseDefinition responseDefinition) {
-        this(UUID.randomUUID(), request, responseDefinition);
+        this(UUID.randomUUID(), request, responseDefinition, false);
     }
 
     public static ServeEvent noExactMatch(LoggedRequest request) {
@@ -67,6 +68,10 @@ public class ServeEvent {
 
     public ResponseDefinition getResponseDefinition() {
         return responseDefinition;
+    }
+
+    public boolean getWasMatched() {
+        return responseDefinition.wasConfigured();
     }
 
     public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServeEvent, LoggedRequest>() {
