@@ -54,7 +54,7 @@ dependencies {
     compile "org.apache.httpcomponents:httpclient:4.5.1"
     compile 'org.xmlunit:xmlunit-core:2.1.1'
     compile 'org.xmlunit:xmlunit-legacy:2.1.1'
-    compile "com.jayway.jsonpath:json-path:2.0.0"
+    compile "com.jayway.jsonpath:json-path:2.2.0"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "net.sf.jopt-simple:jopt-simple:4.9"
     compile("junit:junit:4.12") {
