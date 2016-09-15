@@ -330,6 +330,44 @@ JSON:
 
 Deems a match if the attribute value is valid JSON and matches the [JSON Path](http://goessner.net/articles/JsonPath/) expression supplied. A JSON body will be considered to match a path expression if the expression returns either a non-null single value (string, integer etc.), or a non-empty object or array.
 
+#### Presence matching
+
+Deems a match if the attribute value is present in the JSON.
+
+Java:
+
+```java
+.withRequestBody(matchingJsonPath("$.name"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$.name"
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+Request body example:
+
+```
+// matching
+{ "name": "Wiremock" }
+// not matching
+{ "price": 15 }
+```
+
+#### Equality matching
+
+Deems a match if the attribute value equals the expected value.
+
 Java:
 
 ```java
@@ -349,6 +387,88 @@ JSON:
   },
   ...
 }
+```
+
+Request body example:
+
+```
+// matching
+{ "things": { "name": "RequiredThing" } }
+{ "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
+// not matching
+{ "price": 15 }
+{ "things": { "name": "Wiremock" } }
+```
+
+#### Regex matching
+
+Deems a match if the attribute value matches the regex expected value.
+
+Java:
+
+```java
+.withRequestBody(matchingJsonPath("$.things[?(@.name =~ /Required.*/i)]"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$.things[?(@.name =~ /Required.*/i)]"
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+Request body example:
+
+```
+// matching
+{ "things": { "name": "RequiredThing" } }
+{ "things": [ { "name": "Required" }, { "name": "Wiremock" } ] }
+// not matching
+{ "price": 15 }
+{ "things": { "name": "Wiremock" } }
+{ "things": [ { "name": "Thing" }, { "name": "Wiremock" } ] }
+```
+
+#### Size matching
+
+Deems a match if the attribute size matches the expected size.
+
+Java:
+
+```java
+.withRequestBody(matchingJsonPath("$[?(@.things.size() == 2)]"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$[?(@.things.size() == 2)]"
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+Request body example:
+
+```
+// matching
+{ "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
+// not matching
+{ "things": [ { "name": "RequiredThing" } ] }
 ```
 
 ### XML equality
