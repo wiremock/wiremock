@@ -38,6 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
@@ -77,6 +78,12 @@ public class VerificationAcceptanceTest {
         public void verifiesRequestBasedOnUrlOnly() {
             testClient.get("/this/got/requested?query");
             verify(getRequestedFor(urlEqualTo("/this/got/requested?query")));
+        }
+
+        @Test
+        public void anyRequestedForMatchesAnyHttpMethod() {
+            testClient.get("/this/got/requested?query");
+            verify(anyRequestedFor(urlEqualTo("/this/got/requested?query")));
         }
 
         @Test(expected=VerificationException.class)
