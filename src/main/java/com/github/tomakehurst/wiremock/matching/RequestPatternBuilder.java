@@ -126,6 +126,7 @@ public class RequestPatternBuilder {
                     cookies.isEmpty() ? null : cookies,
                     basicCredentials,
                     bodyPatterns.isEmpty() ? null : bodyPatterns,
+                    null,
                     null
                 );
     }

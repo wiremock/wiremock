@@ -26,7 +26,7 @@ import static com.google.common.collect.Iterables.transform;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-public class Response {
+public class Response implements HTTPBasicMessage {
 
 	private final int status;
     private final String statusMessage;

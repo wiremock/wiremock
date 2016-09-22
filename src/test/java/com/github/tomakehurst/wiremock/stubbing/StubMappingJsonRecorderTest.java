@@ -66,11 +66,11 @@ public class StubMappingJsonRecorderTest {
 		filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
-        constructRecordingListener(Collections.<String>emptyList());
+        constructRecordingListener(Collections.<String>emptyList(), false);
 	}
 
-    private void constructRecordingListener(List<String> headersToRecord) {
-        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
+    private void constructRecordingListener(List<String> headersToRecord, boolean recordMappingsExtra) {
+        listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS), recordMappingsExtra);
         listener.setIdGenerator(fixedIdGenerator("1$2!3"));
     }
 
@@ -85,7 +85,7 @@ public class StubMappingJsonRecorderTest {
 		"		\"bodyFileName\": \"body-recorded-content-1$2!3.txt\"    \n" +
 		"	}												             \n" +
 		"}													               ";
-	
+
 	@Test
 	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
 		context.checking(new Expectations() {{
@@ -109,7 +109,7 @@ public class StubMappingJsonRecorderTest {
 
 		listener.requestReceived(request, response);
 	}
-	
+
 	private static final String SAMPLE_REQUEST_MAPPING_WITH_HEADERS =
         "{                                                                  \n" +
         "   \"request\": {                                                  \n" +
@@ -151,7 +151,60 @@ public class StubMappingJsonRecorderTest {
 
         listener.requestReceived(request, response);
 	}
-	
+
+	private static final String SAMPLE_REQUEST_MAPPING_WITH_EXTRA =
+			"{                                                                              \n" +
+					"  \"request\" : {                                                      \n" +
+					"    \"url\" : \"/extra/content/on/request/body/\",                     \n" +
+					"    \"method\" : \"POST\",                                             \n" +
+					"    \"bodyPatterns\" : [                                               \n" +
+					"      {                                                                \n" +
+					"        \"equalToJson\" : \"{\\\"dummy\\\" : \\\"nothing\\\"}\",       \n" +
+					"        \"ignoreArrayOrder\" : true,                                   \n" +
+					"        \"ignoreExtraElements\" : true                                 \n" +
+					"      }                                                                \n" +
+					"    ],                                                                 \n" +
+					"    \"extraBodyFileName\" : \"requestbody-request-body-1$2!3.txt\"     \n" +
+					"  },                                                                   \n" +
+					"  \"response\" : {                                                     \n" +
+					"    \"status\" : 200,                                                  \n" +
+					"    \"bodyFileName\" : \"body-request-body-1$2!3.txt\"                 \n" +
+					"  }                                                                    \n" +
+					"}";
+	private static final String SAMPLE_REQUEST_BODY_FOR_MAPPING_WITH_EXTRA = "{\"dummy\" : \"nothing\"}";
+
+
+	@Test
+	public void writesExtendedRequestInformation() {
+		constructRecordingListener(Collections.<String>emptyList(), true);
+
+		context.checking(new Expectations() {{
+			allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+			one(mappingsFileSource).writeTextFile(with(equal("mapping-request-body-1$2!3.json")),
+					with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_EXTRA, STRICT_ORDER)));
+			one(filesFileSource).writeBinaryFile(with(equal("requestbody-request-body-1$2!3.txt")),
+					with(equal(SAMPLE_REQUEST_BODY_FOR_MAPPING_WITH_EXTRA.getBytes(UTF_8))));
+			one(filesFileSource).writeBinaryFile(with(equal("body-request-body-1$2!3.txt")),
+					with(equal("Response body content sample".getBytes(UTF_8))));
+			ignoring(filesFileSource);
+		}});
+
+		Request request = new MockRequestBuilder(context, "MockRequestExtendedInfo")
+				.withMethod(POST)
+				.withUrl("/extra/content/on/request/body/")
+				.withHeader("Content-Type", "application/json ")
+				.withBody(SAMPLE_REQUEST_BODY_FOR_MAPPING_WITH_EXTRA)
+				.build();
+
+		Response response = response()
+				.status(200)
+				.fromProxy(true)
+				.body("Response body content sample")
+				.build();
+
+		listener.requestReceived(request, response);
+	}
+
 	@Test
 	public void doesNotWriteFileIfRequestAlreadyReceived() {
 	    context.checking(new Expectations() {{
@@ -259,7 +312,7 @@ public class StubMappingJsonRecorderTest {
     
     @Test
     public void includesHeadersInRequestPatternIfHeaderMatchingEnabled() {
-        constructRecordingListener(MATCHING_REQUEST_HEADERS);
+        constructRecordingListener(MATCHING_REQUEST_HEADERS, false);
 
         context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));

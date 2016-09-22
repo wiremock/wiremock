@@ -57,7 +57,13 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--record-mappings");
 		assertThat(options.recordMappingsEnabled(), is(true));
 	}
-	
+
+	@Test
+	public void returnsRecordMappingsExtraTrueWhenOptionPresent() {
+		CommandLineOptions options = new CommandLineOptions("--record-mappings", "--record-mappings-extra");
+		assertThat(options.recordMappingsExtraEnabled(), is(true));
+	}
+
     @Test
     public void returnsHeaderMatchingEnabledWhenOptionPresent() {
     	CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept,Content-Type");
@@ -70,7 +76,13 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("");
 		assertThat(options.recordMappingsEnabled(), is(false));
 	}
-	
+
+	@Test
+	public void returnsRecordMappingsExtraFalseWhenOptionNotPresent() {
+		CommandLineOptions options = new CommandLineOptions("");
+		assertThat(options.recordMappingsExtraEnabled(), is(false));
+	}
+
 	@Test
      public void setsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--port", "8086");
@@ -120,7 +132,12 @@ public class CommandLineOptionsTest {
     public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
         new CommandLineOptions("--https-keystore", "/my/keystore");
     }
-	
+
+	@Test(expected=Exception.class)
+	public void throwsExceptionIfRecordMappigsExtraEnabledWithoutRecordingOption() {
+		new CommandLineOptions("--record-mappings-extra");
+	}
+
 	@Test(expected=Exception.class)
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
 		new CommandLineOptions("--port");
@@ -161,11 +178,23 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com");
 		assertThat(options.verboseLoggingEnabled(), is(true));
 		assertThat(options.recordMappingsEnabled(), is(true));
+		assertThat(options.recordMappingsExtraEnabled(), is(false));
 		assertThat(options.portNumber(), is(8088));
 		assertThat(options.specifiesProxyUrl(), is(true));
 		assertThat(options.proxyUrl(), is("http://somewhere.com"));
 	}
-	
+
+	@Test
+	public void setsAllPlusRequestBodyRecording() {
+		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com", "--record-mappings-extra");
+		assertThat(options.verboseLoggingEnabled(), is(true));
+		assertThat(options.recordMappingsEnabled(), is(true));
+		assertThat(options.recordMappingsExtraEnabled(), is(true));
+		assertThat(options.portNumber(), is(8088));
+		assertThat(options.specifiesProxyUrl(), is(true));
+		assertThat(options.proxyUrl(), is("http://somewhere.com"));
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void returnsHelpText() {

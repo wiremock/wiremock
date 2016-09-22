@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
@@ -33,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -50,6 +48,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     private final Map<String, StringValuePattern> cookies;
     private final BasicCredentials basicAuthCredentials;
     private final List<StringValuePattern> bodyPatterns;
+    private String extraBodyFileName;
 
     private CustomMatcherDefinition customMatcherDefinition;
     private RequestMatcher matcher;
@@ -81,7 +80,8 @@ public class RequestPattern implements ValueMatcher<Request> {
                           Map<String, StringValuePattern> cookies,
                           BasicCredentials basicAuthCredentials,
                           List<StringValuePattern> bodyPatterns,
-                          CustomMatcherDefinition customMatcherDefinition) {
+                          CustomMatcherDefinition customMatcherDefinition,
+                          String extraBodyFileName) {
         this.url = url;
         this.method = method;
         this.headers = headers;
@@ -91,6 +91,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         this.bodyPatterns = bodyPatterns;
         this.matcher = defaultMatcher;
         this.customMatcherDefinition = customMatcherDefinition;
+        this.extraBodyFileName = extraBodyFileName;
     }
 
     @JsonCreator
@@ -104,7 +105,8 @@ public class RequestPattern implements ValueMatcher<Request> {
                           @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                           @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
                           @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
-                          @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
+                          @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition,
+                          @JsonProperty("extraBodyFileName") String extraBodyFileName) {
 
         this(
             UrlPattern.fromOneOf(url, urlPattern, urlPath, urlPathPattern),
@@ -114,17 +116,18 @@ public class RequestPattern implements ValueMatcher<Request> {
             cookies,
             basicAuthCredentials,
             bodyPatterns,
-            customMatcherDefinition
+            customMatcherDefinition,
+            extraBodyFileName
         );
     }
 
     public RequestPattern(RequestMatcher customMatcher) {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, null, null, null, null, null, customMatcherDefinition);
+        this(null, null, null, null, null, null, null, customMatcherDefinition, null);
     }
 
     @Override
@@ -282,6 +285,14 @@ public class RequestPattern implements ValueMatcher<Request> {
         return customMatcherDefinition;
     }
 
+    public String getExtraBodyFileName() {
+        return extraBodyFileName;
+    }
+
+    public void setExtraBodyFileName(String extraBodyFileName) {
+        this.extraBodyFileName = extraBodyFileName;
+    }
+
     @Override
     public String getName() {
         return "requestMatching";
@@ -308,12 +319,13 @@ public class RequestPattern implements ValueMatcher<Request> {
             Objects.equal(cookies, that.cookies) &&
             Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
             Objects.equal(bodyPatterns, that.bodyPatterns) &&
-            Objects.equal(customMatcherDefinition, that.customMatcherDefinition);
+            Objects.equal(customMatcherDefinition, that.customMatcherDefinition) &&
+            Objects.equal(extraBodyFileName, that.extraBodyFileName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
+        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher, extraBodyFileName);
     }
 
     @Override
