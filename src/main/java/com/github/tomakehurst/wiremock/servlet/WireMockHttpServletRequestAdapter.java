@@ -184,10 +184,15 @@ public class WireMockHttpServletRequestAdapter implements Request {
     @Override
     public Map<String, Cookie> getCookies() {
         ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
+        Set<String> keys = new HashSet<>();
 
         for (javax.servlet.http.Cookie cookie :
             firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
-            builder.put(cookie.getName(), convertCookie(cookie));
+            String name = cookie.getName();
+            if (!keys.contains(name)) {
+                builder.put(name, convertCookie(cookie));
+                keys.add(name);
+            }
         }
 
         return builder.build();
