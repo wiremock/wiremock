@@ -51,18 +51,20 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private static final String CONTENT_LENGTH = "content-length";
     private static final String HOST_HEADER = "host";
 
-    private final HttpClient client;
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
-	
+	private final ProxySettings proxySettings;
+	private final KeyStoreSettings trustStoreSettings;
+
 	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue) {
-		client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
+		this.proxySettings = proxySettings;
+		this.trustStoreSettings = trustStoreSettings;
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
 	}
 
-    public ProxyResponseRenderer() {
+	public ProxyResponseRenderer() {
         this(ProxySettings.NO_PROXY, KeyStoreSettings.NO_STORE, false, null);
     }
 
@@ -73,7 +75,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
 		try {
 			addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-			HttpResponse httpResponse = client.execute(httpRequest);
+			HttpResponse httpResponse = client().execute(httpRequest);
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
@@ -95,15 +97,19 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         if (responseDefinition.getHeaders() != null) {
             httpHeaders.addAll(responseDefinition.getHeaders().all());
         }
-	    
+
 	    return new HttpHeaders(httpHeaders);
     }
+
+	private HttpClient client() {
+		return HttpClientFactory.createClient(1000, 5 * MINUTES, this.proxySettings, this.trustStoreSettings);
+	}
 
     private static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		final RequestMethod method = response.getOriginalRequest().getMethod();
 		final String url = response.getProxyUrl();
 		notifier().info("Proxying: " + method + " " + url);
-		
+
 		if (method.equals(GET))
 			return new HttpGet(url);
 		else if (method.equals(POST))
@@ -123,9 +129,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		else
 			return new GenericHttpUriRequest(method.toString(), url);
 	}
-	
+
 	private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
-		Request originalRequest = response.getOriginalRequest(); 
+		Request originalRequest = response.getOriginalRequest();
 		for (String key: originalRequest.getAllHeaderKeys()) {
 			if (headerShouldBeTransferred(key)) {
                 if (!HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
@@ -142,11 +148,11 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                 }
 			}
 		}
-				
+
 		if (response.getAdditionalProxyRequestHeaders() != null) {
 			for (String key: response.getAdditionalProxyRequestHeaders().keys()) {
 				httpRequest.setHeader(key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
-			}			
+			}
 		}
 	}
 
