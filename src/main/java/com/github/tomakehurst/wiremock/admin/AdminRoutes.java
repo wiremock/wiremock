@@ -61,8 +61,7 @@ public class AdminRoutes {
         router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
-        router.add(DELETE, "/scenarios", ResetScenariosTask.class);
-        router.add(POST, "/scenarios/reset", OldResetScenariosTask.class);  // Deprecated
+        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
         router.add(GET,  "/requests", GetAllRequestsTask.class);
         router.add(DELETE,  "/requests", ResetRequestsTask.class);

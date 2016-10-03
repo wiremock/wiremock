@@ -23,6 +23,9 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -32,6 +35,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -336,7 +340,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void resetScenariosViaDELETE() {
+    public void resetScenariosViaPOST() {
         dsl.stubFor(get(urlEqualTo("/stateful"))
             .inScenario("changing-states")
             .whenScenarioStateIs(STARTED)
@@ -351,7 +355,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stateful").content(), is("Initial"));
         assertThat(testClient.get("/stateful").content(), is("Final"));
 
-        WireMockResponse response = testClient.delete("/__admin/scenarios");
+        WireMockResponse response = testClient.post("/__admin/scenarios/reset", new StringEntity("", TEXT_PLAIN));
 
         assertThat(response.content(), is("{}"));
         assertThat(response.firstHeader("Content-Type"), is("application/json"));

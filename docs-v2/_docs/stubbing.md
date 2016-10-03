@@ -36,7 +36,7 @@ public void exactUrlOnly() {
 
 To create the stub described above via the JSON API, the following
 document can either be posted to
-`http://<host>:<port>/__admin/mappings/new` or placed in a file with a
+`http://<host>:<port>/__admin/mappings` or placed in a file with a
 `.json` extension under the `mappings` directory:
 
 ```json
@@ -297,11 +297,10 @@ wireMockServer.editStub(get(urlEqualTo("/edit-this"))
 assertThat(testClient.get("/edit-this").content(), is("Modified"));
 ```
 
-To do the equivalent via the JSON API, `POST` the edited stub mapping, with the same ID to `/__admin/mappings/edit`:
+To do the equivalent via the JSON API, `PUT` the edited stub mapping to `/__admin/mappings/{id}`:
 
 ```json
 {
-  "uuid" : "4c4508c4-3fbd-43b8-9b5a-2775b8eefa27",
   "request" : {
     "urlPath" : "/edit-me",
     "method" : "ANY"
@@ -314,47 +313,20 @@ To do the equivalent via the JSON API, `POST` the edited stub mapping, with the 
 
 ## Removing stubs
 
-Stub mappings which have been created can be removed via `mappings`
-directory via a call to `WireMock.removeStubMapping` in Java or posting
-a request with body that has the stub to
-`http://<host>:<port>/__admin/mappings/remove`.
+Stub mappings can be deleted via the Java API as follows:
 
-WireMock tries to match UUID is it is passed in the body of the stup to
-a post request and if it finds the stub it removes it. if match is not
-found, then it tries to match the request object found in the stub with
-existing mappings and removes the first one that it finds.
+```java
+StubMapping stubMapping = stubFor(get(urlEqualTo("/delete-me"))
+  .willReturn(aResponse().withStatus(200)));
 
-For Example - posting following stub as body to
-`http://<host>:<port>/__admin/mappings/remove`. will find first mapping
-with request that matches url="/v8/asd/26", and method "method": "GET".
+// Do things with the stub 
 
-```json
-{
-  "request": {
-      "url": "/v8/asd/26",
-      "method": "GET"
-    },
-    "response": {
-      "status": 202,
-      "headers": { "Content-Type": "text/plain" } },
-      "body": "response for test"
-}
+removeStub(stubMapping);
 ```
 
-This is because body does not have UUID. If it had an element like
-`"uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef"`, in addition to "request"
-and "response" then WireMock will remove the one that matches the uuid
-provided. removing via uuid has precedence over removing via request
-match.
+They can be deleted via the HTTP API by issuing a `DELETE` to `http://<host>:<port>/__admin/mappings/{id}`
+where `id` is the UUID of the stub mapping, found in its `id` field.
 
-If the remove request UUID does not match with any of the stubs, then it
-proceeds to remove the first request whose attributes are equal.
-
-> **note**
-> This api only removes one mapping and not multiple ones if they exist
-
-> **note**
-> This feature is not available when running WireMock from a servlet container.
 
 ## Reset
 
@@ -362,8 +334,10 @@ The WireMock server can be reset at any time, removing all stub mappings
 and deleting the request log. If you're using either of the JUnit rules
 this will happen automatically at the start of every test case. However
 you can do it yourself via a call to `WireMock.reset()` in Java or
-posting a request with an empty body to
+sending a `POST` request with an empty body to
 `http://<host>:<port>/__admin/reset`.
+
+To reset just the stub mappings leaving the request log intact send a `DELETE` to `http://<host>:<port>/__admin/mappings`.
 
 If you've created some file based stub mappings to be loaded at startup
 and you don't want these to disappear when you do a reset you can call

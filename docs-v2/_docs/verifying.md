@@ -135,8 +135,7 @@ which will return a response like this:
 The request log can be reset at any time. If you're using either of the
 JUnit rules this will happen automatically at the start of every test
 case. However you can do it yourself via a call to
-`WireMock.resetAllRequests()` in Java or posting a request with an empty
-body to `http://<host>:<port>/__admin/requests/reset`.
+`WireMock.resetAllRequests()` in Java or sending a `DELETE` request to `http://<host>:<port>/__admin/requests`.
 
 
 ## Finding unmatched requests
