@@ -147,34 +147,6 @@ public class NearMissesRuleAcceptanceTest {
         }
     }
 
-//    public static class VerificationMessagesTest {
-//
-//        @Rule
-//        public ExpectedException thrown = ExpectedException.none();
-//
-//        @Rule
-//        public WireMockRule rule = new WireMockRule(options().dynamicPort());
-//
-//        WireMockTestClient testClient;
-//
-//        @Before
-//        public void setup() {
-//            rule.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(200)));
-//            testClient = new WireMockTestClient(rule.port());
-//        }
-//
-//        @Test
-//        public void shouldFindNearMatch() {
-//            thrown.expect(VerificationException.class);
-//            thrown.expectMessage("No requests exactly matched. Most similar request was:");
-//
-//            testClient.get("/123");
-//
-//            rule.verify(getRequestedFor(urlPathEqualTo("/")));
-//        }
-//
-//    }
-
     public static class CustomMatcherWithNearMissesTest {
 
         @ClassRule
