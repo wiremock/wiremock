@@ -317,8 +317,8 @@ public class ResponseDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ResponseDefinition that = (ResponseDefinition) o;
-        return Objects.equals(status, that.status) &&
-            Objects.equals(wasConfigured, that.wasConfigured) &&
+        return status == that.status &&
+            Objects.equals(statusMessage, that.statusMessage) &&
             Objects.equals(body, that.body) &&
             Objects.equals(bodyFileName, that.bodyFileName) &&
             Objects.equals(headers, that.headers) &&
@@ -326,16 +326,16 @@ public class ResponseDefinition {
             Objects.equals(fixedDelayMilliseconds, that.fixedDelayMilliseconds) &&
             Objects.equals(delayDistribution, that.delayDistribution) &&
             Objects.equals(proxyBaseUrl, that.proxyBaseUrl) &&
-            Objects.equals(browserProxyUrl, that.browserProxyUrl) &&
-            Objects.equals(fault, that.fault) &&
-            Objects.equals(originalRequest, that.originalRequest) &&
+            fault == that.fault &&
             Objects.equals(transformers, that.transformers) &&
-            Objects.equals(transformerParameters, that.transformerParameters);
+            Objects.equals(transformerParameters, that.transformerParameters) &&
+            Objects.equals(browserProxyUrl, that.browserProxyUrl) &&
+            Objects.equals(wasConfigured, that.wasConfigured);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(status, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, proxyBaseUrl, browserProxyUrl, fault, wasConfigured, originalRequest, transformers);
+        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
     }
 
     @Override

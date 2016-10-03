@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -26,15 +25,14 @@ import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -313,19 +311,20 @@ public class RequestPattern implements ValueMatcher<Request> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RequestPattern that = (RequestPattern) o;
-        return Objects.equal(url, that.url) &&
-            Objects.equal(method, that.method) &&
-            Objects.equal(headers, that.headers) &&
-            Objects.equal(queryParams, that.queryParams) &&
-            Objects.equal(cookies, that.cookies) &&
-            Objects.equal(basicAuthCredentials, that.basicAuthCredentials) &&
-            Objects.equal(bodyPatterns, that.bodyPatterns) &&
-            Objects.equal(customMatcherDefinition, that.customMatcherDefinition);
+        return Objects.equals(url, that.url) &&
+            Objects.equals(method, that.method) &&
+            Objects.equals(headers, that.headers) &&
+            Objects.equals(queryParams, that.queryParams) &&
+            Objects.equals(cookies, that.cookies) &&
+            Objects.equals(basicAuthCredentials, that.basicAuthCredentials) &&
+            Objects.equals(bodyPatterns, that.bodyPatterns) &&
+            Objects.equals(customMatcherDefinition, that.customMatcherDefinition) &&
+            Objects.equals(matcher, that.matcher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher, defaultMatcher);
+        return Objects.hash(url, method, headers, queryParams, cookies, basicAuthCredentials, bodyPatterns, customMatcherDefinition, matcher);
     }
 
     @Override

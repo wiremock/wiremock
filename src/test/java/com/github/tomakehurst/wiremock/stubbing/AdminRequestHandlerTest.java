@@ -60,29 +60,6 @@ public class AdminRequestHandlerTest {
 		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer());
 	}
 	
-	@Test
-	public void shouldAddNewMappingWhenCalledWithValidRequest() {
-		Request request = aRequest(context)
-			.withUrl("/mappings/new")
-			.withMethod(POST)
-			.withBody(BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER)
-			.build();
-		
-		context.checking(new Expectations() {{
-			one(admin).addStubMapping(WireMock.get(urlEqualTo("/a/registered/resource"))
-					.willReturn(aResponse()
-                    .withStatus(401)
-                    .withBody("Not allowed!")
-                    .withHeader("Content-Type", "text/plain"))
-                    .build());
-		}});
-
-        handler.handle(request, httpResponder);
-        Response response = httpResponder.response;
-		
-		assertThat(response.getStatus(), is(HTTP_CREATED));
-    }
-
     @Test
     public void shouldSaveMappingsWhenSaveCalled() {
         Request request = aRequest(context)
