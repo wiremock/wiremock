@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-@JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
+@JsonPropertyOrder({ "id", "uuid", "request", "newRequest", "response" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
