@@ -245,9 +245,12 @@ publishing {
             URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
 
             url repoUrl
-            credentials {
-                username repoUser
-                password repoPassword
+
+            if (!shouldPublishLocally) {
+                credentials {
+                    username repoUser
+                    password repoPassword
+                }
             }
         }
     }
@@ -305,7 +308,7 @@ publishing {
 }
 
 task checkReleasePreconditions << {
-    def REQUIRED_GIT_BRANCH = 'new-admin-apis'
+    def REQUIRED_GIT_BRANCH = 'master'
 
     println "Using Java version: ${System.getProperty('java.runtime.version')}"
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
@@ -410,7 +413,7 @@ task 'bump-version-down' << {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '3.1'
 }
 
 task 'add-copyright-headers' << {
