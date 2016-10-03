@@ -20,8 +20,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -110,5 +112,15 @@ public final class Json {
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
+    }
+
+    public static <T> T mapToObject(Map<String, Object> map, Class<T> targetClass) {
+        ObjectMapper mapper = getObjectMapper();
+        return mapper.convertValue(map, targetClass);
+    }
+
+    public static <T> Map<String, Object> objectToMap(T theObject) {
+        ObjectMapper mapper = getObjectMapper();
+        return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
     }
 }

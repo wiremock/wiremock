@@ -18,11 +18,14 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 public class ServeEvent {
@@ -31,26 +34,34 @@ public class ServeEvent {
     private final LoggedRequest request;
     private final ResponseDefinition responseDefinition;
 
+    private final StubMapping stubMapping;
+
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,
                       @JsonProperty("request") LoggedRequest request,
+                      @JsonProperty("mapping") StubMapping stubMapping,
                       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
                       @JsonProperty("wasMatched") boolean ignoredReadOnly) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
+        this.stubMapping = stubMapping;
     }
 
-    public ServeEvent(LoggedRequest request, ResponseDefinition responseDefinition) {
-        this(UUID.randomUUID(), request, responseDefinition, false);
+    public ServeEvent(LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
+        this(UUID.randomUUID(), request, stubMapping, responseDefinition, false);
     }
 
-    public static ServeEvent noExactMatch(LoggedRequest request) {
-        return new ServeEvent(request, ResponseDefinition.notConfigured());
+    public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
+        return new ServeEvent(request, null, ResponseDefinition.notConfigured());
     }
 
-    public static ServeEvent exactMatch(LoggedRequest request, ResponseDefinition responseDefinition) {
-        return new ServeEvent(request, responseDefinition);
+    public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
+        return new ServeEvent(request, null, responseDefinition);
+    }
+
+    public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
+        return new ServeEvent(request, stubMapping, responseDefinition);
     }
 
     @JsonIgnore
@@ -72,6 +83,17 @@ public class ServeEvent {
 
     public boolean getWasMatched() {
         return responseDefinition.wasConfigured();
+    }
+
+    public StubMapping getStubMapping() {
+        return stubMapping;
+    }
+
+    @JsonIgnore
+    public Map<String, Parameters> getPostServeActions() {
+        return stubMapping != null && stubMapping.getPostServeActions() != null ?
+            getStubMapping().getPostServeActions() :
+            Collections.<String, Parameters>emptyMap();
     }
 
     public static final Function<ServeEvent, LoggedRequest> TO_LOGGED_REQUEST = new Function<ServeEvent, LoggedRequest>() {

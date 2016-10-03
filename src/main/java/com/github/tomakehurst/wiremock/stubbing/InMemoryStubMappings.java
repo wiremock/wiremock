@@ -77,7 +77,11 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServeEvent serveEvent = new ServeEvent(LoggedRequest.createFrom(request), copyOf(responseDefinition));
+        ServeEvent serveEvent = ServeEvent.of(
+			LoggedRequest.createFrom(request),
+			copyOf(responseDefinition),
+            matchingMapping
+        );
         requestJournal.requestReceived(serveEvent);
         return serveEvent;
 	}

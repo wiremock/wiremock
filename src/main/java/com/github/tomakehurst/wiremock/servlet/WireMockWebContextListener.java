@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.ServletContextFileSource;
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -75,7 +76,10 @@ public class WireMockWebContextListener implements ServletContextListener {
                 new StubResponseRenderer(fileSource.child(FILES_ROOT),
                         wireMockApp.getGlobalSettingsHolder(),
                         new ProxyResponseRenderer(),
-                        Collections.<ResponseTransformer>emptyList()));
+                        Collections.<ResponseTransformer>emptyList()),
+            wireMockApp,
+            Collections.<String, PostServeAction>emptyMap()
+        );
         context.setAttribute(APP_CONTEXT_KEY, wireMockApp);
         context.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         context.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);

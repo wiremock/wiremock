@@ -108,7 +108,7 @@ public class WireMockApp implements StubServer, Admin {
         if (serveEvent.isNoExactMatch()) {
             LoggedRequest loggedRequest = LoggedRequest.createFrom(request);
             if (request.isBrowserProxyRequest() && browserProxyingEnabled) {
-                return ServeEvent.exactMatch(loggedRequest, ResponseDefinition.browserProxy(request));
+                return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
             }
 
             logUnmatchedRequest(loggedRequest);

@@ -3,3 +3,6 @@ jdk:
   - oraclejdk8
   - oraclejdk7
   - openjdk7
+
+install: echo 'Doing nothing on install'
+script: ./gradlew test

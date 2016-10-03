@@ -36,9 +36,9 @@ public class InMemoryRequestJournalTest {
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        serveEvent1 = ServeEvent.exactMatch(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        serveEvent2 = ServeEvent.exactMatch(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        serveEvent3 = ServeEvent.exactMatch(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
+        serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
+        serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
+        serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class InMemoryRequestJournalTest {
                 .build());
 
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.requestReceived(ServeEvent.exactMatch(loggedRequest, null));
+        journal.requestReceived(ServeEvent.of(loggedRequest, null));
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
         assertThat(journal.countRequestsMatching(everything()), is(0));

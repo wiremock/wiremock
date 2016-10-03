@@ -97,10 +97,10 @@ public class NearMissCalculatorTest {
             one(requestJournal).getAllServeEvents();
             will(returnValue(
                 asList(
-                    new ServeEvent(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
-                    new ServeEvent(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
-                    new ServeEvent(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
-                    new ServeEvent(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
                 )
             ));
         }});
@@ -122,7 +122,7 @@ public class NearMissCalculatorTest {
             one(requestJournal).getAllServeEvents();
             will(returnValue(
                 singletonList(
-                    new ServeEvent(
+                    ServeEvent.of(
                         LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")),
                         new ResponseDefinition()
                     )

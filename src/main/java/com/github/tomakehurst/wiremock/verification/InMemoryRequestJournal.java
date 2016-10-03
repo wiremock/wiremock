@@ -68,7 +68,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	@Override
 	public void requestReceived(Request request, Response response) {
-		serveEvents.add(ServeEvent.exactMatch(LoggedRequest.createFrom(request), null));
+		serveEvents.add(ServeEvent.of(LoggedRequest.createFrom(request), null));
 		removeOldEntries();
 	}
 

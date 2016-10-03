@@ -36,8 +36,10 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		listeners.add(requestListener);
 	}
 
+    protected void afterHandle(ServeEvent serveEvent, Response response) {}
+
 	@Override
-	public Response handle(Request request) {
+	public void handle(Request request, HttpResponder httpResponder) {
 		ServeEvent serveEvent = handleRequest(request);
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
@@ -54,7 +56,9 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 			listener.requestReceived(request, response);
 		}
 
-		return response;
+		httpResponder.respond(request, response);
+
+        afterHandle(serveEvent, response);
 	}
 
 	private static String formatRequest(Request request) {

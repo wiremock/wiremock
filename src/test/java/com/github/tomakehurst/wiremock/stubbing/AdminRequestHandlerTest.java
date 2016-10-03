@@ -19,12 +19,9 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -50,13 +47,15 @@ import static org.junit.Assert.assertThat;
 public class AdminRequestHandlerTest {
 	private Mockery context;
 	private Admin admin;
+    private MockHttpResponder httpResponder;
 
-	private AdminRequestHandler handler;
-	
+    private AdminRequestHandler handler;
+
 	@Before
 	public void init() {
 		context = new Mockery();
         admin = context.mock(Admin.class);
+        httpResponder = new MockHttpResponder();
 
 		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer());
 	}
@@ -77,8 +76,9 @@ public class AdminRequestHandlerTest {
                     .withHeader("Content-Type", "text/plain"))
                     .build());
 		}});
-		
-		Response response = handler.handle(request);
+
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_CREATED));
     }
@@ -94,7 +94,8 @@ public class AdminRequestHandlerTest {
             one(admin).saveMappings();
         }});
 
-        Response response = handler.handle(request);
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 
         assertThat(response.getStatus(), is(HTTP_OK));
     }
@@ -109,8 +110,9 @@ public class AdminRequestHandlerTest {
 		context.checking(new Expectations() {{
 			one(admin).resetAll();
 		}});
-		
-		Response response = handler.handle(request);
+
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 	}
@@ -126,7 +128,8 @@ public class AdminRequestHandlerTest {
 			one(admin).resetRequests();
 		}});
 
-		Response response = handler.handle(request);
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 
 		assertThat(response.getStatus(), is(HTTP_OK));
 	}
@@ -144,11 +147,13 @@ public class AdminRequestHandlerTest {
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
 		}});
 		
-		Response response = handler.handle(aRequest(context)
+		handler.handle(aRequest(context)
 				.withUrl("/requests/count")
 				.withMethod(POST)
 				.withBody(REQUEST_PATTERN_SAMPLE)
-				.build());
+				.build(),
+            httpResponder);
+        Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
@@ -171,7 +176,8 @@ public class AdminRequestHandlerTest {
 				.withUrl("/settings")
 				.withMethod(POST)
 				.withBody(GLOBAL_SETTINGS_JSON)
-				.build());
-		
+				.build(),
+            httpResponder);
+
 	}
 }

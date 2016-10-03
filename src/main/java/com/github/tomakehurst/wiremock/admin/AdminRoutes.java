@@ -16,11 +16,13 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.tasks.*;
+import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableBiMap;
 
+import java.util.Collections;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.admin.RequestSpec.requestSpec;
@@ -30,17 +32,23 @@ import static com.google.common.collect.Iterables.tryFind;
 
 public class AdminRoutes {
 
-    private final ImmutableBiMap<RequestSpec, Class<? extends AdminTask>> routes;
+    private final ImmutableBiMap<RequestSpec, AdminTask> routes;
+    private final Iterable<AdminApiExtension> apiExtensions;
 
     public static AdminRoutes defaults() {
-        return new AdminRoutes();
+        return new AdminRoutes(Collections.<AdminApiExtension>emptyList());
     }
 
-    protected AdminRoutes() {
-        Router router = new Router();
-        initDefaultRoutes(router);
-        initAdditionalRoutes(router);
-        routes = router.build();
+    public static AdminRoutes defaultsPlus(Iterable<AdminApiExtension> apiExtensions) {
+        return new AdminRoutes(apiExtensions);
+    }
+
+    protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions) {
+        this.apiExtensions = apiExtensions;
+        RouteBuilder routeBuilder = new RouteBuilder();
+        initDefaultRoutes(routeBuilder);
+        initAdditionalRoutes(routeBuilder);
+        routes = routeBuilder.build();
     }
 
     private void initDefaultRoutes(Router router) {
@@ -80,53 +88,73 @@ public class AdminRoutes {
         router.add(POST, "/shutdown", ShutdownServerTask.class);
     }
 
-    protected void initAdditionalRoutes(Router router) {
+    protected void initAdditionalRoutes(Router routeBuilder) {
+        for (AdminApiExtension apiExtension: apiExtensions) {
+            apiExtension.contributeAdminApiRoutes(routeBuilder);
+        }
     }
 
     public AdminTask taskFor(final RequestMethod method, final String path) {
-        Class<? extends AdminTask> taskClass = tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, Class<? extends AdminTask>>>() {
+        return tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
             @Override
-            public boolean apply(Map.Entry<RequestSpec, Class<? extends AdminTask>> entry) {
+            public boolean apply(Map.Entry<RequestSpec, AdminTask> entry) {
                 return entry.getKey().matches(method, path);
             }
-        }).transform(new Function<Map.Entry<RequestSpec,Class<? extends AdminTask>>, Class<? extends AdminTask>>() {
+        }).transform(new Function<Map.Entry<RequestSpec, AdminTask>, AdminTask>() {
             @Override
-            public Class<? extends AdminTask> apply(Map.Entry<RequestSpec, Class<? extends AdminTask>> input) {
+            public AdminTask apply(Map.Entry<RequestSpec, AdminTask> input) {
                 return input.getValue();
             }
-        }).or(NotFoundAdminTask.class);
-
-        try {
-            return taskClass.newInstance();
-        } catch (Exception e) {
-            return throwUnchecked(e, AdminTask.class);
-        }
+        }).or(new NotFoundAdminTask());
     }
 
-    public RequestSpec requestSpecForTask(Class<? extends AdminTask> taskClass) {
-        RequestSpec requestSpec = routes.inverse().get(taskClass);
+    public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {
+        RequestSpec requestSpec = tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+            @Override
+            public boolean apply(Map.Entry<RequestSpec, AdminTask> input) {
+                return input.getValue().getClass().equals(taskClass);
+            }
+        }).transform(new Function<Map.Entry<RequestSpec,AdminTask>, RequestSpec>() {
+            @Override
+            public RequestSpec apply(Map.Entry<RequestSpec, AdminTask> input) {
+                return input.getKey();
+            }
+        }).orNull();
+
         if (requestSpec == null) {
             throw new NotFoundException("No route could be found for " + taskClass.getSimpleName());
         }
+
         return requestSpec;
     }
 
-    protected static class Router {
-        private final ImmutableBiMap.Builder<RequestSpec, Class<? extends AdminTask>> builder;
+    protected static class RouteBuilder implements Router {
+        private final ImmutableBiMap.Builder<RequestSpec, AdminTask> builder;
 
-        public Router() {
+        public RouteBuilder() {
             builder = ImmutableBiMap.builder();
         }
 
-        public void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> task) {
+        @Override
+        public void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
+            try {
+                AdminTask task = taskClass.newInstance();
+                add(requestSpec(method, urlTemplate), task);
+            } catch (Exception e) {
+                throwUnchecked(e);
+            }
+        }
+
+        @Override
+        public void add(RequestMethod method, String urlTemplate, AdminTask task) {
             add(requestSpec(method, urlTemplate), task);
         }
 
-        public void add(RequestSpec requestSpec, Class<? extends AdminTask> task) {
+        public void add(RequestSpec requestSpec, AdminTask task) {
             builder.put(requestSpec, task);
         }
 
-        ImmutableBiMap<RequestSpec, Class<? extends AdminTask>> build() {
+        ImmutableBiMap<RequestSpec, AdminTask> build() {
             return builder.build();
         }
     }
