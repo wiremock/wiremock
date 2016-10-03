@@ -15,11 +15,14 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import ignored.ManyUnmatchedRequestsTest;
@@ -27,13 +30,16 @@ import ignored.SingleUnmatchedRequestTest;
 import org.apache.http.entity.StringEntity;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -45,85 +51,129 @@ import static org.junit.Assert.assertThat;
 @RunWith(Enclosed.class)
 public class NearMissesRuleAcceptanceTest {
 
-    static TestNotifier testNotifier = new TestNotifier();
+    public static class NearMissesRuleTest {
 
-    @ClassRule
-    public static WireMockRule wm = new WireMockRule(options()
-        .dynamicPort()
-        .notifier(testNotifier)
-        .withRootDirectory("src/main/resources/empty"),
-        false);
+        static TestNotifier testNotifier = new TestNotifier();
 
-    WireMockTestClient client;
+        @Rule
+        public ExpectedException thrown = ExpectedException.none();
 
-    @Before
-    public void init() {
-        client = new WireMockTestClient(wm.port());
-        testNotifier.reset();
-    }
+        @ClassRule
+        public static WireMockRule wm = new WireMockRule(options()
+            .dynamicPort()
+            .notifier(testNotifier)
+            .withRootDirectory("src/main/resources/empty"),
+            false);
 
-    @Test
-    public void logsUnmatchedRequestsAtErrorWithNearMisses() throws Exception {
-        wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
-        wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
+        WireMockTestClient client;
 
-        client.post("/a-near-mis", new StringEntity(""));
+        @Before
+        public void init() {
+            client = new WireMockTestClient(wm.port());
+            testNotifier.reset();
+        }
 
-        assertThat(testNotifier.getErrorMessages(), hasItem(allOf(
+        @Test
+        public void logsUnmatchedRequestsAtErrorWithNearMisses() throws Exception {
+            wm.stubFor(get(urlEqualTo("/near-miss")).willReturn(aResponse().withStatus(200)));
+            wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(200)));
+
+            client.post("/a-near-mis", new StringEntity(""));
+
+            assertThat(testNotifier.getErrorMessages(), hasItem(allOf(
                 containsString("Request was not matched:"),
                 containsString("/a-near-mis"),
 
                 containsString("Closest match:"),
                 containsString("/near-miss")
-            )
-        ));
+                )
+            ));
+        }
+
+        @Test
+        public void throwsVerificationExceptionIfSomeRequestsWentUnmatched() {
+            String message = runTestAndGetMessage(ManyUnmatchedRequestsTest.class);
+
+            assertThat(message, containsString("2 requests were unmatched by any stub mapping"));
+            assertThat(message,
+                containsString(junitStyleDiffMessage(
+                    "GET\n/hit\n",
+                    "GET\n/near-misssss\n"
+                ))
+            );
+            assertThat(message,
+                containsString(junitStyleDiffMessage(
+                    "GET\n/hit\n",
+                    "GET\n/a-near-mis\n"
+                ))
+            );
+        }
+
+        @Test
+        public void throwsVerificationExceptionIfASingleRequestWentUnmatched() {
+            String message = runTestAndGetMessage(SingleUnmatchedRequestTest.class);
+            assertThat(message, containsString("A request was unmatched by any stub mapping. Closest stub mapping was:"));
+            assertThat(message,
+                containsString(junitStyleDiffMessage(
+                    "GET\n/hit\n",
+                    "GET\n/near-misssss\n"
+                ))
+            );
+        }
+
+        @Test
+        public void shouldFindNearMatch() {
+            thrown.expect(VerificationException.class);
+            thrown.expectMessage("No requests exactly matched. Most similar request was:");
+
+            client.get("/123");
+
+            wm.verify(getRequestedFor(urlPathEqualTo("/")));
+        }
+
+        private static String runTestAndGetMessage(Class<?> testClass) {
+            final AtomicReference<String> message = new AtomicReference<>("");
+
+            JUnitCore junit = new JUnitCore();
+            junit.addListener(new RunListener() {
+
+                @Override
+                public void testFailure(Failure failure) throws Exception {
+                    message.set(failure.getMessage());
+                }
+            });
+            junit.run(testClass);
+            return message.get();
+        }
     }
 
-    @Test
-    public void throwsVerificationExceptionIfSomeRequestsWentUnmatched() {
-        String message = runTestAndGetMessage(ManyUnmatchedRequestsTest.class);
-
-        assertThat(message, containsString("2 requests were unmatched by any stub mapping"));
-        assertThat(message,
-            containsString(junitStyleDiffMessage(
-                "GET\n/hit\n",
-                "GET\n/near-misssss\n"
-            ))
-        );
-        assertThat(message,
-            containsString(junitStyleDiffMessage(
-                "GET\n/hit\n",
-                "GET\n/a-near-mis\n"
-            ))
-        );
-    }
-
-    @Test
-    public void throwsVerificationExceptionIfASingleRequestWentUnmatched() {
-        String message = runTestAndGetMessage(SingleUnmatchedRequestTest.class);
-        assertThat(message, containsString("A request was unmatched by any stub mapping. Closest stub mapping was:"));
-        assertThat(message,
-            containsString(junitStyleDiffMessage(
-                "GET\n/hit\n",
-                "GET\n/near-misssss\n"
-            ))
-        );
-    }
-
-    private static String runTestAndGetMessage(Class<?> testClass) {
-        final AtomicReference<String> message = new AtomicReference<>("");
-
-        JUnitCore junit = new JUnitCore();
-        junit.addListener(new RunListener() {
-
-            @Override
-            public void testFailure(Failure failure) throws Exception {
-                message.set(failure.getMessage());
-            }
-        });
-        junit.run(testClass);
-        return message.get();
-    }
+//    public static class VerificationMessagesTest {
+//
+//        @Rule
+//        public ExpectedException thrown = ExpectedException.none();
+//
+//        @Rule
+//        public WireMockRule rule = new WireMockRule(options().dynamicPort());
+//
+//        WireMockTestClient testClient;
+//
+//        @Before
+//        public void setup() {
+//            rule.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(200)));
+//            testClient = new WireMockTestClient(rule.port());
+//        }
+//
+//        @Test
+//        public void shouldFindNearMatch() {
+//            thrown.expect(VerificationException.class);
+//            thrown.expectMessage("No requests exactly matched. Most similar request was:");
+//
+//            testClient.get("/123");
+//
+//            rule.verify(getRequestedFor(urlPathEqualTo("/")));
+//        }
+//
+//    }
 
     public static class CustomMatcherWithNearMissesTest {
 
