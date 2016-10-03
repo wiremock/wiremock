@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -69,7 +71,7 @@ public class ResponseDefinition {
                               @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
                               @JsonProperty("fault") Fault fault,
                               @JsonProperty("transformers") List<String> transformers,
-                              @JsonProperty("extensionParameters") Parameters transformerParameters,
+                              @JsonProperty("transformerParameters") Parameters transformerParameters,
                               @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
         this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
     }
@@ -296,10 +298,12 @@ public class ResponseDefinition {
         return fault;
     }
 
+    @JsonInclude(NON_EMPTY)
     public List<String> getTransformers() {
         return transformers;
     }
 
+    @JsonInclude(NON_EMPTY)
     public Parameters getTransformerParameters() {
         return transformerParameters;
     }

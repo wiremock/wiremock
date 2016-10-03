@@ -21,14 +21,14 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableList;
+import com.toomuchcoding.jsonassert.JsonAssertion;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -128,6 +128,14 @@ public class ResponseDefinitionTest {
 
         assertFalse(responseDefinition.specifiesBodyFile());
         assertTrue(responseDefinition.specifiesBodyContent());
+    }
+
+    @Test
+    public void omitsResponseTransformerAttributesFromJsonWhenEmpty() {
+        String json = Json.write(new ResponseDefinition(200, ""));
+
+        assertThat(json, not(containsString("transformers")));
+        assertThat(json, not(containsString("transformerParameters")));
     }
 
 }
