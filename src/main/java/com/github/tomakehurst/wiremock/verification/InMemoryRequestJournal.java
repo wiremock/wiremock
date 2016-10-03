@@ -84,7 +84,7 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
     }
 
 	@Override
-	public Optional<ServeEvent> getAllServedStub(final UUID id) {
+	public Optional<ServeEvent> getServeEvent(final UUID id) {
 		return tryFind(serveEvents, new Predicate<ServeEvent>() {
 			@Override
 			public boolean apply(ServeEvent input) {

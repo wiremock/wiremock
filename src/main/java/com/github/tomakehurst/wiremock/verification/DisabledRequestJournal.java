@@ -40,7 +40,7 @@ public class DisabledRequestJournal implements RequestJournal {
     }
 
     @Override
-    public Optional<ServeEvent> getAllServedStub(UUID id) {
+    public Optional<ServeEvent> getServeEvent(UUID id) {
         throw new RequestJournalDisabledException();
     }
 
