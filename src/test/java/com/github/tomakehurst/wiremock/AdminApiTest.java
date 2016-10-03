@@ -365,4 +365,17 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(testClient.get("/stateful").content(), is("Initial"));
     }
 
+    @Test
+    public void defaultsUnspecifiedStubMappingAttributes() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings", "{}");
+
+        assertThat(response.statusCode(), is(201));
+
+        String body = response.content();
+        JsonAssertion.assertThat(body).field("request").field("method").isEqualTo("ANY");
+        JsonAssertion.assertThat(body).field("response").field("status").isEqualTo(200);
+
+        assertThat(testClient.get("/").statusCode(), is(200));
+    }
+
 }

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -83,7 +84,7 @@ public class RequestPattern implements ValueMatcher<Request> {
                           List<StringValuePattern> bodyPatterns,
                           CustomMatcherDefinition customMatcherDefinition) {
         this.url = url;
-        this.method = method;
+        this.method = firstNonNull(method, RequestMethod.ANY);
         this.headers = headers;
         this.queryParams = queryParams;
         this.cookies = cookies;
@@ -117,6 +118,17 @@ public class RequestPattern implements ValueMatcher<Request> {
             customMatcherDefinition
         );
     }
+
+    public static RequestPattern ANYTHING = new RequestPattern(
+        WireMock.anyUrl(),
+        RequestMethod.ANY,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
 
     public RequestPattern(RequestMatcher customMatcher) {
         this(null, null, null, null, null, null, null, null);

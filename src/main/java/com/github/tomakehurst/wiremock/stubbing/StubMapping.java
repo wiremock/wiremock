@@ -17,8 +17,6 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -28,6 +26,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 @JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
 public class StubMapping {
@@ -88,11 +88,11 @@ public class StubMapping {
 	}
 
     public RequestPattern getRequest() {
-		return request;
+		return firstNonNull(request, RequestPattern.ANYTHING);
 	}
 
 	public ResponseDefinition getResponse() {
-		return response;
+		return firstNonNull(response, ResponseDefinition.ok());
 	}
 
 	public void setRequest(RequestPattern request) {

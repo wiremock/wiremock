@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -140,7 +142,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		ResponseDefinition response = responseDefBuilder.build();
+		ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);

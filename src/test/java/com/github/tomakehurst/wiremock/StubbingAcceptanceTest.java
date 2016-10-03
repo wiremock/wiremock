@@ -465,6 +465,15 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(fetchedMapping.getResponse().getBody(), is("identified!"));
     }
 
+    @Test
+    public void defaultsResponseWhenUnspecifiied() {
+        stubFor(any(anyUrl()));
+
+        assertThat(testClient.get("/anything-is-matched").statusCode(), is(200));
+    }
+
+
+
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;
 		try {
