@@ -39,28 +39,29 @@ public class ServeEvent {
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,
                       @JsonProperty("request") LoggedRequest request,
+                      @JsonProperty("mapping") StubMapping stubMapping,
                       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
-                      @JsonProperty("mapping") StubMapping stubMapping) {
+                      @JsonProperty("wasMatched") boolean ignoredReadOnly) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
         this.stubMapping = stubMapping;
     }
 
-    private ServeEvent(LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
-        this(UUID.randomUUID(), request, responseDefinition, stubMapping);
+    public ServeEvent(LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
+        this(UUID.randomUUID(), request, stubMapping, responseDefinition, false);
     }
 
     public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
-        return new ServeEvent(request, ResponseDefinition.notConfigured(), null);
+        return new ServeEvent(request, null, ResponseDefinition.notConfigured());
     }
 
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
-        return new ServeEvent(request, responseDefinition, null);
+        return new ServeEvent(request, null, responseDefinition);
     }
 
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
-        return new ServeEvent(request, responseDefinition, stubMapping);
+        return new ServeEvent(request, stubMapping, responseDefinition);
     }
 
     @JsonIgnore
@@ -78,6 +79,10 @@ public class ServeEvent {
 
     public ResponseDefinition getResponseDefinition() {
         return responseDefinition;
+    }
+
+    public boolean getWasMatched() {
+        return responseDefinition.wasConfigured();
     }
 
     public StubMapping getStubMapping() {

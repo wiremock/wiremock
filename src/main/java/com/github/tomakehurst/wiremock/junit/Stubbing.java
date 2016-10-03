@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface Stubbing {
 
@@ -30,11 +31,14 @@ public interface Stubbing {
     StubMapping stubFor(MappingBuilder mappingBuilder);
     void editStub(MappingBuilder mappingBuilder);
     void removeStub(MappingBuilder mappingBuilder);
+    void removeStub(StubMapping mappingBuilder);
+
+    List<StubMapping> getStubMappings();
+    StubMapping getSingleStubMapping(UUID id);
+
     void verify(RequestPatternBuilder requestPatternBuilder);
     void verify(int count, RequestPatternBuilder requestPatternBuilder);
-
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
-
     List<ServeEvent> getAllServeEvents();
 
     void setGlobalFixedDelay(int milliseconds);

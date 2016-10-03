@@ -7,11 +7,11 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import static java.util.Collections.emptyMap;
 
-public class ResetStubMappingsTask implements AdminTask {
+public class ResetRequestsTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        admin.resetMappings();
+        admin.resetRequests();
         return ResponseDefinition.okEmptyJson();
     }
 }

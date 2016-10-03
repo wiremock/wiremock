@@ -6,8 +6,8 @@ main:
   # - title: "Blog"
   #   url: /blog
 
-  - title: "Support & Training"
-    url: /support-and-training/
+#  - title: "Support & Training"
+#    url: /support-and-training/
 
   - title: "About"
     url: /about/

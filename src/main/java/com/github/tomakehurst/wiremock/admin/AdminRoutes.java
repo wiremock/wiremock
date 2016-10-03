@@ -64,15 +64,16 @@ public class AdminRoutes {
         router.add(POST, "/mappings/remove", OldRemoveStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/edit", OldEditStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
-        router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);  // To deprecate
+        router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);
         router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
         router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
-        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);  // To deprecate
+        router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
         router.add(GET,  "/requests", GetAllRequestsTask.class);
-        router.add(POST, "/requests/reset", ResetRequestsTask.class);  // To deprecate
+        router.add(DELETE,  "/requests", ResetRequestsTask.class);
+        router.add(POST, "/requests/reset", OldResetRequestsTask.class);  // Deprecated
         router.add(POST, "/requests/count", GetRequestCountTask.class);
         router.add(POST, "/requests/find", FindRequestsTask.class);
         router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);

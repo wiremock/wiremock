@@ -28,7 +28,7 @@ public interface RequestJournal {
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
 
     List<ServeEvent> getAllServeEvents();
-    Optional<ServeEvent> getAllServedStub(UUID id);
+    Optional<ServeEvent> getServeEvent(UUID id);
 
 	void reset();
 

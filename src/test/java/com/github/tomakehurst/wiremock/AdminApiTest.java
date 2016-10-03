@@ -17,11 +17,15 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -30,6 +34,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -148,6 +154,8 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void getLoggedRequests() throws Exception {
+        dsl.stubFor(get(urlPathEqualTo("/received-request/4")).willReturn(aResponse()));
+
         for (int i = 1; i <= 5; i++) {
             testClient.get("/received-request/" + i);
         }
@@ -159,10 +167,15 @@ public class AdminApiTest extends AcceptanceTestBase {
         check.field("meta").field("total").isEqualTo(5);
         check.field("requests").elementWithIndex(2).field("request").field("url").isEqualTo("/received-request/3");
         check.field("requests").hasSize(5);
+        check.field("requests").elementWithIndex(1).field("wasMatched").isEqualTo(true);
+        check.field("requests").elementWithIndex(3).field("wasMatched").isEqualTo(false);
     }
 
     @Test
     public void getLoggedRequestsWithLimit() throws Exception {
+        dsl.stubFor(get(urlPathEqualTo("/received-request/7"))
+            .willReturn(aResponse().withStatus(200).withBody("This was matched")));
+
         for (int i = 1; i <= 7; i++) {
             testClient.get("/received-request/" + i);
         }
@@ -238,8 +251,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(testClient.get("/delete/this").statusCode(), is(200));
 
-        testClient.delete("/__admin/mappings/" + stubMapping.getId());
+        WireMockResponse response = testClient.delete("/__admin/mappings/" + stubMapping.getId());
 
+        assertThat(response.content(), is("{}"));
         assertThat(testClient.get("/delete/this").statusCode(), is(404));
     }
 
@@ -299,17 +313,57 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void resetStubMappings() {
+    public void resetStubMappingsViaDELETE() {
         dsl.stubFor(get(urlEqualTo("/reset-this")).willReturn(aResponse().withStatus(200)));
         dsl.stubFor(get(urlEqualTo("/reset-this/too")).willReturn(aResponse().withStatus(200)));
 
         assertThat(testClient.get("/reset-this").statusCode(), is(200));
         assertThat(testClient.get("/reset-this/too").statusCode(), is(200));
 
-        testClient.delete("/__admin/mappings");
+        WireMockResponse response = testClient.delete("/__admin/mappings");
 
+        assertThat(response.content(), is("{}"));
         assertThat(testClient.get("/reset-this").statusCode(), is(404));
         assertThat(testClient.get("/reset-this/too").statusCode(), is(404));
+    }
+
+    @Test
+    public void resetRequestJournalViaDELETE() {
+        testClient.get("/one");
+        testClient.get("/two");
+        testClient.get("/three");
+
+        assertThat(dsl.getAllServeEvents().size(), is(3));
+
+        WireMockResponse response = testClient.delete("/__admin/requests");
+
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        assertThat(response.content(), is("{}"));
+        assertThat(response.statusCode(), is(200));
+        assertThat(dsl.getAllServeEvents().size(), is(0));
+    }
+
+    @Test
+    public void resetScenariosViaPOST() {
+        dsl.stubFor(get(urlEqualTo("/stateful"))
+            .inScenario("changing-states")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("final")
+            .willReturn(aResponse().withBody("Initial")));
+
+        dsl.stubFor(get(urlEqualTo("/stateful"))
+            .inScenario("changing-states")
+            .whenScenarioStateIs("final")
+            .willReturn(aResponse().withBody("Final")));
+
+        assertThat(testClient.get("/stateful").content(), is("Initial"));
+        assertThat(testClient.get("/stateful").content(), is("Final"));
+
+        WireMockResponse response = testClient.post("/__admin/scenarios/reset", new StringEntity("", TEXT_PLAIN));
+
+        assertThat(response.content(), is("{}"));
+        assertThat(response.firstHeader("Content-Type"), is("application/json"));
+        assertThat(testClient.get("/stateful").content(), is("Initial"));
     }
 
 }

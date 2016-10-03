@@ -25,6 +25,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
@@ -449,6 +451,18 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         StubMapping localStubMapping = wm.stubFor(get(anyUrl()).willReturn(aResponse()));
         assertThat(localStubMapping.getId(), notNullValue());
+    }
+
+	@Test
+	public void getsASingleStubMappingById() {
+        UUID id = UUID.randomUUID();
+        stubFor(get(anyUrl())
+            .withId(id)
+            .willReturn(aResponse().withBody("identified!")));
+
+        StubMapping fetchedMapping = getSingleStubMapping(id);
+
+        assertThat(fetchedMapping.getResponse().getBody(), is("identified!"));
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

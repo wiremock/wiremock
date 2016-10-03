@@ -110,12 +110,10 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void removeStubMapping(StubMapping stubbMapping) {
-
         postJsonAssertOkAndReturnBody(
-            urlFor(RemoveStubMappingTask.class),
+            urlFor(OldRemoveStubMappingTask.class),
             Json.write(stubbMapping),
             HTTP_OK);
-
     }
 
     @Override
@@ -148,12 +146,12 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void resetRequests() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetRequestsTask.class), null, HTTP_OK);
+        executeRequest(adminRoutes.requestSpecForTask(ResetRequestsTask.class));
     }
 
     @Override
     public void resetScenarios() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
+        executeRequest(adminRoutes.requestSpecForTask(ResetScenariosTask.class));
     }
 
     @Override
@@ -270,6 +268,10 @@ public class HttpAdminClient implements Admin {
     protected String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
         HttpGet get = new HttpGet(url);
         return safelyExecuteRequest(url, expectedStatus, get);
+    }
+
+    private void executeRequest(RequestSpec requestSpec) {
+        executeRequest(requestSpec, PathParams.empty(), null, Void.class, 200);
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, B requestBody, Class<R> responseType) {

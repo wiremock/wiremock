@@ -25,6 +25,6 @@ public class ResetScenariosTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         admin.resetScenarios();
-        return ResponseDefinition.ok();
+        return ResponseDefinition.okEmptyJson();
     }
 }

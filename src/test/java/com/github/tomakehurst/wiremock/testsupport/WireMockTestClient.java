@@ -197,16 +197,10 @@ public class WireMockTestClient {
             throw new RuntimeException("Returned status code was " + status);
         }
     }
+
     public void editMapping(String mappingSpecJson) {
         int status = postJsonAndReturnStatus(editMappingUrl(), mappingSpecJson);
         if (status != HTTP_NO_CONTENT) {
-            throw new RuntimeException("Returned status code was " + status);
-        }
-    }
-
-    public void removeMapping(String mappingSpecJson) {
-        int status = postJsonAndReturnStatus(removeMappingUrl(), mappingSpecJson);
-        if (status != HTTP_OK) {
             throw new RuntimeException("Returned status code was " + status);
         }
     }

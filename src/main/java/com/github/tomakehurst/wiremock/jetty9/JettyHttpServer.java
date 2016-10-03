@@ -292,7 +292,7 @@ class JettyHttpServer implements HttpServer {
             "chainPreflight", "false",
             "allowedOrigins", "*",
             "allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization",
-            "allowedMethods", "OPTIONS,GET,POST,PUT"));
+            "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
 
         adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
 
