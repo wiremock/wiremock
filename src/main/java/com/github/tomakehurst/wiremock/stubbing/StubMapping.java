@@ -218,19 +218,20 @@ public class StubMapping {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		StubMapping that = (StubMapping) o;
-		return Objects.equals(insertionIndex, that.insertionIndex) &&
-				Objects.equals(isTransient, that.isTransient) &&
-				Objects.equals(request, that.request) &&
-				Objects.equals(response, that.response) &&
-				Objects.equals(priority, that.priority) &&
-				Objects.equals(scenarioName, that.scenarioName) &&
-				Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
-				Objects.equals(newScenarioState, that.newScenarioState) &&
-				Objects.equals(scenario, that.scenario);
+		return isTransient == that.isTransient &&
+			Objects.equals(uuid, that.uuid) &&
+			Objects.equals(request, that.request) &&
+			Objects.equals(response, that.response) &&
+			Objects.equals(priority, that.priority) &&
+			Objects.equals(scenarioName, that.scenarioName) &&
+			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
+			Objects.equals(newScenarioState, that.newScenarioState) &&
+			Objects.equals(scenario, that.scenario) &&
+			Objects.equals(postServeActions, that.postServeActions);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, insertionIndex, isTransient);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isTransient);
 	}
 }
