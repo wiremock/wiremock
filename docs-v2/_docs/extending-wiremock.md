@@ -270,6 +270,21 @@ or via JSON:
 }
 ```
 
+
+## Post-serve actions
+
+You can add behaviour that runs after a response has been completely served by extending `PostServeAction` and registering
+as an extension (see above for details).
+
+`PostServeAction` has two template methods either or both of which can be overridden depending on desired behaviour.
+To add per-stub behaviour override `doAction(...)`. Overriding `doGlobalAction(...)` will add the behaviour globally.
+   
+
+## Admin API extensions
+
+Additional API routes under WireMock's `/__admin` endpoint can be configured by implementing `AdminApiExtension`.
+
+
 ## Listening for requests
 
 If you're using the JUnit rule or you've started `WireMockServer`
