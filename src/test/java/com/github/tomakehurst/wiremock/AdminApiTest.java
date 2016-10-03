@@ -173,6 +173,9 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void getLoggedRequestsWithLimit() throws Exception {
+        dsl.stubFor(get(urlPathEqualTo("/received-request/7"))
+            .willReturn(aResponse().withStatus(200).withBody("This was matched")));
+
         for (int i = 1; i <= 7; i++) {
             testClient.get("/received-request/" + i);
         }

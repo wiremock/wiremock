@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -27,7 +26,6 @@ public class SingleItemResult<T> {
 
     private final T item;
 
-    @JsonCreator
     public SingleItemResult(T item) {
         this.item = item;
     }

@@ -343,3 +343,21 @@ If you've created some file based stub mappings to be loaded at startup
 and you don't want these to disappear when you do a reset you can call
 `WireMock.resetToDefault()` instead, or post an empty request to
 `http://<host>:<port>/__admin/mappings/reset`.
+
+
+## Getting all currently registered stub mappings
+
+All stub mappings can be fetched in Java by calling `WireMock.listAllStubMappings()`.
+
+To fetch them via the HTTP API send a `GET` to `http://<host>:<port>/__admin/mappings`.
+
+Optionally limit and offset parameters can be specified to constrain the set returned e.g.
+`GET http://localhost:8080/__admin/mappings?limit=10&offset=50`
+
+
+## Getting a single stub mapping by ID
+  
+A single stub mapping can be retrieved by ID in Java by calling `WireMock.getSingleStubMapping(id)` where `id` is the
+UUID of the stub mapping.
+
+Via the HTTP client a mapping can be retrieved by sending a `GET` to `http://<host>:<port>/__admin/mappings/{id}`.

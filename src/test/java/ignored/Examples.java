@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -290,6 +291,11 @@ public class Examples extends AcceptanceTestBase {
 
         removeStub(stubMapping);
         assertThat(testClient.get("/delete-me").statusCode(), is(404));
+    }
+
+    @Test
+    public void servedStubs() {
+        List<ServeEvent> allServeEvents = getAllServeEvents();
     }
 
     @Test

@@ -15,11 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.admin.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Optional;
 
 public class SingleStubMappingResult extends SingleItemResult<StubMapping> {
 
+    @JsonCreator
     public SingleStubMappingResult(StubMapping item) {
         super(item);
     }

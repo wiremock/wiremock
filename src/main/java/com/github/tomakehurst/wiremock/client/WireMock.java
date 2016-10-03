@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -30,6 +31,7 @@ import com.github.tomakehurst.wiremock.verification.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
@@ -99,6 +101,10 @@ public class WireMock {
 
     public static ListStubMappingsResult listAllStubMappings() {
         return defaultInstance.get().allStubMappings();
+    }
+
+    public static StubMapping getSingleStubMapping(UUID id) {
+        return defaultInstance.get().getStubMapping(id).getItem();
     }
 
     public static void configureFor(int port) {
@@ -233,6 +239,10 @@ public class WireMock {
 
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
+    }
+
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return admin.getStubMapping(id);
     }
 
     public static UrlPattern urlEqualTo(String testUrl) {
@@ -525,4 +535,5 @@ public class WireMock {
         FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(requestPatternBuilder.build());
         return nearMissesResult.getNearMisses();
     }
+
 }
