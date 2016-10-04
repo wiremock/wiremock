@@ -36,7 +36,8 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		listeners.add(requestListener);
 	}
 
-    protected void afterHandle(ServeEvent serveEvent, Response response) {}
+	protected void beforeResponseSent(ServeEvent serveEvent, Response response) {}
+    protected void afterResponseSent(ServeEvent serveEvent, Response response) {}
 
 	@Override
 	public void handle(Request request, HttpResponder httpResponder) {
@@ -56,9 +57,11 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 			listener.requestReceived(request, response);
 		}
 
+        beforeResponseSent(serveEvent, response);
+
 		httpResponder.respond(request, response);
 
-        afterHandle(serveEvent, response);
+        afterResponseSent(serveEvent, response);
 	}
 
 	private static String formatRequest(Request request) {
