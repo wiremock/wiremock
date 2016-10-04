@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
@@ -30,27 +29,22 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Container;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.RequestListener;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -58,14 +52,10 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class WireMockServer implements Container, Stubbing, Admin {
 
-	public static final String FILES_ROOT = "__files";
-    public static final String MAPPINGS_ROOT = "mappings";
-
-	private final WireMockApp wireMockApp;
+    private final WireMockApp wireMockApp;
     private final StubRequestHandler stubRequestHandler;
 
 	private final HttpServer httpServer;
-    private final FileSource fileSource;
 	private final Notifier notifier;
 
     private final Options options;
@@ -74,53 +64,15 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
     public WireMockServer(Options options) {
         this.options = options;
-        this.fileSource = options.filesRoot();
         this.notifier = options.notifier();
 
-        JsonFileMappingsSource mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+        wireMockApp = new WireMockApp(options, this);
 
-        wireMockApp = new WireMockApp(
-                options.browserProxyingEnabled(),
-                mappingsSource,
-                mappingsSource,
-                options.requestJournalDisabled(),
-                options.maxRequestJournalEntries(),
-                options.extensionsOfType(ResponseDefinitionTransformer.class),
-                options.extensionsOfType(RequestMatcherExtension.class),
-                fileSource,
-                this
-        );
-
-        AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
-             options.extensionsOfType(AdminApiExtension.class).values()
-        );
-        AdminRequestHandler adminRequestHandler = new AdminRequestHandler(
-            adminRoutes,
-            wireMockApp,
-            new BasicResponseRenderer()
-        );
-
-        Map<String, PostServeAction> postServeActions = options.extensionsOfType(PostServeAction.class);
-        stubRequestHandler = new StubRequestHandler(
-                wireMockApp,
-                new StubResponseRenderer(
-                        fileSource.child(FILES_ROOT),
-                        wireMockApp.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(
-                                options.proxyVia(),
-                                options.httpsSettings().trustStore(),
-                                options.shouldPreserveHostHeader(),
-                                options.proxyHostHeader()
-                        ),
-                        ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
-                ),
-            wireMockApp,
-            postServeActions
-        );
+        this.stubRequestHandler = wireMockApp.buildStubServingRequestHandler();
         HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,
-                adminRequestHandler,
+                wireMockApp.buildAdminRequestHandler(),
                 stubRequestHandler
         );
 
