@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-09-06T11:55:29+01:00">
+  <meta property="article:published_time" content="2016-10-04T22:30:46+01:00">
   
     <link rel="next" href="/docs/getting-started/" title="Getting Started">
   
@@ -287,7 +287,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Extending WireMock">
     <meta itemprop="description" content="Registering Extensions">
-    <meta itemprop="datePublished" content="September 06, 2016">
+    <meta itemprop="datePublished" content="October 04, 2016">
     
 
     <div class="page__inner-wrap">
@@ -554,6 +554,18 @@ at the top of this page e.g.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 </div>
+
+<h2 id="post-serve-actions">Post-serve actions</h2>
+
+<p>You can add behaviour that runs after a response has been completely served by extending <code class="highlighter-rouge">PostServeAction</code> and registering
+as an extension (see above for details).</p>
+
+<p><code class="highlighter-rouge">PostServeAction</code> has two template methods either or both of which can be overridden depending on desired behaviour.
+To add per-stub behaviour override <code class="highlighter-rouge">doAction(...)</code>. Overriding <code class="highlighter-rouge">doGlobalAction(...)</code> will add the behaviour globally.</p>
+
+<h2 id="admin-api-extensions">Admin API extensions</h2>
+
+<p>Additional API routes under WireMock’s <code class="highlighter-rouge">/__admin</code> endpoint can be configured by implementing <code class="highlighter-rouge">AdminApiExtension</code>.</p>
 
 <h2 id="listening-for-requests">Listening for requests</h2>
 

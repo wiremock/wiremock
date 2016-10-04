@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-09-06T11:55:29+01:00">
+  <meta property="article:published_time" content="2016-10-04T22:30:46+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -287,7 +287,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="September 06, 2016">
+    <meta itemprop="datePublished" content="October 04, 2016">
     
 
     <div class="page__inner-wrap">
@@ -615,6 +615,44 @@ you need more precise control:</p>
 
 <p>Deems a match if the attribute value is valid JSON and matches the <a href="http://goessner.net/articles/JsonPath/">JSON Path</a> expression supplied. A JSON body will be considered to match a path expression if the expression returns either a non-null single value (string, integer etc.), or a non-empty object or array.</p>
 
+<h4 id="presence-matching">Presence matching</h4>
+
+<p>Deems a match if the attribute value is present in the JSON.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.name"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.name"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Request body example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// matching
+{ "name": "Wiremock" }
+// not matching
+{ "price": 15 }
+</code></pre>
+</div>
+
+<h4 id="equality-matching">Equality matching</h4>
+
+<p>Deems a match if the attribute value equals the expected value.</p>
+
 <p>Java:</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.things[?(@.name == 'RequiredThing')]"</span><span class="o">))</span>
@@ -634,6 +672,88 @@ you need more precise control:</p>
   </span><span class="err">...</span><span class="w">
 </span><span class="err">}</span><span class="w">
 </span></code></pre>
+</div>
+
+<p>Request body example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// matching
+{ "things": { "name": "RequiredThing" } }
+{ "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
+// not matching
+{ "price": 15 }
+{ "things": { "name": "Wiremock" } }
+</code></pre>
+</div>
+
+<h4 id="regex-matching">Regex matching</h4>
+
+<p>Deems a match if the attribute value matches the regex expected value.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.things[?(@.name =~ /Required.*/i)]"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.things[?(@.name =~ /Required.*/i)]"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Request body example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// matching
+{ "things": { "name": "RequiredThing" } }
+{ "things": [ { "name": "Required" }, { "name": "Wiremock" } ] }
+// not matching
+{ "price": 15 }
+{ "things": { "name": "Wiremock" } }
+{ "things": [ { "name": "Thing" }, { "name": "Wiremock" } ] }
+</code></pre>
+</div>
+
+<h4 id="size-matching">Size matching</h4>
+
+<p>Deems a match if the attribute size matches the expected size.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$[?(@.things.size() == 2)]"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$[?(@.things.size() == 2)]"</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Request body example:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// matching
+{ "things": [ { "name": "RequiredThing" }, { "name": "Wiremock" } ] }
+// not matching
+{ "things": [ { "name": "RequiredThing" } ] }
+</code></pre>
 </div>
 
 <h3 id="xml-equality">XML equality</h3>
