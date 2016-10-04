@@ -68,7 +68,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
 
         wireMockApp = new WireMockApp(options, this);
 
-        this.stubRequestHandler = wireMockApp.buildStubServingRequestHandler();
+        this.stubRequestHandler = wireMockApp.buildStubRequestHandler();
         HttpServerFactory httpServerFactory = options.httpServerFactory();
         httpServer = httpServerFactory.buildHttpServer(
                 options,

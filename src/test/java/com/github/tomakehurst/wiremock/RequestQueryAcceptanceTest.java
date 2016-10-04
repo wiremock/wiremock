@@ -128,7 +128,9 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void getsAllServeEvents() {
         dsl.stubFor(get(urlPathEqualTo("/two"))
-            .willReturn(aResponse().withStatus(200)));
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withBody("Exactly 2")));
 
         testClient.get("/one");
         testClient.get("/two");
@@ -143,6 +145,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         ServeEvent two = serveEvents.get(1);
         assertThat(two.isNoExactMatch(), is(false));
         assertThat(two.getRequest().getUrl(), is("/two"));
+        assertThat(two.getResponse().getBody(), is("Exactly 2"));
 
         assertThat(serveEvents.get(2).isNoExactMatch(), is(true));
     }

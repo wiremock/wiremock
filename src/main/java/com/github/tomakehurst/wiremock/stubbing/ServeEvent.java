@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.LoggedResponse;
+import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
@@ -34,21 +36,24 @@ public class ServeEvent {
     private final LoggedRequest request;
     private final StubMapping stubMapping;
     private final ResponseDefinition responseDefinition;
+    private final LoggedResponse response;
 
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,
                       @JsonProperty("request") LoggedRequest request,
                       @JsonProperty("mapping") StubMapping stubMapping,
                       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
+                      @JsonProperty("response") LoggedResponse response,
                       @JsonProperty("wasMatched") boolean ignoredReadOnly) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
         this.stubMapping = stubMapping;
+        this.response = response;
     }
 
     public ServeEvent(LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
-        this(UUID.randomUUID(), request, stubMapping, responseDefinition, false);
+        this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false);
     }
 
     public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
@@ -61,6 +66,10 @@ public class ServeEvent {
 
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition, StubMapping stubMapping) {
         return new ServeEvent(request, stubMapping, responseDefinition);
+    }
+
+    public ServeEvent complete(Response response) {
+        return new ServeEvent(id, request, stubMapping, responseDefinition, LoggedResponse.from(response), false);
     }
 
     @JsonIgnore
@@ -86,6 +95,10 @@ public class ServeEvent {
 
     public StubMapping getStubMapping() {
         return stubMapping;
+    }
+
+    public LoggedResponse getResponse() {
+        return response;
     }
 
     @JsonIgnore

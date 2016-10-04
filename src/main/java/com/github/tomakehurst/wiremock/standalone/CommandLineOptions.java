@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
@@ -35,6 +36,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
@@ -81,7 +83,10 @@ public class CommandLineOptions implements Options {
     private static final String CONTAINER_THREADS = "container-threads";
 
     private final OptionSet optionSet;
-	private String helpText;
+    private final FileSource fileSource;
+    private final MappingsSource mappingsSource;
+
+    private String helpText;
 
     public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
@@ -99,7 +104,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
-		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockApp.MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
+		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
@@ -113,6 +118,9 @@ public class CommandLineOptions implements Options {
 		optionSet = optionParser.parse(args);
         validate();
 		captureHelpTextIfRequested(optionParser);
+
+        fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 	}
 
     private void validate() {
@@ -285,7 +293,17 @@ public class CommandLineOptions implements Options {
 
     @Override
     public FileSource filesRoot() {
-        return new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        return fileSource;
+    }
+
+    @Override
+    public MappingsLoader mappingsLoader() {
+        return mappingsSource;
+    }
+
+    @Override
+    public MappingsSaver mappingsSaver() {
+        return mappingsSource;
     }
 
     @Override
