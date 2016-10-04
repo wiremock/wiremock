@@ -32,9 +32,8 @@ public class ServeEvent {
 
     private final UUID id;
     private final LoggedRequest request;
-    private final ResponseDefinition responseDefinition;
-
     private final StubMapping stubMapping;
+    private final ResponseDefinition responseDefinition;
 
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,

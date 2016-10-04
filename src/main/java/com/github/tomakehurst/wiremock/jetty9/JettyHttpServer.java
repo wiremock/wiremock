@@ -22,6 +22,7 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.google.common.collect.ImmutableMap;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -59,7 +60,7 @@ import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet
 
 class JettyHttpServer implements HttpServer {
 
-    private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockServer.FILES_ROOT);
+    private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
