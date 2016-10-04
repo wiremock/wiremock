@@ -25,6 +25,8 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -44,6 +46,8 @@ public interface Options {
     boolean browserProxyingEnabled();
     ProxySettings proxyVia();
     FileSource filesRoot();
+    MappingsLoader mappingsLoader();
+    MappingsSaver mappingsSaver();
     Notifier notifier();
     boolean requestJournalDisabled();
     Optional<Integer> maxRequestJournalEntries();

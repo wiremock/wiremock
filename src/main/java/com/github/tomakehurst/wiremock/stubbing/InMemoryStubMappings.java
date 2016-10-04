@@ -46,20 +46,17 @@ public class InMemoryStubMappings implements StubMappings {
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
 	private final Map<String, RequestMatcherExtension> customMatchers;
-    private final RequestJournal requestJournal;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
+	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;
-        this.requestJournal = requestJournal;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
     }
 
 	public InMemoryStubMappings() {
 		this(Collections.<String, RequestMatcherExtension>emptyMap(),
-             new DisabledRequestJournal(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
              new SingleRootFileSource("."));
 	}
@@ -77,13 +74,11 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServeEvent serveEvent = ServeEvent.of(
-			LoggedRequest.createFrom(request),
-			copyOf(responseDefinition),
+		return ServeEvent.of(
+            LoggedRequest.createFrom(request),
+            copyOf(responseDefinition),
             matchingMapping
         );
-        requestJournal.requestReceived(serveEvent);
-        return serveEvent;
 	}
 
     private ResponseDefinition applyTransformations(Request request,

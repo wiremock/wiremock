@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -52,6 +53,7 @@ public class StubRequestHandlerTest {
 	private ResponseRenderer responseRenderer;
 	private MockHttpResponder httpResponder;
     private Admin admin;
+	private RequestJournal requestJournal;
 
 	private StubRequestHandler requestHandler;
 
@@ -62,8 +64,13 @@ public class StubRequestHandlerTest {
 		responseRenderer = context.mock(ResponseRenderer.class);
 		httpResponder = new MockHttpResponder();
         admin = context.mock(Admin.class);
+		requestJournal = context.mock(RequestJournal.class);
 
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap());
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal);
+
+        context.checking(new Expectations() {{
+            allowing(requestJournal);
+        }});
 	}
 
 	@Test
@@ -98,7 +105,8 @@ public class StubRequestHandlerTest {
 			allowing(stubServer).serveStubFor(request); will(returnValue(
                 ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
-			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+            allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+                will(returnValue(new Response.Builder().build()));
 		}});
 
         requestHandler.handle(request, httpResponder);
@@ -114,11 +122,13 @@ public class StubRequestHandlerTest {
 
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request);
-			will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
+			    will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
 			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+                will(returnValue(new Response.Builder().build()));
 		}});
 
 		TestNotifier notifier = TestNotifier.createAndSet();
+
         requestHandler.handle(request, httpResponder);
 		notifier.revert();
 

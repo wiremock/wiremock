@@ -21,6 +21,9 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
+import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.google.common.collect.Maps;
 import com.google.common.base.Optional;
 import com.google.common.io.Resources;
@@ -28,6 +31,7 @@ import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -285,6 +289,16 @@ public class WireMockConfiguration implements Options {
     @Override
     public FileSource filesRoot() {
         return filesRoot;
+    }
+
+    @Override
+    public MappingsLoader mappingsLoader() {
+        return new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+    }
+
+    @Override
+    public MappingsSaver mappingsSaver() {
+        return new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
     }
 
     @Override

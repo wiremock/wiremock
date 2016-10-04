@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
 import java.util.Map;
 
@@ -30,16 +31,19 @@ public class StubRequestHandler extends AbstractRequestHandler {
 	private final StubServer stubServer;
     private final Admin admin;
     private final Map<String, PostServeAction> postServeActions;
+    private final RequestJournal requestJournal;
 
 	public StubRequestHandler(StubServer stubServer,
                               ResponseRenderer responseRenderer,
                               Admin admin,
-                              Map<String, PostServeAction> postServeActions) {
+                              Map<String, PostServeAction> postServeActions,
+                              RequestJournal requestJournal) {
 		super(responseRenderer);
 		this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
-	}
+        this.requestJournal = requestJournal;
+    }
 
 	@Override
 	public ServeEvent handleRequest(Request request) {
@@ -53,6 +57,8 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
     @Override
     protected void afterHandle(ServeEvent serveEvent, Response response) {
+        requestJournal.requestReceived(serveEvent.complete(response));
+
         for (PostServeAction postServeAction: postServeActions.values()) {
             postServeAction.doGlobalAction(serveEvent, admin);
         }
