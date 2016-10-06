@@ -181,38 +181,3 @@ In JSON (fault values are the same as the ones listed above):
     }
 }
 ```
-
-## Default response for unmapped requests
-
-When a request cannot be mapped to a response, Wiremock returns an HTML response with a 404 status code.
-
-It is possible to customize the response by catching all URLs with a low priority.
-
-In Java
-
-```java
-stubFor(any(urlPathEqualTo(".*"))
-                .atPriority(10)
-                .willReturn(aResponse()
-                        .withStatus(404)
-                        .withBody("{\"status\":\"Error\",\"message\":\"Endpoint not found\"}")));
-```
-
-In JSON
-
-```json
-{
-  "priority":10,
-  "request": {
-    "method": "GET",
-    "urlPattern": ".*"
-  },
-  "response": {
-    "status": 404,
-    "jsonBody": {"status":"Error","message":"Endpoint not found"},
-    "headers": {
-      "Content-Type": "application/json"
-    }
-  }
-}
-```
