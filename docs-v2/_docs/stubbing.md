@@ -274,7 +274,7 @@ It is possible to customize the response by catching all URLs with a low priorit
 In Java
 
 ```java
-stubFor(any(urlPathEqualTo(".*"))
+stubFor(any(anyUrl())
                 .atPriority(10)
                 .willReturn(aResponse()
                         .withStatus(404)
