@@ -265,6 +265,41 @@ JSON documents):
 }
 ```
 
+## Default response for unmapped requests
+
+When a request cannot be mapped to a response, Wiremock returns an HTML response with a 404 status code.
+
+It is possible to customize the response by catching all URLs with a low priority.
+
+In Java
+
+```java
+stubFor(any(urlPathEqualTo(".*"))
+                .atPriority(10)
+                .willReturn(aResponse()
+                        .withStatus(404)
+                        .withBody("{\"status\":\"Error\",\"message\":\"Endpoint not found\"}")));
+```
+
+In JSON
+
+```json
+{
+  "priority":10,
+  "request": {
+    "method": "GET",
+    "urlPattern": ".*"
+  },
+  "response": {
+    "status": 404,
+    "jsonBody": {"status":"Error","message":"Endpoint not found"},
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
+```
+
 ## Saving stubs
 
 Stub mappings which have been created can be persisted to the `mappings`
@@ -319,7 +354,7 @@ Stub mappings can be deleted via the Java API as follows:
 StubMapping stubMapping = stubFor(get(urlEqualTo("/delete-me"))
   .willReturn(aResponse().withStatus(200)));
 
-// Do things with the stub 
+// Do things with the stub
 
 removeStub(stubMapping);
 ```
@@ -356,7 +391,7 @@ Optionally limit and offset parameters can be specified to constrain the set ret
 
 
 ## Getting a single stub mapping by ID
-  
+
 A single stub mapping can be retrieved by ID in Java by calling `WireMock.getSingleStubMapping(id)` where `id` is the
 UUID of the stub mapping.
 
