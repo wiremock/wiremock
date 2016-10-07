@@ -287,7 +287,7 @@ In JSON
 {
   "priority":10,
   "request": {
-    "method": "GET",
+    "method": "ANY",
     "urlPattern": ".*"
   },
   "response": {
