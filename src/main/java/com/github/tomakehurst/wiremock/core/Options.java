@@ -15,18 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import java.util.List;
-
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -51,10 +45,11 @@ public interface Options {
     Notifier notifier();
     boolean requestJournalDisabled();
     Optional<Integer> maxRequestJournalEntries();
-    public String bindAddress();
+    String bindAddress();
     List<CaseInsensitiveKey> matchingHeaders();
-    public boolean shouldPreserveHostHeader();
+    boolean shouldPreserveHostHeader();
     String proxyHostHeader();
     HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
+    WiremockNetworkTrafficListener networkTrafficListener();
 }
