@@ -23,6 +23,6 @@ public class EditStubMappingTask implements AdminTask {
         newStubMapping.setId(id);
 
         admin.editStubMapping(newStubMapping);
-        return ResponseDefinition.ok();
+        return ResponseDefinition.okForJson(newStubMapping);
     }
 }

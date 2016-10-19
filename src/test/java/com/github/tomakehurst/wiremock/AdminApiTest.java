@@ -269,7 +269,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertThat(testClient.get("/put/this").statusCode(), is(200));
 
-        testClient.putWithBody("/__admin/mappings/" + stubMapping.getId(),
+        String requestBody =
             "{                                  \n" +
             "    \"request\": {                 \n" +
             "        \"method\": \"GET\",       \n" +
@@ -278,9 +278,15 @@ public class AdminApiTest extends AcceptanceTestBase {
             "    \"response\": {                \n" +
             "        \"status\": 418            \n" +
             "    }                              \n" +
-            "}",
-            "application/json");
+            "}";
 
+        WireMockResponse response = testClient.putWithBody(
+            "/__admin/mappings/" + stubMapping.getId(),
+            requestBody,
+            "application/json"
+        );
+
+        JSONAssert.assertEquals(requestBody, response.content(), false);
         assertThat(testClient.get("/put/this").statusCode(), is(418));
     }
 
