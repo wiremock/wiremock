@@ -180,15 +180,25 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void addStubMapping(StubMapping stubMapping) {
         stubMappings.addMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.save(stubMapping);
+        }
     }
+
     @Override
     public void removeStubMapping(StubMapping stubMapping) {
         stubMappings.removeMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.remove(stubMapping);
+        }
     }
 
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         stubMappings.editMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.save(stubMapping);
+        }
     }
 
     @Override
@@ -203,7 +213,7 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
-        mappingsSaver.saveMappings(stubMappings.getAll());
+        mappingsSaver.save(stubMappings.getAll());
     }
 
     @Override
