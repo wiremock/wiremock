@@ -49,7 +49,7 @@ public class StubMapping {
 
 	private long insertionIndex;
 
-    private boolean isTransient = true;
+    private boolean isDirty = true;
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
@@ -118,17 +118,14 @@ public class StubMapping {
 		this.insertionIndex = insertionIndex;
 	}
 
-    /**
-     * @return True if this StubMapping is not persisted to the file system, false otherwise.
-     */
     @JsonIgnore
-    public boolean isTransient() {
-        return isTransient;
+    public boolean isDirty() {
+        return isDirty;
     }
 
     @JsonIgnore
-    public void setTransient(boolean isTransient) {
-        this.isTransient = isTransient;
+    public void setDirty(boolean isDirty) {
+        this.isDirty = isDirty;
     }
 
 	public Integer getPriority() {
@@ -218,7 +215,7 @@ public class StubMapping {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		StubMapping that = (StubMapping) o;
-		return isTransient == that.isTransient &&
+		return isDirty == that.isDirty &&
 			Objects.equals(uuid, that.uuid) &&
 			Objects.equals(request, that.request) &&
 			Objects.equals(response, that.response) &&
@@ -232,6 +229,6 @@ public class StubMapping {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isTransient);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isDirty);
 	}
 }

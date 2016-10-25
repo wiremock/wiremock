@@ -203,7 +203,7 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
-        mappingsSaver.saveMappings(stubMappings);
+        mappingsSaver.saveMappings(stubMappings.getAll());
     }
 
     @Override

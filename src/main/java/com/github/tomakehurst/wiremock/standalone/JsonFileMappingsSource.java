@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Predicate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,21 +43,26 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	@Override
-	public void saveMappings(StubMappings stubMappings) {
-		Iterable<StubMapping> transientStubs = filter(stubMappings.getAll(), new Predicate<StubMapping>() {
+	public void saveMappings(List<StubMapping> stubMappings) {
+		Iterable<StubMapping> transientStubs = filter(stubMappings, new Predicate<StubMapping>() {
 			public boolean apply(StubMapping input) {
-				return input != null && input.isTransient();
+				return input != null && input.isDirty();
 			}
 		});
 
 		for (StubMapping mapping : transientStubs) {
-			String mappingFileName = fileNameMap.get(mapping.getUuid());
+			String mappingFileName = fileNameMap.get(mapping.getId());
 			if (mappingFileName == null) {
 				mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
 			}
 			mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
-			mapping.setTransient(false);
+			mapping.setDirty(false);
 		}
+	}
+
+	@Override
+	public void saveMapping(StubMapping stubMapping) {
+
 	}
 
 	@Override
@@ -67,7 +73,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-            mapping.setTransient(false);
+            mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
 			fileNameMap.put(mapping.getUuid(), getFileName(mappingFile));
 		}
