@@ -139,37 +139,6 @@ public class EqualToJsonTest {
     }
 
     @Test
-    public void returnsMediumDistanceWhenSubtreeIsMissingFromActual() {
-        assertThat(WireMock.equalToJson(
-            "{\n" +
-                "    \"one\": \"GET\",          \n" +
-                "    \"two\": 2,                \n" +
-                "    \"three\": {               \n" +
-                "        \"four\": \"FOUR\",    \n" +
-                "        \"five\": [            \n" +
-                "            {                  \n" +
-                "                \"six\": 6,    \n" +
-                "                \"seven\": 7   \n" +
-                "            },                 \n" +
-                "            {                  \n" +
-                "                \"eight\": 8,  \n" +
-                "                \"nine\": 9    \n" +
-                "            }                  \n" +
-                "        ]                      \n" +
-                "    }                          \n" +
-                "}"
-        ).match(
-            "{                          \n" +
-            "   \"one\":    \"GET\",    \n" +
-            "   \"two\":    2,          \n" +
-            "   \"three\":  {           \n" +
-            "       \"four\":   \"FOUR\"\n" +
-            "   }                       \n" +
-            "}                          \n"
-        ).getDistance(), closeTo(0.54, 0.01));
-    }
-
-    @Test
     public void returnsExactMatchWhenObjectPropertyOrderDiffers() {
         assertTrue(WireMock.equalToJson(
             "{                  \n" +
@@ -268,10 +237,42 @@ public class EqualToJsonTest {
             "   \"one\":    1,          \n" +
             "   \"three\":  3,          \n" +
             "   \"two\":    2,          \n" +
-            "   \"four\":   [2, 1, 2],  \n" +
+            "   \"four\":   [2, 1, 3],  \n" +
             "   \"five\":   5,          \n" +
             "   \"six\":    6           \n" +
             "}                          \n"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void ignoresArrayOrderingForLargerArrayWhenConfigured() {
+        assertTrue(WireMock.equalToJson(
+                "{                              \n" +
+                "   \"arr\":   [1, 2, 3, 4, 5]  \n" +
+                "}                              \n",
+                true, true
+        ).match(
+                "{                              \n" +
+                "   \"arr\":   [5, 4, 2, 3, 1]  \n" +
+                "}                              \n"
+        ).isExactMatch());
+    }
+
+    @Test
+    public void ignoresArrayOrderingForNestedArrayWhenConfigured() {
+        assertTrue(WireMock.equalToJson(
+                "{                                  \n" +
+                 "   \"arr\":   [                   \n" +
+                 "       { \"nestedArr\": [1, 2] }  \n" +
+                 "    ]                             \n" +
+                 "}                                 \n",
+                true, true
+        ).match(
+                       "{                                 \n" +
+                        "   \"arr\":   [                  \n" +
+                        "       { \"nestedArr\": [2, 1] } \n" +
+                        "   ]                             \n" +
+                        "}                                \n"
         ).isExactMatch());
     }
 
