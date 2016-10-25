@@ -181,6 +181,11 @@ public class ClasspathFileSource implements FileSource {
         return (isFileSystem() && rootDirectory.exists()) || (!isFileSystem());
     }
 
+    @Override
+    public void deleteFile(String name) {
+        throw new UnsupportedOperationException("Classpath file sources are read-only");
+    }
+
     private static <T> Iterable<T> toIterable(final Enumeration<T> e) {
         return new Iterable<T>() {
             @Override

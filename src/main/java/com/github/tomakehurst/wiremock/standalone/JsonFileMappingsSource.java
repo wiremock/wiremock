@@ -43,29 +43,33 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	@Override
-	public void saveMappings(List<StubMapping> stubMappings) {
-		Iterable<StubMapping> transientStubs = filter(stubMappings, new Predicate<StubMapping>() {
-			public boolean apply(StubMapping input) {
-				return input != null && input.isDirty();
+	public void save(List<StubMapping> stubMappings) {
+		for (StubMapping mapping: stubMappings) {
+			if (mapping != null && mapping.isDirty()) {
+				save(mapping);
 			}
-		});
-
-		for (StubMapping mapping : transientStubs) {
-			String mappingFileName = fileNameMap.get(mapping.getId());
-			if (mappingFileName == null) {
-				mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
-			}
-			mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
-			mapping.setDirty(false);
 		}
 	}
 
 	@Override
-	public void saveMapping(StubMapping stubMapping) {
-
+	public void save(StubMapping stubMapping) {
+		String mappingFileName = fileNameMap.get(stubMapping.getId());
+		if (mappingFileName == null) {
+			mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
+		}
+		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
+        fileNameMap.put(stubMapping.getId(), mappingFileName);
+		stubMapping.setDirty(false);
 	}
 
-	@Override
+    @Override
+    public void remove(StubMapping stubMapping) {
+        String mappingFileName = fileNameMap.get(stubMapping.getId());
+        mappingsFileSource.deleteFile(mappingFileName);
+        fileNameMap.remove(stubMapping.getId());
+    }
+
+    @Override
 	public void loadMappingsInto(StubMappings stubMappings) {
 		if (!mappingsFileSource.exists()) {
 			return;
@@ -75,7 +79,7 @@ public class JsonFileMappingsSource implements MappingsSource {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
             mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
-			fileNameMap.put(mapping.getUuid(), getFileName(mappingFile));
+			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
 		}
 	}
 	

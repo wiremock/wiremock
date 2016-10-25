@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.List;
 
 public interface MappingsSaver {
-    void saveMappings(List<StubMapping> stubMappings);
-    void saveMapping(StubMapping stubMapping);
+    void save(List<StubMapping> stubMappings);
+    void save(StubMapping stubMapping);
+    void remove(StubMapping stubMapping);
 }

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -35,6 +36,8 @@ public class StubMapping {
 	public static final int DEFAULT_PRIORITY = 5; 
 
 	private UUID uuid = UUID.randomUUID();
+
+	private boolean persistent;
 
 	private RequestPattern request;
 
@@ -82,10 +85,21 @@ public class StubMapping {
 		return uuid;
 	}
 
-	@VisibleForTesting
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
+
+    public boolean shouldBePersisted() {
+        return persistent;
+    }
+
+    public Boolean isPersistent() {
+        return persistent ? true : null;
+    }
+
+    public void setPersistent(Boolean persistent) {
+        this.persistent = persistent != null && persistent;
+    }
 
     public RequestPattern getRequest() {
 		return firstNonNull(request, RequestPattern.ANYTHING);

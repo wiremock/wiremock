@@ -28,6 +28,8 @@ public interface MappingBuilder {
     MappingBuilder withRequestBody(StringValuePattern bodyPattern);
     ScenarioMappingBuilder inScenario(String scenarioName);
     MappingBuilder withId(UUID id);
+    MappingBuilder persistent();
+
     MappingBuilder withBasicAuth(String username, String password);
     MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 

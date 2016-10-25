@@ -5,9 +5,8 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +17,6 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -30,6 +28,7 @@ import static org.junit.Assert.assertThat;
 public class StubMappingPersistenceAcceptanceTest {
 
     Path rootDir;
+    Path mappingsDir;
     WireMockServer wireMockServer;
     WireMockTestClient testClient;
     Stubbing wm;
@@ -37,6 +36,7 @@ public class StubMappingPersistenceAcceptanceTest {
     @Before
     public void init() throws Exception {
         rootDir = Files.createTempDirectory("temp-filesource");
+        mappingsDir = rootDir.resolve("mappings");
         FileSource fileSource = new SingleRootFileSource(rootDir.toAbsolutePath().toString());
         fileSource.createIfNecessary();
         FileSource filesFileSource = fileSource.child(FILES_ROOT);
@@ -59,14 +59,13 @@ public class StubMappingPersistenceAcceptanceTest {
 
         wireMockServer.saveMappings();
 
-        assertThat(rootDir.resolve("mappings"), hasFileContaining("one"));
-        assertThat(rootDir.resolve("mappings"), hasFileContaining("two"));
-        assertThat(rootDir.resolve("mappings"), hasFileContaining("three"));
+        assertThat(mappingsDir, hasFileContaining("one"));
+        assertThat(mappingsDir, hasFileContaining("two"));
+        assertThat(mappingsDir, hasFileContaining("three"));
     }
 
     @Test
     public void savesEditedStubToTheFileItOriginatedFrom() throws Exception {
-        Path mappingsDir = rootDir.resolve("mappings");
         UUID stubId = UUID.randomUUID();
 
         writeMappingFile("mapping-to-edit.json", get(urlEqualTo("/edit"))
@@ -85,13 +84,93 @@ public class StubMappingPersistenceAcceptanceTest {
 
         wireMockServer.saveMappings();
 
-        assertThat(mappingsDir.toFile().list().length, is(1));
+        assertMappingsDirContainsOneFile();
         assertThat(mappingsDir, hasFileContaining("modified"));
     }
 
+    @Test
+    public void savesSingleStubOnCreationIfFlaggedPersistent() {
+        stubFor(get(urlEqualTo("/save-immediately")).persistent());
+        assertThat(mappingsDir, hasFileContaining("/save-immediately"));
+    }
+
+    @Test
+    public void doesNotSaveSingleStubOnCreationIfNotFlaggedPersistent() {
+        stubFor(get(urlEqualTo("/save-immediately")));
+        assertMappingsDirIsEmpty();
+    }
+
+    @Test
+    public void savesSingleStubOnEditIfFlaggedPersistent() {
+        UUID stubId = UUID.randomUUID();
+        stubFor(get(urlEqualTo("/save-immediately"))
+            .persistent()
+            .withId(stubId)
+            .willReturn(aResponse().withBody("initial"))
+        );
+
+        assertThat(mappingsDir, hasFileContaining("/save-immediately", "initial"));
+
+        editStub(get(urlEqualTo("/save-immediately"))
+            .persistent()
+            .withId(stubId)
+            .willReturn(aResponse().withBody("modified"))
+        );
+
+        assertMappingsDirContainsOneFile();
+        assertThat(mappingsDir, hasFileContaining("/save-immediately", "modified"));
+    }
+
+    @Test
+    public void doesNotSaveSingleStubOnEditIfNotFlaggedPersistent() {
+        UUID stubId = UUID.randomUUID();
+        stubFor(get(urlEqualTo("/no-save"))
+            .withId(stubId)
+            .willReturn(aResponse().withBody("initial"))
+        );
+
+        editStub(get(urlEqualTo("/no-save"))
+            .withId(stubId)
+            .willReturn(aResponse().withBody("modified"))
+        );
+
+        assertMappingsDirIsEmpty();
+    }
+
+    @Test
+    public void deletesPersistentStubMappingIfFlaggedPersistent() {
+        StubMapping stubMapping = stubFor(get(urlEqualTo("/to-delete")).persistent());
+        assertMappingsDirContainsOneFile();
+
+        removeStub(stubMapping);
+        assertMappingsDirIsEmpty();
+    }
+
+    @Test
+    public void doesNotDeletePersistentStubMappingIfNotFlaggedPersistent() {
+        StubMapping stubMapping = stubFor(get(urlEqualTo("/to-not-delete")));
+        saveAllMappings();
+        assertMappingsDirContainsOneFile();
+
+        removeStub(stubMapping);
+        assertMappingsDirContainsOneFile();
+    }
+
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {
-        Path mappingsDir = rootDir.resolve("mappings");
         byte[] json = Json.write(stubBuilder.build()).getBytes(UTF_8);
         Files.write(mappingsDir.resolve(name), json);
+    }
+
+
+    private void assertMappingsDirIsEmpty() {
+        assertMappingsDirSize(0);
+    }
+
+    private void assertMappingsDirContainsOneFile() {
+        assertMappingsDirSize(1);
+    }
+
+    private void assertMappingsDirSize(int size) {
+        assertThat(mappingsDir.toFile().list().length, is(size));
     }
 }

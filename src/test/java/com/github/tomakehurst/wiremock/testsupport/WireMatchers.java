@@ -226,7 +226,7 @@ public class WireMatchers {
         };
     }
 
-    public static Matcher<Path> hasFileContaining(final String contents) {
+    public static Matcher<Path> hasFileContaining(final String... contents) {
         return new TypeSafeDiagnosingMatcher<Path>() {
             @Override
             protected boolean matchesSafely(Path path, Description mismatchDescription) {
@@ -234,7 +234,13 @@ public class WireMatchers {
                 boolean matched = any(files, new Predicate<File>() {
                     @Override
                     public boolean apply(File file) {
-                        return fileContents(file).contains(contents);
+                        final String fileContents = fileContents(file);
+                        return all(asList(contents), new Predicate<String>() {
+                            @Override
+                            public boolean apply(String input) {
+                                return fileContents.contains(input);
+                            }
+                        });
                     }
                 });
 
@@ -260,7 +266,7 @@ public class WireMatchers {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("a file containing " + contents);
+                description.appendText("a file containing all of: " + Joiner.on(", ").join(contents));
             }
         };
     }

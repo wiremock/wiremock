@@ -30,4 +30,6 @@ public interface FileSource {
 	void writeTextFile(String name, String contents);
     void writeBinaryFile(String name, byte[] contents);
     boolean exists();
+
+	void deleteFile(String name);
 }
