@@ -16,11 +16,18 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+
+import java.util.List;
 
 public class NotImplementedMappingsSaver implements MappingsSaver {
     @Override
-    public void saveMappings(StubMappings stubMappings) {
+    public void saveMappings(List<StubMapping> stubMappings) {
         throw new UnsupportedOperationException("Saving mappings is not supported");
+    }
+
+    @Override
+    public void saveMapping(StubMapping stubMapping) {
+        throw new UnsupportedOperationException("Saving mapping is not supported");
     }
 }
