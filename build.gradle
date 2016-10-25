@@ -29,7 +29,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.2.2'
+version = '2.3.1'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -351,7 +351,7 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
-    def baseVersion = '2.2'
+    def baseVersion = '2.3'
     def filesWithVersion = [
             'build.gradle'                      : { "version = '${baseVersion}.${it}" },
             'docs-v2/_config.yml'               : { "wiremock_version: ${baseVersion}.${it}" },
@@ -362,39 +362,6 @@ task 'bump-version' << {
     gradleBuildFile.text.find ~/version = '${baseVersion}.([0-9]+)/, { match, minorVersion ->
         currentMinorVersion = Integer.valueOf(minorVersion)
         int nextMinorVersion = currentMinorVersion + 1
-
-        filesWithVersion.each { fileName, lineWithVersionTemplates ->
-            def file = new File(fileName)
-            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates];
-
-            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-                def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
-                def newLine = lineWithVersionTemplate.call(nextMinorVersion)
-                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-                file.text = file.text.replace(oldLine, newLine);
-            }
-        }
-    }
-}
-
-task 'bump-version-down' << {
-    def filesWithVersion = [
-            'build.gradle'                      : { "version = 1.${it}" },
-            'docs/source/conf.py'               : { "version = '1.${it}'" },
-            'docs/source/getting-started.rst'   : [{ "<version>1.${it}</version>" }, {
-                "wiremock/1.${it}/wiremock-1.${it}-standalone.jar"
-            }],
-            'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
-            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:1.${it}" },
-    ]
-
-    def gradleBuildFile = new File('build.gradle')
-    int currentMinorVersion
-    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
-        currentMinorVersion = Integer.valueOf(minorVersion)
-        int nextMinorVersion = currentMinorVersion - 1
 
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
