@@ -33,6 +33,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
@@ -57,6 +58,8 @@ public class WireMockConfiguration implements Options {
     private boolean browserProxyingEnabled = false;
     private ProxySettings proxySettings = ProxySettings.NO_PROXY;
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
+    private MappingsSource mappingsSource;
+
     private Notifier notifier = new Slf4jNotifier(false);
     private boolean requestJournalDisabled = false;
     private Optional<Integer> maxRequestJournalEntries = Optional.absent();
@@ -70,6 +73,14 @@ public class WireMockConfiguration implements Options {
     private Integer jettyHeaderBufferSize;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
+
+    private MappingsSource getMappingsSource() {
+        if (mappingsSource == null) {
+            mappingsSource = new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+        }
+
+        return mappingsSource;
+    }
 
     public static WireMockConfiguration wireMockConfig() {
         return new WireMockConfiguration();
@@ -179,12 +190,17 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration usingFilesUnderClasspath(String path) {
-        this.filesRoot = new ClasspathFileSource(path);
+        fileSource(new ClasspathFileSource(path));
         return this;
     }
 
     public WireMockConfiguration fileSource(FileSource fileSource) {
         this.filesRoot = fileSource;
+        return this;
+    }
+
+    public WireMockConfiguration mappingSource(MappingsSource mappingsSource) {
+        this.mappingsSource = mappingsSource;
         return this;
     }
 
@@ -293,12 +309,12 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public MappingsLoader mappingsLoader() {
-        return new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+        return getMappingsSource();
     }
 
     @Override
     public MappingsSaver mappingsSaver() {
-        return new JsonFileMappingsSource(filesRoot.child(MAPPINGS_ROOT));
+        return getMappingsSource();
     }
 
     @Override
