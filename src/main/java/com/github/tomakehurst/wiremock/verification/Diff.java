@@ -52,6 +52,10 @@ public class Diff {
 
     @Override
     public String toString() {
+        if (requestPattern.hasCustomMatcher()) {
+            return "(Request pattern had a custom matcher so no diff can be shown)";
+        }
+
         ImmutableList.Builder<Section<?>> builder = ImmutableList.builder();
 
         Section<RequestMethod> methodSection = new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
