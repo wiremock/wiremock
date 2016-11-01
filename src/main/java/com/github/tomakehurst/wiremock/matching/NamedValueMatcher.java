@@ -15,24 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.http.Request;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.Objects;
+public interface NamedValueMatcher<T> extends ValueMatcher<T> {
 
-public abstract class RequestMatcher implements NamedValueMatcher<Request> {
+    @JsonIgnore
+    String getName();
 
-    @Override
-    public String getExpected() {
-        return "(custom request matcher - override this for meaningful diff)";
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getClass().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return Objects.equals(this.getClass(), obj.getClass());
-    }
+    @JsonIgnore
+    String getExpected();
 }

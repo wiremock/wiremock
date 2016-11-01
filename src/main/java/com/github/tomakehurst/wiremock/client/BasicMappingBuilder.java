@@ -16,13 +16,10 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
@@ -51,7 +48,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
-	BasicMappingBuilder(RequestMatcher requestMatcher) {
+	BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 

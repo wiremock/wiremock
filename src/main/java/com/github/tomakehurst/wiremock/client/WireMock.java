@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -333,7 +334,7 @@ public class WireMock {
 		return new BasicMappingBuilder(customRequestMatcherName, parameters);
 	}
 
-	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
+	public static MappingBuilder requestMatching(ValueMatcher<Request> requestMatcher) {
 		return new BasicMappingBuilder(requestMatcher);
 	}
 
@@ -463,7 +464,7 @@ public class WireMock {
         return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static RequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+	public static RequestPatternBuilder requestMadeFor(ValueMatcher<Request> requestMatcher) {
 		return RequestPatternBuilder.forCustomMatcher(requestMatcher);
 	}
 
