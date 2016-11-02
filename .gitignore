@@ -49,3 +49,5 @@ copy-admin.sh
 
 .vagrant
 tmp*
+
+src/main/resources/swagger

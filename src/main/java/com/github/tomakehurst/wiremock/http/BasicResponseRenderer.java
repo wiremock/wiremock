@@ -24,7 +24,7 @@ public class BasicResponseRenderer implements ResponseRenderer {
         return response()
             .status(responseDefinition.getStatus())
             .headers(responseDefinition.getHeaders())
-            .body(responseDefinition.getBody())
+            .body(responseDefinition.getByteBody())
             .build();
     }
 }

@@ -329,6 +329,19 @@ task signAll {
     dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
 }
 
+task generateApiDocs(type: Exec) {
+    workingDir 'docs-v2'
+    commandLine 'npm', 'run', 'apidocs'
+}
+jar.dependsOn generateApiDocs
+processResources.dependsOn generateApiDocs
+
+task deleteGeneratedApiDocs(type: Delete) {
+    delete "src/main/resources/swagger"
+}
+
+clean.dependsOn deleteGeneratedApiDocs
+
 task release {
     dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
     dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
