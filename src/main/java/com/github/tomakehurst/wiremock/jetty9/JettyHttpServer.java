@@ -18,12 +18,15 @@ package com.github.tomakehurst.wiremock.jetty9;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Handler;
@@ -283,6 +286,12 @@ class JettyHttpServer implements HttpServer {
             Notifier notifier
     ) {
         ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
+
+        adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
+        adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", Resources.getResource("assets").toString());
+        adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+        adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
+
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);

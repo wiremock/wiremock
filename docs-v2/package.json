@@ -21,6 +21,7 @@
     "node": ">= 0.10.0"
   },
   "devDependencies": {
+    "api-spec-converter": "2.0.1",
     "autoprefixer": "^6.3.5",
     "node-sass": "3.8.0",
     "npm-run-all": "^1.7.0",
@@ -39,6 +40,7 @@
     "build:css": "npm run scss && npm run autoprefixer",
     "build:js": "npm run uglify",
     "build:all": "npm run build:css && npm run build:js",
-    "raml": "node_modules/raml2html/bin/raml2html -i ../src/main/raml/wiremock-admin-api.raml -o _docs/wiremock-admin-api.html"
+    "raml": "node_modules/raml2html/bin/raml2html -i ../src/main/resources/raml/wiremock-admin-api.raml -o _docs/wiremock-admin-api.html",
+    "apidocs": "npm run raml && mkdir -p ../src/main/resources/swagger && node_modules/api-spec-converter/bin/api-spec-converter -f raml -t swagger_2 ../src/main/resources/raml/wiremock-admin-api.raml > ../src/main/resources/swagger/wiremock-admin-api.json"
   }
 }

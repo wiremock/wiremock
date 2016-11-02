@@ -36,6 +36,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -382,6 +383,33 @@ public class AdminApiTest extends AcceptanceTestBase {
         JsonAssertion.assertThat(body).field("response").field("status").isEqualTo(200);
 
         assertThat(testClient.get("/").statusCode(), is(200));
+    }
+
+    @Test
+    public void servesRamlSpec() {
+        WireMockResponse response = testClient.get("/__admin/docs/raml");
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), containsString("#%RAML 0.8"));
+    }
+
+    @Test
+    public void servesSwaggerSpec() {
+        WireMockResponse response = testClient.get("/__admin/docs/swagger");
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), containsString("\"swagger\": \"2.0\""));
+    }
+
+    @Test
+    public void servesSwaggerUiHtml() {
+        WireMockResponse response = testClient.get("/__admin/swagger-ui/");
+        assertThat(response.statusCode(), is(200));
+    }
+
+    @Test
+    public void redirectsToSwaggerUiHtml() {
+        WireMockResponse response = testClient.get("/__admin/docs");
+        assertThat(response.statusCode(), is(301));
+        assertThat(response.firstHeader("Location"), is("/__admin/swagger-ui/"));
     }
 
 }
