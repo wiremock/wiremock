@@ -1,0 +1,1690 @@
+<!DOCTYPE HTML><html><head><title>WireMock API documentation</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="generator" content="https://github.com/raml2html/raml2html 3.0.1"><link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet"><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css"><script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script><script type="text/javascript">
+      $(document).ready(function() {
+        $('.page-header pre code, .top-resource-description pre code, .modal-body pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
+
+        $('[data-toggle]').click(function() {
+          var selector = $(this).data('target') + ' pre code';
+          $(selector).each(function(i, block) {
+            hljs.highlightBlock(block);
+          });
+        });
+
+        // open modal on hashes like #_action_get
+        $(window).bind('hashchange', function(e) {
+          var anchor_id = document.location.hash.substr(1); //strip #
+          var element = $('#' + anchor_id);
+
+          // do we have such element + is it a modal?  --> show it
+          if (element.length && element.hasClass('modal')) {
+            element.modal('show');
+          }
+        });
+
+        // execute hashchange on first page load
+        $(window).trigger('hashchange');
+
+        // remove url fragment on modal hide
+        $('.modal').on('hidden.bs.modal', function() {
+          try {
+            if (history && history.replaceState) {
+                history.replaceState({}, '', '#');
+            }
+          } catch(e) {}
+        });
+      });
+    </script><style>
+      body {
+        font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      a {
+        color: #89BDD2 !important;
+      }
+
+      h1 {
+        font-weight: bold;
+        color: #8189A1;
+      }
+
+      p {
+
+      }
+
+      .hljs {
+        background: transparent;
+      }
+      .parent {
+        color: #999;
+      }
+      .list-group-item > .badge {
+        float: none;
+        margin-right: 6px;
+      }
+      .panel-title > .methods {
+        float: right;
+      }
+      .badge {
+        border-radius: 0;
+        text-transform: uppercase;
+        width: 70px;
+        font-weight: normal;
+        color: #f3f3f6;
+        line-height: normal;
+      }
+      .badge_get {
+        background-color: #63a8e2;
+      }
+      .badge_post {
+        background-color: #6cbd7d;
+      }
+      .badge_put {
+        background-color: #22bac4;
+      }
+      .badge_delete {
+        background-color: #d26460;
+      }
+      .badge_patch {
+        background-color: #ccc444;
+      }
+      .list-group, .panel-group {
+        margin-bottom: 0;
+      }
+      .panel-group .panel+.panel-white {
+        margin-top: 0;
+      }
+      .panel-group .panel-white {
+        border-bottom: 1px solid #F5F5F5;
+        border-radius: 0;
+      }
+      .panel-white:last-child {
+        border-bottom-color: white;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+      }
+      .panel-white .panel-heading {
+        background: white;
+      }
+      .tab-pane ul {
+        padding-left: 2em;
+      }
+      .tab-pane h1 {
+        font-size: 1.3em;
+      }
+      .tab-pane h2 {
+        font-size: 1.2em;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #ddd;
+      }
+      .tab-pane h3 {
+        font-size: 1.1em;
+      }
+      .tab-content {
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+      }
+      #sidebar {
+        margin-top: 30px;
+        padding-right: 5px;
+        overflow: auto;
+        height: 90%;
+      }
+      .top-resource-description {
+        border-bottom: 1px solid #ddd;
+        background: #fcfcfc;
+        padding: 15px 15px 0 15px;
+        margin: -15px -15px 10px -15px;
+      }
+      .resource-description {
+        border-bottom: 1px solid #fcfcfc;
+        background: #fcfcfc;
+        padding: 15px 15px 0 15px;
+        margin: -15px -15px 10px -15px;
+      }
+      .resource-description p:last-child {
+        margin: 0;
+      }
+      .list-group .badge {
+        float: left;
+      }
+      .method_description {
+        margin-left: 85px;
+      }
+      .method_description p:last-child {
+        margin: 0;
+      }
+      .list-group-item {
+        cursor: pointer;
+      }
+      .list-group-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      pre code {
+        overflow: auto;
+        word-wrap: normal;
+        white-space: pre;
+      }
+    </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container" style="margin-top: 40px;"><div class="row"><div class="col-md-9" role="main"><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_mappings" class="panel-title">/__admin/mappings</h3></div><div class="panel-body"><div class="top-resource-description"><p>Stub mappings</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_mappings"><span class="parent"></span>/__admin/mappings</a> <span class="methods"><a href="#admin_mappings_get"><span class="badge badge_get">get</span></a> <a href="#admin_mappings_post"><span class="badge badge_post">post</span></a> <a href="#admin_mappings_delete"><span class="badge badge_delete">delete</span></a></span></h4></div><div id="panel_admin_mappings" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_mappings_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get all stub mappings</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#admin_mappings_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Create a new stub mapping</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#admin_mappings_delete'" class="list-group-item"><span class="badge badge_delete">delete</span><div class="method_description"><p>Delete all stub mappings</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/__admin/mappings</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get all stub mappings</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings_get_request" data-toggle="tab">Request</a></li><li><a href="#admin_mappings_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings_get_request"><h3>Query Parameters</h3><ul><li><strong>Query limit</strong>: <em>(number)</em><p>The maximum number of results to return</p><p><strong>Example</strong>:</p><pre><code>10</code></pre></li><li><strong>Query offset</strong>: <em>(number)</em><p>The start index of the results to return</p><p><strong>Example</strong>:</p><pre><code>25</code></pre></li></ul></div><div class="tab-pane" id="admin_mappings_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>All stub mappings</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "mappings": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "persistent": {
+          "type": "boolean"
+        },
+        "scenarioName": {
+          "type": "string"
+        },
+        "requiredScenarioState": {
+          "type": "string"
+        },
+        "newScenarioState": {
+          "type": "string"
+        },
+        "postServeActions": {
+          "type": "object"
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "urlPattern": {
+              "type": "string"
+            },
+            "urlPath": {
+              "type": "string"
+            },
+            "urlPathPattern": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object"
+            },
+            "queryParameters": {
+              "type": "object"
+            },
+            "cookies": {
+              "type": "object"
+            },
+            "bodyPatterns": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "basicAuthCredentials": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ]
+            }
+          }
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "statusMessage": {
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object"
+            },
+            "jsonBody": {
+              "type": "object"
+            },
+            "bodyFileName": {
+              "type": "string"
+            },
+            "base64Body": {
+              "type": "string"
+            },
+            "additionalProxyRequestHeaders": {
+              "type": "object"
+            },
+            "fixedDelayMilliseconds": {
+              "type": "integer"
+            },
+            "delayDistribution": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "median": {
+                  "type": "integer"
+                },
+                "sigma": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "type",
+                "median",
+                "sigma"
+              ]
+            },
+            "fault": {
+              "type": "string"
+            },
+            "proxyBaseUrl": {
+              "type": "string"
+            },
+            "transformers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "transformerParameters": {
+              "type": "object"
+            },
+            "fromConfiguredStub": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "example": {
+        "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+        "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+        "request": {
+          "method": "GET",
+          "url": "/some/thing"
+        },
+        "response": {
+          "status": 200,
+          "body": "Hello world!",
+          "headers": {
+            "Content-Type": "text/plain"
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total"
+      ]
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "mappings": [ {
+        "request": {
+            "method": "GET",
+            "url": "/search?q=things",
+            "headers": {
+                "Accept": {
+                    "equalTo": "application/json"
+                }
+            }
+        },
+        "response": {
+            "status": 200,
+            "jsonBody": [
+                "thing1",
+                "thing2"
+            ],
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "urlPath": "/some/things",
+            "bodyPatterns": [
+                {
+                    "equalToXml": "&lt;stuff /&gt;"
+                }
+            ]
+        },
+        "response": {
+            "status": 201
+        }
+    } ],
+
+    "meta": {
+        "total": 2
+    }
+}</code></pre></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/__admin/mappings</h4></div><div class="modal-body"><div class="alert alert-info"><p>Create a new stub mapping</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_mappings_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "persistent": {
+      "type": "boolean"
+    },
+    "scenarioName": {
+      "type": "string"
+    },
+    "requiredScenarioState": {
+      "type": "string"
+    },
+    "newScenarioState": {
+      "type": "string"
+    },
+    "postServeActions": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "urlPattern": {
+          "type": "string"
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "urlPathPattern": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "queryParameters": {
+          "type": "object"
+        },
+        "cookies": {
+          "type": "object"
+        },
+        "bodyPatterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "basicAuthCredentials": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "jsonBody": {
+          "type": "object"
+        },
+        "bodyFileName": {
+          "type": "string"
+        },
+        "base64Body": {
+          "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+          "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+          "type": "integer"
+        },
+        "delayDistribution": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "median": {
+              "type": "integer"
+            },
+            "sigma": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "median",
+            "sigma"
+          ]
+        },
+        "fault": {
+          "type": "string"
+        },
+        "proxyBaseUrl": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "example": {
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+      "method": "GET",
+      "url": "/some/thing"
+    },
+    "response": {
+      "status": 200,
+      "body": "Hello world!",
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "request": {
+        "method": "GET",
+        "url": "/some/thing"
+    },
+    "response": {
+        "status": 200,
+        "body": "Hello world!",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}</code></pre></div><div class="tab-pane" id="admin_mappings_post_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>Successfully created</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "persistent": {
+      "type": "boolean"
+    },
+    "scenarioName": {
+      "type": "string"
+    },
+    "requiredScenarioState": {
+      "type": "string"
+    },
+    "newScenarioState": {
+      "type": "string"
+    },
+    "postServeActions": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "urlPattern": {
+          "type": "string"
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "urlPathPattern": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "queryParameters": {
+          "type": "object"
+        },
+        "cookies": {
+          "type": "object"
+        },
+        "bodyPatterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "basicAuthCredentials": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "jsonBody": {
+          "type": "object"
+        },
+        "bodyFileName": {
+          "type": "string"
+        },
+        "base64Body": {
+          "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+          "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+          "type": "integer"
+        },
+        "delayDistribution": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "median": {
+              "type": "integer"
+            },
+            "sigma": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "median",
+            "sigma"
+          ]
+        },
+        "fault": {
+          "type": "string"
+        },
+        "proxyBaseUrl": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "example": {
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+      "method": "GET",
+      "url": "/some/thing"
+    },
+    "response": {
+      "status": 200,
+      "body": "Hello world!",
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+        "method": "GET",
+        "url": "/some/thing"
+    },
+    "response": {
+        "status": 200,
+        "body": "Hello world!",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}</code></pre></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings_delete"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_delete">delete</span> <span class="parent"></span>/__admin/mappings</h4></div><div class="modal-body"><div class="alert alert-info"><p>Delete all stub mappings</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings_delete_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings_delete_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully deleted</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_mappings_reset"><span class="parent">/__admin/mappings</span>/reset</a> <span class="methods"><a href="#admin_mappings_reset_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_mappings_reset" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Stub mappings</p></div><div class="list-group"><div onclick="window.location.href = '#admin_mappings_reset_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Reset stub mappings (restore to defaults defined back the backing store)</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings_reset_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/mappings</span>/reset</h4></div><div class="modal-body"><div class="alert alert-info"><p>Reset stub mappings (restore to defaults defined back the backing store)</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings_reset_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings_reset_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully reset</p></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_mappings__stubMappingId_"><span class="parent">/__admin/mappings</span>/{stubMappingId}</a> <span class="methods"><a href="#admin_mappings__stubMappingId__get"><span class="badge badge_get">get</span></a> <a href="#admin_mappings__stubMappingId__put"><span class="badge badge_put">put</span></a> <a href="#admin_mappings__stubMappingId__delete"><span class="badge badge_delete">delete</span></a></span></h4></div><div id="panel_admin_mappings__stubMappingId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Single stub mapping</p></div><div class="list-group"><div onclick="window.location.href = '#admin_mappings__stubMappingId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get a single stub mapping</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#admin_mappings__stubMappingId__put'" class="list-group-item"><span class="badge badge_put">put</span><div class="method_description"><p>Update an existing stub mapping</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#admin_mappings__stubMappingId__delete'" class="list-group-item"><span class="badge badge_delete">delete</span><div class="method_description"><p>Delete a stub mapping</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings__stubMappingId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/__admin/mappings</span>/{stubMappingId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get a single stub mapping</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings__stubMappingId__get_request" data-toggle="tab">Request</a></li><li><a href="#admin_mappings__stubMappingId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings__stubMappingId__get_request"><h3>URI Parameters</h3><ul><li><strong>Stub mapping ID</strong>: <em>required (string)</em><p>The UUID of stub mapping</p><p><strong>Example</strong>:</p><pre>730d3e32-d098-4169-a20c-554c3bedce58</pre></li></ul></div><div class="tab-pane" id="admin_mappings__stubMappingId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "persistent": {
+      "type": "boolean"
+    },
+    "scenarioName": {
+      "type": "string"
+    },
+    "requiredScenarioState": {
+      "type": "string"
+    },
+    "newScenarioState": {
+      "type": "string"
+    },
+    "postServeActions": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "urlPattern": {
+          "type": "string"
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "urlPathPattern": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "queryParameters": {
+          "type": "object"
+        },
+        "cookies": {
+          "type": "object"
+        },
+        "bodyPatterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "basicAuthCredentials": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "jsonBody": {
+          "type": "object"
+        },
+        "bodyFileName": {
+          "type": "string"
+        },
+        "base64Body": {
+          "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+          "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+          "type": "integer"
+        },
+        "delayDistribution": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "median": {
+              "type": "integer"
+            },
+            "sigma": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "median",
+            "sigma"
+          ]
+        },
+        "fault": {
+          "type": "string"
+        },
+        "proxyBaseUrl": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "example": {
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+      "method": "GET",
+      "url": "/some/thing"
+    },
+    "response": {
+      "status": 200,
+      "body": "Hello world!",
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+        "method": "GET",
+        "url": "/some/thing"
+    },
+    "response": {
+        "status": 200,
+        "body": "Hello world!",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}</code></pre></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings__stubMappingId__put"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_put">put</span> <span class="parent">/__admin/mappings</span>/{stubMappingId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Update an existing stub mapping</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings__stubMappingId__put_request" data-toggle="tab">Request</a></li><li><a href="#admin_mappings__stubMappingId__put_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings__stubMappingId__put_request"><h3>URI Parameters</h3><ul><li><strong>Stub mapping ID</strong>: <em>required (string)</em><p>The UUID of stub mapping</p><p><strong>Example</strong>:</p><pre>730d3e32-d098-4169-a20c-554c3bedce58</pre></li></ul><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "persistent": {
+      "type": "boolean"
+    },
+    "scenarioName": {
+      "type": "string"
+    },
+    "requiredScenarioState": {
+      "type": "string"
+    },
+    "newScenarioState": {
+      "type": "string"
+    },
+    "postServeActions": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "urlPattern": {
+          "type": "string"
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "urlPathPattern": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "queryParameters": {
+          "type": "object"
+        },
+        "cookies": {
+          "type": "object"
+        },
+        "bodyPatterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "basicAuthCredentials": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "jsonBody": {
+          "type": "object"
+        },
+        "bodyFileName": {
+          "type": "string"
+        },
+        "base64Body": {
+          "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+          "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+          "type": "integer"
+        },
+        "delayDistribution": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "median": {
+              "type": "integer"
+            },
+            "sigma": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "median",
+            "sigma"
+          ]
+        },
+        "fault": {
+          "type": "string"
+        },
+        "proxyBaseUrl": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "example": {
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+      "method": "GET",
+      "url": "/some/thing"
+    },
+    "response": {
+      "status": 200,
+      "body": "Hello world!",
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "request": {
+        "method": "GET",
+        "url": "/some/thing"
+    },
+    "response": {
+        "status": 200,
+        "body": "Hello world!",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}</code></pre></div><div class="tab-pane" id="admin_mappings__stubMappingId__put_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "persistent": {
+      "type": "boolean"
+    },
+    "scenarioName": {
+      "type": "string"
+    },
+    "requiredScenarioState": {
+      "type": "string"
+    },
+    "newScenarioState": {
+      "type": "string"
+    },
+    "postServeActions": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "urlPattern": {
+          "type": "string"
+        },
+        "urlPath": {
+          "type": "string"
+        },
+        "urlPathPattern": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "queryParameters": {
+          "type": "object"
+        },
+        "cookies": {
+          "type": "object"
+        },
+        "bodyPatterns": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "basicAuthCredentials": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer"
+        },
+        "statusMessage": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object"
+        },
+        "jsonBody": {
+          "type": "object"
+        },
+        "bodyFileName": {
+          "type": "string"
+        },
+        "base64Body": {
+          "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+          "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+          "type": "integer"
+        },
+        "delayDistribution": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "median": {
+              "type": "integer"
+            },
+            "sigma": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "median",
+            "sigma"
+          ]
+        },
+        "fault": {
+          "type": "string"
+        },
+        "proxyBaseUrl": {
+          "type": "string"
+        },
+        "transformers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "example": {
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+      "method": "GET",
+      "url": "/some/thing"
+    },
+    "response": {
+      "status": 200,
+      "body": "Hello world!",
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "request": {
+        "method": "GET",
+        "url": "/some/thing"
+    },
+    "response": {
+        "status": 200,
+        "body": "Hello world!",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}</code></pre></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings__stubMappingId__delete"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_delete">delete</span> <span class="parent">/__admin/mappings</span>/{stubMappingId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Delete a stub mapping</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings__stubMappingId__delete_request" data-toggle="tab">Request</a></li><li><a href="#admin_mappings__stubMappingId__delete_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings__stubMappingId__delete_request"><h3>URI Parameters</h3><ul><li><strong>Stub mapping ID</strong>: <em>required (string)</em><p>The UUID of stub mapping</p><p><strong>Example</strong>:</p><pre>730d3e32-d098-4169-a20c-554c3bedce58</pre></li></ul></div><div class="tab-pane" id="admin_mappings__stubMappingId__delete_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_mappings_save"><span class="parent">/__admin/mappings</span>/save</a> <span class="methods"><a href="#admin_mappings_save_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_mappings_save" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Stub mappings</p></div><div class="list-group"><div onclick="window.location.href = '#admin_mappings_save_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Save all persistent stub mappings to the backing store</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_mappings_save_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/mappings</span>/save</h4></div><div class="modal-body"><div class="alert alert-info"><p>Save all persistent stub mappings to the backing store</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_mappings_save_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_mappings_save_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully removed</p></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_scenarios" class="panel-title">/__admin/scenarios</h3></div><div class="panel-body"><div class="top-resource-description"><p>Scenarios support modelling of stateful behaviour</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_scenarios_reset"><span class="parent">/__admin/scenarios</span>/reset</a> <span class="methods"><a href="#admin_scenarios_reset_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_scenarios_reset" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Scenarios</p></div><div class="list-group"><div onclick="window.location.href = '#admin_scenarios_reset_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Reset the state of all scenarios</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_scenarios_reset_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/scenarios</span>/reset</h4></div><div class="modal-body"><div class="alert alert-info"><p>Reset the state of all scenarios</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_scenarios_reset_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_scenarios_reset_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully reset</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_requests" class="panel-title">/__admin/requests</h3></div><div class="panel-body"><div class="top-resource-description"><p>Logged requests and responses received by the mock service</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests"><span class="parent"></span>/__admin/requests</a> <span class="methods"><a href="#admin_requests_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_admin_requests" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_requests_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get received requests</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/__admin/requests</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get received requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_get_request" data-toggle="tab">Request</a></li><li><a href="#admin_requests_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_get_request"><h3>Query Parameters</h3><ul><li><strong>Query limit</strong>: <em>(string)</em><p>The maximum number of results to return</p><p><strong>Example</strong>:</p><pre>10</pre></li><li><strong>Since date</strong>: <em>(string)</em><p>Only return logged requests after this date</p><p><strong>Example</strong>:</p><pre>Wed Oct 05 2016 13:33:01 GMT+0100 (BST)</pre></li></ul></div><div class="tab-pane" id="admin_requests_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "requests" : [ {
+        "id" : "45760a03-eebb-4387-ad0d-bb89b5d3d662",
+        "request" : {
+            "url" : "/received-request/9",
+            "absoluteUrl" : "http://localhost:56715/received-request/9",
+            "method" : "GET",
+            "clientIp" : "127.0.0.1",
+            "headers" : {
+                "Connection" : "keep-alive",
+                "Host" : "localhost:56715",
+                "User-Agent" : "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
+            },
+            "cookies" : { },
+            "browserProxyRequest" : false,
+            "loggedDate" : 1471442494809,
+            "bodyAsBase64" : "",
+            "body" : "",
+            "loggedDateString" : "2016-08-17T14:01:34Z"
+        },
+        "responseDefinition" : {
+            "status" : 404,
+            "transformers" : [ ],
+            "fromConfiguredStub" : false,
+            "transformerParameters" : { }
+        }
+    }, {
+        "id" : "6ae78311-0178-46c9-987a-fbfc528d54d8",
+        "request" : {
+            "url" : "/received-request/8",
+            "absoluteUrl" : "http://localhost:56715/received-request/8",
+            "method" : "GET",
+            "clientIp" : "127.0.0.1",
+            "headers" : {
+                "Connection" : "keep-alive",
+                "Host" : "localhost:56715",
+                "User-Agent" : "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
+            },
+            "cookies" : { },
+            "browserProxyRequest" : false,
+            "loggedDate" : 1471442494802,
+            "bodyAsBase64" : "",
+            "body" : "",
+            "loggedDateString" : "2016-08-17T14:01:34Z"
+        },
+        "responseDefinition" : {
+            "status" : 404,
+            "transformers" : [ ],
+            "fromConfiguredStub" : false,
+            "transformerParameters" : { }
+        }
+    }, {
+        "id" : "aba8e4ad-1b5b-4518-8f05-b2170a24de35",
+        "request" : {
+            "url" : "/received-request/7",
+            "absoluteUrl" : "http://localhost:56715/received-request/7",
+            "method" : "GET",
+            "clientIp" : "127.0.0.1",
+            "headers" : {
+                "Connection" : "keep-alive",
+                "Host" : "localhost:56715",
+                "User-Agent" : "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
+            },
+            "cookies" : { },
+            "browserProxyRequest" : false,
+            "loggedDate" : 1471442494795,
+            "bodyAsBase64" : "",
+            "body" : "",
+            "loggedDateString" : "2016-08-17T14:01:34Z"
+        },
+        "responseDefinition" : {
+            "status" : 404,
+            "transformers" : [ ],
+            "fromConfiguredStub" : false,
+            "transformerParameters" : { }
+        }
+    } ],
+    "meta" : {
+        "total" : 9
+    },
+    "requestJournalDisabled" : false
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests__requestId_"><span class="parent">/__admin/requests</span>/{requestId}</a> <span class="methods"><a href="#admin_requests__requestId__get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_admin_requests__requestId_" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Single logged request</p></div><div class="list-group"><div onclick="window.location.href = '#admin_requests__requestId__get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests__requestId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/__admin/requests</span>/{requestId}</h4></div><div class="modal-body"><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests__requestId__get_request" data-toggle="tab">Request</a></li><li><a href="#admin_requests__requestId__get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests__requestId__get_request"><h3>URI Parameters</h3><ul><li><strong>Request ID</strong>: <em>required (string)</em><p>The UUID of the logged request</p><p><strong>Example</strong>:</p><pre>12fb14bb-600e-4bfa-bd8d-be7f12562c99</pre></li></ul></div><div class="tab-pane" id="admin_requests__requestId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "id" : "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+    "request" : {
+        "url" : "/received-request/2",
+        "absoluteUrl" : "http://localhost:56738/received-request/2",
+        "method" : "GET",
+        "clientIp" : "127.0.0.1",
+        "headers" : {
+            "Connection" : "keep-alive",
+            "Host" : "localhost:56738",
+            "User-Agent" : "Apache-HttpClient/4.5.1 (Java/1.7.0_51)"
+        },
+        "cookies" : { },
+        "browserProxyRequest" : false,
+        "loggedDate" : 1471442557047,
+        "bodyAsBase64" : "",
+        "body" : "",
+        "loggedDateString" : "2016-08-17T14:02:37Z"
+    },
+    "responseDefinition" : {
+        "status" : 404,
+        "transformers" : [ ],
+        "fromConfiguredStub" : false,
+        "transformerParameters" : { }
+    }
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests_reset"><span class="parent">/__admin/requests</span>/reset</a> <span class="methods"><a href="#admin_requests_reset_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_requests_reset" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Request journal</p></div><div class="list-group"><div onclick="window.location.href = '#admin_requests_reset_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Empty the request journal</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_reset_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/requests</span>/reset</h4></div><div class="modal-body"><div class="alert alert-info"><p>Empty the request journal</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_reset_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_reset_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully reset</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests_count"><span class="parent">/__admin/requests</span>/count</a> <span class="methods"><a href="#admin_requests_count_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_requests_count" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Request journal</p></div><div class="list-group"><div onclick="window.location.href = '#admin_requests_count_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Count requests logged in the journal matching the specified criteria</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_count_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/requests</span>/count</h4></div><div class="modal-body"><div class="alert alert-info"><p>Count requests logged in the journal matching the specified criteria</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_count_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_requests_count_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_count_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string"
+    },
+    "urlPattern": {
+      "type": "string"
+    },
+    "urlPath": {
+      "type": "string"
+    },
+    "urlPathPattern": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "headers": {
+      "type": "object"
+    },
+    "queryParameters": {
+      "type": "object"
+    },
+    "cookies": {
+      "type": "object"
+    },
+    "bodyPatterns": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "basicAuthCredentials": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ]
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "method": "POST",
+    "url": "/resource/to/count",
+    "headers": {
+        "Content-Type": {
+            "matches": ".*/xml"
+        }
+    }
+}</code></pre></div><div class="tab-pane" id="admin_requests_count_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Number of matching requests</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{ "count": 4 }</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests_find"><span class="parent">/__admin/requests</span>/find</a> <span class="methods"><a href="#admin_requests_find_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_requests_find" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_requests_find_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Retrieve details of requests logged in the journal matching the specified criteria</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_find_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/requests</span>/find</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve details of requests logged in the journal matching the specified criteria</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_find_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_requests_find_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_find_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string"
+    },
+    "urlPattern": {
+      "type": "string"
+    },
+    "urlPath": {
+      "type": "string"
+    },
+    "urlPathPattern": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "headers": {
+      "type": "object"
+    },
+    "queryParameters": {
+      "type": "object"
+    },
+    "cookies": {
+      "type": "object"
+    },
+    "bodyPatterns": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "basicAuthCredentials": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ]
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "method": "POST",
+    "url": "/resource/to/count",
+    "headers": {
+        "Content-Type": {
+            "matches": ".*/xml"
+        }
+    }
+}</code></pre></div><div class="tab-pane" id="admin_requests_find_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Matching request details</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "requests": [
+        {
+            "url": "/my/url",
+            "absoluteUrl": "http://mydomain.com/my/url",
+            "method": "GET",
+            "headers": {
+                "Accept-Language": "en-us,en;q=0.5",
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0) Gecko/20100101 Firefox/9.0",
+                "Accept": "image/png,image/*;q=0.8,*/*;q=0.5"
+            },
+            "body": "",
+            "browserProxyRequest": true,
+            "loggedDate": 1339083581823,
+            "loggedDateString": "2012-06-07 16:39:41"
+        },
+        {
+            "url": "/my/other/url",
+            "absoluteUrl": "http://my.other.domain.com/my/other/url",
+            "method": "POST",
+            "headers": {
+                "Accept": "text/plain",
+                "Content-Type": "text/plain"
+            },
+            "body": "My text",
+            "browserProxyRequest": false,
+            "loggedDate": 1339083581823,
+            "loggedDateString": "2012-06-07 16:39:41"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests_unmatched"><span class="parent">/__admin/requests</span>/unmatched</a> <span class="methods"><a href="#admin_requests_unmatched_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_admin_requests_unmatched" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_requests_unmatched_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get details of logged requests that weren&#39;t matched by any stub mapping</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_unmatched_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/__admin/requests</span>/unmatched</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get details of logged requests that weren&#39;t matched by any stub mapping</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_unmatched_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_unmatched_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Unmatched request details</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "requests": [
+        {
+            "url": "/my/url",
+            "absoluteUrl": "http://mydomain.com/my/url",
+            "method": "GET",
+            "headers": {
+                "Accept-Language": "en-us,en;q=0.5",
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0) Gecko/20100101 Firefox/9.0",
+                "Accept": "image/png,image/*;q=0.8,*/*;q=0.5"
+            },
+            "body": "",
+            "browserProxyRequest": true,
+            "loggedDate": 1339083581823,
+            "loggedDateString": "2012-06-07 16:39:41"
+        },
+        {
+            "url": "/my/other/url",
+            "absoluteUrl": "http://my.other.domain.com/my/other/url",
+            "method": "POST",
+            "headers": {
+                "Accept": "text/plain",
+                "Content-Type": "text/plain"
+            },
+            "body": "My text",
+            "browserProxyRequest": false,
+            "loggedDate": 1339083581823,
+            "loggedDateString": "2012-06-07 16:39:41"
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_requests_unmatched_near_misses"><span class="parent">/__admin/requests/unmatched</span>/near-misses</a> <span class="methods"><a href="#admin_requests_unmatched_near_misses_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_admin_requests_unmatched_near_misses" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_requests_unmatched_near_misses_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Retrieve near-misses for all unmatched requests</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_requests_unmatched_near_misses_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent">/__admin/requests/unmatched</span>/near-misses</h4></div><div class="modal-body"><div class="alert alert-info"><p>Retrieve near-misses for all unmatched requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_requests_unmatched_near_misses_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_requests_unmatched_near_misses_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Top 3 (at most) near misses for each unmatched request</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "nearMisses": [
+        {
+            "request": {
+                "url": "/nomatch",
+                "absoluteUrl": "http://localhost:8080/nomatch",
+                "method": "GET",
+                "clientIp": "0:0:0:0:0:0:0:1",
+                "headers": {
+                    "User-Agent": "curl/7.30.0",
+                    "Accept": "*/*",
+                    "Host": "localhost:8080"
+                },
+                "cookies": {},
+                "browserProxyRequest": false,
+                "loggedDate": 1467402464520,
+                "bodyAsBase64": "",
+                "body": "",
+                "loggedDateString": "2016-07-01T19:47:44Z"
+            },
+            "requestPattern": {
+                "url": "/almostmatch",
+                "method": "GET"
+            },
+            "matchResult": {
+                "distance": 0.06944444444444445
+            }
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_near_misses" class="panel-title">/__admin/near-misses</h3></div><div class="panel-body"><div class="top-resource-description"><p>Near misses allow querying of received requests or request patterns according to similarity</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_near_misses_request"><span class="parent">/__admin/near-misses</span>/request</a> <span class="methods"><a href="#admin_near_misses_request_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_near_misses_request" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_near_misses_request_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_near_misses_request_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/near-misses</span>/request</h4></div><div class="modal-body"><div class="alert alert-info"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_near_misses_request_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_near_misses_request_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_near_misses_request_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "url": "/actual",
+    "absoluteUrl": "http://localhost:8080/actual",
+    "method": "GET",
+    "clientIp": "0:0:0:0:0:0:0:1",
+    "headers": {
+        "User-Agent": "curl/7.30.0",
+        "Accept": "*/*",
+        "Host": "localhost:8080"
+    },
+    "cookies": {},
+    "browserProxyRequest": false,
+    "loggedDate": 1467402464520,
+    "bodyAsBase64": "",
+    "body": "",
+    "loggedDateString": "2016-07-01T19:47:44Z"
+}</code></pre></div><div class="tab-pane" id="admin_near_misses_request_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Near misses matching criteria</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "nearMisses": [
+        {
+            "request": {
+                "url": "/nomatch",
+                "absoluteUrl": "http://localhost:8080/nomatch",
+                "method": "GET",
+                "clientIp": "0:0:0:0:0:0:0:1",
+                "headers": {
+                    "User-Agent": "curl/7.30.0",
+                    "Accept": "*/*",
+                    "Host": "localhost:8080"
+                },
+                "cookies": {},
+                "browserProxyRequest": false,
+                "loggedDate": 1467402464520,
+                "bodyAsBase64": "",
+                "body": "",
+                "loggedDateString": "2016-07-01T19:47:44Z"
+            },
+            "requestPattern": {
+                "url": "/almostmatch",
+                "method": "GET"
+            },
+            "matchResult": {
+                "distance": 0.06944444444444445
+            }
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_near_misses_request_pattern"><span class="parent">/__admin/near-misses</span>/request-pattern</a> <span class="methods"><a href="#admin_near_misses_request_pattern_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_near_misses_request_pattern" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Near misses</p></div><div class="list-group"><div onclick="window.location.href = '#admin_near_misses_request_pattern_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Find at most 3 near misses for closest logged requests to the specified request pattern</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_near_misses_request_pattern_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/near-misses</span>/request-pattern</h4></div><div class="modal-body"><div class="alert alert-info"><p>Find at most 3 near misses for closest logged requests to the specified request pattern</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_near_misses_request_pattern_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_near_misses_request_pattern_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_near_misses_request_pattern_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string"
+    },
+    "urlPattern": {
+      "type": "string"
+    },
+    "urlPath": {
+      "type": "string"
+    },
+    "urlPathPattern": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "headers": {
+      "type": "object"
+    },
+    "queryParameters": {
+      "type": "object"
+    },
+    "cookies": {
+      "type": "object"
+    },
+    "bodyPatterns": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "basicAuthCredentials": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "username",
+        "password"
+      ]
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "method": "POST",
+    "url": "/resource/to/count",
+    "headers": {
+        "Content-Type": {
+            "matches": ".*/xml"
+        }
+    }
+}</code></pre></div><div class="tab-pane" id="admin_near_misses_request_pattern_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Near misses matching criteria</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "nearMisses": [
+        {
+            "request": {
+                "url": "/nomatch",
+                "absoluteUrl": "http://localhost:8080/nomatch",
+                "method": "GET",
+                "clientIp": "0:0:0:0:0:0:0:1",
+                "headers": {
+                    "User-Agent": "curl/7.30.0",
+                    "Accept": "*/*",
+                    "Host": "localhost:8080"
+                },
+                "cookies": {},
+                "browserProxyRequest": false,
+                "loggedDate": 1467402464520,
+                "bodyAsBase64": "",
+                "body": "",
+                "loggedDateString": "2016-07-01T19:47:44Z"
+            },
+            "requestPattern": {
+                "url": "/almostmatch",
+                "method": "GET"
+            },
+            "matchResult": {
+                "distance": 0.06944444444444445
+            }
+        }
+    ]
+}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_settings" class="panel-title">/__admin/settings</h3></div><div class="panel-body"><div class="top-resource-description"><p>Global settings</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_settings"><span class="parent"></span>/__admin/settings</a> <span class="methods"><a href="#admin_settings_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_settings" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_settings_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Update global settings</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_settings_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent"></span>/__admin/settings</h4></div><div class="modal-body"><div class="alert alert-info"><p>Update global settings</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_settings_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_settings_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_settings_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+    "fixedDelay": 500
+}
+</code></pre></div><div class="tab-pane" id="admin_settings_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Settings successfully updated</p></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#admin_mappings">/__admin/mappings</a></li><li><a href="#admin_scenarios">/__admin/scenarios</a></li><li><a href="#admin_requests">/__admin/requests</a></li><li><a href="#admin_near_misses">/__admin/near-misses</a></li><li><a href="#admin_settings">/__admin/settings</a></li></ul></div></div></div></div></body></html>

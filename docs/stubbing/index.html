@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-10-19T17:24:00+01:00">
+  <meta property="article:published_time" content="2016-11-03T17:16:22+00:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -279,6 +279,12 @@
         Android
       </a>
       
+      <li>
+        <a href="/docs/api/">
+
+        Admin API Reference
+      </a>
+      
     </ul>
   </nav>
 </div>
@@ -287,7 +293,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stubbing">
     <meta itemprop="description" content="A core feature of WireMock is the ability to return canned HTTPresponses for requests matching criteria. These are described in detail in Request Matching.">
-    <meta itemprop="datePublished" content="October 19, 2016">
+    <meta itemprop="datePublished" content="November 03, 2016">
     
 
     <div class="page__inner-wrap">
@@ -557,6 +563,41 @@ JSON documents):</p>
 </span></code></pre>
 </div>
 
+<h2 id="default-response-for-unmapped-requests">Default response for unmapped requests</h2>
+
+<p>When a request cannot be mapped to a response, Wiremock returns an HTML response with a 404 status code.</p>
+
+<p>It is possible to customize the response by catching all URLs with a low priority.</p>
+
+<p>In Java</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">any</span><span class="o">(</span><span class="n">anyUrl</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">404</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{\"status\":\"Error\",\"message\":\"Endpoint not found\"}"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>In JSON</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"priority"</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">".*"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"Error"</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"Endpoint not found"</span><span class="p">},</span><span class="w">
+    </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
 <h2 id="saving-stubs">Saving stubs</h2>
 
 <p>Stub mappings which have been created can be persisted to the <code class="highlighter-rouge">mappings</code>
@@ -612,7 +653,7 @@ Note that this feature is not available when running WireMock from a servlet con
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">StubMapping</span> <span class="n">stubMapping</span> <span class="o">=</span> <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/delete-me"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
 
-<span class="c1">// Do things with the stub </span>
+<span class="c1">// Do things with the stub</span>
 
 <span class="n">removeStub</span><span class="o">(</span><span class="n">stubMapping</span><span class="o">);</span>
 </code></pre>
