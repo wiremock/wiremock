@@ -406,10 +406,10 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void redirectsToSwaggerUiHtml() {
+    public void servesDocIndex() {
         WireMockResponse response = testClient.get("/__admin/docs");
-        assertThat(response.statusCode(), is(301));
-        assertThat(response.firstHeader("Location"), is("/__admin/swagger-ui/"));
+        assertThat(response.statusCode(), is(200));
+        assertThat(response.content(), containsString("<html"));
     }
 
 }

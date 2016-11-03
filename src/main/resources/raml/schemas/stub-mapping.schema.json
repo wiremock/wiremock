@@ -1,0 +1,49 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "priority": {
+            "type": "integer"
+        },
+        "persistent": {
+            "type": "boolean"
+        },
+        "scenarioName": {
+            "type": "string"
+        },
+        "requiredScenarioState": {
+            "type": "string"
+        },
+        "newScenarioState": {
+            "type": "string"
+        },
+        "postServeActions": {
+            "type": "object"
+        },
+
+        "request": {
+            "$ref": "request-pattern.schema.json"
+        },
+
+        "response": {
+            "$ref": "response-definition.schema.json"
+        }
+    },
+    "example": {
+        "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+        "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+        "request": {
+            "method": "GET",
+            "url": "/some/thing"
+        },
+        "response": {
+            "status": 200,
+            "body": "Hello world!",
+            "headers": {
+                "Content-Type": "text/plain"
+            }
+        }
+    }
+}
