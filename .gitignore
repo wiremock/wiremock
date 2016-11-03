@@ -24,7 +24,6 @@ Thumbs.db
 # Maven/Eclipse #
 #################
 build
-bin
 .project
 .classpath
 .settings
