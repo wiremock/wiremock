@@ -1,0 +1,50 @@
+{
+    "type": "object",
+    "properties": {
+        "url": {
+            "type": "string"
+        },
+        "urlPattern": {
+            "type": "string"
+        },
+        "urlPath": {
+            "type": "string"
+        },
+        "urlPathPattern": {
+            "type": "string"
+        },
+        "method": {
+            "type": "string"
+        },
+        "headers": {
+            "type": "object"
+        },
+        "queryParameters": {
+            "type": "object"
+        },
+        "cookies": {
+            "type": "object"
+        },
+        "bodyPatterns": {
+            "type": "array",
+            "items": {
+                "type": "object"
+            }
+        },
+        "basicAuthCredentials": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "username",
+                "password"
+            ]
+        }
+    }
+}

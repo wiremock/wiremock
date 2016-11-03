@@ -1,0 +1,69 @@
+{
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "integer"
+        },
+        "statusMessage": {
+            "type": "string"
+        },
+        "body": {
+            "type": "string"
+        },
+        "headers": {
+            "type": "object"
+        },
+        "jsonBody": {
+            "type": "object"
+        },
+        "bodyFileName": {
+            "type": "string"
+        },
+        "base64Body": {
+            "type": "string"
+        },
+        "additionalProxyRequestHeaders": {
+            "type": "object"
+        },
+        "fixedDelayMilliseconds": {
+            "type": "integer"
+        },
+        "delayDistribution": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "median": {
+                    "type": "integer"
+                },
+                "sigma": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "type",
+                "median",
+                "sigma"
+            ]
+        },
+        "fault": {
+            "type": "string"
+        },
+        "proxyBaseUrl": {
+            "type": "string"
+        },
+        "transformers": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "transformerParameters": {
+            "type": "object"
+        },
+        "fromConfiguredStub": {
+            "type": "boolean"
+        }
+    }
+}

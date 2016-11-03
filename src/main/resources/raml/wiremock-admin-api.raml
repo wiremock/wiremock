@@ -5,9 +5,15 @@ version: 2.3.1
 mediaType: application/json
 
 documentation:
-  - title: WireMock
+  - title: WireMock admin
     content: |
        The WireMock admin API.
+
+
+schemas:
+  - stubMapping: !include schemas/stub-mapping.schema.json
+  - stubMappings: !include schemas/stub-mappings.schema.json
+  - requestPattern: !include schemas/request-pattern.schema.json
 
 /__admin/mappings:
   description: Stub mappings
@@ -34,14 +40,15 @@ documentation:
         description: All stub mappings
         body:
           application/json:
-            example: !include stub-mappings.example.json
+            schema: stubMappings
+            example: !include examples/stub-mappings.example.json
 
   post:
     description: Create a new stub mapping
     body:
       application/json:
-        example: !include stub-mapping-no-id.example.json
-        schema: !include stub-mapping.schema.json
+        example: !include examples/stub-mapping-no-id.example.json
+        schema: stubMapping
 
 
     responses:
@@ -49,8 +56,8 @@ documentation:
         description: Successfully created
         body:
           application/json:
-            example: !include stub-mapping-with-id.example.json
-            schema: !include stub-mapping.schema.json
+            example: !include examples/stub-mapping-with-id.example.json
+            schema: stubMapping
 
   delete:
     description: Delete all stub mappings
@@ -59,7 +66,7 @@ documentation:
         description: Successfully deleted
         body:
           application/json:
-            example: !include empty.example.json
+            example: !include examples/empty.example.json
 
   /reset:
       description: Stub mappings
@@ -78,8 +85,8 @@ documentation:
         200:
           body:
             application/json:
-              example: !include stub-mapping-with-id.example.json
-              schema: !include stub-mapping.schema.json
+              example: !include examples/stub-mapping-with-id.example.json
+              schema: stubMapping
 
 
     uriParameters:
@@ -93,15 +100,15 @@ documentation:
       description: Update an existing stub mapping
       body:
         application/json:
-          example: !include stub-mapping-no-id.example.json
-          schema: !include stub-mapping.schema.json
+          example: !include examples/stub-mapping-no-id.example.json
+          schema: stubMapping
 
       responses:
         200:
           body:
             application/json:
-              schema: !include stub-mapping.schema.json
-              example: !include stub-mapping-with-id.example.json
+              schema: stubMapping
+              example: !include examples/stub-mapping-with-id.example.json
 
     delete:
       description: Delete a stub mapping
@@ -109,7 +116,7 @@ documentation:
         200:
           body:
             application/json:
-              example: !include empty.example.json
+              example: !include examples/empty.example.json
 
   /save:
     description: Stub mappings
@@ -132,7 +139,7 @@ documentation:
           description: Successfully reset
           body:
             application/json:
-              example: !include empty.example.json
+              example: !include examples/empty.example.json
 
 
 /__admin/requests:
@@ -154,7 +161,7 @@ documentation:
       200:
         body:
           application/json:
-            example: !include serve-events.example.json
+            example: !include examples/serve-events.example.json
 
 
   /{requestId}:
@@ -164,7 +171,7 @@ documentation:
         200:
           body:
             application/json:
-              example: !include request.example.json
+              example: !include examples/request.example.json
 
                 
     uriParameters:
@@ -183,7 +190,7 @@ documentation:
           description: Successfully reset
           body:
             application/json:
-              example: !include empty.example.json
+              example: !include examples/empty.example.json
 
 
   /count:
@@ -192,28 +199,30 @@ documentation:
       description: Count requests logged in the journal matching the specified criteria
       body:
         application/json:
-          example: !include request-pattern.example.json
+          schema: requestPattern
+          example: !include examples/request-pattern.example.json
 
       responses:
         200:
           description: Number of matching requests
           body:
             application/json:
-              example: !include request-count.example.json
+              example: !include examples/request-count.example.json
 
   /find:
     post:
       description: Retrieve details of requests logged in the journal matching the specified criteria
       body:
         application/json:
-          example: !include request-pattern.example.json
+          schema: requestPattern
+          example: !include examples/request-pattern.example.json
 
       responses:
         200:
           description: Matching request details
           body:
             application/json:
-              example: !include requests.example.json
+              example: !include examples/requests.example.json
 
 
   /unmatched:
@@ -224,7 +233,7 @@ documentation:
           description: Unmatched request details
           body:
             application/json:
-              example: !include requests.example.json
+              example: !include examples/requests.example.json
 
 
     /near-misses:
@@ -235,7 +244,7 @@ documentation:
             description: Top 3 (at most) near misses for each unmatched request
             body:
               application/json:
-                example: !include near-misses.example.json
+                example: !include examples/near-misses.example.json
 
 
 /__admin/near-misses:
@@ -246,14 +255,14 @@ documentation:
       description: Find at most 3 near misses for closest stub mappings to the specified request
       body:
         application/json:
-          example: !include logged-request.example.json
+          example: !include examples/logged-request.example.json
 
       responses:
         200:
           description: Near misses matching criteria
           body:
             application/json:
-              example: !include near-misses.example.json
+              example: !include examples/near-misses.example.json
 
   /request-pattern:
     description: Near misses
@@ -261,14 +270,15 @@ documentation:
       description: Find at most 3 near misses for closest logged requests to the specified request pattern
       body:
         application/json:
-          example: !include request-pattern.example.json
+          schema: requestPattern
+          example: !include examples/request-pattern.example.json
 
       responses:
         200:
           description: Near misses matching criteria
           body:
             application/json:
-              example: !include near-misses.example.json
+              example: !include examples/near-misses.example.json
 
 /__admin/settings:
   description: Global settings
