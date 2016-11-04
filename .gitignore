@@ -50,3 +50,4 @@ copy-admin.sh
 tmp*
 
 src/main/resources/swagger
+docs-v2/_docs/wiremock-admin-api.html
