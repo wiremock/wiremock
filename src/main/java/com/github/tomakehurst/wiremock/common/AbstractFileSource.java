@@ -102,6 +102,11 @@ public abstract class AbstractFileSource implements FileSource {
     }
 
     @Override
+    public void deleteFile(String name) {
+        writableFileFor(name).delete();
+    }
+
+    @Override
     public boolean exists() {
         return rootDirectory.exists();
     }

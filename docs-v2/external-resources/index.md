@@ -53,6 +53,9 @@ Phill Barber has written a couple of interesting posts about practical testing s
 [http://phillbarber.blogspot.co.uk/2015/05/how-to-write-end-to-end-tests-for-nginx.html](http://phillbarber.blogspot.co.uk/2015/05/how-to-write-end-to-end-tests-for-nginx.html)<br>
 [http://phillbarber.blogspot.co.uk/2015/02/how-to-test-for-connection-leaks.html](http://phillbarber.blogspot.co.uk/2015/02/how-to-test-for-connection-leaks.html)
 
+Bas Dijkstra kindly open sourced the content for the workshop he ran on WireMock and REST Assured:<br>
+[http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/](http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/)
+
 ## Videos
 
 Chris Batey did an excellent talk at Skillsmatter in London about building fault tolerant microservices. He showed some practical

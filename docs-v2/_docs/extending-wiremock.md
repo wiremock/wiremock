@@ -210,9 +210,10 @@ to matchers.
 To add a matcher directly to a stub mapping:
 
 ```java
-wireMockServer.stubFor(requestMatching(new RequestMatcher() {
-    public boolean isMatchedBy(Request request, Parameters parameters) {
-        return request.getBody().length > 2048;
+wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+        return MatchResult.of(request.getBody().length > 2048);
     }
 }).willReturn(aResponse().withStatus(422)));
 ```
@@ -221,7 +222,7 @@ In Java 8 and above this can be achieved using a lambda:
 
 ```java
 wireMockServer.stubFor(requestMatching(request ->
-    request.getBody().length > 2048;
+    MatchResult.of(request.getBody().length > 2048);
 ).willReturn(aResponse().withStatus(422)));
 ```
 
@@ -230,19 +231,19 @@ To create a matcher to be referred to by name, create a class extending
 at the top of this page e.g.
 
 ```java
-public static class BodyLengthMatcher extends RequestMatcher {
+public class BodyLengthMatcher extends RequestMatcherExtension {
 
-        @Override
-        public String name() {
-            return "body-too-long";
-        }
-
-        @Override
-        public boolean isMatchedBy(Request request, Parameters parameters) {
-            int maxLength = parameters.getInt("maxLength");
-            return request.getBody().length > maxLength;
-        }
+    @Override
+    public String name() {
+        return "body-too-long";
     }
+
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+        int maxLength = parameters.getInt("maxLength");
+        return MatchResult.of(request.getBody().length > maxLength);
+    }
+}
 ```
 
 Then define a stub with it:

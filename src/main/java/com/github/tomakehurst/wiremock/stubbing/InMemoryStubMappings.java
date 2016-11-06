@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -126,7 +124,7 @@ public class InMemoryStubMappings implements StubMappings {
 
 		updateSenarioMapIfPresent(stubMapping);
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-		stubMapping.setTransient(true);
+		stubMapping.setDirty(true);
 
 		mappings.replace(existingMapping, stubMapping);
 	}

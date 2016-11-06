@@ -15,17 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
@@ -353,5 +350,25 @@ public class DiffTest {
                 "/thing\n\n"
             )
         ));
+    }
+
+    @Test
+    public void showsAGenericMessageWhenTheRequestMatcherIsCustom() {
+        Diff diff = new Diff(
+            RequestPatternBuilder.forCustomMatcher(new RequestMatcher() {
+                @Override
+                public MatchResult match(Request request) {
+                    return MatchResult.of(request.containsHeader("My-Header"));
+                }
+
+                @Override
+                public String getName() {
+                    return "custom-matcher";
+                }
+            }).build(),
+            mockRequest().url("/thing")
+        );
+
+        assertThat(diff.toString(), is("(Request pattern had a custom matcher so no diff can be shown)"));
     }
 }

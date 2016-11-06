@@ -17,7 +17,10 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
-import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
@@ -28,23 +31,12 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.standalone.MappingsSource;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.InMemoryRequestJournal;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.NearMiss;
-import com.github.tomakehurst.wiremock.verification.NearMissCalculator;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
-import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -188,15 +180,25 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void addStubMapping(StubMapping stubMapping) {
         stubMappings.addMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.save(stubMapping);
+        }
     }
+
     @Override
     public void removeStubMapping(StubMapping stubMapping) {
         stubMappings.removeMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.remove(stubMapping);
+        }
     }
 
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         stubMappings.editMapping(stubMapping);
+        if (stubMapping.shouldBePersisted()) {
+            mappingsSaver.save(stubMapping);
+        }
     }
 
     @Override
@@ -211,7 +213,7 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
-        mappingsSaver.saveMappings(stubMappings);
+        mappingsSaver.save(stubMappings.getAll());
     }
 
     @Override

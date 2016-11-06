@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +52,10 @@ public class Diff {
 
     @Override
     public String toString() {
+        if (requestPattern.hasCustomMatcher()) {
+            return "(Request pattern had a custom matcher so no diff can be shown)";
+        }
+
         ImmutableList.Builder<Section<?>> builder = ImmutableList.builder();
 
         Section<RequestMethod> methodSection = new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
@@ -143,11 +147,11 @@ public class Diff {
     final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "");
 
     private class Section<V> {
-        private final ValueMatcher<V> pattern;
+        private final NamedValueMatcher<V> pattern;
         private final V value;
         private final String printedPatternValue;
 
-        public Section(ValueMatcher<V> pattern, V value, String printedPatternValue) {
+        public Section(NamedValueMatcher<V> pattern, V value, String printedPatternValue) {
             this.pattern = pattern;
             this.value = value;
             this.printedPatternValue = printedPatternValue;
