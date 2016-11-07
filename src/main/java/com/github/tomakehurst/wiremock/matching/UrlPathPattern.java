@@ -29,7 +29,7 @@ public class UrlPathPattern extends UrlPattern {
             return MatchResult.noMatch();
         }
 
-        String path = URI.create(url).getPath();
+        String path = URI.create(url).getRawPath();
         return super.match(path);
     }
 
