@@ -23,4 +23,5 @@ public interface MappingsSaver {
     void save(List<StubMapping> stubMappings);
     void save(StubMapping stubMapping);
     void remove(StubMapping stubMapping);
+    void removeAll();
 }

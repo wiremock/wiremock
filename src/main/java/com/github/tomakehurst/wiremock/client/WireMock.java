@@ -184,6 +184,14 @@ public class WireMock {
         defaultInstance.get().saveMappings();
     }
 
+    public void deleteMappings() {
+        admin.resetMappings();
+    }
+
+    public static void deleteAllMappings() {
+        defaultInstance.get().deleteMappings();
+    }
+
 	public void resetMappings() {
 		admin.resetAll();
 	}

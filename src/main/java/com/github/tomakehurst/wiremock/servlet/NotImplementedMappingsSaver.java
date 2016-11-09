@@ -35,4 +35,9 @@ public class NotImplementedMappingsSaver implements MappingsSaver {
     public void remove(StubMapping stubMapping) {
         throw new UnsupportedOperationException("Remove mapping is not supported");
     }
+
+    @Override
+    public void removeAll() {
+        throw new UnsupportedOperationException("Remove all mappings is not supported");
+    }
 }
