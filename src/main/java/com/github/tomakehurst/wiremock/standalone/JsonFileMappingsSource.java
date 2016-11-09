@@ -15,12 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.TextFile;
-import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.google.common.base.Predicate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,21 +71,13 @@ public class JsonFileMappingsSource implements MappingsSource {
 		if (!mappingsFileSource.exists()) {
 			return;
 		}
-		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), AbstractFileSource.byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
             mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
 			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
 		}
-	}
-	
-	private Predicate<TextFile> byFileExtension(final String extension) {
-		return new Predicate<TextFile>() {
-			public boolean apply(TextFile input) {
-				return input.name().endsWith("." + extension);
-			}
-		};
 	}
 
 	private String getFileName(TextFile mappingFile) {
