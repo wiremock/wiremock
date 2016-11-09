@@ -1,0 +1,13 @@
+{
+    "id": "59179b2b-ce01-49cf-8381-280dcd559484",
+    "request": {
+        "url": "/binary-file-from-header"
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "image/jpg"
+        },
+        "bodyFileName": "body.unknown"
+    }
+}
