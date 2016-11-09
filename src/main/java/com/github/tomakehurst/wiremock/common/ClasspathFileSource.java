@@ -89,13 +89,25 @@ public class ClasspathFileSource implements FileSource {
             return new BinaryFile(new File(rootDirectory, name).toURI());
         }
 
+        return new BinaryFile(getZipEntryUri(name));
+    }
+
+    @Override
+    public TextFile getTextFileNamed(String name) {
+        if (isFileSystem()) {
+            return new TextFile(new File(rootDirectory, name).toURI());
+        }
+
+        return new TextFile(getZipEntryUri(name));
+    }
+
+    private URI getZipEntryUri(final String name) {
         ZipEntry zipEntry = find(forEnumeration(zipFile.entries()), new Predicate<ZipEntry>() {
             public boolean apply(ZipEntry input) {
                 return input.getName().equals(path + "/" + name);
             }
         });
-
-        return new BinaryFile(getUriFor(zipEntry));
+        return getUriFor(zipEntry);
     }
 
     @Override

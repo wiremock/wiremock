@@ -168,6 +168,11 @@ More content
 
 See stubbing and verifying for more on the JSON API.
 
+
+## Pushing JSON files to a remote WireMock instance
+You can push a collection of mappings to a remote  
+
+
 ## File serving
 
 When running standalone files placed under the `__files` directory will

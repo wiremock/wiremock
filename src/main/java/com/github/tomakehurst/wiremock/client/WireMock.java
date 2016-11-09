@@ -17,7 +17,10 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -25,15 +28,18 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 
 
@@ -545,4 +551,12 @@ public class WireMock {
         return nearMissesResult.getNearMisses();
     }
 
+    public void loadMappingsFrom(String rootDir) {
+        loadMappingsFrom(new File(rootDir));
+    }
+
+	public void loadMappingsFrom(File rootDir) {
+		FileSource mappingsSource = new SingleRootFileSource(rootDir);
+		new RemoteMappingsLoader(mappingsSource, this).load();
+	}
 }
