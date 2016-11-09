@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
@@ -69,7 +70,15 @@ public class JsonFileMappingsSource implements MappingsSource {
         fileNameMap.remove(stubMapping.getId());
     }
 
-    @Override
+	@Override
+	public void removeAll() {
+		for (String filename: fileNameMap.values()) {
+			mappingsFileSource.deleteFile(filename);
+		}
+		fileNameMap.clear();
+	}
+
+	@Override
 	public void loadMappingsInto(StubMappings stubMappings) {
 		if (!mappingsFileSource.exists()) {
 			return;

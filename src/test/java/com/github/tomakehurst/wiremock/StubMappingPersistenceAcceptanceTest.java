@@ -156,6 +156,19 @@ public class StubMappingPersistenceAcceptanceTest {
         assertMappingsDirContainsOneFile();
     }
 
+    @Test
+    public void deletesAllPersistentStubMappingsOnReset() {
+        stubFor(get(urlEqualTo("/to-delete/1")).persistent());
+        stubFor(get(urlEqualTo("/to-delete/2")).persistent());
+        stubFor(get(urlEqualTo("/to-delete/3")).persistent());
+
+        assertMappingsDirSize(3);
+
+        deleteAllMappings();
+
+        assertMappingsDirIsEmpty();
+    }
+
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {
         byte[] json = Json.write(stubBuilder.build()).getBytes(UTF_8);
         Files.write(mappingsDir.resolve(name), json);

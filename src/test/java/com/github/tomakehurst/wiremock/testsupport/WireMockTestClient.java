@@ -84,12 +84,6 @@ public class WireMockTestClient {
     private String editMappingUrl() {
         return String.format(LOCAL_WIREMOCK_EDIT_RESPONSE_URL, address, port);
     }
-    private String removeMappingUrl() {
-        return String.format(LOCAL_WIREMOCK_REMOVE_RESPONSE_URL, address, port);
-    }
-    private String resetUrl() {
-        return String.format(LOCAL_WIREMOCK_RESET_URL, address, port);
-    }
 
     private String resetDefaultMappingsUrl() {
         return String.format(LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL, address, port);
@@ -201,13 +195,6 @@ public class WireMockTestClient {
     public void editMapping(String mappingSpecJson) {
         int status = postJsonAndReturnStatus(editMappingUrl(), mappingSpecJson);
         if (status != HTTP_NO_CONTENT) {
-            throw new RuntimeException("Returned status code was " + status);
-        }
-    }
-
-    public void resetMappings() {
-        int status = postEmptyBodyAndReturnStatus(resetUrl());
-        if (status != HTTP_OK) {
             throw new RuntimeException("Returned status code was " + status);
         }
     }
