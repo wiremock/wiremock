@@ -164,7 +164,7 @@ public class StubMappingPersistenceAcceptanceTest {
 
         assertMappingsDirSize(3);
 
-        deleteAllMappings();
+        removeAllMappings();
 
         assertMappingsDirIsEmpty();
     }
