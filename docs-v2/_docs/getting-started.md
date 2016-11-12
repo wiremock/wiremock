@@ -82,7 +82,7 @@ public void exampleTest() {
 
     Result result = myHttpServiceCallingObject.doSomething();
 
-    assertTrue(result.wasSuccessFul());
+    assertTrue(result.wasSuccessful());
 
     verify(postRequestedFor(urlMatching("/my/resource/[a-z0-9]+"))
             .withRequestBody(matching(".*<message>1234</message>.*"))
