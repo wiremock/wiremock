@@ -46,6 +46,11 @@ public abstract class AbstractFileSource implements FileSource {
     }
 
     @Override
+    public TextFile getTextFileNamed(String name) {
+        return new TextFile(new File(rootDirectory, name).toURI());
+    }
+
+    @Override
     public void createIfNecessary() {
         assertWritable();
         if (rootDirectory.exists() && rootDirectory.isFile()) {

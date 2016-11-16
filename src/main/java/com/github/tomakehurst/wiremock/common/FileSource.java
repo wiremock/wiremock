@@ -22,6 +22,7 @@ import java.util.List;
 public interface FileSource {
 
     BinaryFile getBinaryFileNamed(String name);
+    TextFile getTextFileNamed(String name);
 	void createIfNecessary();
 	FileSource child(String subDirectoryName);
 	String getPath();
