@@ -231,7 +231,7 @@ public class ResponseDefinitionBuilder {
 
 	protected ResponseDefinition build(HttpHeaders additionalProxyRequestHeaders) {
 		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
-		Parameters transformerParameters = this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
+		Parameters transformerParameters = this.transformerParameters == null || this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
 		return isBinaryBody() ?
 				new ResponseDefinition(
 						status,
