@@ -55,6 +55,7 @@ public class ResponseDefinitionBuilder {
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
 		builder.status = responseDefinition.getStatus();
+		builder.statusMessage = responseDefinition.getStatusMessage();
 		builder.headers = responseDefinition.getHeaders() != null ?
 				newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
@@ -67,6 +68,7 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
+		builder.transformerParameters = responseDefinition.getTransformerParameters();
 		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
