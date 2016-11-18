@@ -142,6 +142,10 @@ public class WireMock {
         return new EqualToPattern(value);
     }
 
+	public static StringValuePattern equalToIgnoreCase(String value) {
+		return new EqualToPattern(value, true);
+	}
+
     public static StringValuePattern equalToJson(String value) {
         return new EqualToJsonPattern(value, null, null);
     }
