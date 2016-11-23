@@ -20,14 +20,17 @@ import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.google.common.collect.Iterables.any;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 public class ContentTypes {
 
@@ -85,8 +88,9 @@ public class ContentTypes {
         }
 
         String path = URI.create(url).getPath();
-        if (path.indexOf('.') != -1) {
-            return path.substring(path.lastIndexOf('.') + 1, path.length());
+        String lastPathSegment = substringAfterLast(path, "/");
+        if (lastPathSegment.indexOf('.') != -1) {
+            return substringAfterLast(lastPathSegment, ".");
         }
 
         return determineTextFileExtension(stringFromBytes(responseBody));
