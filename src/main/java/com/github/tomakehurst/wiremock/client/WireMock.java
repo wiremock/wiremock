@@ -32,6 +32,8 @@ import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 import java.io.File;
 import java.util.Collections;
@@ -40,7 +42,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static com.google.common.collect.FluentIterable.from;
 
 
 public class WireMock {
@@ -369,11 +373,18 @@ public class WireMock {
 	}
 
 	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		VerificationResult result = admin.countRequestsMatching(requestPattern);
-		result.assertRequestJournalEnabled();
+		final RequestPattern requestPattern = requestPatternBuilder.build();
 
-        int actualCount = result.getCount();
+		int actualCount;
+		if (requestPattern.hasCustomMatcher()) {
+            List<LoggedRequest> requests = admin.findRequestsMatching(RequestPattern.everything()).getRequests();
+            actualCount = from(requests).filter(thatMatch(requestPattern)).size();
+        } else {
+            VerificationResult result = admin.countRequestsMatching(requestPattern);
+            result.assertRequestJournalEnabled();
+            actualCount = result.getCount();
+        }
+
         if (!expectedCount.match(actualCount)) {
             throw actualCount == 0 ?
                 verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
