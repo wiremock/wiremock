@@ -1,8 +1,12 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class ContentTypesTest {
@@ -50,4 +54,25 @@ public class ContentTypesTest {
         assertFalse(ContentTypes.determineIsText("png", null));
         assertFalse(ContentTypes.determineIsText(null, "image/jpeg"));
     }
+
+    @Test
+    public void correctlyDeterminesFileExtensionWhenDotsInPath() {
+        String fileExtension = ContentTypes.determineFileExtension(
+            "http://some.host/path.with.dots/and/several/segments",
+            ContentTypeHeader.absent(),
+            new byte[]{});
+
+        assertThat(fileExtension, is("txt"));
+    }
+
+    @Test
+    public void correctlyDeterminesFileExtensionFromUrl() {
+        String fileExtension = ContentTypes.determineFileExtension(
+            "http://some.host/path.with.dots/image.png",
+            ContentTypeHeader.absent(),
+            new byte[]{});
+
+        assertThat(fileExtension, is("png"));
+    }
+
 }
