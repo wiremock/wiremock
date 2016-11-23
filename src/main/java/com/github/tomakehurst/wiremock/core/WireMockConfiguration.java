@@ -219,8 +219,17 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    @Deprecated
+    /**
+     * @deprecated use {@link #maxRequestJournalEntries(int)} instead
+     */
     public WireMockConfiguration maxRequestJournalEntries(Optional<Integer> maxRequestJournalEntries) {
         this.maxRequestJournalEntries = maxRequestJournalEntries;
+        return this;
+    }
+
+    public WireMockConfiguration maxRequestJournalEntries(int maxRequestJournalEntries) {
+        this.maxRequestJournalEntries = Optional.of(maxRequestJournalEntries);
         return this;
     }
 
