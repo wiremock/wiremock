@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.SilentErrorHandler;
 import com.google.common.collect.ImmutableMap;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -27,7 +28,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.Map;
 
@@ -72,7 +75,9 @@ public class MatchesXPathPattern extends StringValuePattern {
         }
 
         try {
-            Document inDocument = XMLUnit.buildControlDocument(value);
+            DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+            documentBuilder.setErrorHandler(new SilentErrorHandler());
+            Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
             XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
             if (xpathNamespaces != null) {
                 NamespaceContext namespaceContext = new SimpleNamespaceContext(xpathNamespaces);
