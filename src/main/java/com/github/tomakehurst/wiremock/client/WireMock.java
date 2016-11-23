@@ -361,32 +361,11 @@ public class WireMock {
 	}
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-		if (result.getCount() < 1) {
-            List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
-            if (nearMisses.size() > 0) {
-                Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
-                throw VerificationException.forUnmatchedRequestPattern(diff);
-            }
-
-            throw new VerificationException(requestPattern, find(allRequests()));
-		}
+		verifyThat(moreThanOrExactly(1), requestPatternBuilder);
 	}
 
 	public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-        int actualCount = result.getCount();
-        if (actualCount != expectedCount) {
-            throw actualCount == 0 ?
-                verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
-                new VerificationException(requestPattern, expectedCount, actualCount);
-		}
+		verifyThat(exactly(expectedCount), requestPatternBuilder);
 	}
 
 	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
