@@ -434,7 +434,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
-                        "Expected exactly 3 requests matching the following pattern but received only 2:\n" +
+                        "Expected exactly 3 requests matching the following pattern but received 2:\n" +
                         "{" + lineSeparator() +
                         "  \"url\" : \"/hit\"," + lineSeparator() +
                         "  \"method\" : \"GET\"" + lineSeparator() +
