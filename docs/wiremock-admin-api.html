@@ -175,60 +175,78 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "This stub mapping&#39;s unique identifier",
           "type": "string"
         },
         "priority": {
-          "type": "integer"
+          "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+          "type": "integer",
+          "minimum": 1
         },
         "persistent": {
+          "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
           "type": "boolean"
         },
         "scenarioName": {
+          "descrption": "The name of the scenario that this stub mapping is part of",
           "type": "string"
         },
         "requiredScenarioState": {
+          "descrption": "The required state of the scenario in order for this stub to be matched.",
           "type": "string"
         },
         "newScenarioState": {
+          "descrption": "The new state for the scenario to be updated to after this stub is served.",
           "type": "string"
         },
         "postServeActions": {
+          "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
           "type": "object"
         },
         "request": {
           "type": "object",
           "properties": {
             "url": {
+              "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
               "type": "string"
             },
             "urlPattern": {
+              "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
               "type": "string"
             },
             "urlPath": {
+              "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
               "type": "string"
             },
             "urlPathPattern": {
+              "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
               "type": "string"
             },
             "method": {
+              "description": "The HTTP request method e.g. GET",
               "type": "string"
             },
             "headers": {
+              "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
               "type": "object"
             },
             "queryParameters": {
+              "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
               "type": "object"
             },
             "cookies": {
+              "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
               "type": "object"
             },
             "bodyPatterns": {
+              "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
               "type": "array",
               "items": {
                 "type": "object"
               }
             },
             "basicAuthCredentials": {
+              "description": "Pre-emptive basic auth credentials to match against",
               "type": "object",
               "properties": {
                 "username": {
@@ -243,43 +261,109 @@
                 "password"
               ]
             }
+          },
+          "example": {
+            "method": "POST",
+            "url": "/some/thing",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "bodyPatterns": [
+              {
+                "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+              }
+            ]
           }
         },
         "response": {
           "type": "object",
           "properties": {
             "status": {
+              "description": "The HTTP status code to be returned",
               "type": "integer"
             },
             "statusMessage": {
+              "description": "The HTTP status message to be returned",
               "type": "string"
             },
             "body": {
+              "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
               "type": "string"
             },
             "headers": {
+              "description": "Map of response headers to send",
               "type": "object"
             },
             "jsonBody": {
+              "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
               "type": "object"
             },
             "bodyFileName": {
+              "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
               "type": "string"
             },
             "base64Body": {
+              "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
               "type": "string"
             },
             "additionalProxyRequestHeaders": {
+              "description": "Extra request headers to send when proxying to another host.",
               "type": "object"
             },
             "fixedDelayMilliseconds": {
+              "description": "Number of milliseconds to delay be before sending the response.",
               "type": "integer"
             },
             "delayDistribution": {
+              "description": "Random delay settings.",
+              "oneOf": [
+                {
+                  "$ref": "#/properties/mappings/properties/response/definitions/logNormalDistribution"
+                },
+                {
+                  "$ref": "#/properties/mappings/properties/response/definitions/uniformDistribution"
+                }
+              ]
+            },
+            "fault": {
+              "type": "string",
+              "description": "The fault to apply (instead of a full, valid response).",
+              "enum": [
+                "EMPTY_RESPONSE",
+                "MALFORMED_RESPONSE_CHUNK",
+                "RANDOM_DATA_THEN_CLOSE"
+              ]
+            },
+            "proxyBaseUrl": {
+              "description": "The base URL of the target to proxy matching requests to.",
+              "type": "string"
+            },
+            "transformers": {
+              "description": "List of names of transformers to apply to this response.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "transformerParameters": {
+              "description": "Parameters to apply to response transformers.",
+              "type": "object"
+            },
+            "fromConfiguredStub": {
+              "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+              "type": "boolean"
+            }
+          },
+          "definitions": {
+            "logNormalDistribution": {
+              "descrioption": "Log normal randomly distributed response delay.",
               "type": "object",
               "properties": {
                 "type": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "lognormal"
+                  ]
                 },
                 "median": {
                   "type": "integer"
@@ -294,33 +378,41 @@
                 "sigma"
               ]
             },
-            "fault": {
-              "type": "string"
-            },
-            "proxyBaseUrl": {
-              "type": "string"
-            },
-            "transformers": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "transformerParameters": {
-              "type": "object"
-            },
-            "fromConfiguredStub": {
-              "type": "boolean"
+            "uniformDistribution": {
+              "descrioption": "Uniformly distributed random response delay.",
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "uniform"
+                  ]
+                },
+                "upper": {
+                  "type": "integer"
+                },
+                "lower": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "type",
+                "upper",
+                "lower"
+              ]
             }
           }
         }
       },
       "example": {
         "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-        "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+        "priority": 3,
         "request": {
           "method": "GET",
-          "url": "/some/thing"
+          "url": "/some/thing",
+          "headers": {
+            "Accept": "text/plain"
+          }
         },
         "response": {
           "status": 200,
@@ -387,60 +479,78 @@
   "type": "object",
   "properties": {
     "id": {
+      "description": "This stub mapping&#39;s unique identifier",
       "type": "string"
     },
     "priority": {
-      "type": "integer"
+      "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+      "type": "integer",
+      "minimum": 1
     },
     "persistent": {
+      "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
       "type": "boolean"
     },
     "scenarioName": {
+      "descrption": "The name of the scenario that this stub mapping is part of",
       "type": "string"
     },
     "requiredScenarioState": {
+      "descrption": "The required state of the scenario in order for this stub to be matched.",
       "type": "string"
     },
     "newScenarioState": {
+      "descrption": "The new state for the scenario to be updated to after this stub is served.",
       "type": "string"
     },
     "postServeActions": {
+      "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
       "type": "object"
     },
     "request": {
       "type": "object",
       "properties": {
         "url": {
+          "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPattern": {
+          "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPath": {
+          "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPathPattern": {
+          "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "method": {
+          "description": "The HTTP request method e.g. GET",
           "type": "string"
         },
         "headers": {
+          "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "queryParameters": {
+          "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "cookies": {
+          "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "bodyPatterns": {
+          "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "array",
           "items": {
             "type": "object"
           }
         },
         "basicAuthCredentials": {
+          "description": "Pre-emptive basic auth credentials to match against",
           "type": "object",
           "properties": {
             "username": {
@@ -455,43 +565,109 @@
             "password"
           ]
         }
+      },
+      "example": {
+        "method": "POST",
+        "url": "/some/thing",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+          }
+        ]
       }
     },
     "response": {
       "type": "object",
       "properties": {
         "status": {
+          "description": "The HTTP status code to be returned",
           "type": "integer"
         },
         "statusMessage": {
+          "description": "The HTTP status message to be returned",
           "type": "string"
         },
         "body": {
+          "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "headers": {
+          "description": "Map of response headers to send",
           "type": "object"
         },
         "jsonBody": {
+          "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "object"
         },
         "bodyFileName": {
+          "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "base64Body": {
+          "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "additionalProxyRequestHeaders": {
+          "description": "Extra request headers to send when proxying to another host.",
           "type": "object"
         },
         "fixedDelayMilliseconds": {
+          "description": "Number of milliseconds to delay be before sending the response.",
           "type": "integer"
         },
         "delayDistribution": {
+          "description": "Random delay settings.",
+          "oneOf": [
+            {
+              "$ref": "#/properties/response/definitions/logNormalDistribution"
+            },
+            {
+              "$ref": "#/properties/response/definitions/uniformDistribution"
+            }
+          ]
+        },
+        "fault": {
+          "type": "string",
+          "description": "The fault to apply (instead of a full, valid response).",
+          "enum": [
+            "EMPTY_RESPONSE",
+            "MALFORMED_RESPONSE_CHUNK",
+            "RANDOM_DATA_THEN_CLOSE"
+          ]
+        },
+        "proxyBaseUrl": {
+          "description": "The base URL of the target to proxy matching requests to.",
+          "type": "string"
+        },
+        "transformers": {
+          "description": "List of names of transformers to apply to this response.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "description": "Parameters to apply to response transformers.",
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+          "type": "boolean"
+        }
+      },
+      "definitions": {
+        "logNormalDistribution": {
+          "descrioption": "Log normal randomly distributed response delay.",
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "lognormal"
+              ]
             },
             "median": {
               "type": "integer"
@@ -506,33 +682,41 @@
             "sigma"
           ]
         },
-        "fault": {
-          "type": "string"
-        },
-        "proxyBaseUrl": {
-          "type": "string"
-        },
-        "transformers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "transformerParameters": {
-          "type": "object"
-        },
-        "fromConfiguredStub": {
-          "type": "boolean"
+        "uniformDistribution": {
+          "descrioption": "Uniformly distributed random response delay.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uniform"
+              ]
+            },
+            "upper": {
+              "type": "integer"
+            },
+            "lower": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "upper",
+            "lower"
+          ]
         }
       }
     }
   },
   "example": {
     "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "priority": 3,
     "request": {
       "method": "GET",
-      "url": "/some/thing"
+      "url": "/some/thing",
+      "headers": {
+        "Accept": "text/plain"
+      }
     },
     "response": {
       "status": 200,
@@ -558,60 +742,78 @@
   "type": "object",
   "properties": {
     "id": {
+      "description": "This stub mapping&#39;s unique identifier",
       "type": "string"
     },
     "priority": {
-      "type": "integer"
+      "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+      "type": "integer",
+      "minimum": 1
     },
     "persistent": {
+      "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
       "type": "boolean"
     },
     "scenarioName": {
+      "descrption": "The name of the scenario that this stub mapping is part of",
       "type": "string"
     },
     "requiredScenarioState": {
+      "descrption": "The required state of the scenario in order for this stub to be matched.",
       "type": "string"
     },
     "newScenarioState": {
+      "descrption": "The new state for the scenario to be updated to after this stub is served.",
       "type": "string"
     },
     "postServeActions": {
+      "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
       "type": "object"
     },
     "request": {
       "type": "object",
       "properties": {
         "url": {
+          "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPattern": {
+          "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPath": {
+          "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPathPattern": {
+          "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "method": {
+          "description": "The HTTP request method e.g. GET",
           "type": "string"
         },
         "headers": {
+          "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "queryParameters": {
+          "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "cookies": {
+          "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "bodyPatterns": {
+          "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "array",
           "items": {
             "type": "object"
           }
         },
         "basicAuthCredentials": {
+          "description": "Pre-emptive basic auth credentials to match against",
           "type": "object",
           "properties": {
             "username": {
@@ -626,43 +828,109 @@
             "password"
           ]
         }
+      },
+      "example": {
+        "method": "POST",
+        "url": "/some/thing",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+          }
+        ]
       }
     },
     "response": {
       "type": "object",
       "properties": {
         "status": {
+          "description": "The HTTP status code to be returned",
           "type": "integer"
         },
         "statusMessage": {
+          "description": "The HTTP status message to be returned",
           "type": "string"
         },
         "body": {
+          "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "headers": {
+          "description": "Map of response headers to send",
           "type": "object"
         },
         "jsonBody": {
+          "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "object"
         },
         "bodyFileName": {
+          "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "base64Body": {
+          "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "additionalProxyRequestHeaders": {
+          "description": "Extra request headers to send when proxying to another host.",
           "type": "object"
         },
         "fixedDelayMilliseconds": {
+          "description": "Number of milliseconds to delay be before sending the response.",
           "type": "integer"
         },
         "delayDistribution": {
+          "description": "Random delay settings.",
+          "oneOf": [
+            {
+              "$ref": "#/properties/response/definitions/logNormalDistribution"
+            },
+            {
+              "$ref": "#/properties/response/definitions/uniformDistribution"
+            }
+          ]
+        },
+        "fault": {
+          "type": "string",
+          "description": "The fault to apply (instead of a full, valid response).",
+          "enum": [
+            "EMPTY_RESPONSE",
+            "MALFORMED_RESPONSE_CHUNK",
+            "RANDOM_DATA_THEN_CLOSE"
+          ]
+        },
+        "proxyBaseUrl": {
+          "description": "The base URL of the target to proxy matching requests to.",
+          "type": "string"
+        },
+        "transformers": {
+          "description": "List of names of transformers to apply to this response.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "description": "Parameters to apply to response transformers.",
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+          "type": "boolean"
+        }
+      },
+      "definitions": {
+        "logNormalDistribution": {
+          "descrioption": "Log normal randomly distributed response delay.",
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "lognormal"
+              ]
             },
             "median": {
               "type": "integer"
@@ -677,33 +945,41 @@
             "sigma"
           ]
         },
-        "fault": {
-          "type": "string"
-        },
-        "proxyBaseUrl": {
-          "type": "string"
-        },
-        "transformers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "transformerParameters": {
-          "type": "object"
-        },
-        "fromConfiguredStub": {
-          "type": "boolean"
+        "uniformDistribution": {
+          "descrioption": "Uniformly distributed random response delay.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uniform"
+              ]
+            },
+            "upper": {
+              "type": "integer"
+            },
+            "lower": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "upper",
+            "lower"
+          ]
         }
       }
     }
   },
   "example": {
     "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "priority": 3,
     "request": {
       "method": "GET",
-      "url": "/some/thing"
+      "url": "/some/thing",
+      "headers": {
+        "Accept": "text/plain"
+      }
     },
     "response": {
       "status": 200,
@@ -731,60 +1007,78 @@
   "type": "object",
   "properties": {
     "id": {
+      "description": "This stub mapping&#39;s unique identifier",
       "type": "string"
     },
     "priority": {
-      "type": "integer"
+      "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+      "type": "integer",
+      "minimum": 1
     },
     "persistent": {
+      "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
       "type": "boolean"
     },
     "scenarioName": {
+      "descrption": "The name of the scenario that this stub mapping is part of",
       "type": "string"
     },
     "requiredScenarioState": {
+      "descrption": "The required state of the scenario in order for this stub to be matched.",
       "type": "string"
     },
     "newScenarioState": {
+      "descrption": "The new state for the scenario to be updated to after this stub is served.",
       "type": "string"
     },
     "postServeActions": {
+      "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
       "type": "object"
     },
     "request": {
       "type": "object",
       "properties": {
         "url": {
+          "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPattern": {
+          "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPath": {
+          "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPathPattern": {
+          "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "method": {
+          "description": "The HTTP request method e.g. GET",
           "type": "string"
         },
         "headers": {
+          "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "queryParameters": {
+          "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "cookies": {
+          "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "bodyPatterns": {
+          "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "array",
           "items": {
             "type": "object"
           }
         },
         "basicAuthCredentials": {
+          "description": "Pre-emptive basic auth credentials to match against",
           "type": "object",
           "properties": {
             "username": {
@@ -799,43 +1093,109 @@
             "password"
           ]
         }
+      },
+      "example": {
+        "method": "POST",
+        "url": "/some/thing",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+          }
+        ]
       }
     },
     "response": {
       "type": "object",
       "properties": {
         "status": {
+          "description": "The HTTP status code to be returned",
           "type": "integer"
         },
         "statusMessage": {
+          "description": "The HTTP status message to be returned",
           "type": "string"
         },
         "body": {
+          "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "headers": {
+          "description": "Map of response headers to send",
           "type": "object"
         },
         "jsonBody": {
+          "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "object"
         },
         "bodyFileName": {
+          "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "base64Body": {
+          "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "additionalProxyRequestHeaders": {
+          "description": "Extra request headers to send when proxying to another host.",
           "type": "object"
         },
         "fixedDelayMilliseconds": {
+          "description": "Number of milliseconds to delay be before sending the response.",
           "type": "integer"
         },
         "delayDistribution": {
+          "description": "Random delay settings.",
+          "oneOf": [
+            {
+              "$ref": "#/properties/response/definitions/logNormalDistribution"
+            },
+            {
+              "$ref": "#/properties/response/definitions/uniformDistribution"
+            }
+          ]
+        },
+        "fault": {
+          "type": "string",
+          "description": "The fault to apply (instead of a full, valid response).",
+          "enum": [
+            "EMPTY_RESPONSE",
+            "MALFORMED_RESPONSE_CHUNK",
+            "RANDOM_DATA_THEN_CLOSE"
+          ]
+        },
+        "proxyBaseUrl": {
+          "description": "The base URL of the target to proxy matching requests to.",
+          "type": "string"
+        },
+        "transformers": {
+          "description": "List of names of transformers to apply to this response.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "description": "Parameters to apply to response transformers.",
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+          "type": "boolean"
+        }
+      },
+      "definitions": {
+        "logNormalDistribution": {
+          "descrioption": "Log normal randomly distributed response delay.",
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "lognormal"
+              ]
             },
             "median": {
               "type": "integer"
@@ -850,33 +1210,41 @@
             "sigma"
           ]
         },
-        "fault": {
-          "type": "string"
-        },
-        "proxyBaseUrl": {
-          "type": "string"
-        },
-        "transformers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "transformerParameters": {
-          "type": "object"
-        },
-        "fromConfiguredStub": {
-          "type": "boolean"
+        "uniformDistribution": {
+          "descrioption": "Uniformly distributed random response delay.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uniform"
+              ]
+            },
+            "upper": {
+              "type": "integer"
+            },
+            "lower": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "upper",
+            "lower"
+          ]
         }
       }
     }
   },
   "example": {
     "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "priority": 3,
     "request": {
       "method": "GET",
-      "url": "/some/thing"
+      "url": "/some/thing",
+      "headers": {
+        "Accept": "text/plain"
+      }
     },
     "response": {
       "status": 200,
@@ -904,60 +1272,78 @@
   "type": "object",
   "properties": {
     "id": {
+      "description": "This stub mapping&#39;s unique identifier",
       "type": "string"
     },
     "priority": {
-      "type": "integer"
+      "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+      "type": "integer",
+      "minimum": 1
     },
     "persistent": {
+      "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
       "type": "boolean"
     },
     "scenarioName": {
+      "descrption": "The name of the scenario that this stub mapping is part of",
       "type": "string"
     },
     "requiredScenarioState": {
+      "descrption": "The required state of the scenario in order for this stub to be matched.",
       "type": "string"
     },
     "newScenarioState": {
+      "descrption": "The new state for the scenario to be updated to after this stub is served.",
       "type": "string"
     },
     "postServeActions": {
+      "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
       "type": "object"
     },
     "request": {
       "type": "object",
       "properties": {
         "url": {
+          "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPattern": {
+          "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPath": {
+          "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPathPattern": {
+          "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "method": {
+          "description": "The HTTP request method e.g. GET",
           "type": "string"
         },
         "headers": {
+          "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "queryParameters": {
+          "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "cookies": {
+          "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "bodyPatterns": {
+          "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "array",
           "items": {
             "type": "object"
           }
         },
         "basicAuthCredentials": {
+          "description": "Pre-emptive basic auth credentials to match against",
           "type": "object",
           "properties": {
             "username": {
@@ -972,43 +1358,109 @@
             "password"
           ]
         }
+      },
+      "example": {
+        "method": "POST",
+        "url": "/some/thing",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+          }
+        ]
       }
     },
     "response": {
       "type": "object",
       "properties": {
         "status": {
+          "description": "The HTTP status code to be returned",
           "type": "integer"
         },
         "statusMessage": {
+          "description": "The HTTP status message to be returned",
           "type": "string"
         },
         "body": {
+          "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "headers": {
+          "description": "Map of response headers to send",
           "type": "object"
         },
         "jsonBody": {
+          "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "object"
         },
         "bodyFileName": {
+          "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "base64Body": {
+          "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "additionalProxyRequestHeaders": {
+          "description": "Extra request headers to send when proxying to another host.",
           "type": "object"
         },
         "fixedDelayMilliseconds": {
+          "description": "Number of milliseconds to delay be before sending the response.",
           "type": "integer"
         },
         "delayDistribution": {
+          "description": "Random delay settings.",
+          "oneOf": [
+            {
+              "$ref": "#/properties/response/definitions/logNormalDistribution"
+            },
+            {
+              "$ref": "#/properties/response/definitions/uniformDistribution"
+            }
+          ]
+        },
+        "fault": {
+          "type": "string",
+          "description": "The fault to apply (instead of a full, valid response).",
+          "enum": [
+            "EMPTY_RESPONSE",
+            "MALFORMED_RESPONSE_CHUNK",
+            "RANDOM_DATA_THEN_CLOSE"
+          ]
+        },
+        "proxyBaseUrl": {
+          "description": "The base URL of the target to proxy matching requests to.",
+          "type": "string"
+        },
+        "transformers": {
+          "description": "List of names of transformers to apply to this response.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "description": "Parameters to apply to response transformers.",
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+          "type": "boolean"
+        }
+      },
+      "definitions": {
+        "logNormalDistribution": {
+          "descrioption": "Log normal randomly distributed response delay.",
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "lognormal"
+              ]
             },
             "median": {
               "type": "integer"
@@ -1023,33 +1475,41 @@
             "sigma"
           ]
         },
-        "fault": {
-          "type": "string"
-        },
-        "proxyBaseUrl": {
-          "type": "string"
-        },
-        "transformers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "transformerParameters": {
-          "type": "object"
-        },
-        "fromConfiguredStub": {
-          "type": "boolean"
+        "uniformDistribution": {
+          "descrioption": "Uniformly distributed random response delay.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uniform"
+              ]
+            },
+            "upper": {
+              "type": "integer"
+            },
+            "lower": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "upper",
+            "lower"
+          ]
         }
       }
     }
   },
   "example": {
     "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "priority": 3,
     "request": {
       "method": "GET",
-      "url": "/some/thing"
+      "url": "/some/thing",
+      "headers": {
+        "Accept": "text/plain"
+      }
     },
     "response": {
       "status": 200,
@@ -1075,60 +1535,78 @@
   "type": "object",
   "properties": {
     "id": {
+      "description": "This stub mapping&#39;s unique identifier",
       "type": "string"
     },
     "priority": {
-      "type": "integer"
+      "description": "This stub mapping&#39;s priority relative to others. 1 is highest.",
+      "type": "integer",
+      "minimum": 1
     },
     "persistent": {
+      "description": "Indicates that the stub mapping should be persisted immediately on create/update/delete and survive resets to default.",
       "type": "boolean"
     },
     "scenarioName": {
+      "descrption": "The name of the scenario that this stub mapping is part of",
       "type": "string"
     },
     "requiredScenarioState": {
+      "descrption": "The required state of the scenario in order for this stub to be matched.",
       "type": "string"
     },
     "newScenarioState": {
+      "descrption": "The new state for the scenario to be updated to after this stub is served.",
       "type": "string"
     },
     "postServeActions": {
+      "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
       "type": "object"
     },
     "request": {
       "type": "object",
       "properties": {
         "url": {
+          "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPattern": {
+          "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPath": {
+          "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "urlPathPattern": {
+          "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
           "type": "string"
         },
         "method": {
+          "description": "The HTTP request method e.g. GET",
           "type": "string"
         },
         "headers": {
+          "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "queryParameters": {
+          "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "cookies": {
+          "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "object"
         },
         "bodyPatterns": {
+          "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
           "type": "array",
           "items": {
             "type": "object"
           }
         },
         "basicAuthCredentials": {
+          "description": "Pre-emptive basic auth credentials to match against",
           "type": "object",
           "properties": {
             "username": {
@@ -1143,43 +1621,109 @@
             "password"
           ]
         }
+      },
+      "example": {
+        "method": "POST",
+        "url": "/some/thing",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+          }
+        ]
       }
     },
     "response": {
       "type": "object",
       "properties": {
         "status": {
+          "description": "The HTTP status code to be returned",
           "type": "integer"
         },
         "statusMessage": {
+          "description": "The HTTP status message to be returned",
           "type": "string"
         },
         "body": {
+          "description": "The response body as a string. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "headers": {
+          "description": "Map of response headers to send",
           "type": "object"
         },
         "jsonBody": {
+          "description": "The response body as a JSON object. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "object"
         },
         "bodyFileName": {
+          "description": "The path to the file containing the response body, relative to the configured file root. Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "base64Body": {
+          "description": "The response body as a base64 encoded string (useful for binary content). Only one of body, base64Body, jsonBody or bodyFileName may be specified.",
           "type": "string"
         },
         "additionalProxyRequestHeaders": {
+          "description": "Extra request headers to send when proxying to another host.",
           "type": "object"
         },
         "fixedDelayMilliseconds": {
+          "description": "Number of milliseconds to delay be before sending the response.",
           "type": "integer"
         },
         "delayDistribution": {
+          "description": "Random delay settings.",
+          "oneOf": [
+            {
+              "$ref": "#/properties/response/definitions/logNormalDistribution"
+            },
+            {
+              "$ref": "#/properties/response/definitions/uniformDistribution"
+            }
+          ]
+        },
+        "fault": {
+          "type": "string",
+          "description": "The fault to apply (instead of a full, valid response).",
+          "enum": [
+            "EMPTY_RESPONSE",
+            "MALFORMED_RESPONSE_CHUNK",
+            "RANDOM_DATA_THEN_CLOSE"
+          ]
+        },
+        "proxyBaseUrl": {
+          "description": "The base URL of the target to proxy matching requests to.",
+          "type": "string"
+        },
+        "transformers": {
+          "description": "List of names of transformers to apply to this response.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transformerParameters": {
+          "description": "Parameters to apply to response transformers.",
+          "type": "object"
+        },
+        "fromConfiguredStub": {
+          "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
+          "type": "boolean"
+        }
+      },
+      "definitions": {
+        "logNormalDistribution": {
+          "descrioption": "Log normal randomly distributed response delay.",
           "type": "object",
           "properties": {
             "type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "lognormal"
+              ]
             },
             "median": {
               "type": "integer"
@@ -1194,33 +1738,41 @@
             "sigma"
           ]
         },
-        "fault": {
-          "type": "string"
-        },
-        "proxyBaseUrl": {
-          "type": "string"
-        },
-        "transformers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "transformerParameters": {
-          "type": "object"
-        },
-        "fromConfiguredStub": {
-          "type": "boolean"
+        "uniformDistribution": {
+          "descrioption": "Uniformly distributed random response delay.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uniform"
+              ]
+            },
+            "upper": {
+              "type": "integer"
+            },
+            "lower": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "upper",
+            "lower"
+          ]
         }
       }
     }
   },
   "example": {
     "id": "76ada7b0-49ae-4229-91c4-396a36f18e09",
-    "uuid": "76ada7b0-49ae-4229-91c4-396a36f18e09",
+    "priority": 3,
     "request": {
       "method": "GET",
-      "url": "/some/thing"
+      "url": "/some/thing",
+      "headers": {
+        "Accept": "text/plain"
+      }
     },
     "response": {
       "status": 200,
@@ -1354,36 +1906,46 @@
   "type": "object",
   "properties": {
     "url": {
+      "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPattern": {
+      "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPath": {
+      "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPathPattern": {
+      "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "method": {
+      "description": "The HTTP request method e.g. GET",
       "type": "string"
     },
     "headers": {
+      "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "queryParameters": {
+      "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "cookies": {
+      "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "bodyPatterns": {
+      "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "array",
       "items": {
         "type": "object"
       }
     },
     "basicAuthCredentials": {
+      "description": "Pre-emptive basic auth credentials to match against",
       "type": "object",
       "properties": {
         "username": {
@@ -1398,6 +1960,18 @@
         "password"
       ]
     }
+  },
+  "example": {
+    "method": "POST",
+    "url": "/some/thing",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+      }
+    ]
   }
 }</code></pre><p><strong>Example</strong>:</p><pre><code>{
     "method": "POST",
@@ -1411,36 +1985,46 @@
   "type": "object",
   "properties": {
     "url": {
+      "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPattern": {
+      "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPath": {
+      "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPathPattern": {
+      "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "method": {
+      "description": "The HTTP request method e.g. GET",
       "type": "string"
     },
     "headers": {
+      "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "queryParameters": {
+      "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "cookies": {
+      "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "bodyPatterns": {
+      "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "array",
       "items": {
         "type": "object"
       }
     },
     "basicAuthCredentials": {
+      "description": "Pre-emptive basic auth credentials to match against",
       "type": "object",
       "properties": {
         "username": {
@@ -1455,6 +2039,18 @@
         "password"
       ]
     }
+  },
+  "example": {
+    "method": "POST",
+    "url": "/some/thing",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+      }
+    ]
   }
 }</code></pre><p><strong>Example</strong>:</p><pre><code>{
     "method": "POST",
@@ -1602,36 +2198,46 @@
   "type": "object",
   "properties": {
     "url": {
+      "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPattern": {
+      "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPath": {
+      "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "urlPathPattern": {
+      "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified.",
       "type": "string"
     },
     "method": {
+      "description": "The HTTP request method e.g. GET",
       "type": "string"
     },
     "headers": {
+      "description": "Header patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "queryParameters": {
+      "description": "Query parameter patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "cookies": {
+      "description": "Cookie patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "object"
     },
     "bodyPatterns": {
+      "description": "Request body patterns to match against in the &lt;key&gt;: { \"&lt;predicate&gt;\": \"&lt;value&gt;\" } form",
       "type": "array",
       "items": {
         "type": "object"
       }
     },
     "basicAuthCredentials": {
+      "description": "Pre-emptive basic auth credentials to match against",
       "type": "object",
       "properties": {
         "username": {
@@ -1646,6 +2252,18 @@
         "password"
       ]
     }
+  },
+  "example": {
+    "method": "POST",
+    "url": "/some/thing",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+      }
+    ]
   }
 }</code></pre><p><strong>Example</strong>:</p><pre><code>{
     "method": "POST",
