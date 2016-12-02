@@ -81,19 +81,6 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		getResponseAndAssert200Status("/resource/100");
 	}
 	
-	@Test
-	public void mappingsResetSupported() {
-		add200ResponseFor("/resource/11");
-		add200ResponseFor("/resource/12");
-		add200ResponseFor("/resource/13");
-		
-		testClient.resetMappings();
-		
-		getResponseAndAssert404Status("/resource/11");
-		getResponseAndAssert404Status("/resource/12");
-		getResponseAndAssert404Status("/resource/13");
-	}
-
     @Test
     public void loadsDefaultMappingsOnStart() {
         getResponseAndAssert200Status("/testmapping");

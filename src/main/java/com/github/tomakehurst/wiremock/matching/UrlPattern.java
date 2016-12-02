@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.base.Objects;
 
-public class UrlPattern implements ValueMatcher<String> {
+public class UrlPattern implements NamedValueMatcher<String> {
 
     protected final StringValuePattern pattern;
     private final boolean regex;

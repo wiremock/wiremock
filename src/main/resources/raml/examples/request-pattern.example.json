@@ -1,0 +1,9 @@
+{
+    "method": "POST",
+    "url": "/resource/to/count",
+    "headers": {
+        "Content-Type": {
+            "matches": ".*/xml"
+        }
+    }
+}

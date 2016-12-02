@@ -29,13 +29,13 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.3.0'
+version = '2.5.0'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
-        jackson: '2.6.1',
-        jetty  : '9.2.13.v20150730'
+    jackson: '2.6.1',
+    jetty  : '9.2.13.v20150730'
 ]
 
 repositories {
@@ -49,8 +49,8 @@ dependencies {
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
     compile "com.google.guava:guava:18.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.1"
     compile 'org.xmlunit:xmlunit-core:2.1.1'
     compile 'org.xmlunit:xmlunit-legacy:2.1.1'
@@ -202,15 +202,17 @@ task signStandaloneJarPom(type: Sign, dependsOn: 'generatePomFileForStandaloneJa
     sign new File(standaloneJarPomPath)
 }
 
-if (!this.hasProperty('sonatypeUser'))
+if (!this.hasProperty('sonatypeUser')) {
     repoUser = 'default'
-else
+} else {
     repoUser = sonatypeUser
+}
 
-if (!this.hasProperty('sonatypePassword'))
+if (!this.hasProperty('sonatypePassword')) {
     repoPassword = 'default'
-else
+} else {
     repoPassword = sonatypePassword
+}
 
 
 final pomInfo = {
@@ -329,6 +331,25 @@ task signAll {
     dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
 }
 
+task npmInstall(type: Exec) {
+    workingDir 'docs-v2'
+    commandLine 'npm', 'i'
+}
+
+task generateApiDocs(type: Exec) {
+    dependsOn npmInstall
+    workingDir 'docs-v2'
+    commandLine 'npm', 'run', 'apidocs'
+}
+jar.dependsOn generateApiDocs
+processResources.dependsOn generateApiDocs
+
+task deleteGeneratedApiDocs(type: Delete) {
+    delete "src/main/resources/swagger"
+}
+
+clean.dependsOn deleteGeneratedApiDocs
+
 task release {
     dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
     dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
@@ -351,10 +372,11 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
-    def baseVersion = '2.1'
+    def baseVersion = '2.4'
     def filesWithVersion = [
-            'build.gradle'                      : { "version = '${baseVersion}.${it}" },
-            'docs-v2/_config.yml'               : { "wiremock_version: ${baseVersion}.${it}" },
+        'build.gradle'                                   : { "version = '${baseVersion}.${it}" },
+        'docs-v2/_config.yml'                            : { "wiremock_version: ${baseVersion}.${it}" },
+        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${baseVersion}.${it}" }
     ]
 
     def gradleBuildFile = new File('build.gradle')
@@ -366,41 +388,8 @@ task 'bump-version' << {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates];
-
-            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-                def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
-                def newLine = lineWithVersionTemplate.call(nextMinorVersion)
-                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-                file.text = file.text.replace(oldLine, newLine);
-            }
-        }
-    }
-}
-
-task 'bump-version-down' << {
-    def filesWithVersion = [
-            'build.gradle'                      : { "version = 1.${it}" },
-            'docs/source/conf.py'               : { "version = '1.${it}'" },
-            'docs/source/getting-started.rst'   : [{ "<version>1.${it}</version>" }, {
-                "wiremock/1.${it}/wiremock-1.${it}-standalone.jar"
-            }],
-            'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
-            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:1.${it}" },
-    ]
-
-    def gradleBuildFile = new File('build.gradle')
-    int currentMinorVersion
-    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
-        currentMinorVersion = Integer.valueOf(minorVersion)
-        int nextMinorVersion = currentMinorVersion - 1
-
-        filesWithVersion.each { fileName, lineWithVersionTemplates ->
-            def file = new File(fileName)
-            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates];
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates];
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentMinorVersion)

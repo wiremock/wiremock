@@ -29,7 +29,17 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public final class Json {
 
-    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<>();
+    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
+        @Override
+        protected ObjectMapper initialValue() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+            objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+            objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+            return objectMapper;
+        }
+    };
 	
 	private Json() {}
 
@@ -52,16 +62,7 @@ public final class Json {
 	}
 
 
-    private static ObjectMapper getObjectMapper() {
-        if (objectMapperHolder.get() == null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-            objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-            objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
-            objectMapperHolder.set(objectMapper);
-        }
-
+    public static ObjectMapper getObjectMapper() {
         return objectMapperHolder.get();
     }
 

@@ -22,6 +22,7 @@ import java.util.List;
 public interface FileSource {
 
     BinaryFile getBinaryFileNamed(String name);
+    TextFile getTextFileNamed(String name);
 	void createIfNecessary();
 	FileSource child(String subDirectoryName);
 	String getPath();
@@ -30,4 +31,6 @@ public interface FileSource {
 	void writeTextFile(String name, String contents);
     void writeBinaryFile(String name, byte[] contents);
     boolean exists();
+
+	void deleteFile(String name);
 }
