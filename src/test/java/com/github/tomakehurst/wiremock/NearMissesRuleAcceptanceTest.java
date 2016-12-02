@@ -58,8 +58,8 @@ public class NearMissesRuleAcceptanceTest {
         @Rule
         public ExpectedException thrown = ExpectedException.none();
 
-        @ClassRule
-        public static WireMockRule wm = new WireMockRule(options()
+        @Rule
+        public WireMockRule wm = new WireMockRule(options()
             .dynamicPort()
             .notifier(testNotifier)
             .withRootDirectory("src/main/resources/empty"),
@@ -149,8 +149,8 @@ public class NearMissesRuleAcceptanceTest {
 
     public static class CustomMatcherWithNearMissesTest {
 
-        @ClassRule
-        public static WireMockRule wm = new WireMockRule(options()
+        @Rule
+        public WireMockRule wm = new WireMockRule(options()
             .dynamicPort()
             .withRootDirectory("src/main/resources/empty")
             .extensions(new RequestMatcherExtension() {
