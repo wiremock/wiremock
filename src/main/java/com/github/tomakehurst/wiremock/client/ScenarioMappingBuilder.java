@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 import java.util.UUID;
@@ -31,6 +30,7 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder withRequestBody(StringValuePattern bodyPattern);
     ScenarioMappingBuilder inScenario(String scenarioName);
     ScenarioMappingBuilder withId(UUID id);
+    ScenarioMappingBuilder persistent();
     ScenarioMappingBuilder withBasicAuth(String username, String password);
     ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 

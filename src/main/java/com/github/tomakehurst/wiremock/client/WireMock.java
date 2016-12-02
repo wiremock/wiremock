@@ -17,23 +17,34 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static com.google.common.collect.FluentIterable.from;
 
 
 public class WireMock {
@@ -135,6 +146,10 @@ public class WireMock {
         return new EqualToPattern(value);
     }
 
+	public static StringValuePattern equalToIgnoreCase(String value) {
+		return new EqualToPattern(value, true);
+	}
+
     public static StringValuePattern equalToJson(String value) {
         return new EqualToJsonPattern(value, null, null);
     }
@@ -181,6 +196,14 @@ public class WireMock {
 
     public static void saveAllMappings() {
         defaultInstance.get().saveMappings();
+    }
+
+    public void removeMappings() {
+        admin.resetMappings();
+    }
+
+    public static void removeAllMappings() {
+        defaultInstance.get().removeMappings();
     }
 
 	public void resetMappings() {
@@ -333,7 +356,7 @@ public class WireMock {
 		return new BasicMappingBuilder(customRequestMatcherName, parameters);
 	}
 
-	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
+	public static MappingBuilder requestMatching(ValueMatcher<Request> requestMatcher) {
 		return new BasicMappingBuilder(requestMatcher);
 	}
 
@@ -342,40 +365,26 @@ public class WireMock {
 	}
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-		if (result.getCount() < 1) {
-            List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
-            if (nearMisses.size() > 0) {
-                Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
-                throw VerificationException.forUnmatchedRequestPattern(diff);
-            }
-
-            throw new VerificationException(requestPattern, find(allRequests()));
-		}
+		verifyThat(moreThanOrExactly(1), requestPatternBuilder);
 	}
 
 	public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-        int actualCount = result.getCount();
-        if (actualCount != expectedCount) {
-            throw actualCount == 0 ?
-                verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
-                new VerificationException(requestPattern, expectedCount, actualCount);
-		}
+		verifyThat(exactly(expectedCount), requestPatternBuilder);
 	}
 
 	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		VerificationResult result = admin.countRequestsMatching(requestPattern);
-		result.assertRequestJournalEnabled();
+		final RequestPattern requestPattern = requestPatternBuilder.build();
 
-        int actualCount = result.getCount();
+		int actualCount;
+		if (requestPattern.hasCustomMatcher()) {
+            List<LoggedRequest> requests = admin.findRequestsMatching(RequestPattern.everything()).getRequests();
+            actualCount = from(requests).filter(thatMatch(requestPattern)).size();
+        } else {
+            VerificationResult result = admin.countRequestsMatching(requestPattern);
+            result.assertRequestJournalEnabled();
+            actualCount = result.getCount();
+        }
+
         if (!expectedCount.match(actualCount)) {
             throw actualCount == 0 ?
                 verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
@@ -463,7 +472,7 @@ public class WireMock {
         return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static RequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+	public static RequestPatternBuilder requestMadeFor(ValueMatcher<Request> requestMatcher) {
 		return RequestPatternBuilder.forCustomMatcher(requestMatcher);
 	}
 
@@ -536,4 +545,12 @@ public class WireMock {
         return nearMissesResult.getNearMisses();
     }
 
+    public void loadMappingsFrom(String rootDir) {
+        loadMappingsFrom(new File(rootDir));
+    }
+
+	public void loadMappingsFrom(File rootDir) {
+		FileSource mappingsSource = new SingleRootFileSource(rootDir);
+		new RemoteMappingsLoader(mappingsSource, this).load();
+	}
 }

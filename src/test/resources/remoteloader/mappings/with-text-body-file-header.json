@@ -1,0 +1,13 @@
+{
+    "id": "08851f9e-8b9a-4e32-a4f3-7befd9c72d4d",
+    "request": {
+        "url": "/text-file-from-header"
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "content-type": "application/json"
+        },
+        "bodyFileName": "body.unknown"
+    }
+}

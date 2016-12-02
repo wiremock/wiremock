@@ -156,7 +156,7 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void resetMappings() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetStubMappingsTask.class), null, HTTP_OK);
+        executeRequest(adminRoutes.requestSpecForTask(ResetStubMappingsTask.class));
     }
 
     @Override

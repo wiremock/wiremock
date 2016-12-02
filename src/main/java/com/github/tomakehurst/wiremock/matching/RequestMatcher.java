@@ -19,7 +19,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 
 import java.util.Objects;
 
-public abstract class RequestMatcher implements ValueMatcher<Request> {
+public abstract class RequestMatcher implements NamedValueMatcher<Request> {
 
     @Override
     public String getExpected() {

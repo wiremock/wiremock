@@ -21,11 +21,14 @@
     "node": ">= 0.10.0"
   },
   "devDependencies": {
+    "api-spec-converter": "2.0.1",
     "autoprefixer": "^6.3.5",
+    "json-schema-ref-parser": "^3.1.2",
     "node-sass": "3.8.0",
     "npm-run-all": "^1.7.0",
     "onchange": "^2.2.0",
     "postcss-cli": "^2.5.1",
+    "raml2html": "3.0.1",
     "uglify-js": "^2.6.1"
   },
   "scripts": {
@@ -37,6 +40,9 @@
     "watch:all": "npm-run-all --parallel watch:css watch:js",
     "build:css": "npm run scss && npm run autoprefixer",
     "build:js": "npm run uglify",
-    "build:all": "npm run build:css && npm run build:js"
+    "build:all": "npm run build:css && npm run build:js",
+    "preprocess-schemas": "rm -rf tmp/raml* && mkdir -p tmp/raml && cp -rf ../src/main/resources/raml/* tmp/raml && rm -rf tmp/raml/schemas/* && bin/bundle-schemas -i ../src/main/resources/raml/schemas -o tmp/raml/schemas",
+    "raml2html": "npm run preprocess-schemas && node_modules/raml2html/bin/raml2html -t lib/raml2html-template.nunjucks -i tmp/raml/wiremock-admin-api.raml -o _docs/wiremock-admin-api.html",
+    "apidocs": "npm run raml2html && mkdir -p ../src/main/resources/swagger && node_modules/api-spec-converter/bin/api-spec-converter -f raml -t swagger_2 tmp/raml/wiremock-admin-api.raml > ../src/main/resources/swagger/wiremock-admin-api.json"
   }
 }

@@ -40,7 +40,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
-public class RequestPattern implements ValueMatcher<Request> {
+public class RequestPattern implements NamedValueMatcher<Request> {
 
     private final UrlPattern url;
     private final RequestMethod method;
@@ -51,7 +51,7 @@ public class RequestPattern implements ValueMatcher<Request> {
     private final List<StringValuePattern> bodyPatterns;
 
     private CustomMatcherDefinition customMatcherDefinition;
-    private RequestMatcher matcher;
+    private ValueMatcher<Request> matcher;
 
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
         @Override
@@ -128,7 +128,7 @@ public class RequestPattern implements ValueMatcher<Request> {
         null
     );
 
-    public RequestPattern(RequestMatcher customMatcher) {
+    public RequestPattern(ValueMatcher<Request> customMatcher) {
         this(null, null, null, null, null, null, null, null);
         this.matcher = customMatcher;
     }

@@ -55,6 +55,7 @@ public class ResponseDefinitionBuilder {
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
 		builder.status = responseDefinition.getStatus();
+		builder.statusMessage = responseDefinition.getStatusMessage();
 		builder.headers = responseDefinition.getHeaders() != null ?
 				newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
@@ -67,6 +68,7 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
+		builder.transformerParameters = responseDefinition.getTransformerParameters();
 		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
@@ -229,7 +231,7 @@ public class ResponseDefinitionBuilder {
 
 	protected ResponseDefinition build(HttpHeaders additionalProxyRequestHeaders) {
 		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
-		Parameters transformerParameters = this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
+		Parameters transformerParameters = this.transformerParameters == null || this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
 		return isBinaryBody() ?
 				new ResponseDefinition(
 						status,

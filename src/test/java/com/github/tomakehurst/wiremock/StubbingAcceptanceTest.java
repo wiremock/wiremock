@@ -351,6 +351,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	@Test
+	public void matchingUrlPathsWithEscapeCharacters() {
+	    stubFor(get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+	    assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
+	}
+
+	@Test
 	public void default200ResponseWhenStatusCodeNotSpecified() {
 		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
 		assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));

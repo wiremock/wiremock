@@ -16,13 +16,10 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.List;
@@ -44,14 +41,14 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private UUID id = UUID.randomUUID();
+    private boolean isPersistent = false;
+    private Map<String, Parameters> postServeActions = newLinkedHashMap();
 
-	private Map<String, Parameters> postServeActions = newLinkedHashMap();
-
-	BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
+    BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
-	BasicMappingBuilder(RequestMatcher requestMatcher) {
+	BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 
@@ -121,7 +118,13 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		return this;
 	}
 
-	@Override
+    @Override
+    public ScenarioMappingBuilder persistent() {
+        this.isPersistent = true;
+        return this;
+    }
+
+    @Override
 	public BasicMappingBuilder withBasicAuth(String username, String password) {
 		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
 		return this;
@@ -149,6 +152,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
 		mapping.setUuid(id);
+        mapping.setPersistent(isPersistent);
 
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
 

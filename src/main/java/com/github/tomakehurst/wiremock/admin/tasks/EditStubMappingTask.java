@@ -1,5 +1,6 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.admin.tasks;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -23,6 +24,6 @@ public class EditStubMappingTask implements AdminTask {
         newStubMapping.setId(id);
 
         admin.editStubMapping(newStubMapping);
-        return ResponseDefinition.ok();
+        return ResponseDefinition.okForJson(newStubMapping);
     }
 }
