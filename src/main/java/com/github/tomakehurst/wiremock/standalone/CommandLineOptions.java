@@ -37,6 +37,7 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -72,6 +73,7 @@ public class CommandLineOptions implements Options {
     private static final String EXTENSIONS = "extensions";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
     private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
+    private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
@@ -106,6 +108,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
+        optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(HELP, "Print this message");
@@ -273,7 +276,11 @@ public class CommandLineOptions implements Options {
 
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
-        return new DoNothingWiremockNetworkTrafficListener();
+        if (optionSet.has(PRINT_ALL_NETWORK_TRAFFIC)) {
+            return new ConsoleNotifyingWiremockNetworkTrafficListener();
+        } else {
+            return new DoNothingWiremockNetworkTrafficListener();
+        }
     }
 
     @Override

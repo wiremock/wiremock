@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.google.common.base.Optional;
@@ -57,20 +58,20 @@ public class CommandLineOptionsTest {
 		CommandLineOptions options = new CommandLineOptions("--record-mappings");
 		assertThat(options.recordMappingsEnabled(), is(true));
 	}
-	
+
     @Test
     public void returnsHeaderMatchingEnabledWhenOptionPresent() {
     	CommandLineOptions options =  new CommandLineOptions("--match-headers", "Accept,Content-Type");
     	assertThat(options.matchingHeaders(),
                 hasItems(CaseInsensitiveKey.from("Accept"), CaseInsensitiveKey.from("Content-Type")));
     }
-	
+
 	@Test
 	public void returnsRecordMappingsFalseWhenOptionNotPresent() {
 		CommandLineOptions options = new CommandLineOptions("");
 		assertThat(options.recordMappingsEnabled(), is(false));
 	}
-	
+
 	@Test
      public void setsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--port", "8086");
@@ -120,18 +121,18 @@ public class CommandLineOptionsTest {
     public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
         new CommandLineOptions("--https-keystore", "/my/keystore");
     }
-	
+
 	@Test(expected=Exception.class)
 	public void throwsExceptionWhenPortNumberSpecifiedWithoutNumber() {
 		new CommandLineOptions("--port");
 	}
-    
+
     @Test
     public void returnsCorrecteyParsedBindAddress(){
         CommandLineOptions options = new CommandLineOptions("--bind-address", "127.0.0.1");
         assertThat(options.bindAddress(), is("127.0.0.1"));
     }
-    
+
 	@Test
 	public void setsProxyAllRootWhenOptionPresent() {
 		CommandLineOptions options = new CommandLineOptions("--proxy-all", "http://someotherhost.com/site");
@@ -149,13 +150,13 @@ public class CommandLineOptionsTest {
 	public void throwsExceptionWhenProxyAllSpecifiedWithoutUrl() {
 		new CommandLineOptions("--proxy-all");
 	}
-	
+
 	@Test
 	public void returnsBrowserProxyingEnabledWhenOptionSet() {
 		CommandLineOptions options = new CommandLineOptions("--enable-browser-proxying");
 		assertThat(options.browserProxyingEnabled(), is(true));
 	}
-	
+
 	@Test
 	public void setsAll() {
 		CommandLineOptions options = new CommandLineOptions("--verbose", "--record-mappings", "--port", "8088", "--proxy-all", "http://somewhere.com");
@@ -165,7 +166,7 @@ public class CommandLineOptionsTest {
 		assertThat(options.specifiesProxyUrl(), is(true));
 		assertThat(options.proxyUrl(), is("http://somewhere.com"));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void returnsHelpText() {
@@ -275,7 +276,7 @@ public class CommandLineOptionsTest {
         assertThat(extensions.get("ResponseDefinitionTransformer_One"), instanceOf(ResponseDefinitionTransformerExt1.class));
         assertThat(extensions.get("ResponseDefinitionTransformer_Two"), instanceOf(ResponseDefinitionTransformerExt2.class));
     }
-    
+
     @Test
     public void returnsRequestMatcherExtensionsSpecifiedAsClassNames() {
         CommandLineOptions options = new CommandLineOptions(
@@ -285,30 +286,36 @@ public class CommandLineOptionsTest {
         assertThat(extensions.entrySet(), hasSize(1));
         assertThat(extensions.get("RequestMatcherExtension_One"), instanceOf(RequestExt1.class));
     }
-    
+
     @Test
     public void returnsEmptySetForNoExtensionsSpecifiedAsClassNames() {
         CommandLineOptions options = new CommandLineOptions();
         Map<String, RequestMatcherExtension> extensions = options.extensionsOfType(RequestMatcherExtension.class);
         assertThat(extensions.entrySet(), hasSize(0));
     }
-    
+
+    @Test
+    public void returnsAConsoleNotifyingListenerWhenOptionPresent() {
+        CommandLineOptions options = new CommandLineOptions("--print-all-network-traffic");
+        assertThat(options.networkTrafficListener(), is(instanceOf(ConsoleNotifyingWiremockNetworkTrafficListener.class)));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
-        
+
         @Override
         public String getName() { return "ResponseDefinitionTransformer_One"; }
     }
-    
+
     public static class ResponseDefinitionTransformerExt2 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
-        
+
         @Override
         public String getName() { return "ResponseDefinitionTransformer_Two"; }
     }
-    
+
     public static class RequestExt1 extends RequestMatcherExtension {
 
         @Override

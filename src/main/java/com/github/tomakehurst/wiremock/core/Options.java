@@ -28,10 +28,10 @@ import java.util.Map;
 
 public interface Options {
 
-    public static final int DEFAULT_PORT = 8080;
-    public static final int DYNAMIC_PORT = 0;
-    public static final int DEFAULT_CONTAINER_THREADS = 10;
-    public static final String DEFAULT_BIND_ADDRESS = "0.0.0.0";
+    int DEFAULT_PORT = 8080;
+    int DYNAMIC_PORT = 0;
+    int DEFAULT_CONTAINER_THREADS = 10;
+    String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
     HttpsSettings httpsSettings();
