@@ -15,17 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
-import com.google.common.collect.Maps;
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
 import java.util.List;
@@ -33,7 +38,6 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
@@ -73,6 +77,7 @@ public class WireMockConfiguration implements Options {
     private Integer jettyHeaderBufferSize;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
+    private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -268,6 +273,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration networkTrafficListener(WiremockNetworkTrafficListener networkTrafficListener) {
+        this.networkTrafficListener = networkTrafficListener;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -370,5 +380,10 @@ public class WireMockConfiguration implements Options {
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
         return (Map<String, T>) Maps.filterEntries(extensions, valueAssignableFrom(extensionType));
+    }
+
+    @Override
+    public WiremockNetworkTrafficListener networkTrafficListener() {
+        return networkTrafficListener;
     }
 }
