@@ -99,6 +99,8 @@ e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
 `--extensions`: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
+`--print-all-network-traffic`: Print all raw incoming and outgoing network traffic to console.
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client
