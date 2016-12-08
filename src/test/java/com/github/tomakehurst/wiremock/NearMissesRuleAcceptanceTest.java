@@ -71,6 +71,7 @@ public class NearMissesRuleAcceptanceTest {
         public void init() {
             client = new WireMockTestClient(wm.port());
             testNotifier.reset();
+            wm.resetAll();
         }
 
         @Test
@@ -171,6 +172,7 @@ public class NearMissesRuleAcceptanceTest {
         @Before
         public void init() {
             client = new WireMockTestClient(wm.port());
+            wm.resetAll();
         }
 
         @Test
