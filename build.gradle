@@ -26,8 +26,10 @@ apply plugin: 'idea'
 apply plugin: 'project-report'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+def javaVersion = JavaVersion.VERSION_1_7;
+sourceCompatibility = javaVersion;
+targetCompatibility = javaVersion;
+
 group = 'com.github.tomakehurst'
 version = '2.5.0'
 
@@ -432,3 +434,12 @@ task 'add-copyright-headers' << {
         }
     }
 }
+
+task enforceJavaVersion << {
+    def foundVersion = JavaVersion.current();
+    if (foundVersion != javaVersion)
+        throw new IllegalStateException("Build was run with wrong Java version; expected was "
+                + javaVersion + ", but found " + foundVersion + ". To fix this error run this build with Java " + javaVersion);
+}
+
+compileJava.dependsOn(enforceJavaVersion);
