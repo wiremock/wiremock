@@ -275,6 +275,13 @@ public class EqualToXmlPatternTest {
         WireMock.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
     }
 
+    @Test
+    public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() throws Exception {
+        String xmlWithDtdThatCannotBeFetched = "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
+        EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);
+        assertTrue(pattern.match(xmlWithDtdThatCannotBeFetched).isExactMatch());
+    }
+
     private void expectInfoNotification(final String message) {
         final Notifier notifier = context.mock(Notifier.class);
         context.checking(new Expectations() {{
