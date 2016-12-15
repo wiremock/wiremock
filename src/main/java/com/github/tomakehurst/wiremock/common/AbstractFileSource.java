@@ -28,7 +28,6 @@ import java.util.List;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
 
 public abstract class AbstractFileSource implements FileSource {
 

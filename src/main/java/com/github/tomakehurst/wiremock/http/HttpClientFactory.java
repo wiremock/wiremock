@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
@@ -27,10 +26,8 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -40,7 +37,6 @@ import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 
 public class HttpClientFactory {
 
