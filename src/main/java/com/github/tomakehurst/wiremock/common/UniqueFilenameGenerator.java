@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 
 import java.net.URI;
 
