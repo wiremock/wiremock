@@ -1,6 +1,8 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.mappings.InMemoryStubMappingsFactory;
+import com.github.tomakehurst.wiremock.core.mappings.StubMappingsFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -125,5 +127,10 @@ public class WarConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return new DoNothingWiremockNetworkTrafficListener();
+    }
+
+    @Override
+    public StubMappingsFactory stubMappingsFactory() {
+        return new InMemoryStubMappingsFactory();
     }
 }

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingsWithTransformersAndCustomMatchers;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class JsonFileMappingsSourceTest {
 	public void loadsMappingsViaClasspathFileSource() {
 		ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
 		JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
-		StubMappings stubMappings = new InMemoryStubMappings();
+		StubMappings stubMappings = new StubMappingsWithTransformersAndCustomMatchers();
 
 		source.loadMappingsInto(stubMappings);
 

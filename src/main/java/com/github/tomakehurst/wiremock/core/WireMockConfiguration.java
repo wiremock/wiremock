@@ -16,14 +16,13 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.mappings.InMemoryStubMappingsFactory;
+import com.github.tomakehurst.wiremock.core.mappings.StubMappingsFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
@@ -78,6 +77,7 @@ public class WireMockConfiguration implements Options {
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
+    private StubMappingsFactory stubMappingsFactory = new InMemoryStubMappingsFactory();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -278,6 +278,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration stubMappingsFactory(StubMappingsFactory stubMappingsFactory) {
+        this.stubMappingsFactory = stubMappingsFactory;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -385,5 +390,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return networkTrafficListener;
+    }
+
+    @Override
+    public StubMappingsFactory stubMappingsFactory() {
+        return stubMappingsFactory;
     }
 }

@@ -41,16 +41,13 @@ import static org.junit.Assert.assertThat;
 @RunWith(JMock.class)
 public class InMemoryMappingsTest {
 
-    private InMemoryStubMappings mappings;
+    private StubMappingsWithTransformersAndCustomMatchers mappings;
     private Mockery context;
-    private Notifier notifier;
 
     @Before
     public void init() {
-        mappings = new InMemoryStubMappings();
+        mappings = new StubMappingsWithTransformersAndCustomMatchers();
         context = new Mockery();
-
-        notifier = context.mock(Notifier.class);
     }
 
     @After
