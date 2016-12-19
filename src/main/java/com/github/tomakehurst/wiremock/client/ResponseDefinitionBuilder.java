@@ -94,8 +94,8 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 
-	public ResponseDefinitionBuilder withHeader(String key, String value) {
-		headers.add(new HttpHeader(key, value));
+	public ResponseDefinitionBuilder withHeader(String key, String... values) {
+		headers.add(new HttpHeader(key, values));
 		return this;
 	}
 

@@ -58,8 +58,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest header(String key, String value) {
-        headers = headers.plus(httpHeader(key, value));
+    public MockRequest header(String key, String... values) {
+        headers = headers.plus(httpHeader(key, values));
         return this;
     }
 
@@ -150,7 +150,7 @@ public class MockRequest implements Request {
 
     @Override
     public String getBodyAsString() {
-        return new String(body);
+        return body != null ? new String(body) : null;
     }
 
     @Override
