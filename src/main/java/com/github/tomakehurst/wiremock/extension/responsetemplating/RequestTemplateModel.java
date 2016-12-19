@@ -14,14 +14,14 @@ import java.util.Map;
 public class RequestTemplateModel {
 
     private final String url;
-    private final String path;
+    private final UrlPath path;
     private final Map<String, ListOrSingle<String>> query;
     private final Map<String, ListOrSingle<String>> headers;
     private final Map<String, ListOrSingle<String>> cookies;
     private final String body;
 
 
-    public RequestTemplateModel(String url, String path, Map<String, ListOrSingle<String>> query, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
+    public RequestTemplateModel(String url, UrlPath path, Map<String, ListOrSingle<String>> query, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
         this.url = url;
         this.path = path;
         this.query = query;
@@ -47,9 +47,11 @@ public class RequestTemplateModel {
             }
         });
 
+        UrlPath path = new UrlPath(request.getUrl());
+
         return new RequestTemplateModel(
             request.getUrl(),
-            url.getPath(),
+            path,
             adaptedQuery,
             adaptedHeaders,
             adaptedCookies,
@@ -61,7 +63,7 @@ public class RequestTemplateModel {
         return url;
     }
 
-    public String getPath() {
+    public UrlPath getPath() {
         return path;
     }
 
