@@ -97,6 +97,32 @@ public class DynamicResponseDefinitionTransformerTest {
     }
 
     @Test
+    public void urlPathNodes() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/the/entire/path"),
+            aResponse().withBody(
+                "First: {{request.path.[0]}}, Last: {{request.path.[2]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "First: the, Last: path"
+        ));
+    }
+
+    @Test
+    public void urlPathNodesForRootPath() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/"),
+            aResponse().withBody(
+                "{{request.path.[0]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(""));
+    }
+
+    @Test
     public void fullUrl() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/the/entire/path?query1=one&query2=two"),
