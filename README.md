@@ -2,6 +2,7 @@ WireMock - a web service test double for all occasions
 ======================================================
 
 [![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.tomakehurst/wiremock/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.tomakehurst/wiremock)
 
 Key Features
 ------------
