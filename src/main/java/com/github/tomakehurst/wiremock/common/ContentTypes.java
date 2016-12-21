@@ -19,11 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 

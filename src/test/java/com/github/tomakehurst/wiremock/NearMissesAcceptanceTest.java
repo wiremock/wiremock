@@ -23,9 +23,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

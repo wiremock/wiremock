@@ -9,7 +9,6 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;

@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.*;
@@ -30,15 +29,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

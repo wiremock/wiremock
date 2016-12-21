@@ -20,8 +20,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROO
 
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.io.IOException;
-import java.net.URL;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
