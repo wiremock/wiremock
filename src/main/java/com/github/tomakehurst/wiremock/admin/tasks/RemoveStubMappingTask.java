@@ -21,11 +21,8 @@ import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.UUID;
-
-import static java.util.Collections.emptyMap;
 
 public class RemoveStubMappingTask implements AdminTask {
 

@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
-import com.github.tomakehurst.wiremock.common.Strings;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 

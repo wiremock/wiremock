@@ -33,15 +33,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.TRACE;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class ProxyResponseRenderer implements ResponseRenderer {

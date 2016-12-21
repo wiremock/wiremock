@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.collect.Iterables.getFirst;
 import static com.google.common.net.HttpHeaders.COOKIE;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
