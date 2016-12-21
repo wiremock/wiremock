@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -298,6 +299,22 @@ public class CommandLineOptionsTest {
     public void returnsAConsoleNotifyingListenerWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--print-all-network-traffic");
         assertThat(options.networkTrafficListener(), is(instanceOf(ConsoleNotifyingWiremockNetworkTrafficListener.class)));
+    }
+
+    @Test
+    public void enablesGlobalResponseTemplating() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        assertThat(extensions.entrySet(), hasSize(1));
+        assertThat(extensions.get("response-template").applyGlobally(), is(true));
+    }
+
+    @Test
+    public void enablesLocalResponseTemplating() {
+        CommandLineOptions options = new CommandLineOptions("--local-response-templating");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        assertThat(extensions.entrySet(), hasSize(1));
+        assertThat(extensions.get("response-template").applyGlobally(), is(false));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
