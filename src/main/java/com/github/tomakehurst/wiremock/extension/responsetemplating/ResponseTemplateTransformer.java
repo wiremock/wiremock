@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -20,9 +21,25 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
-public class GlobalDynamicResponseDefinitionTransformer extends ResponseDefinitionTransformer {
+public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
-    private final Handlebars handlebars = new Handlebars();
+    private final boolean global;
+
+    private final Handlebars handlebars;
+
+    public ResponseTemplateTransformer(boolean global) {
+        this.global = global;
+        handlebars = new Handlebars();
+
+        for (StringHelpers helper: StringHelpers.values()) {
+            handlebars.registerHelper(helper.name(), helper);
+        }
+    }
+
+    @Override
+    public boolean applyGlobally() {
+        return global;
+    }
 
     @Override
     public String getName() {

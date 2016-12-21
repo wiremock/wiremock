@@ -15,13 +15,13 @@ import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSou
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class DynamicResponseDefinitionTransformerTest {
+public class ResponseTemplateTransformerTest {
 
-    private GlobalDynamicResponseDefinitionTransformer transformer;
+    private ResponseTemplateTransformer transformer;
 
     @Before
     public void setup() {
-        transformer = new GlobalDynamicResponseDefinitionTransformer();
+        transformer = new ResponseTemplateTransformer(true);
     }
 
     @Test
@@ -185,6 +185,21 @@ public class DynamicResponseDefinitionTransformerTest {
 
         assertThat(headerValues.get(0), is("12345"));
         assertThat(headerValues.get(1), is("56789"));
+    }
+
+    @Test
+    public void stringHelper() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .body("some text"),
+            aResponse().withBody(
+                "{{{ capitalize request.body }}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "Some Text"
+        ));
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
