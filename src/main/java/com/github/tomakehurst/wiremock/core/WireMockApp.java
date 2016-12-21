@@ -32,10 +32,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -77,10 +74,10 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
-        stubMappings = new InMemoryStubMappings(
-            options.extensionsOfType(RequestMatcherExtension.class),
-            options.extensionsOfType(ResponseDefinitionTransformer.class),
-            fileSource);
+        stubMappings = options.stubMappingsFactory().create(
+                options.extensionsOfType(RequestMatcherExtension.class),
+                options.extensionsOfType(ResponseDefinitionTransformer.class),
+                fileSource);
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         this.container = container;
         loadDefaultMappings();
@@ -102,7 +99,7 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
+        stubMappings = new StubMappingsWithTransformersAndCustomMatchers(requestMatchers, transformers, rootFileSource, new SortedConcurrentSetMappingsRepository());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         loadDefaultMappings();

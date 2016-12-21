@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.mappings.StubMappingsFactory;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface Options {
-
     int DEFAULT_PORT = 8080;
     int DYNAMIC_PORT = 0;
     int DEFAULT_CONTAINER_THREADS = 10;
@@ -52,4 +52,5 @@ public interface Options {
     HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
     WiremockNetworkTrafficListener networkTrafficListener();
+    StubMappingsFactory stubMappingsFactory();
 }

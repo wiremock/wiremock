@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingsCollector;
 
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +75,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	@Override
-	public void loadMappingsInto(StubMappings stubMappings) {
+	public void loadMappingsInto(StubMappingsCollector stubMappingsCollector) {
 		if (!mappingsFileSource.exists()) {
 			return;
 		}
@@ -83,7 +83,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 		for (TextFile mappingFile: mappingFiles) {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
             mapping.setDirty(false);
-			stubMappings.addMapping(mapping);
+			stubMappingsCollector.addMapping(mapping);
 			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
 		}
 	}

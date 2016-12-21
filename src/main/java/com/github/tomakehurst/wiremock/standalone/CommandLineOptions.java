@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.*;
+import com.github.tomakehurst.wiremock.core.mappings.InMemoryStubMappingsFactory;
+import com.github.tomakehurst.wiremock.core.mappings.StubMappingsFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.core.MappingsSaver;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
@@ -403,5 +403,10 @@ public class CommandLineOptions implements Options {
         }
 
         return value.toString();
+    }
+
+    @Override
+    public StubMappingsFactory stubMappingsFactory() {
+        return new InMemoryStubMappingsFactory();
     }
 }

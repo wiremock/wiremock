@@ -22,10 +22,9 @@ import com.google.common.base.Optional;
 import java.util.List;
 import java.util.UUID;
 
-public interface StubMappings {
+public interface StubMappings extends StubMappingsCollector {
 
 	ServeEvent serveFor(Request request);
-	void addMapping(StubMapping mapping);
 	void removeMapping(StubMapping mapping);
 	void editMapping(StubMapping stubMapping);
 	void reset();

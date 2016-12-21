@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -39,78 +40,86 @@ import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 
 
-public class InMemoryStubMappings implements StubMappings {
-	
-	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
+public class StubMappingsWithTransformersAndCustomMatchers implements StubMappings {
+	private final MappingsRepository mappingsRepository;
+	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<>();
 	private final Map<String, RequestMatcherExtension> customMatchers;
-    private final Map<String, ResponseDefinitionTransformer> transformers;
-    private final FileSource rootFileSource;
+	private final Map<String, ResponseDefinitionTransformer> transformers;
+	private final FileSource rootFileSource;
+	private final StubMapping defaultMapping;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
+	public StubMappingsWithTransformersAndCustomMatchers(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, MappingsRepository mappingsRepository, StubMapping defaultMapping) {
 		this.customMatchers = customMatchers;
-        this.transformers = transformers;
-        this.rootFileSource = rootFileSource;
-    }
+		this.transformers = transformers;
+		this.rootFileSource = rootFileSource;
+		this.mappingsRepository = mappingsRepository;
+		this.defaultMapping = defaultMapping;
+	}
 
-	public InMemoryStubMappings() {
+	public StubMappingsWithTransformersAndCustomMatchers(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, MappingsRepository mappingsRepository) {
+		this(customMatchers, transformers, rootFileSource, mappingsRepository, StubMapping.NOT_CONFIGURED);
+	}
+
+	@VisibleForTesting
+	public StubMappingsWithTransformersAndCustomMatchers() {
 		this(Collections.<String, RequestMatcherExtension>emptyMap(),
-             Collections.<String, ResponseDefinitionTransformer>emptyMap(),
-             new SingleRootFileSource("."));
+				Collections.<String, ResponseDefinitionTransformer>emptyMap(),
+				new SingleRootFileSource("."),
+				new SortedConcurrentSetMappingsRepository());
 	}
 
 	@Override
 	public ServeEvent serveFor(Request request) {
 		StubMapping matchingMapping = find(
-				mappings,
+				mappingsRepository.getAll(),
 				mappingMatchingAndInCorrectScenarioState(request),
-				StubMapping.NOT_CONFIGURED);
-		
+				defaultMapping);
+
 		matchingMapping.updateScenarioStateIfRequired();
 
-        ResponseDefinition responseDefinition = applyTransformations(request,
-            matchingMapping.getResponse(),
-            ImmutableList.copyOf(transformers.values()));
+		ResponseDefinition responseDefinition = applyTransformations(request,
+				matchingMapping.getResponse(),
+				ImmutableList.copyOf(transformers.values()));
 
 		return ServeEvent.of(
-            LoggedRequest.createFrom(request),
-            copyOf(responseDefinition),
-            matchingMapping
-        );
+				LoggedRequest.createFrom(request),
+				copyOf(responseDefinition),
+				matchingMapping
+		);
 	}
 
-    private ResponseDefinition applyTransformations(Request request,
-                                                    ResponseDefinition responseDefinition,
-                                                    List<ResponseDefinitionTransformer> transformers) {
-        if (transformers.isEmpty()) {
-            return responseDefinition;
-        }
+	private ResponseDefinition applyTransformations(Request request,
+													ResponseDefinition responseDefinition,
+													List<ResponseDefinitionTransformer> transformers) {
+		if (transformers.isEmpty()) {
+			return responseDefinition;
+		}
 
-        ResponseDefinitionTransformer transformer = transformers.get(0);
-        ResponseDefinition newResponseDef =
-            transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
-                responseDefinition;
+		ResponseDefinitionTransformer transformer = transformers.get(0);
+		ResponseDefinition newResponseDef =
+				transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
+						transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+						responseDefinition;
 
-        return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
-    }
+		return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
+	}
 
 	@Override
 	public void addMapping(StubMapping mapping) {
 		updateSenarioMapIfPresent(mapping);
-		mappings.add(mapping);
+		mappingsRepository.add(mapping);
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
 		removeFromSenarioMapIfPresent(mapping);
-		mappings.remove(mapping);
+		mappingsRepository.remove(mapping);
 	}
 
 	@Override
 	public void editMapping(StubMapping stubMapping) {
 		final Optional<StubMapping> optionalExistingMapping = tryFind(
-				mappings,
+				mappingsRepository.getAll(),
 				mappingMatchingUuid(stubMapping.getUuid())
 		);
 
@@ -126,7 +135,7 @@ public class InMemoryStubMappings implements StubMappings {
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
 		stubMapping.setDirty(true);
 
-		mappings.replace(existingMapping, stubMapping);
+		mappingsRepository.replace(existingMapping, stubMapping);
 	}
 
 	private void removeFromSenarioMapIfPresent(StubMapping mapping) {
@@ -145,25 +154,25 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void reset() {
-		mappings.clear();
-        scenarioMap.clear();
+		mappingsRepository.clear();
+		scenarioMap.clear();
 	}
-	
+
 	@Override
 	public void resetScenarios() {
-		for (Scenario scenario: scenarioMap.values()) {
+		for (Scenario scenario : scenarioMap.values()) {
 			scenario.reset();
 		}
 	}
 
-    @Override
-    public List<StubMapping> getAll() {
-        return ImmutableList.copyOf(mappings);
-    }
+	@Override
+	public List<StubMapping> getAll() {
+		return ImmutableList.copyOf(mappingsRepository.getAll());
+	}
 
 	@Override
 	public Optional<StubMapping> get(final UUID id) {
-		return tryFind(mappings, new Predicate<StubMapping>() {
+		return tryFind(mappingsRepository.getAll(), new Predicate<StubMapping>() {
 			@Override
 			public boolean apply(StubMapping input) {
 				return input.getUuid().equals(id);
@@ -173,13 +182,13 @@ public class InMemoryStubMappings implements StubMappings {
 
 	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
-    }
+	}
 
-    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
+	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
 				return mapping.getRequest().match(request, customMatchers).isExactMatch() &&
-				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
+						(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
 			}
 		};
 	}

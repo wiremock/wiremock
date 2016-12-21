@@ -31,27 +31,27 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class InMemoryStubMappingsTest {
+public class StubMappingsWithTransformersAndCustomMatchersTest {
 
-	private InMemoryStubMappings inMemoryStubMappings;
+	private StubMappingsWithTransformersAndCustomMatchers stubMappingsWithTransformersAndCustomMatchers;
 
 	@Before
 	public void setUp() throws Exception {
-		inMemoryStubMappings = new InMemoryStubMappings();
+		stubMappingsWithTransformersAndCustomMatchers = new StubMappingsWithTransformersAndCustomMatchers();
 	}
 
 	@Test
 	public void testEditMapping() throws Exception {
 
 		StubMapping existingMapping = aMapping(1, "/priority1/1");
-		inMemoryStubMappings.addMapping(existingMapping);
+		stubMappingsWithTransformersAndCustomMatchers.addMapping(existingMapping);
 
 		StubMapping newMapping = aMapping(1, "/priority1/2");
 		newMapping.setUuid(existingMapping.getUuid());
 
-		inMemoryStubMappings.editMapping(newMapping);
+		stubMappingsWithTransformersAndCustomMatchers.editMapping(newMapping);
 
-		List<StubMapping> allMappings = inMemoryStubMappings.getAll();
+		List<StubMapping> allMappings = stubMappingsWithTransformersAndCustomMatchers.getAll();
 
 		assertThat(allMappings, hasSize(1));
 		assertThat(allMappings.get(0), is(newMapping));
@@ -60,34 +60,34 @@ public class InMemoryStubMappingsTest {
 	@Test
 	public void testRemoveMapping() throws Exception{
 
-		List<StubMapping> allMappings = inMemoryStubMappings.getAll();
+		List<StubMapping> allMappings = stubMappingsWithTransformersAndCustomMatchers.getAll();
 		assertThat(allMappings,hasSize(0));
 
 		StubMapping existingMapping = aMapping(1,"priority1/1");
-		inMemoryStubMappings.addMapping(existingMapping);
+		stubMappingsWithTransformersAndCustomMatchers.addMapping(existingMapping);
 		existingMapping = aMapping(2,"priority2/2");
 		StubMapping mappingToRemove = existingMapping;
-		inMemoryStubMappings.addMapping(existingMapping);
+		stubMappingsWithTransformersAndCustomMatchers.addMapping(existingMapping);
 		existingMapping = aMapping(3,"priority3/3");
-		inMemoryStubMappings.addMapping(existingMapping);
-		allMappings = inMemoryStubMappings.getAll();
+		stubMappingsWithTransformersAndCustomMatchers.addMapping(existingMapping);
+		allMappings = stubMappingsWithTransformersAndCustomMatchers.getAll();
 		assertThat(allMappings,hasSize(3));
 
-		inMemoryStubMappings.removeMapping(mappingToRemove);
+		stubMappingsWithTransformersAndCustomMatchers.removeMapping(mappingToRemove);
 
-		allMappings = inMemoryStubMappings.getAll();
+		allMappings = stubMappingsWithTransformersAndCustomMatchers.getAll();
 		assertThat(allMappings,hasSize(2));
 	}
 	@Test
 	public void testEditMappingNotPresent() throws Exception {
 
 		StubMapping existingMapping = aMapping(1, "/priority1/1");
-		inMemoryStubMappings.addMapping(existingMapping);
+		stubMappingsWithTransformersAndCustomMatchers.addMapping(existingMapping);
 
 		StubMapping newMapping = aMapping(1, "/priority1/2");
 
 		try {
-			inMemoryStubMappings.editMapping(newMapping);
+			stubMappingsWithTransformersAndCustomMatchers.editMapping(newMapping);
 			fail("Expected Exception");
 		} catch (RuntimeException e) {
 			assertThat(e.getMessage(), containsString(newMapping.getUuid().toString()));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Thomas Akehurst
+ * Copyright (C) 2016 Wojciech Bulaty
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.standalone;
+package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMappingsCollector;
-
-public interface MappingsLoader {
-
-	void loadMappingsInto(StubMappingsCollector stubMappingsCollector);
-
+public interface MappingsRepository {
+    Iterable<StubMapping> getAll();
+    void add(StubMapping mapping);
+    void remove(StubMapping mapping);
+    void replace(StubMapping existingMapping, StubMapping stubMapping);
+    void clear();
 }
