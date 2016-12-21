@@ -91,7 +91,20 @@ are available e.g.
 
 
 ## Custom helpers
-!!!!!!!!!!!!!!!!!!!!!
-Custom Handlebars helpers can be added 
+Custom Handlebars helpers can be registered with the transformer on construction:
+  
+```java
+Helper<String> stringLengthHelper = new Helper<String>() {
+    @Override
+    public Object apply(String context, Options options) throws IOException {
+        return context.length();
+    }
+};
+
+@Rule
+public WireMockRule wm = new WireMockRule(options()
+    .extensions(new ResponseTemplateTransformer(false), "string-length", stringLengthHelper)
+);
+```
 
 

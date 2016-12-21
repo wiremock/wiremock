@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -7,6 +9,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -27,14 +30,14 @@ public class ResponseTemplateTransformerTest {
     @Test
     public void queryParameters() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
-            .url("/things?multi_param=one&multi_param=two&single-param=1234"),
+                .url("/things?multi_param=one&multi_param=two&single-param=1234"),
             aResponse().withBody(
                 "Multi 1: {{request.query.multi_param.[0]}}, Multi 2: {{request.query.multi_param.[1]}}, Single 1: {{request.query.single-param}}"
             )
         );
 
         assertThat(transformedResponseDef.getBody(), is(
-        "Multi 1: one, Multi 2: two, Single 1: 1234"
+            "Multi 1: one, Multi 2: two, Single 1: 1234"
         ));
     }
 
@@ -160,9 +163,9 @@ public class ResponseTemplateTransformerTest {
         );
 
         assertThat(transformedResponseDef
-            .getHeaders()
-            .getHeader("X-Correlation-Id")
-            .firstValue(),
+                .getHeaders()
+                .getHeader("X-Correlation-Id")
+                .firstValue(),
             is("12345")
         );
     }
@@ -200,6 +203,28 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getBody(), is(
             "Some Text"
         ));
+    }
+
+    @Test
+    public void customHelper() {
+        Helper<String> helper = new Helper<String>() {
+            @Override
+            public Object apply(String context, Options options) throws IOException {
+                return context.length();
+            }
+        };
+
+        transformer = new ResponseTemplateTransformer(false, "string-length", helper);
+
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .body("fiver"),
+            aResponse().withBody(
+                "{{{ string-length request.body }}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("5"));
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {

@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -17,7 +18,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
@@ -28,11 +31,23 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     private final Handlebars handlebars;
 
     public ResponseTemplateTransformer(boolean global) {
+        this(global, Collections.<String, Helper>emptyMap());
+    }
+
+    public ResponseTemplateTransformer(boolean global, String helperName, Helper helper) {
+        this(global, ImmutableMap.of(helperName, helper));
+    }
+
+    public ResponseTemplateTransformer(boolean global, Map<String, Helper> helpers) {
         this.global = global;
         handlebars = new Handlebars();
 
         for (StringHelpers helper: StringHelpers.values()) {
             handlebars.registerHelper(helper.name(), helper);
+        }
+
+        for (Map.Entry<String, Helper> entry: helpers.entrySet()) {
+            handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
     }
 
