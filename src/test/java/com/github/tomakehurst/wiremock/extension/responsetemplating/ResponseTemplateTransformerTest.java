@@ -57,7 +57,7 @@ public class ResponseTemplateTransformerTest {
                 .header("X-Request-Id", "req-id-1234")
                 .header("123$%$^&__why_o_why", "foundit"),
             aResponse().withBody(
-                "Request ID: req-id-1234, Awkward named header: foundit"
+                "Request ID: {{request.headers.X-Request-Id}}, Awkward named header: {{request.headers.[123$%$^&__why_o_why]}}"
             )
         );
 

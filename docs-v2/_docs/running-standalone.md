@@ -101,6 +101,9 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 `--print-all-network-traffic`: Print all raw incoming and outgoing network traffic to console.
 
+`--global-response-templating`: Render all response definitions using Handlebars templates.
+`--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client
