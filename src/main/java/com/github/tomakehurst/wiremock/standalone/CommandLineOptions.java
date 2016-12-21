@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -78,6 +80,8 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
+    private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
+    private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -111,6 +115,9 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
+        optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
+        optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+
         optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
@@ -264,14 +271,24 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
+        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
         if (optionSet.has(EXTENSIONS)) {
             String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
+            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
                 classNames.split(",")),
-                valueAssignableFrom(extensionType));
+                valueAssignableFrom(extensionType))
+            );
         }
 
-        return Collections.emptyMap();
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
+            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(true);
+            builder.put(transformer.getName(), (T) transformer);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
+            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(false);
+            builder.put(transformer.getName(), (T) transformer);
+        }
+
+        return builder.build();
     }
 
     @Override
