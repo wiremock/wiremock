@@ -404,6 +404,30 @@ public class WireMock {
 		return new BasicMappingBuilder(requestMatcher);
 	}
 
+
+
+	public static BodyMappingBuilder requestWithBody(RequestMethod requestMethod, UrlPattern urlPattern) {
+		return new BodyMappingBuilder(requestMethod, urlPattern);
+	}
+
+	public static BodyMappingBuilder postWithBody(UrlPattern urlPattern) {
+		return requestWithBody(RequestMethod.POST, urlPattern);
+	}
+
+	public static BodyMappingBuilder putWithBody(UrlPattern urlPattern) {
+		return requestWithBody(RequestMethod.PUT, urlPattern);
+	}
+
+	public static BodyMappingBuilder patchWithBody(UrlPattern urlPattern) {
+		return requestWithBody(RequestMethod.PATCH, urlPattern);
+	}
+
+	public static BodyMappingBuilder anyWithBody(UrlPattern urlPattern) {
+		return requestWithBody(RequestMethod.ANY, urlPattern);
+	}
+
+
+
 	public static ResponseDefinitionBuilder aResponse() {
 		return new ResponseDefinitionBuilder();
 	}
