@@ -17,21 +17,23 @@ package com.github.tomakehurst.wiremock.common;
 
 public class LocalNotifier {
 
-	private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>();
-	
-	public static Notifier notifier() {
-		Notifier notifier = notifierHolder.get();
-		if (notifier == null) {
-			notifier = new NullNotifier();
+	private static ThreadLocal<Notifier> notifierHolder = new ThreadLocal<Notifier>() {
+		@Override
+		protected Notifier initialValue() {
+			return new NullNotifier();
 		}
-		
-		return notifier;
+	};
+
+	public static Notifier notifier() {
+		return notifierHolder.get();
 	}
-	
+
 	public static void set(Notifier notifier) {
-		notifierHolder.set(notifier);
+        if (notifier == null)
+            notifier = new NullNotifier();
+        notifierHolder.set(notifier);
 	}
-	
+
 	private static class NullNotifier implements Notifier {
 
 		@Override
@@ -45,6 +47,6 @@ public class LocalNotifier {
 		@Override
 		public void error(String message, Throwable t) {
 		}
-		
+
 	}
 }
