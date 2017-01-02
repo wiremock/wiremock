@@ -1,3 +1,13 @@
+/**
+ * ---------- Deployment to maven repository ----------
+ *
+ * publish -PsonatypeUser=<user> -PsonatypePassword=<password> -PsonatypeRepo=<repoUrl>
+ *
+ * For example:
+ * publish -PsonatypeUser=developer -PsonatypePassword=1234 -PsonatypeRepo=http://127.0.0.1:8081/repository/upstream/
+ *
+ */
+
 buildscript {
     repositories {
         maven {
@@ -162,6 +172,7 @@ shadowJar {
 }
 
 def releaseDirUrl
+def repoUrl
 def repoUser
 def repoPassword
 
@@ -217,6 +228,14 @@ task signStandaloneJarPom(type: Sign, dependsOn: 'generatePomFileForStandaloneJa
     sign new File(standaloneJarPomPath)
 }
 
+//TODO prevent credentials from leaking to default repo hosts
+
+if (!this.hasProperty('sonatypeRepo')) {
+    repoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+} else {
+    repoUrl = sonatypeRepo
+}
+
 if (!this.hasProperty('sonatypeUser')) {
     repoUser = 'default'
 } else {
@@ -258,10 +277,9 @@ final pomInfo = {
 publishing {
     repositories {
         maven {
-            URL localRepo = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
-            URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
+            URL localRepoUrl = new File("${System.getProperty('user.home')}/.m2/repository").toURI().toURL()
 
-            url repoUrl
+            url = shouldPublishLocally ? localRepoUrl : repoUrl
 
             if (!shouldPublishLocally) {
                 credentials {
