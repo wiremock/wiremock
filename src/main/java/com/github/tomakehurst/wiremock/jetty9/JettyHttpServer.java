@@ -286,7 +286,20 @@ class JettyHttpServer implements HttpServer {
         ServletContextHandler adminContext = new ServletContextHandler(jettyServer, ADMIN_CONTEXT_ROOT);
 
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.maxCacheSize", "0");
-        adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", Resources.getResource("assets").toString());
+
+        String javaVendor = System.getProperty("java.vendor");
+        if (javaVendor != null && javaVendor.toLowerCase().contains("android")) {
+            //Special case for Android, fixes IllegalArgumentException("resource assets not found."):
+            //  The Android ClassLoader apparently does not resolve directories.
+            //  Furthermore, lib assets will be merged into a single asset directory when a jar file is assimilated into an apk.
+            //  As resources can be addressed like "assets/swagger-ui/index.html", a static path element will suffice.
+            adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", "assets");
+        } else {
+            adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.resourceBase", Resources.getResource("assets").toString());
+        }
+
+        Resources.getResource("assets/swagger-ui/index.html");
+
         adminContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
         adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
 
