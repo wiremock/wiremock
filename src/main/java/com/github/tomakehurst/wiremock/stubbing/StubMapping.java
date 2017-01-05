@@ -28,29 +28,30 @@ import java.util.UUID;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-@JsonPropertyOrder({ "id", "uuid", "request", "newRequest", "response" })
+@JsonPropertyOrder({ "id", "name", "request", "newRequest", "response", "uuid" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
 
 	private UUID uuid = UUID.randomUUID();
+	private String name;
 
 	private boolean persistent;
 
 	private RequestPattern request;
-
 	private ResponseDefinition response;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
+
 	private Scenario scenario;
 
     private Map<String, Parameters> postServeActions;
 
 	private long insertionIndex;
+	private boolean isDirty = true;
 
-    private boolean isDirty = true;
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
@@ -81,6 +82,14 @@ public class StubMapping {
 
 	public UUID getId() {
 		return uuid;
+	}
+
+	public String getName() {
+    	return name;
+	}
+
+	public void setName(String name) {
+    	this.name = name;
 	}
 
 	public void setUuid(UUID uuid) {

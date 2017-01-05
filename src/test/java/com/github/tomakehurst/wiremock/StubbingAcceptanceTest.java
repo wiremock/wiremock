@@ -15,19 +15,25 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
@@ -478,7 +484,28 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/anything-is-matched").statusCode(), is(200));
     }
 
+    @Test
+	public void stubMappingsCanOptionallyBeNamed() {
+	    stubFor(any(urlPathEqualTo("/things"))
+            .withName("Get all the things")
+            .willReturn(aResponse().withBody("Named stub")));
 
+	    assertThat(listAllStubMappings().getMappings(), hasItem(named("Get all the things")));
+    }
+
+    private Matcher<StubMapping> named(final String name) {
+	    return new TypeSafeMatcher<StubMapping>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("named " + name);
+            }
+
+            @Override
+            protected boolean matchesSafely(StubMapping item) {
+                return name.equals(item.getName());
+            }
+        };
+    }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
 		boolean thrown = false;

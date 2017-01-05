@@ -39,6 +39,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private UUID id = UUID.randomUUID();
+	private String name;
     private boolean isPersistent = false;
     private Map<String, Parameters> postServeActions = newLinkedHashMap();
 
@@ -116,6 +117,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		return this;
 	}
 
+	@Override
+	public BasicMappingBuilder withName(String name) {
+		this.name = name;
+		return this;
+	}
+
     @Override
     public ScenarioMappingBuilder persistent() {
         this.isPersistent = true;
@@ -150,6 +157,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
 		mapping.setUuid(id);
+		mapping.setName(name);
         mapping.setPersistent(isPersistent);
 
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
