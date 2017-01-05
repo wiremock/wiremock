@@ -298,9 +298,10 @@ public class AdminApiTest extends AcceptanceTestBase {
     @Test
     public void createStubMappingReturnsTheCreatedMapping() {
         WireMockResponse response = testClient.postJson("/__admin/mappings",
-            "{                                  \n" +
+            "{                                \n" +
+                "    \"name\": \"Teapot putter\",   \n" +
                 "    \"request\": {                 \n" +
-                "        \"method\": \"GET\",       \n" +
+                "        \"method\": \"PUT\",       \n" +
                 "        \"url\": \"/put/this\"     \n" +
                 "    },                             \n" +
                 "    \"response\": {                \n" +
@@ -313,6 +314,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.firstHeader("Content-Type"), is("application/json"));
         String body = response.content();
         JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
+        JsonAssertion.assertThat(body).field("name").isEqualTo("Teapot putter");
     }
 
     @Test
