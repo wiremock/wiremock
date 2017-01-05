@@ -112,7 +112,6 @@ public class ClasspathFileSource implements FileSource {
 
     @Override
     public void createIfNecessary() {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
@@ -179,12 +178,10 @@ public class ClasspathFileSource implements FileSource {
 
     @Override
     public void writeTextFile(String name, String contents) {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
     public void writeBinaryFile(String name, byte[] contents) {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
@@ -195,7 +192,6 @@ public class ClasspathFileSource implements FileSource {
 
     @Override
     public void deleteFile(String name) {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     private static <T> Iterable<T> toIterable(final Enumeration<T> e) {
