@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -26,6 +28,12 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import com.github.tomakehurst.wiremock.common.HttpClientUtils;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,26 +49,25 @@ public class BindAddressTest {
     private String nonBindAddress;
     private WireMockServer wireMockServer;
 
-    @Test
-    public void shouldRespondInTheBindAddressOnly() throws Exception {
-        executeGetIn(localhost);
-        try {
-            executeGetIn(nonBindAddress);
-            Assert.fail("Should not accept the connection in [" + nonBindAddress + "]");
-        } catch (Exception ex) {
-        }
-    }
+    final HttpClient client = HttpClientFactory.createClient();
 
     @Before
     public void prepare() throws Exception {
         nonBindAddress = getIpAddressOtherThan(localhost);
         if (nonBindAddress == null) {
-            Assert.fail("Impossible to validate the binding address. This machine has only a one Ip address ["
+            fail("Impossible to validate the binding address. This machine has only a one Ip address ["
                     + localhost + "]");
         }
 
-        wireMockServer = new WireMockServer(wireMockConfig().bindAddress(localhost).dynamicPort());
+        wireMockServer = new WireMockServer(wireMockConfig()
+            .bindAddress(localhost)
+            .dynamicPort()
+            .dynamicHttpsPort()
+        );
         wireMockServer.start();
+
+        wireMockServer.stubFor(get(urlPathEqualTo("/bind-test"))
+            .willReturn(aResponse().withStatus(200)));
     }
 
     @After
@@ -70,11 +77,43 @@ public class BindAddressTest {
         }
     }
 
+    @Test
+    public void shouldRespondInTheBindAddressOnlyOnHttp() throws Exception {
+        executeGetIn(localhost);
+        try {
+            executeGetIn(nonBindAddress);
+            fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
+        } catch (Exception ex) {
+        }
+    }
+
+    @Test
+    public void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
+        int localhostStatus = getStatusViaHttps(localhost);
+        assertThat(localhostStatus, is(200));
+
+        try {
+            getStatusViaHttps(nonBindAddress);
+            fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
+        } catch (Exception e) {
+        }
+    }
+
+    private int getStatusViaHttps(String host) throws Exception {
+        HttpResponse localhostResponse = client.execute(RequestBuilder
+            .get("https://" + host + ":" + wireMockServer.httpsPort() + "/bind-test")
+            .build()
+        );
+
+        int status = localhostResponse.getStatusLine().getStatusCode();
+        EntityUtils.consume(localhostResponse.getEntity());
+        return status;
+    }
+
     private void executeGetIn(String address) {
         WireMockTestClient wireMockClient = new WireMockTestClient(wireMockServer.port(), address);
-        wireMockClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
-        WireMockResponse response = wireMockClient.get("/a/registered/resource");
-        assertThat(response.statusCode(), is(401));
+        WireMockResponse response = wireMockClient.get("/bind-test");
+        assertThat(response.statusCode(), is(200));
     }
 
     private String getIpAddressOtherThan(String lopbackAddress) throws SocketException {
