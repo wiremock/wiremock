@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -27,6 +28,12 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import com.github.tomakehurst.wiremock.common.HttpClientUtils;
+import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,11 +49,13 @@ public class BindAddressTest {
     private String nonBindAddress;
     private WireMockServer wireMockServer;
 
+    final HttpClient client = HttpClientFactory.createClient();
+
     @Before
     public void prepare() throws Exception {
         nonBindAddress = getIpAddressOtherThan(localhost);
         if (nonBindAddress == null) {
-            Assert.fail("Impossible to validate the binding address. This machine has only a one Ip address ["
+            fail("Impossible to validate the binding address. This machine has only a one Ip address ["
                     + localhost + "]");
         }
 
@@ -73,14 +82,32 @@ public class BindAddressTest {
         executeGetIn(localhost);
         try {
             executeGetIn(nonBindAddress);
-            Assert.fail("Should not accept the connection in [" + nonBindAddress + "]");
+            fail("Should not accept HTTP connection to [" + nonBindAddress + "]");
         } catch (Exception ex) {
         }
     }
 
     @Test
     public void shouldRespondInTheBindAddressOnlyOnHttps() throws Exception {
+        int localhostStatus = getStatusViaHttps(localhost);
+        assertThat(localhostStatus, is(200));
 
+        try {
+            getStatusViaHttps(nonBindAddress);
+            fail("Should not accept HTTPS connection to [" + nonBindAddress + "]");
+        } catch (Exception e) {
+        }
+    }
+
+    private int getStatusViaHttps(String host) throws Exception {
+        HttpResponse localhostResponse = client.execute(RequestBuilder
+            .get("https://" + host + ":" + wireMockServer.httpsPort() + "/bind-test")
+            .build()
+        );
+
+        int status = localhostResponse.getStatusLine().getStatusCode();
+        EntityUtils.consume(localhostResponse.getEntity());
+        return status;
     }
 
     private void executeGetIn(String address) {
