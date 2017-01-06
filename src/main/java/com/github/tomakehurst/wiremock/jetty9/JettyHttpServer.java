@@ -78,6 +78,7 @@ class JettyHttpServer implements HttpServer {
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
+                    options.bindAddress(),
                     options.httpsSettings(),
                     options.jettySettings(),
                     networkTrafficListenerAdapter);
@@ -158,16 +159,18 @@ class JettyHttpServer implements HttpServer {
         HttpConfiguration httpConfig = createHttpConfig(jettySettings);
 
         ServerConnector connector = createServerConnector(
+                bindAddress,
                 jettySettings,
                 port,
                 listener,
                 new HttpConnectionFactory(httpConfig)
         );
-        connector.setHost(bindAddress);
+
         return connector;
     }
 
     private ServerConnector createHttpsConnector(
+            String bindAddress,
             HttpsSettings httpsSettings,
             JettySettings jettySettings,
             NetworkTrafficListener listener) {
@@ -190,8 +193,8 @@ class JettyHttpServer implements HttpServer {
 
         final int port = httpsSettings.port();
 
-
         return createServerConnector(
+                bindAddress,
                 jettySettings,
                 port,
                 listener,
@@ -212,7 +215,10 @@ class JettyHttpServer implements HttpServer {
         return httpConfig;
     }
 
-    private ServerConnector createServerConnector(JettySettings jettySettings, int port, NetworkTrafficListener listener, ConnectionFactory... connectionFactories) {
+    private ServerConnector createServerConnector(String bindAddress,
+                                                  JettySettings jettySettings,
+                                                  int port, NetworkTrafficListener listener,
+                                                  ConnectionFactory... connectionFactories) {
         int acceptors = jettySettings.getAcceptors().or(2);
         NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(
                 jettyServer,
@@ -231,6 +237,8 @@ class JettyHttpServer implements HttpServer {
         connector.addNetworkTrafficListener(listener);
 
         setJettySettings(jettySettings, connector);
+
+        connector.setHost(bindAddress);
 
         return connector;
     }
