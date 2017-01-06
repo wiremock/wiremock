@@ -1,0 +1,526 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Response Templating - WireMock</title>
+
+
+
+
+
+
+
+<meta name="description" content="Generating dynamic responses using Handlebars templates">
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="WireMock">
+<meta property="og:title" content="Response Templating">
+
+
+
+
+  <meta property="og:description" content="Generating dynamic responses using Handlebars templates">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2017-01-06T18:32:58+00:00">
+  
+    <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
+  
+  
+    <link rel="prev" href="/docs/request-matching/" title="Request Matching">
+  
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Tom Akehurst",
+      "url" : null,
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon3.png">
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use http://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg">
+            <a href="/"><img src="/images/wiremock-concept-icon-01.png" style="width: 80px; height: 37px" /></a>
+          </li>
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/docs/" title="Docs">Docs</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/about/" title="About">About</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://github.com/tomakehurst/wiremock" title="GitHub" target="_blank">GitHub</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="https://groups.google.com/forum/#!forum/wiremock-user" title="Mailing List" target="_blank">Mailing List</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="/external-resources/" title="External Resources">External Resources</a></li>
+            
+
+          
+            
+
+            
+            <li class="masthead__menu-item"><a href="http://get.mocklab.io" title="MockLab" target="_blank">MockLab</a></li>
+            
+
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    
+
+<div id="main" role="main">
+  
+
+
+<div class="sidebar sticky">
+  <nav class="nav__list">
+
+    <ul>
+      
+
+      
+      <li>
+        <a href="/docs/getting-started/">
+
+        Getting Started
+      </a>
+      
+      <li>
+        <a href="/docs/junit-rule/">
+
+        The JUnit 4.x Rule
+      </a>
+      
+      <li>
+        <a href="/docs/java-usage/">
+
+        Java (Non-JUnit) Usage
+      </a>
+      
+      <li>
+        <a href="/docs/configuration/">
+
+        Configuration
+      </a>
+      
+      <li>
+        <a href="/docs/running-standalone/">
+
+        Running as a Standalone Process
+      </a>
+      
+      <li>
+        <a href="/docs/stubbing/">
+
+        Stubbing
+      </a>
+      
+      <li>
+        <a href="/docs/verifying/">
+
+        Verifying
+      </a>
+      
+      <li>
+        <a href="/docs/request-matching/">
+
+        Request Matching
+      </a>
+      
+      <li>
+        <a href="/docs/proxying/">
+
+        Proxying
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback/">
+
+        Record and Playback
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/" class="nav__list-item--selected">
+        
+
+        Response Templating
+      </a>
+      
+      <li>
+        <a href="/docs/simulating-faults/">
+
+        Simulating Faults
+      </a>
+      
+      <li>
+        <a href="/docs/stateful-behaviour/">
+
+        Stateful Behaviour
+      </a>
+      
+      <li>
+        <a href="/docs/https/">
+
+        HTTPS
+      </a>
+      
+      <li>
+        <a href="/docs/extending-wiremock/">
+
+        Extending WireMock
+      </a>
+      
+      <li>
+        <a href="/docs/android/">
+
+        Android
+      </a>
+      
+      <li>
+        <a href="/docs/api/">
+
+        Admin API Reference
+      </a>
+      
+    </ul>
+  </nav>
+</div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Response Templating">
+    <meta itemprop="description" content="Response headers and bodies can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
+    <meta itemprop="datePublished" content="January 06, 2017">
+    
+
+    <div class="page__inner-wrap">
+      <header>
+        <h1 class="page__title" itemprop="headline">Response Templating
+</h1>
+      </header>
+
+      <section class="page__content" itemprop="text">
+        <p>Response headers and bodies can optionally be rendered using <a href="http://handlebarsjs.com/">Handlebars templates</a>. This enables attributes of the request
+to be used in generating the response e.g. to pass the value of a request ID header as a response header or
+render an identifier from part of the URL in the response body.</p>
+
+<h2 id="enabling-response-templating">Enabling response templating</h2>
+<p>When starting WireMock programmatically, response templating can be enabled by adding <code class="highlighter-rouge">ResponseTemplateTransformer</code> as an extension e.g.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span>
+<span class="o">);</span>
+</code></pre>
+</div>
+
+<p>The boolean constructor parameter indicates whether the extension should be applied globally. If true, all stub mapping responses will be rendered as templates prior
+to being served.</p>
+
+<p>Otherwise the transformer will need to be specified on each stub mapping by its name <code class="highlighter-rouge">response-template</code>:</p>
+
+<p>Command line parameters can be used to enable templating when running WireMock <a href="/docs/running-standalone/#command-line-options">standalone</a>.</p>
+
+<h3 id="java">Java</h3>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{{request.path.[0]}}"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">"response-template"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<h3 id="json">JSON</h3>
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="the-request-model">The request model</h2>
+<p>The model of the request is supplied to the header and body templates. The following request attributes are available:</p>
+
+<p><code class="highlighter-rouge">request.url</code> - URL path and query</p>
+
+<p><code class="highlighter-rouge">request.path</code> - URL path</p>
+
+<p><code class="highlighter-rouge">request.path.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.path.[2]</code></p>
+
+<p><code class="highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
+
+<p><code class="highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
+
+<p><code class="highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="highlighter-rouge">request.headers.X-Request-Id</code></p>
+
+<p><code class="highlighter-rouge">request.headers.[&lt;key&gt;]</code>- Header with awkward characters e.g. <code class="highlighter-rouge">request.headers.[$?blah]</code></p>
+
+<p><code class="highlighter-rouge">request.headers.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a header (zero indexed) e.g. <code class="highlighter-rouge">request.headers.ManyThings.[1]</code></p>
+
+<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;</code> - Value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID</code></p>
+
+<p><code class="highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
+
+<h2 id="handlebars-helpers">Handlebars helpers</h2>
+<p>All of the standard helpers (template functions) provided by the <a href="https://github.com/jknack/handlebars.java">Java Handlebars implementation by jknack</a>
+plus all of the <a href="https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/StringHelpers.java">string helpers</a>
+are available e.g.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{capitalize</span><span class="w"> </span><span class="err">request.query.search</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="custom-helpers">Custom helpers</h2>
+<p>Custom Handlebars helpers can be registered with the transformer on construction:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringLengthHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="n">apply</span><span class="o">(</span><span class="n">String</span> <span class="n">context</span><span class="o">,</span> <span class="n">Options</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="na">length</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">};</span>
+
+<span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">),</span> <span class="s">"string-length"</span><span class="o">,</span> <span class="n">stringLengthHelper</span><span class="o">)</span>
+<span class="o">);</span>
+</code></pre>
+</div>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+
+
+      </footer>
+
+      
+    </div>
+
+    
+  </article>
+
+  
+  
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+    <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+    
+    <li><a href="/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2017 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+                                                                                                                                                                  rel="nofollow">Jekyll</a> &amp; <a
+  href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
+</div>
+
+<div id="dialog" style="display: none">
+  <h2 class="mocklab-popup__title">Looking for super-quick hosted mocks? Try MockLab</h2>
+  <p>Instant mock services on your own public URL, zero code required. Paste, record and generate mock data. Tester-friendly UI.</p>
+</div>
+
+<script type="text/javascript">
+  function setNotificationSeenCookie() {
+    var expiresDate = new Date();
+    expiresDate.setTime(expiresDate.getTime() + (30 * 86400000));
+    document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
+  }
+
+  window.onload = function () {
+    $("a[title='MockLab']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    if (!document.cookie.includes('mocklab_notification_seen')) {
+      window.setTimeout(function () {
+        $("#dialog").dialog({
+          dialogClass: 'mocklab-popup',
+          draggable: false,
+          resizable: false,
+          modal: true,
+          show: {
+            effect: 'fade',
+            duration: 1000
+          },
+          buttons: [{
+            class: 'mocklab-popup__confirm-button',
+            text: "Learn More",
+            click: function () {
+              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              window.location.href = "http://get.mocklab.io"
+            }
+          }]
+        });
+
+        setNotificationSeenCookie();
+        _gaq.push(['_trackEvent', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0]);
+      }, 500);
+
+    }
+  };
+</script>
+
+      </footer>
+    </div>
+
+    <script src="/assets/js/main.min.js"></script>
+
+
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-36386229-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+
+
+
+  </body>
+</html>
+

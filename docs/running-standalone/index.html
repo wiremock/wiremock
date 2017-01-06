@@ -51,12 +51,12 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2016-11-25T15:54:01+00:00">
+  <meta property="article:published_time" content="2017-01-06T18:32:58+00:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
   
-    <link rel="prev" href="/docs/request-matching/" title="Request Matching">
+    <link rel="prev" href="/docs/response-templating/" title="Response Templating">
   
 
 
@@ -250,6 +250,12 @@
       </a>
       
       <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
+      </a>
+      
+      <li>
         <a href="/docs/simulating-faults/">
 
         Simulating Faults
@@ -293,7 +299,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="The WireMock server can be run in its own process, and configured viathe Java API, JSON over HTTP or JSON files.">
-    <meta itemprop="datePublished" content="November 25, 2016">
+    <meta itemprop="datePublished" content="January 06, 2017">
     
 
     <div class="page__inner-wrap">
@@ -306,9 +312,9 @@
         <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.4.1/wiremock-standalone-2.4.1.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.5.0/wiremock-standalone-2.5.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.4.1.jar
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.5.0.jar
 </code></pre>
 </div>
 
@@ -395,6 +401,11 @@ e.g. <code class="highlighter-rouge">--jetty-header-buffer-size 16384</code>, de
 
 <p><code class="highlighter-rouge">--extensions</code>: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.</p>
+
+<p><code class="highlighter-rouge">--print-all-network-traffic</code>: Print all raw incoming and outgoing network traffic to console.</p>
+
+<p><code class="highlighter-rouge">--global-response-templating</code>: Render all response definitions using Handlebars templates.
+<code class="highlighter-rouge">--local-response-templating</code>: Enable rendering of response definitions using Handlebars templates for specific stub mappings.</p>
 
 <p><code class="highlighter-rouge">--help</code>: Show command line help</p>
 
@@ -525,7 +536,7 @@ a request with an empty body to <code class="highlighter-rouge">http://&lt;host&
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2016 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+<div class="page__footer-copyright">&copy; 2017 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
                                                                                                                                                                   rel="nofollow">Jekyll</a> &amp; <a
   href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
 </div>
