@@ -346,6 +346,16 @@ To do the equivalent via the JSON API, `PUT` the edited stub mapping to `/__admi
 }
 ```
 
+## File serving
+When running the standalone JAR, files placed under the `__files` directory will
+be served up as if from under the docroot, except if stub mapping
+matching the URL exists. For example if a file exists
+`__files/things/myfile.html` and no stub mapping will match
+`/things/myfile.html` then hitting
+`http://<host>:<port>/things/myfile.html` will serve the file.
+
+This feature is also available with the standard JAR. To use it, define the filesRoot using `options.withRootDirectory()`, i.e. `options.withRootDirectory(getClass.getResource("/wiremock").getPath)`
+
 ## Removing stubs
 
 Stub mappings can be deleted via the Java API as follows:
