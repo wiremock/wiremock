@@ -31,6 +31,8 @@ import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.net.HttpHeaders;
+import org.apache.http.entity.ContentType;
 
 import java.io.File;
 import java.util.Collections;
@@ -41,6 +43,8 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.LOCATION;
 
 
 public class WireMock {
@@ -359,6 +363,69 @@ public class WireMock {
 	public static ResponseDefinitionBuilder aResponse() {
 		return new ResponseDefinitionBuilder();
 	}
+
+    public static ResponseDefinitionBuilder ok() {
+        return aResponse().withStatus(200);
+    }
+
+    public static ResponseDefinitionBuilder ok(String body) {
+        return aResponse().withStatus(200).withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder okJson(String body) {
+        return aResponse()
+            .withStatus(200)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder created() {
+        return aResponse().withStatus(201);
+    }
+
+    public static ResponseDefinitionBuilder noContent() {
+        return aResponse().withStatus(204);
+    }
+
+    public static ResponseDefinitionBuilder permanentRedirect(String location) {
+        return aResponse().withStatus(301).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder temporaryRedirect(String location) {
+        return aResponse().withStatus(302).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder seeOther(String location) {
+        return aResponse().withStatus(303).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder badRequest() {
+        return aResponse().withStatus(400);
+    }
+
+    public static ResponseDefinitionBuilder badRequestEntity() {
+        return aResponse().withStatus(422);
+    }
+
+    public static ResponseDefinitionBuilder unauthorized() {
+        return aResponse().withStatus(401);
+    }
+
+    public static ResponseDefinitionBuilder forbidden() {
+        return aResponse().withStatus(403);
+    }
+
+    public static ResponseDefinitionBuilder notFound() {
+        return aResponse().withStatus(404);
+    }
+
+    public static ResponseDefinitionBuilder serverError() {
+        return aResponse().withStatus(500);
+    }
+
+    public static ResponseDefinitionBuilder serviceUnavailable() {
+        return aResponse().withStatus(503);
+    }
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
 		verifyThat(moreThanOrExactly(1), requestPatternBuilder);
