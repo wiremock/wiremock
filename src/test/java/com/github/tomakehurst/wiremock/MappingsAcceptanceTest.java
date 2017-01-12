@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAP
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BYTE_BODY;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -147,7 +148,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void responseContainsContentLengthHeaderIfItIsDefinedInTheMapping() throws Exception {
+    public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping() throws Exception {
         testClient.addResponse(
                 "{ 													\n" +
                         "	\"request\": {									\n" +
@@ -165,6 +166,7 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/with/body");
 
         assertThat(response.firstHeader("Content-Length"), is("12"));
+        assertFalse("expected Transfer-Encoding head to be absent", response.headers().containsKey("Transfer-Encoding"));
     }
 
 	private void getResponseAndAssert200Status(String url) {
