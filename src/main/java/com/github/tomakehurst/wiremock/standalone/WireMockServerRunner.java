@@ -23,12 +23,8 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.lang.System.out;
 
 public class WireMockServerRunner {
@@ -69,7 +65,7 @@ public class WireMockServerRunner {
         }
 
 		if (options.specifiesProxyUrl()) {
-			addProxyMapping(options.proxyUrl());
+			addProxyMapping(options.proxyUrl(), wireMockServer);
 		}
 
         try {
@@ -82,23 +78,11 @@ public class WireMockServerRunner {
             System.exit(1);
         }
     }
-	
-	private void addProxyMapping(final String baseUrl) {
-		wireMockServer.loadMappingsUsing(new MappingsLoader() {
-			@Override
-			public void loadMappingsInto(StubMappings stubMappings) {
-                RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
-				ResponseDefinition responseDef = responseDefinition()
-						.proxiedFrom(baseUrl)
-						.build();
 
-				StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-				proxyBasedMapping.setPriority(10); // Make it low priority so that existing stubs will take precedence
-				stubMappings.addMapping(proxyBasedMapping);
-			}
-		});
+	public static void addProxyMapping(final String baseUrl, WireMockServer wireMockServer) {
+		wireMockServer.loadMappingsUsing(new AddProxyMapping(baseUrl));
 	}
-	
+
 	public void stop() {
 		wireMockServer.stop();
 	}
