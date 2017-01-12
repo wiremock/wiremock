@@ -62,7 +62,7 @@ public class Urls {
             return Collections.emptyMap();
         }
 
-        return splitQuery(uri.getQuery());
+        return splitQuery(uri.getRawQuery());
     }
 
     public static String decode(String encoded) {
