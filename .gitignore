@@ -29,6 +29,7 @@ build
 .settings
 .gradle
 **/target
+classes
 
 # IDEA #
 #################
