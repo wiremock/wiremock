@@ -75,6 +75,7 @@ public class WireMockConfiguration implements Options {
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
+    private boolean disableServerVersion;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -218,6 +219,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration disableRequestJournal() {
         requestJournalDisabled = true;
+        return this;
+    }
+
+    public WireMockConfiguration disableServerVersion(boolean disableServerVersion) {
+        this.disableServerVersion = disableServerVersion;
         return this;
     }
 
@@ -382,5 +388,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return networkTrafficListener;
+    }
+
+    @Override
+    public boolean disableServerVersion() {
+        return disableServerVersion;
     }
 }

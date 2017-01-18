@@ -15,18 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
-
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.util.EnumSet;
-
-import javax.servlet.DispatcherType;
-
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
+import com.github.tomakehurst.wiremock.http.HttpServer;
+import com.github.tomakehurst.wiremock.http.RequestHandler;
+import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
+import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
+import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.eclipse.jetty.http.MimeTypes;
@@ -41,15 +44,13 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.servlets.GzipFilter;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.HttpServer;
-import com.github.tomakehurst.wiremock.http.RequestHandler;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
-import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
-import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
+import javax.servlet.DispatcherType;
+import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 
 class JettyHttpServer implements HttpServer {
 
@@ -72,6 +73,7 @@ class JettyHttpServer implements HttpServer {
                 options.bindAddress(),
                 options.portNumber(),
                 options.jettySettings(),
+                options.disableServerVersion(),
                 networkTrafficListenerAdapter
         );
         jettyServer.addConnector(httpConnector);
@@ -81,7 +83,8 @@ class JettyHttpServer implements HttpServer {
                     options.bindAddress(),
                     options.httpsSettings(),
                     options.jettySettings(),
-                    networkTrafficListenerAdapter);
+                    options.disableServerVersion(), networkTrafficListenerAdapter
+            );
             jettyServer.addConnector(httpsConnector);
         } else {
             httpsConnector = null;
@@ -154,9 +157,10 @@ class JettyHttpServer implements HttpServer {
             String bindAddress,
             int port,
             JettySettings jettySettings,
+            boolean disableServerVersion,
             NetworkTrafficListener listener) {
 
-        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings, disableServerVersion);
 
         ServerConnector connector = createServerConnector(
                 bindAddress,
@@ -173,6 +177,7 @@ class JettyHttpServer implements HttpServer {
             String bindAddress,
             HttpsSettings httpsSettings,
             JettySettings jettySettings,
+            boolean disableServerVersion,
             NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
@@ -188,7 +193,7 @@ class JettyHttpServer implements HttpServer {
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
-        HttpConfiguration httpConfig = createHttpConfig(jettySettings);
+        HttpConfiguration httpConfig = createHttpConfig(jettySettings, disableServerVersion);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
 
         final int port = httpsSettings.port();
@@ -206,12 +211,13 @@ class JettyHttpServer implements HttpServer {
         );
     }
 
-    private HttpConfiguration createHttpConfig(JettySettings jettySettings) {
+    private HttpConfiguration createHttpConfig(JettySettings jettySettings, boolean disableServerVersion) {
         HttpConfiguration httpConfig = new HttpConfiguration();
         httpConfig.setRequestHeaderSize(
                 jettySettings.getRequestHeaderSize().or(8192)
         );
         httpConfig.setSendDateHeader(false);
+        httpConfig.setSendServerVersion(!disableServerVersion);
         return httpConfig;
     }
 

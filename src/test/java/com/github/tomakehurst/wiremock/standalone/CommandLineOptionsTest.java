@@ -31,13 +31,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -300,6 +294,19 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--print-all-network-traffic");
         assertThat(options.networkTrafficListener(), is(instanceOf(ConsoleNotifyingWiremockNetworkTrafficListener.class)));
     }
+
+    @Test
+    public void returnsDisableServerVersionTrueWhenOptionPresent() {
+        CommandLineOptions options = new CommandLineOptions("--disable-server-version");
+        assertThat(options.disableServerVersion(), is(true));
+    }
+
+    @Test
+    public void returnsDisableServerVersionFalseWhenOptionNotPresent() {
+        CommandLineOptions options = new CommandLineOptions("");
+        assertThat(options.disableServerVersion(), is(false));
+    }
+
 
     @Test
     public void enablesGlobalResponseTemplating() {
