@@ -234,7 +234,7 @@ at the top of this page e.g.
 public class BodyLengthMatcher extends RequestMatcherExtension {
 
     @Override
-    public String name() {
+    public String getName() {
         return "body-too-long";
     }
 
