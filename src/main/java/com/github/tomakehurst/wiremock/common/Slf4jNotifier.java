@@ -19,20 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Slf4jNotifier implements Notifier {
-
     private static final Logger log = LoggerFactory.getLogger("WireMock");
-
-    private final boolean verbose;
-
-    public Slf4jNotifier(boolean verbose) {
-        this.verbose = verbose;
-    }
 
     @Override
     public void info(String message) {
-        if (verbose) {
-            log.info(message);
-        }
+        log.info(message);
     }
 
     @Override

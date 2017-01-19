@@ -61,7 +61,7 @@ public class WireMockConfiguration implements Options {
     private FileSource filesRoot = new SingleRootFileSource("src/test/resources");
     private MappingsSource mappingsSource;
 
-    private Notifier notifier = new Slf4jNotifier(false);
+    private Notifier notifier = new Slf4jNotifier();
     private boolean requestJournalDisabled = false;
     private Optional<Integer> maxRequestJournalEntries = Optional.absent();
     private List<CaseInsensitiveKey> matchingHeaders = emptyList();
