@@ -18,12 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.http.ResponseRenderer;
-import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.testsupport.TestNotifier;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -42,6 +37,7 @@ import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -133,8 +129,9 @@ public class StubRequestHandlerTest {
 		notifier.revert();
 
 		assertThat(notifier.getErrorMessages().isEmpty(), is(true));
-		assertThat(notifier.getInfoMessages().size(), is(1));
+		assertThat(notifier.getInfoMessages(), hasSize(2));
 		assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
+		assertThat(notifier.getInfoMessages().get(1), containsString("HTTP/1.1 200"));
 	}
 
 }

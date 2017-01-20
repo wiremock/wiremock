@@ -41,15 +41,18 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	@Override
 	public void handle(Request request, HttpResponder httpResponder) {
+		if (logRequests()) {
+			notifier().info("Request received:\n" + formatRequest(request));
+		}
+
 		ServeEvent serveEvent = handleRequest(request);
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
 
 		if (logRequests()) {
-			notifier().info("Request received:\n" +
-					formatRequest(request) +
-					"\n\nMatched response definition:\n" + responseDefinition +
+			notifier().info("Matched response definition:\n" +
+					responseDefinition +
 					"\n\nResponse:\n" + response);
 		}
 

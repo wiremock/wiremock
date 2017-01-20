@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 public interface Notifier {
-	
-	public static final String KEY = "Notifier";
+	String KEY = "Notifier";
 
 	void info(String message);
 	void error(String message);
