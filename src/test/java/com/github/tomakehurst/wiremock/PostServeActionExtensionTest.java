@@ -17,6 +17,8 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
@@ -80,6 +82,32 @@ public class PostServeActionExtensionTest {
         );
 
         assertThat(client.get("/as-normal").statusCode(), is(200));
+    }
+
+    @Test
+    public void providesServeEventWithResponseFieldPopulated() {
+        final AtomicInteger finalStatus = new AtomicInteger();
+        initWithOptions(options().dynamicPort().extensions(new PostServeAction() {
+            @Override
+            public String getName() {
+                return "response-field-test";
+            }
+
+            @Override
+            public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+                if (serveEvent.getResponse() != null) {
+                    finalStatus.set(serveEvent.getResponse().getStatus());
+                }
+            }
+        }));
+
+        wm.stubFor(get(urlPathEqualTo("/response-status"))
+            .willReturn(aResponse().withStatus(418))
+        );
+
+        client.get("/response-status");
+
+        assertThat(finalStatus.get(), is(418));
     }
 
     public static class NamedCounterAction extends PostServeAction implements AdminApiExtension {
