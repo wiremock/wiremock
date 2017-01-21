@@ -16,11 +16,10 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
@@ -29,6 +28,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Duration.ONE_SECOND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -51,7 +52,7 @@ public class PostServeActionExtensionTest {
     }
 
     @Test
-    public void triggersActionWhenAppliedToAStubMapping() {
+    public void triggersActionWhenAppliedToAStubMapping() throws Exception {
         initWithOptions(options()
             .dynamicPort()
             .extensions(new NamedCounterAction()));
@@ -68,8 +69,18 @@ public class PostServeActionExtensionTest {
         client.get("/count-me");
         client.get("/count-me");
 
-        String count = client.get("/__admin/named-counter/things").content();
-        assertThat(count, is("4"));
+        await()
+            .atMost(ONE_SECOND)
+            .until(getContent("/__admin/named-counter/things"), is("4"));
+    }
+
+    private Callable<String> getContent(final String url) {
+        return new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return client.get(url).content();
+            }
+        };
     }
 
     @Test
