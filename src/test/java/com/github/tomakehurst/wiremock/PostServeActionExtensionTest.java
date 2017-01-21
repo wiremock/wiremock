@@ -17,6 +17,8 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -26,6 +28,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -85,8 +88,9 @@ public class PostServeActionExtensionTest {
     }
 
     @Test
-    public void providesServeEventWithResponseFieldPopulated() {
+    public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
         final AtomicInteger finalStatus = new AtomicInteger();
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
         initWithOptions(options().dynamicPort().extensions(new PostServeAction() {
             @Override
             public String getName() {
@@ -96,6 +100,7 @@ public class PostServeActionExtensionTest {
             @Override
             public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
                 if (serveEvent.getResponse() != null) {
+                    countDownLatch.countDown();
                     finalStatus.set(serveEvent.getResponse().getStatus());
                 }
             }
@@ -106,6 +111,8 @@ public class PostServeActionExtensionTest {
         );
 
         client.get("/response-status");
+
+        countDownLatch.await(500, MILLISECONDS);
 
         assertThat(finalStatus.get(), is(418));
     }
