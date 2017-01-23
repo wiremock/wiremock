@@ -25,6 +25,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,8 @@ public class ClasspathFileSource implements FileSource {
 
             if (asList("jar", "war", "ear", "zip").contains(pathUri.getScheme())) {
                 String jarFileUri = pathUri.getSchemeSpecificPart().split("!")[0];
-                File file = new File(URI.create(jarFileUri));
+                String jarFilePath = jarFileUri.replace("file:", "");
+                File file = new File(jarFilePath);
                 zipFile = new ZipFile(file);
             } else if (pathUri.getScheme().equals("file")) {
                 rootDirectory = new File(pathUri);
