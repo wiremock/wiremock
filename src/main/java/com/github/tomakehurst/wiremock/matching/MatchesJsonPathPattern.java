@@ -25,7 +25,7 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class MatchesJsonPathPattern extends StringValuePattern {
 
-    public MatchesJsonPathPattern(String value) {
+    public MatchesJsonPathPattern(@JsonProperty("matchesJsonPath") String value) {
         super(value);
     }
 
@@ -34,7 +34,7 @@ public class MatchesJsonPathPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(@JsonProperty("matchesJsonPath") String value) {
+    public MatchResult match(String value) {
         return MatchResult.of(isJsonPathMatch(value));
     }
 
