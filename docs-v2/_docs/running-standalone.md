@@ -101,6 +101,8 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 `--print-all-network-traffic`: Print all raw incoming and outgoing network traffic to console.
 
+`--disable-server-version`: Configure HTTP server to skip sending the 'Server' header. Sending server version is enabled by default.
+
 `--global-response-templating`: Render all response definitions using Handlebars templates.
 `--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
 

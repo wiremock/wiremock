@@ -52,4 +52,5 @@ public interface Options {
     HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
     WiremockNetworkTrafficListener networkTrafficListener();
+    boolean disableServerVersion();
 }

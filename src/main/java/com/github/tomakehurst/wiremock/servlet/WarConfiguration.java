@@ -1,12 +1,12 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -125,5 +125,10 @@ public class WarConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return new DoNothingWiremockNetworkTrafficListener();
+    }
+
+    @Override
+    public boolean disableServerVersion() {
+        return false;
     }
 }

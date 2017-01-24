@@ -15,11 +15,25 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
+import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
+import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import com.google.common.collect.*;
+import com.google.common.io.Resources;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -28,30 +42,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.core.MappingsSaver;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockApp;
-import com.github.tomakehurst.wiremock.extension.Extension;
-import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
-import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
-import com.github.tomakehurst.wiremock.http.HttpServerFactory;
-import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Maps;
-import com.google.common.collect.UnmodifiableIterator;
-import com.google.common.io.Resources;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
 	
@@ -77,6 +72,7 @@ public class CommandLineOptions implements Options {
     private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
     private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
+    private static final String DISABLE_SERVER_VERSION = "disable-server-version";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
@@ -115,6 +111,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
+        optionParser.accepts(DISABLE_SERVER_VERSION, "Configure HTTP server to skip sending the 'Server' header. Sending server version is enabled by default");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
 
@@ -298,6 +295,11 @@ public class CommandLineOptions implements Options {
         } else {
             return new DoNothingWiremockNetworkTrafficListener();
         }
+    }
+
+    @Override
+    public boolean disableServerVersion() {
+        return optionSet.has(DISABLE_SERVER_VERSION);
     }
 
     @Override
