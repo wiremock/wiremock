@@ -85,7 +85,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
             return forwardedForHeader;
         }
 
-        return  request.getRemoteAddr();
+        return request.getRemoteAddr();
     }
 
     @Override
@@ -185,7 +185,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
         ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
 
         for (javax.servlet.http.Cookie cookie :
-            firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
+                firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
             builder.put(cookie.getName(), convertCookie(cookie));
         }
 
@@ -199,8 +199,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
     @Override
     public QueryParameter queryParameter(String key) {
         return firstNonNull((splitQuery(request.getQueryString())
-                .get(key)),
-            QueryParameter.absent(key));
+                        .get(key)),
+                QueryParameter.absent(key));
     }
 
     @Override
@@ -210,7 +210,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
         if (request instanceof org.eclipse.jetty.server.Request) {
             org.eclipse.jetty.server.Request jettyRequest = (org.eclipse.jetty.server.Request) request;
-            return JettyUtils.getUri(jettyRequest).isAbsolute();
+            return JettyUtils.getUri(jettyRequest).startsWith("http");
         }
 
         return false;

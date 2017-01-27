@@ -31,8 +31,7 @@ public class RequestTemplateModel {
     }
 
     public static RequestTemplateModel from(final Request request) {
-        URI url = URI.create(request.getUrl());
-        Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
+        Map<String, QueryParameter> rawQuery = Urls.splitQueryS(request.getUrl());
         Map<String, ListOrSingle<String>> adaptedQuery = Maps.transformValues(rawQuery, TO_TEMPLATE_MODEL);
         Map<String, ListOrSingle<String>> adaptedHeaders = Maps.toMap(request.getAllHeaderKeys(), new Function<String, ListOrSingle<String>>() {
             @Override

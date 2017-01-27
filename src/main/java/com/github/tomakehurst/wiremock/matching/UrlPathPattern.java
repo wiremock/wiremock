@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import okhttp3.HttpUrl;
+
 import java.net.URI;
 
 public class UrlPathPattern extends UrlPattern {
@@ -29,7 +31,7 @@ public class UrlPathPattern extends UrlPattern {
             return MatchResult.noMatch();
         }
 
-        String path = URI.create(url).getRawPath();
+        String path = HttpUrl.parse("http://localhost"+url).encodedPath();
         return super.match(path);
     }
 

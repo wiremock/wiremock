@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.google.common.base.Splitter;
+import okhttp3.HttpUrl;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
@@ -11,8 +12,9 @@ public class UrlPath extends ArrayList<String> {
     private final String originalPath;
 
     public UrlPath(String url) {
-        originalPath = URI.create(url).getPath();
-        Iterable<String> pathNodes = Splitter.on('/').split(originalPath);
+        HttpUrl parse = HttpUrl.parse(url);
+        originalPath = parse.encodedPath();
+        Iterable<String> pathNodes = parse.pathSegments();
         for (String pathNode: pathNodes) {
             if (StringUtils.isNotEmpty(pathNode)) {
                 add(pathNode);
