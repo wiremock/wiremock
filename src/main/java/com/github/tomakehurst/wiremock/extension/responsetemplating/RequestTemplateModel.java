@@ -46,7 +46,7 @@ public class RequestTemplateModel {
             }
         });
 
-        UrlPath path = new UrlPath(request.getUrl());
+        UrlPath path = new UrlPath(request.getAbsoluteUrl());
 
         return new RequestTemplateModel(
             request.getUrl(),

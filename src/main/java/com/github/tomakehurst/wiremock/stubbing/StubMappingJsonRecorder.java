@@ -105,7 +105,7 @@ public class StubMappingJsonRecorder implements RequestListener {
             "body",
             fileId,
             ContentTypes.determineFileExtension(
-                request.getUrl(),
+                request.getAbsoluteUrl(),
                 response.getHeaders().getContentTypeHeader(),
                 body));
 

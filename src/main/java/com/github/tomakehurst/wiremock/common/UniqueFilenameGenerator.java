@@ -20,6 +20,7 @@ import com.google.common.base.Joiner;
 import okhttp3.HttpUrl;
 
 import java.net.URI;
+import java.util.LinkedList;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
@@ -33,7 +34,8 @@ public class UniqueFilenameGenerator {
     }
 
     public static String generate(Request request, String prefix, String id, String extension) {
-        Iterable<String> uriPathNodes = HttpUrl.parse(request.getUrl()).pathSegments();
+        LinkedList<String> uriPathNodes = new LinkedList<>(HttpUrl.parse(request.getAbsoluteUrl()).pathSegments());
+        uriPathNodes.remove("");
         int nodeCount = size(uriPathNodes);
 
         String pathPart = nodeCount > 0 ?
