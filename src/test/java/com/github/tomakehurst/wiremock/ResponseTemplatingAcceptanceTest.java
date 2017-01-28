@@ -75,5 +75,14 @@ public class ResponseTemplatingAcceptanceTest {
 
             assertThat(client.get("/templated").content(), is("templated"));
         }
+
+        @Test
+        public void appliesToResponseBodyFromFile() {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                .willReturn(aResponse()
+                    .withBodyFile("templated-example.txt")));
+
+            assertThat(client.get("/templated").content(), is("templated"));
+        }
     }
 }
