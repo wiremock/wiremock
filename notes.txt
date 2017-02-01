@@ -1,3 +1,0 @@
-value: is equal
-object: are all keys present and values equal, recursing into objects?
-array: for each in source array, match each in target array + calc distance, add 1 distance point for each additional target element

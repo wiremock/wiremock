@@ -51,4 +51,11 @@ public class UrlsTest {
         assertThat(params.get("param1").isSingleValued(), is(false));
         assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
     }
+
+    @Test
+    public void doesNotAttemptToDoubleDecodeSplitQueryString() {
+        URI url = URI.create("/thing?q=a%25b");
+        Map<String, QueryParameter> query = Urls.splitQuery(url);
+        assertThat(query.get("q").firstValue(), is("a%b"));
+    }
 }
