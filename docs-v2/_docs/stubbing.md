@@ -55,6 +55,39 @@ document can either be posted to
 }
 ```
 
+### Java Shortcuts
+
+Some common request and response patterns can be expressed in Java in abbreviated forms.
+
+Requests matching an exact URL plus one of the most common HTTP methods (GET, POST, PUT, DELETE) can be stubbed like this:
+ 
+```java
+stubFor(get("/some/thing")
+    .willReturn(aResponse().withStatus(200)));
+```
+
+Common responses can also be abbreviated e.g.:
+
+```java
+stubFor(delete("/fine")
+    .willReturn(ok()));
+
+stubFor(get("/fine-with-body")
+    .willReturn(ok("body content")));
+
+stubFor(get("/json")
+    .willReturn(okJson("{ \"message\": \"Hello\" }")));
+
+stubFor(post("/redirect")
+    .willReturn(temporaryRedirect("/new/place")));
+
+stubFor(post("/sorry-no")
+    .willReturn(unauthorized()));
+
+stubFor(put("/status-only")
+    .willReturn(status(418)));
+
+```
 
 
 HTTP methods currently supported are:
