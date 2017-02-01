@@ -29,7 +29,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.5.1'
+version = '2.6.0'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -376,7 +376,7 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
-    def baseVersion = '2.5'
+    def baseVersion = '2.6'
     def filesWithVersion = [
         'build.gradle'                                   : { "version = '${baseVersion}.${it}" },
         'docs-v2/_config.yml'                            : { "wiremock_version: ${baseVersion}.${it}" },
