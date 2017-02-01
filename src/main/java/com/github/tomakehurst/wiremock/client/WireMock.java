@@ -379,6 +379,22 @@ public class WireMock {
             .withBody(body);
     }
 
+    public static MappingBuilder get(String url) {
+        return get(urlEqualTo(url));
+    }
+
+    public static MappingBuilder post(String url) {
+        return post(urlEqualTo(url));
+    }
+
+    public static MappingBuilder put(String url) {
+        return put(urlEqualTo(url));
+    }
+
+    public static MappingBuilder delete(String url) {
+        return delete(urlEqualTo(url));
+    }
+
     public static ResponseDefinitionBuilder created() {
         return aResponse().withStatus(201);
     }
@@ -425,6 +441,10 @@ public class WireMock {
 
     public static ResponseDefinitionBuilder serviceUnavailable() {
         return aResponse().withStatus(503);
+    }
+
+    public static ResponseDefinitionBuilder status(int status) {
+        return aResponse().withStatus(status);
     }
 
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {

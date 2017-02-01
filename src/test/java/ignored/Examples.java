@@ -369,4 +369,17 @@ public class Examples extends AcceptanceTestBase {
             .notifier(new ConsoleNotifier(true)
         );
     }
+
+    @Test
+    public void abbregiatedDsl() {
+        stubFor(get("/some/thing").willReturn(aResponse().withStatus(200)));
+
+        stubFor(delete("/fine").willReturn(ok()));
+        stubFor(get("/json").willReturn(okJson("{ \"message\": \"Hello\" }")));
+        stubFor(post("/redirect").willReturn(temporaryRedirect("/new/place")));
+        stubFor(post("/sorry-no").willReturn(unauthorized()));
+
+        stubFor(put("/status-only").willReturn(status(418)));
+
+    }
 }
