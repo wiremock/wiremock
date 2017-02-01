@@ -6,6 +6,7 @@ import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -66,10 +67,13 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
         final ImmutableMap<String, RequestTemplateModel> model = ImmutableMap.of("request", RequestTemplateModel.from(request));
 
-        if (responseDefinition.getBody() != null) {
+        if (responseDefinition.specifiesBodyContent()) {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
-            String newBody = uncheckedApplyTemplate(bodyTemplate, model);
-            newResponseDefBuilder.withBody(newBody);
+            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
+        } else if (responseDefinition.specifiesBodyFile()) {
+            TextFile file = files.getTextFileNamed(responseDefinition.getBodyFileName());
+            Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
+            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }
 
         if (responseDefinition.getHeaders() != null) {
@@ -91,6 +95,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
 
         return newResponseDefBuilder.build();
+    }
+
+    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, RequestTemplateModel> model, Template bodyTemplate) {
+        String newBody = uncheckedApplyTemplate(bodyTemplate, model);
+        newResponseDefBuilder.withBody(newBody);
     }
 
     private String uncheckedApplyTemplate(Template template, Object context) {

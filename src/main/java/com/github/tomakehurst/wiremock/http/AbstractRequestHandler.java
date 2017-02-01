@@ -45,6 +45,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(responseDefinition);
+		ServeEvent completedServeEvent = serveEvent.complete(response);
 
 		if (logRequests()) {
 			notifier().info("Request received:\n" +
@@ -57,11 +58,11 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 			listener.requestReceived(request, response);
 		}
 
-        beforeResponseSent(serveEvent, response);
+        beforeResponseSent(completedServeEvent, response);
 
 		httpResponder.respond(request, response);
 
-        afterResponseSent(serveEvent, response);
+        afterResponseSent(completedServeEvent, response);
 	}
 
 	private static String formatRequest(Request request) {
