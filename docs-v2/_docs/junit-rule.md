@@ -50,8 +50,7 @@ between test cases. This is easiest in JUnit 4.10:
 @Rule
 public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
 ```
-
-Unfortunately JUnit 4.11 and above prohibits `@Rule` on static members so a
+Note: JUnit 4.11 ([fixed in 4.12+](https://github.com/junit-team/junit4/blob/master/doc/ReleaseNotes4.12.md#pull-request-932-allow-static-rules-also-annotated-with-classrule)) prohibits `@Rule` on static members so a
 slightly more verbose form is required:
 
 ```java
