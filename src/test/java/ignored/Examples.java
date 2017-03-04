@@ -17,7 +17,6 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -26,6 +25,8 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
@@ -35,7 +36,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -283,6 +283,20 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
+    public void removeStubMapping() {
+        StubMapping stubMapping = stubFor(get(urlEqualTo("/delete-me")).willReturn(aResponse().withStatus(200)));
+        assertThat(testClient.get("/delete-me").statusCode(), is(200));
+
+        removeStub(stubMapping);
+        assertThat(testClient.get("/delete-me").statusCode(), is(404));
+    }
+
+    @Test
+    public void servedStubs() {
+        List<ServeEvent> allServeEvents = getAllServeEvents();
+    }
+
+    @Test
     public void configuration() {
         WireMockConfiguration.options()
             // Statically set the HTTP port number. Defaults to 8080.
@@ -354,5 +368,18 @@ public class Examples extends AcceptanceTestBase {
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)
         );
+    }
+
+    @Test
+    public void abbregiatedDsl() {
+        stubFor(get("/some/thing").willReturn(aResponse().withStatus(200)));
+
+        stubFor(delete("/fine").willReturn(ok()));
+        stubFor(get("/json").willReturn(okJson("{ \"message\": \"Hello\" }")));
+        stubFor(post("/redirect").willReturn(temporaryRedirect("/new/place")));
+        stubFor(post("/sorry-no").willReturn(unauthorized()));
+
+        stubFor(put("/status-only").willReturn(status(418)));
+
     }
 }

@@ -22,8 +22,6 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import com.google.common.io.Resources;
-import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -366,6 +364,7 @@ public class StubMappingJsonRecorderTest {
 
     private static final String GZIP_REQUEST_MAPPING =
                     "{ 													             \n" +
+                    "   \"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",            \n" +
                     "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n" +
                     "	\"request\": {									             \n" +
                     "		\"method\": \"GET\",						             \n" +

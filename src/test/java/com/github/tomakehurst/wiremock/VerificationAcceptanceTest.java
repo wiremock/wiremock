@@ -21,11 +21,10 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +37,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
@@ -77,6 +77,12 @@ public class VerificationAcceptanceTest {
         public void verifiesRequestBasedOnUrlOnly() {
             testClient.get("/this/got/requested?query");
             verify(getRequestedFor(urlEqualTo("/this/got/requested?query")));
+        }
+
+        @Test
+        public void anyRequestedForMatchesAnyHttpMethod() {
+            testClient.get("/this/got/requested?query");
+            verify(anyRequestedFor(urlEqualTo("/this/got/requested?query")));
         }
 
         @Test(expected=VerificationException.class)
@@ -427,7 +433,7 @@ public class VerificationAcceptanceTest {
                 fail();
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), is(
-                        "Expected exactly 3 requests matching the following pattern but received only 2:\n" +
+                        "Expected exactly 3 requests matching the following pattern but received 2:\n" +
                         "{" + lineSeparator() +
                         "  \"url\" : \"/hit\"," + lineSeparator() +
                         "  \"method\" : \"GET\"" + lineSeparator() +
@@ -585,6 +591,19 @@ public class VerificationAcceptanceTest {
                     return "inline";
                 }
 
+            }));
+        }
+
+        @Test
+        public void verifiesRequestsViaCustomMatcherRemotely() {
+            testClient.get("/remote-custom-match-this");
+            testClient.get("/remote-custom-match-that");
+
+            verify(2, requestMadeFor(new ValueMatcher<Request>() {
+                @Override
+                public MatchResult match(Request value) {
+                    return MatchResult.of(value.getUrl().contains("remote-custom-match"));
+                }
             }));
         }
 

@@ -59,7 +59,7 @@ public class Body {
         return str != null ? new Body(str) : none();
     }
 
-    static Body fromOneOf(byte[] bytes, String str, JsonNode json, String base64) {
+    public static Body fromOneOf(byte[] bytes, String str, JsonNode json, String base64) {
         if (bytes != null) return new Body(bytes);
         if (str != null) return new Body(str);
         if (json != null && !(json instanceof NullNode)) return new Body(json);

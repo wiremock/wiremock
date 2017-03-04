@@ -15,57 +15,32 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.AdminTasks;
-import com.github.tomakehurst.wiremock.admin.EditStubMappingTask;
-import com.github.tomakehurst.wiremock.admin.FindNearMissesForRequestPatternTask;
-import com.github.tomakehurst.wiremock.admin.FindNearMissesForRequestTask;
-import com.github.tomakehurst.wiremock.admin.FindNearMissesForUnmatchedTask;
-import com.github.tomakehurst.wiremock.admin.FindRequestsTask;
-import com.github.tomakehurst.wiremock.admin.FindUnmatchedRequestsTask;
-import com.github.tomakehurst.wiremock.admin.GetRequestCountTask;
-import com.github.tomakehurst.wiremock.admin.GlobalSettingsUpdateTask;
-import com.github.tomakehurst.wiremock.admin.RemoveStubMappingTask;
-import com.github.tomakehurst.wiremock.admin.RequestSpec;
-import com.github.tomakehurst.wiremock.admin.ResetRequestsTask;
-import com.github.tomakehurst.wiremock.admin.ResetScenariosTask;
-import com.github.tomakehurst.wiremock.admin.ResetTask;
-import com.github.tomakehurst.wiremock.admin.ResetToDefaultMappingsTask;
-import com.github.tomakehurst.wiremock.admin.RootTask;
-import com.github.tomakehurst.wiremock.admin.SaveMappingsTask;
-import com.github.tomakehurst.wiremock.admin.ShutdownServerTask;
-import com.github.tomakehurst.wiremock.admin.StubMappingTask;
+import com.github.tomakehurst.wiremock.admin.*;
+import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import java.io.UnsupportedEncodingException;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 import static org.apache.http.HttpHeaders.HOST;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 
 public class HttpAdminClient implements Admin {
 
@@ -76,6 +51,8 @@ public class HttpAdminClient implements Admin {
     private final int port;
     private final String urlPathPrefix;
     private final String hostHeader;
+
+    private final AdminRoutes adminRoutes;
 
     private final CloseableHttpClient httpClient;
 
@@ -98,6 +75,8 @@ public class HttpAdminClient implements Admin {
         this.urlPathPrefix = urlPathPrefix;
         this.hostHeader = hostHeader;
 
+        adminRoutes = AdminRoutes.defaults();
+
         httpClient = HttpClientFactory.createClient();
     }
 
@@ -109,39 +88,50 @@ public class HttpAdminClient implements Admin {
     public void addStubMapping(StubMapping stubMapping) {
         if (stubMapping.getRequest().hasCustomMatcher()) {
             throw new AdminException("Custom matchers can't be used when administering a remote WireMock server. " +
-                    "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
+                "Use WireMockRule.stubFor() or WireMockServer.stubFor() to administer the local instance.");
         }
 
-        postJsonAssertOkAndReturnBody(
-                urlFor(StubMappingTask.class),
-                Json.write(stubMapping),
-                HTTP_CREATED);
+        executeRequest(
+            adminRoutes.requestSpecForTask(CreateStubMappingTask.class),
+            PathParams.empty(),
+            stubMapping,
+            Void.class,
+            201
+        );
     }
 
     @Override
     public void editStubMapping(StubMapping stubMapping) {
         postJsonAssertOkAndReturnBody(
-                urlFor(EditStubMappingTask.class),
-                Json.write(stubMapping),
-                HTTP_NO_CONTENT);
+            urlFor(OldEditStubMappingTask.class),
+            Json.write(stubMapping),
+            HTTP_NO_CONTENT);
     }
 
     @Override
     public void removeStubMapping(StubMapping stubbMapping) {
-
         postJsonAssertOkAndReturnBody(
-                urlFor(RemoveStubMappingTask.class),
-                Json.write(stubbMapping),
-                HTTP_OK);
-
+            urlFor(OldRemoveStubMappingTask.class),
+            Json.write(stubbMapping),
+            HTTP_OK);
     }
 
     @Override
     public ListStubMappingsResult listAllStubMappings() {
-        String body = getJsonAssertOkAndReturnBody(
-                urlFor(RootTask.class),
-                HTTP_OK);
-        return Json.read(body, ListStubMappingsResult.class);
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetAllStubMappingsTask.class),
+            ListStubMappingsResult.class
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetStubMappingTask.class),
+            PathParams.single("id", id),
+            SingleStubMappingResult.class
+        );
     }
 
     @Override
@@ -150,18 +140,23 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public void resetMappings() {
+    public void resetAll() {
         postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
     }
 
     @Override
     public void resetRequests() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetRequestsTask.class), null, HTTP_OK);
+        executeRequest(adminRoutes.requestSpecForTask(ResetRequestsTask.class));
     }
 
     @Override
     public void resetScenarios() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetScenariosTask.class), null, HTTP_OK);
+        executeRequest(adminRoutes.requestSpecForTask(ResetScenariosTask.class));
+    }
+
+    @Override
+    public void resetMappings() {
+        executeRequest(adminRoutes.requestSpecForTask(ResetStubMappingsTask.class));
     }
 
     @Override
@@ -170,20 +165,37 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public GetServeEventsResult getServeEvents() {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetAllRequestsTask.class),
+            GetServeEventsResult.class
+        );
+    }
+
+    @Override
+    public SingleServedStubResult getServedStub(UUID id) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetServedStubTask.class),
+            PathParams.single("id", id),
+            SingleServedStubResult.class
+        );
+    }
+
+    @Override
     public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
-                urlFor(GetRequestCountTask.class),
-                Json.write(requestPattern),
-                HTTP_OK);
+            urlFor(GetRequestCountTask.class),
+            Json.write(requestPattern),
+            HTTP_OK);
         return VerificationResult.from(body);
     }
 
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
-                urlFor(FindRequestsTask.class),
-                Json.write(requestPattern),
-                HTTP_OK);
+            urlFor(FindRequestsTask.class),
+            Json.write(requestPattern),
+            HTTP_OK);
         return Json.read(body, FindRequestsResult.class);
     }
 
@@ -226,9 +238,9 @@ public class HttpAdminClient implements Admin {
     @Override
     public void updateGlobalSettings(GlobalSettings settings) {
         postJsonAssertOkAndReturnBody(
-                urlFor(GlobalSettingsUpdateTask.class),
-                Json.write(settings),
-                HTTP_OK);
+            urlFor(GlobalSettingsUpdateTask.class),
+            Json.write(settings),
+            HTTP_OK);
     }
 
     @Override
@@ -258,7 +270,40 @@ public class HttpAdminClient implements Admin {
         return safelyExecuteRequest(url, expectedStatus, get);
     }
 
-    private String safelyExecuteRequest(String url, int expectedStatus, HttpRequestBase request) {
+    private void executeRequest(RequestSpec requestSpec) {
+        executeRequest(requestSpec, PathParams.empty(), null, Void.class, 200);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, B requestBody, Class<R> responseType) {
+        return executeRequest(requestSpec, PathParams.empty(),requestBody, responseType, 200);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
+        return executeRequest(requestSpec, PathParams.empty(), null, responseType, 200);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, Class<R> responseType) {
+        return executeRequest(requestSpec, pathParams, null, responseType, 200);
+    }
+
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType, int expectedStatus) {
+        String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
+        RequestBuilder requestBuilder = RequestBuilder
+            .create(requestSpec.method().getName())
+            .setUri(url);
+
+        if (requestBody != null) {
+            requestBuilder.setEntity(jsonStringEntity(Json.write(requestBody)));
+        }
+
+        String responseBodyString = safelyExecuteRequest(url, expectedStatus, requestBuilder.build());
+
+        return responseType == Void.class ?
+            null :
+            Json.read(responseBodyString, responseType);
+    }
+
+    private String safelyExecuteRequest(String url, int expectedStatus, HttpUriRequest request) {
         if (hostHeader != null) {
             request.addHeader(HOST, hostHeader);
         }
@@ -267,7 +312,7 @@ public class HttpAdminClient implements Admin {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != expectedStatus) {
                 throw new VerificationException(
-                        "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
+                    "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
             }
 
             return getEntityAsStringAndCloseStream(response);
@@ -277,7 +322,7 @@ public class HttpAdminClient implements Admin {
     }
 
     private String urlFor(Class<? extends AdminTask> taskClass) {
-        RequestSpec requestSpec = AdminTasks.requestSpecForTask(taskClass);
+        RequestSpec requestSpec = adminRoutes.requestSpecForTask(taskClass);
         checkNotNull(requestSpec, "No admin task URL is registered for " + taskClass.getSimpleName());
         return String.format(ADMIN_URL_PREFIX + requestSpec.path(), scheme, host, port, urlPathPrefix);
     }

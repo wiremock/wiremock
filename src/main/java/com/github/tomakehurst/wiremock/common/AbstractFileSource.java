@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -27,7 +28,6 @@ import java.util.List;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
 
 public abstract class AbstractFileSource implements FileSource {
 
@@ -36,12 +36,17 @@ public abstract class AbstractFileSource implements FileSource {
     public AbstractFileSource(File rootDirectory) {
         this.rootDirectory = rootDirectory;
     }
-    
+
     protected abstract boolean readOnly();
 
     @Override
     public BinaryFile getBinaryFileNamed(final String name) {
         return new BinaryFile(new File(rootDirectory, name).toURI());
+    }
+
+    @Override
+    public TextFile getTextFileNamed(String name) {
+        return new TextFile(new File(rootDirectory, name).toURI());
     }
 
     @Override
@@ -102,6 +107,11 @@ public abstract class AbstractFileSource implements FileSource {
     }
 
     @Override
+    public void deleteFile(String name) {
+        writableFileFor(name).delete();
+    }
+
+    @Override
     public boolean exists() {
         return rootDirectory.exists();
     }
@@ -148,6 +158,14 @@ public abstract class AbstractFileSource implements FileSource {
     			return file.isFile();
     		}
     	};
+    }
+
+    public static Predicate<BinaryFile> byFileExtension(final String extension) {
+        return new Predicate<BinaryFile>() {
+            public boolean apply(BinaryFile input) {
+                return input.name().endsWith("." + extension);
+            }
+        };
     }
 
 }

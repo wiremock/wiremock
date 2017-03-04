@@ -19,6 +19,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Xml;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -30,6 +34,10 @@ import org.xmlunit.diff.ComparisonType;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.DifferenceEvaluator;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -96,6 +104,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                         .ignoreWhitespace()
                         .ignoreComments()
                         .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
+                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
                         .build();
 
                     return !diff.hasDifferences();
@@ -134,6 +143,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                                 }
                             }
                         })
+                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
                         .build();
                 } catch (XMLUnitException e) {
                     notifier().info("Failed to process XML. " + e.getMessage() +
@@ -162,4 +172,19 @@ public class EqualToXmlPattern extends StringValuePattern {
         }
     };
 
+    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+        @Override
+        public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+            DocumentBuilder documentBuilder = super.newDocumentBuilder();
+            documentBuilder.setEntityResolver(new ResolveToEmptyString());
+            return documentBuilder;
+        }
+
+        private class ResolveToEmptyString implements EntityResolver {
+            @Override
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                return new InputSource(new StringReader(""));
+            }
+        }
+    }
 }

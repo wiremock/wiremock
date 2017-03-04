@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '1.2.2'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 apply plugin: 'java'
@@ -29,13 +29,13 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.1.12'
+version = '2.6.0'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
-        jackson: '2.6.1',
-        jetty  : '9.2.13.v20150730'
+    jackson: '2.6.1',
+    jetty  : '9.2.13.v20150730'
 ]
 
 repositories {
@@ -49,12 +49,12 @@ dependencies {
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
     compile "com.google.guava:guava:18.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.1"
-    compile 'org.xmlunit:xmlunit-core:2.1.1'
-    compile 'org.xmlunit:xmlunit-legacy:2.1.1'
-    compile "com.jayway.jsonpath:json-path:2.0.0"
+    compile 'org.xmlunit:xmlunit-core:2.3.0'
+    compile 'org.xmlunit:xmlunit-legacy:2.3.0'
+    compile "com.jayway.jsonpath:json-path:2.2.0"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "net.sf.jopt-simple:jopt-simple:4.9"
     compile("junit:junit:4.12") {
@@ -62,6 +62,9 @@ dependencies {
     }
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.flipkart.zjsonpatch:zjsonpatch:0.2.1'
+    compile 'com.github.jknack:handlebars:4.0.6', {
+        exclude group: 'org.mozilla', module: 'rhino'
+    }
 
     testCompile "org.hamcrest:hamcrest-all:1.3"
     testCompile("org.jmock:jmock:2.5.1") {
@@ -75,13 +78,15 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
     testCompile "org.skyscreamer:jsonassert:1.2.3"
+    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.7'
+    testCompile 'org.awaitility:awaitility:2.0.0'
 
     testCompile "com.googlecode.jarjar:jarjar:1.3"
     testCompile "commons-io:commons-io:2.4"
     testCompile 'org.scala-lang:scala-library:2.11.8'
 
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
-    testRuntime files('src/test/resources/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
+    testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
 }
 
 compileTestJava {
@@ -95,6 +100,11 @@ test {
     exclude 'ignored/**'
 
     maxParallelForks = 3
+
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
 }
 
 
@@ -196,15 +206,17 @@ task signStandaloneJarPom(type: Sign, dependsOn: 'generatePomFileForStandaloneJa
     sign new File(standaloneJarPomPath)
 }
 
-if (!this.hasProperty('sonatypeUser'))
+if (!this.hasProperty('sonatypeUser')) {
     repoUser = 'default'
-else
+} else {
     repoUser = sonatypeUser
+}
 
-if (!this.hasProperty('sonatypePassword'))
+if (!this.hasProperty('sonatypePassword')) {
     repoPassword = 'default'
-else
+} else {
     repoPassword = sonatypePassword
+}
 
 
 final pomInfo = {
@@ -239,9 +251,12 @@ publishing {
             URL repoUrl = shouldPublishLocally ? localRepo : URI.create('https://oss.sonatype.org/service/local/staging/deploy/maven2').toURL()
 
             url repoUrl
-            credentials {
-                username repoUser
-                password repoPassword
+
+            if (!shouldPublishLocally) {
+                credentials {
+                    username repoUser
+                    password repoPassword
+                }
             }
         }
     }
@@ -299,11 +314,13 @@ publishing {
 }
 
 task checkReleasePreconditions << {
+    def REQUIRED_GIT_BRANCH = 'master'
+
     println "Using Java version: ${System.getProperty('java.runtime.version')}"
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
 
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    assert currentGitBranch == 'master', 'Must be on the master branch in order to release'
+    assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release"
 }
 publish.dependsOn checkReleasePreconditions
 
@@ -317,6 +334,25 @@ task addGitTag << {
 task signAll {
     dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
 }
+
+task npmInstall(type: Exec) {
+    workingDir 'docs-v2'
+    commandLine 'npm', 'i'
+}
+
+task generateApiDocs(type: Exec) {
+    dependsOn npmInstall
+    workingDir 'docs-v2'
+    commandLine 'npm', 'run', 'apidocs'
+}
+jar.dependsOn generateApiDocs
+processResources.dependsOn generateApiDocs
+
+task deleteGeneratedApiDocs(type: Delete) {
+    delete "src/main/resources/swagger"
+}
+
+clean.dependsOn deleteGeneratedApiDocs
 
 task release {
     dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
@@ -340,10 +376,11 @@ task 'set-release-dir' << {
 }
 
 task 'bump-version' << {
-    def baseVersion = '2.1'
+    def baseVersion = '2.6'
     def filesWithVersion = [
-            'build.gradle'                      : { "version = '${baseVersion}.${it}" },
-            'docs-v2/_config.yml'               : { "wiremock_version: ${baseVersion}.${it}" },
+        'build.gradle'                                   : { "version = '${baseVersion}.${it}" },
+        'docs-v2/_config.yml'                            : { "wiremock_version: ${baseVersion}.${it}" },
+        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${baseVersion}.${it}" }
     ]
 
     def gradleBuildFile = new File('build.gradle')
@@ -355,41 +392,8 @@ task 'bump-version' << {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates];
-
-            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-                def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
-                def newLine = lineWithVersionTemplate.call(nextMinorVersion)
-                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-                file.text = file.text.replace(oldLine, newLine);
-            }
-        }
-    }
-}
-
-task 'bump-version-down' << {
-    def filesWithVersion = [
-            'build.gradle'                      : { "version = 1.${it}" },
-            'docs/source/conf.py'               : { "version = '1.${it}'" },
-            'docs/source/getting-started.rst'   : [{ "<version>1.${it}</version>" }, {
-                "wiremock/1.${it}/wiremock-1.${it}-standalone.jar"
-            }],
-            'docs/source/running-standalone.rst': { "wiremock/1.${it}/wiremock-1.${it}-standalone.jar" },
-            'sample-war/build.gradle'           : { "com.github.tomakehurst:wiremock:1.${it}" },
-    ]
-
-    def gradleBuildFile = new File('build.gradle')
-    int currentMinorVersion
-    gradleBuildFile.text.find ~/version = 1.([0-9]+)/, { match, minorVersion ->
-        currentMinorVersion = Integer.valueOf(minorVersion)
-        int nextMinorVersion = currentMinorVersion - 1
-
-        filesWithVersion.each { fileName, lineWithVersionTemplates ->
-            def file = new File(fileName)
-            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                    lineWithVersionTemplates :
-                    [lineWithVersionTemplates];
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates];
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
@@ -402,7 +406,7 @@ task 'bump-version-down' << {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '3.1'
 }
 
 task 'add-copyright-headers' << {

@@ -17,10 +17,6 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.Socket;
-
 public enum Fault {
 
 	EMPTY_RESPONSE {

@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
-import com.github.tomakehurst.wiremock.verification.DisabledRequestJournal;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -46,26 +44,23 @@ public class InMemoryStubMappings implements StubMappings {
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
 	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
 	private final Map<String, RequestMatcherExtension> customMatchers;
-    private final RequestJournal requestJournal;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, RequestJournal requestJournal, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
+	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
 		this.customMatchers = customMatchers;
-        this.requestJournal = requestJournal;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
     }
 
 	public InMemoryStubMappings() {
 		this(Collections.<String, RequestMatcherExtension>emptyMap(),
-             new DisabledRequestJournal(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
              new SingleRootFileSource("."));
 	}
 
 	@Override
-	public ServedStub serveFor(Request request) {
+	public ServeEvent serveFor(Request request) {
 		StubMapping matchingMapping = find(
 				mappings,
 				mappingMatchingAndInCorrectScenarioState(request),
@@ -77,9 +72,11 @@ public class InMemoryStubMappings implements StubMappings {
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-        ServedStub servedStub = new ServedStub(LoggedRequest.createFrom(request), copyOf(responseDefinition));
-        requestJournal.requestReceived(servedStub);
-        return servedStub;
+		return ServeEvent.of(
+            LoggedRequest.createFrom(request),
+            copyOf(responseDefinition),
+            matchingMapping
+        );
 	}
 
     private ResponseDefinition applyTransformations(Request request,
@@ -127,7 +124,7 @@ public class InMemoryStubMappings implements StubMappings {
 
 		updateSenarioMapIfPresent(stubMapping);
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-		stubMapping.setTransient(true);
+		stubMapping.setDirty(true);
 
 		mappings.replace(existingMapping, stubMapping);
 	}
@@ -164,7 +161,17 @@ public class InMemoryStubMappings implements StubMappings {
         return ImmutableList.copyOf(mappings);
     }
 
-    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+	@Override
+	public Optional<StubMapping> get(final UUID id) {
+		return tryFind(mappings, new Predicate<StubMapping>() {
+			@Override
+			public boolean apply(StubMapping input) {
+				return input.getUuid().equals(id);
+			}
+		});
+	}
+
+	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
 

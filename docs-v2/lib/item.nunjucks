@@ -1,0 +1,47 @@
+<li>
+  {% if item.displayName %}
+    <strong>{{ item.displayName }}</strong>:
+  {% else %}
+    <strong>{{ key }}</strong>:
+  {% endif %}
+
+  <em>
+    {%- if item.required -%}required {% endif -%}
+    (
+    {%- if item.enum -%}
+      one of {{ item.enum.join(', ') }}
+    {%- else -%}
+      {{ item.type }}
+    {%- endif -%}
+
+    {%- if item.default or item.default == 0 or item.default == false %} - default: {{ item.default }}{%- endif -%}
+    {%- if item.repeat %} - repeat: {{ item.repeat }}{%- endif -%}
+    {%- if item.type == 'string' -%}
+      {%- if item.minLength or item.minLength == 0 %} - minLength: {{ item.minLength }}{%- endif -%}
+      {%- if item.maxLength or item.maxLength == 0 %} - maxLength: {{ item.maxLength }}{%- endif -%}
+    {%- else -%}
+      {%- if item.minimum or item.minimum == 0 %} - minimum: {{ item.minimum }}{%- endif -%}
+      {%- if item.maximum or item.maximum == 0 %} - maximum: {{ item.maximum }}{%- endif -%}
+    {%- endif -%}
+    {%- if item.pattern %} - pattern: {{ item.pattern }}{%- endif -%}
+    )
+  </em>
+
+{% markdown %}
+{{ item.description }}
+{% endmarkdown %}
+
+  {% if item.schema %}
+    <p><strong>Schema</strong>:</p>
+    <pre><code>{{ item.schema | escape }}</code></pre>
+  {% endif %}
+
+  {% if item.example %}
+    <p><strong>Example</strong>:</p>
+    {% if item.type == 'string' %}
+      <pre>{{ item.example| escape }}</pre>
+    {% else %}
+      <pre><code>{{ item.example | escape }}</code></pre>
+    {% endif %}
+  {% endif %}
+</li>

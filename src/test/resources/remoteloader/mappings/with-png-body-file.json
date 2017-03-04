@@ -1,0 +1,10 @@
+{
+    "id": "f7550b27-b544-4967-b7e8-f777eca68235",
+    "request": {
+        "url": "/image-file"
+    },
+    "response": {
+        "status": 200,
+        "bodyFileName": "favicon3.png"
+    }
+}

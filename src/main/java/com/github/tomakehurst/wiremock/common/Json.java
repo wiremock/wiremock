@@ -17,30 +17,40 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public final class Json {
 
-    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<>();
+    private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
+        @Override
+        protected ObjectMapper initialValue() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+            objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+            objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+            return objectMapper;
+        }
+    };
 	
 	private Json() {}
 
     public static <T> T read(String json, Class<T> clazz) {
 		try {
 			ObjectMapper mapper = getObjectMapper();
-			mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-			mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 			return mapper.readValue(json, clazz);
 		} catch (IOException ioe) {
 			return throwUnchecked(ioe, clazz);
 		}
 	}
-	
+
 	public static <T> String write(T object) {
 		try {
 			ObjectMapper mapper = getObjectMapper();
@@ -51,13 +61,7 @@ public final class Json {
 	}
 
 
-    private static ObjectMapper getObjectMapper() {
-        if (objectMapperHolder.get() == null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            objectMapperHolder.set(objectMapper);
-        }
-
+    public static ObjectMapper getObjectMapper() {
         return objectMapperHolder.get();
     }
 
@@ -108,5 +112,15 @@ public final class Json {
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
+    }
+
+    public static <T> T mapToObject(Map<String, Object> map, Class<T> targetClass) {
+        ObjectMapper mapper = getObjectMapper();
+        return mapper.convertValue(map, targetClass);
+    }
+
+    public static <T> Map<String, Object> objectToMap(T theObject) {
+        ObjectMapper mapper = getObjectMapper();
+        return mapper.convertValue(theObject, new TypeReference<Map<String, Object>>() {});
     }
 }

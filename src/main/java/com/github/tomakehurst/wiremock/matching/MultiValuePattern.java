@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
@@ -27,10 +26,9 @@ import com.google.common.collect.Lists;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static java.util.Collections.min;
 
-public class MultiValuePattern implements ValueMatcher<MultiValue> {
+public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
     private final StringValuePattern valuePattern;
 

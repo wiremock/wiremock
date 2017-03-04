@@ -15,22 +15,36 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.google.common.net.HttpHeaders;
+import org.apache.http.entity.ContentType;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.LOCATION;
 
 
 public class WireMock {
@@ -76,12 +90,12 @@ public class WireMock {
 		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
 	}
 
-	public static void givenThat(MappingBuilder mappingBuilder) {
-		defaultInstance.get().register(mappingBuilder);
+	public static StubMapping givenThat(MappingBuilder mappingBuilder) {
+		return defaultInstance.get().register(mappingBuilder);
 	}
 
-	public static void stubFor(MappingBuilder mappingBuilder) {
-		givenThat(mappingBuilder);
+	public static StubMapping stubFor(MappingBuilder mappingBuilder) {
+		return givenThat(mappingBuilder);
 	}
 
 	public static void editStub(MappingBuilder mappingBuilder) {
@@ -92,8 +106,16 @@ public class WireMock {
 		defaultInstance.get().removeStubMapping(mappingBuilder);
 	}
 
+    public static void removeStub(StubMapping stubMapping) {
+        defaultInstance.get().removeStubMapping(stubMapping);
+    }
+
     public static ListStubMappingsResult listAllStubMappings() {
         return defaultInstance.get().allStubMappings();
+    }
+
+    public static StubMapping getSingleStubMapping(UUID id) {
+        return defaultInstance.get().getStubMapping(id).getItem();
     }
 
     public static void configureFor(int port) {
@@ -123,6 +145,10 @@ public class WireMock {
     public static StringValuePattern equalTo(String value) {
         return new EqualToPattern(value);
     }
+
+	public static StringValuePattern equalToIgnoreCase(String value) {
+		return new EqualToPattern(value, true);
+	}
 
     public static StringValuePattern equalToJson(String value) {
         return new EqualToJsonPattern(value, null, null);
@@ -172,8 +198,16 @@ public class WireMock {
         defaultInstance.get().saveMappings();
     }
 
+    public void removeMappings() {
+        admin.resetMappings();
+    }
+
+    public static void removeAllMappings() {
+        defaultInstance.get().removeMappings();
+    }
+
 	public void resetMappings() {
-		admin.resetMappings();
+		admin.resetAll();
 	}
 
 	public static void reset() {
@@ -204,9 +238,10 @@ public class WireMock {
         defaultInstance.get().resetToDefaultMappings();
     }
 
-	public void register(MappingBuilder mappingBuilder) {
+	public StubMapping register(MappingBuilder mappingBuilder) {
 		StubMapping mapping = mappingBuilder.build();
 		register(mapping);
+		return mapping;
 	}
 
     public void register(StubMapping mapping) {
@@ -221,8 +256,16 @@ public class WireMock {
 		admin.removeStubMapping(mappingBuilder.build());
 	}
 
+	public void removeStubMapping(StubMapping stubMapping) {
+		admin.removeStubMapping(stubMapping);
+	}
+
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
+    }
+
+    public SingleStubMappingResult getStubMapping(UUID id) {
+        return admin.getStubMapping(id);
     }
 
     public static UrlPattern urlEqualTo(String testUrl) {
@@ -313,7 +356,7 @@ public class WireMock {
 		return new BasicMappingBuilder(customRequestMatcherName, parameters);
 	}
 
-	public static MappingBuilder requestMatching(RequestMatcher requestMatcher) {
+	public static MappingBuilder requestMatching(ValueMatcher<Request> requestMatcher) {
 		return new BasicMappingBuilder(requestMatcher);
 	}
 
@@ -321,41 +364,110 @@ public class WireMock {
 		return new ResponseDefinitionBuilder();
 	}
 
+    public static ResponseDefinitionBuilder ok() {
+        return aResponse().withStatus(200);
+    }
+
+    public static ResponseDefinitionBuilder ok(String body) {
+        return aResponse().withStatus(200).withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder okJson(String body) {
+        return aResponse()
+            .withStatus(200)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(body);
+    }
+
+    public static MappingBuilder get(String url) {
+        return get(urlEqualTo(url));
+    }
+
+    public static MappingBuilder post(String url) {
+        return post(urlEqualTo(url));
+    }
+
+    public static MappingBuilder put(String url) {
+        return put(urlEqualTo(url));
+    }
+
+    public static MappingBuilder delete(String url) {
+        return delete(urlEqualTo(url));
+    }
+
+    public static ResponseDefinitionBuilder created() {
+        return aResponse().withStatus(201);
+    }
+
+    public static ResponseDefinitionBuilder noContent() {
+        return aResponse().withStatus(204);
+    }
+
+    public static ResponseDefinitionBuilder permanentRedirect(String location) {
+        return aResponse().withStatus(301).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder temporaryRedirect(String location) {
+        return aResponse().withStatus(302).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder seeOther(String location) {
+        return aResponse().withStatus(303).withHeader(LOCATION, location);
+    }
+
+    public static ResponseDefinitionBuilder badRequest() {
+        return aResponse().withStatus(400);
+    }
+
+    public static ResponseDefinitionBuilder badRequestEntity() {
+        return aResponse().withStatus(422);
+    }
+
+    public static ResponseDefinitionBuilder unauthorized() {
+        return aResponse().withStatus(401);
+    }
+
+    public static ResponseDefinitionBuilder forbidden() {
+        return aResponse().withStatus(403);
+    }
+
+    public static ResponseDefinitionBuilder notFound() {
+        return aResponse().withStatus(404);
+    }
+
+    public static ResponseDefinitionBuilder serverError() {
+        return aResponse().withStatus(500);
+    }
+
+    public static ResponseDefinitionBuilder serviceUnavailable() {
+        return aResponse().withStatus(503);
+    }
+
+    public static ResponseDefinitionBuilder status(int status) {
+        return aResponse().withStatus(status);
+    }
+
 	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-		if (result.getCount() < 1) {
-            List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
-            if (nearMisses.size() > 0) {
-                Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
-                throw VerificationException.forUnmatchedRequestPattern(diff);
-            }
-
-            throw new VerificationException(requestPattern, find(allRequests()));
-		}
+		verifyThat(moreThanOrExactly(1), requestPatternBuilder);
 	}
 
 	public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-        VerificationResult result = admin.countRequestsMatching(requestPattern);
-        result.assertRequestJournalEnabled();
-
-        int actualCount = result.getCount();
-        if (actualCount != expectedCount) {
-            throw actualCount == 0 ?
-                verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
-                new VerificationException(requestPattern, expectedCount, actualCount);
-		}
+		verifyThat(exactly(expectedCount), requestPatternBuilder);
 	}
 
 	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		VerificationResult result = admin.countRequestsMatching(requestPattern);
-		result.assertRequestJournalEnabled();
+		final RequestPattern requestPattern = requestPatternBuilder.build();
 
-        int actualCount = result.getCount();
+		int actualCount;
+		if (requestPattern.hasCustomMatcher()) {
+            List<LoggedRequest> requests = admin.findRequestsMatching(RequestPattern.everything()).getRequests();
+            actualCount = from(requests).filter(thatMatch(requestPattern)).size();
+        } else {
+            VerificationResult result = admin.countRequestsMatching(requestPattern);
+            result.assertRequestJournalEnabled();
+            actualCount = result.getCount();
+        }
+
         if (!expectedCount.match(actualCount)) {
             throw actualCount == 0 ?
                 verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
@@ -364,7 +476,7 @@ public class WireMock {
 	}
 
     private VerificationException verificationExceptionForNearMisses(RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
-        List<NearMiss> nearMisses = findNearMissesFor(requestPatternBuilder);
+        List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
         if (nearMisses.size() > 0) {
             Diff diff = new Diff(requestPattern, nearMisses.get(0).getRequest());
             return VerificationException.forUnmatchedRequestPattern(diff);
@@ -395,7 +507,15 @@ public class WireMock {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
+	public static List<ServeEvent> getAllServeEvents() {
+        return defaultInstance.get().getServeEvents();
+    }
+
+    public List<ServeEvent> getServeEvents() {
+        return admin.getServeEvents().getRequests();
+    }
+
+    public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}
 
@@ -427,11 +547,15 @@ public class WireMock {
 		return new RequestPatternBuilder(RequestMethod.TRACE, urlPattern);
 	}
 
+	public static RequestPatternBuilder anyRequestedFor(UrlPattern urlPattern) {
+		return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
+	}
+
     public static RequestPatternBuilder requestMadeFor(String customMatcherName, Parameters parameters) {
         return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static RequestPatternBuilder requestMadeFor(RequestMatcher requestMatcher) {
+	public static RequestPatternBuilder requestMadeFor(ValueMatcher<Request> requestMatcher) {
 		return RequestPatternBuilder.forCustomMatcher(requestMatcher);
 	}
 
@@ -503,4 +627,13 @@ public class WireMock {
         FindNearMissesResult nearMissesResult = admin.findTopNearMissesFor(requestPatternBuilder.build());
         return nearMissesResult.getNearMisses();
     }
+
+    public void loadMappingsFrom(String rootDir) {
+        loadMappingsFrom(new File(rootDir));
+    }
+
+	public void loadMappingsFrom(File rootDir) {
+		FileSource mappingsSource = new SingleRootFileSource(rootDir);
+		new RemoteMappingsLoader(mappingsSource, this).load();
+	}
 }

@@ -15,9 +15,11 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -56,7 +58,7 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
 			"}														";
 
 	@Test
-	public void editMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
+	public void editMappingViaTheJsonApi() {
 
 		testClient.addResponse(MAPPING_REQUEST_WITH_UUID);
 		WireMockResponse response = testClient.get("/a/registered/resource");
@@ -73,4 +75,20 @@ public class EditMappingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(response.content(), is("OK"));
 		assertThat(response.firstHeader("Content-Type"), is("text/html"));
 	}
+
+	@Test
+	public void editMappingViaTheDsl() {
+        StubMapping stubMapping = stubFor(get(urlEqualTo("/edit/this"))
+            .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/edit/this").statusCode(), is(200));
+
+        editStub(
+            get(urlEqualTo("/edit/this"))
+                .withId(stubMapping.getId())
+                .willReturn(aResponse().withStatus(418))
+        );
+
+        assertThat(testClient.get("/edit/this").statusCode(), is(418));
+    }
 }

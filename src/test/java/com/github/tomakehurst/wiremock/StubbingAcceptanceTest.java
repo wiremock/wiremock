@@ -15,29 +15,31 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import org.apache.http.HttpEntity;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.apache.http.entity.ContentType.APPLICATION_XML;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -355,6 +357,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	@Test
+	public void matchingUrlPathsWithEscapeCharacters() {
+	    stubFor(get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+	    assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
+	}
+
+	@Test
 	public void default200ResponseWhenStatusCodeNotSpecified() {
 		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
 		assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
@@ -446,6 +454,57 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/empty-header", withHeader("X-My-Header", ""));
 
         assertThat(response.statusCode(), is(200));
+    }
+
+	@Test
+	public void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
+        StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aResponse()));
+        assertThat(stubMapping.getId(), notNullValue());
+
+        StubMapping localStubMapping = wm.stubFor(get(anyUrl()).willReturn(aResponse()));
+        assertThat(localStubMapping.getId(), notNullValue());
+    }
+
+	@Test
+	public void getsASingleStubMappingById() {
+        UUID id = UUID.randomUUID();
+        stubFor(get(anyUrl())
+            .withId(id)
+            .willReturn(aResponse().withBody("identified!")));
+
+        StubMapping fetchedMapping = getSingleStubMapping(id);
+
+        assertThat(fetchedMapping.getResponse().getBody(), is("identified!"));
+    }
+
+    @Test
+    public void defaultsResponseWhenUnspecifiied() {
+        stubFor(any(anyUrl()));
+
+        assertThat(testClient.get("/anything-is-matched").statusCode(), is(200));
+    }
+
+    @Test
+	public void stubMappingsCanOptionallyBeNamed() {
+	    stubFor(any(urlPathEqualTo("/things"))
+            .withName("Get all the things")
+            .willReturn(aResponse().withBody("Named stub")));
+
+	    assertThat(listAllStubMappings().getMappings(), hasItem(named("Get all the things")));
+    }
+
+    private Matcher<StubMapping> named(final String name) {
+	    return new TypeSafeMatcher<StubMapping>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("named " + name);
+            }
+
+            @Override
+            protected boolean matchesSafely(StubMapping item) {
+                return name.equals(item.getName());
+            }
+        };
     }
 
 	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {

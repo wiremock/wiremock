@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -31,23 +31,23 @@ import static org.junit.Assert.assertThat;
 
 public class InMemoryRequestJournalTest {
 
-    private ServedStub servedStub1, servedStub2, servedStub3;
+    private ServeEvent serveEvent1, serveEvent2, serveEvent3;
 
     @Before
     public void createTestRequests() {
         Mockery context = new Mockery();
-        servedStub1 = ServedStub.exactMatch(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
-        servedStub2 = ServedStub.exactMatch(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
-        servedStub3 = ServedStub.exactMatch(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
+        serveEvent1 = ServeEvent.of(createFrom(aRequest(context, "log1").withUrl("/logging1").build()), null);
+        serveEvent2 = ServeEvent.of(createFrom(aRequest(context, "log2").withUrl("/logging2").build()), null);
+        serveEvent3 = ServeEvent.of(createFrom(aRequest(context, "log3").withUrl("/logging3").build()), null);
     }
 
     @Test
     public void returnsAllLoggedRequestsWhenNoJournalSizeLimit() {
         RequestJournal journal = new InMemoryRequestJournal(Optional.<Integer>absent());
 
-        journal.requestReceived(servedStub1);
-        journal.requestReceived(servedStub1);
-        journal.requestReceived(servedStub2);
+        journal.requestReceived(serveEvent1);
+        journal.requestReceived(serveEvent1);
+        journal.requestReceived(serveEvent2);
 
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(2));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
@@ -61,7 +61,7 @@ public class InMemoryRequestJournalTest {
                 .build());
 
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(1));
-        journal.requestReceived(ServedStub.exactMatch(loggedRequest, null));
+        journal.requestReceived(ServeEvent.of(loggedRequest, null));
         assertThat(journal.countRequestsMatching(everything()), is(1));
         journal.reset();
         assertThat(journal.countRequestsMatching(everything()), is(0));
@@ -71,14 +71,14 @@ public class InMemoryRequestJournalTest {
     public void discardsOldRequestsWhenJournalSizeIsLimited() throws Exception {
         RequestJournal journal = new InMemoryRequestJournal(Optional.of(2));
 
-        journal.requestReceived(servedStub1);
-        journal.requestReceived(servedStub2);
+        journal.requestReceived(serveEvent1);
+        journal.requestReceived(serveEvent2);
 
         assertThat(journal.countRequestsMatching(everything()), is(2));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging1")).build()), is(1));
         assertThat(journal.countRequestsMatching(getRequestedFor(urlEqualTo("/logging2")).build()), is(1));
 
-        journal.requestReceived(servedStub3);
+        journal.requestReceived(serveEvent3);
         assertOnlyLastTwoRequestsLeft(journal);
     }
 

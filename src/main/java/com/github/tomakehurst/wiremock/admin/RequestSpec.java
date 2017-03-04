@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,13 +23,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class RequestSpec {
 
     private final RequestMethod method;
-    private final String path;
+    private final AdminUriTemplate uriTemplate;
 
-    public RequestSpec(RequestMethod method, String path) {
+    public RequestSpec(RequestMethod method, String uriTemplate) {
         checkNotNull(method);
-        checkNotNull(path);
+        checkNotNull(uriTemplate);
         this.method = method;
-        this.path = path;
+        this.uriTemplate = new AdminUriTemplate(uriTemplate);
     }
 
     public static RequestSpec requestSpec(RequestMethod method, String path) {
@@ -39,8 +40,20 @@ public class RequestSpec {
         return method;
     }
 
+    public AdminUriTemplate getUriTemplate() {
+        return uriTemplate;
+    }
+
     public String path() {
-        return path;
+        return path(PathParams.empty());
+    }
+
+    public String path(PathParams pathParams) {
+        return uriTemplate.render(pathParams);
+    }
+
+    public boolean matches(RequestMethod method, String path) {
+        return this.method.equals(method) && uriTemplate.matches(path);
     }
 
     @Override
@@ -51,7 +64,7 @@ public class RequestSpec {
         RequestSpec that = (RequestSpec) o;
 
         if (!method.equals(that.method)) return false;
-        if (!path.equals(that.path)) return false;
+        if (!uriTemplate.equals(that.uriTemplate)) return false;
 
         return true;
     }
@@ -59,7 +72,7 @@ public class RequestSpec {
     @Override
     public int hashCode() {
         int result = method.hashCode();
-        result = 31 * result + path.hashCode();
+        result = 31 * result + uriTemplate.hashCode();
         return result;
     }
 }

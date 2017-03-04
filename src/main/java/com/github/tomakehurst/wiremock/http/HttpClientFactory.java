@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
+import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContexts;
@@ -33,7 +34,9 @@ import java.security.cert.X509Certificate;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 public class HttpClientFactory {
 
@@ -104,4 +107,27 @@ public class HttpClientFactory {
 	public static CloseableHttpClient createClient() {
 		return createClient(30000);
 	}
+
+    public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
+        notifier().info("Proxying: " + method + " " + url);
+
+        if (method.equals(GET))
+            return new HttpGet(url);
+        else if (method.equals(POST))
+            return new HttpPost(url);
+        else if (method.equals(PUT))
+            return new HttpPut(url);
+        else if (method.equals(DELETE))
+            return new HttpDelete(url);
+        else if (method.equals(HEAD))
+            return new HttpHead(url);
+        else if (method.equals(OPTIONS))
+            return new HttpOptions(url);
+        else if (method.equals(TRACE))
+            return new HttpTrace(url);
+        else if (method.equals(PATCH))
+            return new HttpPatch(url);
+        else
+            return new GenericHttpUriRequest(method.toString(), url);
+    }
 }

@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -94,13 +94,13 @@ public class NearMissCalculatorTest {
     @Test
     public void returns3NearestMissesForTheGivenRequestPattern() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(
                 asList(
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
-                    new ServedStub(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
+                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
                 )
             ));
         }});
@@ -119,10 +119,10 @@ public class NearMissCalculatorTest {
     @Test
     public void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(
                 singletonList(
-                    new ServedStub(
+                    ServeEvent.of(
                         LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")),
                         new ResponseDefinition()
                     )
@@ -141,7 +141,7 @@ public class NearMissCalculatorTest {
     @Test
     public void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
         context.checking(new Expectations() {{
-            one(requestJournal).getAllServedStubs();
+            one(requestJournal).getAllServeEvents();
             will(returnValue(emptyList()));
         }});
 

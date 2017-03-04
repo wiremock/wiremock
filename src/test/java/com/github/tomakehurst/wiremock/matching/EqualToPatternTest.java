@@ -48,12 +48,6 @@ public class EqualToPatternTest {
     }
 
     @Test
-    public void tmp() {
-        StringValuePattern pattern = WireMock.equalTo("matchthis");
-        assertThat(pattern.match("matchth").isExactMatch(), is(false));
-    }
-
-    @Test
     public void correctlyDeserialisesEqualToFromJson() {
         StringValuePattern stringValuePattern = Json.read(
             "{                               \n" +

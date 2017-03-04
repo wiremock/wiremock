@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.google.common.base.Function;
@@ -59,13 +59,13 @@ public class NearMissCalculator {
     }
 
     public List<NearMiss> findNearestTo(final RequestPattern requestPattern) {
-        List<ServedStub> servedStubs = requestJournal.getAllServedStubs();
-        return sortAndTruncate(from(servedStubs).transform(new Function<ServedStub, NearMiss>() {
-            public NearMiss apply(ServedStub servedStub) {
-                MatchResult matchResult = requestPattern.match(servedStub.getRequest());
-                return new NearMiss(servedStub.getRequest(), requestPattern, matchResult);
+        List<ServeEvent> serveEvents = requestJournal.getAllServeEvents();
+        return sortAndTruncate(from(serveEvents).transform(new Function<ServeEvent, NearMiss>() {
+            public NearMiss apply(ServeEvent serveEvent) {
+                MatchResult matchResult = requestPattern.match(serveEvent.getRequest());
+                return new NearMiss(serveEvent.getRequest(), requestPattern, matchResult);
             }
-        }), servedStubs.size());
+        }), serveEvents.size());
     }
 
     private static List<NearMiss> sortAndTruncate(FluentIterable<NearMiss> nearMisses, int originalSize) {

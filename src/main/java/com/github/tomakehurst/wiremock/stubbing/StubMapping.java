@@ -17,44 +17,50 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.google.common.annotations.VisibleForTesting;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonPropertyOrder({ "uuid", "request", "newRequest", "response" })
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+@JsonPropertyOrder({ "id", "name", "request", "newRequest", "response", "uuid" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
 
 	private UUID uuid = UUID.randomUUID();
+	private String name;
+
+	private boolean persistent;
 
 	private RequestPattern request;
-
 	private ResponseDefinition response;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
+
 	private Scenario scenario;
 
+    private Map<String, Parameters> postServeActions;
+
 	private long insertionIndex;
-    private boolean isTransient = true;
+	private boolean isDirty = true;
 
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
 	}
-	
+
 	public StubMapping() {
 		//Concession to Jackson
 	}
-	
+
 	public static final StubMapping NOT_CONFIGURED =
 	    new StubMapping(null, ResponseDefinition.notConfigured());
 
@@ -70,19 +76,46 @@ public class StubMapping {
 		return uuid;
 	}
 
-	@VisibleForTesting
+	public void setId(UUID uuid) {
+		this.uuid = uuid;
+	}
+
+	public UUID getId() {
+		return uuid;
+	}
+
+	public String getName() {
+    	return name;
+	}
+
+	public void setName(String name) {
+    	this.name = name;
+	}
+
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
 	}
 
+    public boolean shouldBePersisted() {
+        return persistent;
+    }
+
+    public Boolean isPersistent() {
+        return persistent ? true : null;
+    }
+
+    public void setPersistent(Boolean persistent) {
+        this.persistent = persistent != null && persistent;
+    }
+
     public RequestPattern getRequest() {
-		return request;
+		return firstNonNull(request, RequestPattern.ANYTHING);
 	}
-	
+
 	public ResponseDefinition getResponse() {
-		return response;
+		return firstNonNull(response, ResponseDefinition.ok());
 	}
-	
+
 	public void setRequest(RequestPattern request) {
 		this.request = request;
 	}
@@ -106,17 +139,14 @@ public class StubMapping {
 		this.insertionIndex = insertionIndex;
 	}
 
-    /**
-     * @return True if this StubMapping is not persisted to the file system, false otherwise.
-     */
     @JsonIgnore
-    public boolean isTransient() {
-        return isTransient;
+    public boolean isDirty() {
+        return isDirty;
     }
 
     @JsonIgnore
-    public void setTransient(boolean isTransient) {
-        this.isTransient = isTransient;
+    public void setDirty(boolean isDirty) {
+        this.isDirty = isDirty;
     }
 
 	public Integer getPriority() {
@@ -126,7 +156,7 @@ public class StubMapping {
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
-	
+
 	public String getScenarioName() {
 		return scenarioName;
 	}
@@ -150,7 +180,7 @@ public class StubMapping {
 	public void setNewScenarioState(String newScenarioState) {
 		this.newScenarioState = newScenarioState;
 	}
-	
+
 	public void updateScenarioStateIfRequired() {
 		if (isInScenario() && modifiesScenarioState()) {
 			scenario.setState(newScenarioState);
@@ -171,46 +201,55 @@ public class StubMapping {
 	public boolean isInScenario() {
 		return scenarioName != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean modifiesScenarioState() {
 		return newScenarioState != null;
 	}
-	
+
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
 	}
-	
+
 	@JsonIgnore
 	public boolean requiresCurrentScenarioState() {
 		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
-	
+
 	public int comparePriorityWith(StubMapping otherMapping) {
 		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
 		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
 		return thisPriority - otherPriority;
 	}
 
+    public Map<String, Parameters> getPostServeActions() {
+        return postServeActions;
+    }
+
+    public void setPostServeActions(Map<String, Parameters> postServeActions) {
+        this.postServeActions = postServeActions;
+    }
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		StubMapping that = (StubMapping) o;
-		return Objects.equals(insertionIndex, that.insertionIndex) &&
-				Objects.equals(isTransient, that.isTransient) &&
-				Objects.equals(request, that.request) &&
-				Objects.equals(response, that.response) &&
-				Objects.equals(priority, that.priority) &&
-				Objects.equals(scenarioName, that.scenarioName) &&
-				Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
-				Objects.equals(newScenarioState, that.newScenarioState) &&
-				Objects.equals(scenario, that.scenario);
+		return isDirty == that.isDirty &&
+			Objects.equals(uuid, that.uuid) &&
+			Objects.equals(request, that.request) &&
+			Objects.equals(response, that.response) &&
+			Objects.equals(priority, that.priority) &&
+			Objects.equals(scenarioName, that.scenarioName) &&
+			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
+			Objects.equals(newScenarioState, that.newScenarioState) &&
+			Objects.equals(scenario, that.scenario) &&
+			Objects.equals(postServeActions, that.postServeActions);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, insertionIndex, isTransient);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isDirty);
 	}
 }

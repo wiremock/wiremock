@@ -96,17 +96,38 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		
 		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, mappedUnder);
 
-		Response response = requestHandler.handle(request);
-        if (Thread.currentThread().isInterrupted()) {
-            return;
-        }
-		if (response.wasConfigured()) {
-			applyResponse(response, httpServletRequest, httpServletResponse);
-		} else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
-		    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
-		} else {
-			httpServletResponse.sendError(HTTP_NOT_FOUND);
+		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
+		requestHandler.handle(request, responder);
+	}
+
+	private class ServletHttpResponder implements HttpResponder {
+
+		private final HttpServletRequest httpServletRequest;
+		private final HttpServletResponse httpServletResponse;
+
+		public ServletHttpResponder(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+			this.httpServletRequest = httpServletRequest;
+			this.httpServletResponse = httpServletResponse;
 		}
+
+		@Override
+		public void respond(Request request, Response response) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
+
+            try {
+                if (response.wasConfigured()) {
+                    applyResponse(response, httpServletRequest, httpServletResponse);
+                } else if (request.getMethod().equals(GET) && shouldForwardToFilesContext) {
+                    forwardToFilesContext(httpServletRequest, httpServletResponse, request);
+                } else {
+                    httpServletResponse.sendError(HTTP_NOT_FOUND);
+                }
+            } catch (Exception e) {
+                throwUnchecked(e);
+            }
+        }
 	}
 
     public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
