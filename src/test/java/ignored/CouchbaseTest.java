@@ -64,7 +64,7 @@ public class CouchbaseTest {
 
         System.out.println("Second Request Completed.");
 
-        response2.getStatusLine()
+        response2.getStatusLine();
 
         wms.stop();
     }
