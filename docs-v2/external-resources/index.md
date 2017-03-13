@@ -12,7 +12,7 @@ Code, articles and videos related to WireMock from around the web.
 
 Spring Contract Verifier (previously called Accurest) is a consumer driven contracts tool that generates WireMock stub mappings as
 examples for client testing.
-[http://codearte.github.io/accurest/](http://codearte.github.io/accurest/)
+[http://cloud.spring.io/spring-cloud-contract/](http://cloud.spring.io/spring-cloud-contract/)
 
 A Spring REST Docs integration for WireMock that generates WireMock stub mappings from your test cases:<br>
 [https://github.com/epages-de/restdocs-wiremock](https://github.com/epages-de/restdocs-wiremock)
@@ -57,6 +57,9 @@ Bas Dijkstra kindly open sourced the content for the workshop he ran on WireMock
 [http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/](http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/)
 
 ## Videos
+
+Interesting and detailed presentation by Lotte Johansen on testing microservices with WireMock at Norway's top online marketplace:<br>
+[https://www.youtube.com/watch?v=cmJfMnGK-r0](https://www.youtube.com/watch?v=cmJfMnGK-r0)
 
 Chris Batey did an excellent talk at Skillsmatter in London about building fault tolerant microservices. He showed some practical
 failure testing strategies using WireMock and Saboteur he'd used for real while working at Sky:<br>
