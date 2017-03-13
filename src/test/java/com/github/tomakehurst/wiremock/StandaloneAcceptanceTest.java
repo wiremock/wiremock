@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.conn.HttpHostConnectException;
@@ -45,7 +46,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.base.Predicates.containsPattern;
 import static com.google.common.collect.Iterables.any;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.size;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
@@ -363,6 +367,22 @@ public class StandaloneAcceptanceTest {
 	    assertThat(mappingsDirectory, doesNotContainAFileWithNameContaining("try-to-record"));
 	}
 
+	@Test
+	public void doesNotRecordRequestWhenAlreadySeen() {
+        WireMock otherServerClient = startOtherServerAndClient();
+        startRunner("--record-mappings");
+        givenThat(get(urlEqualTo("/try-to/record-this"))
+            .willReturn(aResponse().proxiedFrom("http://localhost:" + otherServer.port())));
+        otherServerClient.register(
+            get(urlEqualTo("/try-to/record-this"))
+                .willReturn(aResponse().withStatus(HTTP_OK).withBody("Proxied body")));
+
+		testClient.get("/try-to/record-this");
+		testClient.get("/try-to/record-this");
+
+		assertThat(mappingsDirectory, containsExactlyOneFileWithNameContaining("try-to-record"));
+	}
+
     @Test
     public void canBeShutDownRemotely() {
         startRunner();
@@ -527,31 +547,35 @@ public class StandaloneAcceptanceTest {
 
             @Override
             public boolean matchesSafely(File dir) {
-                return !any(Arrays.<String>asList(dir.list()), new Predicate<String>() {
-                    @Override
-					public boolean apply(String input) {
-                        return input.contains(namePart);
-                    }
-                });
+                return !any(asList(dir.list()), contains(namePart));
             }
 
         };
     }
 
-    private Matcher<Exception> causedByHttpHostConnectException() {
-        return new TypeSafeMatcher<Exception>() {
+    private Matcher<File> containsExactlyOneFileWithNameContaining(final String namePart) {
+        return new TypeSafeMatcher<File>() {
+
             @Override
-            public boolean matchesSafely(Exception o) {
-                if (!(o instanceof RuntimeException)) {
-                    return false;
-                }
-                RuntimeException re = (RuntimeException)o;
-                return re.getCause() instanceof HttpHostConnectException;
+            public void describeTo(Description desc) {
+                desc.appendText("exactly one file named like " + namePart);
+
             }
 
             @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected RuntimeException with nested HttpHostConnectException");
+            public boolean matchesSafely(File dir) {
+                Iterable<String> fileNames = filter(asList(dir.list()), contains(namePart));
+                return size(fileNames) == 1;
+            }
+
+        };
+    }
+
+    private static Predicate<String> contains(final String part) {
+	    return new Predicate<String>() {
+            @Override
+            public boolean apply(String s) {
+                return s.contains(part);
             }
         };
     }

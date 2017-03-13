@@ -127,7 +127,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void addsResponseHeaders() {
 	    context.checking(new Expectations() {{
-	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
+	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.txt", "Recorded body content".getBytes(UTF_8));
