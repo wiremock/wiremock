@@ -153,7 +153,7 @@ public class StubMappingJsonRecorderTest {
 	@Test
 	public void doesNotWriteFileIfRequestAlreadyReceived() {
 	    context.checking(new Expectations() {{
-            atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(2)));
+            atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
@@ -162,7 +162,7 @@ public class StubMappingJsonRecorderTest {
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")
                 .build(),
-            response().status(200).build());
+            response().fromProxy(true).status(200).build());
 	}
 	
 	@Test
