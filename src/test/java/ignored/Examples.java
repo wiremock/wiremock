@@ -376,6 +376,7 @@ public class Examples extends AcceptanceTestBase {
 
         stubFor(delete("/fine").willReturn(ok()));
         stubFor(get("/json").willReturn(okJson("{ \"message\": \"Hello\" }")));
+        stubFor(get("/xml").willReturn(okXml("{ \"message\": \"Hello\" }")));
         stubFor(post("/redirect").willReturn(temporaryRedirect("/new/place")));
         stubFor(post("/sorry-no").willReturn(unauthorized()));
 

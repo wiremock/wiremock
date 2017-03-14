@@ -372,11 +372,23 @@ public class WireMock {
         return aResponse().withStatus(200).withBody(body);
     }
 
-    public static ResponseDefinitionBuilder okJson(String body) {
+    public static ResponseDefinitionBuilder okForContentType(String contentType, String body) {
         return aResponse()
             .withStatus(200)
-            .withHeader(CONTENT_TYPE, "application/json")
+            .withHeader(CONTENT_TYPE, contentType)
             .withBody(body);
+    }
+
+    public static ResponseDefinitionBuilder okJson(String body) {
+        return okForContentType("application/json", body);
+    }
+
+    public static ResponseDefinitionBuilder okXml(String body) {
+        return okForContentType("application/xml", body);
+    }
+
+    public static ResponseDefinitionBuilder okTextXml(String body) {
+        return okForContentType("text/xml", body);
     }
 
     public static MappingBuilder get(String url) {
