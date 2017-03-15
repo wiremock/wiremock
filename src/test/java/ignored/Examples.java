@@ -371,16 +371,32 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
-    public void abbregiatedDsl() {
+    public void abbreviatedDsl() {
         stubFor(get("/some/thing").willReturn(aResponse().withStatus(200)));
 
         stubFor(delete("/fine").willReturn(ok()));
         stubFor(get("/json").willReturn(okJson("{ \"message\": \"Hello\" }")));
-        stubFor(get("/xml").willReturn(okXml("{ \"message\": \"Hello\" }")));
-        stubFor(post("/redirect").willReturn(temporaryRedirect("/new/place")));
+        stubFor(get("/xml").willReturn(okXml("<hello />")));     // application/xml
+        stubFor(get("/xml").willReturn(okTextXml("<hello />"))); // text/xml
+        stubFor(post("/things").willReturn(noContent()));
+
+        stubFor(post("/temp-redirect").willReturn(temporaryRedirect("/new/place")));
+        stubFor(post("/perm-redirect").willReturn(permanentRedirect("/new/place")));
+        stubFor(post("/see-other").willReturn(seeOther("/new/place")));
+
         stubFor(post("/sorry-no").willReturn(unauthorized()));
+        stubFor(post("/still-no").willReturn(forbidden()));
+
+        stubFor(put("/dodgy").willReturn(badRequest()));
+        stubFor(put("/dodgy-body").willReturn(badRequestEntity()));
+        stubFor(put("/nothing-to-see-here").willReturn(notFound()));
 
         stubFor(put("/status-only").willReturn(status(418)));
+
+        stubFor(get("/dead-server").willReturn(serviceUnavailable()));
+        stubFor(put("/error").willReturn(serverError()));
+
+        stubFor(proxyAllTo("http://my.example.com"));
 
     }
 }
