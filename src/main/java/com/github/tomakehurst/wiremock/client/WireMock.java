@@ -391,6 +391,10 @@ public class WireMock {
         return okForContentType("text/xml", body);
     }
 
+    public static MappingBuilder proxyAllTo(String url) {
+        return any(anyUrl()).willReturn(aResponse().proxiedFrom(url));
+    }
+
     public static MappingBuilder get(String url) {
         return get(urlEqualTo(url));
     }
