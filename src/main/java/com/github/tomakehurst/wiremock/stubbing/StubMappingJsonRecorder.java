@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -55,7 +56,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     public void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
 
-        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+        if (requestNotAlreadyReceived(requestPattern) && stubMappingNotAlreadyLoaded(requestPattern) && response.isFromProxy()) {
             notifier().info(String.format("Recording mappings for %s", request.getUrl()));
             writeToMappingAndBodyFile(request, response, requestPattern);
         } else {
@@ -145,6 +146,18 @@ public class StubMappingJsonRecorder implements RequestListener {
         VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
         verificationResult.assertRequestJournalEnabled();
         return (verificationResult.getCount() < 1);
+    }
+
+    private boolean stubMappingNotAlreadyLoaded(final RequestPattern requestPattern) {
+        ListStubMappingsResult listStubMappingsResult = admin.listAllStubMappings();
+        if(listStubMappingsResult != null) {
+            for (StubMapping stubMapping : listStubMappingsResult.getMappings()) {
+                if (!stubMapping.getResponse().isProxyResponse() && requestPattern.equals(stubMapping.getRequest())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void setIdGenerator(IdGenerator idGenerator) {
