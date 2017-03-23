@@ -89,6 +89,8 @@ stubFor(put("/status-only")
 
 ```
 
+More DSL examples [can be found here](https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374). 
+
 
 HTTP methods currently supported are:
 `GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS`. You can specify `ANY` if
