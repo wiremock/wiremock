@@ -123,7 +123,7 @@ public class PostServeActionExtensionTest {
 
         client.get("/response-status");
 
-        countDownLatch.await(500, MILLISECONDS);
+        countDownLatch.await(1500, MILLISECONDS);
 
         assertThat(finalStatus.get(), is(418));
     }

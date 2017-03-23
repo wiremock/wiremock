@@ -294,3 +294,11 @@ schemas:
     responses:
       200:
         description: Settings successfully updated
+
+/__admin/shutdown:
+  description: Shutdown function
+  post:
+    description: Shutdown the WireMock server
+    responses:
+      200:
+        description: Server will be shut down
