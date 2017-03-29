@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -167,6 +168,32 @@ public class StubMappingPersistenceAcceptanceTest {
         removeAllMappings();
 
         assertMappingsDirIsEmpty();
+    }
+
+    @Test
+    public void recordMappingsNotDuplicateAfterRebootOrResetRequest() {
+        final String proxyBaseUrl = "http://wiremock.org";
+        final String endpoint = "http://localhost:" + wireMockServer.port();
+
+        FileSource fileSource = new SingleRootFileSource(rootDir.toAbsolutePath().toString());
+
+        wireMockServer.enableRecordMappings(fileSource.child(MAPPINGS_ROOT), fileSource.child(FILES_ROOT));
+
+        StubMapping stubProxyPriority = wm.stubFor(any(anyUrl())
+                .persistent()
+                .atPriority(0)
+                .willReturn(aResponse().proxiedFrom(proxyBaseUrl)));
+        assertThat(testClient.get(endpoint).statusCode(), is(HttpStatus.SC_OK));
+
+        resetToDefault();
+
+        stubProxyPriority.setPriority(10);
+        wireMockServer.editStubMapping(stubProxyPriority);
+
+        assertThat(testClient.get(endpoint).statusCode(), is(HttpStatus.SC_OK));
+        wireMockServer.removeStubMapping(stubProxyPriority);
+
+        assertMappingsDirContainsOneFile();
     }
 
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {
