@@ -94,6 +94,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
             newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
         }
 
+        if (responseDefinition.getProxyBaseUrl() != null) {
+            Template proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
+            String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
+            newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
+        }
+
         return newResponseDefBuilder.build();
     }
 
