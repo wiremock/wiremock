@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -92,5 +93,11 @@ public class ContentTypeHeaderTest {
 			.build();
 	
         request.contentTypeHeader();
+	}
+	
+	@Test
+	public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
+		ContentTypeHeader header = ContentTypeHeader.absent();
+		assertThat(header.mimeTypePart(), is(nullValue()));
 	}
 }
