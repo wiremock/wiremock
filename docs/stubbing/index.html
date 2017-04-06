@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-03-13T23:03:23+00:00">
+  <meta property="article:published_time" content="2017-04-06T15:50:12+01:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -299,7 +299,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stubbing">
     <meta itemprop="description" content="A core feature of WireMock is the ability to return canned HTTPresponses for requests matching criteria. These are described in detail in Request Matching.">
-    <meta itemprop="datePublished" content="March 13, 2017">
+    <meta itemprop="datePublished" content="April 06, 2017">
     
 
     <div class="page__inner-wrap">
@@ -359,6 +359,42 @@ document can either be posted to
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 </div>
+
+<h3 id="java-shortcuts">Java Shortcuts</h3>
+
+<p>Some common request and response patterns can be expressed in Java in abbreviated forms.</p>
+
+<p>Requests matching an exact URL plus one of the most common HTTP methods (GET, POST, PUT, DELETE) can be stubbed like this:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>Common responses can also be abbreviated e.g.:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">delete</span><span class="o">(</span><span class="s">"/fine"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/fine-with-body"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">(</span><span class="s">"body content"</span><span class="o">)));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/json"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">okJson</span><span class="o">(</span><span class="s">"{ \"message\": \"Hello\" }"</span><span class="o">)));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/redirect"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">temporaryRedirect</span><span class="o">(</span><span class="s">"/new/place"</span><span class="o">)));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/sorry-no"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">unauthorized</span><span class="o">()));</span>
+
+<span class="n">stubFor</span><span class="o">(</span><span class="n">put</span><span class="o">(</span><span class="s">"/status-only"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">status</span><span class="o">(</span><span class="mi">418</span><span class="o">)));</span>
+
+</code></pre>
+</div>
+
+<p>More DSL examples <a href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374">can be found here</a>.</p>
 
 <p>HTTP methods currently supported are:
 <code class="highlighter-rouge">GET, POST, PUT, DELETE, HEAD, TRACE, OPTIONS</code>. You can specify <code class="highlighter-rouge">ANY</code> if
