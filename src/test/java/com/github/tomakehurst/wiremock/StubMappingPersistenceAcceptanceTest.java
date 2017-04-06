@@ -37,7 +37,7 @@ public class StubMappingPersistenceAcceptanceTest {
     @Before
     public void init() throws Exception {
         rootDir = Files.createTempDirectory("temp-filesource");
-        mappingsDir = rootDir.resolve("mappings");
+        mappingsDir = rootDir.resolve(MAPPINGS_ROOT);
         FileSource fileSource = new SingleRootFileSource(rootDir.toAbsolutePath().toString());
         fileSource.createIfNecessary();
         FileSource filesFileSource = fileSource.child(FILES_ROOT);
@@ -172,23 +172,22 @@ public class StubMappingPersistenceAcceptanceTest {
 
     @Test
     public void recordMappingsNotDuplicateAfterRebootOrResetRequest() {
-        final String proxyBaseUrl = "http://wiremock.org";
-        final String endpoint = "http://localhost:" + wireMockServer.port();
-
-        FileSource fileSource = new SingleRootFileSource(rootDir.toAbsolutePath().toString());
-
+        final String endpoint = "http://localhost:" + wireMockServer.port() + "/record-mappings";
+        final FileSource fileSource = new SingleRootFileSource(rootDir.toAbsolutePath().toString());
         wireMockServer.enableRecordMappings(fileSource.child(MAPPINGS_ROOT), fileSource.child(FILES_ROOT));
+
+        WireMockServer targetServer = new WireMockServer(wireMockConfig().dynamicPort());
+        targetServer.stubFor(get(urlEqualTo("/record-mappings"))
+                .willReturn(aResponse().withBody("sample text")));
+        targetServer.start();
 
         StubMapping stubProxyPriority = wm.stubFor(any(anyUrl())
                 .persistent()
-                .atPriority(0)
-                .willReturn(aResponse().proxiedFrom(proxyBaseUrl)));
+                .willReturn(aResponse().proxiedFrom("http://localhost:" + targetServer.port())));
+
         assertThat(testClient.get(endpoint).statusCode(), is(HttpStatus.SC_OK));
 
         resetToDefault();
-
-        stubProxyPriority.setPriority(10);
-        wireMockServer.editStubMapping(stubProxyPriority);
 
         assertThat(testClient.get(endpoint).statusCode(), is(HttpStatus.SC_OK));
         wireMockServer.removeStubMapping(stubProxyPriority);
