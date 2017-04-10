@@ -162,6 +162,14 @@ schemas:
         body:
           application/json:
             example: !include examples/serve-events.example.json
+  delete:
+    description: Delete all received requests
+    responses:
+      200:
+        description: Successfully deleted
+        body:
+          application/json:
+            example: !include examples/empty.example.json
 
 
   /{requestId}:
