@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
@@ -27,9 +26,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Duration.ONE_SECOND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -70,17 +68,8 @@ public class PostServeActionExtensionTest {
         client.get("/count-me");
 
         await()
-            .atMost(ONE_SECOND)
+            .atMost(5, SECONDS)
             .until(getContent("/__admin/named-counter/things"), is("4"));
-    }
-
-    private Callable<String> getContent(final String url) {
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return client.get(url).content();
-            }
-        };
     }
 
     @Test
@@ -101,7 +90,6 @@ public class PostServeActionExtensionTest {
     @Test
     public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
         final AtomicInteger finalStatus = new AtomicInteger();
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
         initWithOptions(options().dynamicPort().extensions(new PostServeAction() {
             @Override
             public String getName() {
@@ -111,21 +99,39 @@ public class PostServeActionExtensionTest {
             @Override
             public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
                 if (serveEvent.getResponse() != null) {
-                    countDownLatch.countDown();
                     finalStatus.set(serveEvent.getResponse().getStatus());
                 }
             }
         }));
 
         wm.stubFor(get(urlPathEqualTo("/response-status"))
-            .willReturn(aResponse().withStatus(418))
+            .willReturn(aResponse()
+                .withStatus(418))
         );
 
         client.get("/response-status");
 
-        countDownLatch.await(1500, MILLISECONDS);
+        await()
+            .atMost(5, SECONDS)
+            .until(getValue(finalStatus), is(418));
+    }
 
-        assertThat(finalStatus.get(), is(418));
+    private Callable<Integer> getValue(final AtomicInteger value) {
+        return new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return value.get();
+            }
+        };
+    }
+
+    private Callable<String> getContent(final String url) {
+        return new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return client.get(url).content();
+            }
+        };
     }
 
     public static class NamedCounterAction extends PostServeAction implements AdminApiExtension {

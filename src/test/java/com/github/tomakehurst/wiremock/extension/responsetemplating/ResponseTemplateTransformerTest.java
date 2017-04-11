@@ -227,6 +227,19 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getBody(), is("5"));
     }
 
+    @Test
+    public void proxyBaseUrl() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .header("X-WM-Uri", "http://localhost:8000"),
+            aResponse().proxiedFrom("{{request.headers.X-WM-Uri}}")
+        );
+
+        assertThat(transformedResponseDef.getProxyBaseUrl(), is(
+            "http://localhost:8000"
+        ));
+    }
+
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
         return transformer.transform(
             request,
