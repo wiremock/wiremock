@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -56,6 +57,7 @@ public class HttpClientFactory {
                 .disableRedirectHandling()
                 .disableContentCompression()
                 .setMaxConnTotal(maxConnections)
+                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
                 .useSystemProperties()
                 .setHostnameVerifier(new AllowAllHostnameVerifier());

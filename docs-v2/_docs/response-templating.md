@@ -5,7 +5,7 @@ toc_rank: 71
 description: Generating dynamic responses using Handlebars templates
 ---
 
-Response headers and bodies can optionally be rendered using [Handlebars templates](http://handlebarsjs.com/). This enables attributes of the request
+Response headers and bodies, as well as proxy URLs, can optionally be rendered using [Handlebars templates](http://handlebarsjs.com/). This enables attributes of the request
 to be used in generating the response e.g. to pass the value of a request ID header as a response header or
 render an identifier from part of the URL in the response body.
  
@@ -48,6 +48,37 @@ wm.stubFor(get(urlPathEqualTo("/templated"))
     },
     "response": {
         "body": "{{request.path.[0]}}",
+        "transformers": ["response-template"]
+    }
+}
+```
+{% endraw %}
+
+## Proxying
+
+Templating also works when defining proxy URLs, e.g.
+
+### Java
+
+{% raw %}
+```java
+wm.stubFor(get(urlPathEqualTo("/templated"))
+  .willReturn(aResponse()
+      .proxiedFrom("{{request.headers.X-WM-Proxy-Url}}")
+      .withTransformers("response-template")));
+```
+{% endraw %}
+
+
+{% raw %}
+### JSON
+```json
+{
+    "request": {
+        "urlPath": "/templated"
+    },
+    "response": {
+        "proxyBaseUrl": "{{request.headers.X-WM-Proxy-Url}}",
         "transformers": ["response-template"]
     }
 }

@@ -41,7 +41,7 @@ public class ContentTypeHeader extends HttpHeader {
     }
 
 	public String mimeTypePart() {
-		return parts[0];
+		return parts != null ? parts[0] : null;
 	}
 	
 	public Optional<String> encodingPart() {
