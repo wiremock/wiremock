@@ -142,6 +142,10 @@ public class WireMock {
 		defaultInstance.set(new WireMock(scheme, host, port));
 	}
 
+    public static void configureFor(String scheme, String host, int port, String proxyHost, int proxyPort) {
+        defaultInstance.set(new WireMock(scheme, host, port, "", null, proxyHost, proxyPort));
+    }
+
 	public static void configure() {
 		defaultInstance.set(new WireMock());
 	}
