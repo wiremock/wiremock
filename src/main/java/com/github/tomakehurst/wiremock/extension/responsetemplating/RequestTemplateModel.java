@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
 import java.net.URI;
 import java.util.Map;
 
-public class RequestTemplateModel {
+public class RequestTemplateModel implements TemplateModel {
 
     private final String url;
     private final UrlPath path;
