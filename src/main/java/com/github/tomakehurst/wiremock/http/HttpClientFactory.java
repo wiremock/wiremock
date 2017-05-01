@@ -42,9 +42,13 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 public class HttpClientFactory {
 
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
+    public static final int DEFAULT_TIMEOUT = 30000;
 
     public static CloseableHttpClient createClient(
-            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
+            int maxConnections,
+            int timeoutMilliseconds,
+            ProxySettings proxySettings,
+            KeyStoreSettings trustStoreSettings) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -106,9 +110,13 @@ public class HttpClientFactory {
 		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
 
-	public static CloseableHttpClient createClient() {
-		return createClient(30000);
-	}
+    public static CloseableHttpClient createClient(ProxySettings proxySettings) {
+        return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE);
+    }
+
+    public static CloseableHttpClient createClient() {
+      return createClient(DEFAULT_TIMEOUT);
+    }
 
     public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
         notifier().info("Proxying: " + method + " " + url);
