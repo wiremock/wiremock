@@ -66,7 +66,7 @@ public class EqualToJsonTest {
                 "   \"three\":  7,  \n" +
                 "   \"four\":   8   \n" +
                 "}                  \n"
-        ).getDistance(), is(0.5));
+        ).getDistance(), is(0.4));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class EqualToJsonTest {
             "}                  \n"
         ).match(
             "{}"
-        ).getDistance(), is(1.0));
+        ).getDistance(), is(0.8));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class EqualToJsonTest {
             "   \"three\":  3,  \n" +
             "   \"four\":   4   \n" +
             "}                  \n"
-        ).getDistance(), is(1.0));
+        ).getDistance(), is(0.8));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class EqualToJsonTest {
             "       \"four\":   \"FOUR\"\n" +
             "   }                       \n" +
             "}                          \n"
-        ).getDistance(), closeTo(0.54, 0.01));
+        ).getDistance(), closeTo(0.583, 0.01));
     }
 
     @Test
@@ -274,6 +274,36 @@ public class EqualToJsonTest {
             "   \"six\":    6           \n" +
             "}                          \n"
         ).isExactMatch());
+    }
+
+    @Test
+    public void doesNotIgnoreExtraEmptyArray() throws Exception {
+        assertFalse(WireMock.equalToJson(
+                "{                          \n" +
+                "   \"one\":    1           \n" +
+                "}                          \n",
+                false, false
+            ).match(
+                "{                          \n" +
+                "   \"one\":    1,          \n" +
+                "   \"empty\":  []          \n" +
+                "}                          \n"
+            ).isExactMatch());
+    }
+
+    @Test
+    public void doesNotIgnoreExtraEmptyObject() throws Exception {
+        assertFalse(WireMock.equalToJson(
+                "{                          \n" +
+                "   \"one\":    1           \n" +
+                "}                          \n",
+                false, false
+            ).match(
+                "{                          \n" +
+                "   \"one\":    1,          \n" +
+                "   \"empty\":  {}          \n" +
+                "}                          \n"
+            ).isExactMatch());
     }
 
     @Test

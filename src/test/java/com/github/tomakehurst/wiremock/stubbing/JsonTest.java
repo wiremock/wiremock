@@ -16,16 +16,17 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.Json;
+
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 public class JsonTest {
 
 	private static final String TEST_VALUE = "test-value";
-	private static final String JSON_WITH_NO_COMMENTS = 
+	private static final String JSON_WITH_NO_COMMENTS =
 			"{                                          \n" +
                 "\"property\": \"" + TEST_VALUE + "\"   \n" +
             "}";
@@ -49,7 +50,7 @@ public class JsonTest {
 		assertNotNull(pojo);
 		assertThat(TEST_VALUE, is(pojo.property));
 	}
-	
+
 	@Test
 	public void testReadWithComments() {
 		TestPojo pojo = Json.read(JSON_WITH_COMMENTS, TestPojo.class);
@@ -86,27 +87,45 @@ public class JsonTest {
             "}"
         ));
 
-        assertThat(count, is(16));
+        assertThat(count, is(17));
     }
 
     @Test
-    public void counts0ForEmptyArray() {
+    public void counts1ForEmptyArray() {
         int count = Json.deepSize(Json.node(
             "[]"
         ));
 
-        assertThat(count, is(0));
+        assertThat(count, is(1));
     }
 
     @Test
-    public void counts0ForEmptyObject() {
+    public void counts1ForNestedEmptyArray() throws Exception {
+        int count = Json.deepSize(Json.node(
+            "[ [], [], [] ]"
+        ));
+
+        assertThat(count, is(1 + 3));
+    }
+
+    @Test
+    public void counts1ForEmptyObject() {
         int count = Json.deepSize(Json.node(
             "{}"
         ));
 
-        assertThat(count, is(0));
+        assertThat(count, is(1));
     }
-	
+
+    @Test
+    public void counts1ForNestedEmptyObject() {
+        int count = Json.deepSize(Json.node(
+            "[ {}, {}, {} ]"
+        ));
+
+        assertThat(count, is(1 + 3));
+    }
+
 	private static class TestPojo {
 		public String property;
 	}

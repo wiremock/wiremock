@@ -41,7 +41,7 @@ public final class Json {
             return objectMapper;
         }
     };
-	
+
 	private Json() {}
 
     public static <T> T read(String json, Class<T> clazz) {
@@ -102,20 +102,12 @@ public final class Json {
         if (node == null) {
             return 0;
         }
-
-        int acc = 0;
+        int acc = 1;
         if (node.isContainerNode()) {
-
             for (JsonNode child : node) {
-                acc++;
-                if (child.isContainerNode()) {
-                    acc += deepSize(child);
-                }
+                acc += deepSize(child);
             }
-        } else {
-            acc++;
         }
-
         return acc;
     }
 
