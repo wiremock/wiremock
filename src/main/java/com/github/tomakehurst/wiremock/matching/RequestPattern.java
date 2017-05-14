@@ -221,7 +221,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     private MatchResult allBodyPatternsMatch(final Request request) {
-        if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
+        if (thereAreSomeBodyPatterns() && thereIsNoRequestBody(request)) {
+            return MatchResult.noMatch();
+        }
+        if (thereAreSomeBodyPatterns() && thereIsARequestBody(request)) {
             return MatchResult.aggregate(
                 from(bodyPatterns).transform(new Function<StringValuePattern, MatchResult>() {
                     @Override
@@ -233,6 +236,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         }
 
         return MatchResult.exactMatch();
+    }
+
+    private boolean thereIsARequestBody(Request request) {
+        return request.getBody() != null && request.getBody().length != 0;
+    }
+
+    private boolean thereIsNoRequestBody(Request request) {
+        return request.getBody() == null || request.getBody().length == 0;
+    }
+
+    private boolean thereAreSomeBodyPatterns() {
+        return bodyPatterns != null && !bodyPatterns.isEmpty();
     }
 
     public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {

@@ -300,6 +300,21 @@ public class RequestPatternTest {
     }
 
     @Test
+    public void doesNotMatchExactlyWhenThereIsNoBody() {
+        RequestPattern requestPattern =
+                newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+                        .withRequestBody(WireMock.equalToXml("<xml></xml>"))
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(PUT)
+                .url("/my/url")
+                .body(""));
+
+        assertFalse(matchResult.isExactMatch());
+    }
+
+    @Test
     public void matchesExactlyWhenAllCookiesMatch() {
         RequestPattern requestPattern =
             newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
