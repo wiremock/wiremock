@@ -15,8 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+
+import java.util.List;
 
 public interface MappingsSaver {
-    void saveMappings(StubMappings stubMappings);
+    void save(List<StubMapping> stubMappings);
+    void save(StubMapping stubMapping);
+    void remove(StubMapping stubMapping);
+    void removeAll();
 }

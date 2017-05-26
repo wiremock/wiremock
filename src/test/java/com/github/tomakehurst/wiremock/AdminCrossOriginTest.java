@@ -18,6 +18,6 @@ public class AdminCrossOriginTest extends AcceptanceTestBase {
 
         assertThat(response.statusCode(), is(200));
         assertThat(response.firstHeader("Access-Control-Allow-Origin"), is("http://my.corp.com"));
-        assertThat(response.firstHeader("Access-Control-Allow-Methods"), is("OPTIONS,GET,POST,PUT"));
+        assertThat(response.firstHeader("Access-Control-Allow-Methods"), is("OPTIONS,GET,POST,PUT,PATCH,DELETE"));
     }
 }

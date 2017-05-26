@@ -17,21 +17,29 @@ package com.github.tomakehurst.wiremock.junit;
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface Stubbing {
 
-    void givenThat(MappingBuilder mappingBuilder);
-    void stubFor(MappingBuilder mappingBuilder);
+    StubMapping givenThat(MappingBuilder mappingBuilder);
+    StubMapping stubFor(MappingBuilder mappingBuilder);
     void editStub(MappingBuilder mappingBuilder);
     void removeStub(MappingBuilder mappingBuilder);
+    void removeStub(StubMapping mappingBuilder);
+
+    List<StubMapping> getStubMappings();
+    StubMapping getSingleStubMapping(UUID id);
+
     void verify(RequestPatternBuilder requestPatternBuilder);
     void verify(int count, RequestPatternBuilder requestPatternBuilder);
-
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
+    List<ServeEvent> getAllServeEvents();
 
     void setGlobalFixedDelay(int milliseconds);
 

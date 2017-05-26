@@ -82,7 +82,7 @@ exhausting the heap. The `--record-mappings` option isn't available if
 this one is specified.
 
 `--container-threads`: The number of threads created for incoming
-requests. Defaults to 200.
+requests. Defaults to 10.
 
 `--max-request-journal-entries`: Set maximum number of entries in
 request journal (if enabled). When this limit is reached oldest entries
@@ -98,6 +98,11 @@ e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
 
 `--extensions`: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
+
+`--print-all-network-traffic`: Print all raw incoming and outgoing network traffic to console.
+
+`--global-response-templating`: Render all response definitions using Handlebars templates.
+`--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
 
 `--help`: Show command line help
 
@@ -167,6 +172,11 @@ More content
 ```
 
 See stubbing and verifying for more on the JSON API.
+
+
+## Pushing JSON files to a remote WireMock instance
+You can push a collection of mappings to a remote  
+
 
 ## File serving
 

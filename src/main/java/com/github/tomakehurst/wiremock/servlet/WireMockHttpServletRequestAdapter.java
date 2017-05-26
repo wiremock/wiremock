@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;

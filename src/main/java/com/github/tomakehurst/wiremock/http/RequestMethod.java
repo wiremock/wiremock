@@ -18,11 +18,11 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
 
 import static java.util.Arrays.asList;
 
-public class RequestMethod implements ValueMatcher<RequestMethod> {
+public class RequestMethod implements NamedValueMatcher<RequestMethod> {
 
     public static final RequestMethod GET = new RequestMethod("GET");
     public static final RequestMethod POST = new RequestMethod("POST");
@@ -78,6 +78,10 @@ public class RequestMethod implements ValueMatcher<RequestMethod> {
 
         return name.equals(that.name);
 
+    }
+
+    public boolean hasEntity() {
+        return (asList(PUT, PATCH, POST).contains(this));
     }
 
     @Override

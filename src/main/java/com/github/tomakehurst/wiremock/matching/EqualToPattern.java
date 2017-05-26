@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 
 import java.util.Objects;
 
@@ -24,12 +23,26 @@ import static org.apache.commons.lang3.StringUtils.getLevenshteinDistance;
 
 public class EqualToPattern extends StringValuePattern {
 
-    public EqualToPattern(@JsonProperty("equalTo") String testValue) {
+    private final Boolean caseInsensitive;
+
+    public EqualToPattern(
+        @JsonProperty("equalTo") String testValue,
+        @JsonProperty("caseInsensitive") Boolean caseInsensitive
+    ) {
         super(testValue);
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public EqualToPattern(String expectedValue) {
+        this(expectedValue, null);
     }
 
     public String getEqualTo() {
         return expectedValue;
+    }
+
+    public Boolean getCaseInsensitive() {
+        return caseInsensitive;
     }
 
     @Override
@@ -37,7 +50,10 @@ public class EqualToPattern extends StringValuePattern {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
-                return Objects.equals(expectedValue, value);
+                return
+                    shouldMatchCaseInsensitive() ?
+                    value != null && value.equalsIgnoreCase(expectedValue) :
+                    Objects.equals(expectedValue, value);
             }
 
             @Override
@@ -45,6 +61,10 @@ public class EqualToPattern extends StringValuePattern {
                 return normalisedLevenshteinDistance(expectedValue, value);
             }
         };
+    }
+
+    private boolean shouldMatchCaseInsensitive() {
+        return caseInsensitive != null && caseInsensitive;
     }
 
     private double normalisedLevenshteinDistance(String one, String two) {

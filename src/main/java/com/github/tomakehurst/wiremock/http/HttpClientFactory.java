@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContexts;
@@ -33,14 +35,20 @@ import java.security.cert.X509Certificate;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 
 public class HttpClientFactory {
 
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
+    public static final int DEFAULT_TIMEOUT = 30000;
 
     public static CloseableHttpClient createClient(
-            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
+            int maxConnections,
+            int timeoutMilliseconds,
+            ProxySettings proxySettings,
+            KeyStoreSettings trustStoreSettings) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -49,6 +57,7 @@ public class HttpClientFactory {
                 .disableRedirectHandling()
                 .disableContentCompression()
                 .setMaxConnTotal(maxConnections)
+                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
                 .useSystemProperties()
                 .setHostnameVerifier(new AllowAllHostnameVerifier());
@@ -101,7 +110,34 @@ public class HttpClientFactory {
 		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
 
-	public static CloseableHttpClient createClient() {
-		return createClient(30000);
-	}
+    public static CloseableHttpClient createClient(ProxySettings proxySettings) {
+        return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE);
+    }
+
+    public static CloseableHttpClient createClient() {
+      return createClient(DEFAULT_TIMEOUT);
+    }
+
+    public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
+        notifier().info("Proxying: " + method + " " + url);
+
+        if (method.equals(GET))
+            return new HttpGet(url);
+        else if (method.equals(POST))
+            return new HttpPost(url);
+        else if (method.equals(PUT))
+            return new HttpPut(url);
+        else if (method.equals(DELETE))
+            return new HttpDelete(url);
+        else if (method.equals(HEAD))
+            return new HttpHead(url);
+        else if (method.equals(OPTIONS))
+            return new HttpOptions(url);
+        else if (method.equals(TRACE))
+            return new HttpTrace(url);
+        else if (method.equals(PATCH))
+            return new HttpPatch(url);
+        else
+            return new GenericHttpUriRequest(method.toString(), url);
+    }
 }

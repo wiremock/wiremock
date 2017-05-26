@@ -15,14 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
+
+import java.util.UUID;
 
 public interface Admin {
 
@@ -30,18 +32,22 @@ public interface Admin {
 	void editStubMapping(StubMapping stubMapping);
 	void removeStubMapping(StubMapping stubbMapping);
     ListStubMappingsResult listAllStubMappings();
+    SingleStubMappingResult getStubMapping(UUID id);
     void saveMappings();
-	void resetMappings();
 	void resetRequests();
-	void resetScenarios();
+    void resetScenarios();
+    void resetMappings();
+    void resetAll();
     void resetToDefaultMappings();
-	VerificationResult countRequestsMatching(RequestPattern requestPattern);
-    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 
+    GetServeEventsResult getServeEvents();
+    SingleServedStubResult getServedStub(UUID id);
+    VerificationResult countRequestsMatching(RequestPattern requestPattern);
+    FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findUnmatchedRequests();
+
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
     FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
-
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 
     void updateGlobalSettings(GlobalSettings settings);

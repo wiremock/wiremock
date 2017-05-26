@@ -36,7 +36,7 @@ public void exactUrlOnly() {
 
 To create the stub described above via the JSON API, the following
 document can either be posted to
-`http://<host>:<port>/__admin/mappings/new` or placed in a file with a
+`http://<host>:<port>/__admin/mappings` or placed in a file with a
 `.json` extension under the `mappings` directory:
 
 ```json
@@ -55,6 +55,41 @@ document can either be posted to
 }
 ```
 
+### Java Shortcuts
+
+Some common request and response patterns can be expressed in Java in abbreviated forms.
+
+Requests matching an exact URL plus one of the most common HTTP methods (GET, POST, PUT, DELETE) can be stubbed like this:
+ 
+```java
+stubFor(get("/some/thing")
+    .willReturn(aResponse().withStatus(200)));
+```
+
+Common responses can also be abbreviated e.g.:
+
+```java
+stubFor(delete("/fine")
+    .willReturn(ok()));
+
+stubFor(get("/fine-with-body")
+    .willReturn(ok("body content")));
+
+stubFor(get("/json")
+    .willReturn(okJson("{ \"message\": \"Hello\" }")));
+
+stubFor(post("/redirect")
+    .willReturn(temporaryRedirect("/new/place")));
+
+stubFor(post("/sorry-no")
+    .willReturn(unauthorized()));
+
+stubFor(put("/status-only")
+    .willReturn(status(418)));
+
+```
+
+More DSL examples [can be found here](https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374). 
 
 
 HTTP methods currently supported are:
@@ -265,6 +300,41 @@ JSON documents):
 }
 ```
 
+## Default response for unmapped requests
+
+When a request cannot be mapped to a response, Wiremock returns an HTML response with a 404 status code.
+
+It is possible to customize the response by catching all URLs with a low priority.
+
+In Java
+
+```java
+stubFor(any(anyUrl())
+                .atPriority(10)
+                .willReturn(aResponse()
+                        .withStatus(404)
+                        .withBody("{\"status\":\"Error\",\"message\":\"Endpoint not found\"}")));
+```
+
+In JSON
+
+```json
+{
+  "priority":10,
+  "request": {
+    "method": "ANY",
+    "urlPattern": ".*"
+  },
+  "response": {
+    "status": 404,
+    "jsonBody": {"status":"Error","message":"Endpoint not found"},
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
+```
+
 ## Saving stubs
 
 Stub mappings which have been created can be persisted to the `mappings`
@@ -297,11 +367,10 @@ wireMockServer.editStub(get(urlEqualTo("/edit-this"))
 assertThat(testClient.get("/edit-this").content(), is("Modified"));
 ```
 
-To do the equivalent via the JSON API, `POST` the edited stub mapping, with the same ID to `/__admin/mappings/edit`:
+To do the equivalent via the JSON API, `PUT` the edited stub mapping to `/__admin/mappings/{id}`:
 
 ```json
 {
-  "uuid" : "4c4508c4-3fbd-43b8-9b5a-2775b8eefa27",
   "request" : {
     "urlPath" : "/edit-me",
     "method" : "ANY"
@@ -314,47 +383,20 @@ To do the equivalent via the JSON API, `POST` the edited stub mapping, with the 
 
 ## Removing stubs
 
-Stub mappings which have been created can be removed via `mappings`
-directory via a call to `WireMock.removeStubMapping` in Java or posting
-a request with body that has the stub to
-`http://<host>:<port>/__admin/mappings/remove`.
+Stub mappings can be deleted via the Java API as follows:
 
-WireMock tries to match UUID is it is passed in the body of the stup to
-a post request and if it finds the stub it removes it. if match is not
-found, then it tries to match the request object found in the stub with
-existing mappings and removes the first one that it finds.
+```java
+StubMapping stubMapping = stubFor(get(urlEqualTo("/delete-me"))
+  .willReturn(aResponse().withStatus(200)));
 
-For Example - posting following stub as body to
-`http://<host>:<port>/__admin/mappings/remove`. will find first mapping
-with request that matches url="/v8/asd/26", and method "method": "GET".
+// Do things with the stub
 
-```json
-{
-  "request": {
-      "url": "/v8/asd/26",
-      "method": "GET"
-    },
-    "response": {
-      "status": 202,
-      "headers": { "Content-Type": "text/plain" } },
-      "body": "response for test"
-}
+removeStub(stubMapping);
 ```
 
-This is because body does not have UUID. If it had an element like
-`"uuid": "aa85aed3-66c8-42bb-a79b-38e3264ff2ef"`, in addition to "request"
-and "response" then WireMock will remove the one that matches the uuid
-provided. removing via uuid has precedence over removing via request
-match.
+They can be deleted via the HTTP API by issuing a `DELETE` to `http://<host>:<port>/__admin/mappings/{id}`
+where `id` is the UUID of the stub mapping, found in its `id` field.
 
-If the remove request UUID does not match with any of the stubs, then it
-proceeds to remove the first request whose attributes are equal.
-
-> **note**
-> This api only removes one mapping and not multiple ones if they exist
-
-> **note**
-> This feature is not available when running WireMock from a servlet container.
 
 ## Reset
 
@@ -362,10 +404,30 @@ The WireMock server can be reset at any time, removing all stub mappings
 and deleting the request log. If you're using either of the JUnit rules
 this will happen automatically at the start of every test case. However
 you can do it yourself via a call to `WireMock.reset()` in Java or
-posting a request with an empty body to
+sending a `POST` request with an empty body to
 `http://<host>:<port>/__admin/reset`.
+
+To reset just the stub mappings leaving the request log intact send a `DELETE` to `http://<host>:<port>/__admin/mappings`.
 
 If you've created some file based stub mappings to be loaded at startup
 and you don't want these to disappear when you do a reset you can call
 `WireMock.resetToDefault()` instead, or post an empty request to
 `http://<host>:<port>/__admin/mappings/reset`.
+
+
+## Getting all currently registered stub mappings
+
+All stub mappings can be fetched in Java by calling `WireMock.listAllStubMappings()`.
+
+To fetch them via the HTTP API send a `GET` to `http://<host>:<port>/__admin/mappings`.
+
+Optionally limit and offset parameters can be specified to constrain the set returned e.g.
+`GET http://localhost:8080/__admin/mappings?limit=10&offset=50`
+
+
+## Getting a single stub mapping by ID
+
+A single stub mapping can be retrieved by ID in Java by calling `WireMock.getSingleStubMapping(id)` where `id` is the
+UUID of the stub mapping.
+
+Via the HTTP client a mapping can be retrieved by sending a `GET` to `http://<host>:<port>/__admin/mappings/{id}`.

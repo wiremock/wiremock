@@ -16,18 +16,19 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
@@ -37,13 +38,16 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
-	private UUID id;
+	private UUID id = UUID.randomUUID();
+	private String name;
+    private boolean isPersistent = false;
+    private Map<String, Parameters> postServeActions = newLinkedHashMap();
 
-	BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
+    BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}
 
-	BasicMappingBuilder(RequestMatcher requestMatcher) {
+	BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
 	}
 
@@ -114,10 +118,31 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	}
 
 	@Override
+	public BasicMappingBuilder withName(String name) {
+		this.name = name;
+		return this;
+	}
+
+    @Override
+    public ScenarioMappingBuilder persistent() {
+        this.isPersistent = true;
+        return this;
+    }
+
+    @Override
 	public BasicMappingBuilder withBasicAuth(String username, String password) {
 		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
 		return this;
 	}
+
+    @Override
+    public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
+        Parameters params = parameters instanceof Parameters ?
+            (Parameters) parameters :
+            Parameters.of(parameters);
+        postServeActions.put(extensionName, params);
+        return this;
+    }
 
     @Override
 	public StubMapping build() {
@@ -125,13 +150,18 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
 		}
 		RequestPattern requestPattern = requestPatternBuilder.build();
-		ResponseDefinition response = responseDefBuilder.build();
+		ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
 		StubMapping mapping = new StubMapping(requestPattern, response);
 		mapping.setPriority(priority);
 		mapping.setScenarioName(scenarioName);
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
 		mapping.setUuid(id);
+		mapping.setName(name);
+        mapping.setPersistent(isPersistent);
+
+        mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
+
 		return mapping;
 	}
 

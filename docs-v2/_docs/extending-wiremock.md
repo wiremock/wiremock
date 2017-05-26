@@ -210,9 +210,10 @@ to matchers.
 To add a matcher directly to a stub mapping:
 
 ```java
-wireMockServer.stubFor(requestMatching(new RequestMatcher() {
-    public boolean isMatchedBy(Request request, Parameters parameters) {
-        return request.getBody().length > 2048;
+wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+        return MatchResult.of(request.getBody().length > 2048);
     }
 }).willReturn(aResponse().withStatus(422)));
 ```
@@ -221,7 +222,7 @@ In Java 8 and above this can be achieved using a lambda:
 
 ```java
 wireMockServer.stubFor(requestMatching(request ->
-    request.getBody().length > 2048;
+    MatchResult.of(request.getBody().length > 2048);
 ).willReturn(aResponse().withStatus(422)));
 ```
 
@@ -230,19 +231,19 @@ To create a matcher to be referred to by name, create a class extending
 at the top of this page e.g.
 
 ```java
-public static class BodyLengthMatcher extends RequestMatcher {
+public class BodyLengthMatcher extends RequestMatcherExtension {
 
-        @Override
-        public String name() {
-            return "body-too-long";
-        }
-
-        @Override
-        public boolean isMatchedBy(Request request, Parameters parameters) {
-            int maxLength = parameters.getInt("maxLength");
-            return request.getBody().length > maxLength;
-        }
+    @Override
+    public String getName() {
+        return "body-too-long";
     }
+
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+        int maxLength = parameters.getInt("maxLength");
+        return MatchResult.of(request.getBody().length > maxLength);
+    }
+}
 ```
 
 Then define a stub with it:
@@ -270,6 +271,21 @@ or via JSON:
 }
 ```
 
+
+## Post-serve actions
+
+You can add behaviour that runs after a response has been completely served by extending `PostServeAction` and registering
+as an extension (see above for details).
+
+`PostServeAction` has two template methods either or both of which can be overridden depending on desired behaviour.
+To add per-stub behaviour override `doAction(...)`. Overriding `doGlobalAction(...)` will add the behaviour globally.
+   
+
+## Admin API extensions
+
+Additional API routes under WireMock's `/__admin` endpoint can be configured by implementing `AdminApiExtension`.
+
+
 ## Listening for requests
 
 If you're using the JUnit rule or you've started `WireMockServer`
@@ -291,3 +307,25 @@ for (Request request: requests) {
     assertThat(request.getUrl(), containsString("docId=92837592847"));
 }
 ```
+
+## Listening for raw traffic
+
+If you would like to observe raw HTTP traffic to and from Jetty 
+for debugging purposes you can use a ```WiremockNetworkTrafficListener```.
+ 
+One scenario where it can be useful is where Jetty 
+alters the response from Wiremock before sending it to the client.
+(An example of that is where Jetty appends a --gzip postfix to the ETag response header
+if the response is gzipped.) 
+Using a ```RequestListener``` in this case would not show those alterations. 
+
+To output all raw traffic to console use ```ConsoleNotifyingWiremockNetworkTrafficListener```, for example: 
+
+```java
+new WireMockServer(wireMockConfig()
+    .networkTrafficListener(new ConsoleNotifyingWiremockNetworkTrafficListener()));
+```
+
+If you would like to collect the traffic 
+and for example add it to your acceptance test's output, 
+you can use the ```CollectingNetworkTrafficListener```.

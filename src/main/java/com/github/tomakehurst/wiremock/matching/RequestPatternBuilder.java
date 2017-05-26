@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import java.util.List;
@@ -36,14 +37,14 @@ public class RequestPatternBuilder {
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
     private BasicCredentials basicCredentials;
 
-    private RequestMatcher customMatcher;
+    private ValueMatcher<Request> customMatcher;
 
     private CustomMatcherDefinition customMatcherDefinition;
 
     public RequestPatternBuilder() {
     }
 
-    public RequestPatternBuilder(RequestMatcher customMatcher) {
+    public RequestPatternBuilder(ValueMatcher<Request> customMatcher) {
         this.customMatcher = customMatcher;
     }
 
@@ -64,7 +65,7 @@ public class RequestPatternBuilder {
         return new RequestPatternBuilder();
     }
 
-    public static RequestPatternBuilder forCustomMatcher(RequestMatcher requestMatcher) {
+    public static RequestPatternBuilder forCustomMatcher(ValueMatcher<Request> requestMatcher) {
         return new RequestPatternBuilder(requestMatcher);
     }
 

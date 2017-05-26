@@ -17,12 +17,17 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.google.common.collect.Iterables.any;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 
 public class ContentTypes {
 
@@ -40,6 +45,26 @@ public class ContentTypes {
         .put("video/quicktime", "mov")
         .put("application/pdf", "pdf")
         .build();
+
+    public static final List<String> TEXT_FILE_EXTENSIONS = asList(
+        "txt",
+        "json",
+        "xml",
+        "html",
+        "htm",
+        "yaml",
+        "csv"
+    );
+
+    public static final List<String> TEXT_MIME_TYPE_PATTERNS = asList(
+        ".*text.*",
+        ".*json.*",
+        ".*xml.*",
+        ".*html.*",
+        ".*yaml.*",
+        ".*csv.*",
+        ".*x-www-form-urlencoded.*"
+    );
 
     public static String determineFileExtension(String url, ContentTypeHeader contentTypeHeader, byte[] responseBody) {
         if (contentTypeHeader.isPresent()) {
@@ -60,8 +85,9 @@ public class ContentTypes {
         }
 
         String path = URI.create(url).getPath();
-        if (path.indexOf('.') != -1) {
-            return path.substring(path.lastIndexOf('.') + 1, path.length());
+        String lastPathSegment = substringAfterLast(path, "/");
+        if (lastPathSegment.indexOf('.') != -1) {
+            return substringAfterLast(lastPathSegment, ".");
         }
 
         return determineTextFileExtension(stringFromBytes(responseBody));
@@ -81,4 +107,20 @@ public class ContentTypes {
         }
     }
 
+    public static boolean determineIsTextFromExtension(String extension) {
+        return TEXT_FILE_EXTENSIONS.contains(extension);
+    }
+
+    public static boolean determineIsTextFromMimeType(final String mimeType) {
+        return any(TEXT_MIME_TYPE_PATTERNS, new Predicate<String>() {
+            @Override
+            public boolean apply(String pattern) {
+                return mimeType != null && mimeType.matches(pattern);
+            }
+        });
+    }
+
+    public static boolean determineIsText(String extension, String mimeType) {
+        return determineIsTextFromExtension(extension) || determineIsTextFromMimeType(mimeType);
+    }
 }

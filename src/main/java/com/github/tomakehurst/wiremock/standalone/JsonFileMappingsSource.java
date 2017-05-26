@@ -15,14 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.TextFile;
-import com.github.tomakehurst.wiremock.common.VeryShortIdGenerator;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
-import com.google.common.base.Predicate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,21 +40,38 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	@Override
-	public void saveMappings(StubMappings stubMappings) {
-		Iterable<StubMapping> transientStubs = filter(stubMappings.getAll(), new Predicate<StubMapping>() {
-			public boolean apply(StubMapping input) {
-				return input != null && input.isTransient();
+	public void save(List<StubMapping> stubMappings) {
+		for (StubMapping mapping: stubMappings) {
+			if (mapping != null && mapping.isDirty()) {
+				save(mapping);
 			}
-		});
-
-		for (StubMapping mapping : transientStubs) {
-			String mappingFileName = fileNameMap.get(mapping.getUuid());
-			if (mappingFileName == null) {
-				mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
-			}
-			mappingsFileSource.writeTextFile(mappingFileName, write(mapping));
-			mapping.setTransient(false);
 		}
+	}
+
+	@Override
+	public void save(StubMapping stubMapping) {
+		String mappingFileName = fileNameMap.get(stubMapping.getId());
+		if (mappingFileName == null) {
+			mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
+		}
+		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
+        fileNameMap.put(stubMapping.getId(), mappingFileName);
+		stubMapping.setDirty(false);
+	}
+
+    @Override
+    public void remove(StubMapping stubMapping) {
+        String mappingFileName = fileNameMap.get(stubMapping.getId());
+        mappingsFileSource.deleteFile(mappingFileName);
+        fileNameMap.remove(stubMapping.getId());
+    }
+
+	@Override
+	public void removeAll() {
+		for (String filename: fileNameMap.values()) {
+			mappingsFileSource.deleteFile(filename);
+		}
+		fileNameMap.clear();
 	}
 
 	@Override
@@ -64,21 +79,13 @@ public class JsonFileMappingsSource implements MappingsSource {
 		if (!mappingsFileSource.exists()) {
 			return;
 		}
-		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), byFileExtension("json"));
+		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), AbstractFileSource.byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-            mapping.setTransient(false);
+            mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
-			fileNameMap.put(mapping.getUuid(), getFileName(mappingFile));
+			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
 		}
-	}
-	
-	private Predicate<TextFile> byFileExtension(final String extension) {
-		return new Predicate<TextFile>() {
-			public boolean apply(TextFile input) {
-				return input.name().endsWith("." + extension);
-			}
-		};
 	}
 
 	private String getFileName(TextFile mappingFile) {

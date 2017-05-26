@@ -17,10 +17,22 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.http.Request;
 
-public abstract class RequestMatcher implements ValueMatcher<Request> {
+import java.util.Objects;
+
+public abstract class RequestMatcher implements NamedValueMatcher<Request> {
 
     @Override
     public String getExpected() {
         return "(custom request matcher - override this for meaningful diff)";
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return Objects.equals(this.getClass(), obj.getClass());
     }
 }

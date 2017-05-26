@@ -17,20 +17,30 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
+import com.google.common.io.Files;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
-import static com.google.common.collect.Iterables.find;
-import static com.google.common.collect.Iterables.size;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.collect.Iterables.*;
+import static java.util.Arrays.asList;
 
 public class WireMatchers {
 
@@ -214,4 +224,58 @@ public class WireMatchers {
             }
         };
     }
+
+    public static Matcher<Path> hasFileContaining(final String... contents) {
+        return new TypeSafeDiagnosingMatcher<Path>() {
+            @Override
+            protected boolean matchesSafely(Path path, Description mismatchDescription) {
+                List<File> files = asList(path.toFile().listFiles());
+                boolean matched = any(files, new Predicate<File>() {
+                    @Override
+                    public boolean apply(File file) {
+                        final String fileContents = fileContents(file);
+                        return all(asList(contents), new Predicate<String>() {
+                            @Override
+                            public boolean apply(String input) {
+                                return fileContents.contains(input);
+                            }
+                        });
+                    }
+                });
+
+                if (files.size() == 0) {
+                    mismatchDescription.appendText("there were no files in " + path);
+                }
+
+                if (!matched) {
+                    String allFileContents = Joiner.on("\n\n").join(
+                        transform(files, new Function<File, String>() {
+                            @Override
+                            public String apply(File input) {
+                                return fileContents(input);
+                            }
+                        })
+                    );
+                    mismatchDescription.appendText(allFileContents);
+                }
+
+
+                return matched;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a file containing all of: " + Joiner.on(", ").join(contents));
+            }
+        };
+    }
+
+    private static String fileContents(File input) {
+        try {
+            return Files.toString(input, Charsets.UTF_8);
+        } catch (IOException e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
+
 }

@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
@@ -27,7 +29,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
+
+    static Stubbing dsl = wireMockServer;
 
     @Test
     public void returnsRecordedRequestsMatchingOnMethodAndExactUrl() throws Exception {
@@ -120,6 +123,31 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         List<LoggedRequest> requests = findAll(postRequestedFor(urlEqualTo("/encoding")));
         LoggedRequest request = requests.get(0);
         assertThat(request.getBodyAsString(), is("ڜ"));
+    }
+
+    @Test
+    public void getsAllServeEvents() {
+        dsl.stubFor(get(urlPathEqualTo("/two"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withBody("Exactly 2")));
+
+        testClient.get("/one");
+        testClient.get("/two");
+        testClient.get("/three");
+
+        List<ServeEvent> serveEvents = getAllServeEvents();
+
+        ServeEvent three = serveEvents.get(0);
+        assertThat(three.isNoExactMatch(), is(true));
+        assertThat(three.getRequest().getUrl(), is("/three"));
+
+        ServeEvent two = serveEvents.get(1);
+        assertThat(two.isNoExactMatch(), is(false));
+        assertThat(two.getRequest().getUrl(), is("/two"));
+        assertThat(two.getResponse().getBody(), is("Exactly 2"));
+
+        assertThat(serveEvents.get(2).isNoExactMatch(), is(true));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {

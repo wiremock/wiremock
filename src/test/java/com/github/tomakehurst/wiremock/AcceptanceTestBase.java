@@ -18,17 +18,27 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class AcceptanceTestBase {
 
 	protected static WireMockServer wireMockServer;
 	protected static WireMockTestClient testClient;
+
+	protected static Stubbing wm;
 
 	@BeforeClass
 	public static void setupServer() {
@@ -44,6 +54,17 @@ public class AcceptanceTestBase {
 		setupServer(wireMockConfig().withRootDirectory("src/test/resources/empty"));
 	}
 
+	public static void setupServerWithTempFileRoot() {
+        try {
+            File root = Files.createTempDirectory("wiremock").toFile();
+            new File(root, MAPPINGS_ROOT).mkdirs();
+            new File(root, FILES_ROOT).mkdirs();
+            setupServer(wireMockConfig().withRootDirectory(root.getAbsolutePath()));
+        } catch (IOException e) {
+            throwUnchecked(e);
+        }
+    }
+
 	public static void setupServerWithMappingsInFileRoot() {
 		setupServer(wireMockConfig());
 	}
@@ -57,6 +78,7 @@ public class AcceptanceTestBase {
         wireMockServer.start();
         testClient = new WireMockTestClient(wireMockServer.port());
         WireMock.configureFor(wireMockServer.port());
+        wm = wireMockServer;
     }
 
 	@Before

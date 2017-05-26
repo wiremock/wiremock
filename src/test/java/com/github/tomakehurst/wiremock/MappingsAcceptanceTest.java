@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAP
 import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.MAPPING_REQUEST_FOR_BYTE_BODY;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -81,19 +82,6 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		getResponseAndAssert200Status("/resource/100");
 	}
 	
-	@Test
-	public void mappingsResetSupported() {
-		add200ResponseFor("/resource/11");
-		add200ResponseFor("/resource/12");
-		add200ResponseFor("/resource/13");
-		
-		testClient.resetMappings();
-		
-		getResponseAndAssert404Status("/resource/11");
-		getResponseAndAssert404Status("/resource/12");
-		getResponseAndAssert404Status("/resource/13");
-	}
-
     @Test
     public void loadsDefaultMappingsOnStart() {
         getResponseAndAssert200Status("/testmapping");
@@ -139,7 +127,48 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 		assertThat(response.statusCode(), is(200));
 		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
 	}
-	
+
+    @Test
+    public void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping() throws Exception {
+        testClient.addResponse(
+                "{ 													\n" +
+                        "	\"request\": {									\n" +
+                        "		\"method\": \"GET\",						\n" +
+                        "		\"url\": \"/with/body\"						\n" +
+                        "	},												\n" +
+                        "	\"response\": {									\n" +
+                        "		\"status\": 200,							\n" +
+                        "		\"body\": \"Some content\"					\n" +
+                        "	}												\n" +
+                        "}													");
+
+        WireMockResponse response = testClient.get("/with/body");
+
+        assertThat(response.firstHeader("Transfer-Encoding"), is("chunked"));
+    }
+
+    @Test
+    public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping() throws Exception {
+        testClient.addResponse(
+                "{ 													\n" +
+                        "	\"request\": {									\n" +
+                        "		\"method\": \"GET\",						\n" +
+                        "		\"url\": \"/with/body\"						\n" +
+                        "	},												\n" +
+                        "	\"response\": {									\n" +
+                        "		\"status\": 200,							\n" +
+                        "		\"headers\": {								\n" +
+                        "			\"Content-Length\": \"12\"		        \n" +
+                        "		},											\n" +
+                        "		\"body\": \"Some content\"					\n" +
+                        "	}												\n" +
+                        "}													");
+        WireMockResponse response = testClient.get("/with/body");
+
+        assertThat(response.firstHeader("Content-Length"), is("12"));
+        assertFalse("expected Transfer-Encoding head to be absent", response.headers().containsKey("Transfer-Encoding"));
+    }
+
 	private void getResponseAndAssert200Status(String url) {
 		WireMockResponse response = testClient.get(url);
 		assertThat(response.statusCode(), is(200));

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
@@ -27,21 +28,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
-import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -75,13 +75,19 @@ public class CommandLineOptions implements Options {
     private static final String EXTENSIONS = "extensions";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
     private static final String JETTY_ACCEPTOR_THREAD_COUNT = "jetty-acceptor-threads";
+    private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
+    private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
+    private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
 
     private final OptionSet optionSet;
-	private String helpText;
+    private final FileSource fileSource;
+    private final MappingsSource mappingsSource;
+
+    private String helpText;
 
     public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
@@ -99,7 +105,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
-		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + WireMockServer.MAPPINGS_ROOT + " and " + WireMockServer.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
+		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
@@ -108,11 +114,18 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
+        optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
+        optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
+        optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+
         optionParser.accepts(HELP, "Print this message");
 		
 		optionSet = optionParser.parse(args);
         validate();
 		captureHelpTextIfRequested(optionParser);
+
+        fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 	}
 
     private void validate() {
@@ -258,14 +271,33 @@ public class CommandLineOptions implements Options {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Extension> Map<String, T> extensionsOfType(final Class<T> extensionType) {
+        ImmutableMap.Builder<String, T> builder = ImmutableMap.builder();
         if (optionSet.has(EXTENSIONS)) {
             String classNames = (String) optionSet.valueOf(EXTENSIONS);
-            return (Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
+            builder.putAll ((Map<String, T>) Maps.filterEntries(ExtensionLoader.load(
                 classNames.split(",")),
-                valueAssignableFrom(extensionType));
+                valueAssignableFrom(extensionType))
+            );
         }
 
-        return Collections.emptyMap();
+        if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
+            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(true);
+            builder.put(transformer.getName(), (T) transformer);
+        } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
+            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(false);
+            builder.put(transformer.getName(), (T) transformer);
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public WiremockNetworkTrafficListener networkTrafficListener() {
+        if (optionSet.has(PRINT_ALL_NETWORK_TRAFFIC)) {
+            return new ConsoleNotifyingWiremockNetworkTrafficListener();
+        } else {
+            return new DoNothingWiremockNetworkTrafficListener();
+        }
     }
 
     @Override
@@ -285,7 +317,17 @@ public class CommandLineOptions implements Options {
 
     @Override
     public FileSource filesRoot() {
-        return new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
+        return fileSource;
+    }
+
+    @Override
+    public MappingsLoader mappingsLoader() {
+        return mappingsSource;
+    }
+
+    @Override
+    public MappingsSaver mappingsSaver() {
+        return mappingsSource;
     }
 
     @Override

@@ -17,17 +17,17 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -49,7 +49,7 @@ public class HttpHeaders {
 
     public HttpHeaders(Iterable<HttpHeader> headers) {
         ImmutableMultimap.Builder<CaseInsensitiveKey, String> builder = ImmutableMultimap.builder();
-        for (HttpHeader header: headers) {
+        for (HttpHeader header: firstNonNull(headers, Collections.<HttpHeader>emptyList())) {
             builder.putAll(caseInsensitive(header.key()), header.values());
         }
 

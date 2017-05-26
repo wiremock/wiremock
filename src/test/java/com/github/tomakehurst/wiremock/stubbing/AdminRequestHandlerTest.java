@@ -15,15 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
-import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.Response;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.testsupport.MockHttpResponder;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -32,15 +29,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -49,40 +43,19 @@ import static org.junit.Assert.assertThat;
 public class AdminRequestHandlerTest {
 	private Mockery context;
 	private Admin admin;
+    private MockHttpResponder httpResponder;
 
-	private AdminRequestHandler handler;
-	
+    private AdminRequestHandler handler;
+
 	@Before
 	public void init() {
 		context = new Mockery();
         admin = context.mock(Admin.class);
+        httpResponder = new MockHttpResponder();
 
-		handler = new AdminRequestHandler(admin, new BasicResponseRenderer());
+		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer());
 	}
 	
-	@Test
-	public void shouldAddNewMappingWhenCalledWithValidRequest() {
-		Request request = aRequest(context)
-			.withUrl("/mappings/new")
-			.withMethod(POST)
-			.withBody(BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER)
-			.build();
-		
-		context.checking(new Expectations() {{
-			one(admin).addStubMapping(WireMock.get(urlEqualTo("/a/registered/resource"))
-					.willReturn(aResponse()
-                    .withStatus(401)
-                    .withBody("Not allowed!")
-                    .withHeader("Content-Type", "text/plain"))
-                    .build());
-		}});
-		
-		Response response = handler.handle(request);
-		
-		assertThat(response.getStatus(), is(HTTP_CREATED));
-        verifyCorsHeader(response);
-    }
-
     @Test
     public void shouldSaveMappingsWhenSaveCalled() {
         Request request = aRequest(context)
@@ -94,10 +67,10 @@ public class AdminRequestHandlerTest {
             one(admin).saveMappings();
         }});
 
-        Response response = handler.handle(request);
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 
         assertThat(response.getStatus(), is(HTTP_OK));
-        verifyCorsHeader(response);
     }
 	
 	@Test
@@ -108,13 +81,13 @@ public class AdminRequestHandlerTest {
 			.build();
 		
 		context.checking(new Expectations() {{
-			one(admin).resetMappings();
+			one(admin).resetAll();
 		}});
-		
-		Response response = handler.handle(request);
+
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
-        verifyCorsHeader(response);
 	}
 
 	@Test
@@ -128,10 +101,10 @@ public class AdminRequestHandlerTest {
 			one(admin).resetRequests();
 		}});
 
-		Response response = handler.handle(request);
+        handler.handle(request, httpResponder);
+        Response response = httpResponder.response;
 
 		assertThat(response.getStatus(), is(HTTP_OK));
-		verifyCorsHeader(response);
 	}
 
 	private static final String REQUEST_PATTERN_SAMPLE = 
@@ -147,15 +120,16 @@ public class AdminRequestHandlerTest {
 			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
 		}});
 		
-		Response response = handler.handle(aRequest(context)
+		handler.handle(aRequest(context)
 				.withUrl("/requests/count")
 				.withMethod(POST)
 				.withBody(REQUEST_PATTERN_SAMPLE)
-				.build());
+				.build(),
+            httpResponder);
+        Response response = httpResponder.response;
 		
 		assertThat(response.getStatus(), is(HTTP_OK));
 		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
-        verifyCorsHeader(response);
     }
 	
 	private static final String GLOBAL_SETTINGS_JSON =
@@ -175,12 +149,8 @@ public class AdminRequestHandlerTest {
 				.withUrl("/settings")
 				.withMethod(POST)
 				.withBody(GLOBAL_SETTINGS_JSON)
-				.build());
-		
-	}
+				.build(),
+            httpResponder);
 
-    private void verifyCorsHeader(Response response) {
-        HttpHeader header = response.getHeaders().getHeader("Access-Control-Allow-Origin");
-        assertThat(header.values().get(0), is("*"));
-    }
+	}
 }

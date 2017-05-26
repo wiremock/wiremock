@@ -50,10 +50,12 @@ public class ResponseDefinitionBuilder {
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
 	protected Map<String, Object> transformerParameters = newHashMap();
+	protected Boolean wasConfigured = true;
 
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
 		builder.status = responseDefinition.getStatus();
+		builder.statusMessage = responseDefinition.getStatusMessage();
 		builder.headers = responseDefinition.getHeaders() != null ?
 				newArrayList(responseDefinition.getHeaders().all()) :
 				Lists.<HttpHeader>newArrayList();
@@ -66,13 +68,19 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
+		builder.transformerParameters = responseDefinition.getTransformerParameters();
+		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
 
-	public static ResponseDefinition jsonResponse(Object body) {
+    public static ResponseDefinition jsonResponse(Object body) {
+        return jsonResponse(body, HTTP_OK);
+    }
+
+	public static ResponseDefinition jsonResponse(Object body, int status) {
 		return new ResponseDefinitionBuilder()
 				.withBody(Json.write(body))
-				.withStatus(HTTP_OK)
+				.withStatus(status)
 				.withHeader("Content-Type", "application/json")
 				.build();
 	}
@@ -86,8 +94,8 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 
-	public ResponseDefinitionBuilder withHeader(String key, String value) {
-		headers.add(new HttpHeader(key, value));
+	public ResponseDefinitionBuilder withHeader(String key, String... values) {
+		headers.add(new HttpHeader(key, values));
 		return this;
 	}
 
@@ -156,6 +164,13 @@ public class ResponseDefinitionBuilder {
             .withHeader("Content-Type", "application/json");
     }
 
+	public static <T> ResponseDefinitionBuilder okForEmptyJson() {
+		return responseDefinition()
+			.withStatus(HTTP_OK)
+			.withBody("{}")
+			.withHeader("Content-Type", "application/json");
+	}
+
 	public ResponseDefinitionBuilder withHeaders(HttpHeaders headers) {
 		this.headers = ImmutableList.copyOf(headers.all());
 		return this;
@@ -216,7 +231,7 @@ public class ResponseDefinitionBuilder {
 
 	protected ResponseDefinition build(HttpHeaders additionalProxyRequestHeaders) {
 		HttpHeaders httpHeaders = headers == null || headers.isEmpty() ? null : new HttpHeaders(headers);
-		Parameters transformerParameters = this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
+		Parameters transformerParameters = this.transformerParameters == null || this.transformerParameters.isEmpty() ? null : Parameters.from(this.transformerParameters);
 		return isBinaryBody() ?
 				new ResponseDefinition(
 						status,
@@ -232,7 +247,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters) :
+						transformerParameters,
+                        wasConfigured) :
 				new ResponseDefinition(
 						status,
 						statusMessage,
@@ -247,7 +263,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters
+						transformerParameters,
+					    wasConfigured
 				);
 	}
 }

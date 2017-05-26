@@ -25,6 +25,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +67,8 @@ public class ClasspathFileSource implements FileSource {
 
             if (asList("jar", "war", "ear", "zip").contains(pathUri.getScheme())) {
                 String jarFileUri = pathUri.getSchemeSpecificPart().split("!")[0];
-                File file = new File(URI.create(jarFileUri));
+                String jarFilePath = jarFileUri.replace("file:", "");
+                File file = new File(jarFilePath);
                 zipFile = new ZipFile(file);
             } else if (pathUri.getScheme().equals("file")) {
                 rootDirectory = new File(pathUri);
@@ -89,18 +91,29 @@ public class ClasspathFileSource implements FileSource {
             return new BinaryFile(new File(rootDirectory, name).toURI());
         }
 
+        return new BinaryFile(getZipEntryUri(name));
+    }
+
+    @Override
+    public TextFile getTextFileNamed(String name) {
+        if (isFileSystem()) {
+            return new TextFile(new File(rootDirectory, name).toURI());
+        }
+
+        return new TextFile(getZipEntryUri(name));
+    }
+
+    private URI getZipEntryUri(final String name) {
         ZipEntry zipEntry = find(forEnumeration(zipFile.entries()), new Predicate<ZipEntry>() {
             public boolean apply(ZipEntry input) {
                 return input.getName().equals(path + "/" + name);
             }
         });
-
-        return new BinaryFile(getUriFor(zipEntry));
+        return getUriFor(zipEntry);
     }
 
     @Override
     public void createIfNecessary() {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
@@ -167,18 +180,20 @@ public class ClasspathFileSource implements FileSource {
 
     @Override
     public void writeTextFile(String name, String contents) {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
     public void writeBinaryFile(String name, byte[] contents) {
-        throw new UnsupportedOperationException("Classpath file sources are read-only");
     }
 
     @Override
     public boolean exists() {
         // It'll only be non-file system if finding the classpath resource succeeded in the constructor
         return (isFileSystem() && rootDirectory.exists()) || (!isFileSystem());
+    }
+
+    @Override
+    public void deleteFile(String name) {
     }
 
     private static <T> Iterable<T> toIterable(final Enumeration<T> e) {

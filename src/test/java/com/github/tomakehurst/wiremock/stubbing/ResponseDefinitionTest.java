@@ -27,8 +27,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -51,7 +50,9 @@ public class ResponseDefinitionTest {
                 "http://base.com",
                 Fault.EMPTY_RESPONSE,
                 ImmutableList.of("transformer-1"),
-                Parameters.one("name", "Jeff"));
+                Parameters.one("name", "Jeff"),
+                true
+        );
 
         ResponseDefinition copiedResponse = copyOf(response);
         
@@ -126,6 +127,14 @@ public class ResponseDefinitionTest {
 
         assertFalse(responseDefinition.specifiesBodyFile());
         assertTrue(responseDefinition.specifiesBodyContent());
+    }
+
+    @Test
+    public void omitsResponseTransformerAttributesFromJsonWhenEmpty() {
+        String json = Json.write(new ResponseDefinition(200, ""));
+
+        assertThat(json, not(containsString("transformers")));
+        assertThat(json, not(containsString("transformerParameters")));
     }
 
 }

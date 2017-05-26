@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -46,6 +47,18 @@ public class BasicAuthAcceptanceTest extends AcceptanceTestBase {
             "/basic/auth/preemptive", wireMockServer.port(), "the-username", "WRONG!!!");
 
         assertThat(response.statusCode(), is(404));
+    }
+
+    @Test
+    public void matcheswhenBASICInHeaderIsAllUpperCase() {
+        stubFor(get(urlEqualTo("/basic/auth/case-insensitive"))
+            .withBasicAuth("tom", "secret")
+            .willReturn(aResponse()
+                .withStatus(200)
+            ));
+
+        assertThat(testClient.get("/basic/auth/case-insensitive",
+            withHeader("Authorization", "BASIC dG9tOnNlY3JldA==")).statusCode(), is(200));
     }
 
 }

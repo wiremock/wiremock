@@ -30,8 +30,11 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder withRequestBody(StringValuePattern bodyPattern);
     ScenarioMappingBuilder inScenario(String scenarioName);
     ScenarioMappingBuilder withId(UUID id);
+    ScenarioMappingBuilder persistent();
     ScenarioMappingBuilder withBasicAuth(String username, String password);
     ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
+
+    <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
 
     ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

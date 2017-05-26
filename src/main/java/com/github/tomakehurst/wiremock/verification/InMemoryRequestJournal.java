@@ -16,11 +16,9 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestListener;
-import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.stubbing.ServedStub;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -29,16 +27,15 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.*;
 
-public class InMemoryRequestJournal implements RequestListener, RequestJournal {
+public class InMemoryRequestJournal implements RequestJournal {
 
-	private final Queue<ServedStub> servedStubs = new ConcurrentLinkedQueue<ServedStub>();
+	private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
 
 	private final Optional<Integer> maxEntries;
 
@@ -68,30 +65,34 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 	}
 
 	@Override
-	public void requestReceived(Request request, Response response) {
-		servedStubs.add(ServedStub.exactMatch(LoggedRequest.createFrom(request), null));
-		removeOldEntries();
-	}
-
-	@Override
-	public void requestReceived(ServedStub servedStub) {
-		servedStubs.add(servedStub);
+	public void requestReceived(ServeEvent serveEvent) {
+		serveEvents.add(serveEvent);
         removeOldEntries();
 	}
 
     @Override
-    public List<ServedStub> getAllServedStubs() {
-        return ImmutableList.copyOf(servedStubs);
+    public List<ServeEvent> getAllServeEvents() {
+        return ImmutableList.copyOf(serveEvents).reverse();
     }
 
 	@Override
+	public Optional<ServeEvent> getServeEvent(final UUID id) {
+		return tryFind(serveEvents, new Predicate<ServeEvent>() {
+			@Override
+			public boolean apply(ServeEvent input) {
+				return input.getId().equals(id);
+			}
+		});
+	}
+
+	@Override
 	public void reset() {
-		servedStubs.clear();
+		serveEvents.clear();
 	}
 
 	private Iterable<LoggedRequest> getRequests() {
-		return transform(servedStubs, new Function<ServedStub, LoggedRequest>() {
-			public LoggedRequest apply(ServedStub input) {
+		return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
+			public LoggedRequest apply(ServeEvent input) {
 				return input.getRequest();
 			}
 		});
@@ -99,8 +100,8 @@ public class InMemoryRequestJournal implements RequestListener, RequestJournal {
 
 	private void removeOldEntries() {
 		if (maxEntries.isPresent()) {
-			while (servedStubs.size() > maxEntries.get()) {
-				servedStubs.poll();
+			while (serveEvents.size() > maxEntries.get()) {
+				serveEvents.poll();
 			}
 		}
 	}
