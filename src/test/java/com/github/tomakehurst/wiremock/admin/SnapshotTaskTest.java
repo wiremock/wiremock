@@ -14,8 +14,10 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -31,6 +33,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
+@RunWith(JMock.class)
 public class SnapshotTaskTest {
     private Mockery context;
     private Admin mockAdmin;
@@ -58,13 +61,20 @@ public class SnapshotTaskTest {
         expectedStub.setId(UUID.fromString("79caf251-ad1f-3d1b-b7c7-a0dfab33d19d"));
 
         context.checking(new Expectations() {{
-            oneOf(mockAdmin).addStubMapping(with(expectedStub));
+            exactly(2).of(mockAdmin).addStubMapping(with(expectedStub));
         }});
 
         setReturnForGetStubMapping(null);
 
+        // Check when explicitly set
         assertThat(
             execute("{ \"persist\": true}"),
+            equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
+        );
+
+        // Check with default value of true
+        assertThat(
+            execute("{}"),
             equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
         );
     }
