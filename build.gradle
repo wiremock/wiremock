@@ -169,6 +169,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+task testJar(type: Jar, dependsOn: testClasses) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
@@ -181,6 +186,7 @@ artifacts {
     archives sourcesJar
     archives javadocJar
     archives shadowJar
+    archives testJar
     thinJarPom new File(thinJarPomPath)
     standaloneJarPom new File(standaloneJarPomPath)
 }
@@ -190,9 +196,10 @@ signing {
     sign configurations.archives
 }
 
-task signJars(type: Sign, dependsOn: [javadocJar, sourcesJar]) {
+task signJars(type: Sign, dependsOn: [javadocJar, sourcesJar, testJar]) {
     sign javadocJar
     sign sourcesJar
+    sign testJar
 }
 task signThinJar(type: Sign, dependsOn: jar) {
     sign jar
@@ -268,6 +275,7 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+            artifact testJar
             (signJars.signatures + signThinJar.singleSignature).each { signature ->
                 artifact(signature) {
                     classifier = signature.classifier == '' ? null : signature.classifier
