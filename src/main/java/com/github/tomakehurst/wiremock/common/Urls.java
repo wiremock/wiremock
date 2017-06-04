@@ -57,12 +57,14 @@ public class Urls {
         });
     }
 
-    public static Map<String, QueryParameter> splitQuery(URI uri) {
+    public static Map<String, QueryParameter> splitQueryS(String uri) {
         if (uri == null) {
             return Collections.emptyMap();
         }
 
-        return splitQuery(uri.getRawQuery());
+        String[] split = uri.split("\\?");
+        String s = split.length==2 ? split[1] : null;
+        return splitQuery(s);
     }
 
     public static String decode(String encoded) {

@@ -19,8 +19,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import okhttp3.HttpUrl;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,38 +35,38 @@ import static org.apache.commons.lang3.StringUtils.substringAfterLast;
 public class ContentTypes {
 
     private static final Map<String, String> COMMON_MIME_TYPES = ImmutableMap.<String, String>builder()
-        .put("image/jpeg",      "jpeg")
-        .put("image/gif",       "gif")
-        .put("image/tiff",      "tiff")
-        .put("image/png",       "png")
-        .put("image/x-icon",    "ico")
-        .put("image/svg+xml",   "svg")
-        .put("audio/x-aiff",    "aiff")
-        .put("video/x-ms-asf",  "asf")
-        .put("video/mpeg",      "mp2")
-        .put("audio/mpeg",      "mp3")
-        .put("video/quicktime", "mov")
-        .put("application/pdf", "pdf")
-        .build();
+            .put("image/jpeg", "jpeg")
+            .put("image/gif", "gif")
+            .put("image/tiff", "tiff")
+            .put("image/png", "png")
+            .put("image/x-icon", "ico")
+            .put("image/svg+xml", "svg")
+            .put("audio/x-aiff", "aiff")
+            .put("video/x-ms-asf", "asf")
+            .put("video/mpeg", "mp2")
+            .put("audio/mpeg", "mp3")
+            .put("video/quicktime", "mov")
+            .put("application/pdf", "pdf")
+            .build();
 
     public static final List<String> TEXT_FILE_EXTENSIONS = asList(
-        "txt",
-        "json",
-        "xml",
-        "html",
-        "htm",
-        "yaml",
-        "csv"
+            "txt",
+            "json",
+            "xml",
+            "html",
+            "htm",
+            "yaml",
+            "csv"
     );
 
     public static final List<String> TEXT_MIME_TYPE_PATTERNS = asList(
-        ".*text.*",
-        ".*json.*",
-        ".*xml.*",
-        ".*html.*",
-        ".*yaml.*",
-        ".*csv.*",
-        ".*x-www-form-urlencoded.*"
+            ".*text.*",
+            ".*json.*",
+            ".*xml.*",
+            ".*html.*",
+            ".*yaml.*",
+            ".*csv.*",
+            ".*x-www-form-urlencoded.*"
     );
 
     public static String determineFileExtension(String url, ContentTypeHeader contentTypeHeader, byte[] responseBody) {
@@ -84,8 +87,7 @@ public class ContentTypes {
             }
         }
 
-        String path = URI.create(url).getPath();
-        String lastPathSegment = substringAfterLast(path, "/");
+        String lastPathSegment = substringAfterLast(HttpUrl.parse(url).encodedPath(), "/");
         if (lastPathSegment.indexOf('.') != -1) {
             return substringAfterLast(lastPathSegment, ".");
         }

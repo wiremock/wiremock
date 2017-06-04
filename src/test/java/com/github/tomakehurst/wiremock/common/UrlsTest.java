@@ -31,14 +31,14 @@ public class UrlsTest {
 
     @Test
     public void copesWithEqualsInParamValues() {
-        params = Urls.splitQuery(URI.create("/thing?param1=one&param2=one==two=three"));
+        params = Urls.splitQueryS("/thing?param1=one&param2=one==two=three");
         assertThat(params.get("param1").firstValue(), is("one"));
         assertThat(params.get("param2").firstValue(), is("one==two=three"));
     }
 
     @Test
     public void returnsEmptyStringsAsValuesWhenOnlyKeysArePresent() {
-        params = Urls.splitQuery(URI.create("/thing?param1&param2&param3"));
+        params = Urls.splitQueryS("/thing?param1&param2&param3");
         assertThat(params.get("param1").firstValue(), is(""));
         assertThat(params.get("param2").firstValue(), is(""));
         assertThat(params.get("param3").firstValue(), is(""));
@@ -46,7 +46,7 @@ public class UrlsTest {
 
     @Test
     public void supportsMultiValuedParameters() {
-        params = Urls.splitQuery(URI.create("/thing?param1=1&param2=two&param1=2&param1=3"));
+        params = Urls.splitQueryS("/thing?param1=1&param2=two&param1=2&param1=3");
         assertThat(params.size(), is(2));
         assertThat(params.get("param1").isSingleValued(), is(false));
         assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
@@ -54,8 +54,7 @@ public class UrlsTest {
 
     @Test
     public void doesNotAttemptToDoubleDecodeSplitQueryString() {
-        URI url = URI.create("/thing?q=a%25b");
-        Map<String, QueryParameter> query = Urls.splitQuery(url);
+        Map<String, QueryParameter> query = Urls.splitQueryS("/thing?q=a%25b");
         assertThat(query.get("q").firstValue(), is("a%b"));
     }
 }

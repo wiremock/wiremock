@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import okhttp3.HttpUrl;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
@@ -34,7 +35,7 @@ public class JettyUtils {
         return (Response) httpServletResponse;
     }
 
-    public static URI getUri(Request request) {
+    public static String getUri(Request request) {
         try {
             return toUri(request.getClass().getDeclaredMethod("getUri").invoke(request));
         } catch (Exception ignored) {
@@ -46,7 +47,7 @@ public class JettyUtils {
         }
     }
 
-    private static URI toUri(Object httpURI) {
-        return URI.create(httpURI.toString());
+    private static String toUri(Object httpURI) {
+        return httpURI.toString();
     }
 }
