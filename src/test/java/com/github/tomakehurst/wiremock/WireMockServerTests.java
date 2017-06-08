@@ -50,6 +50,13 @@ public class WireMockServerTests {
         }
     }
 
+    @Test
+    public void returnsOptionsWhenCallingGetOptions() {
+        Options options = new WireMockConfiguration();
+        WireMockServer wireMockServer = new WireMockServer(options);
+        assertThat(wireMockServer.getOptions(), is(options));
+    }
+
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
