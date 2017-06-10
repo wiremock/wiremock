@@ -3,33 +3,35 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
 import com.github.tomakehurst.wiremock.admin.model.PaginatedResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.admin.tasks.SnapshotTask;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.toomuchcoding.jsonassert.JsonAssertion;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -50,43 +52,35 @@ public class SnapshotTaskTest {
             serveEvent(
                 mockRequest().url("/foo").method(GET),
                 response().body("body"),
-               true)
+                true
+            )
         );
-
-        final StubMapping expectedStub = new StubMapping(
-            new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo")).build(),
-            new ResponseDefinitionBuilder().withBody("body").build()
-        );
-        expectedStub.setPersistent(true);
-        expectedStub.setId(UUID.fromString("79caf251-ad1f-3d1b-b7c7-a0dfab33d19d"));
-
         context.checking(new Expectations() {{
-            exactly(2).of(mockAdmin).addStubMapping(with(expectedStub));
+            exactly(2).of(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
-
-        setReturnForGetStubMapping(null);
+        setReturnForCountRequestsMatching(0);
 
         // Check when explicitly set
-        assertThat(
-            execute("{ \"persist\": true, \"outputFormat\": \"ids\" }"),
-            equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
-        );
+        JsonAssertion.assertThat(execute("{ \"persist\": true, \"outputFormat\": \"ids\"}"))
+            .hasSize(1)
+            .arrayField()
+            .matches("[a-z0-9\\-]{36}");
 
         // Check with default value of true
-        assertThat(
-            execute("{ \"outputFormat\": \"ids\" }"),
-            equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
-        );
+        JsonAssertion.assertThat(execute("{ \"outputFormat\": \"ids\"}"))
+            .hasSize(1)
+            .arrayField()
+            .matches("[a-z0-9\\-]{36}");
     }
 
     @Test
     public void shouldNotPersistWhenSetToFalse() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForGetStubMapping(null);
-        assertThat(
-            executeWithoutPersist(),
-            equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]")
-        );
+        setReturnForCountRequestsMatching(0);
+        JsonAssertion.assertThat(executeWithoutPersist())
+            .hasSize(1)
+            .arrayField()
+            .matches("[a-z0-9\\-]{36}");
     }
 
     @Test
@@ -104,19 +98,8 @@ public class SnapshotTaskTest {
     @Test
     public void returnsEmptyArrayForExistingStubMapping() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForGetStubMapping(StubMapping.NOT_CONFIGURED);
+        setReturnForCountRequestsMatching(1);
         assertEquals("[ ]", executeWithoutPersist());
-    }
-
-    @Test
-    public void returnsOneMappingWithOneServeEvent() {
-        setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForGetStubMapping(null);
-        // the UUID shouldn't change, as it's based on the hash of the request and response
-        assertThat(
-            executeWithoutPersist(),
-            equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]")
-        );
     }
 
     @Test
@@ -125,11 +108,10 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest(), response(), true),
             serveEvent(mockRequest().url("/foo"), response(), true)
         );
-        setReturnForGetStubMapping(null);
-        assertThat(
-            executeWithoutPersist(),
-            equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\", \"4901a9f4-43ba-31f9-9e16-4a8eeba4ef6a\"]")
-        );
+        setReturnForCountRequestsMatching(0);
+        JsonAssertion.assertThat(executeWithoutPersist())
+            .hasSize(2)
+            .arrayField();
     }
 
     private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST =
@@ -147,26 +129,22 @@ public class SnapshotTaskTest {
     private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar\",                         \n" +
         "            \"method\" : \"ANY\"                            \n" +
         "        },                                                  \n" +
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
-        "        },                                                  \n" +
-        "        \"uuid\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\" \n" +
+        "        }                                                   \n" +
         "    },                                                      \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"8ce282ae-cdbb-3818-8d06-9dde11913217\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar/baz\",                     \n" +
         "            \"method\" : \"ANY\"                            \n" +
         "        },                                                  \n" +
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
-        "        },                                                  \n" +
-        "        \"uuid\" : \"8ce282ae-cdbb-3818-8d06-9dde11913217\" \n" +
+        "        }                                                   \n" +
         "    }                                                       \n" +
         " ]                                                            ";
 
@@ -184,40 +162,38 @@ public class SnapshotTaskTest {
             // Matches both
             serveEvent(mockRequest().url("/foo/bar/baz").header("A","B"), response(), true)
         );
-        setReturnForGetStubMapping(null);
+        setReturnForCountRequestsMatching(0);
         assertThat(
             execute(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST),
-            equalToJson(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE)
+            equalToJson(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
 
     private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST =
         "{                                                     \n" +
-            "    \"outputFormat\": \"full\",                       \n" +
-            "    \"persist\": \"false\",                           \n" +
-            "    \"filters\": {                                    \n" +
-            "        \"ids\": [                                    \n" +
-            "            \"00000000-0000-0000-0000-000000000001\", \n" +
-            "            \"00000000-0000-0000-0000-000000000002\"  \n" +
-            "        ],                                            \n" +
-            "        \"urlPattern\": \"/foo.*\"                    \n" +
-            "    }                                                 \n" +
-            "}                                                       ";
+        "    \"outputFormat\": \"full\",                       \n" +
+        "    \"persist\": \"false\",                           \n" +
+        "    \"filters\": {                                    \n" +
+        "        \"ids\": [                                    \n" +
+        "            \"00000000-0000-0000-0000-000000000001\", \n" +
+        "            \"00000000-0000-0000-0000-000000000002\"  \n" +
+        "        ],                                            \n" +
+        "        \"urlPattern\": \"/foo.*\"                    \n" +
+        "    }                                                 \n" +
+        "}                                                       ";
 
     private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"id\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\",  \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar\",                         \n" +
-            "            \"method\" : \"ANY\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        },                                                  \n" +
-            "        \"uuid\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\" \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+        "    {                                                       \n" +
+        "        \"request\" : {                                     \n" +
+        "            \"url\" : \"/foo/bar\",                         \n" +
+        "            \"method\" : \"ANY\"                            \n" +
+        "        },                                                  \n" +
+        "        \"response\" : {                                    \n" +
+        "            \"status\" : 200                                \n" +
+        "        }                                                   \n" +
+        "    }                                                       \n" +
+        " ]                                                            ";
 
     @Test
     public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
@@ -244,10 +220,10 @@ public class SnapshotTaskTest {
                 true
             )
         );
-        setReturnForGetStubMapping(null);
+        setReturnForCountRequestsMatching(0);
         assertThat(
             execute(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST),
-            equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE)
+            equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
 
@@ -268,7 +244,6 @@ public class SnapshotTaskTest {
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
-        "        \"id\" : \"5c4d527c-bcc3-3c89-bb41-fc697a90ee9b\",  \n" +
         "        \"request\" : {                                     \n" +
         "            \"url\" : \"/foo/bar\",                         \n" +
         "            \"method\" : \"POST\",                          \n" +
@@ -280,8 +255,7 @@ public class SnapshotTaskTest {
         "        },                                                  \n" +
         "        \"response\" : {                                    \n" +
         "            \"status\" : 200                                \n" +
-        "        },                                                  \n" +
-        "        \"uuid\" : \"5c4d527c-bcc3-3c89-bb41-fc697a90ee9b\" \n" +
+        "        }                                                   \n" +
         "    }                                                       \n" +
         "]                                                             ";
 
@@ -298,11 +272,11 @@ public class SnapshotTaskTest {
                 true
             )
         );
-        setReturnForGetStubMapping(null);
-        assertThat(
-            execute(CAPTURE_HEADERS_SNAPSHOT_REQUEST),
-            equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE)
-        );
+        setReturnForCountRequestsMatching(0);
+
+        String actual = execute(CAPTURE_HEADERS_SNAPSHOT_REQUEST);
+        assertThat(actual, equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
+        assertFalse(actual.contains("X-NoMatch"));
     }
 
     private String executeWithoutPersist() {
@@ -331,10 +305,10 @@ public class SnapshotTaskTest {
         }});
     }
 
-    private void setReturnForGetStubMapping(final StubMapping stubMapping) {
+    private void setReturnForCountRequestsMatching(final int numMatching) {
         context.checking(new Expectations() {{
-            allowing(mockAdmin).getStubMapping(with(any(UUID.class)));
-            will(returnValue(new SingleStubMappingResult(stubMapping)));
+            allowing(mockAdmin).countRequestsMatching(with(any(RequestPattern.class)));
+            will(returnValue(new VerificationResult(numMatching, false)));
         }});
     }
 

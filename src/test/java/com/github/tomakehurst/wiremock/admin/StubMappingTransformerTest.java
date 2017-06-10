@@ -14,8 +14,6 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import java.util.UUID;
-
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static org.junit.Assert.assertEquals;
@@ -44,16 +42,17 @@ public class StubMappingTransformerTest {
             responseTransformer
         );
 
-        StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
-        expected.setId(UUID.fromString("808bdbde-19f5-3006-84e1-770c12e737b9"));
-
-        assertEquals(expected, stubMappingTransformer.apply(new ServeEvent(
+        StubMapping actual = stubMappingTransformer.apply(new ServeEvent(
             null,
             LoggedRequest.createFrom(aRequest(new Mockery()).build()),
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),
             false
-        )));
+        ));
+        StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
+        expected.setId(actual.getId());
+
+        assertEquals(expected, actual);
     }
 }
