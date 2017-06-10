@@ -50,7 +50,7 @@ public class SnapshotTask implements AdminTask {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
             }
-            response.add((format != null && format.equals("full")) ? stubMapping : stubMapping.getId());
+            response.add((format != null && format.equals("ids")) ? stubMapping.getId() : stubMapping);
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);

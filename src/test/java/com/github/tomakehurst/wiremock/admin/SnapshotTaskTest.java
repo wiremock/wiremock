@@ -68,13 +68,13 @@ public class SnapshotTaskTest {
 
         // Check when explicitly set
         assertThat(
-            execute("{ \"persist\": true}"),
+            execute("{ \"persist\": true, \"outputFormat\": \"ids\" }"),
             equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
         );
 
         // Check with default value of true
         assertThat(
-            execute("{}"),
+            execute("{ \"outputFormat\": \"ids\" }"),
             equalToJson("[\"79caf251-ad1f-3d1b-b7c7-a0dfab33d19d\"]")
         );
     }
@@ -113,7 +113,10 @@ public class SnapshotTaskTest {
         setServeEvents(serveEvent(mockRequest(), response(), true));
         setReturnForGetStubMapping(null);
         // the UUID shouldn't change, as it's based on the hash of the request and response
-        assertThat(executeWithoutPersist(), equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]"));
+        assertThat(
+            executeWithoutPersist(),
+            equalToJson("[\"82df0a3e-c3a2-30c1-bd97-098668b3e5f4\"]")
+        );
     }
 
     @Test
@@ -303,7 +306,7 @@ public class SnapshotTaskTest {
     }
 
     private String executeWithoutPersist() {
-        return execute("{ \"persist\": false }");
+        return execute("{ \"persist\": false, \"outputFormat\": \"ids\" }");
     }
 
     private String execute(String requestBody) {
