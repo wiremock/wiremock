@@ -80,7 +80,7 @@ public class SnapshotTask implements AdminTask {
         return new Predicate<StubMapping>() {
             @Override
             public boolean apply(StubMapping stubMapping) {
-                return !admin.getStubMapping(stubMapping.getId()).isPresent();
+                return admin.countRequestsMatching(stubMapping.getRequest()).getCount() == 0;
             }
         };
     }
