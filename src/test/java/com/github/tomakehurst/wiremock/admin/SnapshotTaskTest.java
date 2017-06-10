@@ -129,7 +129,7 @@ public class SnapshotTaskTest {
         );
     }
 
-    private static final String FILTERED_SNAPSHOT_REQUEST =
+    private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST =
         "{                                                 \n" +
         "    \"outputFormat\": \"full\",                   \n" +
         "    \"persist\": \"false\",                       \n" +
@@ -141,7 +141,7 @@ public class SnapshotTaskTest {
         "    }                                             \n" +
         "}                                                   ";
 
-    private static final String FILTERED_SNAPSHOT_RESPONSE =
+    private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE =
         "[                                                           \n" +
         "    {                                                       \n" +
         "        \"id\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\",  \n" +
@@ -168,7 +168,7 @@ public class SnapshotTaskTest {
         " ]                                                            ";
 
     @Test
-    public void returnsFilteredRequestsWithFullOutputFormat() {
+    public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() {
         setServeEvents(
             // Matches both
             serveEvent(mockRequest().url("/foo/bar").header("A","B"), response(), true),
@@ -182,7 +182,70 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest().url("/foo/bar/baz").header("A","B"), response(), true)
         );
         setReturnForGetStubMapping(null);
-        assertThat(execute(FILTERED_SNAPSHOT_REQUEST), equalToJson(FILTERED_SNAPSHOT_RESPONSE));
+        assertThat(
+            execute(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST),
+            equalToJson(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE)
+        );
+    }
+
+    private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST =
+        "{                                                     \n" +
+            "    \"outputFormat\": \"full\",                       \n" +
+            "    \"persist\": \"false\",                           \n" +
+            "    \"filters\": {                                    \n" +
+            "        \"ids\": [                                    \n" +
+            "            \"00000000-0000-0000-0000-000000000001\", \n" +
+            "            \"00000000-0000-0000-0000-000000000002\"  \n" +
+            "        ],                                            \n" +
+            "        \"urlPattern\": \"/foo.*\"                    \n" +
+            "    }                                                 \n" +
+            "}                                                       ";
+
+    private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE =
+        "[                                                           \n" +
+            "    {                                                       \n" +
+            "        \"id\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\",  \n" +
+            "        \"request\" : {                                     \n" +
+            "            \"url\" : \"/foo/bar\",                         \n" +
+            "            \"method\" : \"ANY\"                            \n" +
+            "        },                                                  \n" +
+            "        \"response\" : {                                    \n" +
+            "            \"status\" : 200                                \n" +
+            "        },                                                  \n" +
+            "        \"uuid\" : \"e88ab645-69d5-34d1-8e4a-382ad56be0e4\" \n" +
+            "    }                                                       \n" +
+            " ]                                                            ";
+
+    @Test
+    public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
+        setServeEvents(
+            // Matches both
+            serveEvent(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                mockRequest().url("/foo/bar"),
+                response(),
+                true
+            ),
+            // Fails URL match
+            serveEvent(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                mockRequest().url("/bar"),
+                response(),
+                true
+            ),
+            // Fails ID match
+            serveEvent(
+                UUID.fromString("00000000-0000-0000-0000-000000000003"),
+                mockRequest().url("/foo/bar"),
+                response(),
+                true
+            )
+        );
+        setReturnForGetStubMapping(null);
+        assertThat(
+            execute(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST),
+            equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE)
+        );
     }
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
@@ -350,12 +413,16 @@ public class SnapshotTaskTest {
     }
 
     private static ServeEvent serveEvent(Request request, Response.Builder responseBuilder, boolean wasProxied) {
+        return serveEvent(UUID.randomUUID(), request, responseBuilder, wasProxied);
+    }
+
+    private static ServeEvent serveEvent(UUID id, Request request, Response.Builder responseBuilder, boolean wasProxied) {
         ResponseDefinitionBuilder responseDefinition = responseDefinition();
         if (wasProxied) {
             responseDefinition.proxiedFrom("/foo");
         }
         return new ServeEvent(
-            UUID.randomUUID(),
+            id,
             LoggedRequest.createFrom(request),
             null,
             responseDefinition.build(),

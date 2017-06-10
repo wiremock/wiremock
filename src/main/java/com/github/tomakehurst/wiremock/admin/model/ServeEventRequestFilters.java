@@ -7,22 +7,37 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Predicate;
 
+import java.util.List;
+import java.util.UUID;
+
 /**
- * A collection a RequestPattern filters to apply to ServeEvents
+ * A collection a RequestPattern filters and IDs to apply to ServeEvents
  */
 public class ServeEventRequestFilters implements Predicate<ServeEvent> {
     @JsonUnwrapped
     private final RequestPattern filters;
+    private final List<UUID> ids;
 
     @JsonCreator
-    public ServeEventRequestFilters(@JsonProperty("filters") RequestPattern filters) {
+    public ServeEventRequestFilters(
+        @JsonProperty("filters") RequestPattern filters,
+        @JsonProperty("ids") List<UUID> ids
+    ) {
         this.filters = filters;
+        this.ids = ids;
     }
 
     @Override
     public boolean apply(ServeEvent serveEvent) {
-        return filters
-            .match(serveEvent.getRequest())
-            .isExactMatch();
+        if (
+            filters != null
+                && !filters.match(serveEvent.getRequest()).isExactMatch()
+            ) {
+            return false;
+        }
+        if (ids != null && !ids.contains(serveEvent.getId())) {
+            return false;
+        }
+        return true;
     }
 }
