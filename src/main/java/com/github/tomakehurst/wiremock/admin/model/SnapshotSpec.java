@@ -3,7 +3,6 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.http.RequestFieldsComparator;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
 import java.util.Map;
@@ -14,8 +13,6 @@ import java.util.Map;
 public class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
     private ServeEventRequestFilters filters;
-    // How to sort the StubMappings (mainly for output purposes)
-    private RequestFieldsComparator sortFields;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private RequestPatternTransformer captureHeaders;
     // How to format StubMappings in the response body
@@ -34,14 +31,11 @@ public class SnapshotSpec {
         this.outputFormat = outputFormat;
         this.captureHeaders = new RequestPatternTransformer(captureHeaders);
         this.persist = persistNode.asBoolean(true);
-        if (sortFields != null) this.sortFields = new RequestFieldsComparator(sortFields);
     }
 
     public SnapshotSpec() {}
 
     public ServeEventRequestFilters getFilters() { return filters; }
-
-    public RequestFieldsComparator getSortFields() { return sortFields; }
 
     public RequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
 
