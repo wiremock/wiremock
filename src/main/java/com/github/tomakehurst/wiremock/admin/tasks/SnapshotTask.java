@@ -1,10 +1,7 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
-import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotSpec;
-import com.github.tomakehurst.wiremock.admin.model.StubMappingTransformer;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -43,14 +40,13 @@ public class SnapshotTask implements AdminTask {
             .filter(noDupes(admin));
 
         final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-        final String format = snapshotSpec.getOutputFormat();
 
         for (StubMapping stubMapping : stubMappings) {
             if (snapshotSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
             }
-            response.add((format != null && format.equals("ids")) ? stubMapping.getId() : stubMapping);
+            response.add(snapshotSpec.getOutputFormat().format(stubMapping));
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);
