@@ -18,7 +18,6 @@ public class SnapshotStubMappingScenarioHandler {
     final private static String SCENARIO_NAME_PREFIX = "scenario";
 
     private int count = 1;
-    private String name = "";
     private StubMapping previousStubMapping;
 
     public SnapshotStubMappingScenarioHandler(StubMapping stubMapping) {
@@ -27,13 +26,14 @@ public class SnapshotStubMappingScenarioHandler {
 
     public void trackStubMapping(StubMapping stubMapping) {
         if (count == 1) {
-            name = generateScenarioName(stubMapping.getRequest());
+            String name = generateScenarioName(stubMapping.getRequest());
             // We have multiple identical requests. Go back and make previous stub the start
             previousStubMapping.setScenarioName(name);
             previousStubMapping.setRequiredScenarioState(Scenario.STARTED);
         }
 
         if (count >= 1) {
+            String name = previousStubMapping.getScenarioName();
             stubMapping.setScenarioName(name);
             stubMapping.setNewScenarioState(name + "-" + (count + 1));
             String previousState = previousStubMapping.getRequiredScenarioState();
