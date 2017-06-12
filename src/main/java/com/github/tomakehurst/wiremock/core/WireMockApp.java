@@ -334,6 +334,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public Options getOptions() {
+        return options;
+    }
+
+    @Override
     public void shutdownServer() {
         container.shutdown();
     }

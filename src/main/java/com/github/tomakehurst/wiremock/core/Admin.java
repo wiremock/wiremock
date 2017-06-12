@@ -52,5 +52,7 @@ public interface Admin {
 
     void updateGlobalSettings(GlobalSettings settings);
 
+    Options getOptions();
+
     void shutdownServer();
 }
