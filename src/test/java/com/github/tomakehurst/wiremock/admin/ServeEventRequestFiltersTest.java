@@ -26,7 +26,7 @@ public class ServeEventRequestFiltersTest {
     }
 
     @Test
-    public void applyWitMethodPattern() {
+    public void applyWithMethodPattern() {
         ServeEventRequestFilters filters = new ServeEventRequestFilters(newRequestPattern(GET, anyUrl()).build(), null);
         MockRequest request = mockRequest().method(GET).url("/foo");
 
