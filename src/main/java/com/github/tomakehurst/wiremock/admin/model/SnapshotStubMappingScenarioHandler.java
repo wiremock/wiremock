@@ -1,0 +1,82 @@
+package com.github.tomakehurst.wiremock.admin.model;
+
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.min;
+
+/**
+ * Tracks stub mappings and set scenario details for duplicate requests
+ */
+public class SnapshotStubMappingScenarioHandler {
+    final private static String SCENARIO_NAME_PREFIX = "scenario";
+
+    private int count = 1;
+    private String name = "";
+    final private List<StubMapping> stubMappings = new ArrayList<>();
+
+    public SnapshotStubMappingScenarioHandler(StubMapping stubMapping) {
+        stubMappings.add(stubMapping);
+    }
+
+    public void trackStubMapping(StubMapping stubMapping) {
+        stubMappings.add(stubMapping);
+
+        if (count == 1) {
+            name = generateScenarioName(stubMapping.getRequest());
+            // We have multiple identical requests. Go back and make previous stub the start
+            stubMappings.get(0).setScenarioName(name);
+            stubMappings.get(0).setRequiredScenarioState(Scenario.STARTED);
+        }
+
+        if (count >= 1) {
+            stubMapping.setScenarioName(name);
+            stubMapping.setNewScenarioState(name + "-" + (count + 1));
+            String previousState = stubMappings.get(count - 1).getRequiredScenarioState();
+            stubMapping.setRequiredScenarioState(previousState);
+        }
+
+        count++;
+    }
+
+    /**
+     * Generates a scenario name from the request. Based on UniqueFilenameGenerator
+     *
+     * @TODO Use a better name generator
+     * @param request
+     * @return Scenario name as a string
+     */
+    private String generateScenarioName(RequestPattern request) {
+        final URI uri = URI.create(request.getUrl());
+        final Iterable<String> uriPathNodes = Splitter
+            .on("/")
+            .omitEmptyStrings()
+            .split(uri.getPath());
+
+        final int nodeCount = Iterables.size(uriPathNodes);
+
+        String pathPart = "(root)";
+        if (nodeCount > 0) {
+            pathPart = Joiner
+                .on("-")
+                .join(
+                    Iterables.skip(uriPathNodes, nodeCount - min(nodeCount, 2))
+                );
+            pathPart = sanitise(pathPart);
+        }
+
+        return SCENARIO_NAME_PREFIX + "-" + pathPart;
+    }
+
+    private static String sanitise(String input) {
+        return input.replaceAll("[,~:/?#\\[\\]@!\\$&'()*+;=]", "_");
+    }
+}

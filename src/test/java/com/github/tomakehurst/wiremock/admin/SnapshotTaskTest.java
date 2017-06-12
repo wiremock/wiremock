@@ -279,6 +279,63 @@ public class SnapshotTaskTest {
         assertFalse(actual.contains("X-NoMatch"));
     }
 
+    private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST =
+            "{                                                 \n" +
+            "    \"outputFormat\": \"full\",                   \n" +
+            "    \"persist\": \"false\",                       \n" +
+            "    \"repeatsAsScenarios\": \"true\"              \n" +
+            "}                                                   ";
+
+    private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE =
+            "[                                                           \n" +
+            "    {                                                       \n" +
+            "        \"request\" : {                                     \n" +
+            "            \"url\" : \"/foo\",                             \n" +
+            "            \"method\" : \"ANY\"                            \n" +
+            "        },                                                  \n" +
+            "        \"response\" : {                                    \n" +
+            "            \"status\" : 200                                \n" +
+            "        }                                                   \n" +
+            "    },                                                      \n" +
+            "    {                                                       \n" +
+            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
+            "        \"requiredScenarioState\" : \"Started\",            \n" +
+            "        \"request\" : {                                     \n" +
+            "            \"url\" : \"/bar/baz\",                         \n" +
+            "            \"method\" : \"ANY\"                            \n" +
+            "        },                                                  \n" +
+            "        \"response\" : {                                    \n" +
+            "            \"status\" : 200                                \n" +
+            "        }                                                   \n" +
+            "    },                                                      \n" +
+            "    {                                                       \n" +
+            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
+            "        \"requiredScenarioState\" : \"Started\",            \n" +
+            "        \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
+            "        \"request\" : {                                     \n" +
+            "            \"url\" : \"/bar/baz\",                         \n" +
+            "            \"method\" : \"ANY\"                            \n" +
+            "        },                                                  \n" +
+            "        \"response\" : {                                    \n" +
+            "            \"status\" : 200                                \n" +
+            "        }                                                   \n" +
+            "    }                                                       \n" +
+            " ]                                                            ";
+
+    @Test
+    public void returnsStubMappingsWithScenariosForRepeatedRequests() {
+        setServeEvents(
+            serveEvent(mockRequest().url("/foo"), response(), true),
+            serveEvent(mockRequest().url("/bar/baz"), response(), true),
+            serveEvent(mockRequest().url("/bar/baz"), response(), true)
+        );
+        setReturnForCountRequestsMatching(0);
+        assertThat(
+            execute(REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST),
+            equalToJson(REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
+        );
+    }
+
     private String executeWithoutPersist() {
         return execute("{ \"persist\": false, \"outputFormat\": \"ids\" }");
     }
