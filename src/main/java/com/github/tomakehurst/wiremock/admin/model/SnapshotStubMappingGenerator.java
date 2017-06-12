@@ -4,16 +4,18 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Function;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Transforms ServeEvents to StubMappings using RequestPatternTransformer and SnapshotResponseDefinitionTransformer
+ * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
  */
-public class StubMappingTransformer implements Function<ServeEvent, StubMapping> {
+public class SnapshotStubMappingGenerator {
     private final RequestPatternTransformer requestTransformer;
     private final LoggedResponseDefinitionTransformer responseTransformer;
 
-    public StubMappingTransformer(
+    public SnapshotStubMappingGenerator(
         RequestPatternTransformer requestTransformer,
         LoggedResponseDefinitionTransformer responseTransformer
     ) {
@@ -21,17 +23,25 @@ public class StubMappingTransformer implements Function<ServeEvent, StubMapping>
         this.responseTransformer = responseTransformer;
     }
 
-    public StubMappingTransformer(RequestPatternTransformer requestTransformer) {
+    public SnapshotStubMappingGenerator(RequestPatternTransformer requestTransformer) {
         this(
             requestTransformer == null ? new RequestPatternTransformer() : requestTransformer,
             new LoggedResponseDefinitionTransformer()
         );
     }
 
-    @Override
-    public StubMapping apply(ServeEvent event) {
-        RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
-        ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
+    public List<StubMapping> generateFrom(Iterable<ServeEvent> events) {
+        final ArrayList<StubMapping> stubMappings = new ArrayList<>();
+        for (ServeEvent event : events) {
+            stubMappings.add(generateFrom(event));
+        }
+        return stubMappings;
+    }
+
+    private StubMapping generateFrom(ServeEvent event) {
+        final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
+        final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
+
         return new StubMapping(requestPattern, responseDefinition);
     }
 }
