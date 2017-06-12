@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -256,6 +258,11 @@ public class HttpAdminClient implements Admin {
                 urlFor(GlobalSettingsUpdateTask.class),
                 Json.write(settings),
                 HTTP_OK);
+    }
+
+    @Override
+    public Options getOptions() {
+        return new WireMockConfiguration().port(port).bindAddress(host);
     }
 
     @Override
