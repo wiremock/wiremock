@@ -8,8 +8,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.lang.Math.min;
 
@@ -21,29 +19,28 @@ public class SnapshotStubMappingScenarioHandler {
 
     private int count = 1;
     private String name = "";
-    final private List<StubMapping> stubMappings = new ArrayList<>();
+    private StubMapping previousStubMapping;
 
     public SnapshotStubMappingScenarioHandler(StubMapping stubMapping) {
-        stubMappings.add(stubMapping);
+        previousStubMapping = stubMapping;
     }
 
     public void trackStubMapping(StubMapping stubMapping) {
-        stubMappings.add(stubMapping);
-
         if (count == 1) {
             name = generateScenarioName(stubMapping.getRequest());
             // We have multiple identical requests. Go back and make previous stub the start
-            stubMappings.get(0).setScenarioName(name);
-            stubMappings.get(0).setRequiredScenarioState(Scenario.STARTED);
+            previousStubMapping.setScenarioName(name);
+            previousStubMapping.setRequiredScenarioState(Scenario.STARTED);
         }
 
         if (count >= 1) {
             stubMapping.setScenarioName(name);
             stubMapping.setNewScenarioState(name + "-" + (count + 1));
-            String previousState = stubMappings.get(count - 1).getRequiredScenarioState();
+            String previousState = previousStubMapping.getRequiredScenarioState();
             stubMapping.setRequiredScenarioState(previousState);
         }
 
+        previousStubMapping = stubMapping;
         count++;
     }
 
