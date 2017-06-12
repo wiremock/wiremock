@@ -27,19 +27,19 @@ public class SnapshotTask implements AdminTask {
         return execute(admin, snapshotSpec);
     }
 
-    /**
-     * Central method, mainly glue code
-     *
-     * @param admin Admin instance
-     * @param snapshotSpec User input parameters/options
-     * @return ResponseDefinition
-     */
     private ResponseDefinition execute(Admin admin, SnapshotSpec snapshotSpec) {
-        final FluentIterable<StubMapping> stubMappings =
-            generateStubMappings(admin.getServeEvents(), snapshotSpec)
-            .filter(noDupes(admin));
+        final Iterable<ServeEvent> serveEvents = filterServeEvents(
+            admin.getServeEvents(),
+            snapshotSpec.getFilters()
+        );
 
-        final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
+        Iterable<StubMapping> stubMappings = new SnapshotStubMappingGenerator(
+            snapshotSpec.getCaptureHeaders()
+        ).generateFrom(serveEvents);
+
+        stubMappings = from(stubMappings).filter(noDupes(admin));
+
+        final ArrayList<Object> response = new ArrayList<>();
 
         for (StubMapping stubMapping : stubMappings) {
             if (snapshotSpec.shouldPersist()) {
@@ -52,24 +52,18 @@ public class SnapshotTask implements AdminTask {
         return jsonResponse(response.toArray(), HTTP_OK);
     }
 
-    /**
-     * Transforms a list of ServeEvents to StubMappings according to the options in SnapshotSpec
-     * @param serveEventResult List of ServeEvents from the request journal
-     * @param snapshotSpec User input parameters/options
-     * @return List of StubMappings
-     */
-    private FluentIterable<StubMapping> generateStubMappings(GetServeEventsResult serveEventResult, SnapshotSpec snapshotSpec) {
-        FluentIterable<ServeEvent> serveEvents = from(serveEventResult.getServeEvents()).filter(onlyProxied());
+    private Iterable<ServeEvent> filterServeEvents(
+        GetServeEventsResult serveEventsResult,
+        ServeEventRequestFilters snapshotFilters
+    ) {
+        FluentIterable<ServeEvent> serveEvents = from(serveEventsResult.getServeEvents())
+            .filter(onlyProxied());
 
-        if (snapshotSpec.getFilters() != null) {
-            serveEvents = serveEvents.filter(snapshotSpec.getFilters());
+        if (snapshotFilters != null) {
+            serveEvents = serveEvents.filter(snapshotFilters);
         }
 
-        FluentIterable<StubMapping> stubMappings = serveEvents.transform(
-            new StubMappingTransformer(snapshotSpec.getCaptureHeaders())
-        );
-
-        return stubMappings;
+        return serveEvents;
     }
 
     private Predicate<StubMapping> noDupes(final Admin admin) {

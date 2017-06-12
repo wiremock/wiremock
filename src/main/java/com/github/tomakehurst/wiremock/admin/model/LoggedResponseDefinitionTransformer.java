@@ -16,7 +16,7 @@ import static com.google.common.collect.Iterables.filter;
 public class LoggedResponseDefinitionTransformer implements Function<LoggedResponse, ResponseDefinition> {
     @Override
     public ResponseDefinition apply(LoggedResponse response) {
-        ResponseDefinitionBuilder responseDefinitionBuilder = new ResponseDefinitionBuilder()
+        final ResponseDefinitionBuilder responseDefinitionBuilder = new ResponseDefinitionBuilder()
             .withStatus(response.getStatus());
 
         if (response.getBody() != null && !response.getBody().isEmpty()) {
