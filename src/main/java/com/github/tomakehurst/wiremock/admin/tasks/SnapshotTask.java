@@ -36,7 +36,6 @@ public class SnapshotTask implements AdminTask {
         Iterable<StubMapping> stubMappings = new SnapshotStubMappingGenerator(
             snapshotSpec.getCaptureHeaders(),
             snapshotSpec.shouldRecordRepeatsAsScenarios()
-
         ).generateFrom(serveEvents);
 
         stubMappings = from(stubMappings).filter(noDupes(admin));
