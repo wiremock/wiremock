@@ -7,7 +7,12 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
  * Possible output formats for snapshot task
  */
 public enum SnapshotOutputFormat {
-    FULL,
+    FULL {
+        @Override
+        public Object format(StubMapping stubMapping) {
+            return stubMapping;
+        }
+    },
     IDS {
         @Override
         public Object format(StubMapping stubMapping) {
@@ -15,15 +20,13 @@ public enum SnapshotOutputFormat {
         }
     };
 
+    public abstract Object format(StubMapping stubMapping);
+
     @JsonCreator
     public static SnapshotOutputFormat fromString(String value) {
         if (value == null || value.equalsIgnoreCase("ids")) {
             return IDS;
         }
         return FULL;
-    }
-
-    public Object format(StubMapping stubMapping) {
-        return stubMapping;
     }
 }
