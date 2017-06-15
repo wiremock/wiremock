@@ -372,6 +372,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public Options getOptions() {
+        return options;
+    }
+
+    @Override
     public void shutdownServer() {
         shutdown();
     }
