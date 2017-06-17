@@ -14,42 +14,28 @@ import java.util.List;
 public class SnapshotStubMappingGenerator {
     private final RequestPatternTransformer requestTransformer;
     private final LoggedResponseDefinitionTransformer responseTransformer;
-    private final boolean shouldRecordRepeatsAsScenarios;
-    private final SnapshotStubMappingScenarioHandler stubMappingScenarioHandler;
 
 
     public SnapshotStubMappingGenerator(
         RequestPatternTransformer requestTransformer,
-        LoggedResponseDefinitionTransformer responseTransformer,
-        boolean shouldRecordRepeatsAsScenarios,
-        SnapshotStubMappingScenarioHandler stubMappingScenarioHandler
+        LoggedResponseDefinitionTransformer responseTransformer
     ) {
         this.requestTransformer = requestTransformer;
         this.responseTransformer = responseTransformer;
-        this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
-        this.stubMappingScenarioHandler = stubMappingScenarioHandler;
     }
 
-    public SnapshotStubMappingGenerator(
-        RequestPatternTransformer requestTransformer,
-        boolean shouldRecordRepeatsAsScenarios
-    ) {
+    public SnapshotStubMappingGenerator(RequestPatternTransformer requestTransformer) {
         this(
             requestTransformer == null ? new RequestPatternTransformer() : requestTransformer,
-            new LoggedResponseDefinitionTransformer(),
-            shouldRecordRepeatsAsScenarios,
-            new SnapshotStubMappingScenarioHandler()
+            new LoggedResponseDefinitionTransformer()
         );
     }
 
     public List<StubMapping> generateFrom(Iterable<ServeEvent> events) {
-        this.stubMappingScenarioHandler.reset();
-
         final ArrayList<StubMapping> stubMappings = new ArrayList<>();
         for (ServeEvent event : events) {
             stubMappings.add(generateFrom(event));
         }
-
         return stubMappings;
     }
 
@@ -57,12 +43,6 @@ public class SnapshotStubMappingGenerator {
         final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
 
-        final StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
-
-        if (shouldRecordRepeatsAsScenarios) {
-            stubMappingScenarioHandler.trackStubMapping(stubMapping);
-        }
-
-        return stubMapping;
+        return new StubMapping(requestPattern, responseDefinition);
     }
 }
