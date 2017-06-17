@@ -36,7 +36,9 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     private WireMockTestClient proxyingTestClient;
 
     public void init() {
-        proxyingService = new WireMockServer(wireMockConfig().dynamicPort());
+        proxyingService = new WireMockServer(wireMockConfig()
+            .dynamicPort()
+            .withRootDirectory("src/test/resources/empty"));
         proxyingService.start();
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
@@ -44,7 +46,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static final String DEFAULT_SNAPSHOT_RESPONSE =
-        "[                                                           \n" +
+            "[                                                           \n" +
             "    {                                                       \n" +
             "        \"request\" : {                                     \n" +
             "            \"url\" : \"/foo/bar/baz\",                     \n" +
@@ -73,7 +75,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
 
         assertThat(
-            snapshot("{}"),
+            snapshot("{ \"persist\": false }"),
             equalToJson(DEFAULT_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
