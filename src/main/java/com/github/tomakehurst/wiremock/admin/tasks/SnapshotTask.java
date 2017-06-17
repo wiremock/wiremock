@@ -12,6 +12,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.google.common.collect.FluentIterable.from;
@@ -33,14 +34,11 @@ public class SnapshotTask implements AdminTask {
             snapshotSpec.getFilters()
         );
 
-        Iterable<StubMapping> stubMappings = new SnapshotStubMappingGenerator(
-            snapshotSpec.getCaptureHeaders(),
-            snapshotSpec.shouldRecordRepeatsAsScenarios()
-        ).generateFrom(serveEvents);
+       List<StubMapping> stubMappings = new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders())
+            .generateFrom(serveEvents);
 
-        if (!snapshotSpec.shouldRecordRepeatsAsScenarios()) {
-            stubMappings = from(stubMappings).filter(noDupes(admin));
-        }
+        stubMappings = new SnapshotRepeatedRequestHandler(snapshotSpec.shouldRecordRepeatsAsScenarios())
+            .processStubMappings(stubMappings);
 
         final ArrayList<Object> response = new ArrayList<>();
 
@@ -67,15 +65,6 @@ public class SnapshotTask implements AdminTask {
         }
 
         return serveEvents;
-    }
-
-    private Predicate<StubMapping> noDupes(final Admin admin) {
-        return new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(StubMapping stubMapping) {
-                return admin.countRequestsMatching(stubMapping.getRequest()).getCount() == 1;
-            }
-        };
     }
 
     private Predicate<ServeEvent> onlyProxied() {

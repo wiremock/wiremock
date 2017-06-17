@@ -8,36 +8,50 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static java.lang.Math.min;
 
 /**
- * Tracks RequestPatterns from StubMappings and generates scenarios when multiple identical requests are seen.
+ * Counts unique RequestPatterns from StubMappings. If shouldRecordRepeatsAsScenarios is enabled, then multiple
+ * identical requests will be recorded as scenarios. Otherwise, they're skipped.
  */
-public class SnapshotStubMappingScenarioHandler {
+public class SnapshotRepeatedRequestHandler {
     private final static String SCENARIO_NAME_PREFIX = "scenario";
-
+    private final boolean shouldRecordRepeatsAsScenarios;
     private final HashMap<RequestPattern, StubMappingTracker> requestStubMappingTracker;
 
-    public SnapshotStubMappingScenarioHandler() {
-        requestStubMappingTracker = new HashMap<>();
+    public SnapshotRepeatedRequestHandler(boolean shouldRecordRepeatsAsScenarios) {
+        this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
+        this.requestStubMappingTracker = new HashMap<>();
     }
 
-    public void reset() {
+    public List<StubMapping> processStubMappings(List<StubMapping> stubMappings) {
         this.requestStubMappingTracker.clear();
-    }
+        ArrayList<StubMapping> processedMappings = new ArrayList<>(stubMappings.size());
 
-    public void trackStubMapping(StubMapping stubMapping) {
-        StubMappingTracker tracker = requestStubMappingTracker.get(stubMapping.getRequest());
+        for (StubMapping stubMapping : stubMappings) {
+            StubMappingTracker tracker = requestStubMappingTracker.get(stubMapping.getRequest());
 
-        if (tracker == null) {
-            requestStubMappingTracker.put(stubMapping.getRequest(), new StubMappingTracker(stubMapping));
-            return;
+            // If tracker is null, this request has not been seen before. Otherwise, it's a repeat.
+            if (tracker == null || shouldRecordRepeatsAsScenarios) {
+                if (tracker == null) {
+                    requestStubMappingTracker.put(stubMapping.getRequest(), new StubMappingTracker(stubMapping));
+                } else {
+                    tracker.count++;
+                    setScenarioDetailsIfApplicable(stubMapping, tracker);
+                    tracker.previousStubMapping = stubMapping;
+                }
+                processedMappings.add(stubMapping);
+            }
         }
 
-        tracker.count++;
+        return processedMappings;
+    }
 
+    private void setScenarioDetailsIfApplicable(StubMapping stubMapping, StubMappingTracker tracker) {
         if (tracker.count == 2) {
             // We have multiple identical requests. Go back and make previous stub the start
             String name = generateScenarioName(stubMapping.getRequest());
@@ -52,8 +66,6 @@ public class SnapshotStubMappingScenarioHandler {
         String name = tracker.previousStubMapping.getScenarioName();
         stubMapping.setScenarioName(name);
         stubMapping.setNewScenarioState(name + "-" + tracker.count);
-
-        tracker.previousStubMapping = stubMapping;
     }
 
     /**
@@ -90,7 +102,7 @@ public class SnapshotStubMappingScenarioHandler {
     }
 
     /**
-     * Simple container class to store the previous stub mapping and sequence count for the scenario
+     * Simple container class to store the previous stub mapping and sequence count for building scenarios
      */
     private class StubMappingTracker {
         private int count;

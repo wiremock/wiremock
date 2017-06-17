@@ -35,7 +35,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 	private final ProxyResponseRenderer proxyResponseRenderer;
 	private final List<ResponseTransformer> responseTransformers;
 
-	public StubResponseRenderer(FileSource fileSource,
+    public StubResponseRenderer(FileSource fileSource,
 								GlobalSettingsHolder globalSettingsHolder,
 								ProxyResponseRenderer proxyResponseRenderer,
 								List<ResponseTransformer> responseTransformers) {
