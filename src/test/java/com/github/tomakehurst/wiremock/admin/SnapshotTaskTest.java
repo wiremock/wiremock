@@ -19,20 +19,15 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.Arrays;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static junit.framework.TestCase.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMock.class)
@@ -58,7 +53,7 @@ public class SnapshotTaskTest {
         context.checking(new Expectations() {{
             exactly(2).of(mockAdmin).addStubMapping(with(any(StubMapping.class)));
         }});
-        setReturnForCountRequestsMatching(0);
+        setReturnForCountRequestsMatching(1);
 
         // Check when explicitly set
         JsonAssertion.assertThat(execute("{ \"persist\": true, \"outputFormat\": \"ids\"}"))
@@ -76,7 +71,7 @@ public class SnapshotTaskTest {
     @Test
     public void shouldNotPersistWhenSetToFalse() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForCountRequestsMatching(0);
+        setReturnForCountRequestsMatching(1);
         JsonAssertion.assertThat(executeWithoutPersist())
             .hasSize(1)
             .arrayField()
@@ -98,7 +93,7 @@ public class SnapshotTaskTest {
     @Test
     public void returnsEmptyArrayForExistingStubMapping() {
         setServeEvents(serveEvent(mockRequest(), response(), true));
-        setReturnForCountRequestsMatching(1);
+        setReturnForCountRequestsMatching(2);
         assertEquals("[ ]", executeWithoutPersist());
     }
 
@@ -108,232 +103,10 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest(), response(), true),
             serveEvent(mockRequest().url("/foo"), response(), true)
         );
-        setReturnForCountRequestsMatching(0);
+        setReturnForCountRequestsMatching(1);
         JsonAssertion.assertThat(executeWithoutPersist())
             .hasSize(2)
             .arrayField();
-    }
-
-    private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST =
-        "{                                                 \n" +
-        "    \"outputFormat\": \"full\",                   \n" +
-        "    \"persist\": \"false\",                       \n" +
-        "    \"filters\": {                                \n" +
-        "        \"urlPattern\": \"/foo.*\",               \n" +
-        "        \"headers\": {                            \n" +
-        "            \"A\": { \"equalTo\": \"B\" }         \n" +
-        "        }                                         \n" +
-        "    }                                             \n" +
-        "}                                                   ";
-
-    private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE =
-        "[                                                           \n" +
-        "    {                                                       \n" +
-        "        \"request\" : {                                     \n" +
-        "            \"url\" : \"/foo/bar\",                         \n" +
-        "            \"method\" : \"ANY\"                            \n" +
-        "        },                                                  \n" +
-        "        \"response\" : {                                    \n" +
-        "            \"status\" : 200                                \n" +
-        "        }                                                   \n" +
-        "    },                                                      \n" +
-        "    {                                                       \n" +
-        "        \"request\" : {                                     \n" +
-        "            \"url\" : \"/foo/bar/baz\",                     \n" +
-        "            \"method\" : \"ANY\"                            \n" +
-        "        },                                                  \n" +
-        "        \"response\" : {                                    \n" +
-        "            \"status\" : 200                                \n" +
-        "        }                                                   \n" +
-        "    }                                                       \n" +
-        " ]                                                            ";
-
-    @Test
-    public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() {
-        setServeEvents(
-            // Matches both
-            serveEvent(mockRequest().url("/foo/bar").header("A","B"), response(), true),
-            // Fails header match
-            serveEvent(mockRequest().url("/foo"), response(), true),
-            // Fails URL match
-            serveEvent(mockRequest().url("/bar").header("A", "B"), response(), true),
-            // Fails header match
-            serveEvent(mockRequest().url("/foo/").header("A", "C"), response(), true),
-            // Matches both
-            serveEvent(mockRequest().url("/foo/bar/baz").header("A","B"), response(), true)
-        );
-        setReturnForCountRequestsMatching(0);
-        assertThat(
-            execute(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST),
-            equalToJson(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
-        );
-    }
-
-    private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST =
-        "{                                                     \n" +
-        "    \"outputFormat\": \"full\",                       \n" +
-        "    \"persist\": \"false\",                           \n" +
-        "    \"filters\": {                                    \n" +
-        "        \"ids\": [                                    \n" +
-        "            \"00000000-0000-0000-0000-000000000001\", \n" +
-        "            \"00000000-0000-0000-0000-000000000002\"  \n" +
-        "        ],                                            \n" +
-        "        \"urlPattern\": \"/foo.*\"                    \n" +
-        "    }                                                 \n" +
-        "}                                                       ";
-
-    private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE =
-        "[                                                           \n" +
-        "    {                                                       \n" +
-        "        \"request\" : {                                     \n" +
-        "            \"url\" : \"/foo/bar\",                         \n" +
-        "            \"method\" : \"ANY\"                            \n" +
-        "        },                                                  \n" +
-        "        \"response\" : {                                    \n" +
-        "            \"status\" : 200                                \n" +
-        "        }                                                   \n" +
-        "    }                                                       \n" +
-        " ]                                                            ";
-
-    @Test
-    public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
-        setServeEvents(
-            // Matches both
-            serveEvent(
-                UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                mockRequest().url("/foo/bar"),
-                response(),
-                true
-            ),
-            // Fails URL match
-            serveEvent(
-                UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                mockRequest().url("/bar"),
-                response(),
-                true
-            ),
-            // Fails ID match
-            serveEvent(
-                UUID.fromString("00000000-0000-0000-0000-000000000003"),
-                mockRequest().url("/foo/bar"),
-                response(),
-                true
-            )
-        );
-        setReturnForCountRequestsMatching(0);
-        assertThat(
-            execute(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST),
-            equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
-        );
-    }
-
-    private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
-        "{                                  \n" +
-        "    \"outputFormat\": \"full\",    \n" +
-        "    \"persist\": \"false\",        \n" +
-        "    \"captureHeaders\": {          \n" +
-        "        \"Accept\": {              \n" +
-        "            \"anything\": true     \n" +
-        "        },                         \n" +
-        "        \"X-NoMatch\": {           \n" +
-        "            \"equalTo\": \"!\"     \n" +
-        "        }                          \n" +
-        "    }                              \n" +
-        "}                                    ";
-
-    private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
-        "[                                                           \n" +
-        "    {                                                       \n" +
-        "        \"request\" : {                                     \n" +
-        "            \"url\" : \"/foo/bar\",                         \n" +
-        "            \"method\" : \"POST\",                          \n" +
-        "            \"headers\": {                                  \n" +
-        "                \"Accept\": {                               \n" +
-        "                    \"equalTo\": \"B\"                      \n" +
-        "                }                                           \n" +
-        "            }                                               \n" +
-        "        },                                                  \n" +
-        "        \"response\" : {                                    \n" +
-        "            \"status\" : 200                                \n" +
-        "        }                                                   \n" +
-        "    }                                                       \n" +
-        "]                                                             ";
-
-    @Test
-    public void returnsStubMappingWithCapturedHeaders() {
-        setServeEvents(
-            serveEvent(
-                mockRequest()
-                    .url("/foo/bar")
-                    .method(POST)
-                    .header("Accept","B")
-                    .header("X-NoMatch","should be ignored"),
-                response(),
-                true
-            )
-        );
-        setReturnForCountRequestsMatching(0);
-
-        String actual = execute(CAPTURE_HEADERS_SNAPSHOT_REQUEST);
-        assertThat(actual, equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
-        assertFalse(actual.contains("X-NoMatch"));
-    }
-
-    private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST =
-            "{                                                 \n" +
-            "    \"outputFormat\": \"full\",                   \n" +
-            "    \"persist\": \"false\",                       \n" +
-            "    \"repeatsAsScenarios\": \"true\"              \n" +
-            "}                                                   ";
-
-    private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo\",                             \n" +
-            "            \"method\" : \"ANY\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "        \"requiredScenarioState\" : \"Started\",            \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/bar/baz\",                         \n" +
-            "            \"method\" : \"ANY\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "        \"requiredScenarioState\" : \"Started\",            \n" +
-            "        \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/bar/baz\",                         \n" +
-            "            \"method\" : \"ANY\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
-
-    @Test
-    public void returnsStubMappingsWithScenariosForRepeatedRequests() {
-        setServeEvents(
-            serveEvent(mockRequest().url("/foo"), response(), true),
-            serveEvent(mockRequest().url("/bar/baz"), response(), true),
-            serveEvent(mockRequest().url("/bar/baz"), response(), true)
-        );
-        setReturnForCountRequestsMatching(0);
-        assertThat(
-            execute(REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST),
-            equalToJson(REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
-        );
     }
 
     private String executeWithoutPersist() {
@@ -370,16 +143,12 @@ public class SnapshotTaskTest {
     }
 
     private static ServeEvent serveEvent(Request request, Response.Builder responseBuilder, boolean wasProxied) {
-        return serveEvent(UUID.randomUUID(), request, responseBuilder, wasProxied);
-    }
-
-    private static ServeEvent serveEvent(UUID id, Request request, Response.Builder responseBuilder, boolean wasProxied) {
         ResponseDefinitionBuilder responseDefinition = responseDefinition();
         if (wasProxied) {
             responseDefinition.proxiedFrom("/foo");
         }
         return new ServeEvent(
-            id,
+            UUID.randomUUID(),
             LoggedRequest.createFrom(request),
             null,
             responseDefinition.build(),
