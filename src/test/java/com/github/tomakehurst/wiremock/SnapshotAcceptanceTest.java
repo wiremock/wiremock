@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -43,6 +44,11 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
         proxyingTestClient = new WireMockTestClient(proxyingService.port());
+    }
+
+    @After
+    public void proxyServerShutdown() {
+        proxyingService.stop();
     }
 
     private static final String DEFAULT_SNAPSHOT_RESPONSE =
