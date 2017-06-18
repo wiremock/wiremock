@@ -1,13 +1,10 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
+import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +51,9 @@ public class SnapshotRepeatedRequestHandler {
     private void setScenarioDetailsIfApplicable(StubMapping stubMapping, StubMappingTracker tracker) {
         if (tracker.count == 2) {
             // We have multiple identical requests. Go back and make previous stub the start
-            String name = generateScenarioName(stubMapping.getRequest());
+            String name = SCENARIO_NAME_PREFIX + "-" + UniqueFilenameGenerator.urlToPathParts(
+                stubMapping.getRequest().getUrl()
+            );
             tracker.previousStubMapping.setScenarioName(name);
             tracker.previousStubMapping.setRequiredScenarioState(Scenario.STARTED);
             stubMapping.setRequiredScenarioState(Scenario.STARTED);
@@ -66,39 +65,6 @@ public class SnapshotRepeatedRequestHandler {
         String name = tracker.previousStubMapping.getScenarioName();
         stubMapping.setScenarioName(name);
         stubMapping.setNewScenarioState(name + "-" + tracker.count);
-    }
-
-    /**
-     * Generates a scenario name from the request. Based on UniqueFilenameGenerator
-     *
-     * @TODO Use a better name generator
-     * @param request A RequestPattern from a StubMapping
-     * @return Scenario name as a string
-     */
-    private String generateScenarioName(RequestPattern request) {
-        final URI uri = URI.create(request.getUrl());
-        final Iterable<String> uriPathNodes = Splitter
-            .on("/")
-            .omitEmptyStrings()
-            .split(uri.getPath());
-
-        final int nodeCount = Iterables.size(uriPathNodes);
-
-        String pathPart = "(root)";
-        if (nodeCount > 0) {
-            pathPart = Joiner
-                .on("-")
-                .join(
-                    Iterables.skip(uriPathNodes, nodeCount - min(nodeCount, 2))
-                );
-            pathPart = sanitise(pathPart);
-        }
-
-        return SCENARIO_NAME_PREFIX + "-" + pathPart;
-    }
-
-    private static String sanitise(String input) {
-        return input.replaceAll("[,~:/?#\\[\\]@!\\$&'()*+;=]", "_");
     }
 
     /**

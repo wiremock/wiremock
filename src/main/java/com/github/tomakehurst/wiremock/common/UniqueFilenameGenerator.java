@@ -32,19 +32,7 @@ public class UniqueFilenameGenerator {
     }
 
     public static String generate(Request request, String prefix, String id, String extension) {
-        URI uri = URI.create(request.getUrl());
-        Iterable<String> uriPathNodes = on("/").omitEmptyStrings().split(uri.getPath());
-        int nodeCount = size(uriPathNodes);
-
-        String pathPart = nodeCount > 0 ?
-                sanitise(
-                    Joiner.on("-")
-                    .join(from(uriPathNodes)
-                        .skip(nodeCount - min(nodeCount, 2))
-                    )
-                ):
-                "(root)";
-
+        String pathPart = urlToPathParts(request.getUrl());
 
         return new StringBuilder(prefix)
                 .append("-")
@@ -54,6 +42,21 @@ public class UniqueFilenameGenerator {
                 .append(".")
                 .append(extension)
                 .toString();
+    }
+
+    public static String urlToPathParts(String url) {
+        URI uri = URI.create(url);
+        Iterable<String> uriPathNodes = on("/").omitEmptyStrings().split(uri.getPath());
+        int nodeCount = size(uriPathNodes);
+
+        return nodeCount > 0 ?
+            sanitise(
+                Joiner.on("-")
+                    .join(from(uriPathNodes)
+                        .skip(nodeCount - min(nodeCount, 2))
+                    )
+            ):
+            "(root)";
     }
 
     private static String sanitise(String input) {
