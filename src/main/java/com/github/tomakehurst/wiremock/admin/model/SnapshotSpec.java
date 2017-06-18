@@ -3,8 +3,10 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +24,10 @@ public class SnapshotSpec {
     private boolean persist = true;
     // Whether duplicate requests should be recorded as scenarios or just discarded
     private boolean repeatsAsScenarios = false;
+    // Stub mapping transformers
+    private List<String> transformers;
+    // Parameters for stub mapping transformers
+    private Parameters transformerParameters;
 
     @JsonCreator
     public SnapshotSpec(
@@ -30,13 +36,17 @@ public class SnapshotSpec {
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
         @JsonProperty("persist") JsonNode persistNode,
-        @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode
+        @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode,
+        @JsonProperty("transformers") List<String> transformers,
+        @JsonProperty("transformerParameters") Parameters transformerParameters
     ) {
         this.filters = filters;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
         this.captureHeaders = new RequestPatternTransformer(captureHeaders);
         this.persist = persistNode.asBoolean(true);
         this.repeatsAsScenarios = repeatsNode.asBoolean(false);
+        this.transformers = transformers;
+        this.transformerParameters = transformerParameters;
     }
 
     public SnapshotSpec() {}
@@ -50,4 +60,8 @@ public class SnapshotSpec {
     public boolean shouldPersist() { return persist; }
 
     public boolean shouldRecordRepeatsAsScenarios() { return repeatsAsScenarios; }
+
+    public List<String> getTransformers() { return transformers; }
+
+    public Parameters getTransformerParameters() { return transformerParameters; }
 }

@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -40,9 +42,14 @@ public class SnapshotTask implements AdminTask {
         stubMappings = new SnapshotRepeatedRequestHandler(snapshotSpec.shouldRecordRepeatsAsScenarios())
             .processStubMappings(stubMappings);
 
+        final SnapshotStubMappingTransformerRunner transformerRunner = getTransformerRunner(
+            admin.getOptions(),
+            snapshotSpec
+        );
         final ArrayList<Object> response = new ArrayList<>();
 
         for (StubMapping stubMapping : stubMappings) {
+            stubMapping = transformerRunner.apply(stubMapping);
             if (snapshotSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
@@ -51,6 +58,19 @@ public class SnapshotTask implements AdminTask {
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);
+    }
+
+    private SnapshotStubMappingTransformerRunner getTransformerRunner(Options options, SnapshotSpec snapshotSpec) {
+        final Iterable<StubMappingTransformer> registeredTransformers = options
+            .extensionsOfType(StubMappingTransformer.class)
+            .values();
+
+        return new SnapshotStubMappingTransformerRunner(
+            registeredTransformers,
+            snapshotSpec.getTransformers(),
+            snapshotSpec.getTransformerParameters(),
+            options.filesRoot()
+        );
     }
 
     private Iterable<ServeEvent> filterServeEvents(

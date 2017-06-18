@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.admin.tasks.SnapshotTask;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -41,6 +43,7 @@ public class SnapshotTaskTest {
 
     @Test
     public void persistsStubMappingWhenPersistSet() {
+        withOptions(wireMockConfig());
         setServeEvents(
             serveEvent(
                 mockRequest().url("/foo").method(GET),
@@ -67,6 +70,7 @@ public class SnapshotTaskTest {
 
     @Test
     public void shouldNotPersistWhenSetToFalse() {
+        withOptions(wireMockConfig());
         setServeEvents(serveEvent(mockRequest(), response(), true));
         JsonAssertion.assertThat(executeWithoutPersist())
             .hasSize(1)
@@ -76,18 +80,21 @@ public class SnapshotTaskTest {
 
     @Test
     public void returnsEmptyArrayWithNoServeEvents() {
+        withOptions(wireMockConfig());
         setServeEvents();
         assertEquals("[ ]", executeWithoutPersist());
     }
 
     @Test
     public void returnsEmptyArrayWithUnproxiedServeEvent() {
+        withOptions(wireMockConfig());
         setServeEvents(serveEvent(mockRequest(), response(), false));
         assertEquals("[ ]", executeWithoutPersist());
     }
 
     @Test
     public void returnsSingleStubMappingForRepeatedRequests() {
+        withOptions(wireMockConfig());
         setServeEvents(
             serveEvent(mockRequest().url("/foo"), response(), true),
             serveEvent(mockRequest().url("/foo"), response(), true)
@@ -100,6 +107,7 @@ public class SnapshotTaskTest {
 
     @Test
     public void returnsTwoMappingsForTwoServeEvents() {
+        withOptions(wireMockConfig());
         setServeEvents(
             serveEvent(mockRequest(), response(), true),
             serveEvent(mockRequest().url("/foo"), response(), true)
@@ -132,6 +140,12 @@ public class SnapshotTaskTest {
         );
         context.checking(new Expectations() {{
             allowing(mockAdmin).getServeEvents(); will(returnValue(results));
+        }});
+    }
+
+    private void withOptions(final WireMockConfiguration options) {
+        context.checking(new Expectations() {{
+            allowing(mockAdmin).getOptions(); will(returnValue(options));
         }});
     }
 
