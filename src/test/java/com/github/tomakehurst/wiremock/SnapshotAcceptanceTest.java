@@ -16,9 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -28,7 +26,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertThat;
 
@@ -44,6 +41,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
         proxyingTestClient = new WireMockTestClient(proxyingService.port());
+        wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
     }
 
     @After
@@ -70,18 +68,16 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        \"response\" : {                                    \n" +
             "            \"status\" : 200                                \n" +
             "        }                                                   \n" +
-            "    }                                                      \n" +
+            "    }                                                       \n" +
             " ]                                                            ";
 
     @Test
     public void returnsRequestsWithDefaultOptions() throws Exception {
-        wireMockServer.stubFor(get(anyUrl()).willReturn(ok()));
-
         proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
         proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
 
         assertThat(
-            snapshot("{ \"persist\": false }"),
+            proxyingTestClient.snapshot("{ \"persist\": false }"),
             equalToJson(DEFAULT_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
@@ -117,13 +113,11 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        \"response\" : {                                    \n" +
             "            \"status\" : 200                                \n" +
             "        }                                                   \n" +
-            "    }                                                      \n" +
+            "    }                                                       \n" +
             " ]                                                            ";
 
     @Test
     public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
-        wireMockServer.stubFor(get(anyUrl()).willReturn(ok()));
-
         // Matches both
         proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
         // Fails header match
@@ -136,7 +130,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
 
         assertThat(
-            snapshot(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST),
+            proxyingTestClient.snapshot(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST),
             equalToJson(FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
@@ -166,8 +160,6 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
-        wireMockServer.stubFor(get(anyUrl()).willReturn(ok()));
-
         // Matches both
         proxyingTestClient.get("/foo/bar");
         // Fails URL match
@@ -184,11 +176,10 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         );
 
         assertThat(
-            snapshot(request),
+            proxyingTestClient.snapshot(request),
             equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
-
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
             "{                                  \n" +
@@ -224,15 +215,13 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsStubMappingWithCapturedHeaders() {
-        wireMockServer.stubFor(put(anyUrl()).willReturn(ok()));
-
         proxyingTestClient.put("/foo/bar",
             withHeader("A", "B"),
             withHeader("Accept", "B"),
             withHeader("X-NoMatch", "should be ignored")
         );
 
-        String actual = snapshot(CAPTURE_HEADERS_SNAPSHOT_REQUEST);
+        String actual = proxyingTestClient.snapshot(CAPTURE_HEADERS_SNAPSHOT_REQUEST);
         assertThat(actual, equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
         assertFalse(actual.contains("X-NoMatch"));
     }
@@ -258,7 +247,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        \"request\" : {                                     \n" +
             "            \"url\" : \"/foo\",                             \n" +
             "            \"method\" : \"GET\"                            \n" +
-            "        }                                                  \n" +
+            "        }                                                   \n" +
             "    },                                                      \n" +
             "    {                                                       \n" +
             "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
@@ -273,23 +262,13 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsStubMappingsWithScenariosForRepeatedRequests() {
-        wireMockServer.stubFor(get(anyUrl()).willReturn(ok()));
-
         proxyingTestClient.get("/bar/baz");
         proxyingTestClient.get("/foo");
         proxyingTestClient.get("/bar/baz");
 
         assertThat(
-            snapshot(REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST),
+            proxyingTestClient.snapshot(REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST),
             equalToJson(REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
-    }
-
-    private String snapshot(String snapshotSpecJson) {
-        WireMockResponse response = proxyingTestClient.postJson("/__admin/recordings/snapshot", snapshotSpecJson);
-        if (response.statusCode() != HTTP_OK) {
-            throw new RuntimeException("Returned status code was " + response.statusCode());
-        }
-        return response.content();
     }
 }
