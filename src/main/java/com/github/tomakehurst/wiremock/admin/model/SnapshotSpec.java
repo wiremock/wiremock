@@ -32,7 +32,6 @@ public class SnapshotSpec {
     @JsonCreator
     public SnapshotSpec(
         @JsonProperty("filters") ServeEventRequestFilters filters ,
-        @JsonProperty("sortFields") String[] sortFields,
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
         @JsonProperty("persist") JsonNode persistNode,
