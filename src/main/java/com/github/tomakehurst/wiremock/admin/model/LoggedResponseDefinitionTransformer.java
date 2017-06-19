@@ -1,10 +1,8 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.LoggedResponse;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.common.ContentTypes;
+import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
@@ -20,7 +18,15 @@ public class LoggedResponseDefinitionTransformer implements Function<LoggedRespo
             .withStatus(response.getStatus());
 
         if (response.getBody() != null && !response.getBody().isEmpty()) {
-            responseDefinitionBuilder.withBody(response.getBody());
+            if (
+                response.getHeaders() != null
+                && response.getHeaders().getContentTypeHeader().mimeTypePart() != null
+                && ContentTypes.determineIsTextFromMimeType(response.getHeaders().getContentTypeHeader().mimeTypePart())
+            ) {
+                responseDefinitionBuilder.withBody(response.getBody());
+            } else {
+                responseDefinitionBuilder.withBody(response.getBodyBytes());
+            }
         }
 
         if (response.getHeaders() != null) {
