@@ -43,14 +43,17 @@ public class SnapshotStubMappingBodyExtractor {
             .append(extension)
             .toString();
 
-        String noBody = null; // used to prevent ambiguous method call error for withBody()
+         // used to prevent ambiguous method call error for withBody()
+        String noStringBody = null;
+        byte[] noByteBody = null;
 
         stubMapping.setResponse(
             ResponseDefinitionBuilder
                 .like(stubMapping.getResponse())
                 .withBodyFile(bodyFileName)
-                .withBody(noBody)
-                .withBase64Body(noBody)
+                .withBody(noStringBody)
+                .withBody(noByteBody)
+                .withBase64Body(null)
                 .build()
         );
 

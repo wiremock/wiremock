@@ -80,14 +80,13 @@ public class SnapshotTask implements AdminTask {
         final ArrayList<StubMapping> transformedStubMappings = new ArrayList<>(stubMappings.size());
 
         for (StubMapping stubMapping : stubMappings) {
-            StubMapping transformedStubMapping = transformerRunner.apply(stubMapping);
             if (
                 bodyExtractMatcher != null
                 && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()
             ) {
-                bodyExtractor.extractInPlace(transformedStubMapping);
+                bodyExtractor.extractInPlace(stubMapping);
             }
-            transformedStubMappings.add(transformedStubMapping);
+            transformedStubMappings.add(transformerRunner.apply(stubMapping));
         }
 
         return transformedStubMappings;
