@@ -17,6 +17,8 @@ public class SnapshotSpec {
     private ServeEventRequestFilters filters;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private RequestPatternTransformer captureHeaders;
+    // Criteria for extracting body from responses
+    private ResponseDefinitionBodyMatcher extractBodyCriteria;
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
     private SnapshotOutputFormat outputFormat;
@@ -33,6 +35,7 @@ public class SnapshotSpec {
     public SnapshotSpec(
         @JsonProperty("filters") ServeEventRequestFilters filters ,
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
+        @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
         @JsonProperty("persist") JsonNode persistNode,
         @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode,
@@ -42,6 +45,7 @@ public class SnapshotSpec {
         this.filters = filters;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
         this.captureHeaders = new RequestPatternTransformer(captureHeaders);
+        this.extractBodyCriteria = extractBodyCriteria;
         this.persist = persistNode.asBoolean(true);
         this.repeatsAsScenarios = repeatsNode.asBoolean(false);
         this.transformers = transformers;
@@ -63,4 +67,6 @@ public class SnapshotSpec {
     public List<String> getTransformers() { return transformers; }
 
     public Parameters getTransformerParameters() { return transformerParameters; }
+
+    public ResponseDefinitionBodyMatcher getExtractBodyCriteria() { return extractBodyCriteria; }
 }

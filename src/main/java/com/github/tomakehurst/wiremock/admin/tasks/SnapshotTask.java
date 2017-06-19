@@ -20,7 +20,6 @@ import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.j
 import static com.google.common.collect.FluentIterable.from;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-
 public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
@@ -36,20 +35,23 @@ public class SnapshotTask implements AdminTask {
             snapshotSpec.getFilters()
         );
 
-       List<StubMapping> stubMappings = new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders())
+        List<StubMapping> stubMappings = new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders())
             .generateFrom(serveEvents);
 
-        stubMappings = new SnapshotRepeatedRequestHandler(snapshotSpec.shouldRecordRepeatsAsScenarios())
-            .processStubMappings(stubMappings);
+       // Handle repeated requests by either skipping them or generating scenarios
+       stubMappings = new SnapshotRepeatedRequestHandler(snapshotSpec.shouldRecordRepeatsAsScenarios())
+           .processStubMappings(stubMappings);
 
-        final SnapshotStubMappingTransformerRunner transformerRunner = getTransformerRunner(
-            admin.getOptions(),
-            snapshotSpec
-        );
-        final ArrayList<Object> response = new ArrayList<>();
+       stubMappings = postProcessStubMappings(
+           stubMappings,
+           getTransformerRunner(admin.getOptions(), snapshotSpec),
+           snapshotSpec.getExtractBodyCriteria(),
+           new SnapshotStubMappingBodyExtractor(admin.getOptions().filesRoot())
+       );
+
+        final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
 
         for (StubMapping stubMapping : stubMappings) {
-            stubMapping = transformerRunner.apply(stubMapping);
             if (snapshotSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
@@ -58,6 +60,37 @@ public class SnapshotTask implements AdminTask {
         }
 
         return jsonResponse(response.toArray(), HTTP_OK);
+    }
+
+    /**
+     * Transform stub mappings using any applicable StubMappingTransformers and extract response body when applicable
+     *
+     * @param stubMappings List of generated stub mappings
+     * @param transformerRunner Runs any applicable StubMappingTransformer extensions
+     * @param bodyExtractMatcher Matcher to determine if response body should be extracted
+     * @param bodyExtractor Extracts response body in place
+     * @return Processed stub mappings
+     */
+    private List<StubMapping> postProcessStubMappings(
+        List<StubMapping> stubMappings,
+        SnapshotStubMappingTransformerRunner transformerRunner,
+        ResponseDefinitionBodyMatcher bodyExtractMatcher,
+        SnapshotStubMappingBodyExtractor bodyExtractor
+    ) {
+        final ArrayList<StubMapping> transformedStubMappings = new ArrayList<>(stubMappings.size());
+
+        for (StubMapping stubMapping : stubMappings) {
+            StubMapping transformedStubMapping = transformerRunner.apply(stubMapping);
+            if (
+                bodyExtractMatcher != null
+                && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()
+            ) {
+                bodyExtractor.extractInPlace(transformedStubMapping);
+            }
+            transformedStubMappings.add(transformedStubMapping);
+        }
+
+        return transformedStubMappings;
     }
 
     private SnapshotStubMappingTransformerRunner getTransformerRunner(Options options, SnapshotSpec snapshotSpec) {
