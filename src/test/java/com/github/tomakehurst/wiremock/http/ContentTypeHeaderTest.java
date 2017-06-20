@@ -23,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
@@ -99,5 +101,23 @@ public class ContentTypeHeaderTest {
 	public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
 		ContentTypeHeader header = ContentTypeHeader.absent();
 		assertThat(header.mimeTypePart(), is(nullValue()));
+	}
+
+	@Test
+	public void returnsEncodingWhenPresent() {
+		ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=iso-8859-1");
+		assertThat(header.encodingOrUtf8(), is(StandardCharsets.ISO_8859_1));
+	}
+
+	@Test
+	public void returnsUtf8WhenEncodingNotPresent() {
+		ContentTypeHeader header = new ContentTypeHeader("text/plain");
+		assertThat(header.encodingOrUtf8(), is(StandardCharsets.UTF_8));
+	}
+
+	@Test
+	public void returnsUtf8WhenAbsent() {
+		ContentTypeHeader header = ContentTypeHeader.absent();
+		assertThat(header.encodingOrUtf8(), is(StandardCharsets.UTF_8));
 	}
 }
