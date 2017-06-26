@@ -15,16 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import java.nio.charset.Charset;
 import static com.google.common.base.Charsets.UTF_8;
 
 public class Strings {
 
     public static String stringFromBytes(byte[] bytes) {
+        return stringFromBytes(bytes, UTF_8);
+    }
+
+    public static String stringFromBytes(byte[] bytes, Charset cset) {
         if (bytes == null) {
             return null;
         }
 
-        return new String(bytes, UTF_8);
+        return new String(bytes, cset);
     }
 
     public static byte[] bytesFromString(String str) {

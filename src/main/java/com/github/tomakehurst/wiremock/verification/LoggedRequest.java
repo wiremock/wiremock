@@ -29,6 +29,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import java.nio.charset.Charset;
+import static com.google.common.base.Charsets.UTF_8;
+
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
@@ -125,7 +128,18 @@ public class LoggedRequest implements Request {
 
     @Override
     public ContentTypeHeader contentTypeHeader() {
-        return headers.getContentTypeHeader();
+        if (headers != null) {
+            return headers.getContentTypeHeader();
+        } 
+        return null;
+    }
+
+    private Charset encodingFromContentTypeHeaderOrUtf8() {
+        ContentTypeHeader contentTypeHeader = contentTypeHeader();
+        if (contentTypeHeader != null) {
+            return contentTypeHeader.charset();
+        }
+        return UTF_8;
     }
 
     @Override
@@ -146,7 +160,7 @@ public class LoggedRequest implements Request {
     @Override
     @JsonProperty("body")
     public String getBodyAsString() {
-        return stringFromBytes(body);
+        return stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8());
     }
 
     @Override

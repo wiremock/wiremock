@@ -24,6 +24,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
+import java.nio.charset.Charset;
+import static com.google.common.base.Charsets.UTF_8;
+
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
@@ -103,6 +106,14 @@ public class WireMockHttpServletRequestAdapter implements Request {
         return cachedBody;
     }
 
+    private Charset encodingFromContentTypeHeaderOrUtf8() {
+        ContentTypeHeader contentTypeHeader = contentTypeHeader();
+        if (contentTypeHeader != null) {
+            return contentTypeHeader.charset();
+        } 
+        return UTF_8;
+    }
+
     private boolean hasGzipEncoding() {
         String encodingHeader = request.getHeader("Content-Encoding");
         return encodingHeader != null && encodingHeader.contains("gzip");
@@ -110,7 +121,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     @Override
     public String getBodyAsString() {
-        return stringFromBytes(getBody());
+        return stringFromBytes(getBody(), encodingFromContentTypeHeaderOrUtf8());
     }
 
     @Override
