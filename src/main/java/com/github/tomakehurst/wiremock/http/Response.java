@@ -96,11 +96,7 @@ public class Response {
 
     private Charset encodingFromContentTypeHeaderOrUtf8() {
         ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
-        if (contentTypeHeader.isPresent() && contentTypeHeader.encodingPart().isPresent()) {
-            return Charset.forName(contentTypeHeader.encodingPart().get());
-        }
-
-        return UTF_8;
+        return contentTypeHeader.charset();   
     }
 	
 	public boolean wasConfigured() {

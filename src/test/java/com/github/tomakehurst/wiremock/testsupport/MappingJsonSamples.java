@@ -233,4 +233,16 @@ public class MappingJsonSamples {
             "		\"base64Body\": \""+ BINARY_COMPRESSED_JSON_STRING + "\"	    \n" +
             "	}												                    \n" +
             "}													                    ";
+
+    public static final String MAPPING_REQUEST_FOR_NON_ENGLISH =
+            "{                                                                                                                      \n" +
+            "   \"request\": {                                                                                      \n" +
+            "           \"method\": \"GET\",                                                                \n" +
+            "           \"url\": \"/test/nonenglish/\"                         \n" +
+            "   },                                                                                                                  \n" +
+            "   \"response\": {                                                                                     \n" +
+            "           \"status\": 200,                                                                            \n" +
+            "           \"body\": \"Asegúrate de que tu consulta está bien escrita.\"            \n" +
+            "   }                                                                                                                   \n" +
+            "}\n";
 }
