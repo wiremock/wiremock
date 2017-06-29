@@ -420,11 +420,13 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 </code></pre>
 </div>
 
-<p>Alternatively you can create an instance of the client (or as many as there are servers to configure):
-<code class="highlighter-rouge">java
-WireMock wireMock1 = new WireMock("1st.remote.host", 8000);
-WireMock wireMock2 = new WireMock("https", "2nd.remote.host", 8001);
-</code></p>
+<p>Alternatively you can create an instance of the <code class="highlighter-rouge">java client</code> (or as many as there are servers to configure) as below:</p>
+
+<div class="language-java highlighter-rouge">
+<pre class="highlight"><code><span class="n">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span></span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<span class="n">WireMock</span> <span class="n">wireMock2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span></span><span class="s">"https"</span><span class="o">,</span><span class="s">"2nd.remote.host"</span><span class="o">,</span> <span class="mi">8001</span><span class="o">);</span>
+</code></pre>
+</div>
 
 <h2 id="configuring-via-json-over-http">Configuring via JSON over HTTP</h2>
 
@@ -474,7 +476,7 @@ More content
 </code></pre>
 </div>
 
-<p>See stubbing and verifying for more on the JSON API.</p>
+<p>See <a href="/docs/stubbing/">stubbing</a> and <a href="/docs/verifying/">verifying</a> for more on the JSON API.</p>
 
 <h2 id="pushing-json-files-to-a-remote-wiremock-instance">Pushing JSON files to a remote WireMock instance</h2>
 <p>You can push a collection of mappings to a remote</p>
