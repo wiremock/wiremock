@@ -37,6 +37,28 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
 	}
 	
 	@Test
+	public void basicMappingCheckNonUtf8() {
+                String mapping = MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8;
+		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "GB2312");
+		
+		WireMockResponse response = testClient.get("/test/nonutf8/");
+		
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.content(), is("国家标准"));
+        }
+
+	@Test
+	public void basicMappingCheckCharsetMismatch() {
+                String mapping = MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8;
+		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "ISO-8859-8");
+		
+		WireMockResponse response = testClient.get("/test/nonutf8/");
+		
+		assertThat(response.statusCode(), is(200));
+		assertThat(response.content(), is("????")); // charset in request doesn't match body content
+        }
+
+	@Test
 	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
 		testClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
 		

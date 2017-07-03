@@ -234,15 +234,19 @@ public class MappingJsonSamples {
             "	}												                    \n" +
             "}													                    ";
 
-    public static final String MAPPING_REQUEST_FOR_NON_ENGLISH =
+    public static final String MAPPING_REQUEST_FOR_NON_UTF8 =
             "{                                                                                                                      \n" +
             "   \"request\": {                                                                                      \n" +
             "           \"method\": \"GET\",                                                                \n" +
-            "           \"url\": \"/test/nonenglish/\"                         \n" +
+            "           \"url\": \"/test/nonutf8/\"                         \n" +
             "   },                                                                                                                  \n" +
             "   \"response\": {                                                                                     \n" +
             "           \"status\": 200,                                                                            \n" +
-            "           \"body\": \"Asegúrate de que tu consulta está bien escrita.\"            \n" +
-            "   }                                                                                                                   \n" +
+            "           \"headers\": {                                                    \n" +
+            "               \"Content-type\": \"text/plain; charset=GB2312\"      \n" +
+            "           },                                                    \n" +
+            "           \"body\": \"国家标准\"                       \n" +
+            "   }                                                                                          \n" +
             "}\n";
+
 }
