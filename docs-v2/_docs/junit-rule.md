@@ -65,7 +65,7 @@ public WireMockClassRule instanceRule = wireMockRule;
 
 ## Accessing the stubbing and verification DSL from the rule
 
-In addition the the static methods on the `WireMock` class, it is also
+In addition to the static methods on the `WireMock` class, it is also
 possible to configure stubs etc. via the rule object directly. There are
 two advantages to this - 1) it's a bit faster as it avoids sending
 commands over HTTP, and 2) if you want to mock multiple services you can
