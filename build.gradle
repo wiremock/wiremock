@@ -351,7 +351,6 @@ task npmInstall(type: Exec) {
     commandLine 'npm', 'i'
 }
 
-/*
 task generateApiDocs(type: Exec) {
     dependsOn npmInstall
     workingDir 'docs-v2'
@@ -359,7 +358,6 @@ task generateApiDocs(type: Exec) {
 }
 jar.dependsOn generateApiDocs
 processResources.dependsOn generateApiDocs
-*/
 
 task deleteGeneratedApiDocs(type: Delete) {
     delete "src/main/resources/swagger"
