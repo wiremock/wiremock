@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class JettySettingsTest {
 
     private static final int number = 1234;
+    private static final long longNumber = Long.MAX_VALUE;
 
     @Test
     public void testBuilderWithValues() {
@@ -33,12 +34,14 @@ public class JettySettingsTest {
         JettySettings.Builder builder = JettySettings.Builder.aJettySettings();
         builder.withAcceptors(number)
                 .withAcceptQueueSize(number)
-                .withRequestHeaderSize(number);
+                .withRequestHeaderSize(number)
+                .withStopTimeout(longNumber);
         JettySettings jettySettings = builder.build();
 
         ensurePresent(jettySettings.getAcceptors());
         ensurePresent(jettySettings.getAcceptQueueSize());
         ensurePresent(jettySettings.getRequestHeaderSize());
+        ensureLongPresent(jettySettings.getStopTimeout());
     }
 
     @Test
@@ -51,10 +54,17 @@ public class JettySettingsTest {
         assertFalse(jettySettings.getAcceptors().isPresent());
         assertFalse(jettySettings.getAcceptQueueSize().isPresent());
         assertFalse(jettySettings.getRequestHeaderSize().isPresent());
+        assertFalse(jettySettings.getStopTimeout().isPresent());
     }
 
     private void ensurePresent(Optional<Integer> optional) {
         assertTrue(optional.isPresent());
         assertEquals(new Integer(number), optional.get());
     }
+
+    private void ensureLongPresent(Optional<Long> optional) {
+        assertTrue(optional.isPresent());
+        assertEquals(new Long(longNumber), optional.get());
+    }
+
 }
