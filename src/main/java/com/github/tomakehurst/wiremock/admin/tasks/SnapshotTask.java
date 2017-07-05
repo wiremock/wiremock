@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.ArrayList;
@@ -28,22 +27,12 @@ public class SnapshotTask implements AdminTask {
     }
 
     private ResponseDefinition execute(Admin admin, SnapshotSpec snapshotSpec) {
-        final Iterable<ServeEvent> serveEvents = from(admin.getServeEvents().getServeEvents())
-            .filter(snapshotSpec.getFilters());
-
-        List<StubMapping> stubMappings = new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders())
-            .generateFrom(serveEvents);
-
-       // Handle repeated requests by either skipping them or generating scenarios
-       stubMappings = new SnapshotRepeatedRequestHandler(snapshotSpec.shouldRecordRepeatsAsScenarios())
-           .processStubMappings(stubMappings);
-
-       stubMappings = postProcessStubMappings(
-           stubMappings,
-           getTransformerRunner(admin.getOptions(), snapshotSpec),
-           snapshotSpec.getExtractBodyCriteria(),
-           new SnapshotStubMappingBodyExtractor(admin.getOptions().filesRoot())
-       );
+        final List<StubMapping> stubMappings = serveEventsToStubMappings(
+            admin.getServeEvents(),
+            snapshotSpec.getFilters(),
+            new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders()),
+            getStubMappingPostProcessor(admin.getOptions(), snapshotSpec)
+        );
 
         final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
 
@@ -58,46 +47,38 @@ public class SnapshotTask implements AdminTask {
         return jsonResponse(response.toArray(), HTTP_OK);
     }
 
-    /**
-     * Transform stub mappings using any applicable StubMappingTransformers and extract response body when applicable
-     *
-     * @param stubMappings List of generated stub mappings
-     * @param transformerRunner Runs any applicable StubMappingTransformer extensions
-     * @param bodyExtractMatcher Matcher to determine if response body should be extracted
-     * @param bodyExtractor Extracts response body in place
-     * @return Processed stub mappings
-     */
-    private List<StubMapping> postProcessStubMappings(
-        List<StubMapping> stubMappings,
-        SnapshotStubMappingTransformerRunner transformerRunner,
-        ResponseDefinitionBodyMatcher bodyExtractMatcher,
-        SnapshotStubMappingBodyExtractor bodyExtractor
+    private List<StubMapping> serveEventsToStubMappings(
+        GetServeEventsResult serveEventsResult,
+        ProxiedServeEventFilters serveEventFilters,
+        SnapshotStubMappingGenerator stubMappingGenerator,
+        SnapshotStubMappingPostProcessor snapshotStubMappingPostProcessor
     ) {
-        final ArrayList<StubMapping> transformedStubMappings = new ArrayList<>(stubMappings.size());
+        final Iterable<StubMapping> stubMappings = from(serveEventsResult.getServeEvents())
+            .filter(serveEventFilters)
+            .transform(stubMappingGenerator);
 
-        for (StubMapping stubMapping : stubMappings) {
-            if (
-                bodyExtractMatcher != null
-                && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()
-            ) {
-                bodyExtractor.extractInPlace(stubMapping);
-            }
-            transformedStubMappings.add(transformerRunner.apply(stubMapping));
-        }
-
-        return transformedStubMappings;
+        return snapshotStubMappingPostProcessor.process(stubMappings);
     }
 
-    private SnapshotStubMappingTransformerRunner getTransformerRunner(Options options, SnapshotSpec snapshotSpec) {
-        final Iterable<StubMappingTransformer> registeredTransformers = options
-            .extensionsOfType(StubMappingTransformer.class)
-            .values();
-
-        return new SnapshotStubMappingTransformerRunner(
-            registeredTransformers,
+    private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, SnapshotSpec snapshotSpec) {
+        final SnapshotRepeatedRequestHandler repeatedRequestHandler = new SnapshotRepeatedRequestHandler(
+            snapshotSpec.shouldRecordRepeatsAsScenarios()
+        );
+        final SnapshotStubMappingBodyExtractor stubMappingBodyExtractor = new SnapshotStubMappingBodyExtractor(
+            options.filesRoot()
+        );
+        final SnapshotStubMappingTransformerRunner stubMappingTransformerRunner = new SnapshotStubMappingTransformerRunner(
+            options.extensionsOfType(StubMappingTransformer.class).values(),
             snapshotSpec.getTransformers(),
             snapshotSpec.getTransformerParameters(),
             options.filesRoot()
+        );
+
+        return new SnapshotStubMappingPostProcessor(
+            repeatedRequestHandler,
+            stubMappingTransformerRunner,
+            snapshotSpec.getExtractBodyCriteria(),
+            stubMappingBodyExtractor
         );
     }
 }
