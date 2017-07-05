@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -29,7 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -139,5 +142,57 @@ public class LoggedRequestTest {
         );
 
         assertThat(loggedRequest.getBodyAsString(), is(equalTo(REQUEST_BODY)));
+    }
+
+    static final String JSON_PARAMS_EXAMPLE = "{\n" +
+            "  \"url\" : \"/sample/path?test-param-1=value1&test-param-2=value2\",\n" +
+            "  \"absoluteUrl\" : \"http://ex.ample/sample/path?test-param-1=value1&test-param-2=value2\",\n" +
+            "  \"method\" : \"GET\",\n" +
+            "  \"clientIp\" : \"0.0.0.0\",\n" +
+            "  \"browserProxyRequest\" : true,\n" +
+            "  \"loggedDate\" : 0,\n" +
+            "  \"loggedDateString\" : \"1970-01-01T00:00:00Z\",\n" +
+            "  \"queryParams\" : {\n" +
+            "    \"test-param-1\" : {\n" +
+            "      \"key\" : \"test-param-1\",\n" +
+            "      \"values\" : [ \"value-1\" ]\n" +
+            "    },\n" +
+            "    \"test-param-2\" : {\n" +
+            "      \"key\" : \"test-param-2\",\n" +
+            "      \"values\" : [ \"value-2\" ]\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void queryParametersAreSerialized() {
+        LoggedRequest req = new LoggedRequest(
+                "/sample/path?test-param-1=value-1&test-param-2=value-2",
+                "http://ex.ample/sample/path?test-param-1=value-1&test-param-2=value-2",
+                RequestMethod.GET,
+                "0.0.0.0",
+                null,
+                null,
+                true,
+                new Date(0),
+                null,
+                null);
+
+        Map<String, Object> reqMap = Json.objectToMap(req);
+
+        assertTrue(reqMap.containsKey("queryParams"));
+        assertEquals("value-1", ((List)((Map)((Map)reqMap.get("queryParams")).get("test-param-1")).get("values")).get(0));
+        assertEquals("value-2", ((List)((Map)((Map)reqMap.get("queryParams")).get("test-param-2")).get("values")).get(0));
+    }
+    
+    @Test
+    public void queryParametersAreDeserialized() throws IOException {
+        LoggedRequest req = new ObjectMapper().readValue(JSON_PARAMS_EXAMPLE, LoggedRequest.class);
+
+        assertEquals("test-param-1", req.queryParameter("test-param-1").key());
+        assertEquals("value-1" , req.queryParameter("test-param-1").firstValue());
+
+        assertEquals("test-param-2", req.queryParameter("test-param-2").key());
+        assertEquals("value-2" , req.queryParameter("test-param-2").firstValue());
     }
 }
