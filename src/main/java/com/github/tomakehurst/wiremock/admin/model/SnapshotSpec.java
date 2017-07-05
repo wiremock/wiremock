@@ -2,7 +2,6 @@ package com.github.tomakehurst.wiremock.admin.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
@@ -14,22 +13,22 @@ import java.util.Map;
  */
 public class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
-    private ServeEventRequestFilters filters;
+    private final ServeEventRequestFilters filters;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
-    private RequestPatternTransformer captureHeaders;
+    private final RequestPatternTransformer captureHeaders;
     // Criteria for extracting body from responses
-    private ResponseDefinitionBodyMatcher extractBodyCriteria;
+    private final ResponseDefinitionBodyMatcher extractBodyCriteria;
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
-    private SnapshotOutputFormat outputFormat;
+    private final SnapshotOutputFormat outputFormat;
     // Whether to persist stub mappings
-    private boolean persist = true;
+    private final Boolean persist;
     // Whether duplicate requests should be recorded as scenarios or just discarded
-    private boolean repeatsAsScenarios = false;
+    private final Boolean repeatsAsScenarios;
     // Stub mapping transformers
-    private List<String> transformers;
+    private final List<String> transformers;
     // Parameters for stub mapping transformers
-    private Parameters transformerParameters;
+    private final Parameters transformerParameters;
 
     @JsonCreator
     public SnapshotSpec(
@@ -37,22 +36,24 @@ public class SnapshotSpec {
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
-        @JsonProperty("persist") JsonNode persistNode,
-        @JsonProperty("repeatsAsScenarios") JsonNode repeatsNode,
+        @JsonProperty("persist") Boolean persist,
+        @JsonProperty("repeatsAsScenarios") Boolean repeatsAsScenarios,
         @JsonProperty("transformers") List<String> transformers,
         @JsonProperty("transformerParameters") Parameters transformerParameters
     ) {
         this.filters = filters;
-        this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
         this.captureHeaders = new RequestPatternTransformer(captureHeaders);
         this.extractBodyCriteria = extractBodyCriteria;
-        this.persist = persistNode.asBoolean(true);
-        this.repeatsAsScenarios = repeatsNode.asBoolean(false);
+        this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
+        this.persist = persist == null ? true : persist;
+        this.repeatsAsScenarios = repeatsAsScenarios == null ? false : repeatsAsScenarios;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
     }
 
-    public SnapshotSpec() {}
+    public SnapshotSpec() {
+        this(null, null, null, null, null, null, null, null);
+    }
 
     public ServeEventRequestFilters getFilters() { return filters; }
 
