@@ -15,7 +15,7 @@ public class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
     private final ServeEventRequestFilters filters;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
-    private final RequestPatternTransformer captureHeaders;
+    private final Map<String, MultiValuePattern> captureHeaders;
     // Criteria for extracting body from responses
     private final ResponseDefinitionBodyMatcher extractBodyCriteria;
     // How to format StubMappings in the response body
@@ -42,7 +42,7 @@ public class SnapshotSpec {
         @JsonProperty("transformerParameters") Parameters transformerParameters
     ) {
         this.filters = filters;
-        this.captureHeaders = new RequestPatternTransformer(captureHeaders);
+        this.captureHeaders = captureHeaders;
         this.extractBodyCriteria = extractBodyCriteria;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
         this.persist = persist == null ? true : persist;
@@ -57,7 +57,7 @@ public class SnapshotSpec {
 
     public ServeEventRequestFilters getFilters() { return filters; }
 
-    public RequestPatternTransformer getCaptureHeaders() { return captureHeaders; }
+    public Map<String, MultiValuePattern> getCaptureHeaders() { return captureHeaders; }
 
     public SnapshotOutputFormat getOutputFormat() { return outputFormat; }
 
