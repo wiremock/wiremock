@@ -10,7 +10,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
@@ -34,17 +33,17 @@ public class SnapshotTask implements AdminTask {
             getStubMappingPostProcessor(admin.getOptions(), snapshotSpec)
         );
 
-        final ArrayList<Object> response = new ArrayList<>(stubMappings.size());
-
         for (StubMapping stubMapping : stubMappings) {
             if (snapshotSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
             }
-            response.add(snapshotSpec.getOutputFormat().format(stubMapping));
         }
 
-        return jsonResponse(response.toArray(), HTTP_OK);
+        return jsonResponse(
+            snapshotSpec.getOutputFormatter().format(stubMappings),
+            HTTP_OK
+        );
     }
 
     private List<StubMapping> serveEventsToStubMappings(
