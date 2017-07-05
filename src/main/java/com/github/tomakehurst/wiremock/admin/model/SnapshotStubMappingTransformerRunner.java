@@ -8,6 +8,10 @@ import com.google.common.base.Function;
 
 import java.util.List;
 
+/**
+ * Applies all registered StubMappingTransformer extensions against a stub mapping when applicable,
+ * passing them any supplied Parameters.
+ */
 public class SnapshotStubMappingTransformerRunner implements Function<StubMapping, StubMapping> {
     private final FileSource fileSource;
     private final Parameters parameters;
@@ -30,6 +34,7 @@ public class SnapshotStubMappingTransformerRunner implements Function<StubMappin
         this.fileSource = fileSource;
     }
 
+    @Override
     public StubMapping apply(StubMapping stubMapping) {
         for (StubMappingTransformer transformer : registeredTransformers) {
             if (
@@ -39,7 +44,7 @@ public class SnapshotStubMappingTransformerRunner implements Function<StubMappin
                 stubMapping = transformer.transform(stubMapping, fileSource, parameters);
             }
         }
-        return stubMapping;
 
+        return stubMapping;
     }
 }

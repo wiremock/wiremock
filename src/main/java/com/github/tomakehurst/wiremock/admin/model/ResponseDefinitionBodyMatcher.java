@@ -6,8 +6,8 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
-// Matches the size of the body of a ResponseDefinition, for use by the Snapshot API
-// when determining if the body should be extracted to a file
+// Matches the size of the body of a ResponseDefinition, for use by the Snapshot API when determining if the body
+// should be extracted to a file.
 @JsonDeserialize(using = ResponseDefinitionBodyMatcherDeserializer.class)
 public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefinition> {
     private final long textSizeThreshold;

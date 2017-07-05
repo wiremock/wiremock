@@ -71,7 +71,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "            }                                               \n" +
             "        }                                                   \n" +
             "    ]                                                       \n" +
-            "}                                                            ";
+            "}                                                             ";
 
     @Test
     public void returnsRequestsWithDefaultOptions() throws Exception {

@@ -19,7 +19,6 @@ public class SnapshotSpec {
     // Criteria for extracting body from responses
     private final ResponseDefinitionBodyMatcher extractBodyCriteria;
     // How to format StubMappings in the response body
-    // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
     private final SnapshotOutputFormatter outputFormat;
     // Whether to persist stub mappings
     private final Boolean persist;

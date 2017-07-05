@@ -6,7 +6,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import java.util.*;
 
 /**
- * Generates response for calls to snapshot endpoint using the recorded stub mappings
+ * Generates response for calls to snapshot API endpoint using the recorded stub mappings
  */
 public enum SnapshotOutputFormatter {
     FULL {

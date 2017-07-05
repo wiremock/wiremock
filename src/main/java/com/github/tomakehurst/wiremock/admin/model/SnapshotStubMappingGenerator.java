@@ -16,7 +16,6 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
     private final RequestPatternTransformer requestTransformer;
     private final LoggedResponseDefinitionTransformer responseTransformer;
 
-
     public SnapshotStubMappingGenerator(
         RequestPatternTransformer requestTransformer,
         LoggedResponseDefinitionTransformer responseTransformer
