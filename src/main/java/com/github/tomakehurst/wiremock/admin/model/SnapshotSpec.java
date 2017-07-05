@@ -20,7 +20,7 @@ public class SnapshotSpec {
     private final ResponseDefinitionBodyMatcher extractBodyCriteria;
     // How to format StubMappings in the response body
     // Either "full" (meaning return an array of rendered StubMappings) or "ids", which returns an array of UUIDs
-    private final SnapshotOutputFormat outputFormat;
+    private final SnapshotOutputFormatter outputFormat;
     // Whether to persist stub mappings
     private final Boolean persist;
     // Whether duplicate requests should be recorded as scenarios or just discarded
@@ -35,7 +35,7 @@ public class SnapshotSpec {
         @JsonProperty("filters") ProxiedServeEventFilters filters ,
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
-        @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
+        @JsonProperty("outputFormat") SnapshotOutputFormatter outputFormat,
         @JsonProperty("persist") Boolean persist,
         @JsonProperty("repeatsAsScenarios") Boolean repeatsAsScenarios,
         @JsonProperty("transformers") List<String> transformers,
@@ -44,7 +44,7 @@ public class SnapshotSpec {
         this.filters = filters == null ? new ProxiedServeEventFilters() : filters;
         this.captureHeaders = captureHeaders;
         this.extractBodyCriteria = extractBodyCriteria;
-        this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
+        this.outputFormat = outputFormat == null ? SnapshotOutputFormatter.FULL : outputFormat;
         this.persist = persist == null ? true : persist;
         this.repeatsAsScenarios = repeatsAsScenarios == null ? false : repeatsAsScenarios;
         this.transformers = transformers;
@@ -59,7 +59,7 @@ public class SnapshotSpec {
 
     public Map<String, MultiValuePattern> getCaptureHeaders() { return captureHeaders; }
 
-    public SnapshotOutputFormat getOutputFormat() { return outputFormat; }
+    public SnapshotOutputFormatter getOutputFormatter() { return outputFormat; }
 
     public boolean shouldPersist() { return persist; }
 

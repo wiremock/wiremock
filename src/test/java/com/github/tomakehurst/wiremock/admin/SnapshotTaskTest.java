@@ -27,7 +27,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JMock.class)
@@ -57,12 +59,14 @@ public class SnapshotTaskTest {
 
         // Check when explicitly set
         JsonAssertion.assertThat(execute("{ \"persist\": true, \"outputFormat\": \"ids\"}"))
+            .field("ids")
             .hasSize(1)
             .arrayField()
             .matches("[a-z0-9\\-]{36}");
 
         // Check with default value of true
         JsonAssertion.assertThat(execute("{ \"outputFormat\": \"ids\"}"))
+            .field("ids")
             .hasSize(1)
             .arrayField()
             .matches("[a-z0-9\\-]{36}");
@@ -73,6 +77,7 @@ public class SnapshotTaskTest {
         withOptions(wireMockConfig());
         setServeEvents(serveEvent(mockRequest(), response(), true));
         JsonAssertion.assertThat(executeWithoutPersist())
+            .field("ids")
             .hasSize(1)
             .arrayField()
             .matches("[a-z0-9\\-]{36}");
@@ -82,14 +87,14 @@ public class SnapshotTaskTest {
     public void returnsEmptyArrayWithNoServeEvents() {
         withOptions(wireMockConfig());
         setServeEvents();
-        assertEquals("[ ]", executeWithoutPersist());
+        assertThat(executeWithoutPersist(), equalToJson("{ \"ids\": [] }"));
     }
 
     @Test
     public void returnsEmptyArrayWithUnproxiedServeEvent() {
         withOptions(wireMockConfig());
         setServeEvents(serveEvent(mockRequest(), response(), false));
-        assertEquals("[ ]", executeWithoutPersist());
+        assertThat(executeWithoutPersist(), equalToJson("{ \"ids\": [] }"));
     }
 
     @Test
@@ -100,6 +105,7 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest().url("/foo"), response(), true)
         );
         JsonAssertion.assertThat(executeWithoutPersist())
+            .field("ids")
             .hasSize(1)
             .arrayField()
             .matches("[a-z0-9\\-]{36}");
@@ -113,6 +119,7 @@ public class SnapshotTaskTest {
             serveEvent(mockRequest().url("/foo"), response(), true)
         );
         JsonAssertion.assertThat(executeWithoutPersist())
+            .field("ids")
             .hasSize(2)
             .arrayField();
     }

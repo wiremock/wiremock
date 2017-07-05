@@ -59,26 +59,28 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "}                                    ";
 
     private static final String GLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo?transformed=true\",            \n" +
-            "            \"method\" : \"PUT\"                            \n" +
+            "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo?transformed=true\",        \n" +
+            "                \"method\" : \"PUT\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/?transformed=true\",           \n" +
+            "                \"method\" : \"PUT\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/?transformed=true\",               \n" +
-            "            \"method\" : \"PUT\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+            "    ]                                                       \n" +
+            "}                                                             ";
 
     @Test
     public void returnsTransformedStubMappingWithGlobalTransformer() {
@@ -106,36 +108,38 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "}                                      ";
 
     private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo\",                             \n" +
-            "            \"method\" : \"GET\",                           \n" +
-            "            \"headers\": {                                  \n" +
-            "                \"Accept\": {                               \n" +
-            "                    \"equalTo\": \"B\"                      \n" +
+            "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo\",                         \n" +
+            "                \"method\" : \"GET\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
             "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
             "            }                                               \n" +
             "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/\",                                \n" +
-            "            \"method\" : \"GET\",                           \n" +
-            "            \"headers\": {                                  \n" +
-            "                \"Accept\": {                               \n" +
-            "                    \"equalTo\": \"B\"                      \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/\",                            \n" +
+            "                \"method\" : \"GET\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
             "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
             "        }                                                   \n" +
-            "    }                                                       \n" +
-            "]                                                             ";
+            "    ]                                                       \n" +
+            "}                                                             ";
 
     @Test
     public void returnsTransformedStubMappingWithNonGlobalTransformer() {

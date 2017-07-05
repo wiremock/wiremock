@@ -50,26 +50,28 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static final String DEFAULT_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar/baz\",                     \n" +
-            "            \"method\" : \"GET\"                            \n" +
+            "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar/baz\",                 \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar\",                     \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar\",                         \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+            "    ]                                                       \n" +
+            "}                                                            ";
 
     @Test
     public void returnsRequestsWithDefaultOptions() throws Exception {
@@ -95,26 +97,28 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "}                                                   ";
 
     private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar/baz\",                     \n" +
-            "            \"method\" : \"GET\"                            \n" +
+            "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar/baz\",                 \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar\",                     \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
             "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar\",                         \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+            "    ]                                                       \n" +
+            "}                                                             ";
 
     @Test
     public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
@@ -146,17 +150,19 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "}                                                       ";
 
     private static final String FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar\",                         \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+            "{                                                       \n" +
+            "    \"mappings\": [                                     \n" +
+            "        {                                               \n" +
+            "            \"request\" : {                             \n" +
+            "                \"url\" : \"/foo/bar\",                 \n" +
+            "                \"method\" : \"GET\"                    \n" +
+            "            },                                          \n" +
+            "            \"response\" : {                            \n" +
+            "                \"status\" : 200                        \n" +
+            "            }                                           \n" +
+            "        }                                               \n" +
+            "    ]                                                   \n" +
+            "}                                                         ";
 
     @Test
     public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
@@ -196,22 +202,24 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "}                                    ";
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo/bar\",                         \n" +
-            "            \"method\" : \"PUT\",                           \n" +
-            "            \"headers\": {                                  \n" +
-            "                \"Accept\": {                               \n" +
-            "                    \"equalTo\": \"B\"                      \n" +
+            "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar\",                     \n" +
+            "                \"method\" : \"PUT\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
             "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        },                                                  \n" +
-            "        \"response\" : {                                    \n" +
-            "            \"status\" : 200                                \n" +
             "        }                                                   \n" +
-            "    }                                                       \n" +
-            "]                                                             ";
+            "    ]                                                       \n" +
+            "}                                                             ";
 
     @Test
     public void returnsStubMappingWithCapturedHeaders() {
@@ -234,31 +242,33 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "}                                                   ";
 
     private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE =
-            "[                                                           \n" +
-            "    {                                                       \n" +
-            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "        \"requiredScenarioState\" : \"Started\",            \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/bar/baz\",                         \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/foo\",                             \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        }                                                   \n" +
-            "    },                                                      \n" +
-            "    {                                                       \n" +
-            "        \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "        \"requiredScenarioState\" : \"Started\",            \n" +
-            "        \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
-            "        \"request\" : {                                     \n" +
-            "            \"url\" : \"/bar/baz\",                         \n" +
-            "            \"method\" : \"GET\"                            \n" +
-            "        }                                                   \n" +
-            "    }                                                       \n" +
-            " ]                                                            ";
+            "{                                                               \n" +
+            "    \"mappings\": [                                             \n" +
+            "        {                                                       \n" +
+            "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
+            "            \"requiredScenarioState\" : \"Started\",            \n" +
+            "            \"request\" : {                                     \n" +
+            "                \"url\" : \"/bar/baz\",                         \n" +
+            "                \"method\" : \"GET\"                            \n" +
+            "            }                                                   \n" +
+            "        },                                                      \n" +
+            "        {                                                       \n" +
+            "            \"request\" : {                                     \n" +
+            "                \"url\" : \"/foo\",                             \n" +
+            "                \"method\" : \"GET\"                            \n" +
+            "            }                                                   \n" +
+            "        },                                                      \n" +
+            "        {                                                       \n" +
+            "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
+            "            \"requiredScenarioState\" : \"Started\",            \n" +
+            "            \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
+            "            \"request\" : {                                     \n" +
+            "                \"url\" : \"/bar/baz\",                         \n" +
+            "                \"method\" : \"GET\"                            \n" +
+            "            }                                                   \n" +
+            "        }                                                       \n" +
+            "    ]                                                           \n" +
+            "}                                                                 ";
 
     @Test
     public void returnsStubMappingsWithScenariosForRepeatedRequests() {
