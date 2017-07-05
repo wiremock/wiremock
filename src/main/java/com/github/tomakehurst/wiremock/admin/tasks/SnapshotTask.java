@@ -10,8 +10,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +28,8 @@ public class SnapshotTask implements AdminTask {
     }
 
     private ResponseDefinition execute(Admin admin, SnapshotSpec snapshotSpec) {
-        final Iterable<ServeEvent> serveEvents = filterServeEvents(
-            admin.getServeEvents(),
-            snapshotSpec.getFilters()
-        );
+        final Iterable<ServeEvent> serveEvents = from(admin.getServeEvents().getServeEvents())
+            .filter(snapshotSpec.getFilters());
 
         List<StubMapping> stubMappings = new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders())
             .generateFrom(serveEvents);
@@ -103,28 +99,5 @@ public class SnapshotTask implements AdminTask {
             snapshotSpec.getTransformerParameters(),
             options.filesRoot()
         );
-    }
-
-    private Iterable<ServeEvent> filterServeEvents(
-        GetServeEventsResult serveEventsResult,
-        ServeEventRequestFilters snapshotFilters
-    ) {
-        FluentIterable<ServeEvent> serveEvents = from(serveEventsResult.getServeEvents())
-            .filter(onlyProxied());
-
-        if (snapshotFilters != null) {
-            serveEvents = serveEvents.filter(snapshotFilters);
-        }
-
-        return serveEvents;
-    }
-
-    private Predicate<ServeEvent> onlyProxied() {
-        return new Predicate<ServeEvent>() {
-            @Override
-            public boolean apply(ServeEvent serveEvent) {
-                return serveEvent.getResponseDefinition().isProxyResponse();
-            }
-        };
     }
 }

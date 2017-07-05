@@ -21,10 +21,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
     private final Map<String, MultiValuePattern> headers;
 
-    public RequestPatternTransformer() {
-        this.headers = null;
-    }
-
     @JsonCreator
     public RequestPatternTransformer(@JsonProperty("headers") Map<String, MultiValuePattern> headers) {
         this.headers = headers;
