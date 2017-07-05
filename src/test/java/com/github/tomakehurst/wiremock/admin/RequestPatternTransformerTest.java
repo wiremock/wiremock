@@ -26,7 +26,7 @@ public class RequestPatternTransformerTest {
         RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
 
         // Default is to include method and URL exactly
-        assertEquals(expected.build(), new RequestPatternTransformer().apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class RequestPatternTransformerTest {
             .withUrl("/somewhere")
             .withRequestBody(equalToJson("['hello']"));
 
-        assertEquals(expected.build(), new RequestPatternTransformer().apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
     }
 
     @Test
@@ -94,6 +94,6 @@ public class RequestPatternTransformerTest {
             .withUrl("/somewhere")
             .withRequestBody(equalToXml("<foo/>"));
 
-        assertEquals(expected.build(), new RequestPatternTransformer().apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
     }
 }

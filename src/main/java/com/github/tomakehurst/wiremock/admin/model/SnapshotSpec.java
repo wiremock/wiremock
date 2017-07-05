@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class SnapshotSpec {
     // Whitelist requests to generate StubMappings for
-    private final ServeEventRequestFilters filters;
+    private final ProxiedServeEventFilters filters;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private final Map<String, MultiValuePattern> captureHeaders;
     // Criteria for extracting body from responses
@@ -32,7 +32,7 @@ public class SnapshotSpec {
 
     @JsonCreator
     public SnapshotSpec(
-        @JsonProperty("filters") ServeEventRequestFilters filters ,
+        @JsonProperty("filters") ProxiedServeEventFilters filters ,
         @JsonProperty("captureHeaders") Map<String, MultiValuePattern> captureHeaders,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
         @JsonProperty("outputFormat") SnapshotOutputFormat outputFormat,
@@ -41,7 +41,7 @@ public class SnapshotSpec {
         @JsonProperty("transformers") List<String> transformers,
         @JsonProperty("transformerParameters") Parameters transformerParameters
     ) {
-        this.filters = filters;
+        this.filters = filters == null ? new ProxiedServeEventFilters() : filters;
         this.captureHeaders = captureHeaders;
         this.extractBodyCriteria = extractBodyCriteria;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormat.FULL : outputFormat;
@@ -55,7 +55,7 @@ public class SnapshotSpec {
         this(null, null, null, null, null, null, null, null);
     }
 
-    public ServeEventRequestFilters getFilters() { return filters; }
+    public ProxiedServeEventFilters getFilters() { return filters; }
 
     public Map<String, MultiValuePattern> getCaptureHeaders() { return captureHeaders; }
 
