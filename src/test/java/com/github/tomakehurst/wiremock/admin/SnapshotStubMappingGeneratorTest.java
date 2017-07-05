@@ -26,7 +26,8 @@ public class SnapshotStubMappingGeneratorTest {
     @Test
     public void generateFromWithEmptyList() {
         List<StubMapping> actual = new SnapshotStubMappingGenerator(
-            requestPatternTransformer(null)
+            requestPatternTransformer(null),
+            responseDefinitionTransformer(null)
         ).generateFrom(Lists.<ServeEvent>newArrayList());
 
         assertEquals(new ArrayList<>(), actual);

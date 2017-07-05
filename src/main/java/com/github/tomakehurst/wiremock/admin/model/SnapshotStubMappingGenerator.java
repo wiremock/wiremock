@@ -1,12 +1,14 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
@@ -24,9 +26,9 @@ public class SnapshotStubMappingGenerator {
         this.responseTransformer = responseTransformer;
     }
 
-    public SnapshotStubMappingGenerator(RequestPatternTransformer requestTransformer) {
+    public SnapshotStubMappingGenerator(Map<String, MultiValuePattern> captureHeaders) {
         this(
-            requestTransformer == null ? new RequestPatternTransformer() : requestTransformer,
+            new RequestPatternTransformer(captureHeaders),
             new LoggedResponseDefinitionTransformer()
         );
     }
