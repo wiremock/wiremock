@@ -1,18 +1,16 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.model.SnapshotStubMappingTransformerRunner;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.junit.Assert.assertEquals;
 
@@ -63,38 +61,6 @@ public class SnapshotStubMappingTransformerRunnerTest {
         assertEquals("/foo?transformed=global", result.getRequest().getUrl());
     }
 
-    public static class GlobalStubMappingTransformer extends StubMappingTransformer {
-        @Override
-        public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-            return WireMock
-                .get(urlEqualTo(stubMapping.getRequest().getUrl() + "?transformed=global"))
-                .build();
-        }
-
-        @Override
-        public String getName() {
-            return "stub-transformer";
-        }
-    }
-
-    public static class NonGlobalStubMappingTransformer extends StubMappingTransformer {
-        @Override
-        public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-            return WireMock
-                .get(urlEqualTo(stubMapping.getRequest().getUrl() + "?transformed=nonglobal"))
-                .build();
-        }
-
-        @Override
-        public boolean applyGlobally() {
-            return false;
-        }
-
-        @Override
-        public String getName() {
-            return "nonglobal-transformer";
-        }
-    }
 
     private StubMapping stubMappingForUrl(String url) {
         return new StubMapping(
