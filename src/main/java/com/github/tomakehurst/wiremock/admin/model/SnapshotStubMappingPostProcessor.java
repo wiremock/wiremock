@@ -6,7 +6,10 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
- * Transform stub mappings using any applicable StubMappingTransformers and extract response body when applicable
+ * Performs post-processing tasks on stub mappings generated from ServeEvents:
+ * 1. Detect and process duplicate requests
+ * 2. Extract response bodies to a separate file, if applicable
+ * 3. Run any applicable StubMappingTransformers against the stub mappings
  */
 public class SnapshotStubMappingPostProcessor {
     private final SnapshotRepeatedRequestHandler repeatedRequestHandler;
@@ -27,10 +30,10 @@ public class SnapshotStubMappingPostProcessor {
     }
 
     public List<StubMapping> process(Iterable<StubMapping> stubMappings) {
-        List<StubMapping> transformedStubMappings;
+        final List<StubMapping> processedStubMappings = Lists.newLinkedList(stubMappings);
 
-        // Handle repeated requests by either skipping them or generating scenarios
-        transformedStubMappings = repeatedRequestHandler.processStubMappings(stubMappings);
+        // Handle repeated requests by either removing them or generating scenarios
+        repeatedRequestHandler.processStubMappingsInPlace(processedStubMappings);
 
         // Extract response bodies, if applicable
         if (bodyExtractMatcher != null) {
@@ -42,8 +45,6 @@ public class SnapshotStubMappingPostProcessor {
         }
 
         // Run any stub mapping transformer extensions
-        transformedStubMappings = Lists.transform(transformedStubMappings, transformerRunner);
-
-        return transformedStubMappings;
+        return Lists.transform(processedStubMappings, transformerRunner);
     }
 }

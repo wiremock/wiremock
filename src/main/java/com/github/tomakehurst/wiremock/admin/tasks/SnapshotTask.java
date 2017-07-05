@@ -20,7 +20,7 @@ public class SnapshotTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         SnapshotSpec snapshotSpec = request.getBody().length == 0
-            ? new SnapshotSpec()
+            ? new SnapshotSpec() // no request body, so use defaults
             : Json.read(request.getBodyAsString(), SnapshotSpec.class);
         return execute(admin, snapshotSpec);
     }
@@ -50,23 +50,23 @@ public class SnapshotTask implements AdminTask {
         GetServeEventsResult serveEventsResult,
         ProxiedServeEventFilters serveEventFilters,
         SnapshotStubMappingGenerator stubMappingGenerator,
-        SnapshotStubMappingPostProcessor snapshotStubMappingPostProcessor
+        SnapshotStubMappingPostProcessor stubMappingPostProcessor
     ) {
         final Iterable<StubMapping> stubMappings = from(serveEventsResult.getServeEvents())
             .filter(serveEventFilters)
             .transform(stubMappingGenerator);
 
-        return snapshotStubMappingPostProcessor.process(stubMappings);
+        return stubMappingPostProcessor.process(stubMappings);
     }
 
     private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, SnapshotSpec snapshotSpec) {
         final SnapshotRepeatedRequestHandler repeatedRequestHandler = new SnapshotRepeatedRequestHandler(
             snapshotSpec.shouldRecordRepeatsAsScenarios()
         );
-        final SnapshotStubMappingBodyExtractor stubMappingBodyExtractor = new SnapshotStubMappingBodyExtractor(
+        final SnapshotStubMappingBodyExtractor bodyExtractor = new SnapshotStubMappingBodyExtractor(
             options.filesRoot()
         );
-        final SnapshotStubMappingTransformerRunner stubMappingTransformerRunner = new SnapshotStubMappingTransformerRunner(
+        final SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
             snapshotSpec.getTransformers(),
             snapshotSpec.getTransformerParameters(),
@@ -75,9 +75,9 @@ public class SnapshotTask implements AdminTask {
 
         return new SnapshotStubMappingPostProcessor(
             repeatedRequestHandler,
-            stubMappingTransformerRunner,
+            transformerRunner,
             snapshotSpec.getExtractBodyCriteria(),
-            stubMappingBodyExtractor
+            bodyExtractor
         );
     }
 }

@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 /**
- * Base class for stub mapping transformer extensions. These allow transforming stub mappings recorded via the
+ * Base class for stub mapping transformer extensions. This allows transforming stub mappings recorded via the
  * snapshot API endpoint.
  *
  * @see com.github.tomakehurst.wiremock.admin.tasks.SnapshotTask

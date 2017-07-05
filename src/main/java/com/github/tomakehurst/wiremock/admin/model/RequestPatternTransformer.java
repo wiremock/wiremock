@@ -14,7 +14,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * Creates a RequestPatternBuilder from a Request's URL and method, and optional headers.
+ * Creates a RequestPatternBuilder from a Request's URL and method, and optionally headers from a whitelist.
  * If headers patterns are supplied, the header will be only included in the RequestPatternBuilder if the predicate
  * matches the request
  */
@@ -28,7 +28,7 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
 
     /**
      * Returns a RequestPatternBuilder matching the URL and method of the Request. If header patterns are supplied,
-     * match them against the request and include them in the RequestPatternBuilder if there's a match.
+     * this will match them against the request and include them in the RequestPatternBuilder if there's a match.
      */
     @Override
     public RequestPatternBuilder apply(Request request) {

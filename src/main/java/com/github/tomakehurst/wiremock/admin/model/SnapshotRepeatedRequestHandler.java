@@ -5,9 +5,8 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * Counts unique RequestPatterns from StubMappings. If shouldRecordRepeatsAsScenarios is enabled, then multiple
@@ -23,32 +22,32 @@ public class SnapshotRepeatedRequestHandler {
         this.requestStubMappingTracker = new HashMap<>();
     }
 
-    public List<StubMapping> processStubMappings(Iterable<StubMapping> stubMappings) {
+    public void processStubMappingsInPlace(Iterable<StubMapping> stubMappings) {
         this.requestStubMappingTracker.clear();
-        ArrayList<StubMapping> processedMappings = new ArrayList<>();
 
-        for (StubMapping stubMapping : stubMappings) {
+        final Iterator<StubMapping> stubMappingIterator = stubMappings.iterator();
+        while (stubMappingIterator.hasNext()) {
+            StubMapping stubMapping = stubMappingIterator.next();
             StubMappingTracker tracker = requestStubMappingTracker.get(stubMapping.getRequest());
 
             // If tracker is null, this request has not been seen before. Otherwise, it's a repeat.
-            if (tracker == null || shouldRecordRepeatsAsScenarios) {
-                if (tracker == null) {
-                    requestStubMappingTracker.put(stubMapping.getRequest(), new StubMappingTracker(stubMapping));
-                } else {
-                    tracker.count++;
-                    setScenarioDetailsIfApplicable(stubMapping, tracker);
-                    tracker.previousStubMapping = stubMapping;
-                }
-                processedMappings.add(stubMapping);
+            if (tracker == null) {
+                requestStubMappingTracker.put(stubMapping.getRequest(), new StubMappingTracker(stubMapping));
+            } else if (shouldRecordRepeatsAsScenarios) {
+                tracker.count++;
+                setScenarioDetailsIfApplicable(stubMapping, tracker);
+                tracker.previousStubMapping = stubMapping;
+            } else {
+                // we have a duplicate and aren't recording repeats as scenarios, so remove it
+                stubMappingIterator.remove();
             }
         }
-
-        return processedMappings;
     }
 
     private void setScenarioDetailsIfApplicable(StubMapping stubMapping, StubMappingTracker tracker) {
         if (tracker.count == 2) {
-            // We have multiple identical requests. Go back and make previous stub the start
+            // Start the scenario because we have multiple identical requests. Retrieve previous stub mapping from
+            // the tracker and mark it as the start.
             String name = SCENARIO_NAME_PREFIX + "-" + UniqueFilenameGenerator.urlToPathParts(
                 stubMapping.getRequest().getUrl()
             );
@@ -56,6 +55,7 @@ public class SnapshotRepeatedRequestHandler {
             tracker.previousStubMapping.setRequiredScenarioState(Scenario.STARTED);
             stubMapping.setRequiredScenarioState(Scenario.STARTED);
         } else {
+            // More than two identical requests. Continue the scenario.
             String previousState = tracker.previousStubMapping.getNewScenarioState();
             stubMapping.setRequiredScenarioState(previousState);
         }
@@ -66,13 +66,14 @@ public class SnapshotRepeatedRequestHandler {
     }
 
     /**
-     * Simple container class to store the previous stub mapping and sequence count for building scenarios
+     * Simple container class for building scenarios. Tracks the number of times a request has been seen and the
+     * last-seen stub mapping for that request.
      */
-    private class StubMappingTracker {
+    private static class StubMappingTracker {
         private int count;
         private StubMapping previousStubMapping;
 
-        public StubMappingTracker(StubMapping stubMapping) {
+        private StubMappingTracker(StubMapping stubMapping) {
             this.count = 1;
             this.previousStubMapping = stubMapping;
         }

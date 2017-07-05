@@ -30,7 +30,7 @@ public class ResponseDefinitionBodyMatcherDeserializer extends JsonDeserializer<
     }
 
     // Converts a human-readable file size string (e.g. "10,100 KB") to bytes
-    // Partiall based off https://stackoverflow.com/a/12090818
+    // Partially based off https://stackoverflow.com/a/12090818
     public static long parseFilesize(String in) {
         String cleanedInput = in.trim().replaceAll(",",".");
 

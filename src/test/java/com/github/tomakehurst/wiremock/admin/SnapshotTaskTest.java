@@ -36,6 +36,7 @@ import static org.junit.Assert.assertEquals;
 public class SnapshotTaskTest {
     private Mockery context;
     private Admin mockAdmin;
+    private static final String UUID_REGEX = "[a-z0-9\\-]{36}";
 
     @Before
     public void init() {
@@ -62,14 +63,14 @@ public class SnapshotTaskTest {
             .field("ids")
             .hasSize(1)
             .arrayField()
-            .matches("[a-z0-9\\-]{36}");
+            .matches(UUID_REGEX);
 
         // Check with default value of true
         JsonAssertion.assertThat(execute("{ \"outputFormat\": \"ids\"}"))
             .field("ids")
             .hasSize(1)
             .arrayField()
-            .matches("[a-z0-9\\-]{36}");
+            .matches(UUID_REGEX);
     }
 
     @Test
@@ -80,7 +81,7 @@ public class SnapshotTaskTest {
             .field("ids")
             .hasSize(1)
             .arrayField()
-            .matches("[a-z0-9\\-]{36}");
+            .matches(UUID_REGEX);
     }
 
     @Test
@@ -108,7 +109,7 @@ public class SnapshotTaskTest {
             .field("ids")
             .hasSize(1)
             .arrayField()
-            .matches("[a-z0-9\\-]{36}");
+            .matches(UUID_REGEX);
     }
 
     @Test
@@ -120,8 +121,7 @@ public class SnapshotTaskTest {
         );
         JsonAssertion.assertThat(executeWithoutPersist())
             .field("ids")
-            .hasSize(2)
-            .arrayField();
+            .hasSize(2);
     }
 
     private String executeWithoutPersist() {
