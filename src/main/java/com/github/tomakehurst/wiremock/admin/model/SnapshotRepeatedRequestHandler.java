@@ -23,9 +23,9 @@ public class SnapshotRepeatedRequestHandler {
         this.requestStubMappingTracker = new HashMap<>();
     }
 
-    public List<StubMapping> processStubMappings(List<StubMapping> stubMappings) {
+    public List<StubMapping> processStubMappings(Iterable<StubMapping> stubMappings) {
         this.requestStubMappingTracker.clear();
-        ArrayList<StubMapping> processedMappings = new ArrayList<>(stubMappings.size());
+        ArrayList<StubMapping> processedMappings = new ArrayList<>();
 
         for (StubMapping stubMapping : stubMappings) {
             StubMappingTracker tracker = requestStubMappingTracker.get(stubMapping.getRequest());

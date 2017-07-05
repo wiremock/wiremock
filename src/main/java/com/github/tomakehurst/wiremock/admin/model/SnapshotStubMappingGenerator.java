@@ -5,15 +5,14 @@ import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.Function;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
  */
-public class SnapshotStubMappingGenerator {
+public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
     private final RequestPatternTransformer requestTransformer;
     private final LoggedResponseDefinitionTransformer responseTransformer;
 
@@ -33,15 +32,8 @@ public class SnapshotStubMappingGenerator {
         );
     }
 
-    public List<StubMapping> generateFrom(Iterable<ServeEvent> events) {
-        final ArrayList<StubMapping> stubMappings = new ArrayList<>();
-        for (ServeEvent event : events) {
-            stubMappings.add(generateFrom(event));
-        }
-        return stubMappings;
-    }
-
-    private StubMapping generateFrom(ServeEvent event) {
+    @Override
+    public StubMapping apply(ServeEvent event) {
         final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
 
