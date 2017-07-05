@@ -15,11 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -63,8 +61,8 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo?transformed=true\",        \n" +
-            "                \"method\" : \"PUT\"                        \n" +
+            "                \"url\" : \"/foo?transformed=global\",      \n" +
+            "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
@@ -72,8 +70,8 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "        },                                                  \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/?transformed=true\",           \n" +
-            "                \"method\" : \"PUT\"                        \n" +
+            "                \"url\" : \"/?transformed=global\",         \n" +
+            "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
@@ -112,7 +110,7 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo\",                         \n" +
+            "                \"url\" : \"/foo?transformed=nonglobal\",   \n" +
             "                \"method\" : \"GET\",                       \n" +
             "                \"headers\": {                              \n" +
             "                    \"Accept\": {                           \n" +
@@ -126,7 +124,7 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             "        },                                                  \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/\",                            \n" +
+            "                \"url\" : \"/?transformed=nonglobal\",      \n" +
             "                \"method\" : \"GET\",                       \n" +
             "                \"headers\": {                              \n" +
             "                    \"Accept\": {                           \n" +
@@ -152,39 +150,5 @@ public class SnapshotTransformerAcceptanceTest extends AcceptanceTestBase {
             proxyingTestClient.snapshot(NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST),
             equalToJson(NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
-    }
-
-    public static class GlobalStubMappingTransformer extends StubMappingTransformer {
-        @Override
-        public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-            return WireMock
-                .put(urlEqualTo(stubMapping.getRequest().getUrl() + "?transformed=true"))
-                .build();
-        }
-
-        @Override
-        public String getName() {
-            return "stub-transformer";
-        }
-    }
-
-    public static class NonGlobalStubMappingTransformer extends StubMappingTransformer {
-        @Override
-        public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
-            return WireMock
-                .request("GET", stubMapping.getRequest().getUrlMatcher())
-                .withHeader("Accept", equalTo("B"))
-                .build();
-        }
-
-        @Override
-        public boolean applyGlobally() {
-            return false;
-        }
-
-        @Override
-        public String getName() {
-            return "nonglobal-transformer";
-        }
     }
 }
