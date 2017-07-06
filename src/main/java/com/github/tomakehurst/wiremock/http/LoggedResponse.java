@@ -3,8 +3,9 @@ package com.github.tomakehurst.wiremock.http;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
+import com.github.tomakehurst.wiremock.common.Strings;
 
-import java.nio.charset.*;
+import java.nio.charset.Charset;
 
 public class LoggedResponse {
 
@@ -43,9 +44,10 @@ public class LoggedResponse {
     }
 
     /**
-     * Retrieve body as a String encoded in the charset in the "Content-Type" header, or, if that's not present, UTF-8.
+     * Retrieve body as a String encoded in the charset in the "Content-Type" header, or, if that's not present, the
+     * default character set (UTF-8)
      *
-     * @return String encoded using detected charset or UTF-8
+     * @return Encoded string
      */
     @JsonProperty("body")
     public String getBodyAsString() {
@@ -53,8 +55,8 @@ public class LoggedResponse {
             return "";
         }
 
-        Charset charset = (headers == null) ? StandardCharsets.UTF_8 : headers.getContentTypeHeader().encodingOrUtf8();
-        return new String(body, charset);
+        Charset charset = headers == null ? Strings.DEFAULT_CHARSET : headers.getContentTypeHeader().charset();
+        return Strings.stringFromBytes(body, charset);
     }
 
     @JsonIgnore
