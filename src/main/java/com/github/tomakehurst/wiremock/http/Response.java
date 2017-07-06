@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
@@ -61,7 +62,7 @@ public class Response {
         this.status = status;
         this.statusMessage = statusMessage;
         this.headers = headers;
-        this.body = body == null ? null : body.getBytes(headers.getContentTypeHeader().encodingOrUtf8());
+        this.body = body == null ? null : Strings.bytesFromString(body, headers.getContentTypeHeader().charset());
         this.configured = configured;
         this.fault = fault;
         this.fromProxy = fromProxy;
@@ -80,7 +81,7 @@ public class Response {
     }
 	
 	public String getBodyAsString() {
-        return new String(body, headers.getContentTypeHeader().encodingOrUtf8());
+        return Strings.stringFromBytes(body, headers.getContentTypeHeader().charset());
 	}
 	
 	public HttpHeaders getHeaders() {

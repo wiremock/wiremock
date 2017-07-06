@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
@@ -104,20 +105,20 @@ public class ContentTypeHeaderTest {
 	}
 
 	@Test
-	public void returnsEncodingWhenPresent() {
+	public void returnsCharsetWhenPresent() {
 		ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=iso-8859-1");
-		assertThat(header.encodingOrUtf8(), is(StandardCharsets.ISO_8859_1));
+		assertThat(header.charset(), is(StandardCharsets.ISO_8859_1));
 	}
 
 	@Test
-	public void returnsUtf8WhenEncodingNotPresent() {
+	public void returnsDefaultCharsetWhenEncodingNotPresent() {
 		ContentTypeHeader header = new ContentTypeHeader("text/plain");
-		assertThat(header.encodingOrUtf8(), is(StandardCharsets.UTF_8));
+		assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
 	}
 
 	@Test
-	public void returnsUtf8WhenAbsent() {
+	public void returnsDefaultCharsetWhenAbsent() {
 		ContentTypeHeader header = ContentTypeHeader.absent();
-		assertThat(header.encodingOrUtf8(), is(StandardCharsets.UTF_8));
+		assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
 	}
 }

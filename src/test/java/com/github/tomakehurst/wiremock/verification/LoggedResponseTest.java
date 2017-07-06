@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 
 public class LoggedResponseTest {
     private static String ISO_8859_1_RESPONSE_BODY = "köttfärssås";
+    private static String UTF8_RESPONSE_BODY = "Foo © bar 𝌆 baz ☃ qux";
 
     @Test
     public void returnsEmptyStringForBodyWhenNotConfigured() {
@@ -37,7 +38,7 @@ public class LoggedResponseTest {
         LoggedResponse loggedResponse = LoggedResponse.from(Response
                 .response()
                 .body(ISO_8859_1_RESPONSE_BODY)
-                .headers(new HttpHeaders(httpHeader("Content-Type", "text/plain; charset=utf-8")))
+                .headers(new HttpHeaders(httpHeader("Content-Type", "text/plain; charset=iso-8859-1")))
                 .build()
         );
         assertThat(ISO_8859_1_RESPONSE_BODY, is(equalTo(loggedResponse.getBodyAsString())));
@@ -47,9 +48,9 @@ public class LoggedResponseTest {
     public void returnsUtf8StringForBodyWhenContentTypeHeaderAbsent() {
         LoggedResponse loggedResponse = LoggedResponse.from(Response
             .response()
-            .body("foobar")
+            .body(UTF8_RESPONSE_BODY)
             .build()
         );
-        assertThat("foobar", is(equalTo(loggedResponse.getBodyAsString())));
+        assertThat(UTF8_RESPONSE_BODY, is(equalTo(loggedResponse.getBodyAsString())));
     }
 }
