@@ -6,6 +6,8 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
+import java.util.Objects;
+
 // Matches the size of the body of a ResponseDefinition, for use by the Snapshot API when determining if the body
 // should be extracted to a file.
 @JsonDeserialize(using = ResponseDefinitionBodyMatcherDeserializer.class)
@@ -39,5 +41,21 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
                 return MatchResult.noMatch();
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResponseDefinitionBodyMatcher that = (ResponseDefinitionBodyMatcher) o;
+
+        return Objects.equals(textSizeThreshold, that.textSizeThreshold)
+            && Objects.equals(binarySizeThreshold, that.binarySizeThreshold);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(textSizeThreshold, binarySizeThreshold);
     }
 }

@@ -17,16 +17,17 @@ import static org.junit.Assert.assertEquals;
 public class SnapshotStubMappingTransformerRunnerTest {
     @Test
     public void applyWithNoTransformers() {
-        StubMapping stubMapping = stubMappingForUrl("/foo");
+        StubMapping stubMapping = stubMapping();
         StubMapping result = new SnapshotStubMappingTransformerRunner(
             new ArrayList<StubMappingTransformer>()
         ).apply(stubMapping);
+
         assertEquals(stubMapping, result);
     }
 
     @Test
     public void applyWithUnregisteredNonGlobalTransformer() {
-        StubMapping stubMapping = stubMappingForUrl("/foo");
+        StubMapping stubMapping = stubMapping();
 
         // Should not apply the transformer as it isn't registered
         StubMapping result = new SnapshotStubMappingTransformerRunner(
@@ -38,33 +39,28 @@ public class SnapshotStubMappingTransformerRunnerTest {
 
     @Test
     public void applyWithRegisteredNonGlobalTransformer() {
-        StubMapping stubMapping = stubMappingForUrl("/foo");
-
         StubMapping result = new SnapshotStubMappingTransformerRunner(
             Lists.<StubMappingTransformer>newArrayList(new NonGlobalStubMappingTransformer()),
             Lists.newArrayList("nonglobal-transformer"),
             null,
             null
-        ).apply(stubMapping);
+        ).apply(stubMapping());
 
-        assertEquals("/foo?transformed=nonglobal", result.getRequest().getUrl());
+        assertEquals("/?transformed=nonglobal", result.getRequest().getUrl());
     }
 
     @Test
     public void applyWithGlobalTransformer() {
-        StubMapping stubMapping = stubMappingForUrl("/foo");
-
         StubMapping result = new SnapshotStubMappingTransformerRunner(
             Lists.<StubMappingTransformer>newArrayList(new GlobalStubMappingTransformer())
-        ).apply(stubMapping);
+        ).apply(stubMapping());
 
-        assertEquals("/foo?transformed=global", result.getRequest().getUrl());
+        assertEquals("/?transformed=global", result.getRequest().getUrl());
     }
 
-
-    private StubMapping stubMappingForUrl(String url) {
+    private StubMapping stubMapping() {
         return new StubMapping(
-            newRequestPattern().withUrl(url).build(),
+            newRequestPattern().withUrl("/").build(),
             ResponseDefinition.ok()
         );
     }
