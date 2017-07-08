@@ -4,78 +4,81 @@ import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import org.apache.commons.collections4.MultiSet;
+import org.apache.commons.collections4.multiset.HashMultiSet;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Counts unique RequestPatterns from StubMappings. If shouldRecordRepeatsAsScenarios is enabled, then multiple
- * identical requests will be recorded as scenarios. Otherwise, they're skipped.
+ * identical requests will be recorded as scenarios. Otherwise, they're removed.
  */
 public class SnapshotRepeatedRequestHandler {
     private final static String SCENARIO_NAME_PREFIX = "scenario";
     private final boolean shouldRecordRepeatsAsScenarios;
-    private final HashMap<RequestPattern, StubMappingTracker> requestStubMappingTracker;
 
     public SnapshotRepeatedRequestHandler(boolean shouldRecordRepeatsAsScenarios) {
         this.shouldRecordRepeatsAsScenarios = shouldRecordRepeatsAsScenarios;
-        this.requestStubMappingTracker = new HashMap<>();
     }
 
-    public void processStubMappingsInPlace(Iterable<StubMapping> stubMappings) {
-        this.requestStubMappingTracker.clear();
-
+    public void filterOrCreateScenarios(Iterable<StubMapping> stubMappings) {
+        final MultiSet<RequestPattern> requestCounts = new HashMultiSet<>();
         final Iterator<StubMapping> stubMappingIterator = stubMappings.iterator();
+
         while (stubMappingIterator.hasNext()) {
             StubMapping stubMapping = stubMappingIterator.next();
-            StubMappingTracker tracker = requestStubMappingTracker.get(stubMapping.getRequest());
+            requestCounts.add(stubMapping.getRequest());
 
-            // If tracker is null, this request has not been seen before. Otherwise, it's a repeat.
-            if (tracker == null) {
-                requestStubMappingTracker.put(stubMapping.getRequest(), new StubMappingTracker(stubMapping));
-            } else if (shouldRecordRepeatsAsScenarios) {
-                tracker.count++;
-                setScenarioDetailsIfApplicable(stubMapping, tracker);
-                tracker.previousStubMapping = stubMapping;
-            } else {
-                // we have a duplicate and aren't recording repeats as scenarios, so remove it
+            if (!shouldRecordRepeatsAsScenarios && requestCounts.getCount(stubMapping.getRequest()) > 1) {
                 stubMappingIterator.remove();
             }
         }
+
+        if (shouldRecordRepeatsAsScenarios) {
+            this.createScenarios(stubMappings, requestCounts);
+        }
     }
 
-    private void setScenarioDetailsIfApplicable(StubMapping stubMapping, StubMappingTracker tracker) {
-        if (tracker.count == 2) {
-            // Start the scenario because we have multiple identical requests. Retrieve previous stub mapping from
-            // the tracker and mark it as the start.
-            String name = SCENARIO_NAME_PREFIX + "-" + UniqueFilenameGenerator.urlToPathParts(
-                stubMapping.getRequest().getUrl()
-            );
-            tracker.previousStubMapping.setScenarioName(name);
-            tracker.previousStubMapping.setRequiredScenarioState(Scenario.STARTED);
-            stubMapping.setRequiredScenarioState(Scenario.STARTED);
-        } else {
-            // More than two identical requests. Continue the scenario.
-            String previousState = tracker.previousStubMapping.getNewScenarioState();
-            stubMapping.setRequiredScenarioState(previousState);
-        }
+    private void createScenarios(Iterable<StubMapping> stubMappings, MultiSet<RequestPattern> requestCounts) {
+        final Map<RequestPattern, ScenarioDetails> tracker = new HashMap<>();
 
-        String name = tracker.previousStubMapping.getScenarioName();
-        stubMapping.setScenarioName(name);
-        stubMapping.setNewScenarioState(name + "-" + tracker.count);
+        for (StubMapping stubMapping : stubMappings) {
+            if (requestCounts.getCount(stubMapping.getRequest()) == 1) {
+                continue; // not a repeated request
+            }
+
+            if (!tracker.containsKey(stubMapping.getRequest())) {
+                tracker.put(stubMapping.getRequest(), new ScenarioDetails(stubMapping.getRequest()));
+            }
+
+            tracker.get(stubMapping.getRequest()).updateStubMapping(stubMapping);
+        }
     }
 
     /**
-     * Simple container class for building scenarios. Tracks the number of times a request has been seen and the
-     * last-seen stub mapping for that request.
+     * Simple container class for building scenarios. Tracks the number of times a request has been seen, the associated
+     * scenario name, and the current scenario state;
      */
-    private static class StubMappingTracker {
-        private int count;
-        private StubMapping previousStubMapping;
+    private static class ScenarioDetails {
+        private final String name;
+        private int count = 1;
+        private String currentState = Scenario.STARTED;
 
-        private StubMappingTracker(StubMapping stubMapping) {
-            this.count = 1;
-            this.previousStubMapping = stubMapping;
+        private ScenarioDetails(RequestPattern request) {
+            this.name = SCENARIO_NAME_PREFIX + "-" + UniqueFilenameGenerator.urlToPathParts(request.getUrl());
+        }
+
+        private void updateStubMapping(StubMapping stubMapping) {
+            stubMapping.setScenarioName(name);
+            stubMapping.setRequiredScenarioState(currentState);
+
+            if (count > 1) {
+                currentState = name + "-" + count;
+                stubMapping.setNewScenarioState(currentState);
+            }
+            count += 1;
         }
     }
 }

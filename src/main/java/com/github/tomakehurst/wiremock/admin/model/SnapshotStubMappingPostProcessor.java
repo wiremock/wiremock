@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 /**
- * Performs post-processing tasks on stub mappings generated from ServeEvents:
- * 1. Detect and process duplicate requests
+ * Performs stateful post-processing tasks on stub mappings generated from ServeEvents:
+ * 1. Detect duplicate requests and either discard them or turn them into scenarios
  * 2. Extract response bodies to a separate file, if applicable
  * 3. Run any applicable StubMappingTransformers against the stub mappings
  */
@@ -33,7 +33,7 @@ public class SnapshotStubMappingPostProcessor {
         final List<StubMapping> processedStubMappings = Lists.newLinkedList(stubMappings);
 
         // Handle repeated requests by either removing them or generating scenarios
-        repeatedRequestHandler.processStubMappingsInPlace(processedStubMappings);
+        repeatedRequestHandler.filterOrCreateScenarios(processedStubMappings);
 
         // Extract response bodies, if applicable
         if (bodyExtractMatcher != null) {
