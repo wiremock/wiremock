@@ -20,21 +20,9 @@ public class SnapshotRepeatedRequestHandlerTest {
     public void processSingleStubMapping() {
         List<StubMapping> mappings = ImmutableList.of(stubMappingForUrl(""));
         String serialized = Json.write(mappings);
-        new SnapshotRepeatedRequestHandler(true).processStubMappingsInPlace(mappings);
+        new SnapshotRepeatedRequestHandler(true).filterOrCreateScenarios(mappings);
 
         // Shouldn't have changed anything, since there hasn't been multiple identical requests
-        assertEquals(serialized, Json.write(mappings));
-    }
-
-    @Test
-    public void resetsAfterRun() {
-        List<StubMapping> mappings = ImmutableList.of(stubMappingForUrl(""));
-        String serialized = Json.write(mappings);
-
-        SnapshotRepeatedRequestHandler handler = new SnapshotRepeatedRequestHandler(false);
-        handler.processStubMappingsInPlace(mappings);
-        handler.processStubMappingsInPlace(mappings);
-
         assertEquals(serialized, Json.write(mappings));
     }
 
@@ -46,7 +34,7 @@ public class SnapshotRepeatedRequestHandlerTest {
             stubMappingForUrl("/different"),
             stubMappingForUrl("/dupe")
         );
-        new SnapshotRepeatedRequestHandler(false).processStubMappingsInPlace(stubMappings);
+        new SnapshotRepeatedRequestHandler(false).filterOrCreateScenarios(stubMappings);
 
         assertEquals(2, stubMappings.size());
 
@@ -70,7 +58,7 @@ public class SnapshotRepeatedRequestHandlerTest {
             stubMappingForUrl("/foo/bar")
         );
 
-        new SnapshotRepeatedRequestHandler(true).processStubMappingsInPlace(stubMappings);
+        new SnapshotRepeatedRequestHandler(true).filterOrCreateScenarios(stubMappings);
 
         assertEquals(4, stubMappings.size());
 
