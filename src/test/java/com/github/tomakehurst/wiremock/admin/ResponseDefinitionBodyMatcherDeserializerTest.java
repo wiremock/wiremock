@@ -1,6 +1,8 @@
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher;
 import com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcherDeserializer;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
@@ -25,5 +27,23 @@ public class ResponseDefinitionBodyMatcherDeserializerTest {
             Long actual = ResponseDefinitionBodyMatcherDeserializer.parseFilesize(input);
             assertEquals("Failed with " + input, expected, actual);
         }
+    }
+
+    @Test
+    public void correctlyDeserializesWithEmptyNode() {
+        ResponseDefinitionBodyMatcher matcher = Json.read("{}", ResponseDefinitionBodyMatcher.class);
+        assertEquals(new ResponseDefinitionBodyMatcher(Long.MAX_VALUE, Long.MAX_VALUE), matcher);
+    }
+
+    @Test
+    public void correctlyDeserializesWithSingleValue() {
+        ResponseDefinitionBodyMatcher matcher = Json.read("{ \"textSizeThreshold\": 100 }", ResponseDefinitionBodyMatcher.class);
+        assertEquals(new ResponseDefinitionBodyMatcher(100, Long.MAX_VALUE), matcher);
+    }
+
+    @Test
+    public void correctlyDeserializesWithBothValues() {
+        ResponseDefinitionBodyMatcher matcher = Json.read("{ \"textSizeThreshold\": 100, \"binarySizeThreshold\": 10 }", ResponseDefinitionBodyMatcher.class);
+        assertEquals(new ResponseDefinitionBodyMatcher(100, 10), matcher);
     }
 }
