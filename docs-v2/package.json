@@ -29,7 +29,8 @@
     "onchange": "^2.2.0",
     "postcss-cli": "^2.5.1",
     "raml2html": "3.0.1",
-    "uglify-js": "^2.6.1"
+    "uglify-js": "^2.6.1",
+    "uri": "^0.1.0"
   },
   "scripts": {
     "scss": "node-sass --output-style compressed -o assets/css assets/_scss",
