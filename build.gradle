@@ -35,7 +35,8 @@ def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
     jackson: '2.8.9',
-    jetty  : '9.2.22.v20170606'
+    jetty  : '9.2.22.v20170606',
+    xmlUnit: '2.3.0'
 ]
 
 repositories {
@@ -52,8 +53,8 @@ dependencies {
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.3"
-    compile 'org.xmlunit:xmlunit-core:2.3.0'
-    compile 'org.xmlunit:xmlunit-legacy:2.3.0'
+    compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
+    compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
     compile "com.jayway.jsonpath:json-path:2.2.0"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "net.sf.jopt-simple:jopt-simple:4.9"
