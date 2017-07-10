@@ -16,23 +16,18 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Joiner;
 
 import java.net.URI;
 
-import static com.google.common.base.Splitter.on;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.size;
-import static java.lang.Math.min;
-
 public class UniqueFilenameGenerator {
 
-    public static String generate(Request request, String prefix, String id) {
-        return generate(request, prefix, id, "json");
+    public static String generate(String url, String prefix, String id) {
+        return generate(url, prefix, id, "json");
     }
 
-    public static String generate(Request request, String prefix, String id, String extension) {
-        String pathPart = urlToPathParts(request.getUrl());
+    public static String generate(String url, String prefix, String id, String extension) {
+        String pathPart = Urls.urlToPathParts(URI.create(url));
+        pathPart = pathPart.equals("") ? "(root)" : sanitise(pathPart);
 
         return new StringBuilder(prefix)
                 .append("-")
@@ -42,21 +37,6 @@ public class UniqueFilenameGenerator {
                 .append(".")
                 .append(extension)
                 .toString();
-    }
-
-    public static String urlToPathParts(String url) {
-        URI uri = URI.create(url);
-        Iterable<String> uriPathNodes = on("/").omitEmptyStrings().split(uri.getPath());
-        int nodeCount = size(uriPathNodes);
-
-        return nodeCount > 0 ?
-            sanitise(
-                Joiner.on("-")
-                    .join(from(uriPathNodes)
-                        .skip(nodeCount - min(nodeCount, 2))
-                    )
-            ):
-            "(root)";
     }
 
     private static String sanitise(String input) {
