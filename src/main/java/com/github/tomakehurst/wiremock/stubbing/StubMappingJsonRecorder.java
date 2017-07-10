@@ -16,12 +16,14 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
@@ -41,26 +43,38 @@ public class StubMappingJsonRecorder implements RequestListener {
     private final FileSource filesFileSource;
     private final Admin admin;
     private final List<CaseInsensitiveKey> headersToMatch;
+	private final String recordUrlPattern;
+	private final UrlPathPattern pattern;
     private IdGenerator idGenerator;
 
-    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch) {
+    public StubMappingJsonRecorder(FileSource mappingsFileSource, FileSource filesFileSource, Admin admin, List<CaseInsensitiveKey> headersToMatch, String recordUrlPattern) {
         this.mappingsFileSource = mappingsFileSource;
         this.filesFileSource = filesFileSource;
         this.admin = admin;
         this.headersToMatch = headersToMatch;
+		this.recordUrlPattern=recordUrlPattern;
         idGenerator = new VeryShortIdGenerator();
+		if (recordUrlPattern != null) {
+			this.pattern=WireMock.urlPathMatching(recordUrlPattern);
+		} else {
+			this.pattern=null;
+		}
     }
 
     @Override
     public void requestReceived(Request request, Response response) {
         RequestPattern requestPattern = buildRequestPatternFrom(request);
-
-        if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
-            notifier().info(String.format("Recording mappings for %s", request.getUrl()));
-            writeToMappingAndBodyFile(request, response, requestPattern);
-        } else {
-            notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
-        }
+        //Check URL pattern match for recording
+		if (this.pattern == null || pattern.match(request.getUrl()).isExactMatch()) {
+			if (requestNotAlreadyReceived(requestPattern) && response.isFromProxy()) {
+				notifier().info(String.format("Recording mappings for %s", request.getUrl()));
+				writeToMappingAndBodyFile(request, response, requestPattern);
+			} else {
+				notifier().info(String.format("Not recording mapping for %s as this has already been received", request.getUrl()));
+			}
+		} else{
+			notifier().info(String.format("Not recording mapping for %s as a recording URL pattern is provided and this request does not match the pattern.", request.getUrl()));
+		}
     }
 
     private RequestPattern buildRequestPatternFrom(Request request) {
