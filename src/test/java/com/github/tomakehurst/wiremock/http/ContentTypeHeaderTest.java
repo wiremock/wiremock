@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder;
 import com.google.common.base.Optional;
 import org.jmock.Mockery;
@@ -22,6 +23,8 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -99,5 +102,23 @@ public class ContentTypeHeaderTest {
 	public void returnsNullFromMimeTypePartWhenContentTypeIsAbsent() {
 		ContentTypeHeader header = ContentTypeHeader.absent();
 		assertThat(header.mimeTypePart(), is(nullValue()));
+	}
+
+	@Test
+	public void returnsCharsetWhenPresent() {
+		ContentTypeHeader header = new ContentTypeHeader("text/plain; charset=iso-8859-1");
+		assertThat(header.charset(), is(StandardCharsets.ISO_8859_1));
+	}
+
+	@Test
+	public void returnsDefaultCharsetWhenEncodingNotPresent() {
+		ContentTypeHeader header = new ContentTypeHeader("text/plain");
+		assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
+	}
+
+	@Test
+	public void returnsDefaultCharsetWhenAbsent() {
+		ContentTypeHeader header = ContentTypeHeader.absent();
+		assertThat(header.charset(), is(Strings.DEFAULT_CHARSET));
 	}
 }
