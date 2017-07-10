@@ -1,12 +1,13 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
-import com.github.tomakehurst.wiremock.common.UniqueFilenameGenerator;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.commons.collections4.MultiSet;
 import org.apache.commons.collections4.multiset.HashMultiSet;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class SnapshotRepeatedRequestHandler {
         private String currentState = Scenario.STARTED;
 
         private ScenarioDetails(RequestPattern request) {
-            this.name = SCENARIO_NAME_PREFIX + "-" + UniqueFilenameGenerator.urlToPathParts(request.getUrl());
+            this.name = SCENARIO_NAME_PREFIX + "-" + Urls.urlToPathParts(URI.create(request.getUrl()));
         }
 
         private void updateStubMapping(StubMapping stubMapping) {

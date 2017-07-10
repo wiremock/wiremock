@@ -5,6 +5,8 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
+import java.net.URI;
+
 public class SnapshotStubMappingBodyExtractor {
     private final FileSource fileSource;
     private final IdGenerator idGenerator;
@@ -32,16 +34,12 @@ public class SnapshotStubMappingBodyExtractor {
             stubMapping.getRequest().getUrl(),
             stubMapping.getResponse().getHeaders().getContentTypeHeader(),
             body);
-
-        String bodyFileName = new StringBuilder(WireMockApp.FILES_ROOT)
-            .append("/body")
-            .append("-")
-            .append(UniqueFilenameGenerator.urlToPathParts(stubMapping.getRequest().getUrl()))
-            .append("-")
-            .append(fileId)
-            .append(".")
-            .append(extension)
-            .toString();
+        String bodyFileName = UniqueFilenameGenerator.generate(
+            stubMapping.getRequest().getUrl(),
+            WireMockApp.FILES_ROOT + "/body",
+            fileId,
+            extension
+        );
 
          // used to prevent ambiguous method call error for withBody()
         String noStringBody = null;
