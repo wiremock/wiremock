@@ -99,9 +99,9 @@ public class StubMappingJsonRecorder implements RequestListener {
         String fileId = idGenerator.generate();
         byte[] body = bodyDecompressedIfRequired(response);
 
-        String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
+        String mappingFileName = UniqueFilenameGenerator.generate(request.getUrl(), "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(
-            request,
+            request.getUrl(),
             "body",
             fileId,
             ContentTypes.determineFileExtension(
