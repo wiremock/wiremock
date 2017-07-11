@@ -60,12 +60,6 @@ public class SnapshotTask implements AdminTask {
     }
 
     private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, SnapshotSpec snapshotSpec) {
-        final SnapshotRepeatedRequestHandler repeatedRequestHandler = new SnapshotRepeatedRequestHandler(
-            snapshotSpec.shouldRecordRepeatsAsScenarios()
-        );
-        final SnapshotStubMappingBodyExtractor bodyExtractor = new SnapshotStubMappingBodyExtractor(
-            options.filesRoot()
-        );
         final SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
             snapshotSpec.getTransformers(),
@@ -74,10 +68,10 @@ public class SnapshotTask implements AdminTask {
         );
 
         return new SnapshotStubMappingPostProcessor(
-            repeatedRequestHandler,
+            snapshotSpec.shouldRecordRepeatsAsScenarios(),
             transformerRunner,
             snapshotSpec.getExtractBodyCriteria(),
-            bodyExtractor
+            new SnapshotStubMappingBodyExtractor(options.filesRoot())
         );
     }
 }
