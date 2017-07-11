@@ -1,28 +1,28 @@
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.model.SnapshotSpec;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.apache.http.entity.ByteArrayEntity;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.google.common.collect.Iterables.find;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -108,6 +108,23 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void snapshotRecordsAllLoggedRequestsWhenIdFilterIsSpecified() throws Exception {
+        client.get("/1");
+        client.get("/2");
+        client.get("/3");
+
+        UUID serveEventId = findServeEventWithUrl(proxyingService.getAllServeEvents(), "/2").getId();
+
+        List<StubMapping> mappings = proxyingService.snapshotRecord(
+            snapshotSpec()
+                .onlyRequestIds(singletonList(serveEventId))
+        );
+
+        assertThat(mappings.size(), is(1));
+        assertThat(mappings.get(0).getRequest().getUrl(), is("/2"));
+    }
+
+    @Test
     public void snapshotRecordsAllLoggedRequestsWhenExtractBodyCriteriaAreSpecified() throws Exception {
         targetService.stubFor(get("/small/text").willReturn(aResponse()
                 .withHeader("Content-Type", "text/plain")
@@ -159,6 +176,16 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
         assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this-too")));
+    }
+
+
+    private static ServeEvent findServeEventWithUrl(List<ServeEvent> serveEvents, final String url) {
+        return find(serveEvents, new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent input) {
+                return url.equals(input.getRequest().getUrl());
+            }
+        });
     }
 
     private static StubMapping findMappingWithUrl(List<StubMapping> stubMappings, final String url) {

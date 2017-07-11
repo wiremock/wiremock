@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 import java.util.List;
@@ -10,13 +11,13 @@ import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBody
 
 public class SnapshotSpecBuilder {
 
-    private RequestPatternBuilder filterRequestPattern;
+    private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
     private long maxTextBodySize = DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
 
     public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
-        this.filterRequestPattern = filterRequestPattern;
+        this.filterRequestPatternBuilder = filterRequestPattern;
         return this;
     }
 
@@ -36,8 +37,11 @@ public class SnapshotSpecBuilder {
     }
 
     public SnapshotSpec build() {
-        ProxiedServeEventFilters filters = filterRequestPattern != null || filterIds != null ?
-            new ProxiedServeEventFilters(filterRequestPattern.build(), filterIds) :
+        RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
+            filterRequestPatternBuilder.build() :
+            null;
+        ProxiedServeEventFilters filters = filterRequestPatternBuilder != null || filterIds != null ?
+            new ProxiedServeEventFilters(filterRequestPattern, filterIds) :
             null;
 
         ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
