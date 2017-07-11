@@ -11,27 +11,18 @@ import java.util.*;
 public enum SnapshotOutputFormatter {
     FULL {
         @Override
-        public Map<String, List> format(List<StubMapping> stubMappings) {
-            final Map<String, List> output = new HashMap<>();
-            output.put("mappings", stubMappings);
-            return output;
+        public SnapshotRecordResult format(List<StubMapping> stubMappings) {
+            return SnapshotRecordResult.full(stubMappings);
         }
     },
     IDS {
         @Override
-        public Map<String, List> format(List<StubMapping> stubMappings) {
-            final List<UUID> stubMappingIds = new ArrayList<>(stubMappings.size());
-            for (StubMapping stubMapping : stubMappings) {
-                stubMappingIds.add(stubMapping.getId());
-            }
-
-            final Map<String, List> output = new HashMap<>();
-            output.put("ids", stubMappingIds);
-            return output;
+        public SnapshotRecordResult format(List<StubMapping> stubMappings) {
+            return SnapshotRecordResult.ids(stubMappings);
         }
     };
 
-    public abstract Map<String, List> format(List<StubMapping> stubMappings);
+    public abstract SnapshotRecordResult format(List<StubMapping> stubMappings);
 
     @JsonCreator
     public static SnapshotOutputFormatter fromString(String value) {

@@ -31,27 +31,4 @@ public class SnapshotOutputFormatterTest {
     public void fromStringWithIds() {
         assertEquals(IDS, SnapshotOutputFormatter.fromString("ids"));
     }
-
-    @Test
-    public void formatIds() {
-        List<StubMapping> stubMappings = Lists.newArrayList(new StubMapping(), new StubMapping());
-
-        Map<String, List<UUID>> expected = new HashMap<>();
-        expected.put("ids", Lists.newArrayList(
-            stubMappings.get(0).getId(),
-            stubMappings.get(1).getId()
-        ));
-
-        assertEquals(expected, IDS.format(stubMappings));
-    }
-
-    @Test
-    public void formatFull() {
-        List<StubMapping> stubMappings = Lists.newArrayList(new StubMapping(), new StubMapping());
-
-        Map<String, List<StubMapping>> expected = new HashMap<>();
-        expected.put("mappings", stubMappings);
-
-        assertEquals(expected, FULL.format(stubMappings));
-    }
 }

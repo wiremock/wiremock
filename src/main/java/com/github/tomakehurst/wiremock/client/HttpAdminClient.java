@@ -261,6 +261,26 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public SnapshotRecordResult takeSnapshotRecording() {
+        String body = postJsonAssertOkAndReturnBody(
+            urlFor(SnapshotTask.class),
+            "",
+            HTTP_OK);
+
+        return Json.read(body, SnapshotRecordResult.class);
+    }
+
+    @Override
+    public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec) {
+        String body = postJsonAssertOkAndReturnBody(
+            urlFor(SnapshotTask.class),
+            Json.write(spec),
+            HTTP_OK);
+
+        return Json.read(body, SnapshotRecordResult.class);
+    }
+
+    @Override
     public Options getOptions() {
         return new WireMockConfiguration().port(port).bindAddress(host);
     }

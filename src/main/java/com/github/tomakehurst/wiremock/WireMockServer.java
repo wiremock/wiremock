@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
@@ -369,6 +366,27 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
         return wireMockApp.findTopNearMissesFor(requestPattern);
+    }
+
+    @Override
+    public List<StubMapping> snapshotRecord() {
+
+        return wireMockApp.takeSnapshotRecording().getStubMappings();
+    }
+
+    @Override
+    public List<StubMapping> snapshotRecord(SnapshotSpecBuilder spec) {
+        return wireMockApp.takeSnapshotRecording(spec.build()).getStubMappings();
+    }
+
+    @Override
+    public SnapshotRecordResult takeSnapshotRecording() {
+        return wireMockApp.takeSnapshotRecording();
+    }
+
+    @Override
+    public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec) {
+        return wireMockApp.takeSnapshotRecording(spec);
     }
 
     @Override
