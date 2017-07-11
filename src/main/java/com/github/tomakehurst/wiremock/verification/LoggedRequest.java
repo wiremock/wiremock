@@ -166,6 +166,11 @@ public class LoggedRequest implements Request {
         return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
     }
 
+    @JsonProperty("queryParams")
+    public Map<String, QueryParameter> getQueryParams() {
+        return queryParams;
+    }
+
     public HttpHeaders getHeaders() {
         return headers;
     }
