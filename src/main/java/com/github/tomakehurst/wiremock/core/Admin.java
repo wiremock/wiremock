@@ -52,6 +52,9 @@ public interface Admin {
 
     void updateGlobalSettings(GlobalSettings settings);
 
+    SnapshotRecordResult takeSnapshotRecording();
+    SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec);
+
     Options getOptions();
 
     void shutdownServer();

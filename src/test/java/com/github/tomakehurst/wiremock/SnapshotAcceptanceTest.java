@@ -17,15 +17,21 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static com.google.common.collect.Iterables.find;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -150,7 +156,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "    \"outputFormat\": \"full\",                       \n" +
             "    \"persist\": \"false\",                           \n" +
             "    \"filters\": {                                    \n" +
-            "        \"ids\": [ %s, %s ],                          \n" +
+            "        \"ids\": [ \"%s\", \"%s\" ],                  \n" +
             "        \"urlPattern\": \"/foo.*\"                    \n" +
             "    }                                                 \n" +
             "}                                                       ";
@@ -179,18 +185,27 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         // Fails ID match
         proxyingTestClient.get("/foo");
 
-        String requestsJson = proxyingTestClient.get("/__admin/requests").content();
-        JsonNode requestsNode = Json.node(requestsJson).path("requests");
+        UUID fooBarId = findServeEventWithRequestUrl("/foo/bar").getId();
+        UUID barId = findServeEventWithRequestUrl("/bar").getId();
 
         String request = String.format(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_REQUEST_TEMPLATE,
-            requestsNode.get(2).get("id"),
-            requestsNode.get(1).get("id")
+            fooBarId,
+            barId
         );
 
         assertThat(
             proxyingTestClient.snapshot(request),
             equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
+    }
+
+    private ServeEvent findServeEventWithRequestUrl(final String url) {
+        return find(proxyingService.getAllServeEvents(), new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent input) {
+                return url.equals(input.getRequest().getUrl());
+            }
+        });
     }
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =

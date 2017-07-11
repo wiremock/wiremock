@@ -54,6 +54,8 @@ public class SnapshotSpec {
         this(null, null, null, null, null, null, null, null);
     }
 
+    public static final SnapshotSpec DEFAULTS = new SnapshotSpec();
+
     public ProxiedServeEventFilters getFilters() { return filters; }
 
     public Map<String, MultiValuePattern> getCaptureHeaders() { return captureHeaders; }
