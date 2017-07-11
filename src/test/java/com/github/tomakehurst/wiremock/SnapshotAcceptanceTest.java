@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class SnapshotAcceptanceTest extends AcceptanceTestBase {
@@ -36,7 +37,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
             .dynamicPort()
-            .withRootDirectory("src/test/resources/empty"));
+            .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
         proxyingService.start();
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
@@ -46,6 +47,8 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @After
     public void proxyServerShutdown() {
+        // delete any persisted stub mappings to ensure test isolation
+        proxyingService.resetMappings();
         proxyingService.stop();
     }
 
@@ -79,9 +82,12 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
 
         assertThat(
-            proxyingTestClient.snapshot("{ \"persist\": false }"),
+            proxyingTestClient.snapshot(""),
             equalToJson(DEFAULT_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
+
+        // Should have persisted both stub mappings. The 3 is to account for the proxy mapping
+        assertEquals(3, proxyingService.getStubMappings().size());
     }
 
     private static final String FILTER_BY_REQUEST_PATTERN_SNAPSHOT_REQUEST =

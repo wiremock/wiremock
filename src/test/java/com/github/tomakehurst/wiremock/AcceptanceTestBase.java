@@ -55,15 +55,19 @@ public class AcceptanceTestBase {
 	}
 
 	public static void setupServerWithTempFileRoot() {
-        try {
+		setupServer(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
+	}
+
+    public static File setupTempFileRoot() {
+		try {
             File root = Files.createTempDirectory("wiremock").toFile();
             new File(root, MAPPINGS_ROOT).mkdirs();
             new File(root, FILES_ROOT).mkdirs();
-            setupServer(wireMockConfig().withRootDirectory(root.getAbsolutePath()));
-        } catch (IOException e) {
-            throwUnchecked(e);
-        }
-    }
+            return root;
+		} catch (IOException e) {
+			return throwUnchecked(e, File.class);
+		}
+	}
 
 	public static void setupServerWithMappingsInFileRoot() {
 		setupServer(wireMockConfig());
