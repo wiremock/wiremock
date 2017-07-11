@@ -12,6 +12,10 @@ import java.util.Objects;
 // should be extracted to a file.
 @JsonDeserialize(using = ResponseDefinitionBodyMatcherDeserializer.class)
 public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefinition> {
+
+    public static final long DEFAULT_MAX_TEXT_SIZE = 100 * 1024 * 1024;
+    public static final long DEFAULT_MAX_BINARY_SIZE = 100 * 1024 * 1024;
+
     private final long textSizeThreshold;
     private final long binarySizeThreshold;
 

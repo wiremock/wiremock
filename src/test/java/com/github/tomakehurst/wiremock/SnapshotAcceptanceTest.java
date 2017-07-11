@@ -15,12 +15,9 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
