@@ -5,8 +5,6 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.net.URI;
-
 public class SnapshotStubMappingBodyExtractor {
     private final FileSource fileSource;
     private final IdGenerator idGenerator;
@@ -24,7 +22,7 @@ public class SnapshotStubMappingBodyExtractor {
      * Extracts body of the ResponseDefinition to a file written to the FILES_ROOT.
      * Modifies the ResponseDefinition to point to the file in-place
      *
-     * @fixme Generates multiple files for identical requests when scenarios enabled
+     * @fixme Generates multiple files for stub mappings with identical responses
      * @param stubMapping Stub mapping to extract
      */
     public void extractInPlace(StubMapping stubMapping) {
