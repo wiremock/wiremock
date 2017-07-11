@@ -26,7 +26,6 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
             return MatchResult.noMatch();
         } else if (
             responseDefinition.getHeaders() != null
-            && responseDefinition.getHeaders().getContentTypeHeader().mimeTypePart() != null
             && ContentTypes.determineIsTextFromMimeType(responseDefinition.getHeaders().getContentTypeHeader().mimeTypePart())
         ) {
             if (responseDefinition.getBody().length() > textSizeThreshold) {

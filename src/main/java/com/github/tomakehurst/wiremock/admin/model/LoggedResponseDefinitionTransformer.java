@@ -17,15 +17,14 @@ public class LoggedResponseDefinitionTransformer implements Function<LoggedRespo
         final ResponseDefinitionBuilder responseDefinitionBuilder = new ResponseDefinitionBuilder()
             .withStatus(response.getStatus());
 
-        if (response.getBody() != null && !response.getBody().isEmpty()) {
+        if (response.getBody() != null && response.getBody().length > 0) {
             if (
                 response.getHeaders() != null
-                && response.getHeaders().getContentTypeHeader().mimeTypePart() != null
                 && ContentTypes.determineIsTextFromMimeType(response.getHeaders().getContentTypeHeader().mimeTypePart())
             ) {
-                responseDefinitionBuilder.withBody(response.getBody());
+                responseDefinitionBuilder.withBody(response.getBodyAsString());
             } else {
-                responseDefinitionBuilder.withBody(response.getBodyBytes());
+                responseDefinitionBuilder.withBody(response.getBody());
             }
         }
 

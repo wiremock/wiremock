@@ -34,8 +34,9 @@ version = '2.6.0'
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
-    jackson: '2.6.1',
-    jetty  : '9.2.13.v20150730'
+    jackson: '2.8.9',
+    jetty  : '9.2.22.v20170606',
+    xmlUnit: '2.3.0'
 ]
 
 repositories {
@@ -47,20 +48,20 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-    compile "com.google.guava:guava:18.0"
+    compile "com.google.guava:guava:20.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
-    compile "org.apache.httpcomponents:httpclient:4.5.1"
-    compile 'org.xmlunit:xmlunit-core:2.3.0'
-    compile 'org.xmlunit:xmlunit-legacy:2.3.0'
-    compile "com.jayway.jsonpath:json-path:2.2.0"
+    compile "org.apache.httpcomponents:httpclient:4.5.3"
+    compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
+    compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
+    compile "com.jayway.jsonpath:json-path:2.4.0"
     compile "org.slf4j:slf4j-api:1.7.12"
-    compile "net.sf.jopt-simple:jopt-simple:4.9"
+    compile "net.sf.jopt-simple:jopt-simple:5.0.3"
     compile("junit:junit:4.12") {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
-    compile 'org.apache.commons:commons-lang3:3.5'
+    compile 'org.apache.commons:commons-lang3:3.6'
     compile 'com.flipkart.zjsonpatch:zjsonpatch:0.3.0'
     compile 'com.github.jknack:handlebars:4.0.6', {
         exclude group: 'org.mozilla', module: 'rhino'

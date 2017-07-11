@@ -118,6 +118,7 @@ WireMock.configureFor("https", "my.remote.host", 8443);
 ```
 
 Alternatively you can create an instance of the client (or as many as there are servers to configure):
+
 ```java
 WireMock wireMock1 = new WireMock("1st.remote.host", 8000);
 WireMock wireMock2 = new WireMock("https", "2nd.remote.host", 8001);
@@ -171,7 +172,7 @@ $ curl http://localhost:8080/api/mytest
 More content
 ```
 
-See stubbing and verifying for more on the JSON API.
+See [stubbing](/docs/stubbing/) and [verifying](/docs/verifying/) for more on the JSON API.
 
 
 ## Pushing JSON files to a remote WireMock instance
@@ -180,7 +181,7 @@ You can push a collection of mappings to a remote
 
 ## File serving
 
-When running standalone files placed under the `__files` directory will
+When running the standalone JAR, files placed under the `__files` directory will
 be served up as if from under the docroot, except if stub mapping
 matching the URL exists. For example if a file exists
 `__files/things/myfile.html` and no stub mapping will match

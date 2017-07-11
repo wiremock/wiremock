@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.github.tomakehurst.wiremock.http.Request;
-
 import java.net.URI;
 
 public class UniqueFilenameGenerator {
