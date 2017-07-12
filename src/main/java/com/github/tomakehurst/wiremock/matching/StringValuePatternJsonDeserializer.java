@@ -64,6 +64,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return deserializeEqualToJson(rootNode);
         } else if (patternClass.equals(MatchesXPathPattern.class)) {
             return deserialiseMatchesXPathPattern(rootNode);
+        } else if (patternClass.equals(EqualToPattern.class)) {
+            return deserializeEqualTo(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -75,6 +77,17 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         } catch (Exception e) {
             return throwUnchecked(e, StringValuePattern.class);
         }
+    }
+
+    private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("equalTo")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        String operand = rootNode.findValue("equalTo").textValue();
+        boolean ignoreCase = fromNullable(rootNode.findValue("ignoreCase"));
+
+        return new EqualToPattern(operand, ignoreCase);
     }
 
     private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {

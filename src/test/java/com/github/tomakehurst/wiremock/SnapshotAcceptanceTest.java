@@ -33,7 +33,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static com.google.common.collect.Iterables.find;
-import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -223,17 +222,15 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_REQUEST =
-            "{                                  \n" +
-            "    \"outputFormat\": \"full\",    \n" +
-            "    \"persist\": \"false\",        \n" +
-            "    \"captureHeaders\": {          \n" +
-            "        \"Accept\": {              \n" +
-            "            \"anything\": true     \n" +
-            "        },                         \n" +
-            "        \"X-NoMatch\": {           \n" +
-            "            \"equalTo\": \"!\"     \n" +
-            "        }                          \n" +
-            "    }                              \n" +
+            "{                                      \n" +
+            "    \"outputFormat\": \"full\",        \n" +
+            "    \"persist\": \"false\",            \n" +
+            "    \"captureHeaders\": {              \n" +
+            "        \"Accept\": {                  \n" +
+            "            \"caseInsensitive\": true  \n" +
+            "        },                             \n" +
+            "        \"X-Another\": {}              \n" +
+            "    }                                  \n" +
             "}                                    ";
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
@@ -245,7 +242,11 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "                \"method\" : \"PUT\",                       \n" +
             "                \"headers\": {                              \n" +
             "                    \"Accept\": {                           \n" +
-            "                        \"equalTo\": \"B\"                  \n" +
+            "                        \"equalTo\": \"text/plain\",        \n" +
+            "                        \"caseInsensitive\": true           \n" +
+            "                    },                                      \n" +
+            "                    \"X-Another\": {                        \n" +
+            "                        \"equalTo\": \"blah\"               \n" +
             "                    }                                       \n" +
             "                }                                           \n" +
             "            },                                              \n" +
@@ -261,14 +262,13 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyServerStartWithEmptyFileRoot();
 
         proxyingTestClient.put("/foo/bar",
-            withHeader("A", "B"),
-            withHeader("Accept", "B"),
-            withHeader("X-NoMatch", "should be ignored")
+            withHeader("Ignored", "whatever"),
+            withHeader("Accept", "text/plain"),
+            withHeader("X-Another", "blah")
         );
 
         String actual = proxyingTestClient.snapshot(CAPTURE_HEADERS_SNAPSHOT_REQUEST);
         assertThat(actual, equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
-        assertFalse(actual.contains("X-NoMatch"));
     }
 
     private static final String REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST =
