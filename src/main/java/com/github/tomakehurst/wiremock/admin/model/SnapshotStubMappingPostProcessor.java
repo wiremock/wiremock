@@ -48,23 +48,30 @@ public class SnapshotStubMappingPostProcessor {
                 continue;
             }
 
-            processedStubMappings.add(stubMapping);
             if (bodyExtractMatcher != null && bodyExtractMatcher.match(stubMapping.getResponse()).isExactMatch()) {
                 bodyExtractor.extractInPlace(stubMapping);
             }
+
+            processedStubMappings.add(stubMapping);
         }
 
         if (shouldRecordRepeatsAsScenarios) {
-            // Build scenarios for repeated requests
-            final SnapshotScenarioBuilder scenarioBuilder = new SnapshotScenarioBuilder();
-            for (StubMapping stubMapping : processedStubMappings) {
-                if (requestCounts.count(stubMapping.getRequest()) > 1) {
-                    scenarioBuilder.addToScenario(stubMapping);
-                }
-            }
+            this.createScenariosForRepeatedRequests(processedStubMappings, requestCounts);
         }
 
         // Run any stub mapping transformer extensions
         return Lists.transform(processedStubMappings, transformerRunner);
+    }
+
+    private void createScenariosForRepeatedRequests(
+        Iterable<StubMapping> stubMappings,
+        Multiset<RequestPattern> requestCounts
+    ) {
+        final SnapshotScenarioBuilder scenarioBuilder = new SnapshotScenarioBuilder();
+        for (StubMapping stubMapping : stubMappings) {
+            if (requestCounts.count(stubMapping.getRequest()) > 1) {
+                scenarioBuilder.addToScenario(stubMapping);
+            }
+        }
     }
 }
