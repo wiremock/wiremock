@@ -51,7 +51,7 @@ public class SnapshotSpec {
     }
 
     public SnapshotSpec() {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, true, null, null);
     }
 
     public static final SnapshotSpec DEFAULTS = new SnapshotSpec();
