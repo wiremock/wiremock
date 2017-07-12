@@ -14,8 +14,11 @@ import java.util.UUID;
  * A predicate to filter proxied ServeEvents against RequestPattern filters and IDs
  */
 public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
+
     @JsonUnwrapped
     private final RequestPattern filters;
+
+    @JsonUnwrapped
     private final List<UUID> ids;
 
     public ProxiedServeEventFilters() {

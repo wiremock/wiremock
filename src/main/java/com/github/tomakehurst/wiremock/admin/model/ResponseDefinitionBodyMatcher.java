@@ -24,6 +24,14 @@ public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefin
         this.binarySizeThreshold = binarySizeThreshold;
     }
 
+    public String getTextSizeThreshold() {
+        return String.valueOf(textSizeThreshold);
+    }
+
+    public String getBinarySizeThreshold() {
+        return String.valueOf(binarySizeThreshold);
+    }
+
     @Override
     public MatchResult match(ResponseDefinition responseDefinition) {
         if (!responseDefinition.specifiesBodyContent()) {

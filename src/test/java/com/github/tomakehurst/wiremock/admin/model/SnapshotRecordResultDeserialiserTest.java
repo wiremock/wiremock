@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.instanceOf;
@@ -31,6 +32,7 @@ public class SnapshotRecordResultDeserialiserTest {
 
         assertThat(result, instanceOf(SnapshotRecordResult.Full.class));
         assertThat(result.getStubMappings().size(), is(2));
+        assertThat(result.getStubMappings().get(0), instanceOf(StubMapping.class));
     }
 
     @Test

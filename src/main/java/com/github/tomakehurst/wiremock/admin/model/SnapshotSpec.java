@@ -62,8 +62,10 @@ public class SnapshotSpec {
 
     public SnapshotOutputFormatter getOutputFormat() { return outputFormat; }
 
+    @JsonProperty("persist")
     public boolean shouldPersist() { return persist; }
 
+    @JsonProperty("repeatsAsScenarios")
     public boolean shouldRecordRepeatsAsScenarios() { return repeatsAsScenarios; }
 
     public List<String> getTransformers() { return transformers; }
