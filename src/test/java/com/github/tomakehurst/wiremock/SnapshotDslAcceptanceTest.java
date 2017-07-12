@@ -1,7 +1,12 @@
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
@@ -11,6 +16,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
@@ -40,6 +46,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
             .dynamicPort()
+            .extensions(new TestParameterisedTransformer())
             .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
         proxyingService.start();
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
@@ -200,7 +207,22 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
     }
 
+    @Test
+    public void appliesTransformerWithParameters() {
+        client.get("/transform-this");
 
+        List<StubMapping> mappings = snapshotRecord(
+            snapshotSpec()
+                .transformers("test-transformer")
+                .transformerParameters(Parameters.from(
+                    ImmutableMap.<String, Object>of(
+                        "headerKey", "X-Key",
+                        "headerValue", "My value"
+                    )
+                )));
+
+        assertThat(mappings.get(0).getResponse().getHeaders().getHeader("X-Key").firstValue(), is("My value"));
+    }
 
     @Test
     public void staticClientIsSupportedWithDefaultSpec() {
@@ -301,5 +323,28 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 return item.getScenarioName() != null;
             }
         };
+    }
+
+    public static class TestParameterisedTransformer extends StubMappingTransformer {
+
+        @Override
+        public StubMapping transform(StubMapping stubMapping, FileSource files, Parameters parameters) {
+            ResponseDefinition newResponse = ResponseDefinitionBuilder.like(stubMapping.getResponse())
+                .but()
+                .withHeader(parameters.getString("headerKey"), parameters.getString("headerValue"))
+                .build();
+            stubMapping.setResponse(newResponse);
+            return stubMapping;
+        }
+
+        @Override
+        public boolean applyGlobally() {
+            return false;
+        }
+
+        @Override
+        public String getName() {
+            return "test-transformer";
+        }
     }
 }

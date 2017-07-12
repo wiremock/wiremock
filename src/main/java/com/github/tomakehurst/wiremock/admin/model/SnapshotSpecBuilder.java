@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
 import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
+import static java.util.Arrays.asList;
 
 public class SnapshotSpecBuilder {
 
@@ -17,6 +19,8 @@ public class SnapshotSpecBuilder {
     private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
     private boolean persistentStubs = true;
     private boolean repeatsAsScenarios = false;
+    private List<String> transformerNames;
+    private Parameters transformerParameters;
 
     public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
         this.filterRequestPatternBuilder = filterRequestPattern;
@@ -65,8 +69,22 @@ public class SnapshotSpecBuilder {
             SnapshotOutputFormatter.FULL,
             persistentStubs,
             repeatsAsScenarios,
-            null,
-            null
+            transformerNames,
+            transformerParameters
         );
+    }
+
+    public SnapshotSpecBuilder transformers(String... transformerName) {
+        return transformers(asList(transformerName));
+    }
+
+    public SnapshotSpecBuilder transformers(List<String> transformerName) {
+        this.transformerNames = transformerName;
+        return this;
+    }
+
+    public SnapshotSpecBuilder transformerParameters(Parameters parameters) {
+        this.transformerParameters = parameters;
+        return this;
     }
 }
