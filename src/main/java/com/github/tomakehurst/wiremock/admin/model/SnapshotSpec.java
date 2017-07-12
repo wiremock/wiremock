@@ -50,7 +50,7 @@ public class SnapshotSpec {
         this.transformerParameters = transformerParameters;
     }
 
-    public SnapshotSpec() {
+    private SnapshotSpec() {
         this(null, null, null, null, null, true, null, null);
     }
 
