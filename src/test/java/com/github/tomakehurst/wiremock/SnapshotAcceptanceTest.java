@@ -17,6 +17,9 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -34,15 +37,17 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     private WireMockServer proxyingService;
     private WireMockTestClient proxyingTestClient;
 
-    public void init() {
-        proxyingService = new WireMockServer(wireMockConfig()
-            .dynamicPort()
-            .withRootDirectory(setupTempFileRoot().getAbsolutePath()));
+    private void proxyServerStart(WireMockConfiguration config) {
+        proxyingService = new WireMockServer(config.dynamicPort());
         proxyingService.start();
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
         proxyingTestClient = new WireMockTestClient(proxyingService.port());
         wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
+    }
+
+    private void proxyServerStartWithEmptyFileRoot() {
+        proxyServerStart(wireMockConfig().withRootDirectory("src/test/resources/empty"));
     }
 
     @After
@@ -78,6 +83,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsRequestsWithDefaultOptions() throws Exception {
+        proxyServerStart(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
         proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
         proxyingTestClient.get("/foo/bar/baz", withHeader("A", "B"));
 
@@ -128,6 +134,8 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsFilteredRequestsWithJustRequestPatternsAndFullOutputFormat() throws Exception {
+        proxyServerStartWithEmptyFileRoot();
+
         // Matches both
         proxyingTestClient.get("/foo/bar", withHeader("A", "B"));
         // Fails header match
@@ -172,6 +180,8 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsFilteredRequestsWithRequestPatternAndIdsWithFullOutputFormat() {
+        proxyServerStartWithEmptyFileRoot();
+
         // Matches both
         proxyingTestClient.get("/foo/bar");
         // Fails URL match
@@ -229,6 +239,8 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsStubMappingWithCapturedHeaders() {
+        proxyServerStartWithEmptyFileRoot();
+
         proxyingTestClient.put("/foo/bar",
             withHeader("A", "B"),
             withHeader("Accept", "B"),
@@ -278,6 +290,8 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void returnsStubMappingsWithScenariosForRepeatedRequests() {
+        proxyServerStartWithEmptyFileRoot();
+
         proxyingTestClient.get("/bar/baz");
         proxyingTestClient.get("/foo");
         proxyingTestClient.get("/bar/baz");
@@ -285,6 +299,116 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         assertThat(
             proxyingTestClient.snapshot(REPEATS_AS_SCENARIOS_SNAPSHOT_REQUEST),
             equalToJson(REPEATS_AS_SCENARIOS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
+        );
+    }
+
+    private static final String GLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST =
+        "{                                  \n" +
+            "    \"outputFormat\": \"full\",    \n" +
+            "    \"persist\": \"false\"         \n" +
+            "}                                    ";
+
+    private static final String GLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
+        "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo?transformed=global\",      \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        },                                                  \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/?transformed=global\",         \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        }                                                   \n" +
+            "    ]                                                       \n" +
+            "}                                                             ";
+
+    @Test
+    public void returnsTransformedStubMappingWithGlobalTransformer() {
+        proxyServerStart(
+            wireMockConfig()
+                .withRootDirectory("src/test/resources/empty")
+                .extensions(
+                    GlobalStubMappingTransformer.class,
+                    NonGlobalStubMappingTransformer.class // should ignore this one
+                )
+        );
+
+        proxyingTestClient.get("/");
+        proxyingTestClient.get("/foo");
+
+        assertThat(
+            proxyingTestClient.snapshot(GLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST),
+            equalToJson(GLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER)
+        );
+    }
+
+    private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST =
+        "{                                    \n" +
+            "    \"outputFormat\": \"full\",      \n" +
+            "    \"persist\": \"false\",          \n" +
+            "    \"transformers\": [              \n" +
+            "       \"nonglobal-transformer\"     \n" +
+            "    ]                                \n" +
+            "}                                      ";
+
+    private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
+        "{                                                           \n" +
+            "    \"mappings\": [                                         \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo?transformed=nonglobal\",   \n" +
+            "                \"method\" : \"GET\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
+            "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        },                                                  \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/?transformed=nonglobal\",      \n" +
+            "                \"method\" : \"GET\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
+            "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        }                                                   \n" +
+            "    ]                                                       \n" +
+            "}                                                             ";
+
+    @Test
+    public void returnsTransformedStubMappingWithNonGlobalTransformer() {
+        proxyServerStart(
+            wireMockConfig()
+                .withRootDirectory("src/test/resources/empty")
+                .extensions(NonGlobalStubMappingTransformer.class)
+        );
+
+        proxyingTestClient.get("/");
+        proxyingTestClient.get("/foo");
+
+        assertThat(
+            proxyingTestClient.snapshot(NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST),
+            equalToJson(NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
     }
 }
