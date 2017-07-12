@@ -5,16 +5,19 @@ import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
 import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 
 public class SnapshotSpecBuilder {
 
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
+    private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
     private long maxTextBodySize = DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
     private boolean persistentStubs = true;
@@ -52,28 +55,6 @@ public class SnapshotSpecBuilder {
         return this;
     }
 
-    public SnapshotSpec build() {
-        RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
-            filterRequestPatternBuilder.build() :
-            null;
-        ProxiedServeEventFilters filters = filterRequestPatternBuilder != null || filterIds != null ?
-            new ProxiedServeEventFilters(filterRequestPattern, filterIds) :
-            null;
-
-        ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
-
-        return new SnapshotSpec(
-            filters,
-            null,
-            responseDefinitionBodyMatcher,
-            SnapshotOutputFormatter.FULL,
-            persistentStubs,
-            repeatsAsScenarios,
-            transformerNames,
-            transformerParameters
-        );
-    }
-
     public SnapshotSpecBuilder transformers(String... transformerName) {
         return transformers(asList(transformerName));
     }
@@ -86,5 +67,36 @@ public class SnapshotSpecBuilder {
     public SnapshotSpecBuilder transformerParameters(Parameters parameters) {
         this.transformerParameters = parameters;
         return this;
+    }
+
+    public SnapshotSpecBuilder captureHeader(String key) {
+        return captureHeader(key, null);
+    }
+
+    public SnapshotSpecBuilder captureHeader(String key, Boolean caseInsensitive) {
+        headers.put(key, new CaptureHeadersSpec(caseInsensitive));
+        return this;
+    }
+
+    public SnapshotSpec build() {
+        RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
+            filterRequestPatternBuilder.build() :
+            null;
+        ProxiedServeEventFilters filters = filterRequestPatternBuilder != null || filterIds != null ?
+            new ProxiedServeEventFilters(filterRequestPattern, filterIds) :
+            null;
+
+        ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
+
+        return new SnapshotSpec(
+            filters,
+            headers.isEmpty() ? null : headers,
+            responseDefinitionBodyMatcher,
+            SnapshotOutputFormatter.FULL,
+            persistentStubs,
+            repeatsAsScenarios,
+            transformerNames,
+            transformerParameters
+        );
     }
 }

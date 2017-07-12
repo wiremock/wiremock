@@ -85,7 +85,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
 
         String operand = rootNode.findValue("equalTo").textValue();
-        boolean ignoreCase = fromNullable(rootNode.findValue("ignoreCase"));
+        boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
 
         return new EqualToPattern(operand, ignoreCase);
     }
