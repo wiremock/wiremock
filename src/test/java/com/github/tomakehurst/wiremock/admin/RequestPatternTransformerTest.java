@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.admin;
 
+import com.github.tomakehurst.wiremock.admin.model.CaptureHeadersSpec;
 import com.github.tomakehurst.wiremock.admin.model.RequestPatternTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -30,28 +31,6 @@ public class RequestPatternTransformerTest {
     }
 
     @Test
-    public void applyWithHeaders() {
-        Request request = mockRequest()
-            .url("/")
-            .method(RequestMethod.POST)
-            .header("Accept", "foo")
-            .header("X-Ignored", "ignored")
-            .header("X-NoMatch", "not matching")
-            .header("X-Matches", "Baz");
-
-        RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.POST, urlEqualTo("/"))
-            .withHeader("Accept",equalTo("foo"))
-            .withHeader("X-Matches", equalTo("Baz"));
-
-        Map<String, MultiValuePattern> headers = newLinkedHashMap();
-        headers.put("Accept", new MultiValuePattern(equalTo("foo")));
-        headers.put("X-NoMatch", new MultiValuePattern(absent()));
-        headers.put("X-Matches", new MultiValuePattern(matching(".az")));
-
-        assertEquals(expected.build(), new RequestPatternTransformer(headers).apply(request).build());
-    }
-
-    @Test
     public void applyWithUrlAndPlainTextBody() {
         Request request = mockRequest()
             .url("/foo")
@@ -61,11 +40,9 @@ public class RequestPatternTransformerTest {
             .header("User-Agent", "bar");
 
         RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"))
-            .withHeader("Accept",equalTo("foo"))
             .withRequestBody(equalTo("HELLO"));
 
-        Map<String, MultiValuePattern> headers = newLinkedHashMap();
-        headers.put("Accept", new MultiValuePattern(new AnythingPattern()));
+        Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
 
         assertEquals(expected.build(), new RequestPatternTransformer(headers).apply(request).build());
     }

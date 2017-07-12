@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 
 import java.util.Map;
@@ -19,10 +17,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  * matches the request
  */
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
-    private final Map<String, MultiValuePattern> headers;
+    private final Map<String, CaptureHeadersSpec> headers;
 
     @JsonCreator
-    public RequestPatternTransformer(@JsonProperty("headers") Map<String, MultiValuePattern> headers) {
+    public RequestPatternTransformer(@JsonProperty("headers") Map<String, CaptureHeadersSpec> headers) {
         this.headers = headers;
     }
 
@@ -35,13 +33,11 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
         final RequestPatternBuilder builder = new RequestPatternBuilder(request.getMethod(), urlEqualTo(request.getUrl()));
 
         if (headers != null && !headers.isEmpty()) {
-            for (Map.Entry<String, MultiValuePattern> header : headers.entrySet()) {
+            for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
                 String headerName = header.getKey();
-                MultiValuePattern matcher = header.getValue();
-                if (matcher.match(request.header(headerName)).isExactMatch()) {
-                    StringValuePattern headerMatcher = equalTo(request.getHeader(headerName));
-                    builder.withHeader(headerName, headerMatcher);
-                }
+                CaptureHeadersSpec spec = header.getValue();
+                StringValuePattern headerMatcher = new EqualToPattern(request.getHeader(headerName), spec.getCaseInsensitive());
+                builder.withHeader(headerName, headerMatcher);
             }
         }
 
