@@ -35,9 +35,11 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
         if (headers != null && !headers.isEmpty()) {
             for (Map.Entry<String, CaptureHeadersSpec> header : headers.entrySet()) {
                 String headerName = header.getKey();
-                CaptureHeadersSpec spec = header.getValue();
-                StringValuePattern headerMatcher = new EqualToPattern(request.getHeader(headerName), spec.getCaseInsensitive());
-                builder.withHeader(headerName, headerMatcher);
+                if (request.containsHeader(headerName)) {
+                    CaptureHeadersSpec spec = header.getValue();
+                    StringValuePattern headerMatcher = new EqualToPattern(request.getHeader(headerName), spec.getCaseInsensitive());
+                    builder.withHeader(headerName, headerMatcher);
+                }
             }
         }
 

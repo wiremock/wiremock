@@ -8,11 +8,13 @@ import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -29,10 +31,12 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -102,7 +106,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void snapshotRecordsAllLoggedRequestsWhenFilterIsSpecified() throws Exception {
+    public void supportsFilteringByCriteria() throws Exception {
         client.get("/things/1");
         client.get("/things/2");
         client.get("/stuff/1");
@@ -120,7 +124,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void snapshotRecordsAllLoggedRequestsWhenIdFilterIsSpecified() throws Exception {
+    public void supportsFilteringByServeEventId() throws Exception {
         client.get("/1");
         client.get("/2");
         client.get("/3");
@@ -137,7 +141,28 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void snapshotRecordsLoggedRequestsWhenExtractBodyCriteriaAreSpecified() throws Exception {
+    public void supportsRequestHeaderCriteria() {
+        client.get("/one", withHeader("Yes", "1"), withHeader("No", "1"));
+        client.get("/two", withHeader("Yes", "2"), withHeader("Also-Yes", "BBB"));
+
+        List<StubMapping> mappings = snapshotRecord(
+            snapshotSpec()
+                .captureHeader("Yes")
+                .captureHeader("Also-Yes", true)
+        );
+
+        StringValuePattern yesValuePattern = mappings.get(0).getRequest().getHeaders().get("Yes").getValuePattern();
+        assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
+        assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), is(false));
+        assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
+
+        StringValuePattern alsoYesValuePattern = mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePattern();
+        assertThat(alsoYesValuePattern, instanceOf(EqualToPattern.class));
+        assertThat(((EqualToPattern) alsoYesValuePattern).getCaseInsensitive(), is(true));
+    }
+
+    @Test
+    public void supportsBodyExtractCriteria() throws Exception {
         targetService.stubFor(get("/small/text").willReturn(aResponse()
                 .withHeader("Content-Type", "text/plain")
                 .withBody("123")));
@@ -170,7 +195,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void snapshotRecordsLoggedRequestsWhenNoPersistenceSpecified() {
+    public void supportsDisablingRecordedStubPersistence() {
         client.get("/transient");
 
         List<StubMapping> mappings = snapshotRecord(

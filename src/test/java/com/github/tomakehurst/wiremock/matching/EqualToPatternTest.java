@@ -70,7 +70,7 @@ public class EqualToPatternTest {
         StringValuePattern stringValuePattern = Json.read(
             "{                              \n" +
                 "  \"equalTo\": \"something\",   \n" +
-                "  \"ignoreCase\": true          \n" +
+                "  \"caseInsensitive\": true     \n" +
                 "}",
             StringValuePattern.class);
 
