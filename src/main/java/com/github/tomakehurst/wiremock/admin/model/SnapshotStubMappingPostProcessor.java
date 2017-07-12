@@ -37,7 +37,7 @@ public class SnapshotStubMappingPostProcessor {
         final Multiset<RequestPattern> requestCounts = HashMultiset.create();
         final List<StubMapping> processedStubMappings = new ArrayList<>();
 
-        for (StubMapping stubMapping : stubMappings) {
+        for (StubMapping stubMapping: stubMappings) {
             requestCounts.add(stubMapping.getRequest());
 
             // Skip duplicate requests if shouldRecordRepeatsAsScenarios is not enabled
@@ -56,22 +56,10 @@ public class SnapshotStubMappingPostProcessor {
         }
 
         if (shouldRecordRepeatsAsScenarios) {
-            this.createScenariosForRepeatedRequests(processedStubMappings, requestCounts);
+            new ScenarioProcessor().putRepeatedRequestsInScenarios(processedStubMappings);
         }
 
         // Run any stub mapping transformer extensions
         return Lists.transform(processedStubMappings, transformerRunner);
-    }
-
-    private void createScenariosForRepeatedRequests(
-        Iterable<StubMapping> stubMappings,
-        Multiset<RequestPattern> requestCounts
-    ) {
-        final SnapshotScenarioBuilder scenarioBuilder = new SnapshotScenarioBuilder();
-        for (StubMapping stubMapping : stubMappings) {
-            if (requestCounts.count(stubMapping.getRequest()) > 1) {
-                scenarioBuilder.addToScenario(stubMapping);
-            }
-        }
     }
 }

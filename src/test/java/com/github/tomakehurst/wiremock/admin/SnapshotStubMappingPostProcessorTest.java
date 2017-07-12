@@ -36,28 +36,6 @@ public class SnapshotStubMappingPostProcessorTest {
     }
 
     @Test
-    public void processCreatesScenariosForRepeatedRequestsWhenEnabled() {
-        final List<StubMapping> actual = new SnapshotStubMappingPostProcessor(
-            true, noopTransformerRunner(), null, null
-        ).process(TEST_STUB_MAPPINGS);
-
-        assertThat(actual, hasSize(3));
-        assertThat(actual.get(0).getRequest().getUrl(), equalTo("/foo"));
-        assertThat(actual.get(0).getScenarioName(), equalTo("scenario-foo"));
-        assertThat(actual.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
-        assertThat(actual.get(0).getNewScenarioState(), is(nullValue()));
-
-        assertThat(actual.get(1).getRequest().getUrl(), equalTo("/bar"));
-        assertThat(actual.get(1).getScenarioName(), is(nullValue()));
-        assertThat(actual.get(1).getRequiredScenarioState(), is(nullValue()));
-
-        assertThat(actual.get(2).getRequest().getUrl(), equalTo("/foo"));
-        assertThat(actual.get(2).getScenarioName(), equalTo("scenario-foo"));
-        assertThat(actual.get(2).getRequiredScenarioState(), is(Scenario.STARTED));
-        assertThat(actual.get(2).getNewScenarioState(), equalTo("scenario-foo-2"));
-    }
-
-    @Test
     public void processRunsTransformers() {
         SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(null) {
             @Override

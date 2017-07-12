@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.SnapshotSpec;
 import com.github.tomakehurst.wiremock.admin.model.SnapshotSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
@@ -666,8 +667,16 @@ public class WireMock {
         return defaultInstance.get().takeSnapshotRecording();
     }
 
+    public static List<StubMapping> snapshotRecord(SnapshotSpecBuilder spec) {
+        return defaultInstance.get().takeSnapshotRecording(spec);
+    }
+
     public List<StubMapping> takeSnapshotRecording() {
         return admin.takeSnapshotRecording().getStubMappings();
+    }
+
+    public List<StubMapping> takeSnapshotRecording(SnapshotSpecBuilder spec) {
+        return admin.takeSnapshotRecording(spec.build()).getStubMappings();
     }
 
     public static SnapshotSpecBuilder snapshotSpec() {

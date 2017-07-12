@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransform
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
@@ -54,6 +55,11 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
         proxyServerStart(wireMockConfig().withRootDirectory("src/test/resources/empty"));
     }
 
+    @Before
+    public void clearTargetServerMappings() {
+        wireMockServer.resetMappings();
+    }
+
     @After
     public void proxyServerShutdown() {
         // delete any persisted stub mappings to ensure test isolation
@@ -66,7 +72,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo/bar/baz\",                 \n" +
+            "                \"url\" : \"/foo/bar\",                     \n" +
             "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
@@ -75,13 +81,13 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        },                                                  \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo/bar\",                     \n" +
+            "                \"url\" : \"/foo/bar/baz\",                 \n" +
             "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                   \n" +
+            "        },                                                  \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -117,22 +123,22 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo/bar/baz\",                 \n" +
-            "                \"method\" : \"GET\"                        \n" +
-            "            },                                              \n" +
-            "            \"response\" : {                                \n" +
-            "                \"status\" : 200                            \n" +
-            "            }                                               \n" +
-            "        },                                                  \n" +
-            "        {                                                   \n" +
-            "            \"request\" : {                                 \n" +
             "                \"url\" : \"/foo/bar\",                     \n" +
             "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                   \n" +
+            "        },                                                   \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo/bar/baz\",                 \n" +
+            "                \"method\" : \"GET\"                        \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        }                                                  \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -278,6 +284,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        {                                                       \n" +
             "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
             "            \"requiredScenarioState\" : \"Started\",            \n" +
+            "            \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
             "            \"request\" : {                                     \n" +
             "                \"url\" : \"/bar/baz\",                         \n" +
             "                \"method\" : \"GET\"                            \n" +
@@ -291,8 +298,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        },                                                      \n" +
             "        {                                                       \n" +
             "            \"scenarioName\" : \"scenario-bar-baz\",            \n" +
-            "            \"requiredScenarioState\" : \"Started\",            \n" +
-            "            \"newScenarioState\" : \"scenario-bar-baz-2\",      \n" +
+            "            \"requiredScenarioState\" : \"scenario-bar-baz-2\", \n" +
             "            \"request\" : {                                     \n" +
             "                \"url\" : \"/bar/baz\",                         \n" +
             "                \"method\" : \"GET\"                            \n" +
@@ -326,7 +332,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo?transformed=global\",      \n" +
+            "                \"url\" : \"/?transformed=global\",         \n" +
             "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
@@ -335,13 +341,13 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        },                                                  \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/?transformed=global\",         \n" +
+            "                \"url\" : \"/foo?transformed=global\",      \n" +
             "                \"method\" : \"GET\"                        \n" +
             "            },                                              \n" +
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                   \n" +
+            "        },                                                  \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -377,20 +383,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
     private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
         "{                                                           \n" +
             "    \"mappings\": [                                         \n" +
-            "        {                                                   \n" +
-            "            \"request\" : {                                 \n" +
-            "                \"url\" : \"/foo?transformed=nonglobal\",   \n" +
-            "                \"method\" : \"GET\",                       \n" +
-            "                \"headers\": {                              \n" +
-            "                    \"Accept\": {                           \n" +
-            "                        \"equalTo\": \"B\"                  \n" +
-            "                    }                                       \n" +
-            "                }                                           \n" +
-            "            },                                              \n" +
-            "            \"response\" : {                                \n" +
-            "                \"status\" : 200                            \n" +
-            "            }                                               \n" +
-            "        },                                                  \n" +
+
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
             "                \"url\" : \"/?transformed=nonglobal\",      \n" +
@@ -404,7 +397,21 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                   \n" +
+            "        },                                                  \n" +
+            "        {                                                   \n" +
+            "            \"request\" : {                                 \n" +
+            "                \"url\" : \"/foo?transformed=nonglobal\",   \n" +
+            "                \"method\" : \"GET\",                       \n" +
+            "                \"headers\": {                              \n" +
+            "                    \"Accept\": {                           \n" +
+            "                        \"equalTo\": \"B\"                  \n" +
+            "                    }                                       \n" +
+            "                }                                           \n" +
+            "            },                                              \n" +
+            "            \"response\" : {                                \n" +
+            "                \"status\" : 200                            \n" +
+            "            }                                               \n" +
+            "        }                                                  \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 

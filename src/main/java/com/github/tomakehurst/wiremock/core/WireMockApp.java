@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Map;
@@ -344,7 +345,7 @@ public class WireMockApp implements StubServer, Admin {
 
     public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec snapshotSpec) {
         final List<StubMapping> stubMappings = serveEventsToStubMappings(
-            getServeEvents(),
+            Lists.reverse(getServeEvents().getServeEvents()),
             snapshotSpec.getFilters(),
             new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders()),
             getStubMappingPostProcessor(getOptions(), snapshotSpec)
@@ -357,16 +358,16 @@ public class WireMockApp implements StubServer, Admin {
             }
         }
 
-        return snapshotSpec.getOutputFormatter().format(stubMappings);
+        return snapshotSpec.getOutputFormat().format(stubMappings);
     }
 
     private List<StubMapping> serveEventsToStubMappings(
-        GetServeEventsResult serveEventsResult,
+        List<ServeEvent> serveEventsResult,
         ProxiedServeEventFilters serveEventFilters,
         SnapshotStubMappingGenerator stubMappingGenerator,
         SnapshotStubMappingPostProcessor stubMappingPostProcessor
     ) {
-        final Iterable<StubMapping> stubMappings = from(serveEventsResult.getServeEvents())
+        final Iterable<StubMapping> stubMappings = from(serveEventsResult)
             .filter(serveEventFilters)
             .transform(stubMappingGenerator);
 

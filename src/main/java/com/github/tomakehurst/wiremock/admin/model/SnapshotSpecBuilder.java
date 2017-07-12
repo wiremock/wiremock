@@ -15,6 +15,8 @@ public class SnapshotSpecBuilder {
     private List<UUID> filterIds;
     private long maxTextBodySize = DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
+    private boolean persistentStubs = true;
+    private boolean repeatsAsScenarios = false;
 
     public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
         this.filterRequestPatternBuilder = filterRequestPattern;
@@ -36,6 +38,16 @@ public class SnapshotSpecBuilder {
         return this;
     }
 
+    public SnapshotSpecBuilder makeStubsPersistent(boolean persistent) {
+        this.persistentStubs = persistent;
+        return this;
+    }
+
+    public SnapshotSpecBuilder buildScenariosForRepeatRequests() {
+        this.repeatsAsScenarios = true;
+        return this;
+    }
+
     public SnapshotSpec build() {
         RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
             filterRequestPatternBuilder.build() :
@@ -50,9 +62,9 @@ public class SnapshotSpecBuilder {
             filters,
             null,
             responseDefinitionBodyMatcher,
-            null,
-            null,
-            null,
+            SnapshotOutputFormatter.FULL,
+            persistentStubs,
+            repeatsAsScenarios,
             null,
             null
         );
