@@ -5,10 +5,12 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
@@ -21,6 +23,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
@@ -32,6 +35,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     private WireMockServer targetService;
     private WireMockServer proxyingService;
     private WireMockTestClient client;
+    private WireMock adminClient;
 
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
@@ -45,6 +49,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         client = new WireMockTestClient(proxyingService.port());
         WireMock.configureFor(proxyingService.port());
+        adminClient = new WireMock(proxyingService.port());
     }
 
     @After
@@ -70,17 +75,17 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertTrue("All of the returned mappings should be present in the server", serverMappings.containsAll(returnedMappings));
         assertThat(returnedMappings.size(), is(3));
 
-        assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/one"));
-        assertThat(returnedMappings.get(2).getRequest().getHeaders(), nullValue());
-        assertThat(returnedMappings.get(2).getRequest().getMethod(), is(RequestMethod.GET));
-        assertThat(returnedMappings.get(2).getResponse().getHeaders().getHeader("Content-Type").firstValue(), is("text/plain"));
-        assertThat(returnedMappings.get(2).getResponse().getBody(), is("Number one"));
+        assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/one"));
+        assertThat(returnedMappings.get(0).getRequest().getHeaders(), nullValue());
+        assertThat(returnedMappings.get(0).getRequest().getMethod(), is(RequestMethod.GET));
+        assertThat(returnedMappings.get(0).getResponse().getHeaders().getHeader("Content-Type").firstValue(), is("text/plain"));
+        assertThat(returnedMappings.get(0).getResponse().getBody(), is("Number one"));
 
         assertThat(returnedMappings.get(1).getRequest().getUrl(), is("/two"));
 
-        assertThat(returnedMappings.get(0).getRequest().getUrl(), is("/three"));
+        assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/three"));
 
-        StringValuePattern bodyPattern = returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+        StringValuePattern bodyPattern = returnedMappings.get(2).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern, instanceOf(EqualToJsonPattern.class));
         JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
@@ -125,7 +130,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void snapshotRecordsAllLoggedRequestsWhenExtractBodyCriteriaAreSpecified() throws Exception {
+    public void snapshotRecordsLoggedRequestsWhenExtractBodyCriteriaAreSpecified() throws Exception {
         targetService.stubFor(get("/small/text").willReturn(aResponse()
                 .withHeader("Content-Type", "text/plain")
                 .withBody("123")));
@@ -158,6 +163,44 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void snapshotRecordsLoggedRequestsWhenNoPersistenceSpecified() {
+        client.get("/transient");
+
+        List<StubMapping> mappings = proxyingService.snapshotRecord(
+            snapshotSpec()
+                .makeStubsPersistent(false)
+        );
+
+        assertThat(findMappingWithUrl(mappings, "/transient").isPersistent(), nullValue());
+    }
+
+    @Test
+    public void buildsAScenarioForRepeatedIdenticalRequests() {
+        targetService.stubFor(get("/stateful").willReturn(ok("One")));
+        client.get("/stateful");
+
+        targetService.stubFor(get("/stateful").willReturn(ok("Two")));
+        client.get("/stateful");
+
+        targetService.stubFor(get("/stateful").willReturn(ok("Three")));
+        client.get("/stateful");
+
+        List<StubMapping> mappings = proxyingService.snapshotRecord(
+            snapshotSpec()
+                .buildScenariosForRepeatRequests()
+        );
+
+        assertThat(client.get("/stateful").content(), is("One"));
+        assertThat(client.get("/stateful").content(), is("Two"));
+        assertThat(client.get("/stateful").content(), is("Three"));
+
+        assertThat(mappings, everyItem(isInAScenario()));
+        assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
+        assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-stateful-2"));
+        assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
+    }
+
+    @Test
     public void staticClientIsSupportedWithDefaultSpec() {
         client.get("/get-this");
 
@@ -168,9 +211,19 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void instanceClientIsSupportedWithDefaultSpec() {
-        WireMock adminClient = new WireMock(proxyingService.port());
+    public void staticClientIsSupportedWithSpecProvided() {
+        client.get("/get-this");
+        client.get("/but-not-this");
 
+        snapshotRecord(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
+
+        List<StubMapping> serverMappings = proxyingService.getStubMappings();
+        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this")));
+        assertThat(serverMappings, not(hasItem(stubMappingWithUrl("/but-not-this"))));
+    }
+
+    @Test
+    public void instanceClientIsSupportedWithDefaultSpec() {
         client.get("/get-this-too");
         adminClient.takeSnapshotRecording();
 
@@ -178,6 +231,17 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this-too")));
     }
 
+    @Test
+    public void instanceClientIsSupportedWithSpecProvided() {
+        client.get("/get-this");
+        client.get("/but-not-this");
+
+        adminClient.takeSnapshotRecording(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
+
+        List<StubMapping> serverMappings = proxyingService.getStubMappings();
+        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this")));
+        assertThat(serverMappings, not(hasItem(stubMappingWithUrl("/but-not-this"))));
+    }
 
     private static ServeEvent findServeEventWithUrl(List<ServeEvent> serveEvents, final String url) {
         return find(serveEvents, new Predicate<ServeEvent>() {
@@ -189,12 +253,20 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static StubMapping findMappingWithUrl(List<StubMapping> stubMappings, final String url) {
-        return find(stubMappings, new Predicate<StubMapping>() {
+        return find(stubMappings, withUrl(url));
+    }
+
+    private static List<StubMapping> findMappingsWithUrl(List<StubMapping> stubMappings, final String url) {
+        return ImmutableList.copyOf(filter(stubMappings, withUrl(url)));
+    }
+
+    private static Predicate<StubMapping> withUrl(final String url) {
+        return new Predicate<StubMapping>() {
             @Override
             public boolean apply(StubMapping input) {
                 return url.equals(input.getRequest().getUrl());
             }
-        });
+        };
     }
 
     private static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final String url) {
@@ -211,6 +283,20 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
             @Override
             protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
                 return urlPattern.match(item.getRequest().getUrl()).isExactMatch();
+            }
+        };
+    }
+
+    private TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
+        return new TypeSafeDiagnosingMatcher<StubMapping>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub mapping with a scenario name");
+            }
+
+            @Override
+            protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
+                return item.getScenarioName() != null;
             }
         };
     }

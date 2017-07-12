@@ -60,7 +60,7 @@ public class SnapshotSpec {
 
     public Map<String, MultiValuePattern> getCaptureHeaders() { return captureHeaders; }
 
-    public SnapshotOutputFormatter getOutputFormatter() { return outputFormat; }
+    public SnapshotOutputFormatter getOutputFormat() { return outputFormat; }
 
     public boolean shouldPersist() { return persist; }
 
