@@ -18,7 +18,7 @@ public class SnapshotSpecBuilder {
     private long maxTextBodySize = DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
     private boolean persistentStubs = true;
-    private boolean repeatsAsScenarios = false;
+    private boolean repeatsAsScenarios = true;
     private List<String> transformerNames;
     private Parameters transformerParameters;
 
@@ -47,8 +47,8 @@ public class SnapshotSpecBuilder {
         return this;
     }
 
-    public SnapshotSpecBuilder buildScenariosForRepeatRequests() {
-        this.repeatsAsScenarios = true;
+    public SnapshotSpecBuilder ignoreRepeatRequests() {
+        this.repeatsAsScenarios = false;
         return this;
     }
 

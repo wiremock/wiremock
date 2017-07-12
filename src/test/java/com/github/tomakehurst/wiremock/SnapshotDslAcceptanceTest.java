@@ -192,10 +192,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         targetService.stubFor(get("/stateful").willReturn(ok("Three")));
         client.get("/stateful");
 
-        List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec()
-                .buildScenariosForRepeatRequests()
-        );
+        // Scenario creation is the default
+        List<StubMapping> mappings = snapshotRecord();
 
         assertThat(client.get("/stateful").content(), is("One"));
         assertThat(client.get("/stateful").content(), is("Two"));
