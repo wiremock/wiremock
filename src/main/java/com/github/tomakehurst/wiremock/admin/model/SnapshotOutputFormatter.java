@@ -18,7 +18,7 @@ public enum SnapshotOutputFormatter {
     IDS {
         @Override
         public SnapshotRecordResult format(List<StubMapping> stubMappings) {
-            return SnapshotRecordResult.ids(stubMappings);
+            return SnapshotRecordResult.idsFromMappings(stubMappings);
         }
     };
 

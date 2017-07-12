@@ -120,7 +120,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         UUID serveEventId = findServeEventWithUrl(proxyingService.getAllServeEvents(), "/2").getId();
 
-        List<StubMapping> mappings = proxyingService.snapshotRecord(
+        List<StubMapping> mappings = adminClient.takeSnapshotRecording(
             snapshotSpec()
                 .onlyRequestIds(singletonList(serveEventId))
         );
@@ -149,7 +149,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/small/binary");
         client.get("/large/binary");
 
-        List<StubMapping> mappings = proxyingService.snapshotRecord(
+        List<StubMapping> mappings = snapshotRecord(
             snapshotSpec()
                 .extractTextBodiesOver(10)
                 .extractBinaryBodiesOver(5)
@@ -166,7 +166,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void snapshotRecordsLoggedRequestsWhenNoPersistenceSpecified() {
         client.get("/transient");
 
-        List<StubMapping> mappings = proxyingService.snapshotRecord(
+        List<StubMapping> mappings = snapshotRecord(
             snapshotSpec()
                 .makeStubsPersistent(false)
         );
@@ -185,7 +185,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         targetService.stubFor(get("/stateful").willReturn(ok("Three")));
         client.get("/stateful");
 
-        List<StubMapping> mappings = proxyingService.snapshotRecord(
+        List<StubMapping> mappings = snapshotRecord(
             snapshotSpec()
                 .buildScenariosForRepeatRequests()
         );
@@ -199,6 +199,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-stateful-2"));
         assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
     }
+
+
 
     @Test
     public void staticClientIsSupportedWithDefaultSpec() {

@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +28,17 @@ public class SnapshotRecordResult {
         return new Full(stubMappings);
     }
 
-    public static SnapshotRecordResult ids(List<StubMapping> stubMappings) {
-        return new Ids(stubMappings);
+    public static SnapshotRecordResult idsFromMappings(List<StubMapping> stubMappings) {
+        return new Ids(Lists.transform(stubMappings, new Function<StubMapping, UUID>() {
+            @Override
+            public UUID apply(StubMapping input) {
+                return input.getId();
+            }
+        }));
+    }
+
+    public static SnapshotRecordResult ids(List<UUID> ids) {
+        return new Ids(ids);
     }
 
     public static class Full extends SnapshotRecordResult {
@@ -46,14 +56,9 @@ public class SnapshotRecordResult {
 
         private final List<UUID> ids;
 
-        public Ids(List<StubMapping> mappings) {
-            super(mappings);
-            this.ids = Lists.transform(mappings, new Function<StubMapping, UUID>() {
-                @Override
-                public UUID apply(StubMapping input) {
-                    return input.getId();
-                }
-            });
+        public Ids(List<UUID> ids) {
+            super(Collections.<StubMapping>emptyList());
+            this.ids = ids;
         }
 
         public List<UUID> getIds() {
