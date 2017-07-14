@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class RequestTemplateModel {
 
+    private final String absoluteUrl;
     private final String url;
     private final UrlPath path;
     private final Map<String, ListOrSingle<String>> query;
@@ -21,7 +22,8 @@ public class RequestTemplateModel {
     private final String body;
 
 
-    public RequestTemplateModel(String url, UrlPath path, Map<String, ListOrSingle<String>> query, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
+    public RequestTemplateModel(String absoluteUrl, String url, UrlPath path, Map<String, ListOrSingle<String>> query, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
+        this.absoluteUrl = absoluteUrl;
         this.url = url;
         this.path = path;
         this.query = query;
@@ -50,6 +52,7 @@ public class RequestTemplateModel {
         UrlPath path = new UrlPath(request.getUrl());
 
         return new RequestTemplateModel(
+            request.getAbsoluteUrl(),
             request.getUrl(),
             path,
             adaptedQuery,
@@ -57,6 +60,10 @@ public class RequestTemplateModel {
             adaptedCookies,
             request.getBodyAsString()
         );
+    }
+
+    public String getAbsoluteUrl() {
+        return absoluteUrl;
     }
 
     public String getUrl() {
