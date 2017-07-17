@@ -27,6 +27,10 @@ public class Recorder {
     }
 
     public synchronized void startRecording(RecordSpec spec) {
+        if (state.getStatus() == State.Status.Recording) {
+            return;
+        }
+
         StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
         admin.addStubMapping(proxyMapping);
 
