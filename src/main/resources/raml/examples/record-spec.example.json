@@ -10,6 +10,11 @@
             "caseInsensitive" : true
         }
     },
+    "requestBodyPattern" : {
+        "matcher" : "equalToJson",
+        "ignoreArrayOrder" : false,
+        "ignoreExtraElements" : true
+    },
     "extractBodyCriteria" : {
         "textSizeThreshold" : "2048",
         "binarySizeThreshold" : "10240"
@@ -19,9 +24,5 @@
     "transformers" : [ "modify-response-header" ],
     "transformerParameters" : {
         "headerValue" : "123"
-    },
-    "jsonMatchingFlags" : {
-        "ignoreArrayOrder" : false,
-        "ignoreExtraElements" : true
     }
 }
