@@ -369,4 +369,9 @@ public class WireMockApp implements StubServer, Admin {
     public SnapshotRecordResult stopRecording() {
         return recorder.stopRecording();
     }
+
+    @Override
+    public RecordingStatusResult getRecordingStatus() {
+        return new RecordingStatusResult(recorder.getStatus().name());
+    }
 }

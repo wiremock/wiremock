@@ -2,6 +2,9 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.recording.Recorder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatus;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.hamcrest.Matchers;
@@ -179,5 +182,33 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
+    }
+
+    @Test
+    public void returnsTheRecordingStatus() {
+        proxyingService.startRecording(targetBaseUrl);
+
+        RecordingStatusResult result = getRecordingStatus();
+
+        assertThat(result.getStatus(), is(RecordingStatus.Recording));
+    }
+
+    @Test
+    public void returnsTheRecordingStatusViaInstanceClient() {
+        proxyingService.startRecording(targetBaseUrl);
+        proxyingService.stopRecording();
+
+        RecordingStatusResult result = adminClient.getStubRecordingStatus();
+
+        assertThat(result.getStatus(), is(RecordingStatus.Stopped));
+    }
+
+    @Test
+    public void returnsTheRecordingStatusViaDirectDsl() {
+        proxyingService.startRecording(targetBaseUrl);
+
+        RecordingStatusResult result = proxyingService.getRecordingStatus();
+
+        assertThat(result.getStatus(), is(RecordingStatus.Recording));
     }
 }

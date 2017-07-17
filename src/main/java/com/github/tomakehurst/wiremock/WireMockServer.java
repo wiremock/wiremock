@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
@@ -400,6 +401,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public SnapshotRecordResult stopRecording() {
         return wireMockApp.stopRecording();
+    }
+
+    @Override
+    public RecordingStatusResult getRecordingStatus() {
+        return wireMockApp.getRecordingStatus();
     }
 
     @Override

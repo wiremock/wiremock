@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -307,6 +308,11 @@ public class HttpAdminClient implements Admin {
             HTTP_OK);
 
         return Json.read(body, SnapshotRecordResult.class);
+    }
+
+    @Override
+    public RecordingStatusResult getRecordingStatus() {
+        return executeRequest(adminRoutes.requestSpecForTask(GetRecordingStatusTask.class), RecordingStatusResult.class);
     }
 
     @Override

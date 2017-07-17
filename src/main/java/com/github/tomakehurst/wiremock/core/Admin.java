@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -62,6 +63,7 @@ public interface Admin {
     void startRecording(RecordSpec spec);
     void startRecording(RecordSpecBuilder recordSpec);
     SnapshotRecordResult stopRecording();
+    RecordingStatusResult getRecordingStatus();
 
     Options getOptions();
 
