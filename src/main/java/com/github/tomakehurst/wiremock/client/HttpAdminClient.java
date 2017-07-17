@@ -15,9 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
-import com.github.tomakehurst.wiremock.admin.AdminRoutes;
-import com.github.tomakehurst.wiremock.admin.AdminTask;
-import com.github.tomakehurst.wiremock.admin.RequestSpec;
+import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.common.AdminException;
@@ -284,12 +282,25 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void startRecording(String targetBaseUrl) {
+        startRecording(SnapshotSpec.forBaseUrl(targetBaseUrl));
+    }
 
+    @Override
+    public void startRecording(SnapshotSpec recordSpec) {
+        postJsonAssertOkAndReturnBody(
+            urlFor(StartRecordingTask.class),
+            Json.write(recordSpec),
+            HTTP_OK);
     }
 
     @Override
     public SnapshotRecordResult stopRecording() {
-        return null;
+        String body = postJsonAssertOkAndReturnBody(
+            urlFor(StopRecordingTask.class),
+            "",
+            HTTP_OK);
+
+        return Json.read(body, SnapshotRecordResult.class);
     }
 
     @Override

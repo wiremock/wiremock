@@ -59,6 +59,7 @@ public interface Admin {
     SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec);
 
     void startRecording(String targetBaseUrl);
+    void startRecording(SnapshotSpec snapshotSpec);
     SnapshotRecordResult stopRecording();
 
     Options getOptions();

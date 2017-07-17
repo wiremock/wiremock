@@ -6,7 +6,6 @@ import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
-import static com.google.common.collect.Lists.newLinkedList;
 
 public class Recorder {
 
@@ -28,13 +26,13 @@ public class Recorder {
         state = State.initial();
     }
 
-    public synchronized void startRecording(String targetBaseUrl) {
-        StubMapping proxyMapping = proxyAllTo(targetBaseUrl).build();
+    public synchronized void startRecording(SnapshotSpec spec) {
+        StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
         admin.addStubMapping(proxyMapping);
 
         List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
         UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
-        state = state.start(initialId, proxyMapping);
+        state = state.start(initialId, proxyMapping, spec);
     }
 
     public synchronized SnapshotRecordResult stopRecording() {
@@ -54,7 +52,7 @@ public class Recorder {
         int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
         List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
-        return takeSnapshot(eventsToSnapshot, SnapshotSpec.DEFAULTS);
+        return takeSnapshot(eventsToSnapshot, state.getSpec());
     }
 
     private static Predicate<ServeEvent> withId(final UUID id) {
@@ -119,26 +117,28 @@ public class Recorder {
 
         private final Status status;
         private final StubMapping proxyMapping;
+        private final SnapshotSpec spec;
         private final UUID startingServeEventId;
         private final UUID finishingServeEventId;
 
-        public State(Status status, StubMapping proxyMapping, UUID startingServeEventId, UUID finishingServeEventId) {
+        public State(Status status, StubMapping proxyMapping, SnapshotSpec spec, UUID startingServeEventId, UUID finishingServeEventId) {
             this.status = status;
             this.proxyMapping = proxyMapping;
+            this.spec = spec;
             this.startingServeEventId = startingServeEventId;
             this.finishingServeEventId = finishingServeEventId;
         }
 
         public static State initial() {
-            return new State(Status.NeverStarted, null, null, null);
+            return new State(Status.NeverStarted, null, null, null, null);
         }
 
-        public State start(UUID startingServeEventId, StubMapping proxyMapping) {
-            return new State(Status.Recording, proxyMapping, startingServeEventId, null);
+        public State start(UUID startingServeEventId, StubMapping proxyMapping, SnapshotSpec spec) {
+            return new State(Status.Recording, proxyMapping, spec, startingServeEventId, null);
         }
 
         public State stop(UUID finishingServeEventId) {
-            return new State(Status.Stopped, proxyMapping, startingServeEventId, finishingServeEventId);
+            return new State(Status.Stopped, proxyMapping, spec, startingServeEventId, finishingServeEventId);
         }
 
         public Status getStatus() {
@@ -147,6 +147,10 @@ public class Recorder {
 
         public StubMapping getProxyMapping() {
             return proxyMapping;
+        }
+
+        public SnapshotSpec getSpec() {
+            return spec;
         }
 
         public UUID getStartingServeEventId() {

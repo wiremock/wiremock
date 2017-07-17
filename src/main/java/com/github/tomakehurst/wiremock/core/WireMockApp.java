@@ -355,7 +355,12 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void startRecording(String targetBaseUrl) {
-        recorder.startRecording(targetBaseUrl);
+        recorder.startRecording(SnapshotSpec.forBaseUrl(targetBaseUrl));
+    }
+
+    @Override
+    public void startRecording(SnapshotSpec snapshotSpec) {
+        recorder.startRecording(snapshotSpec);
     }
 
     @Override
