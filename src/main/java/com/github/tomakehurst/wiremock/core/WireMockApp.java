@@ -347,7 +347,7 @@ public class WireMockApp implements StubServer, Admin {
         final List<StubMapping> stubMappings = serveEventsToStubMappings(
             Lists.reverse(getServeEvents().getServeEvents()),
             snapshotSpec.getFilters(),
-            new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders()),
+            new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders(), snapshotSpec.getJsonMatchingFlags()),
             getStubMappingPostProcessor(getOptions(), snapshotSpec)
         );
 

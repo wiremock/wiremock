@@ -24,6 +24,7 @@ public class SnapshotSpecBuilder {
     private boolean repeatsAsScenarios = true;
     private List<String> transformerNames;
     private Parameters transformerParameters;
+    private JsonMatchingFlags jsonMatchingFlags;
 
     public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
         this.filterRequestPatternBuilder = filterRequestPattern;
@@ -96,7 +97,12 @@ public class SnapshotSpecBuilder {
             persistentStubs,
             repeatsAsScenarios,
             transformerNames,
-            transformerParameters
-        );
+            transformerParameters,
+            jsonMatchingFlags);
+    }
+
+    public SnapshotSpecBuilder jsonBodyMatchFlags(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
+        this.jsonMatchingFlags = new JsonMatchingFlags(ignoreArrayOrder, ignoreExtraElements);
+        return this;
     }
 }

@@ -1,7 +1,6 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -24,9 +23,9 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
         this.responseTransformer = responseTransformer;
     }
 
-    public SnapshotStubMappingGenerator(Map<String, CaptureHeadersSpec> captureHeaders) {
+    public SnapshotStubMappingGenerator(Map<String, CaptureHeadersSpec> captureHeaders, JsonMatchingFlags jsonMatchingFlags) {
         this(
-            new RequestPatternTransformer(captureHeaders),
+            new RequestPatternTransformer(captureHeaders, jsonMatchingFlags),
             new LoggedResponseDefinitionTransformer()
         );
     }
