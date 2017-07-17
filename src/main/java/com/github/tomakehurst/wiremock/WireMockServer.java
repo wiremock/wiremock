@@ -36,8 +36,8 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpec;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -378,7 +378,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<StubMapping> snapshotRecord(SnapshotSpecBuilder spec) {
+    public List<StubMapping> snapshotRecord(RecordSpecBuilder spec) {
         return wireMockApp.takeSnapshotRecording(spec.build()).getStubMappings();
     }
 
@@ -388,7 +388,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public void startRecording(SnapshotSpec spec) {
+    public void startRecording(RecordSpec spec) {
         wireMockApp.startRecording(spec);
     }
 
@@ -403,7 +403,7 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec) {
+    public SnapshotRecordResult takeSnapshotRecording(RecordSpec spec) {
         return wireMockApp.takeSnapshotRecording(spec);
     }
 

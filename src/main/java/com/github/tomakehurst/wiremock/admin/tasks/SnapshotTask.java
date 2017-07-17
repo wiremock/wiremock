@@ -3,7 +3,7 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -16,11 +16,11 @@ public class SnapshotTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        SnapshotSpec snapshotSpec = request.getBody().length == 0
-            ? SnapshotSpec.DEFAULTS
-            : Json.read(request.getBodyAsString(), SnapshotSpec.class);
+        RecordSpec recordSpec = request.getBody().length == 0
+            ? RecordSpec.DEFAULTS
+            : Json.read(request.getBodyAsString(), RecordSpec.class);
 
-        SnapshotRecordResult result = admin.takeSnapshotRecording(snapshotSpec);
+        SnapshotRecordResult result = admin.takeSnapshotRecording(recordSpec);
         return jsonResponse(result, HTTP_OK);
     }
 }

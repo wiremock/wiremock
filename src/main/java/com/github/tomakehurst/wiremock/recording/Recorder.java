@@ -26,7 +26,7 @@ public class Recorder {
         state = State.initial();
     }
 
-    public synchronized void startRecording(SnapshotSpec spec) {
+    public synchronized void startRecording(RecordSpec spec) {
         StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();
         admin.addStubMapping(proxyMapping);
 
@@ -64,22 +64,22 @@ public class Recorder {
         };
     }
 
-    public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, SnapshotSpec snapshotSpec) {
+    public SnapshotRecordResult takeSnapshot(List<ServeEvent> serveEvents, RecordSpec recordSpec) {
         final List<StubMapping> stubMappings = serveEventsToStubMappings(
             Lists.reverse(serveEvents),
-            snapshotSpec.getFilters(),
-            new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders(), snapshotSpec.getJsonMatchingFlags()),
-            getStubMappingPostProcessor(admin.getOptions(), snapshotSpec)
+            recordSpec.getFilters(),
+            new SnapshotStubMappingGenerator(recordSpec.getCaptureHeaders(), recordSpec.getJsonMatchingFlags()),
+            getStubMappingPostProcessor(admin.getOptions(), recordSpec)
         );
 
         for (StubMapping stubMapping : stubMappings) {
-            if (snapshotSpec.shouldPersist()) {
+            if (recordSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
                 admin.addStubMapping(stubMapping);
             }
         }
 
-        return snapshotSpec.getOutputFormat().format(stubMappings);
+        return recordSpec.getOutputFormat().format(stubMappings);
     }
 
     public List<StubMapping> serveEventsToStubMappings(
@@ -95,18 +95,18 @@ public class Recorder {
         return stubMappingPostProcessor.process(stubMappings);
     }
 
-    public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, SnapshotSpec snapshotSpec) {
+    public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, RecordSpec recordSpec) {
         final SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
-            snapshotSpec.getTransformers(),
-            snapshotSpec.getTransformerParameters(),
+            recordSpec.getTransformers(),
+            recordSpec.getTransformerParameters(),
             options.filesRoot()
         );
 
         return new SnapshotStubMappingPostProcessor(
-            snapshotSpec.shouldRecordRepeatsAsScenarios(),
+            recordSpec.shouldRecordRepeatsAsScenarios(),
             transformerRunner,
-            snapshotSpec.getExtractBodyCriteria(),
+            recordSpec.getExtractBodyCriteria(),
             new SnapshotStubMappingBodyExtractor(options.filesRoot())
         );
     }
@@ -117,11 +117,11 @@ public class Recorder {
 
         private final Status status;
         private final StubMapping proxyMapping;
-        private final SnapshotSpec spec;
+        private final RecordSpec spec;
         private final UUID startingServeEventId;
         private final UUID finishingServeEventId;
 
-        public State(Status status, StubMapping proxyMapping, SnapshotSpec spec, UUID startingServeEventId, UUID finishingServeEventId) {
+        public State(Status status, StubMapping proxyMapping, RecordSpec spec, UUID startingServeEventId, UUID finishingServeEventId) {
             this.status = status;
             this.proxyMapping = proxyMapping;
             this.spec = spec;
@@ -133,7 +133,7 @@ public class Recorder {
             return new State(Status.NeverStarted, null, null, null, null);
         }
 
-        public State start(UUID startingServeEventId, StubMapping proxyMapping, SnapshotSpec spec) {
+        public State start(UUID startingServeEventId, StubMapping proxyMapping, RecordSpec spec) {
             return new State(Status.Recording, proxyMapping, spec, startingServeEventId, null);
         }
 
@@ -149,7 +149,7 @@ public class Recorder {
             return proxyMapping;
         }
 
-        public SnapshotSpec getSpec() {
+        public RecordSpec getSpec() {
             return spec;
         }
 

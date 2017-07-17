@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -665,7 +665,7 @@ public class WireMock {
         return defaultInstance.get().takeSnapshotRecording();
     }
 
-    public static List<StubMapping> snapshotRecord(SnapshotSpecBuilder spec) {
+    public static List<StubMapping> snapshotRecord(RecordSpecBuilder spec) {
         return defaultInstance.get().takeSnapshotRecording(spec);
     }
 
@@ -673,7 +673,7 @@ public class WireMock {
         return admin.takeSnapshotRecording().getStubMappings();
     }
 
-    public List<StubMapping> takeSnapshotRecording(SnapshotSpecBuilder spec) {
+    public List<StubMapping> takeSnapshotRecording(RecordSpecBuilder spec) {
         return admin.takeSnapshotRecording(spec.build()).getStubMappings();
     }
 
@@ -681,7 +681,7 @@ public class WireMock {
         defaultInstance.get().startStubRecording(targetBaseUrl);
     }
 
-    public static void startRecording(SnapshotSpecBuilder spec) {
+    public static void startRecording(RecordSpecBuilder spec) {
         defaultInstance.get().startStubRecording(spec);
     }
 
@@ -689,7 +689,7 @@ public class WireMock {
         admin.startRecording(targetBaseUrl);
     }
 
-    public void startStubRecording(SnapshotSpecBuilder spec) {
+    public void startStubRecording(RecordSpecBuilder spec) {
         admin.startRecording(spec.build());
     }
 
@@ -701,7 +701,7 @@ public class WireMock {
         return admin.stopRecording();
     }
 
-    public static SnapshotSpecBuilder snapshotSpec() {
-        return new SnapshotSpecBuilder();
+    public static RecordSpecBuilder recordSpec() {
+        return new RecordSpecBuilder();
     }
 }

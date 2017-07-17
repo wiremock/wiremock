@@ -114,7 +114,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     public void honoursRecordSpecWhenPresent() {
         targetService.stubFor(get("/record-this-with-header").willReturn(ok()));
 
-        startRecording(snapshotSpec()
+        startRecording(recordSpec()
             .forTarget(targetBaseUrl)
             .captureHeader("Accept")
         );
@@ -148,7 +148,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         targetService.stubFor(post("/record-this-with-body").willReturn(ok()));
 
         adminClient.startStubRecording(
-            snapshotSpec()
+            recordSpec()
                 .forTarget(targetBaseUrl)
                 .jsonBodyMatchFlags(true, true)
         );
