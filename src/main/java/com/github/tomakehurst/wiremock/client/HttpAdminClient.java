@@ -28,7 +28,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -271,7 +271,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec) {
+    public SnapshotRecordResult takeSnapshotRecording(RecordSpec spec) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(SnapshotTask.class),
             Json.write(spec),
@@ -282,11 +282,11 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void startRecording(String targetBaseUrl) {
-        startRecording(SnapshotSpec.forBaseUrl(targetBaseUrl));
+        startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
     }
 
     @Override
-    public void startRecording(SnapshotSpec recordSpec) {
+    public void startRecording(RecordSpec recordSpec) {
         postJsonAssertOkAndReturnBody(
             urlFor(StartRecordingTask.class),
             Json.write(recordSpec),

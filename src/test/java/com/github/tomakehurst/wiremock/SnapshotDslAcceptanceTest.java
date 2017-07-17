@@ -106,7 +106,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/stuff/2");
 
         List<StubMapping> mappings = proxyingService.snapshotRecord(
-            snapshotSpec()
+            recordSpec()
                 .onlyRequestsMatching(getRequestedFor(urlPathMatching("/things/.*")))
         );
 
@@ -124,7 +124,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         UUID serveEventId = WireMatchers.findServeEventWithUrl(proxyingService.getAllServeEvents(), "/2").getId();
 
         List<StubMapping> mappings = adminClient.takeSnapshotRecording(
-            snapshotSpec()
+            recordSpec()
                 .onlyRequestIds(singletonList(serveEventId))
         );
 
@@ -138,7 +138,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/two", withHeader("Yes", "2"), withHeader("Also-Yes", "BBB"));
 
         List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec()
+            recordSpec()
                 .captureHeader("Yes")
                 .captureHeader("Also-Yes", true)
         );
@@ -174,7 +174,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/large/binary");
 
         List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec()
+            recordSpec()
                 .extractTextBodiesOver(10)
                 .extractBinaryBodiesOver(5)
         );
@@ -191,7 +191,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/transient");
 
         List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec()
+            recordSpec()
                 .makeStubsPersistent(false)
         );
 
@@ -227,7 +227,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/transform-this");
 
         List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec()
+            recordSpec()
                 .transformers("test-transformer")
                 .transformerParameters(Parameters.from(
                     ImmutableMap.<String, Object>of(
@@ -244,7 +244,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.postJson("/some-json", "{}");
 
         List<StubMapping> mappings = snapshotRecord(
-            snapshotSpec().jsonBodyMatchFlags(true, true)
+            recordSpec().jsonBodyMatchFlags(true, true)
         );
 
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
@@ -256,7 +256,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void defaultsToNoJsonBodyMatchingFlags() {
         client.postJson("/some-json", "{}");
 
-        List<StubMapping> mappings = snapshotRecord(snapshotSpec());
+        List<StubMapping> mappings = snapshotRecord(recordSpec());
 
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), nullValue());
@@ -278,7 +278,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/get-this");
         client.get("/but-not-this");
 
-        snapshotRecord(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
+        snapshotRecord(recordSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
         assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this")));
@@ -299,7 +299,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/get-this");
         client.get("/but-not-this");
 
-        adminClient.takeSnapshotRecording(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
+        adminClient.takeSnapshotRecording(recordSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
         assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this")));

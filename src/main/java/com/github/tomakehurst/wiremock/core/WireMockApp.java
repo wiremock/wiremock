@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -36,14 +35,12 @@ import com.github.tomakehurst.wiremock.verification.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
@@ -346,21 +343,21 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     public SnapshotRecordResult takeSnapshotRecording() {
-        return takeSnapshotRecording(SnapshotSpec.DEFAULTS);
+        return takeSnapshotRecording(RecordSpec.DEFAULTS);
     }
 
-    public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec snapshotSpec) {
-        return recorder.takeSnapshot(getServeEvents().getServeEvents(), snapshotSpec);
+    public SnapshotRecordResult takeSnapshotRecording(RecordSpec recordSpec) {
+        return recorder.takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
     }
 
     @Override
     public void startRecording(String targetBaseUrl) {
-        recorder.startRecording(SnapshotSpec.forBaseUrl(targetBaseUrl));
+        recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
     }
 
     @Override
-    public void startRecording(SnapshotSpec snapshotSpec) {
-        recorder.startRecording(snapshotSpec);
+    public void startRecording(RecordSpec recordSpec) {
+        recorder.startRecording(recordSpec);
     }
 
     @Override

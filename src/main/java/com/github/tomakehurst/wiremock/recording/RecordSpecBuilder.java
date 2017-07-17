@@ -11,7 +11,7 @@ import java.util.UUID;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 
-public class SnapshotSpecBuilder {
+public class RecordSpecBuilder {
 
     private String targetBaseUrl;
     private RequestPatternBuilder filterRequestPatternBuilder;
@@ -25,65 +25,65 @@ public class SnapshotSpecBuilder {
     private Parameters transformerParameters;
     private JsonMatchingFlags jsonMatchingFlags;
 
-    public SnapshotSpecBuilder forTarget(String targetBaseUrl) {
+    public RecordSpecBuilder forTarget(String targetBaseUrl) {
         this.targetBaseUrl = targetBaseUrl;
         return this;
     }
 
-    public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
+    public RecordSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
         this.filterRequestPatternBuilder = filterRequestPattern;
         return this;
     }
 
-    public SnapshotSpecBuilder onlyRequestIds(List<UUID> filterIds) {
+    public RecordSpecBuilder onlyRequestIds(List<UUID> filterIds) {
         this.filterIds = filterIds;
         return this;
     }
 
-    public SnapshotSpecBuilder extractTextBodiesOver(long size) {
+    public RecordSpecBuilder extractTextBodiesOver(long size) {
         this.maxTextBodySize = size;
         return this;
     }
 
-    public SnapshotSpecBuilder extractBinaryBodiesOver(long size) {
+    public RecordSpecBuilder extractBinaryBodiesOver(long size) {
         this.maxBinaryBodySize = size;
         return this;
     }
 
-    public SnapshotSpecBuilder makeStubsPersistent(boolean persistent) {
+    public RecordSpecBuilder makeStubsPersistent(boolean persistent) {
         this.persistentStubs = persistent;
         return this;
     }
 
-    public SnapshotSpecBuilder ignoreRepeatRequests() {
+    public RecordSpecBuilder ignoreRepeatRequests() {
         this.repeatsAsScenarios = false;
         return this;
     }
 
-    public SnapshotSpecBuilder transformers(String... transformerName) {
+    public RecordSpecBuilder transformers(String... transformerName) {
         return transformers(asList(transformerName));
     }
 
-    public SnapshotSpecBuilder transformers(List<String> transformerName) {
+    public RecordSpecBuilder transformers(List<String> transformerName) {
         this.transformerNames = transformerName;
         return this;
     }
 
-    public SnapshotSpecBuilder transformerParameters(Parameters parameters) {
+    public RecordSpecBuilder transformerParameters(Parameters parameters) {
         this.transformerParameters = parameters;
         return this;
     }
 
-    public SnapshotSpecBuilder captureHeader(String key) {
+    public RecordSpecBuilder captureHeader(String key) {
         return captureHeader(key, null);
     }
 
-    public SnapshotSpecBuilder captureHeader(String key, Boolean caseInsensitive) {
+    public RecordSpecBuilder captureHeader(String key, Boolean caseInsensitive) {
         headers.put(key, new CaptureHeadersSpec(caseInsensitive));
         return this;
     }
 
-    public SnapshotSpec build() {
+    public RecordSpec build() {
         RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
             filterRequestPatternBuilder.build() :
             null;
@@ -93,7 +93,7 @@ public class SnapshotSpecBuilder {
 
         ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
 
-        return new SnapshotSpec(
+        return new RecordSpec(
             targetBaseUrl,
             filters,
             headers.isEmpty() ? null : headers,
@@ -106,7 +106,7 @@ public class SnapshotSpecBuilder {
             jsonMatchingFlags);
     }
 
-    public SnapshotSpecBuilder jsonBodyMatchFlags(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
+    public RecordSpecBuilder jsonBodyMatchFlags(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
         this.jsonMatchingFlags = new JsonMatchingFlags(ignoreArrayOrder, ignoreExtraElements);
         return this;
     }

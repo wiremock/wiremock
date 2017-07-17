@@ -5,14 +5,14 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.recording.SnapshotSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 
 public class StartRecordingTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        SnapshotSpec snapshotSpec = Json.read(request.getBodyAsString(), SnapshotSpec.class);
-        admin.startRecording(snapshotSpec);
+        RecordSpec recordSpec = Json.read(request.getBodyAsString(), RecordSpec.class);
+        admin.startRecording(recordSpec);
         return ResponseDefinition.okEmptyJson();
     }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Encapsulates options for generating and outputting StubMappings
  */
-public class SnapshotSpec {
+public class RecordSpec {
 
     private final String targetBaseUrl;
 
@@ -33,7 +33,7 @@ public class SnapshotSpec {
     private final JsonMatchingFlags jsonMatchingFlags;
 
     @JsonCreator
-    public SnapshotSpec(
+    public RecordSpec(
         @JsonProperty("targetBaseUrl") String targetBaseUrl,
         @JsonProperty("filters") ProxiedServeEventFilters filters,
         @JsonProperty("captureHeaders") Map<String, CaptureHeadersSpec> captureHeaders,
@@ -56,14 +56,14 @@ public class SnapshotSpec {
         this.jsonMatchingFlags = jsonMatchingFlags;
     }
 
-    private SnapshotSpec() {
+    private RecordSpec() {
         this(null, null, null, null, null, null, true, null, null, null);
     }
 
-    public static final SnapshotSpec DEFAULTS = new SnapshotSpec();
+    public static final RecordSpec DEFAULTS = new RecordSpec();
 
-    public static SnapshotSpec forBaseUrl(String targetBaseUrl) {
-        return new SnapshotSpec(targetBaseUrl, null, null, null, null, null, true, null, null, null);
+    public static RecordSpec forBaseUrl(String targetBaseUrl) {
+        return new RecordSpec(targetBaseUrl, null, null, null, null, null, true, null, null, null);
     }
 
     public String getTargetBaseUrl() {
