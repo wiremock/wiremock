@@ -1,11 +1,10 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.LoggedResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.recording.LoggedResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
-import static com.google.common.base.Charsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 
 public class LoggedResponseDefinitionTransformerTest {

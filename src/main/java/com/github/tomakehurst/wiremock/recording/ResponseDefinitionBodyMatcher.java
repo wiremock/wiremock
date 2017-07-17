@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
