@@ -1,7 +1,7 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher;
-import com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcherDeserializer;
+import com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher;
+import com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcherDeserializer;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;

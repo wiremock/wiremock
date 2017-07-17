@@ -1,12 +1,11 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotStubMappingBodyExtractor;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotStubMappingPostProcessor;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotStubMappingTransformerRunner;
+import com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher;
+import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingBodyExtractor;
+import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingPostProcessor;
+import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingTransformerRunner;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;

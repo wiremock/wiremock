@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
-import static com.github.tomakehurst.wiremock.admin.model.ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 
@@ -18,8 +16,8 @@ public class SnapshotSpecBuilder {
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
     private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
-    private long maxTextBodySize = DEFAULT_MAX_TEXT_SIZE;
-    private long maxBinaryBodySize = DEFAULT_MAX_BINARY_SIZE;
+    private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
+    private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
     private boolean persistentStubs = true;
     private boolean repeatsAsScenarios = true;
     private List<String> transformerNames;

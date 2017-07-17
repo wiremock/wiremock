@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;

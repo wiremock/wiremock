@@ -1,4 +1,4 @@
-package com.github.tomakehurst.wiremock.admin.model;
+package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;

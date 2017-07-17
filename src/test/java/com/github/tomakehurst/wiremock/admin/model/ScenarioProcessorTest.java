@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.recording.ScenarioProcessor;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Test;

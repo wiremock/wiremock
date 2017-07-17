@@ -17,8 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotSpec;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.SnapshotSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -33,8 +32,6 @@ import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.net.HttpHeaders;
-import org.apache.http.entity.ContentType;
 
 import java.io.File;
 import java.util.Collections;

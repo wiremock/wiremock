@@ -1,14 +1,10 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.SnapshotOutputFormatter;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.google.common.collect.Lists;
+import com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter;
 import org.junit.Test;
 
-import java.util.*;
-
-import static com.github.tomakehurst.wiremock.admin.model.SnapshotOutputFormatter.FULL;
-import static com.github.tomakehurst.wiremock.admin.model.SnapshotOutputFormatter.IDS;
+import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.FULL;
+import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.IDS;
 import static org.junit.Assert.assertEquals;
 
 public class SnapshotOutputFormatterTest {

@@ -1,8 +1,5 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.LoggedResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.admin.model.RequestPatternTransformer;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotStubMappingGenerator;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;

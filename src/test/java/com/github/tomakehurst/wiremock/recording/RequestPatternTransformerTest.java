@@ -1,7 +1,7 @@
-package com.github.tomakehurst.wiremock.admin;
+package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.admin.model.CaptureHeadersSpec;
-import com.github.tomakehurst.wiremock.admin.model.RequestPatternTransformer;
+import com.github.tomakehurst.wiremock.recording.CaptureHeadersSpec;
+import com.github.tomakehurst.wiremock.recording.RequestPatternTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;

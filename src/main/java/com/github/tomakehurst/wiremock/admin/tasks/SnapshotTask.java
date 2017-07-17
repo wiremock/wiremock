@@ -2,8 +2,8 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.admin.model.SnapshotSpec;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotSpec;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
