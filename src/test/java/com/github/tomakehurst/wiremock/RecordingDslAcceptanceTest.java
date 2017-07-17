@@ -162,4 +162,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
     }
 
+    @Test
+    public void supportsDirectDslCallsWithSpec() {
+        targetService.stubFor(post("/record-this-with-body").willReturn(ok()));
+
+        proxyingService.startRecording(
+            recordSpec()
+                .forTarget(targetBaseUrl)
+                .jsonBodyMatchFlags(true, true)
+        );
+
+        client.postJson("/record-this-with-body", "{}");
+
+        List<StubMapping> returnedMappings = proxyingService.stopRecording().getStubMappings();
+
+        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
+        assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
+    }
 }
