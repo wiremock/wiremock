@@ -19,8 +19,12 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,19 +36,22 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.find;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class SnapshotAcceptanceTest extends AcceptanceTestBase {
+public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
     private WireMockServer proxyingService;
     private WireMockTestClient proxyingTestClient;
+    private String proxyTargetUrl;
 
     private void proxyServerStart(WireMockConfiguration config) {
         proxyingService = new WireMockServer(config.dynamicPort());
         proxyingService.start();
-        proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
+        proxyTargetUrl = "http://localhost:" + wireMockServer.port();
+        proxyingService.stubFor(proxyAllTo(proxyTargetUrl));
 
         proxyingTestClient = new WireMockTestClient(proxyingService.port());
         wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
@@ -231,7 +238,7 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             "        },                             \n" +
             "        \"X-Another\": {}              \n" +
             "    }                                  \n" +
-            "}                                    ";
+            "}                                      ";
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
             "{                                                           \n" +
@@ -430,5 +437,35 @@ public class SnapshotAcceptanceTest extends AcceptanceTestBase {
             proxyingTestClient.snapshot(NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST),
             equalToJson(NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE, JSONCompareMode.STRICT_ORDER)
         );
+    }
+
+    private static final String RECORD_WITH_CAPTURE_HEADERS_SNAPSHOT_REQUEST_TEMPLATE =
+        "{                                      \n" +
+        "    \"targetBaseUrl\": \"%s\",         \n" +
+        "    \"outputFormat\": \"full\",        \n" +
+        "    \"persist\": \"false\",            \n" +
+        "    \"captureHeaders\": {              \n" +
+        "        \"Accept\": {                  \n" +
+        "            \"caseInsensitive\": true  \n" +
+        "        },                             \n" +
+        "        \"X-Another\": {}              \n" +
+        "    }                                  \n" +
+        "}                                      ";
+
+    @Test
+    public void startsAndStopsRecording() {
+        proxyServerStartWithEmptyFileRoot();
+
+        String requestJson = String.format(RECORD_WITH_CAPTURE_HEADERS_SNAPSHOT_REQUEST_TEMPLATE, proxyTargetUrl);
+        proxyingTestClient.postJson("/__admin/recordings/start", requestJson);
+
+        proxyingTestClient.put("/foo/bar",
+            withHeader("Ignored", "whatever"),
+            withHeader("Accept", "text/plain"),
+            withHeader("X-Another", "blah")
+        );
+
+        WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
+        assertThat(response.content(), equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
     }
 }
