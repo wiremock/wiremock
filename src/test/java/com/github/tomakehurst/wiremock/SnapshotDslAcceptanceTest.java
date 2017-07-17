@@ -10,16 +10,11 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -116,8 +111,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         );
 
         assertThat(mappings.size(), is(3));
-        assertThat(mappings, everyItem(stubMappingWithUrl(urlPathMatching("/things.*"))));
-        assertThat(mappings, not(hasItem(stubMappingWithUrl(urlPathMatching("/stuff.*")))));
+        assertThat(mappings, everyItem(WireMatchers.stubMappingWithUrl(urlPathMatching("/things.*"))));
+        assertThat(mappings, not(hasItem(WireMatchers.stubMappingWithUrl(urlPathMatching("/stuff.*")))));
     }
 
     @Test
@@ -126,7 +121,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/2");
         client.get("/3");
 
-        UUID serveEventId = findServeEventWithUrl(proxyingService.getAllServeEvents(), "/2").getId();
+        UUID serveEventId = WireMatchers.findServeEventWithUrl(proxyingService.getAllServeEvents(), "/2").getId();
 
         List<StubMapping> mappings = adminClient.takeSnapshotRecording(
             snapshotSpec()
@@ -185,10 +180,10 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         );
 
         assertThat(mappings.size(), is(4));
-        assertThat(findMappingWithUrl(mappings, "/small/text").getResponse().getBodyFileName(), nullValue());
-        assertThat(findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(), containsString("large-text"));
-        assertThat(findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(), nullValue());
-        assertThat(findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(), containsString("large-binary"));
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/small/text").getResponse().getBodyFileName(), nullValue());
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(), containsString("large-text"));
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(), nullValue());
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(), containsString("large-binary"));
     }
 
     @Test
@@ -200,7 +195,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .makeStubsPersistent(false)
         );
 
-        assertThat(findMappingWithUrl(mappings, "/transient").isPersistent(), nullValue());
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/transient").isPersistent(), nullValue());
     }
 
     @Test
@@ -221,7 +216,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(client.get("/stateful").content(), is("Two"));
         assertThat(client.get("/stateful").content(), is("Three"));
 
-        assertThat(mappings, everyItem(isInAScenario()));
+        assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
         assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
         assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-stateful-2"));
         assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
@@ -275,7 +270,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         snapshotRecord();
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
-        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this")));
+        assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this")));
     }
 
     @Test
@@ -286,8 +281,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         snapshotRecord(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
-        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this")));
-        assertThat(serverMappings, not(hasItem(stubMappingWithUrl("/but-not-this"))));
+        assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this")));
+        assertThat(serverMappings, not(hasItem(WireMatchers.stubMappingWithUrl("/but-not-this"))));
     }
 
     @Test
@@ -296,7 +291,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         adminClient.takeSnapshotRecording();
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
-        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this-too")));
+        assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this-too")));
     }
 
     @Test
@@ -307,66 +302,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         adminClient.takeSnapshotRecording(snapshotSpec().onlyRequestsMatching(getRequestedFor(urlEqualTo("/get-this"))));
 
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
-        assertThat(serverMappings, hasItem(stubMappingWithUrl("/get-this")));
-        assertThat(serverMappings, not(hasItem(stubMappingWithUrl("/but-not-this"))));
-    }
-
-    private static ServeEvent findServeEventWithUrl(List<ServeEvent> serveEvents, final String url) {
-        return find(serveEvents, new Predicate<ServeEvent>() {
-            @Override
-            public boolean apply(ServeEvent input) {
-                return url.equals(input.getRequest().getUrl());
-            }
-        });
-    }
-
-    private static StubMapping findMappingWithUrl(List<StubMapping> stubMappings, final String url) {
-        return find(stubMappings, withUrl(url));
-    }
-
-    private static List<StubMapping> findMappingsWithUrl(List<StubMapping> stubMappings, final String url) {
-        return ImmutableList.copyOf(filter(stubMappings, withUrl(url)));
-    }
-
-    private static Predicate<StubMapping> withUrl(final String url) {
-        return new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(StubMapping input) {
-                return url.equals(input.getRequest().getUrl());
-            }
-        };
-    }
-
-    private static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final String url) {
-        return stubMappingWithUrl(urlEqualTo(url));
-    }
-
-    private static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final UrlPattern urlPattern) {
-        return new TypeSafeDiagnosingMatcher<StubMapping>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a stub mapping with a request URL matching " + urlPattern);
-            }
-
-            @Override
-            protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
-                return urlPattern.match(item.getRequest().getUrl()).isExactMatch();
-            }
-        };
-    }
-
-    private TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
-        return new TypeSafeDiagnosingMatcher<StubMapping>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("a stub mapping with a scenario name");
-            }
-
-            @Override
-            protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
-                return item.getScenarioName() != null;
-            }
-        };
+        assertThat(serverMappings, hasItem(WireMatchers.stubMappingWithUrl("/get-this")));
+        assertThat(serverMappings, not(hasItem(WireMatchers.stubMappingWithUrl("/but-not-this"))));
     }
 
     public static class TestParameterisedTransformer extends StubMappingTransformer {

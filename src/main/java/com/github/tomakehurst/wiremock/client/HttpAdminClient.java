@@ -283,6 +283,16 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public void startRecording(String targetBaseUrl) {
+
+    }
+
+    @Override
+    public SnapshotRecordResult stopRecording() {
+        return null;
+    }
+
+    @Override
     public Options getOptions() {
         return new WireMockConfiguration().port(port).bindAddress(host);
     }

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
@@ -61,6 +63,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+    private final Recorder recorder;
 
     private Options options;
 
@@ -79,6 +82,7 @@ public class WireMockApp implements StubServer, Admin {
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();
     }
@@ -102,6 +106,7 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        recorder = new Recorder(this);
         loadDefaultMappings();
     }
 
@@ -345,49 +350,16 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     public SnapshotRecordResult takeSnapshotRecording(SnapshotSpec snapshotSpec) {
-        final List<StubMapping> stubMappings = serveEventsToStubMappings(
-            Lists.reverse(getServeEvents().getServeEvents()),
-            snapshotSpec.getFilters(),
-            new SnapshotStubMappingGenerator(snapshotSpec.getCaptureHeaders(), snapshotSpec.getJsonMatchingFlags()),
-            getStubMappingPostProcessor(getOptions(), snapshotSpec)
-        );
-
-        for (StubMapping stubMapping : stubMappings) {
-            if (snapshotSpec.shouldPersist()) {
-                stubMapping.setPersistent(true);
-                addStubMapping(stubMapping);
-            }
-        }
-
-        return snapshotSpec.getOutputFormat().format(stubMappings);
+        return recorder.takeSnapshot(getServeEvents().getServeEvents(), snapshotSpec);
     }
 
-    private List<StubMapping> serveEventsToStubMappings(
-        List<ServeEvent> serveEventsResult,
-        ProxiedServeEventFilters serveEventFilters,
-        SnapshotStubMappingGenerator stubMappingGenerator,
-        SnapshotStubMappingPostProcessor stubMappingPostProcessor
-    ) {
-        final Iterable<StubMapping> stubMappings = from(serveEventsResult)
-            .filter(serveEventFilters)
-            .transform(stubMappingGenerator);
-
-        return stubMappingPostProcessor.process(stubMappings);
+    @Override
+    public void startRecording(String targetBaseUrl) {
+        recorder.startRecording(targetBaseUrl);
     }
 
-    private SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, SnapshotSpec snapshotSpec) {
-        final SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(
-            options.extensionsOfType(StubMappingTransformer.class).values(),
-            snapshotSpec.getTransformers(),
-            snapshotSpec.getTransformerParameters(),
-            options.filesRoot()
-        );
-
-        return new SnapshotStubMappingPostProcessor(
-            snapshotSpec.shouldRecordRepeatsAsScenarios(),
-            transformerRunner,
-            snapshotSpec.getExtractBodyCriteria(),
-            new SnapshotStubMappingBodyExtractor(options.filesRoot())
-        );
+    @Override
+    public SnapshotRecordResult stopRecording() {
+        return recorder.stopRecording();
     }
 }

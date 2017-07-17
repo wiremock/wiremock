@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface Admin {
@@ -56,6 +57,9 @@ public interface Admin {
 
     SnapshotRecordResult takeSnapshotRecording();
     SnapshotRecordResult takeSnapshotRecording(SnapshotSpec spec);
+
+    void startRecording(String targetBaseUrl);
+    SnapshotRecordResult stopRecording();
 
     Options getOptions();
 

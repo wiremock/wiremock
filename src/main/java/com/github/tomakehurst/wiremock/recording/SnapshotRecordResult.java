@@ -41,6 +41,10 @@ public class SnapshotRecordResult {
         return new Ids(ids);
     }
 
+    public static SnapshotRecordResult empty() {
+        return full(Collections.<StubMapping>emptyList());
+    }
+
     public static class Full extends SnapshotRecordResult {
 
         public Full(List<StubMapping> mappings) {
