@@ -27,7 +27,7 @@ public class Recorder {
     }
 
     public synchronized void startRecording(RecordSpec spec) {
-        if (state.getStatus() == State.Status.Recording) {
+        if (state.getStatus() == RecordingStatus.Recording) {
             return;
         }
 
@@ -115,17 +115,19 @@ public class Recorder {
         );
     }
 
+    public RecordingStatus getStatus() {
+        return state.getStatus();
+    }
+
     private static class State {
 
-        enum Status { NeverStarted, Recording, Stopped }
-
-        private final Status status;
+        private final RecordingStatus status;
         private final StubMapping proxyMapping;
         private final RecordSpec spec;
         private final UUID startingServeEventId;
         private final UUID finishingServeEventId;
 
-        public State(Status status, StubMapping proxyMapping, RecordSpec spec, UUID startingServeEventId, UUID finishingServeEventId) {
+        public State(RecordingStatus status, StubMapping proxyMapping, RecordSpec spec, UUID startingServeEventId, UUID finishingServeEventId) {
             this.status = status;
             this.proxyMapping = proxyMapping;
             this.spec = spec;
@@ -134,18 +136,18 @@ public class Recorder {
         }
 
         public static State initial() {
-            return new State(Status.NeverStarted, null, null, null, null);
+            return new State(RecordingStatus.NeverStarted, null, null, null, null);
         }
 
         public State start(UUID startingServeEventId, StubMapping proxyMapping, RecordSpec spec) {
-            return new State(Status.Recording, proxyMapping, spec, startingServeEventId, null);
+            return new State(RecordingStatus.Recording, proxyMapping, spec, startingServeEventId, null);
         }
 
         public State stop(UUID finishingServeEventId) {
-            return new State(Status.Stopped, proxyMapping, spec, startingServeEventId, finishingServeEventId);
+            return new State(RecordingStatus.Stopped, proxyMapping, spec, startingServeEventId, finishingServeEventId);
         }
 
-        public Status getStatus() {
+        public RecordingStatus getStatus() {
             return status;
         }
 

@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -699,6 +700,14 @@ public class WireMock {
 
     public SnapshotRecordResult stopStubRecording() {
         return admin.stopRecording();
+    }
+
+    public static RecordingStatusResult getRecordingStatus() {
+        return defaultInstance.get().getStubRecordingStatus();
+    }
+
+    public RecordingStatusResult getStubRecordingStatus() {
+        return admin.getRecordingStatus();
     }
 
     public static RecordSpecBuilder recordSpec() {
