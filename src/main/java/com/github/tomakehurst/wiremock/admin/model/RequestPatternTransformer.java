@@ -18,10 +18,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  */
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
     private final Map<String, CaptureHeadersSpec> headers;
+    private final JsonMatchingFlags jsonMatchingFlags;
 
     @JsonCreator
-    public RequestPatternTransformer(@JsonProperty("headers") Map<String, CaptureHeadersSpec> headers) {
+    public RequestPatternTransformer(@JsonProperty("headers") Map<String, CaptureHeadersSpec> headers,
+                                     @JsonProperty("jsonMatchingFlags") JsonMatchingFlags jsonMatchingFlags) {
         this.headers = headers;
+        this.jsonMatchingFlags = jsonMatchingFlags;
     }
 
     /**
@@ -59,7 +62,9 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
         final ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
         if (contentType.mimeTypePart() != null) {
             if (contentType.mimeTypePart().contains("json")) {
-                return equalToJson(request.getBodyAsString(), true, true);
+                return jsonMatchingFlags == null ?
+                    equalToJson(request.getBodyAsString()) :
+                    equalToJson(request.getBodyAsString(), jsonMatchingFlags.isIgnoreArrayOrder(), jsonMatchingFlags.isIgnoreExtraElements());
             } else if (contentType.mimeTypePart().contains("xml")) {
                 return equalToXml(request.getBodyAsString());
             }

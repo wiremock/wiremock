@@ -3,7 +3,6 @@ package com.github.tomakehurst.wiremock.admin.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ public class SnapshotSpec {
     private final List<String> transformers;
     // Parameters for stub mapping transformers
     private final Parameters transformerParameters;
+    private final JsonMatchingFlags jsonMatchingFlags;
 
     @JsonCreator
     public SnapshotSpec(
@@ -38,8 +38,8 @@ public class SnapshotSpec {
         @JsonProperty("persist") Boolean persist,
         @JsonProperty("repeatsAsScenarios") Boolean repeatsAsScenarios,
         @JsonProperty("transformers") List<String> transformers,
-        @JsonProperty("transformerParameters") Parameters transformerParameters
-    ) {
+        @JsonProperty("transformerParameters") Parameters transformerParameters,
+        @JsonProperty("jsonMatchingFlags") JsonMatchingFlags jsonMatchingFlags) {
         this.filters = filters == null ? new ProxiedServeEventFilters() : filters;
         this.captureHeaders = captureHeaders;
         this.extractBodyCriteria = extractBodyCriteria;
@@ -48,10 +48,11 @@ public class SnapshotSpec {
         this.repeatsAsScenarios = repeatsAsScenarios == null ? false : repeatsAsScenarios;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
+        this.jsonMatchingFlags = jsonMatchingFlags;
     }
 
     private SnapshotSpec() {
-        this(null, null, null, null, null, true, null, null);
+        this(null, null, null, null, null, true, null, null, null);
     }
 
     public static final SnapshotSpec DEFAULTS = new SnapshotSpec();
@@ -73,4 +74,8 @@ public class SnapshotSpec {
     public Parameters getTransformerParameters() { return transformerParameters; }
 
     public ResponseDefinitionBodyMatcher getExtractBodyCriteria() { return extractBodyCriteria; }
+
+    public JsonMatchingFlags getJsonMatchingFlags() {
+        return jsonMatchingFlags;
+    }
 }

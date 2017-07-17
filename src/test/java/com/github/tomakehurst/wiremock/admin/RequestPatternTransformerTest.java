@@ -4,8 +4,6 @@ import com.github.tomakehurst.wiremock.admin.model.CaptureHeadersSpec;
 import com.github.tomakehurst.wiremock.admin.model.RequestPatternTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.AnythingPattern;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import org.junit.Test;
 
@@ -27,7 +25,7 @@ public class RequestPatternTransformerTest {
         RequestPatternBuilder expected = new RequestPatternBuilder(RequestMethod.GET, urlEqualTo("/foo"));
 
         // Default is to include method and URL exactly
-        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
     }
 
     @Test
@@ -44,7 +42,7 @@ public class RequestPatternTransformerTest {
 
         Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
 
-        assertEquals(expected.build(), new RequestPatternTransformer(headers).apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(headers, null).apply(request).build());
     }
 
     @Test
@@ -57,7 +55,7 @@ public class RequestPatternTransformerTest {
             .withUrl("/somewhere")
             .withRequestBody(equalToJson("['hello']"));
 
-        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
     }
 
     @Test
@@ -71,6 +69,6 @@ public class RequestPatternTransformerTest {
             .withUrl("/somewhere")
             .withRequestBody(equalToXml("<foo/>"));
 
-        assertEquals(expected.build(), new RequestPatternTransformer(null).apply(request).build());
+        assertEquals(expected.build(), new RequestPatternTransformer(null, null).apply(request).build());
     }
 }

@@ -37,7 +37,7 @@ public class SnapshotStubMappingGeneratorTest {
     }
 
     private static RequestPatternTransformer requestPatternTransformer(final RequestPatternBuilder requestPatternBuilder) {
-        return new RequestPatternTransformer(null) {
+        return new RequestPatternTransformer(null, null) {
             @Override
             public RequestPatternBuilder apply(Request request) {
                 return requestPatternBuilder;

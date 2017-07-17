@@ -14,7 +14,6 @@ import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -36,9 +35,7 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
@@ -101,8 +98,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
         EqualToJsonPattern equalToJsonPattern = (EqualToJsonPattern) bodyPattern;
-        assertThat(equalToJsonPattern.isIgnoreArrayOrder(), is(true));
-        assertThat(equalToJsonPattern.isIgnoreExtraElements(), is(true));
+        assertThat(equalToJsonPattern.isIgnoreArrayOrder(), nullValue());
+        assertThat(equalToJsonPattern.isIgnoreExtraElements(), nullValue());
     }
 
     @Test
@@ -153,7 +150,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         StringValuePattern yesValuePattern = mappings.get(0).getRequest().getHeaders().get("Yes").getValuePattern();
         assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
-        assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), is(false));
+        assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), nullValue());
         assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
 
         StringValuePattern alsoYesValuePattern = mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePattern();
@@ -245,6 +242,30 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 )));
 
         assertThat(mappings.get(0).getResponse().getHeaders().getHeader("X-Key").firstValue(), is("My value"));
+    }
+
+    @Test
+    public void supportsConfigurationOfJsonBodyMatching() {
+        client.postJson("/some-json", "{}");
+
+        List<StubMapping> mappings = snapshotRecord(
+            snapshotSpec().jsonBodyMatchFlags(true, true)
+        );
+
+        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
+        assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
+    }
+
+    @Test
+    public void defaultsToNoJsonBodyMatchingFlags() {
+        client.postJson("/some-json", "{}");
+
+        List<StubMapping> mappings = snapshotRecord(snapshotSpec());
+
+        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(bodyPattern.isIgnoreArrayOrder(), nullValue());
+        assertThat(bodyPattern.isIgnoreExtraElements(), nullValue());
     }
 
     @Test

@@ -85,7 +85,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
 
         String operand = rootNode.findValue("equalTo").textValue();
-        boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
+        Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
 
         return new EqualToPattern(operand, ignoreCase);
     }
@@ -96,8 +96,9 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
 
         String operand = rootNode.findValue("equalToJson").textValue();
-        boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
-        boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
+
+        Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
+        Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
         return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
     }
@@ -127,8 +128,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         return builder.build();
     }
 
-    private static boolean fromNullable(JsonNode node) {
-        return node != null && node.asBoolean();
+    private static Boolean fromNullable(JsonNode node) {
+        return node == null ? null : node.asBoolean();
     }
 
     @SuppressWarnings("unchecked")
