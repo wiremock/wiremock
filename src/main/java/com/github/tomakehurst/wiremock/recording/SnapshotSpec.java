@@ -11,6 +11,9 @@ import java.util.Map;
  * Encapsulates options for generating and outputting StubMappings
  */
 public class SnapshotSpec {
+
+    private final String targetBaseUrl;
+
     // Whitelist requests to generate StubMappings for
     private final ProxiedServeEventFilters filters;
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
@@ -31,6 +34,7 @@ public class SnapshotSpec {
 
     @JsonCreator
     public SnapshotSpec(
+        @JsonProperty("targetBaseUrl") String targetBaseUrl,
         @JsonProperty("filters") ProxiedServeEventFilters filters,
         @JsonProperty("captureHeaders") Map<String, CaptureHeadersSpec> captureHeaders,
         @JsonProperty("extractBodyCriteria") ResponseDefinitionBodyMatcher extractBodyCriteria,
@@ -40,6 +44,7 @@ public class SnapshotSpec {
         @JsonProperty("transformers") List<String> transformers,
         @JsonProperty("transformerParameters") Parameters transformerParameters,
         @JsonProperty("jsonMatchingFlags") JsonMatchingFlags jsonMatchingFlags) {
+        this.targetBaseUrl = targetBaseUrl;
         this.filters = filters == null ? new ProxiedServeEventFilters() : filters;
         this.captureHeaders = captureHeaders;
         this.extractBodyCriteria = extractBodyCriteria;
@@ -52,10 +57,18 @@ public class SnapshotSpec {
     }
 
     private SnapshotSpec() {
-        this(null, null, null, null, null, true, null, null, null);
+        this(null, null, null, null, null, null, true, null, null, null);
     }
 
     public static final SnapshotSpec DEFAULTS = new SnapshotSpec();
+
+    public static SnapshotSpec forBaseUrl(String targetBaseUrl) {
+        return new SnapshotSpec(targetBaseUrl, null, null, null, null, null, true, null, null, null);
+    }
+
+    public String getTargetBaseUrl() {
+        return targetBaseUrl;
+    }
 
     public ProxiedServeEventFilters getFilters() { return filters; }
 

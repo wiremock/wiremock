@@ -13,6 +13,7 @@ import static java.util.Arrays.asList;
 
 public class SnapshotSpecBuilder {
 
+    private String targetBaseUrl;
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
     private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
@@ -23,6 +24,11 @@ public class SnapshotSpecBuilder {
     private List<String> transformerNames;
     private Parameters transformerParameters;
     private JsonMatchingFlags jsonMatchingFlags;
+
+    public SnapshotSpecBuilder forTarget(String targetBaseUrl) {
+        this.targetBaseUrl = targetBaseUrl;
+        return this;
+    }
 
     public SnapshotSpecBuilder onlyRequestsMatching(RequestPatternBuilder filterRequestPattern) {
         this.filterRequestPatternBuilder = filterRequestPattern;
@@ -88,6 +94,7 @@ public class SnapshotSpecBuilder {
         ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
 
         return new SnapshotSpec(
+            targetBaseUrl,
             filters,
             headers.isEmpty() ? null : headers,
             responseDefinitionBodyMatcher,

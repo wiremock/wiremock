@@ -388,6 +388,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public void startRecording(SnapshotSpec spec) {
+        wireMockApp.startRecording(spec);
+    }
+
+    @Override
     public SnapshotRecordResult stopRecording() {
         return wireMockApp.stopRecording();
     }
