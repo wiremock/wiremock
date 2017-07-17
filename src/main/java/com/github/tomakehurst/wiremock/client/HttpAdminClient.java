@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -291,6 +292,11 @@ public class HttpAdminClient implements Admin {
             urlFor(StartRecordingTask.class),
             Json.write(recordSpec),
             HTTP_OK);
+    }
+
+    @Override
+    public void startRecording(RecordSpecBuilder recordSpec) {
+        startRecording(recordSpec.build());
     }
 
     @Override
