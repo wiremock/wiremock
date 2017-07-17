@@ -77,7 +77,7 @@ public static class ExampleTransformer extends ResponseDefinitionTransformer {
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "example";
         }
     }
@@ -186,7 +186,7 @@ public static class StubResponseTransformerWithParams extends ResponseTransforme
         }
 
         @Override
-        public String name() {
+        public String getName() {
             return "stub-transformer-with-params";
         }
 }
