@@ -417,7 +417,7 @@ public class Examples extends AcceptanceTestBase {
                 .ignoreRepeatRequests()
                 .transformers("modify-response-header")
                 .transformerParameters(Parameters.one("headerValue", "123"))
-                .jsonBodyMatchFlags(false, true)
+                .requestBodyEqualToJsonPattern(false, true)
         );
 
         System.out.println(Json.write(recordSpec()
@@ -431,7 +431,7 @@ public class Examples extends AcceptanceTestBase {
             .ignoreRepeatRequests()
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
-            .jsonBodyMatchFlags(false, true)
+            .requestBodyEqualToJsonPattern(false, true)
             .build()));
     }
 
@@ -449,7 +449,7 @@ public class Examples extends AcceptanceTestBase {
                 .ignoreRepeatRequests()
                 .transformers("modify-response-header")
                 .transformerParameters(Parameters.one("headerValue", "123"))
-                .jsonBodyMatchFlags(false, true)
+                .requestBodyEqualToJsonPattern(false, true)
         );
 
         System.out.println(Json.write(recordSpec()
@@ -463,7 +463,7 @@ public class Examples extends AcceptanceTestBase {
             .ignoreRepeatRequests()
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
-            .jsonBodyMatchFlags(false, true)
+            .requestBodyEqualToJsonPattern(false, true)
             .build()));
     }
 }
