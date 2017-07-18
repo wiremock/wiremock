@@ -1,5 +1,6 @@
 package com.github.tomakehurst.wiremock.recording;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
+import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
@@ -37,6 +39,8 @@ public class Recorder {
         List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
         UUID initialId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
         state = state.start(initialId, proxyMapping, spec);
+
+        notifier().info("Started recording with record spec:\n" + Json.write(spec));
     }
 
     public synchronized SnapshotRecordResult stopRecording() {
@@ -60,7 +64,10 @@ public class Recorder {
         int endIndex = indexOf(serveEvents, withId(state.getFinishingServeEventId()));
         List<ServeEvent> eventsToSnapshot = serveEvents.subList(endIndex, startIndex);
 
-        return takeSnapshot(eventsToSnapshot, state.getSpec());
+        SnapshotRecordResult result = takeSnapshot(eventsToSnapshot, state.getSpec());
+
+        notifier().info("Stopped recording. Stubs captured:\n" + Json.write(result.getStubMappings()));
+        return result;
     }
 
     private static Predicate<ServeEvent> withId(final UUID id) {
