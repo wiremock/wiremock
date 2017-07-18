@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -34,8 +35,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.find;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -450,6 +453,48 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         "    }                                  \n" +
         "}                                      ";
 
+    private static final String RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE =
+        "{                                                           \n" +
+        "    \"mappings\": [                                         \n" +
+        "        {                                                   \n" +
+        "            \"request\" : {                                 \n" +
+        "                \"url\" : \"/foo/bar\",                     \n" +
+        "                \"method\" : \"PUT\",                       \n" +
+        "                \"headers\": {                              \n" +
+        "                    \"Accept\": {                           \n" +
+        "                        \"equalTo\": \"text/plain\",        \n" +
+        "                        \"caseInsensitive\": true           \n" +
+        "                    },                                      \n" +
+        "                    \"X-Another\": {                        \n" +
+        "                        \"equalTo\": \"blah\"               \n" +
+        "                    }                                       \n" +
+        "                }                                           \n" +
+        "            },                                              \n" +
+        "            \"response\" : {                                \n" +
+        "                \"status\" : 200                            \n" +
+        "            }                                               \n" +
+        "        },                                                  \n" +
+        "        {                                                   \n" +
+        "            \"request\" : {                                 \n" +
+        "                \"url\" : \"/foo/bar\",                     \n" +
+        "                \"method\" : \"PUT\",                       \n" +
+        "                \"headers\": {                              \n" +
+        "                    \"Accept\": {                           \n" +
+        "                        \"equalTo\": \"text/plain\",        \n" +
+        "                        \"caseInsensitive\": true           \n" +
+        "                    },                                      \n" +
+        "                    \"X-Another\": {                        \n" +
+        "                        \"equalTo\": \"blah\"               \n" +
+        "                    }                                       \n" +
+        "                }                                           \n" +
+        "            },                                              \n" +
+        "            \"response\" : {                                \n" +
+        "                \"status\" : 200                            \n" +
+        "            }                                               \n" +
+        "        }                                                   \n" +
+        "    ]                                                       \n" +
+        "}                                                             ";
+
     @Test
     public void startsAndStopsRecording() {
         proxyServerStartWithEmptyFileRoot();
@@ -462,9 +507,16 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             withHeader("Accept", "text/plain"),
             withHeader("X-Another", "blah")
         );
+        proxyingTestClient.put("/foo/bar",
+            withHeader("Accept", "text/plain"),
+            withHeader("X-Another", "blah")
+        );
 
         WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
-        assertThat(response.content(), equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
+        assertThat(response.content(), equalToJson(RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE, JSONCompareMode.STRICT_ORDER));
+
+        StubMapping createdMapping = findMappingWithUrl(proxyingService.getStubMappings(), "/foo/bar");
+        assertThat(createdMapping.getScenarioName(), notNullValue());
     }
 
     private static final String NOT_RECORDING_ERROR =

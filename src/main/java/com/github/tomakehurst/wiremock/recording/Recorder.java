@@ -90,8 +90,8 @@ public class Recorder {
         for (StubMapping stubMapping : stubMappings) {
             if (recordSpec.shouldPersist()) {
                 stubMapping.setPersistent(true);
-                admin.addStubMapping(stubMapping);
             }
+            admin.addStubMapping(stubMapping);
         }
 
         return recordSpec.getOutputFormat().format(stubMappings);
