@@ -2,7 +2,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.recording.Recorder;
+import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -210,5 +210,20 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         RecordingStatusResult result = proxyingService.getRecordingStatus();
 
         assertThat(result.getStatus(), is(RecordingStatus.Recording));
+    }
+
+    @Test(expected = NotRecordingException.class)
+    public void returnsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
+        stopRecording();
+    }
+
+    @Test(expected = NotRecordingException.class)
+    public void returnsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
+        adminClient.stopStubRecording();
+    }
+
+    @Test(expected = NotRecordingException.class)
+    public void returnsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
+        proxyingService.stopRecording();
     }
 }

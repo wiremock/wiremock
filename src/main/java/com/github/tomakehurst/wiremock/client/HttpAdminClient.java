@@ -18,9 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.admin.*;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
-import com.github.tomakehurst.wiremock.common.AdminException;
-import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -40,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.eclipse.jetty.http.HttpStatus;
 
 import java.util.UUID;
 
@@ -114,8 +113,7 @@ public class HttpAdminClient implements Admin {
                 adminRoutes.requestSpecForTask(CreateStubMappingTask.class),
                 PathParams.empty(),
                 stubMapping,
-                Void.class,
-                201
+                Void.class
         );
     }
 
@@ -123,16 +121,14 @@ public class HttpAdminClient implements Admin {
     public void editStubMapping(StubMapping stubMapping) {
         postJsonAssertOkAndReturnBody(
                 urlFor(OldEditStubMappingTask.class),
-                Json.write(stubMapping),
-                HTTP_NO_CONTENT);
+                Json.write(stubMapping));
     }
 
     @Override
     public void removeStubMapping(StubMapping stubbMapping) {
         postJsonAssertOkAndReturnBody(
                 urlFor(OldRemoveStubMappingTask.class),
-                Json.write(stubbMapping),
-                HTTP_OK);
+                Json.write(stubbMapping));
     }
 
     @Override
@@ -155,12 +151,12 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void saveMappings() {
-        postJsonAssertOkAndReturnBody(urlFor(SaveMappingsTask.class), null, HTTP_OK);
+        postJsonAssertOkAndReturnBody(urlFor(SaveMappingsTask.class), null);
     }
 
     @Override
     public void resetAll() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null, HTTP_OK);
+        postJsonAssertOkAndReturnBody(urlFor(ResetTask.class), null);
     }
 
     @Override
@@ -180,7 +176,7 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void resetToDefaultMappings() {
-        postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null, HTTP_OK);
+        postJsonAssertOkAndReturnBody(urlFor(ResetToDefaultMappingsTask.class), null);
     }
 
     @Override
@@ -204,8 +200,7 @@ public class HttpAdminClient implements Admin {
     public VerificationResult countRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(GetRequestCountTask.class),
-                Json.write(requestPattern),
-                HTTP_OK);
+                Json.write(requestPattern));
         return VerificationResult.from(body);
     }
 
@@ -213,22 +208,20 @@ public class HttpAdminClient implements Admin {
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindRequestsTask.class),
-                Json.write(requestPattern),
-                HTTP_OK);
+                Json.write(requestPattern));
         return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
     public FindRequestsResult findUnmatchedRequests() {
         String body = getJsonAssertOkAndReturnBody(
-                urlFor(FindUnmatchedRequestsTask.class),
-                HTTP_OK);
+                urlFor(FindUnmatchedRequestsTask.class));
         return Json.read(body, FindRequestsResult.class);
     }
 
     @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
-        String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class), HTTP_OK);
+        String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class));
         return Json.read(body, FindNearMissesResult.class);
     }
 
@@ -236,8 +229,7 @@ public class HttpAdminClient implements Admin {
     public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindNearMissesForRequestTask.class),
-                Json.write(loggedRequest),
-                HTTP_OK
+                Json.write(loggedRequest)
         );
 
         return Json.read(body, FindNearMissesResult.class);
@@ -247,8 +239,7 @@ public class HttpAdminClient implements Admin {
     public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindNearMissesForRequestPatternTask.class),
-                Json.write(requestPattern),
-                HTTP_OK
+                Json.write(requestPattern)
         );
 
         return Json.read(body, FindNearMissesResult.class);
@@ -258,16 +249,14 @@ public class HttpAdminClient implements Admin {
     public void updateGlobalSettings(GlobalSettings settings) {
         postJsonAssertOkAndReturnBody(
                 urlFor(GlobalSettingsUpdateTask.class),
-                Json.write(settings),
-                HTTP_OK);
+                Json.write(settings));
     }
 
     @Override
     public SnapshotRecordResult takeSnapshotRecording() {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(SnapshotTask.class),
-            "",
-            HTTP_OK);
+            "");
 
         return Json.read(body, SnapshotRecordResult.class);
     }
@@ -276,8 +265,7 @@ public class HttpAdminClient implements Admin {
     public SnapshotRecordResult takeSnapshotRecording(RecordSpec spec) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(SnapshotTask.class),
-            Json.write(spec),
-            HTTP_OK);
+            Json.write(spec));
 
         return Json.read(body, SnapshotRecordResult.class);
     }
@@ -291,8 +279,7 @@ public class HttpAdminClient implements Admin {
     public void startRecording(RecordSpec recordSpec) {
         postJsonAssertOkAndReturnBody(
             urlFor(StartRecordingTask.class),
-            Json.write(recordSpec),
-            HTTP_OK);
+            Json.write(recordSpec));
     }
 
     @Override
@@ -304,8 +291,7 @@ public class HttpAdminClient implements Admin {
     public SnapshotRecordResult stopRecording() {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(StopRecordingTask.class),
-            "",
-            HTTP_OK);
+            "");
 
         return Json.read(body, SnapshotRecordResult.class);
     }
@@ -322,7 +308,7 @@ public class HttpAdminClient implements Admin {
 
     @Override
     public void shutdownServer() {
-        postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null, HTTP_OK);
+        postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null);
     }
 
     public int port() {
@@ -336,37 +322,37 @@ public class HttpAdminClient implements Admin {
         return ProxySettings.NO_PROXY;
     }
 
-    private String postJsonAssertOkAndReturnBody(String url, String json, int expectedStatus) {
+    private String postJsonAssertOkAndReturnBody(String url, String json) {
         HttpPost post = new HttpPost(url);
         if (json != null) {
             post.setEntity(jsonStringEntity(json));
         }
 
-        return safelyExecuteRequest(url, expectedStatus, post);
+        return safelyExecuteRequest(url, post);
     }
 
-    protected String getJsonAssertOkAndReturnBody(String url, int expectedStatus) {
+    protected String getJsonAssertOkAndReturnBody(String url) {
         HttpGet get = new HttpGet(url);
-        return safelyExecuteRequest(url, expectedStatus, get);
+        return safelyExecuteRequest(url, get);
     }
 
     private void executeRequest(RequestSpec requestSpec) {
-        executeRequest(requestSpec, PathParams.empty(), null, Void.class, 200);
+        executeRequest(requestSpec, PathParams.empty(), null, Void.class);
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, B requestBody, Class<R> responseType) {
-        return executeRequest(requestSpec, PathParams.empty(), requestBody, responseType, 200);
+        return executeRequest(requestSpec, PathParams.empty(), requestBody, responseType);
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, Class<R> responseType) {
-        return executeRequest(requestSpec, PathParams.empty(), null, responseType, 200);
+        return executeRequest(requestSpec, PathParams.empty(), null, responseType);
     }
 
     private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, Class<R> responseType) {
-        return executeRequest(requestSpec, pathParams, null, responseType, 200);
+        return executeRequest(requestSpec, pathParams, null, responseType);
     }
 
-    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType, int expectedStatus) {
+    private <B, R> R executeRequest(RequestSpec requestSpec, PathParams pathParams, B requestBody, Class<R> responseType) {
         String url = String.format(ADMIN_URL_PREFIX + requestSpec.path(pathParams), scheme, host, port, urlPathPrefix);
         RequestBuilder requestBuilder = RequestBuilder
                 .create(requestSpec.method().getName())
@@ -376,26 +362,32 @@ public class HttpAdminClient implements Admin {
             requestBuilder.setEntity(jsonStringEntity(Json.write(requestBody)));
         }
 
-        String responseBodyString = safelyExecuteRequest(url, expectedStatus, requestBuilder.build());
+        String responseBodyString = safelyExecuteRequest(url, requestBuilder.build());
 
         return responseType == Void.class ?
                 null :
                 Json.read(responseBodyString, responseType);
     }
 
-    private String safelyExecuteRequest(String url, int expectedStatus, HttpUriRequest request) {
+    private String safelyExecuteRequest(String url, HttpUriRequest request) {
         if (hostHeader != null) {
             request.addHeader(HOST, hostHeader);
         }
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != expectedStatus) {
+            if (HttpStatus.isServerError(statusCode)) {
                 throw new VerificationException(
-                        "Expected status " + expectedStatus + " for " + url + " but was " + statusCode);
+                        "Expected status 2xx for " + url + " but was " + statusCode);
             }
 
-            return getEntityAsStringAndCloseStream(response);
+            String body = getEntityAsStringAndCloseStream(response);
+            if (HttpStatus.isClientError(statusCode)) {
+                Errors errors = Json.read(body, Errors.class);
+                throw ClientError.fromErrors(errors);
+            }
+
+            return body;
         } catch (Exception e) {
             return throwUnchecked(e, String.class);
         }
