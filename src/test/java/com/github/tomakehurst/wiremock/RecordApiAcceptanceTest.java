@@ -21,9 +21,7 @@ import com.github.tomakehurst.wiremock.testsupport.GlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.NonGlobalStubMappingTransformer;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
-import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.junit.After;
 import org.junit.Before;
@@ -467,5 +465,24 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
 
         WireMockResponse response = proxyingTestClient.post("/__admin/recordings/stop", new StringEntity("", UTF_8));
         assertThat(response.content(), equalToJson(CAPTURE_HEADERS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER));
+    }
+
+    private static final String NOT_RECORDING_ERROR =
+        "{                                                          \n" +
+        "    \"errors\": [                                          \n" +
+        "        {                                                  \n" +
+        "            \"code\": 30,                                  \n" +
+        "            \"title\": \"Not currently recording.\"        \n" +
+        "        }                                                  \n" +
+        "    ]                                                      \n" +
+        "}";
+
+    @Test
+    public void returnsErrorWhenAttemptingToStopRecordingWhenNotStarted() {
+        proxyServerStartWithEmptyFileRoot();
+
+        WireMockResponse response = proxyingTestClient.postWithBody("/__admin/recordings/stop", "", "text/plain", "utf-8");
+
+        assertThat(response.content(), equalToJson(NOT_RECORDING_ERROR));
     }
 }

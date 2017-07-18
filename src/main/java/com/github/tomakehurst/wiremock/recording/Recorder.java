@@ -40,6 +40,10 @@ public class Recorder {
     }
 
     public synchronized SnapshotRecordResult stopRecording() {
+        if (state.getStatus() != RecordingStatus.Recording) {
+            throw new NotRecordingException();
+        }
+
         List<ServeEvent> serveEvents = admin.getServeEvents().getServeEvents();
 
         UUID lastId = serveEvents.isEmpty() ? null : serveEvents.get(0).getId();
