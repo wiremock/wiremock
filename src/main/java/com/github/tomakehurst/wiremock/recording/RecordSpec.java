@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 
@@ -50,14 +51,14 @@ public class RecordSpec {
         this.extractBodyCriteria = extractBodyCriteria;
         this.outputFormat = outputFormat == null ? SnapshotOutputFormatter.FULL : outputFormat;
         this.persist = persist == null ? true : persist;
-        this.repeatsAsScenarios = repeatsAsScenarios == null ? false : repeatsAsScenarios;
+        this.repeatsAsScenarios = repeatsAsScenarios;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
         this.jsonMatchingFlags = jsonMatchingFlags;
     }
 
     private RecordSpec() {
-        this(null, null, null, null, null, null, true, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null);
     }
 
     public static final RecordSpec DEFAULTS = new RecordSpec();
@@ -79,8 +80,14 @@ public class RecordSpec {
     @JsonProperty("persist")
     public boolean shouldPersist() { return persist; }
 
-    @JsonProperty("repeatsAsScenarios")
-    public boolean shouldRecordRepeatsAsScenarios() { return repeatsAsScenarios; }
+    @JsonIgnore
+    public boolean shouldRecordRepeatsAsScenarios() {
+        return repeatsAsScenarios == null ? true : repeatsAsScenarios;
+    }
+
+    public Boolean getRepeatsAsScenarios() {
+        return repeatsAsScenarios;
+    }
 
     public List<String> getTransformers() { return transformers; }
 
