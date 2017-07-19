@@ -14,12 +14,20 @@ public class Errors {
         this.errors = errors;
     }
 
+    public static Errors single(Integer code, String sourcePointer, String title) {
+        return new Errors(singletonList(new Error(code, new Error.Source(sourcePointer), title)));
+    }
+
     public static Errors single(Integer code, String title) {
         return new Errors(singletonList(new Error(code, title)));
     }
 
     public static Errors notRecording() {
         return single(30, "Not currently recording.");
+    }
+
+    public static Errors validation(String pointer, String message) {
+        return single(10, pointer, message);
     }
 
     public Error first() {
@@ -37,19 +45,46 @@ public class Errors {
     public static class Error {
 
         private final Integer code;
+        private final Source source;
         private final String title;
 
-        public Error(@JsonProperty("code") Integer code, @JsonProperty("title") String title) {
+        public Error(@JsonProperty("code") Integer code,
+                     @JsonProperty("source") Source source,
+                     @JsonProperty("title") String title) {
             this.code = code;
+            this.source = source;
             this.title = title;
+        }
+
+        public Error(int code, String title) {
+            this(code, null, title);
         }
 
         public Integer getCode() {
             return code;
         }
 
+        public Source getSource() {
+            return source;
+        }
+
         public String getTitle() {
             return title;
         }
+
+        public static class Source {
+
+            private final String pointer;
+
+            public Source(@JsonProperty("pointer") String pointer) {
+                this.pointer = pointer;
+            }
+
+            public String getPointer() {
+                return pointer;
+            }
+        }
     }
+
+
 }

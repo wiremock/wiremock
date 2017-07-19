@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.InvalidRequestException;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
@@ -213,17 +214,27 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test(expected = NotRecordingException.class)
-    public void returnsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
+    public void throwsAnErrorIfAttemptingToStopViaStaticRemoteDslWhenNotRecording() {
         stopRecording();
     }
 
     @Test(expected = NotRecordingException.class)
-    public void returnsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
+    public void throwsAnErrorIfAttemptingToStopViaInstanceRemoteDslWhenNotRecording() {
         adminClient.stopStubRecording();
     }
 
     @Test(expected = NotRecordingException.class)
-    public void returnsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
+    public void throwsAnErrorIfAttemptingToStopViaDirectDslWhenNotRecording() {
         proxyingService.stopRecording();
+    }
+
+    @Test(expected = InvalidRequestException.class)
+    public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
+        startRecording(recordSpec());
+    }
+
+    @Test(expected = InvalidRequestException.class)
+    public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
+        proxyingService.startRecording(recordSpec());
     }
 }
