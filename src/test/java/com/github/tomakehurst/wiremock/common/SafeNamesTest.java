@@ -1,11 +1,34 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SafeNamesTest {
+
+    @Test
+    public void generatesNameFromStubNameWhenPresent() {
+        StubMapping mapping = WireMock.get("/named")
+            .withName("This is a NAMED stub")
+            .willReturn(ok())
+            .build();
+
+        assertThat(SafeNames.makeSafeFileName(mapping), is("this-is-a-named-stub-" + mapping.getId() + ".json"));
+    }
+
+    @Test
+    public void generatesNameFromStubUrlWhenNameNotPresent() {
+        StubMapping mapping = WireMock.get(urlMatching("/named/([0-9]*)/things"))
+            .willReturn(ok())
+            .build();
+
+        assertThat(SafeNames.makeSafeFileName(mapping), is("named0-9things-" + mapping.getId() + ".json"));
+    }
 
     @Test
     public void generatesNameFromNameWithCharactersSafeForFilenames() {
