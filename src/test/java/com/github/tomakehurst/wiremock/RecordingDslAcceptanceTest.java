@@ -8,6 +8,9 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.GzipCompressingEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -18,6 +21,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.findMappingWithUrl;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -211,6 +215,18 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         RecordingStatusResult result = proxyingService.getRecordingStatus();
 
         assertThat(result.getStatus(), is(RecordingStatus.Recording));
+    }
+
+    @Test
+    public void recordsIntoPlainTextWhenRequestIsGZipped() {
+        proxyingService.startRecording(targetBaseUrl);
+        targetService.stubFor(post("/gzipped").willReturn(ok("Zippy")));
+
+        HttpEntity compressedBody = new GzipCompressingEntity(new StringEntity("expected body", TEXT_PLAIN));
+        client.post("/gzipped", compressedBody);
+
+        StubMapping mapping = proxyingService.stopRecording().getStubMappings().get(0);
+        assertThat(mapping.getRequest().getBodyPatterns().get(0).getExpected(), is("expected body"));
     }
 
     @Test(expected = NotRecordingException.class)
