@@ -449,16 +449,6 @@ int getPatchVersion() {
     Integer.valueOf(project.version.substring(project.version.lastIndexOf('.') + 1))
 }
 
-String getBaseVersion() {
-    project.version.substring(0, project.version.lastIndexOf('.'))
-}
-
-task 'tmp' << {
-    println majorVersion
-    println minorVersion
-    println patchVersion
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '3.1'
 }
