@@ -194,9 +194,9 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(mappings.size(), is(4));
         assertThat(WireMatchers.findMappingWithUrl(mappings, "/small/text").getResponse().getBodyFileName(), nullValue());
-        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(), containsString("large-text"));
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/text").getResponse().getBodyFileName(), containsString("large_text"));
         assertThat(WireMatchers.findMappingWithUrl(mappings, "/small/binary").getResponse().getBodyFileName(), nullValue());
-        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(), containsString("large-binary"));
+        assertThat(WireMatchers.findMappingWithUrl(mappings, "/large/binary").getResponse().getBodyFileName(), containsString("large_binary"));
     }
 
     @Test

@@ -28,7 +28,7 @@ import java.util.List;
  * passing them any supplied Parameters.
  */
 public class SnapshotStubMappingTransformerRunner implements Function<StubMapping, StubMapping> {
-    private final FileSource fileSource;
+    private final FileSource filesRoot;
     private final Parameters parameters;
     private final Iterable<StubMappingTransformer> registeredTransformers;
     private final List<String> requestedTransformers;
@@ -41,12 +41,12 @@ public class SnapshotStubMappingTransformerRunner implements Function<StubMappin
         Iterable<StubMappingTransformer> registeredTransformers,
         List<String> requestedTransformers,
         Parameters parameters,
-        FileSource fileSource
+        FileSource filesRoot
     ) {
         this.requestedTransformers = requestedTransformers;
         this.registeredTransformers = registeredTransformers;
         this.parameters = parameters;
-        this.fileSource = fileSource;
+        this.filesRoot = filesRoot;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class SnapshotStubMappingTransformerRunner implements Function<StubMappin
                 transformer.applyGlobally()
                 || (requestedTransformers != null && requestedTransformers.contains(transformer.getName()))
             ) {
-                stubMapping = transformer.transform(stubMapping, fileSource, parameters);
+                stubMapping = transformer.transform(stubMapping, filesRoot, parameters);
             }
         }
 

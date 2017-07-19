@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.InvalidRequestException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.indexOf;
 
@@ -132,18 +134,19 @@ public class Recorder {
     }
 
     public SnapshotStubMappingPostProcessor getStubMappingPostProcessor(Options options, RecordSpec recordSpec) {
+        FileSource filesRoot = options.filesRoot().child(FILES_ROOT);
         final SnapshotStubMappingTransformerRunner transformerRunner = new SnapshotStubMappingTransformerRunner(
             options.extensionsOfType(StubMappingTransformer.class).values(),
             recordSpec.getTransformers(),
             recordSpec.getTransformerParameters(),
-            options.filesRoot()
+            filesRoot
         );
 
         return new SnapshotStubMappingPostProcessor(
             recordSpec.shouldRecordRepeatsAsScenarios(),
             transformerRunner,
             recordSpec.getExtractBodyCriteria(),
-            new SnapshotStubMappingBodyExtractor(options.filesRoot())
+            new SnapshotStubMappingBodyExtractor(filesRoot)
         );
     }
 
