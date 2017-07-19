@@ -22,15 +22,9 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public class SnapshotStubMappingBodyExtractor {
     private final FileSource fileSource;
-    private final IdGenerator idGenerator;
 
     public SnapshotStubMappingBodyExtractor(FileSource fileSource) {
-        this(fileSource, new VeryShortIdGenerator());
-    }
-
-    public SnapshotStubMappingBodyExtractor(FileSource fileSource, IdGenerator idGenerator) {
         this.fileSource = fileSource;
-        this.idGenerator = idGenerator;
     }
 
     /**
@@ -41,18 +35,13 @@ public class SnapshotStubMappingBodyExtractor {
      * @param stubMapping Stub mapping to extract
      */
     public void extractInPlace(StubMapping stubMapping) {
-        String fileId = idGenerator.generate();
         byte[] body = stubMapping.getResponse().getByteBody();
         String extension = ContentTypes.determineFileExtension(
             stubMapping.getRequest().getUrl(),
             stubMapping.getResponse().getHeaders().getContentTypeHeader(),
             body);
-        String bodyFileName = UniqueFilenameGenerator.generate(
-            stubMapping.getRequest().getUrl(),
-            WireMockApp.FILES_ROOT + "/body",
-            fileId,
-            extension
-        );
+
+        String bodyFileName = SafeNames.makeSafeFileName(stubMapping, extension);
 
          // used to prevent ambiguous method call error for withBody()
         String noStringBody = null;
