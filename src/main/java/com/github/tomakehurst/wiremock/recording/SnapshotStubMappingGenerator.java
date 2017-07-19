@@ -15,12 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import com.github.tomakehurst.wiremock.common.SafeNames;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -49,7 +51,11 @@ public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMa
     public StubMapping apply(ServeEvent event) {
         final RequestPattern requestPattern = requestTransformer.apply(event.getRequest()).build();
         final ResponseDefinition responseDefinition = responseTransformer.apply(event.getResponse());
+        StubMapping stubMapping = new StubMapping(requestPattern, responseDefinition);
 
-        return new StubMapping(requestPattern, responseDefinition);
+        URI uri = URI.create(event.getRequest().getUrl());
+        stubMapping.setName(SafeNames.makeSafeNameFromUrl(uri.getPath()));
+
+        return stubMapping;
     }
 }
