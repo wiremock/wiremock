@@ -93,6 +93,22 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void generatesStubNameFromUrlPath() {
+        targetService.stubFor(get(urlPathMatching("/record-this/.*"))
+            .willReturn(ok("Fine")));
+
+        startRecording(targetBaseUrl);
+
+        String url = "/record-this/with$!/safe/ŃaMe?ignore=this";
+        client.get(url);
+
+        List<StubMapping> mappings = stopRecording().getStubMappings();
+
+        StubMapping mapping = mappings.get(0);
+        assertThat(mapping.getName(), is("record-this_with_safe_name"));
+    }
+
+    @Test
     public void startsRecordingWithDefaultSpecFromTheSpecifiedProxyBaseUrlWhenNoServeEventsAlreadyExist() {
         targetService.stubFor(get("/record-this").willReturn(okForContentType("text/plain","Got it")));
 
