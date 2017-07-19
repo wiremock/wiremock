@@ -11,11 +11,15 @@ public class ClientError extends RuntimeException {
     }
 
     public static ClientError fromErrors(Errors errors) {
-        if (errors.first().getCode().equals(30)) {
-            return new NotRecordingException();
+        Integer errorCode = errors.first().getCode();
+        switch (errorCode) {
+            case 10:
+                return new InvalidRequestException(errors);
+            case 30:
+                return new NotRecordingException();
+            default:
+                return new ClientError(errors);
         }
-
-        return new ClientError(errors);
     }
 
     public Errors getErrors() {
