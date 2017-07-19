@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.matching.AnythingPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +27,13 @@ public class SafeNames {
             return makeSafeName(mapping.getName()) + suffix;
         }
 
-        String expectedUrl = mapping.getRequest().getUrlMatcher().getExpected();
+        UrlPattern urlMatcher = mapping.getRequest().getUrlMatcher();
+
+        if (urlMatcher.getPattern() instanceof AnythingPattern) {
+            return suffix.substring(1);
+        }
+
+        String expectedUrl = urlMatcher.getExpected();
         URI uri = URI.create(sanitise(expectedUrl));
         return makeSafeNameFromUrl(uri.getPath()) + suffix;
     }

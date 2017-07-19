@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.hamcrest.Matchers.is;
@@ -28,6 +29,15 @@ public class SafeNamesTest {
             .build();
 
         assertThat(SafeNames.makeSafeFileName(mapping), is("named0-9things-" + mapping.getId() + ".json"));
+    }
+
+    @Test
+    public void generatesNameWhenStubUrlIsAnyAndNameNotPresent() {
+        StubMapping mapping = WireMock.get(anyUrl())
+            .willReturn(ok())
+            .build();
+
+        assertThat(SafeNames.makeSafeFileName(mapping), is(mapping.getId() + ".json"));
     }
 
     @Test
