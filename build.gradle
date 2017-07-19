@@ -387,34 +387,76 @@ task 'set-release-dir' << {
     }
 }
 
-task 'bump-version' << {
-    def baseVersion = '2.6'
+task 'bump-patch-version' << {
     def filesWithVersion = [
-        'build.gradle'                                   : { "version = '${baseVersion}.${it}" },
-        'docs-v2/_config.yml'                            : { "wiremock_version: ${baseVersion}.${it}" },
-        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${baseVersion}.${it}" }
+        'build.gradle'                                   : { "version = '${it}" },
+        'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
     ]
 
-    def gradleBuildFile = new File('build.gradle')
-    int currentMinorVersion
-    gradleBuildFile.text.find ~/version = '${baseVersion}.([0-9]+)/, { match, minorVersion ->
-        currentMinorVersion = Integer.valueOf(minorVersion)
-        int nextMinorVersion = currentMinorVersion + 1
+    def currentVersion = project.version
+    def nextVersion = "${majorVersion}.${minorVersion}.${patchVersion + 1}"
 
-        filesWithVersion.each { fileName, lineWithVersionTemplates ->
-            def file = new File(fileName)
-            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                lineWithVersionTemplates :
-                [lineWithVersionTemplates];
+    filesWithVersion.each { fileName, lineWithVersionTemplates ->
+        def file = new File(fileName)
+        def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
+            lineWithVersionTemplates :
+            [lineWithVersionTemplates]
 
-            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-                def oldLine = lineWithVersionTemplate.call(currentMinorVersion)
-                def newLine = lineWithVersionTemplate.call(nextMinorVersion)
-                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-                file.text = file.text.replace(oldLine, newLine);
-            }
+        lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+            def oldLine = lineWithVersionTemplate.call(currentVersion)
+            def newLine = lineWithVersionTemplate.call(nextVersion)
+            println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+            file.text = file.text.replace(oldLine, newLine)
         }
     }
+}
+
+task 'bump-minor-version' << {
+    def filesWithVersion = [
+        'build.gradle'                                   : { "version = '${it}" },
+        'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
+    ]
+
+    def currentVersion = project.version
+    def nextVersion = "${majorVersion}.${minorVersion + 1}.0"
+
+    filesWithVersion.each { fileName, lineWithVersionTemplates ->
+        def file = new File(fileName)
+        def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
+            lineWithVersionTemplates :
+            [lineWithVersionTemplates]
+
+        lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+            def oldLine = lineWithVersionTemplate.call(currentVersion)
+            def newLine = lineWithVersionTemplate.call(nextVersion)
+            println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+            file.text = file.text.replace(oldLine, newLine)
+        }
+    }
+}
+
+int getMajorVersion() {
+    Integer.valueOf(project.version.substring(0, project.version.indexOf('.')))
+}
+
+int getMinorVersion() {
+    Integer.valueOf(project.version.substring(project.version.indexOf('.') + 1, project.version.lastIndexOf('.')))
+}
+
+int getPatchVersion() {
+    Integer.valueOf(project.version.substring(project.version.lastIndexOf('.') + 1))
+}
+
+String getBaseVersion() {
+    project.version.substring(0, project.version.lastIndexOf('.'))
+}
+
+task 'tmp' << {
+    println majorVersion
+    println minorVersion
+    println patchVersion
 }
 
 task wrapper(type: Wrapper) {
