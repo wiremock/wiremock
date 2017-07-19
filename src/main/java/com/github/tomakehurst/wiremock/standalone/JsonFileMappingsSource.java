@@ -52,7 +52,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	public void save(StubMapping stubMapping) {
 		String mappingFileName = fileNameMap.get(stubMapping.getId());
 		if (mappingFileName == null) {
-			mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
+			mappingFileName = SafeNames.makeSafeFileName(stubMapping);
 		}
 		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
         fileNameMap.put(stubMapping.getId(), mappingFileName);
