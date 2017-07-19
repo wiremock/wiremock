@@ -183,21 +183,6 @@ public class Recorder {
         public UUID getFinishingServeEventId() {
             return finishingServeEventId;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            State state = (State) o;
-            return status == state.status &&
-                Objects.equals(proxyMapping, state.proxyMapping) &&
-                Objects.equals(startingServeEventId, state.startingServeEventId) &&
-                Objects.equals(finishingServeEventId, state.finishingServeEventId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(status, proxyMapping, startingServeEventId, finishingServeEventId);
-        }
+        
     }
 }
