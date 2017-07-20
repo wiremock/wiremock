@@ -33,10 +33,13 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -398,5 +401,69 @@ public class Examples extends AcceptanceTestBase {
 
         stubFor(proxyAllTo("http://my.example.com"));
 
+    }
+
+    @Test
+    public void recordingDsl() {
+        startRecording(
+            recordSpec()
+                .forTarget("http://example.mocklab.io")
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .jsonBodyMatchFlags(false, true)
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .forTarget("http://example.mocklab.io")
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .jsonBodyMatchFlags(false, true)
+            .build()));
+    }
+
+    @Test
+    public void snapshotDsl() {
+        snapshotRecord(
+            recordSpec()
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .jsonBodyMatchFlags(false, true)
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .jsonBodyMatchFlags(false, true)
+            .build()));
     }
 }
