@@ -28,8 +28,8 @@ import java.util.Objects;
 @JsonDeserialize(using = ResponseDefinitionBodyMatcherDeserializer.class)
 public class ResponseDefinitionBodyMatcher implements ValueMatcher<ResponseDefinition> {
 
-    public static final long DEFAULT_MAX_TEXT_SIZE = 100 * 1024 * 1024;
-    public static final long DEFAULT_MAX_BINARY_SIZE = 100 * 1024 * 1024;
+    public static final long DEFAULT_MAX_TEXT_SIZE = 10240;
+    public static final long DEFAULT_MAX_BINARY_SIZE = 0;
 
     private final long textSizeThreshold;
     private final long binarySizeThreshold;
