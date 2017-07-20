@@ -1,0 +1,71 @@
+{
+    "type": "object",
+    "properties": {
+        "targetBaseUrl": {
+            "type": "string"
+        },
+        "captureHeaders": {
+            "type": "object"
+        },
+        "extractBodyCriteria": {
+            "type": "object",
+            "properties": {
+                "binarySizeThreshold": {
+                    "type": "string"
+                },
+                "textSizeThreshold": {
+                    "type": "string"
+                }
+            }
+        },
+        "filters": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "method": {
+                    "type": "string"
+                },
+                "urlPathPattern": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsonMatchingFlags": {
+            "type": "object",
+            "properties": {
+                "ignoreArrayOrder": {
+                    "type": "boolean"
+                },
+                "ignoreExtraElements": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "persist": {
+            "type": "boolean"
+        },
+        "repeatsAsScenarios": {
+            "type": "boolean"
+        },
+        "transformerParameters": {
+            "type": "object",
+            "properties": {
+                "headerValue": {
+                    "type": "string"
+                }
+            }
+        },
+        "transformers": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+
+}
