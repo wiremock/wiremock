@@ -671,11 +671,11 @@ public class WireMock {
     }
 
     public List<StubMapping> takeSnapshotRecording() {
-        return admin.takeSnapshotRecording().getStubMappings();
+        return admin.snapshotRecord().getStubMappings();
     }
 
     public List<StubMapping> takeSnapshotRecording(RecordSpecBuilder spec) {
-        return admin.takeSnapshotRecording(spec.build()).getStubMappings();
+        return admin.snapshotRecord(spec.build()).getStubMappings();
     }
 
     public static void startRecording(String targetBaseUrl) {

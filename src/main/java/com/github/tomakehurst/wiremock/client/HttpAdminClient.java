@@ -253,7 +253,7 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording() {
+    public SnapshotRecordResult snapshotRecord() {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(SnapshotTask.class),
             "");
@@ -262,7 +262,12 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording(RecordSpec spec) {
+    public SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec) {
+        return snapshotRecord(spec.build());
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord(RecordSpec spec) {
         String body = postJsonAssertOkAndReturnBody(
             urlFor(SnapshotTask.class),
             Json.write(spec));

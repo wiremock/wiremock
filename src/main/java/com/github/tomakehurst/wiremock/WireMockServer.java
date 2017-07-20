@@ -373,17 +373,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<StubMapping> snapshotRecord() {
-
-        return wireMockApp.takeSnapshotRecording().getStubMappings();
-    }
-
-    @Override
-    public List<StubMapping> snapshotRecord(RecordSpecBuilder spec) {
-        return wireMockApp.takeSnapshotRecording(spec.build()).getStubMappings();
-    }
-
-    @Override
     public void startRecording(String targetBaseUrl) {
         wireMockApp.startRecording(targetBaseUrl);
     }
@@ -409,13 +398,18 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording() {
-        return wireMockApp.takeSnapshotRecording();
+    public SnapshotRecordResult snapshotRecord() {
+        return wireMockApp.snapshotRecord();
     }
 
     @Override
-    public SnapshotRecordResult takeSnapshotRecording(RecordSpec spec) {
-        return wireMockApp.takeSnapshotRecording(spec);
+    public SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec) {
+        return wireMockApp.snapshotRecord(spec);
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord(RecordSpec spec) {
+        return wireMockApp.snapshotRecord(spec);
     }
 
     @Override
