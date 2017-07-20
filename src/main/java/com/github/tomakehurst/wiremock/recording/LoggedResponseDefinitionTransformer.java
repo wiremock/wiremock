@@ -18,15 +18,30 @@ package com.github.tomakehurst.wiremock.recording;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.net.*;
+
+import java.util.List;
 
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
+import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
+import static com.google.common.net.HttpHeaders.TRANSFER_ENCODING;
 
 /**
  * Transforms a LoggedResponse into a ResponseDefinition, which will be used to construct a StubMapping
  */
 public class LoggedResponseDefinitionTransformer implements Function<LoggedResponse, ResponseDefinition> {
+
+    private static final List<CaseInsensitiveKey> EXCLUDED_HEADERS = ImmutableList.of(
+        CaseInsensitiveKey.from(CONTENT_ENCODING),
+        CaseInsensitiveKey.from(CONTENT_LENGTH),
+        CaseInsensitiveKey.from(TRANSFER_ENCODING)
+    );
+
     @Override
     public ResponseDefinition apply(LoggedResponse response) {
         final ResponseDefinitionBuilder responseDefinitionBuilder = new ResponseDefinitionBuilder()
@@ -53,7 +68,7 @@ public class LoggedResponseDefinitionTransformer implements Function<LoggedRespo
     private HttpHeaders withoutContentEncodingAndContentLength(LoggedResponse response) {
         return new HttpHeaders(filter(response.getHeaders().all(), new Predicate<HttpHeader>() {
             public boolean apply(HttpHeader header) {
-                return !header.keyEquals("Content-Encoding") && !header.keyEquals("Content-Length");
+                return !EXCLUDED_HEADERS.contains(CaseInsensitiveKey.from(header.key()));
             }
         }));
     }
