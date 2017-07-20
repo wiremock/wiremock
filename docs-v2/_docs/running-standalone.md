@@ -181,7 +181,7 @@ You can push a collection of mappings to a remote
 
 ## File serving
 
-When running standalone files placed under the `__files` directory will
+When running the standalone JAR, files placed under the `__files` directory will
 be served up as if from under the docroot, except if stub mapping
 matching the URL exists. For example if a file exists
 `__files/things/myfile.html` and no stub mapping will match

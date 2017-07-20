@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.io.UnsupportedEncodingException;
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.collect.FluentIterable.from;
 
 public class Urls {
 
@@ -55,6 +58,18 @@ public class Urls {
                 return new QueryParameter(key, ImmutableList.copyOf(values));
             }
         });
+    }
+
+    public static String urlToPathParts(URI uri) {
+        Iterable<String> uriPathNodes = Splitter.on("/").omitEmptyStrings().split(uri.getPath());
+        int nodeCount = Iterables.size(uriPathNodes);
+
+        return nodeCount > 0 ?
+            Joiner.on("-")
+            .join(from(uriPathNodes)
+                .skip(nodeCount - Math.min(nodeCount, 2))
+            ):
+            "";
     }
 
     public static Map<String, QueryParameter> splitQuery(URI uri) {
