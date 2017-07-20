@@ -14,6 +14,7 @@ schemas:
   - stubMapping: !include schemas/stub-mapping.schema.json
   - stubMappings: !include schemas/stub-mappings.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
+  - recordSpec: !include schemas/record-spec.schema.json
 
 /__admin/mappings:
   description: Stub mappings
@@ -125,21 +126,6 @@ schemas:
       responses:
         200:
           description: Successfully removed
-
-
-/__admin/scenarios:
-  description: Scenarios support modelling of stateful behaviour
-
-  /reset:
-    description: Scenarios
-    post:
-      description: Reset the state of all scenarios
-      responses:
-        200:
-          description: Successfully reset
-          body:
-            application/json:
-              example: !include examples/empty.example.json
 
 
 /__admin/requests:
@@ -254,6 +240,80 @@ schemas:
               application/json:
                 example: !include examples/near-misses.example.json
 
+/__admin/recordings:
+  description: Stub mapping record and snapshot functions
+
+  /start:
+    description: Start recording stub mappings
+    post:
+      description: Start recording stub mappings
+      body:
+        application/json:
+          schema: recordSpec
+          example: !include examples/record-spec.example.json
+
+      responses:
+        200:
+          description: Successfully started recording
+
+  /stop:
+    description: Stop recording stub mappings
+    post:
+        description: Stop recording stub mappings
+        responses:
+          200:
+            description: Successfully started recording
+            body:
+              application/json:
+                schema: stubMappings
+                example: !include examples/recorded-stub-mappings.example.json
+
+  /status:
+    description: Recording status
+    get:
+      description: Get the recording status (started or stopped)
+
+      responses:
+        200:
+          description: Successfully got the record status
+          body:
+            application/json:
+              example: |
+                {
+                  "status" : "Stopped"
+                }
+
+  /snapshot:
+    description: Snapshot recording
+    post:
+      description: Take a snapshot recording
+      body:
+        application/json:
+          schema: recordSpec
+          example: !include examples/snapshot-spec.example.json
+
+      responses:
+          200:
+            description: Successfully took a snapshot recording
+            body:
+              application/json:
+                schema: stubMappings
+                example: !include examples/recorded-stub-mappings.example.json
+
+/__admin/scenarios:
+  description: Scenarios support modelling of stateful behaviour
+
+  /reset:
+    description: Scenarios
+    post:
+      description: Reset the state of all scenarios
+      responses:
+        200:
+          description: Successfully reset
+          body:
+            application/json:
+              example: !include examples/empty.example.json
+
 
 /__admin/near-misses:
   description: Near misses allow querying of received requests or request patterns according to similarity
@@ -310,3 +370,5 @@ schemas:
     responses:
       200:
         description: Server will be shut down
+
+

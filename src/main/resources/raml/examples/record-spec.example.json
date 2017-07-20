@@ -1,0 +1,27 @@
+{
+    "targetBaseUrl" : "http://example.mocklab.io",
+    "filters" : {
+        "urlPathPattern" : "/api/.*",
+        "method" : "GET"
+    },
+    "captureHeaders" : {
+        "Accept" : { },
+        "Content-Type" : {
+            "caseInsensitive" : true
+        }
+    },
+    "extractBodyCriteria" : {
+        "textSizeThreshold" : "2048",
+        "binarySizeThreshold" : "10240"
+    },
+    "persist" : false,
+    "repeatsAsScenarios" : false,
+    "transformers" : [ "modify-response-header" ],
+    "transformerParameters" : {
+        "headerValue" : "123"
+    },
+    "jsonMatchingFlags" : {
+        "ignoreArrayOrder" : false,
+        "ignoreExtraElements" : true
+    }
+}
