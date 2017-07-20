@@ -56,8 +56,9 @@ public interface Admin {
 
     void updateGlobalSettings(GlobalSettings settings);
 
-    SnapshotRecordResult takeSnapshotRecording();
-    SnapshotRecordResult takeSnapshotRecording(RecordSpec spec);
+    SnapshotRecordResult snapshotRecord();
+    SnapshotRecordResult snapshotRecord(RecordSpec spec);
+    SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec);
 
     void startRecording(String targetBaseUrl);
     void startRecording(RecordSpec spec);

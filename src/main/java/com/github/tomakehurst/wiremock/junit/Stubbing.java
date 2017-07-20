@@ -48,7 +48,4 @@ public interface Stubbing {
     List<NearMiss> findNearMissesForAllUnmatchedRequests();
     List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest);
     List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder);
-
-    List<StubMapping> snapshotRecord();
-    List<StubMapping> snapshotRecord(RecordSpecBuilder spec);
 }

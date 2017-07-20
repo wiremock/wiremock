@@ -85,7 +85,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.get("/two");
         client.postJson("/three", "{ \"counter\": 55 }");
 
-        List<StubMapping> returnedMappings = proxyingService.snapshotRecord();
+        List<StubMapping> returnedMappings = proxyingService.snapshotRecord().getStubMappings();
         List<StubMapping> serverMappings = proxyingService.getStubMappings();
 
         assertTrue("All of the returned mappings should be present in the server", serverMappings.containsAll(returnedMappings));
@@ -121,7 +121,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         List<StubMapping> mappings = proxyingService.snapshotRecord(
             recordSpec()
                 .onlyRequestsMatching(getRequestedFor(urlPathMatching("/things/.*")))
-        );
+        ).getStubMappings();
 
         assertThat(mappings.size(), is(3));
         assertThat(mappings, everyItem(WireMatchers.stubMappingWithUrl(urlPathMatching("/things.*"))));
