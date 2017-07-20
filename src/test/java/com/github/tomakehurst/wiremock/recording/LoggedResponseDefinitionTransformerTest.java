@@ -15,11 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.recording.LoggedResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.*;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
+import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static org.junit.Assert.assertEquals;
 
 public class LoggedResponseDefinitionTransformerTest {
@@ -65,14 +65,15 @@ public class LoggedResponseDefinitionTransformerTest {
     }
 
     @Test
-    public void applyWithExtraHeaders() {
+    public void preservesHeadersExceptThoseSpecificallyExcluded() {
         final LoggedResponse response = LoggedResponse.from(Response
             .response()
             .headers(new HttpHeaders(
-                HttpHeader.httpHeader("Content-Encoding", "gzip"),
-                HttpHeader.httpHeader("Content-Length", "10"),
-                HttpHeader.httpHeader("Accept", "application/json"),
-                HttpHeader.httpHeader("X-foo", "Bar")
+                httpHeader("Content-Encoding", "gzip"), // Excluded
+                httpHeader("content-LENGTH", "10"), // Excluded
+                httpHeader("transfer-encoding", "chunked"), // Excluded
+                httpHeader("Accept", "application/json"),
+                httpHeader("X-foo", "Bar")
             ))
             .build()
         );
