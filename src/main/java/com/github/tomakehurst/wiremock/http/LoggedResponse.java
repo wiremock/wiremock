@@ -19,8 +19,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.common.Strings;
+import com.google.common.net.MediaType;
 
 import java.nio.charset.Charset;
+
+import static com.google.common.net.MediaType.OCTET_STREAM;
 
 public class LoggedResponse {
 
@@ -70,8 +73,19 @@ public class LoggedResponse {
             return "";
         }
 
-        Charset charset = headers == null ? Strings.DEFAULT_CHARSET : headers.getContentTypeHeader().charset();
-        return Strings.stringFromBytes(body, charset);
+        return Strings.stringFromBytes(body, getCharset());
+    }
+
+    @JsonIgnore
+    public String getMimeType() {
+        return headers == null || headers.getContentTypeHeader() == null ?
+            OCTET_STREAM.toString() :
+            headers.getContentTypeHeader().mimeTypePart();
+    }
+
+    @JsonIgnore
+    public Charset getCharset() {
+        return headers == null ? Strings.DEFAULT_CHARSET : headers.getContentTypeHeader().charset();
     }
 
     @JsonIgnore
