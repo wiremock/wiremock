@@ -193,6 +193,34 @@ JSON:
 }
 ```
 
+### Case-insensitive equality
+
+Deems a match if the entire attribute value equals the expected value, ignoring case.
+
+Java:
+
+```java
+.withHeader("Content-Type", equalToIgnoreCase("application/json"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json",
+        "caseInsensitive": true
+      }
+    }
+    ...
+  },
+  ...
+}
+```
+
 
 ### Substring (contains)
 
