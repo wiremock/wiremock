@@ -17,7 +17,8 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
-import com.github.tomakehurst.wiremock.core.WireMockApp;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
 public class SnapshotStubMappingBodyExtractor {
@@ -36,9 +37,10 @@ public class SnapshotStubMappingBodyExtractor {
      */
     public void extractInPlace(StubMapping stubMapping) {
         byte[] body = stubMapping.getResponse().getByteBody();
+        HttpHeaders responseHeaders = stubMapping.getResponse().getHeaders();
         String extension = ContentTypes.determineFileExtension(
             stubMapping.getRequest().getUrl(),
-            stubMapping.getResponse().getHeaders().getContentTypeHeader(),
+            responseHeaders != null ? responseHeaders.getContentTypeHeader() : ContentTypeHeader.absent(),
             body);
 
         String bodyFileName = SafeNames.makeSafeFileName(stubMapping, extension);
