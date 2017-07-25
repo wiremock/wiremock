@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Test;

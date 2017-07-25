@@ -28,7 +28,8 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class SnapshotStubMappingGeneratorTest {
     @Test
@@ -45,7 +46,7 @@ public class SnapshotStubMappingGeneratorTest {
         StubMapping expected = new StubMapping(requestPatternBuilder.build(), responseDefinition);
         expected.setId(actual.getId());
 
-        assertEquals(expected, actual);
+        assertThat(actual, is(expected));
     }
 
     private static RequestPatternTransformer requestPatternTransformer(final RequestPatternBuilder requestPatternBuilder) {
