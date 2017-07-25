@@ -15,52 +15,57 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.recording.ScenarioProcessor;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ScenarioProcessorTest {
 
-    ScenarioProcessor processor = new ScenarioProcessor();
+    private final ScenarioProcessor processor = new ScenarioProcessor();
 
     @Test
     public void placesStubMappingsIntoScenariosWhenRepetitionsArePresent() {
-        StubMapping foobar1 = stubMappingForUrl("/foo/bar");
-        StubMapping other1 = stubMappingForUrl("/other");
-        StubMapping foobar2 = stubMappingForUrl("/foo/bar");
-        StubMapping foobar3 = stubMappingForUrl("/foo/bar");
-        StubMapping other2 = stubMappingForUrl("/other");
+        StubMapping foobar1 = WireMock.get("/foo/bar").build();
+        StubMapping other1 = WireMock.get("/other").build();
+        StubMapping foobar2 = WireMock.get("/foo/bar").build();
+        StubMapping foobar3 = WireMock.get("/foo/bar").build();
+        StubMapping other2 = WireMock.get("/other").build();
 
         processor.putRepeatedRequestsInScenarios(asList(foobar1, other1, foobar2, foobar3, other2));
 
-        assertEquals("scenario-foo-bar", foobar1.getScenarioName());
-        assertEquals(Scenario.STARTED, foobar1.getRequiredScenarioState());
-        assertEquals(foobar1.getNewScenarioState(), "scenario-foo-bar-2");
+        assertThat(foobar1.getScenarioName(), is("scenario-foo-bar"));
+        assertThat(foobar1.getRequiredScenarioState(), is(Scenario.STARTED));
+        assertThat("scenario-foo-bar-2", is(foobar1.getNewScenarioState()));
 
-        assertEquals(foobar1.getScenarioName(), foobar2.getScenarioName());
-        assertEquals("scenario-foo-bar-2", foobar2.getRequiredScenarioState());
-        assertEquals("scenario-foo-bar-3", foobar2.getNewScenarioState());
+        assertThat(foobar2.getScenarioName(), is(foobar1.getScenarioName()));
+        assertThat(foobar2.getRequiredScenarioState(), is("scenario-foo-bar-2"));
+        assertThat(foobar2.getNewScenarioState(), is("scenario-foo-bar-3"));
 
-        assertEquals(foobar1.getScenarioName(), foobar3.getScenarioName());
-        assertEquals("scenario-foo-bar-3", foobar3.getRequiredScenarioState());
-        assertNull("Last mapping should not have a state transition", foobar3.getNewScenarioState());
+        assertThat(foobar1.getScenarioName(), is(foobar3.getScenarioName()));
+        assertThat(foobar3.getRequiredScenarioState(), is("scenario-foo-bar-3"));
+        assertThat("Last mapping should not have a state transition", foobar3.getNewScenarioState(), nullValue());
 
-        assertEquals("scenario-other", other1.getScenarioName());
-        assertEquals("scenario-other-2", other1.getNewScenarioState());
-        assertEquals("scenario-other-2", other2.getRequiredScenarioState());
+        assertThat(other1.getScenarioName(), is("scenario-other"));
+        assertThat(other1.getNewScenarioState(), is("scenario-other-2"));
+        assertThat(other2.getRequiredScenarioState(), is("scenario-other-2"));
     }
 
-    private StubMapping stubMappingForUrl(String url) {
-        return new StubMapping(
-            newRequestPattern().withUrl(url).build(),
-            ResponseDefinition.ok()
-        );
+    @Test
+    public void doesNothingWhenNoRepeatedRequests() {
+        StubMapping one = WireMock.get("/one").build();
+        StubMapping two = WireMock.get("/two").build();
+        StubMapping three = WireMock.get("/three").build();
+
+        processor.putRepeatedRequestsInScenarios(asList(one, two, three));
+
+        assertThat(one.getScenarioName(), nullValue());
+        assertThat(two.getScenarioName(), nullValue());
+        assertThat(three.getScenarioName(), nullValue());
     }
 }

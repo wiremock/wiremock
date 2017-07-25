@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.recording.ResponseDefinitionBodyMatcher;
-import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingBodyExtractor;
-import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingPostProcessor;
-import com.github.tomakehurst.wiremock.recording.SnapshotStubMappingTransformerRunner;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -33,9 +30,9 @@ import static org.hamcrest.Matchers.*;
 
 public class SnapshotStubMappingPostProcessorTest {
     private static final List<StubMapping> TEST_STUB_MAPPINGS = ImmutableList.of(
-        aMapping("/foo"),
-        aMapping("/bar"),
-        aMapping("/foo")
+        WireMock.get("/foo").build(),
+        WireMock.get("/bar").build(),
+        WireMock.get("/foo").build()
     );
 
     @Test
@@ -74,7 +71,7 @@ public class SnapshotStubMappingPostProcessorTest {
 
     @Test
     public void processExtractsBodiesWhenMatched() {
-        ResponseDefinitionBodyMatcher bodyMatcher = new ResponseDefinitionBodyMatcher(0, 0) {
+        final ResponseDefinitionBodyMatcher bodyMatcher = new ResponseDefinitionBodyMatcher(0, 0) {
             @Override
             public MatchResult match(ResponseDefinition responseDefinition) {
                 // Only match the second stub mapping
@@ -84,10 +81,10 @@ public class SnapshotStubMappingPostProcessorTest {
             }
         };
 
-        SnapshotStubMappingBodyExtractor bodyExtractor = new SnapshotStubMappingBodyExtractor(null) {
+        final SnapshotStubMappingBodyExtractor bodyExtractor = new SnapshotStubMappingBodyExtractor(null) {
             @Override
             public void extractInPlace(StubMapping stubMapping) {
-                stubMapping.setResponse(ResponseDefinition.noContent());
+                stubMapping.setRequest(newRequestPattern().withUrl("/extracted").build());
             }
         };
 
@@ -100,8 +97,8 @@ public class SnapshotStubMappingPostProcessorTest {
 
         assertThat(actual, hasSize(2));
         // Should've only modified second stub mapping
-        assertThat(actual.get(0).getResponse(), equalTo(ResponseDefinition.ok()));
-        assertThat(actual.get(1).getResponse(), equalTo(ResponseDefinition.noContent()));
+        assertThat(actual.get(0).getRequest().getUrl(), is("/foo"));
+        assertThat(actual.get(1).getRequest().getUrl(), is("/extracted"));
     }
 
     private static SnapshotStubMappingTransformerRunner noopTransformerRunner() {
@@ -111,12 +108,5 @@ public class SnapshotStubMappingPostProcessorTest {
                 return stubMapping;
             }
         };
-    }
-
-    private static StubMapping aMapping(String url) {
-        return new StubMapping(
-            newRequestPattern().withUrl(url).build(),
-            ResponseDefinition.ok()
-        );
     }
 }

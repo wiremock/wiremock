@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.recording.SnapshotOutputFormatter.FULL;
