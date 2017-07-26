@@ -199,7 +199,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         adminClient.startStubRecording(
             recordSpec()
                 .forTarget(targetBaseUrl)
-                .jsonBodyMatchFlags(true, true)
+                .requestBodyEqualToJsonPattern(true, true)
         );
 
         client.postJson("/record-this-with-body", "{}");
@@ -218,7 +218,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         proxyingService.startRecording(
             recordSpec()
                 .forTarget(targetBaseUrl)
-                .jsonBodyMatchFlags(true, true)
+                .requestBodyEqualToJsonPattern(true, true)
         );
 
         client.postJson("/record-this-with-body", "{}");

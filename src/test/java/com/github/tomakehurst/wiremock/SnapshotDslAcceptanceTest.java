@@ -22,9 +22,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
@@ -106,8 +104,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
         EqualToJsonPattern equalToJsonPattern = (EqualToJsonPattern) bodyPattern;
-        assertThat(equalToJsonPattern.isIgnoreArrayOrder(), nullValue());
-        assertThat(equalToJsonPattern.isIgnoreExtraElements(), nullValue());
+        assertThat(equalToJsonPattern.isIgnoreArrayOrder(), is(true));
+        assertThat(equalToJsonPattern.isIgnoreExtraElements(), is(true));
     }
 
     @Test
@@ -253,27 +251,64 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void supportsConfigurationOfJsonBodyMatching() {
+    public void supportsConfigurationOfAutoRequestBodyPatternFactory() {
+        client.postJson("/some-json", "{}");
+        client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
+        client.postWithBody("/some-json", "foo", "application/text", "utf-8");
+
+        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyAutoPattern(false, false, true));
+
+        EqualToJsonPattern jsonBodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(jsonBodyPattern.getEqualToJson(), is("{}"));
+        assertThat(jsonBodyPattern.isIgnoreArrayOrder(), is(false));
+        assertThat(jsonBodyPattern.isIgnoreExtraElements(), is(false));
+
+        EqualToXmlPattern xmlBodyPattern = (EqualToXmlPattern) mappings.get(1).getRequest().getBodyPatterns().get(0);
+        assertThat(xmlBodyPattern.getEqualToXml(), is("<foo/>"));
+
+        EqualToPattern textBodyPattern = (EqualToPattern) mappings.get(2).getRequest().getBodyPatterns().get(0);
+        assertThat(textBodyPattern.getEqualTo(), is("foo"));
+        assertThat(textBodyPattern.getCaseInsensitive(), is(true));
+    }
+
+    @Test
+    public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToJsonPattern() {
         client.postJson("/some-json", "{}");
 
-        List<StubMapping> mappings = snapshotRecord(
-            recordSpec().jsonBodyMatchFlags(true, true)
-        );
+        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToJsonPattern(false, true));
 
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
-        assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
+        assertThat(bodyPattern.isIgnoreArrayOrder(), is(false));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
     }
 
     @Test
-    public void defaultsToNoJsonBodyMatchingFlags() {
+    public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToXmlPattern() {
+        client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
+
+        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToXmlPattern());
+
+        assertThat(mappings.get(0).getRequest().getBodyPatterns().get(0), instanceOf(EqualToXmlPattern.class));
+    }
+
+    @Test
+    public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToPattern() {
+        client.postWithBody("/some-json", "foo", "application/text", "utf-8");
+
+        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToPattern(true));
+
+        EqualToPattern bodyPattern = (EqualToPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(bodyPattern.getCaseInsensitive(), is(true));
+    }
+
+    @Test
+    public void defaultsToAutomaticRequestBodyPattern() {
         client.postJson("/some-json", "{}");
 
         List<StubMapping> mappings = snapshotRecord(recordSpec());
 
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
-        assertThat(bodyPattern.isIgnoreArrayOrder(), nullValue());
-        assertThat(bodyPattern.isIgnoreExtraElements(), nullValue());
+        assertThat(bodyPattern, is(new EqualToJsonPattern("{}", true, true)));
     }
 
     @Test
