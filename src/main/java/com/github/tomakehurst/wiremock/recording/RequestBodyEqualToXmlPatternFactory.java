@@ -15,24 +15,13 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
 
-public class JsonMatchingFlags {
+public class RequestBodyEqualToXmlPatternFactory implements RequestBodyPatternFactory {
 
-    private final Boolean ignoreArrayOrder;
-    private final Boolean ignoreExtraElements;
-
-    public JsonMatchingFlags(@JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
-                             @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
-        this.ignoreArrayOrder = ignoreArrayOrder;
-        this.ignoreExtraElements = ignoreExtraElements;
-    }
-
-    public Boolean isIgnoreArrayOrder() {
-        return ignoreArrayOrder;
-    }
-
-    public Boolean isIgnoreExtraElements() {
-        return ignoreExtraElements;
+    @Override
+    public EqualToXmlPattern forRequest(Request request) {
+        return new EqualToXmlPattern(request.getBodyAsString());
     }
 }

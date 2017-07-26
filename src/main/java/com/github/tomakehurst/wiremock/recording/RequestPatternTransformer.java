@@ -15,9 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
@@ -33,13 +30,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
  */
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
     private final Map<String, CaptureHeadersSpec> headers;
-    private final JsonMatchingFlags jsonMatchingFlags;
+    private final RequestBodyPatternFactory bodyPatternFactory;
 
-    @JsonCreator
-    public RequestPatternTransformer(@JsonProperty("headers") Map<String, CaptureHeadersSpec> headers,
-                                     @JsonProperty("jsonMatchingFlags") JsonMatchingFlags jsonMatchingFlags) {
+    public RequestPatternTransformer(
+        Map<String, CaptureHeadersSpec> headers,
+        RequestBodyPatternFactory bodyPatternFactory) {
         this.headers = headers;
-        this.jsonMatchingFlags = jsonMatchingFlags;
+        this.bodyPatternFactory = bodyPatternFactory;
     }
 
     /**
@@ -62,29 +59,10 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
         }
 
         String body = request.getBodyAsString();
-        if (body != null && !body.isEmpty()) {
-            builder.withRequestBody(valuePatternForContentType(request));
+        if (bodyPatternFactory != null && body != null && !body.isEmpty()) {
+            builder.withRequestBody(bodyPatternFactory.forRequest(request));
         }
 
         return builder;
-    }
-
-    /**
-     * If request body was JSON or XML, use "equalToJson" or "equalToXml" (respectively) in the RequestPattern so it's
-     * easier to read. Otherwise, just use "equalTo"
-     */
-    private StringValuePattern valuePatternForContentType(Request request) {
-        final ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
-        if (contentType.mimeTypePart() != null) {
-            if (contentType.mimeTypePart().contains("json")) {
-                return jsonMatchingFlags == null ?
-                    equalToJson(request.getBodyAsString()) :
-                    equalToJson(request.getBodyAsString(), jsonMatchingFlags.isIgnoreArrayOrder(), jsonMatchingFlags.isIgnoreExtraElements());
-            } else if (contentType.mimeTypePart().contains("xml")) {
-                return equalToXml(request.getBodyAsString());
-            }
-        }
-
-        return equalTo(request.getBodyAsString());
     }
 }

@@ -18,6 +18,29 @@
                 }
             }
         },
+        "requestBodyPattern": {
+            "type": "object",
+            "properties": {
+                "matcher": {
+                    "type": "string",
+                    "enum": [
+                        "equalTo",
+                        "equalToJson",
+                        "equalToXml",
+                        "auto"
+                    ]
+                },
+                "ignoreArrayOrder": {
+                    "type": "boolean"
+                },
+                "ignoreExtraElements": {
+                    "type": "boolean"
+                },
+                "caseInsensitive": {
+                    "type": "boolean"
+                }
+            }
+        },
         "filters": {
             "type": "object",
             "properties": {
@@ -32,17 +55,6 @@
                 },
                 "urlPathPattern": {
                     "type": "string"
-                }
-            }
-        },
-        "jsonMatchingFlags": {
-            "type": "object",
-            "properties": {
-                "ignoreArrayOrder": {
-                    "type": "boolean"
-                },
-                "ignoreExtraElements": {
-                    "type": "boolean"
                 }
             }
         },

@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.*;
 
 import java.util.List;
 import java.util.Map;
@@ -32,13 +31,13 @@ public class RecordSpecBuilder {
     private RequestPatternBuilder filterRequestPatternBuilder;
     private List<UUID> filterIds;
     private Map<String, CaptureHeadersSpec> headers = newLinkedHashMap();
+    private RequestBodyPatternFactory requestBodyPatternFactory;
     private long maxTextBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_TEXT_SIZE;
     private long maxBinaryBodySize = ResponseDefinitionBodyMatcher.DEFAULT_MAX_BINARY_SIZE;
     private boolean persistentStubs = true;
     private boolean repeatsAsScenarios = true;
     private List<String> transformerNames;
     private Parameters transformerParameters;
-    private JsonMatchingFlags jsonMatchingFlags;
 
     public RecordSpecBuilder forTarget(String targetBaseUrl) {
         this.targetBaseUrl = targetBaseUrl;
@@ -98,6 +97,26 @@ public class RecordSpecBuilder {
         return this;
     }
 
+    public RecordSpecBuilder requestBodyAutoPattern(boolean ignoreArrayOrder, boolean ignoreExtraElements, boolean caseInsensitive) {
+        this.requestBodyPatternFactory = new RequestBodyAutomaticPatternFactory(ignoreArrayOrder, ignoreExtraElements, caseInsensitive);
+        return this;
+    }
+
+    public RecordSpecBuilder requestBodyEqualToJsonPattern(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
+        this.requestBodyPatternFactory = new RequestBodyEqualToJsonPatternFactory(ignoreArrayOrder, ignoreExtraElements);
+        return this;
+    }
+
+    public RecordSpecBuilder requestBodyEqualToXmlPattern() {
+        this.requestBodyPatternFactory = new RequestBodyEqualToXmlPatternFactory();
+        return this;
+    }
+
+    public RecordSpecBuilder requestBodyEqualToPattern(boolean caseInsensitive) {
+        this.requestBodyPatternFactory = new RequestBodyEqualToPatternFactory(caseInsensitive);
+        return this;
+    }
+
     public RecordSpec build() {
         RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
             filterRequestPatternBuilder.build() :
@@ -112,17 +131,12 @@ public class RecordSpecBuilder {
             targetBaseUrl,
             filters,
             headers.isEmpty() ? null : headers,
+            requestBodyPatternFactory,
             responseDefinitionBodyMatcher,
             SnapshotOutputFormatter.FULL,
             persistentStubs,
             repeatsAsScenarios,
             transformerNames,
-            transformerParameters,
-            jsonMatchingFlags);
-    }
-
-    public RecordSpecBuilder jsonBodyMatchFlags(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
-        this.jsonMatchingFlags = new JsonMatchingFlags(ignoreArrayOrder, ignoreExtraElements);
-        return this;
+            transformerParameters);
     }
 }

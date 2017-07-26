@@ -191,6 +191,11 @@ POST /__admin/recordings/start
       "caseInsensitive" : true
     }
   },
+  "requestBodyPattern" : {
+    "matcher" : "equalToJson",
+    "ignoreArrayOrder" : false,
+    "ignoreExtraElements" : true
+  },
   "extractBodyCriteria" : {
     "textSizeThreshold" : "2048",
     "binarySizeThreshold" : "10240"
@@ -200,10 +205,6 @@ POST /__admin/recordings/start
   "transformers" : [ "modify-response-header" ],
   "transformerParameters" : {
     "headerValue" : "123"
-  },
-  "jsonMatchingFlags" : {
-    "ignoreArrayOrder" : false,
-    "ignoreExtraElements" : true
   }
 }
 ```
@@ -245,6 +246,11 @@ POST /__admin/recordings/snapshot
       "caseInsensitive" : true
     }
   },
+  "requestBodyPattern" : {
+    "matcher" : "equalToJson",
+    "ignoreArrayOrder" : false,
+    "ignoreExtraElements" : true
+  },
   "extractBodyCriteria" : {
     "textSizeThreshold" : "2 kb",
     "binarySizeThreshold" : "1 Mb"
@@ -255,10 +261,6 @@ POST /__admin/recordings/snapshot
   "transformers" : [ "modify-response-header" ],
   "transformerParameters" : {
     "headerValue" : "123"
-  },
-  "jsonMatchingFlags" : {
-    "ignoreArrayOrder" : false,
-    "ignoreExtraElements" : true
   }
 }
 ```
@@ -355,20 +357,26 @@ As with other types of WireMock extension, parameters can be supplied. The exact
 ```
 
 
-### JSON matching flags
+### Request body matching
 
-When a stub is recorded from a request with a JSON body, its body match operator will be set to `equalToJson` (rather than `equalTo`, the default).
-This operator has two optional parameters, indicating whether array order should be ignored, and whether extra elements should be ignored.
+By default, the body match operator for a recorded stub is based on the `Content-Type` header of the request. For `*/json` MIME types, the operator will be `equalToJson` with both the `ignoreArrayOrder` and `ignoreExtraElements` options set to `true`. For `*/xml` MIME types, it will use `equalToXml`. Otherwise, it will use `equalTo` with the `caseInsensitive` option set to `false`. 
+ 
+ This behavior can be customized via the `requestBodyPattern` parameter, which accepts a `matcher` (either `equalTo`, `equalToJson`, `equalToXml`, or `auto`) and any relevant matcher options (`ignoreArrayOrder`, `ignoreExtraElements`, or `caseInsensitive`). For example, here's how to preserve the default behavior, but set `ignoreArrayOrder` to `false` when `equalToJson` is used:
 
 ```json
-"jsonMatchingFlags" : {
-    "ignoreArrayOrder" : false,
-    "ignoreExtraElements" : true
+"requestBodyPattern" : {
+    "matcher": "auto",
+    "ignoreArrayOrder" : false
   }
 ```
 
-If not specified, both of these will default to `false`. 
-
+If you want to always match request bodies with `equalTo` case-insensitively, regardless of the MIME type, use:
+```json
+"requestBodyPattern" : {
+    "matcher": "equalTo",
+    "caseInsenstivie" : true
+  }
+```
 
 > **note**
 >
