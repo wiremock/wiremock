@@ -336,7 +336,7 @@ is reached, the last response will continue to be returned.
 
 ### Transforming generated stubs
 
-If need even more control over how your recorded stubs are generated, you can write one or more custom transformers that will be applied to stubs as they are captured.
+If you need even more control over how your recorded stubs are generated, you can write one or more custom transformers that will be applied to stubs as they are captured.
 
 A transformer is an implementations of `StubMappingTransformer` and needs to be registered when starting WireMock as described in [Extending WireMock](/docs/extending-wiremock).
    
@@ -359,7 +359,7 @@ As with other types of WireMock extension, parameters can be supplied. The exact
 
 ### Request body matching
 
-By default, the body match operator for a recorded stub is based on the `Content-Type` header of the request. For `*/json` MIME types, the operator will be `equalToJson` with both the `ignoreArrayOrder` and `ignoreExtraElements` options set to `true`. For `*/xml` MIME types, it will use `equalToXml`. Otherwise, it will use `equalTo` with the `caseInsensitive` option set to `false`. 
+By default, the body match operator for a recorded stub is based on the `Content-Type` header of the request. For MIME types containing the string "json", the operator will be `equalToJson` with both the `ignoreArrayOrder` and `ignoreExtraElements` options set to `true`. For MIME types containing `xml`, it will use `equalToXml`. Otherwise, it will use `equalTo` with the `caseInsensitive` option set to `false`. 
  
  This behavior can be customized via the `requestBodyPattern` parameter, which accepts a `matcher` (either `equalTo`, `equalToJson`, `equalToXml`, or `auto`) and any relevant matcher options (`ignoreArrayOrder`, `ignoreExtraElements`, or `caseInsensitive`). For example, here's how to preserve the default behavior, but set `ignoreArrayOrder` to `false` when `equalToJson` is used:
 
