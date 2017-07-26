@@ -171,7 +171,7 @@ startRecording(
           .ignoreRepeatRequests()
           .transformers("modify-response-header")
           .transformerParameters(Parameters.one("headerValue", "123"))
-          .jsonBodyMatchFlags(false, true)
+          .matchRequestBodyWithEqualToJson(false, true)
   );
 ```
 
@@ -226,7 +226,7 @@ snapshotRecord(
           .ignoreRepeatRequests()
           .transformers("modify-response-header")
           .transformerParameters(Parameters.one("headerValue", "123"))
-          .jsonBodyMatchFlags(false, true)
+          .chooseBodyMatchTypeAutomatically()
   );
 ```
 

@@ -98,22 +98,34 @@ public class RecordSpecBuilder {
         return this;
     }
 
-    public RecordSpecBuilder requestBodyAutoPattern(boolean ignoreArrayOrder, boolean ignoreExtraElements, boolean caseInsensitive) {
+    public RecordSpecBuilder chooseBodyMatchTypeAutomatically() {
+        return chooseBodyMatchTypeAutomatically(null, null, null);
+    }
+
+    public RecordSpecBuilder chooseBodyMatchTypeAutomatically(Boolean ignoreArrayOrder, Boolean ignoreExtraElements, Boolean caseInsensitive) {
         this.requestBodyPatternFactory = new RequestBodyAutomaticPatternFactory(ignoreArrayOrder, ignoreExtraElements, caseInsensitive);
         return this;
     }
 
-    public RecordSpecBuilder requestBodyEqualToJsonPattern(boolean ignoreArrayOrder, boolean ignoreExtraElements) {
+    public RecordSpecBuilder matchRequestBodyWithEqualToJson() {
+        return matchRequestBodyWithEqualToJson(null, null);
+    }
+
+    public RecordSpecBuilder matchRequestBodyWithEqualToJson(Boolean ignoreArrayOrder, Boolean ignoreExtraElements) {
         this.requestBodyPatternFactory = new RequestBodyEqualToJsonPatternFactory(ignoreArrayOrder, ignoreExtraElements);
         return this;
     }
 
-    public RecordSpecBuilder requestBodyEqualToXmlPattern() {
+    public RecordSpecBuilder matchRequestBodyWithEqualToXml() {
         this.requestBodyPatternFactory = new RequestBodyEqualToXmlPatternFactory();
         return this;
     }
 
-    public RecordSpecBuilder requestBodyEqualToPattern(boolean caseInsensitive) {
+    public RecordSpecBuilder matchRequestBodyWithEqualTo() {
+        return matchRequestBodyWithEqualTo(null);
+    }
+
+    public RecordSpecBuilder matchRequestBodyWithEqualTo(Boolean caseInsensitive) {
         this.requestBodyPatternFactory = new RequestBodyEqualToPatternFactory(caseInsensitive);
         return this;
     }
