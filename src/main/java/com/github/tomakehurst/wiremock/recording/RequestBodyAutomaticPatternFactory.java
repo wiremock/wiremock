@@ -17,12 +17,8 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.*;
 
 public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFactory {
 
@@ -64,12 +60,15 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
      */
     @Override
     public StringValuePattern forRequest(Request request) {
-        final ContentTypeHeader contentType = request.getHeaders().getContentTypeHeader();
-        if (contentType.mimeTypePart() != null) {
-            if (contentType.mimeTypePart().contains("json")) {
+        final String mimeType = request.getHeaders().getContentTypeHeader().mimeTypePart();
+        if (mimeType != null) {
+            if (mimeType.contains("json")) {
                 return new EqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
-            } else if (contentType.mimeTypePart().contains("xml")) {
+            } else if (mimeType.contains("xml")) {
                 return new EqualToXmlPattern(request.getBodyAsString());
+            } else if (mimeType.equals("multipart/form-data")) {
+                // TODO: Need to add a matcher that can handle multipart data properly. For now, just always match
+                return new AnythingPattern();
             }
         }
 

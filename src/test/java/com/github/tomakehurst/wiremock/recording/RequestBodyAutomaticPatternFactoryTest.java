@@ -26,6 +26,13 @@ import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 public class RequestBodyAutomaticPatternFactoryTest {
     private final static String JSON_TEST_STRING = "{ \"foo\": 1 }";
     private final static String XML_TEST_STRING = "<foo/>";
+    private final static String MULTIPART_TEST_STRING = "--abc\n" +
+        "Content-Disposition: form-data; name=\"test1\"\n\n" +
+        "test one\n" +
+        "--abc\n" +
+        "Content-Disposition: form-data; name=\"texs2\"\n\n" +
+        "test two\n" +
+        "--abc";
 
     @Test
     public void forRequestWithTextBodyIsCaseSensitiveByDefault() {
@@ -79,6 +86,17 @@ public class RequestBodyAutomaticPatternFactoryTest {
         EqualToXmlPattern pattern = (EqualToXmlPattern) patternForRequest(request);
 
         assertThat(pattern.getEqualToXml(), is(XML_TEST_STRING));
+    }
+
+    @Test
+    public void forRequestWithMultipartBody() {
+        Request request = mockRequest()
+            .header("Content-Type", "multipart/form-data")
+            .body(MULTIPART_TEST_STRING);
+        // TODO: Update this when we add a matcher for multipart bodies
+        AnythingPattern pattern = (AnythingPattern) patternForRequest(request);
+
+        assertThat(pattern.toString(), is("anything"));
     }
 
     private static StringValuePattern patternForRequest(Request request) {
