@@ -73,6 +73,11 @@ public class MockRequest implements Request {
         return this;
     }
 
+    public MockRequest body(byte[] body) {
+        this.body = body;
+        return this;
+    }
+
     public MockRequest clientIp(String clientIp) {
         this.clientIp = clientIp;
         return this;

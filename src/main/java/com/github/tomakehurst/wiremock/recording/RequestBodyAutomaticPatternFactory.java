@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.*;
 
+import static com.github.tomakehurst.wiremock.common.ContentTypes.determineIsTextFromMimeType;
+
 public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFactory {
 
     private final Boolean caseInsensitive;
@@ -68,6 +70,9 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
                 return new EqualToXmlPattern(request.getBodyAsString());
             } else if (mimeType.equals("multipart/form-data")) {
                 // TODO: Need to add a matcher that can handle multipart data properly. For now, just always match
+                return new AnythingPattern();
+            } else if (!determineIsTextFromMimeType(mimeType)) {
+                // TODO: Need a way of matching binary body content ("equalToBase64"?)
                 return new AnythingPattern();
             }
         }
