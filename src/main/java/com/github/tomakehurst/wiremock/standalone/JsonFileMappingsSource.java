@@ -30,12 +30,10 @@ import static com.google.common.collect.Iterables.filter;
 public class JsonFileMappingsSource implements MappingsSource {
 
 	private final FileSource mappingsFileSource;
-	private final VeryShortIdGenerator idGenerator;
 	private final Map<UUID, String> fileNameMap;
 
 	public JsonFileMappingsSource(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
-		idGenerator = new VeryShortIdGenerator();
 		fileNameMap = new HashMap<>();
 	}
 
