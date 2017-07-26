@@ -99,6 +99,17 @@ public class RequestBodyAutomaticPatternFactoryTest {
         assertThat(pattern.toString(), is("anything"));
     }
 
+    @Test
+    public void forRequestWithBinaryBody() {
+        Request request = mockRequest()
+            .header("Content-Type", "application/octet-stream")
+            .body(new byte[] { 1, 2, 3});
+        // TODO: Update this when we add a matcher for binary bodies
+        AnythingPattern pattern = (AnythingPattern) patternForRequest(request);
+
+        assertThat(pattern.toString(), is("anything"));
+    }
+
     private static StringValuePattern patternForRequest(Request request) {
         return RequestBodyAutomaticPatternFactory.DEFAULTS.forRequest(request);
     }
