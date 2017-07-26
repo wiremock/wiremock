@@ -28,7 +28,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.proxyAllTo;

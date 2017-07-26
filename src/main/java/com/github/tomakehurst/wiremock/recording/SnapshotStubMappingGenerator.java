@@ -26,7 +26,7 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * Transforms ServeEvents to StubMappings using SnapshotRequestPatternTransformer and SnapshotResponseDefinitionTransformer
+ * Transforms ServeEvents to StubMappings using RequestPatternTransformer and LoggedResponseDefinitionTransformer
  */
 public class SnapshotStubMappingGenerator implements Function<ServeEvent, StubMapping> {
     private final RequestPatternTransformer requestTransformer;

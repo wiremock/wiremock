@@ -16,7 +16,8 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 
 import java.util.List;
 import java.util.Map;

@@ -21,12 +21,10 @@ import com.google.common.base.Function;
 
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 
 /**
- * Creates a RequestPatternBuilder from a Request's URL and method, and optionally headers from a whitelist.
- * If headers patterns are supplied, the header will be only included in the RequestPatternBuilder if the predicate
- * matches the request
+ * Creates a RequestPatternBuilder from a Request's URL, method, body (if present), and optionally headers from a whitelist.
  */
 public class RequestPatternTransformer implements Function<Request, RequestPatternBuilder> {
     private final Map<String, CaptureHeadersSpec> headers;
@@ -40,8 +38,7 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
     }
 
     /**
-     * Returns a RequestPatternBuilder matching the URL and method of the Request. If header patterns are supplied,
-     * this will match them against the request and include them in the RequestPatternBuilder if there's a match.
+     * Returns a RequestPatternBuilder matching a given Request
      */
     @Override
     public RequestPatternBuilder apply(Request request) {
@@ -58,8 +55,8 @@ public class RequestPatternTransformer implements Function<Request, RequestPatte
             }
         }
 
-        String body = request.getBodyAsString();
-        if (bodyPatternFactory != null && body != null && !body.isEmpty()) {
+        byte[] body = request.getBody();
+        if (bodyPatternFactory != null && body != null && body.length > 0) {
             builder.withRequestBody(bodyPatternFactory.forRequest(request));
         }
 

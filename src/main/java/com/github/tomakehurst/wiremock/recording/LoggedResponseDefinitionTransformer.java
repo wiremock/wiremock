@@ -19,8 +19,6 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
