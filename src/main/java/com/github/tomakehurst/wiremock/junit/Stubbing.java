@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -47,5 +48,4 @@ public interface Stubbing {
     List<NearMiss> findNearMissesForAllUnmatchedRequests();
     List<NearMiss> findNearMissesFor(LoggedRequest loggedRequest);
     List<NearMiss> findAllNearMissesFor(RequestPatternBuilder requestPatternBuilder);
-
 }

@@ -112,8 +112,6 @@ public class RequestPatternBuilder {
         return this;
     }
 
-
-
     public RequestPattern build() {
         return customMatcher != null ?
             new RequestPattern(customMatcher) :

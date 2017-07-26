@@ -80,6 +80,11 @@ public class AdminRoutes {
         router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
         router.add(GET,  "/requests/{id}", GetServedStubTask.class);
 
+        router.add(POST, "/recordings/snapshot", SnapshotTask.class);
+        router.add(POST, "/recordings/start", StartRecordingTask.class);
+        router.add(POST, "/recordings/stop", StopRecordingTask.class);
+        router.add(GET,  "/recordings/status", GetRecordingStatusTask.class);
+        router.add(GET,  "/recorder", GetRecordingsIndexTask.class);
 
         router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
         router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
