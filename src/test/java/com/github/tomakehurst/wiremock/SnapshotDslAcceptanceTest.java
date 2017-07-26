@@ -256,7 +256,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
         client.postWithBody("/some-json", "foo", "application/text", "utf-8");
 
-        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyAutoPattern(false, false, true));
+        List<StubMapping> mappings = snapshotRecord(recordSpec().chooseBodyMatchTypeAutomatically(false, false, true));
 
         EqualToJsonPattern jsonBodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(jsonBodyPattern.getEqualToJson(), is("{}"));
@@ -275,7 +275,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToJsonPattern() {
         client.postJson("/some-json", "{}");
 
-        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToJsonPattern(false, true));
+        List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualToJson(false, true));
 
         EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(false));
@@ -286,7 +286,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToXmlPattern() {
         client.postWithBody("/some-json", "<foo/>", "application/xml", "utf-8");
 
-        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToXmlPattern());
+        List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualToXml());
 
         assertThat(mappings.get(0).getRequest().getBodyPatterns().get(0), instanceOf(EqualToXmlPattern.class));
     }
@@ -295,7 +295,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     public void supportsConfigurationOfRequestBodyPatternFactoryWithEqualToPattern() {
         client.postWithBody("/some-json", "foo", "application/text", "utf-8");
 
-        List<StubMapping> mappings = snapshotRecord(recordSpec().requestBodyEqualToPattern(true));
+        List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualTo(true));
 
         EqualToPattern bodyPattern = (EqualToPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.getCaseInsensitive(), is(true));

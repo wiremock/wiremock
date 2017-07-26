@@ -33,7 +33,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -417,7 +416,7 @@ public class Examples extends AcceptanceTestBase {
                 .ignoreRepeatRequests()
                 .transformers("modify-response-header")
                 .transformerParameters(Parameters.one("headerValue", "123"))
-                .requestBodyEqualToJsonPattern(false, true)
+                .matchRequestBodyWithEqualToJson(false, true)
         );
 
         System.out.println(Json.write(recordSpec()
@@ -431,7 +430,7 @@ public class Examples extends AcceptanceTestBase {
             .ignoreRepeatRequests()
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
-            .requestBodyEqualToJsonPattern(false, true)
+            .matchRequestBodyWithEqualToJson(false, true)
             .build()));
     }
 
@@ -449,7 +448,7 @@ public class Examples extends AcceptanceTestBase {
                 .ignoreRepeatRequests()
                 .transformers("modify-response-header")
                 .transformerParameters(Parameters.one("headerValue", "123"))
-                .requestBodyEqualToJsonPattern(false, true)
+                .chooseBodyMatchTypeAutomatically()
         );
 
         System.out.println(Json.write(recordSpec()
@@ -463,7 +462,7 @@ public class Examples extends AcceptanceTestBase {
             .ignoreRepeatRequests()
             .transformers("modify-response-header")
             .transformerParameters(Parameters.one("headerValue", "123"))
-            .requestBodyEqualToJsonPattern(false, true)
+            .chooseBodyMatchTypeAutomatically()
             .build()));
     }
 }

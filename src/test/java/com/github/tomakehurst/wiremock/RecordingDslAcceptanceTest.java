@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.GzipCompressingEntity;
@@ -199,7 +198,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         adminClient.startStubRecording(
             recordSpec()
                 .forTarget(targetBaseUrl)
-                .requestBodyEqualToJsonPattern(true, true)
+                .matchRequestBodyWithEqualToJson(true, true)
         );
 
         client.postJson("/record-this-with-body", "{}");
@@ -218,7 +217,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         proxyingService.startRecording(
             recordSpec()
                 .forTarget(targetBaseUrl)
-                .requestBodyEqualToJsonPattern(true, true)
+                .matchRequestBodyWithEqualToJson(true, true)
         );
 
         client.postJson("/record-this-with-body", "{}");
