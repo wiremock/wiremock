@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.FatalStartupException;
@@ -38,6 +35,10 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -369,6 +370,46 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern) {
         return wireMockApp.findTopNearMissesFor(requestPattern);
+    }
+
+    @Override
+    public void startRecording(String targetBaseUrl) {
+        wireMockApp.startRecording(targetBaseUrl);
+    }
+
+    @Override
+    public void startRecording(RecordSpec spec) {
+        wireMockApp.startRecording(spec);
+    }
+
+    @Override
+    public void startRecording(RecordSpecBuilder recordSpec) {
+        wireMockApp.startRecording(recordSpec);
+    }
+
+    @Override
+    public SnapshotRecordResult stopRecording() {
+        return wireMockApp.stopRecording();
+    }
+
+    @Override
+    public RecordingStatusResult getRecordingStatus() {
+        return wireMockApp.getRecordingStatus();
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord() {
+        return wireMockApp.snapshotRecord();
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec) {
+        return wireMockApp.snapshotRecord(spec);
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord(RecordSpec spec) {
+        return wireMockApp.snapshotRecord(spec);
     }
 
     @Override

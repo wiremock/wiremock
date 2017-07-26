@@ -1,0 +1,83 @@
+{
+    "type": "object",
+    "properties": {
+        "targetBaseUrl": {
+            "type": "string"
+        },
+        "captureHeaders": {
+            "type": "object"
+        },
+        "extractBodyCriteria": {
+            "type": "object",
+            "properties": {
+                "binarySizeThreshold": {
+                    "type": "string"
+                },
+                "textSizeThreshold": {
+                    "type": "string"
+                }
+            }
+        },
+        "requestBodyPattern": {
+            "type": "object",
+            "properties": {
+                "matcher": {
+                    "type": "string",
+                    "enum": [
+                        "equalTo",
+                        "equalToJson",
+                        "equalToXml",
+                        "auto"
+                    ]
+                },
+                "ignoreArrayOrder": {
+                    "type": "boolean"
+                },
+                "ignoreExtraElements": {
+                    "type": "boolean"
+                },
+                "caseInsensitive": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "filters": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "method": {
+                    "type": "string"
+                },
+                "urlPathPattern": {
+                    "type": "string"
+                }
+            }
+        },
+        "persist": {
+            "type": "boolean"
+        },
+        "repeatsAsScenarios": {
+            "type": "boolean"
+        },
+        "transformerParameters": {
+            "type": "object",
+            "properties": {
+                "headerValue": {
+                    "type": "string"
+                }
+            }
+        },
+        "transformers": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+
+}
