@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.recording;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.*;
+import java.util.List;
 
 /**
- * Generates response for calls to snapshot API endpoint using the recorded stub mappings
+ * Wraps a list of generated StubMappings into a SnapshotRecordResult object
  */
 public enum SnapshotOutputFormatter {
     FULL {

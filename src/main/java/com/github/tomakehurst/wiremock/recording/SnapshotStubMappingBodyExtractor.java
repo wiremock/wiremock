@@ -29,10 +29,9 @@ public class SnapshotStubMappingBodyExtractor {
     }
 
     /**
-     * Extracts body of the ResponseDefinition to a file written to the FILES_ROOT.
-     * Modifies the ResponseDefinition to point to the file in-place
+     * Extracts body of the ResponseDefinition to a file written to the files source.
+     * Modifies the ResponseDefinition to point to the file in-place.
      *
-     * @fixme Generates multiple files for stub mappings with identical responses
      * @param stubMapping Stub mapping to extract
      */
     public void extractInPlace(StubMapping stubMapping) {

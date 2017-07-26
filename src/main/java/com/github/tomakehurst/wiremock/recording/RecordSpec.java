@@ -28,24 +28,33 @@ import java.util.Map;
  */
 public class RecordSpec {
 
+    // Target URL when using the recording API. Not applicable to snapshotting
     private final String targetBaseUrl;
 
     // Whitelist requests to generate StubMappings for
     private final ProxiedServeEventFilters filters;
+
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
     private final Map<String, CaptureHeadersSpec> captureHeaders;
+
     // Factory for the StringValuePattern that will be used to match request bodies
     private final RequestBodyPatternFactory requestBodyPatternFactory;
+
     // Criteria for extracting body from responses
     private final ResponseDefinitionBodyMatcher extractBodyCriteria;
+
     // How to format StubMappings in the response body
     private final SnapshotOutputFormatter outputFormat;
+
     // Whether to persist stub mappings
     private final Boolean persist;
+
     // Whether duplicate requests should be recorded as scenarios or just discarded
     private final Boolean repeatsAsScenarios;
+
     // Stub mapping transformers
     private final List<String> transformers;
+
     // Parameters for stub mapping transformers
     private final Parameters transformerParameters;
 

@@ -151,7 +151,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        },                                                   \n" +
+            "        },                                                  \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
             "                \"url\" : \"/foo/bar/baz\",                 \n" +
@@ -160,7 +160,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                  \n" +
+            "        }                                                   \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -254,7 +254,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "        },                             \n" +
             "        \"X-Another\": {}              \n" +
             "    }                                  \n" +
-            "}                                      ";
+            "}                                        ";
 
     private static final String CAPTURE_HEADERS_SNAPSHOT_RESPONSE =
             "{                                                           \n" +
@@ -351,7 +351,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "}                                    ";
 
     private static final String GLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
-        "{                                                           \n" +
+            "{                                                           \n" +
             "    \"mappings\": [                                         \n" +
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
@@ -395,7 +395,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
     }
 
     private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_REQUEST =
-        "{                                    \n" +
+            "{                                    \n" +
             "    \"outputFormat\": \"full\",      \n" +
             "    \"persist\": \"false\",          \n" +
             "    \"transformers\": [              \n" +
@@ -404,9 +404,8 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "}                                      ";
 
     private static final String NONGLOBAL_TRANSFORMED_STUB_MAPPING_RESPONSE =
-        "{                                                           \n" +
+            "{                                                           \n" +
             "    \"mappings\": [                                         \n" +
-
             "        {                                                   \n" +
             "            \"request\" : {                                 \n" +
             "                \"url\" : \"/?transformed=nonglobal\",      \n" +
@@ -434,7 +433,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
             "            \"response\" : {                                \n" +
             "                \"status\" : 200                            \n" +
             "            }                                               \n" +
-            "        }                                                  \n" +
+            "        }                                                   \n" +
             "    ]                                                       \n" +
             "}                                                             ";
 
@@ -466,7 +465,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         "        },                             \n" +
         "        \"X-Another\": {}              \n" +
         "    }                                  \n" +
-        "}                                      ";
+        "}                                        ";
 
     private static final String RECORD_WITH_CAPTURE_HEADERS_RECORD_RESPONSE =
         "{                                                           \n" +
