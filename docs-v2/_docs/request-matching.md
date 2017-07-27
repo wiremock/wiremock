@@ -221,6 +221,34 @@ JSON:
 }
 ```
 
+### Binary Equality
+
+Deems a match if the entire binary attribute value equals the expected value. Unlike the above equalTo operator, this compares byte arrays (or their equivalent base64 representation).
+
+Java:
+
+```java
+// Specifying the expected value as a byte array
+.withRequestBody(binaryEqualTo(new byte[] { 1, 2, 3 }))
+
+// Specifying the expected value as a base64 String
+.withRequestBody(binaryEqualTo("AQID"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [{
+        "binaryEqualTo" : "AQID" // Base 64
+    }]
+    ...
+  },
+  ...
+}
+```
 
 ### Substring (contains)
 

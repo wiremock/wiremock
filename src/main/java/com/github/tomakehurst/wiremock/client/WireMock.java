@@ -159,6 +159,10 @@ public class WireMock {
         return new BinaryEqualToPattern(content);
     }
 
+    public static BinaryEqualToPattern binaryEqualTo(String content) {
+        return new BinaryEqualToPattern(content);
+    }
+
 	public static StringValuePattern equalToIgnoreCase(String value) {
 		return new EqualToPattern(value, true);
 	}
