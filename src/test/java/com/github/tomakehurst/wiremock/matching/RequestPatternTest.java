@@ -409,10 +409,10 @@ public class RequestPatternTest {
         JSONAssert.assertEquals(ALL_BODY_PATTERNS_EXAMPLE, json, true);
     }
 
-    static Matcher<StringValuePattern> valuePattern(final Class<? extends StringValuePattern> patternClass, final String expectedValue) {
-        return new TypeSafeDiagnosingMatcher<StringValuePattern>() {
+    static Matcher<ContentPattern<?>> valuePattern(final Class<? extends StringValuePattern> patternClass, final String expectedValue) {
+        return new TypeSafeDiagnosingMatcher<ContentPattern<?>>() {
             @Override
-            protected boolean matchesSafely(StringValuePattern item, Description mismatchDescription) {
+            protected boolean matchesSafely(ContentPattern<?> item, Description mismatchDescription) {
                 return item.getClass().equals(patternClass) && item.getValue().equals(expectedValue);
             }
 
