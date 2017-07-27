@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-04-06T15:50:12+01:00">
+  <meta property="article:published_time" content="2017-07-27T15:38:37+01:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -246,7 +246,13 @@
       <li>
         <a href="/docs/record-playback/">
 
-        Record and Playback
+        Record and Playback (New)
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
       </a>
       
       <li>
@@ -299,7 +305,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="The WireMock server can be run in its own process, and configured viathe Java API, JSON over HTTP or JSON files.">
-    <meta itemprop="datePublished" content="April 06, 2017">
+    <meta itemprop="datePublished" content="July 27, 2017">
     
 
     <div class="page__inner-wrap">
@@ -312,9 +318,9 @@
         <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.6.0/wiremock-standalone-2.6.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.7.0/wiremock-standalone-2.7.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.6.0.jar
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.7.0.jar
 </code></pre>
 </div>
 
@@ -420,11 +426,12 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 </code></pre>
 </div>
 
-<p>Alternatively you can create an instance of the client (or as many as there are servers to configure):
-<code class="highlighter-rouge">java
-WireMock wireMock1 = new WireMock("1st.remote.host", 8000);
-WireMock wireMock2 = new WireMock("https", "2nd.remote.host", 8001);
-</code></p>
+<p>Alternatively you can create an instance of the client (or as many as there are servers to configure):</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<span class="n">WireMock</span> <span class="n">wireMock2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"2nd.remote.host"</span><span class="o">,</span> <span class="mi">8001</span><span class="o">);</span>
+</code></pre>
+</div>
 
 <h2 id="configuring-via-json-over-http">Configuring via JSON over HTTP</h2>
 
@@ -474,14 +481,14 @@ More content
 </code></pre>
 </div>
 
-<p>See stubbing and verifying for more on the JSON API.</p>
+<p>See <a href="/docs/stubbing/">stubbing</a> and <a href="/docs/verifying/">verifying</a> for more on the JSON API.</p>
 
 <h2 id="pushing-json-files-to-a-remote-wiremock-instance">Pushing JSON files to a remote WireMock instance</h2>
 <p>You can push a collection of mappings to a remote</p>
 
 <h2 id="file-serving">File serving</h2>
 
-<p>When running standalone files placed under the <code class="highlighter-rouge">__files</code> directory will
+<p>When running the standalone JAR, files placed under the <code class="highlighter-rouge">__files</code> directory will
 be served up as if from under the docroot, except if stub mapping
 matching the URL exists. For example if a file exists
 <code class="highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match

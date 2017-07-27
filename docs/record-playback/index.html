@@ -19,7 +19,7 @@
 
 
 
-<title>Record and Playback - WireMock</title>
+<title>Record and Playback (New) - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="Recording HTTP exchanges with other APIs and playing them back as stubs.">
+<meta name="description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the new way.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Record and Playback">
+<meta property="og:title" content="Record and Playback (New)">
 
 
 
 
-  <meta property="og:description" content="Recording HTTP exchanges with other APIs and playing them back as stubs.">
+  <meta property="og:description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the new way.">
 
 
 
@@ -51,12 +51,12 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-04-06T15:50:12+01:00">
+  <meta property="article:published_time" content="2017-07-27T15:38:37+01:00">
   
     <link rel="next" href="/docs/request-matching/" title="Request Matching">
   
   
-    <link rel="prev" href="/docs/proxying/" title="Proxying">
+    <link rel="prev" href="/docs/record-playback-legacy/" title="Record and Playback (Legacy)">
   
 
 
@@ -246,7 +246,13 @@
         <a href="/docs/record-playback/" class="nav__list-item--selected">
         
 
-        Record and Playback
+        Record and Playback (New)
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
       </a>
       
       <li>
@@ -297,67 +303,395 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Record and Playback">
-    <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
-    <meta itemprop="datePublished" content="April 06, 2017">
+    <meta itemprop="headline" content="Record and Playback (New)">
+    <meta itemprop="description" content="WireMock can create stub mappings from requests it has received. Combined with its proxying feature this allows you to “record”stub mappings from interaction with existing APIs.">
+    <meta itemprop="datePublished" content="July 27, 2017">
     
 
     <div class="page__inner-wrap">
       <header>
-        <h1 class="page__title" itemprop="headline">Record and Playback
+        <h1 class="page__title" itemprop="headline">Record and Playback (New)
 </h1>
       </header>
 
       <section class="page__content" itemprop="text">
-        <p><strong>WireMock has the ability to create stub mappings by recording them
-while you send requests. This can be used to quickly capture a
-collection of responses from a real service then use them offline in
-your tests.</strong></p>
+        <p>WireMock can create stub mappings from requests it has received. Combined with its proxying feature this allows you to “record”
+stub mappings from interaction with existing APIs.</p>
 
-<h2 id="recording">Recording</h2>
+<p>Two approaches are available: Recording or snapshotting. The same results can be achieved with either, so which you choose should depend on whatever
+fits best with your workflow. If you’re new to WireMock, recording is probably the simplest option for getting started.</p>
 
-<p>Recording is done by starting the standalone runner like this:</p>
+<p>Both approaches are described in more detail below.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-2.6.0-standalone.jar --proxy-all<span class="o">=</span><span class="s2">"http://search.twitter.com"</span> --record-mappings --verbose
+<h2 id="quick-start">Quick start</h2>
+
+<p>The fastest way to get started with WireMock’s recorder is to use the simple web UI provided.</p>
+
+<p>First, start an instance of <a href="/docs/running-standalone">WireMock running standalone</a>.
+Once that’s running visit the recorder UI page at <a href="http://localhost:8080/__admin/recorder">http://localhost:8080/__admin/recorder</a>
+(assuming you started WireMock on the default port of 8080).</p>
+
+<p><img src="/images/recorder-screenshot.png" alt="Recorder UI" /></p>
+
+<p>Enter the URL you wish to record from in the target URL field and click the Record button. You can use <code class="highlighter-rouge">http://example.mocklab.io</code> to try it out.</p>
+
+<p>Now you need to make a request through WireMock to the target API so that it can be recorded. If you’re using the example URL, you can generate a request using curl:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl http://localhost:8080/recordables/123
 </code></pre>
 </div>
 
-<p>Once it’s started you send requests to it as if it was the remote
-service:</p>
+<p>Now click stop. You should see a message indicating that one stub was captured.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s2">"http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</span>
+<p>You should also see that a file has been created called something like <code class="highlighter-rouge">recordables_123-40a93c4a-d378-4e07-8321-6158d5dbcb29.json</code>
+under the <code class="highlighter-rouge">mappings</code> directory created when WireMock started up, and that a new mapping has appeared at <a href="http://localhost:8080/__admin/mappings">http://localhost:8080/__admin/mappings</a>.</p>
+
+<p>Requesting the same URL again (possibly disabling your wifi first if you want firm proof) will now serve the recorded result:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ curl http://localhost:8080/recordables/123
+
+{
+  "message": "Congratulations on your first recording!"
+}
 </code></pre>
 </div>
-
-<p>Now if you look under <code class="highlighter-rouge">mappings</code> and <code class="highlighter-rouge">__files</code> (under the current
-directory you’re running WireMock in) you’ll see that a new file has
-been one created under each, the former for the stub mapping and the
-latter for the body content.</p>
-
-<h3 id="capturing-request-headers">Capturing request headers</h3>
-
-<p>Optionally, you can record request headers so that your stub mappings
-will match on those in addition to URL, method and body (if a POST or
-PUT). This is done by adding an extra parameter to the command line e.g.
-<code class="highlighter-rouge">--match-headers="Accept,Content-Type"</code></p>
 
 <blockquote>
   <p><strong>note</strong></p>
 
-  <p>The recorder will ignore any request matching one it has already
-captured.</p>
+  <p>Stub mappings will only be created at the point that the recording is stopped.</p>
 </blockquote>
 
-<h2 id="playback">Playback</h2>
+<blockquote>
+  <p><strong>note</strong></p>
 
-<p>If you start the standalone runner again without the extra commandline
-options it will automatically load the newly created stub mappings and
-start serving them.</p>
+  <p>“Playback” doesn’t require any explicit action. Recorded stubs will start being served immediately after recording is stopped.</p>
+</blockquote>
 
-<p>Alternatively you can copy the files created under
-<code class="highlighter-rouge">src/test/resources/mappings</code> and <code class="highlighter-rouge">src/test/resources/__files</code> in your
-Java project, or the equivalents under <code class="highlighter-rouge">WEB-INF/wiremock</code> in your WAR
-project.</p>
+<h2 id="recording">Recording</h2>
+
+<p>Recording can also be started and stopped via WireMock’s JSON API and Java DSL.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Static DSL</span>
+<span class="n">WireMock</span><span class="o">.</span><span class="na">startRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">WireMock</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
+
+<span class="c1">// Client instance</span>
+<span class="n">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
+<span class="n">wireMockClient</span><span class="o">.</span><span class="na">startStubRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">stopStubRecording</span><span class="o">();</span>
+
+<span class="c1">// Directly</span>
+<span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">startRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/start</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"targetBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>POST /__admin/recordings/stop
+</code></pre>
+</div>
+
+<h2 id="snapshotting">Snapshotting</h2>
+
+<p>Snapshotting is effectively “recording after the fact”. Rather than starting recording at a specific point, snapshotting allows you to convert requests already received by WireMock
+into stub mappings.</p>
+
+<p>An implication of this order of events is that if you want to record an external API, you’ll need to have configured proxying before you start generating traffic.
+See <a href="/docs/proxying">Proxying</a> for details on proxy configuration, but in summary this can be achieved by creating a proxy mapping via the API or Java DSL:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">proxyAllTo</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">).</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/mappings</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"proxyBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>You can still take snapshots without a proxy stub configured.
+You might want to do this e.g. if you want to capture requests made by your application under test that you can then modify by hand to provide the appropriate responses.</p>
+</blockquote>
+
+<p>Once you have made some requests through WireMock (which you can view under http://localhost:8080/__admin/requests) you can trigger a snapshot to generate stub mappings:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Static DSL</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">WireMock</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
+
+<span class="c1">// Client instance</span>
+<span class="n">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">takeSnapshotRecording</span><span class="o">();</span>
+
+<span class="c1">// Directly</span>
+<span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>POST /__admin/recordings/snapshot
+{}
+</code></pre>
+</div>
+
+<h2 id="customising-your-recordings">Customising your recordings</h2>
+
+<p>The default recording behaviour can be tweaked in a number of ways by passing a “record spec” to the record or snapshot actions.</p>
+
+<p>In Java this achieved using the DSL:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">startRecording</span><span class="o">(</span>
+      <span class="n">recordSpec</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">forTarget</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">onlyRequestsMatching</span><span class="o">(</span><span class="n">getRequestedFor</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)))</span>
+          <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">extractBinaryBodiesOver</span><span class="o">(</span><span class="mi">10240</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">extractTextBodiesOver</span><span class="o">(</span><span class="mi">2048</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">makeStubsPersistent</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">ignoreRepeatRequests</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">transformers</span><span class="o">(</span><span class="s">"modify-response-header"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="n">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
+          <span class="o">.</span><span class="na">matchRequestBodyWithEqualToJson</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+  <span class="o">);</span>
+</code></pre>
+</div>
+
+<p>And via the API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/start</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"targetBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2048"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"10240"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The same specification can also be passed when snapshotting:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">snapshotRecord</span><span class="o">(</span>
+      <span class="n">recordSpec</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">onlyRequestsMatching</span><span class="o">(</span><span class="n">getRequestedFor</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)))</span>
+          <span class="o">.</span><span class="na">onlyRequestIds</span><span class="o">(</span><span class="n">singletonList</span><span class="o">(</span><span class="n">UUID</span><span class="o">.</span><span class="na">fromString</span><span class="o">(</span><span class="s">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="o">)))</span>
+          <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">extractBinaryBodiesOver</span><span class="o">(</span><span class="mi">10240</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">extractTextBodiesOver</span><span class="o">(</span><span class="mi">2048</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">makeStubsPersistent</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">ignoreRepeatRequests</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">transformers</span><span class="o">(</span><span class="s">"modify-response-header"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="n">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
+          <span class="o">.</span><span class="na">chooseBodyMatchTypeAutomatically</span><span class="o">()</span>
+  <span class="o">);</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/snapshot</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ids"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2 kb"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1 Mb"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"outputFormat"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"FULL"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The following sections will detail each parameter in turn:</p>
+
+<h3 id="filtering">Filtering</h3>
+
+<p><code class="highlighter-rouge">filters</code> supports selection of requests to be recorded according to the same <a href="/docs/request-matching">request matcher</a> format used elsewhere in WireMock.</p>
+
+<p>Additionally, when snapshotting the <code class="highlighter-rouge">ids</code> parameter allows specific serve events to be selected by ID.</p>
+
+<h3 id="capturing-request-headers">Capturing request headers</h3>
+
+<p>You may want your recorded stub mappings to match on one or more specific request headers.
+For instance if you’re intending to record from an API that supports both XML and JSON responses via content negotiation,
+then you will need to capture the value of the <code class="highlighter-rouge">Accept</code> header sent in each request.</p>
+
+<p>The <code class="highlighter-rouge">captureHeaders</code> attribute allows you to specify a map of header names to match parameter objects. Currently the only parameter
+available is <code class="highlighter-rouge">caseInsensitive</code>, which defaults to false if absent.</p>
+
+<h3 id="body-files-extraction-size-criteria">Body files extraction size criteria</h3>
+
+<p>By default, recorded response bodies will be included directly in the stub mapping response part, via the <code class="highlighter-rouge">body</code> attribute for text or <code class="highlighter-rouge">base64Body</code> for binary content.</p>
+
+<p>However, this can be overridden by setting the <code class="highlighter-rouge">textSizeThreshold</code> and <code class="highlighter-rouge">binarySizeThreshold</code> values under <code class="highlighter-rouge">extractBodyCriteria</code>.
+The size values are of type string, and support friendly syntax for specifying the order of magnitude e.g.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>"56 kb"
+"10 Mb"
+"18.2 GB"
+"255" // bytes when no magnitude specified
+</code></pre>
+</div>
+
+<p>In the Java DSL these values are specified as a <code class="highlighter-rouge">long</code> number of bytes:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">recordSpec</span><span class="o">().</span><span class="na">extractBinaryBodiesOver</span><span class="o">(</span><span class="mi">204800</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<h3 id="output-format">Output format</h3>
+
+<p>By default the stop recording and snapshot API calls will return the full JSON of all mappings captured.
+If you only require the IDs of captured stubs you can specify:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"outputFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IDS"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="persist-stubs">Persist stubs</h3>
+
+<p>By default generated stubs will be set to persistent, meaning that they will be saved to the file system
+(or other back-end if you’ve implemented your own <code class="highlighter-rouge">MappingsSource</code>) and will survive calls to reset mappings to default.</p>
+
+<p>Setting <code class="highlighter-rouge">persistent</code> to <code class="highlighter-rouge">false</code> means that stubs will not be saved and will be deleted on the next reset.</p>
+
+<h3 id="repeats-as-scenarios">Repeats as scenarios</h3>
+
+<p>What happens when the recorder sees two identical requests that produce different results?</p>
+
+<p>There are two ways to handle this. Setting <code class="highlighter-rouge">repeatsAsScenarios</code> to <code class="highlighter-rouge">false</code> means that after the first request, subsequent identical ones will be ignored.</p>
+
+<p>However, when set to <code class="highlighter-rouge">true</code> (which is the default if omitted), multiple identical requests will be added to a <a href="/docs/stateful-behaviour">Scenario</a>, meaning that when
+playing back, a series of requests matching this stub will yield the same series of responses captured during recording. If more requests are made after the end of the series
+is reached, the last response will continue to be returned.</p>
+
+<h3 id="transforming-generated-stubs">Transforming generated stubs</h3>
+
+<p>If you need even more control over how your recorded stubs are generated, you can write one or more custom transformers that will be applied to stubs as they are captured.</p>
+
+<p>A transformer is an implementations of <code class="highlighter-rouge">StubMappingTransformer</code> and needs to be registered when starting WireMock as described in <a href="/docs/extending-wiremock">Extending WireMock</a>.</p>
+
+<p>Transformer implementations supply a name, and this is used to identify them in the <code class="highlighter-rouge">transformers</code> parameter e.g.</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"transformers"</span><span class="err">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"transformer-one"</span><span class="p">,</span><span class="w"> </span><span class="s2">"transformer-two"</span><span class="p">]</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>As with other types of WireMock extension, parameters can be supplied. The exact parameters required depend on the specifics of the transformer (or it may not require any).</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"transformerParameters"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"simpleParam1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"arrayParam2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h3 id="request-body-matching">Request body matching</h3>
+
+<p>By default, the body match operator for a recorded stub is based on the <code class="highlighter-rouge">Content-Type</code> header of the request. For MIME types containing the string “json”, the operator will be <code class="highlighter-rouge">equalToJson</code> with both the <code class="highlighter-rouge">ignoreArrayOrder</code> and <code class="highlighter-rouge">ignoreExtraElements</code> options set to <code class="highlighter-rouge">true</code>. For MIME types containing <code class="highlighter-rouge">xml</code>, it will use <code class="highlighter-rouge">equalToXml</code>. Otherwise, it will use <code class="highlighter-rouge">equalTo</code> with the <code class="highlighter-rouge">caseInsensitive</code> option set to <code class="highlighter-rouge">false</code>.</p>
+
+<p>This behavior can be customized via the <code class="highlighter-rouge">requestBodyPattern</code> parameter, which accepts a <code class="highlighter-rouge">matcher</code> (either <code class="highlighter-rouge">equalTo</code>, <code class="highlighter-rouge">equalToJson</code>, <code class="highlighter-rouge">equalToXml</code>, or <code class="highlighter-rouge">auto</code>) and any relevant matcher options (<code class="highlighter-rouge">ignoreArrayOrder</code>, <code class="highlighter-rouge">ignoreExtraElements</code>, or <code class="highlighter-rouge">caseInsensitive</code>). For example, here’s how to preserve the default behavior, but set <code class="highlighter-rouge">ignoreArrayOrder</code> to <code class="highlighter-rouge">false</code> when <code class="highlighter-rouge">equalToJson</code> is used:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="s2">"requestBodyPattern"</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>If you want to always match request bodies with <code class="highlighter-rouge">equalTo</code> case-insensitively, regardless of the MIME type, use:
+<code class="highlighter-rouge">json
+"requestBodyPattern" : {
+    "matcher": "equalTo",
+    "caseInsenstivie" : true
+  }
+</code></p>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>The <code class="highlighter-rouge">targetBaseUrl</code> parameter will be ignored when snapshotting and the <code class="highlighter-rouge">filters/ids</code> parameter will be ignored when recording.</p>
+</blockquote>
+
 
         
       </section>

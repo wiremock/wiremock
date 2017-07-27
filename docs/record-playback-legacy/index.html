@@ -19,7 +19,7 @@
 
 
 
-<title>Home - WireMock User Documentation - WireMock</title>
+<title>Record and Playback (Legacy) - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="WireMock’s user documentation.">
+<meta name="description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the old way.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Home - WireMock User Documentation">
+<meta property="og:title" content="Record and Playback (Legacy)">
 
 
 
 
-  <meta property="og:description" content="WireMock’s user documentation.">
+  <meta property="og:description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the old way.">
 
 
 
@@ -53,10 +53,10 @@
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="2017-07-27T15:38:37+01:00">
   
-    <link rel="next" href="/docs/java-usage/" title="Java (Non-JUnit) Usage">
+    <link rel="next" href="/docs/record-playback/" title="Record and Playback (New)">
   
   
-    <link rel="prev" href="/docs/https/" title="HTTPS">
+    <link rel="prev" href="/docs/proxying/" title="Proxying">
   
 
 
@@ -249,7 +249,8 @@
       </a>
       
       <li>
-        <a href="/docs/record-playback-legacy/">
+        <a href="/docs/record-playback-legacy/" class="nav__list-item--selected">
+        
 
         Record and Playback (Legacy)
       </a>
@@ -302,31 +303,67 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Home - WireMock User Documentation">
-    <meta itemprop="description" content="WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) andthat captures incoming requests so that they can be checked later (verification).">
+    <meta itemprop="headline" content="Record and Playback (Legacy)">
+    <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
     <meta itemprop="datePublished" content="July 27, 2017">
     
 
     <div class="page__inner-wrap">
       <header>
-        <h1 class="page__title" itemprop="headline">Home - WireMock User Documentation
+        <h1 class="page__title" itemprop="headline">Record and Playback (Legacy)
 </h1>
       </header>
 
       <section class="page__content" itemprop="text">
-        <p>WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) and
-that captures incoming requests so that they can be checked later (verification).</p>
+        <p><strong>WireMock has the ability to create stub mappings by recording them
+while you send requests. This can be used to quickly capture a
+collection of responses from a real service then use them offline in
+your tests.</strong></p>
 
-<p>It also has an assortment of other useful features including record/playback of interactions with other APIs, injection of faults and delays,
-simulation of stateful behaviour.</p>
+<h2 id="recording">Recording</h2>
 
-<p>It can be used as a library by any JVM application, or run as a standalone process either on the same host as the system under test or a remote server.</p>
+<p>Recording is done by starting the standalone runner like this:</p>
 
-<p>All of WireMock’s features are accessible via its REST (JSON) interface and its Java API. Additionally, stubs can be configured via JSON files.</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.7.0.jar --proxy-all<span class="o">=</span><span class="s2">"http://search.twitter.com"</span> --record-mappings --verbose
+</code></pre>
+</div>
 
-<p>If you have any questions that aren’t answered here please post them on the <a href="https://groups.google.com/forum/#!forum/wiremock-user">mailing list</a>.</p>
+<p>Once it’s started you send requests to it as if it was the remote
+service:</p>
 
-<p>Ready to try it? Head to the <a href="/docs/getting-started/">Getting Started</a> page.</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s2">"http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</span>
+</code></pre>
+</div>
+
+<p>Now if you look under <code class="highlighter-rouge">mappings</code> and <code class="highlighter-rouge">__files</code> (under the current
+directory you’re running WireMock in) you’ll see that a new file has
+been one created under each, the former for the stub mapping and the
+latter for the body content.</p>
+
+<h3 id="capturing-request-headers">Capturing request headers</h3>
+
+<p>Optionally, you can record request headers so that your stub mappings
+will match on those in addition to URL, method and body (if a POST or
+PUT). This is done by adding an extra parameter to the command line e.g.
+<code class="highlighter-rouge">--match-headers="Accept,Content-Type"</code></p>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>The recorder will ignore any request matching one it has already
+captured.</p>
+</blockquote>
+
+<h2 id="playback">Playback</h2>
+
+<p>If you start the standalone runner again without the extra commandline
+options it will automatically load the newly created stub mappings and
+start serving them.</p>
+
+<p>Alternatively you can copy the files created under
+<code class="highlighter-rouge">src/test/resources/mappings</code> and <code class="highlighter-rouge">src/test/resources/__files</code> in your
+Java project, or the equivalents under <code class="highlighter-rouge">WEB-INF/wiremock</code> in your WAR
+project.</p>
 
         
       </section>

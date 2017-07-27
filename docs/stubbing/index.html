@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-04-06T15:50:12+01:00">
+  <meta property="article:published_time" content="2017-07-27T15:38:37+01:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -246,7 +246,13 @@
       <li>
         <a href="/docs/record-playback/">
 
-        Record and Playback
+        Record and Playback (New)
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
       </a>
       
       <li>
@@ -299,7 +305,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stubbing">
     <meta itemprop="description" content="A core feature of WireMock is the ability to return canned HTTPresponses for requests matching criteria. These are described in detail in Request Matching.">
-    <meta itemprop="datePublished" content="April 06, 2017">
+    <meta itemprop="datePublished" content="July 27, 2017">
     
 
     <div class="page__inner-wrap">
@@ -687,6 +693,16 @@ Note that this feature is not available when running WireMock from a servlet con
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 </div>
+
+<h2 id="file-serving">File serving</h2>
+<p>When running the standalone JAR, files placed under the <code class="highlighter-rouge">__files</code> directory will
+be served up as if from under the docroot, except if stub mapping
+matching the URL exists. For example if a file exists
+<code class="highlighter-rouge">__files/things/myfile.html</code> and no stub mapping will match
+<code class="highlighter-rouge">/things/myfile.html</code> then hitting
+<code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/things/myfile.html</code> will serve the file.</p>
+
+<p>This feature is also available with the standard JAR. To use it, define the filesRoot using <code class="highlighter-rouge">options.withRootDirectory()</code>, i.e. <code class="highlighter-rouge">options.withRootDirectory(getClass.getResource("/wiremock").getPath)</code></p>
 
 <h2 id="removing-stubs">Removing stubs</h2>
 
