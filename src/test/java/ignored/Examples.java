@@ -82,6 +82,20 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
+    public void binaryBodyMatchingByteArray() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo(new byte[] { 1, 2, 3 }))
+            .willReturn(ok()));
+    }
+
+    @Test
+    public void binaryBodyMatchingBase64() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo("AQID"))
+            .willReturn(ok()));
+    }
+
+    @Test
     public void priorities() {
 
         //Catch-all case
