@@ -103,14 +103,14 @@ public class RequestBodyAutomaticPatternFactoryTest {
     public void forRequestWithBinaryBody() {
         Request request = mockRequest()
             .header("Content-Type", "application/octet-stream")
-            .body(new byte[] { 1, 2, 3});
-        // TODO: Update this when we add a matcher for binary bodies
-        AnythingPattern pattern = (AnythingPattern) patternForRequest(request);
+            .body(new byte[] { 1, 2, 3 });
 
-        assertThat(pattern.toString(), is("anything"));
+        BinaryEqualToPattern pattern = (BinaryEqualToPattern) patternForRequest(request);
+
+        assertThat(pattern.toString(), is("binaryEqualTo AQID"));
     }
 
-    private static StringValuePattern patternForRequest(Request request) {
+    private static ContentPattern<?> patternForRequest(Request request) {
         return RequestBodyAutomaticPatternFactory.DEFAULTS.forRequest(request);
     }
 }
