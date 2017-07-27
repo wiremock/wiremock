@@ -24,7 +24,9 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableMap;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,9 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
+    private final String scheme;
+    private final String host;
+    private final int port;
     private final String url;
     private final String absoluteUrl;
     private final String clientIp;
@@ -75,6 +80,22 @@ public class LoggedRequest implements Request {
             @JsonProperty("loggedDate") Date loggedDate,
             @JsonProperty("bodyAsBase64") String bodyAsBase64,
             @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
+
+        if (absoluteUrl == null) {
+            this.scheme = null;
+            this.host = null;
+            this.port = -1;
+        } else {
+            URL fullUrl = null;
+            try {
+                fullUrl = new URL(absoluteUrl);
+                this.scheme = fullUrl.getProtocol();
+                this.host = fullUrl.getHost();
+                this.port = fullUrl.getPort();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
         this.url = url;
         this.absoluteUrl = absoluteUrl;
         this.clientIp = clientIp;
@@ -100,6 +121,21 @@ public class LoggedRequest implements Request {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String getScheme() {
+        return scheme;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     @Override
