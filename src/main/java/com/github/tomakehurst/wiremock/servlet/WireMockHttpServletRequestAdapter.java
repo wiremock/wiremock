@@ -78,6 +78,21 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     @Override
+    public String getScheme() {
+        return request.getScheme();
+    }
+
+    @Override
+    public String getHost() {
+        return request.getServerName();
+    }
+
+    @Override
+    public int getPort() {
+        return request.getServerPort();
+    }
+
+    @Override
     public String getClientIp() {
         String forwardedForHeader = this.getHeader("X-Forwarded-For");
 
