@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.recording;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 /**
@@ -36,5 +37,5 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
     @JsonSubTypes.Type(value = RequestBodyEqualToXmlPatternFactory.class, name = "equalToXml")
 })
 public interface RequestBodyPatternFactory {
-    StringValuePattern forRequest(Request request);
+    ContentPattern<?> forRequest(Request request);
 }

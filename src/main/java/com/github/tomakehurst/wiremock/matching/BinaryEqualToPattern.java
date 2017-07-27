@@ -41,5 +41,8 @@ public class BinaryEqualToPattern extends ContentPattern<byte[]> {
         return getExpected();
     }
 
-
+    @Override
+    public String toString() {
+        return getName() + " " + getExpected();
+    }
 }

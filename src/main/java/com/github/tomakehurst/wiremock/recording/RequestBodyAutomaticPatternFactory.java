@@ -61,7 +61,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
      * easier to read. Otherwise, just use "equalTo"
      */
     @Override
-    public StringValuePattern forRequest(Request request) {
+    public ContentPattern<?> forRequest(Request request) {
         final String mimeType = request.getHeaders().getContentTypeHeader().mimeTypePart();
         if (mimeType != null) {
             if (mimeType.contains("json")) {
@@ -72,8 +72,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
                 // TODO: Need to add a matcher that can handle multipart data properly. For now, just always match
                 return new AnythingPattern();
             } else if (!determineIsTextFromMimeType(mimeType)) {
-                // TODO: Need a way of matching binary body content ("equalToBase64"?)
-                return new AnythingPattern();
+                return new BinaryEqualToPattern(request.getBody());
             }
         }
 
