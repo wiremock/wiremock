@@ -59,6 +59,10 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return StringValuePattern.ABSENT;
         }
 
+        return buildStringValuePattern(rootNode);
+    }
+
+    public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);

@@ -155,6 +155,10 @@ public class WireMock {
         return new EqualToPattern(value);
     }
 
+    public static BinaryEqualToPattern binaryEqualTo(byte[] content) {
+        return new BinaryEqualToPattern(content);
+    }
+
 	public static StringValuePattern equalToIgnoreCase(String value) {
 		return new EqualToPattern(value, true);
 	}

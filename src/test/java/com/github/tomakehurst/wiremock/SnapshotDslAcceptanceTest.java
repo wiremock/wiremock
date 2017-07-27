@@ -99,7 +99,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/three"));
 
-        StringValuePattern bodyPattern = returnedMappings.get(2).getRequest().getBodyPatterns().get(0);
+        ContentPattern bodyPattern = returnedMappings.get(2).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern, instanceOf(EqualToJsonPattern.class));
         JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
