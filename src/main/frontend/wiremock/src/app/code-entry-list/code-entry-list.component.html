@@ -1,0 +1,15 @@
+<md-table #table [dataSource]="dataSource">
+
+  <ng-container cdkColumnDef="key">
+    <md-header-cell *cdkHeaderCellDef> Key </md-header-cell>
+    <md-cell *cdkCellDef="let row">{{row.key}}</md-cell>
+  </ng-container>
+
+  <ng-container cdkColumnDef="value">
+    <md-header-cell *cdkHeaderCellDef> Value </md-header-cell>
+    <md-cell *cdkCellDef="let row"><wm-code-entry code="{{row.value}}" language="{{row.language}}"></wm-code-entry></md-cell>
+  </ng-container>
+
+  <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+  <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
+</md-table>

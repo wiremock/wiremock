@@ -1,0 +1,17 @@
+md-header-row.mat-header-row{
+  display: none;
+}
+
+md-row.mat-row{
+  height: auto;
+  padding: 0 0 0 10px;
+}
+
+md-cell.mat-cell.cdk-column-key.mat-column-key{
+  max-width: 150px;
+}
+
+md-cell.mat-cell.cdk-column-value.mat-column-value {
+  overflow-y: auto;
+  max-height: 450px;
+}

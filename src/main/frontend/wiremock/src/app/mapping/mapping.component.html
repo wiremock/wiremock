@@ -1,0 +1,32 @@
+<p>
+  mapping works!
+</p>
+<div *ngFor="let mapping of mappingResult?.mappings">
+
+  <md-card>
+    <md-card-header>
+      <md-card-title>General</md-card-title>
+    </md-card-header>
+    <md-card-content>
+      <wm-code-entry-list [entries]="getGeneral(mapping)"></wm-code-entry-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-header>
+      <md-card-title>Request</md-card-title>
+    </md-card-header>
+    <md-card-content>
+      <wm-code-entry-list [entries]="getRequest(mapping)"></wm-code-entry-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-header>
+      <md-card-title>Response Definition</md-card-title>
+    </md-card-header>
+    <md-card-content>
+      <wm-code-entry-list [entries]="getResponseDefinition(mapping)"></wm-code-entry-list>
+    </md-card-content>
+  </md-card>
+</div>
