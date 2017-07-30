@@ -8,6 +8,7 @@
   $background: mat-color(map-get($theme, background), 'card');
 
   .wmContentContainer{
-    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+    //background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+    background-color: $background;
   }
 }
