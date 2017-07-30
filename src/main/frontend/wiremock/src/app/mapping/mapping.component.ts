@@ -35,17 +35,6 @@ export class MappingComponent implements OnInit, OnChanges {
     }
   }
 
-  getRaw(): string{
-    const temp = this.toJson(this.selectedMapping);
-    if(temp === this.code){
-      return this.code;
-    }else{
-      this.code = temp;
-    }
-
-    return this.code;
-  }
-
   getGeneral(){
     const dataEntries = new DataEntries();
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
@@ -60,6 +49,30 @@ export class MappingComponent implements OnInit, OnChanges {
     dataEntries.addEntry({
       key: 'name',
       value: this.selectedMapping.name,
+      language: ''
+    });
+
+    dataEntries.addEntry({
+      key: 'priority',
+      value: this.selectedMapping.priority,
+      language: ''
+    });
+
+    dataEntries.addEntry({
+      key: 'scenarioName',
+      value: this.selectedMapping.scenarioName,
+      language: ''
+    });
+
+    dataEntries.addEntry({
+      key: 'requiredScenarioState',
+      value: this.selectedMapping.requiredScenarioState,
+      language: ''
+    });
+
+    dataEntries.addEntry({
+      key: 'newScenarioState',
+      value: this.selectedMapping.newScenarioState,
       language: ''
     });
 
@@ -188,7 +201,7 @@ export class MappingComponent implements OnInit, OnChanges {
     });
 
     dataEntries.addEntry({
-      key: 'additionalProxyRequestHeaders',
+      key: 'additionalProxy RequestHeaders',
       value: this.toJson(this.selectedMapping.response.additionalProxyRequestHeaders),
       language: ''
     });

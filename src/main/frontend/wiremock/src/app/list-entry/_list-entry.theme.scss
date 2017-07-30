@@ -2,6 +2,8 @@
 
 @mixin wm-list-entry-theme($theme){
 
+  $is-dark-theme: map-get($theme, is-dark);
+
   .wmListEntrySelected{
     background-color: map-get(wiremock-theme($theme), 'primary')!important;
     color: map-get(wiremock-theme($theme), 'foregroundLight')!important;
@@ -18,5 +20,9 @@
 
   .wmListItem.wmListEntrySelected .wmListTitle{
     color: map-get(wiremock-theme($theme), 'primaryDark')!important;
+  }
+
+  .wmListItem {
+    border-bottom: 1px solid if($is-dark-theme, rgba(map-get(wiremock-theme($theme), 'foregroundLight'), 0.5), rgba(0, 0, 0, 0.5));
   }
 }

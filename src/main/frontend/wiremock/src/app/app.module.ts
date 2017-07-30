@@ -23,6 +23,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { TabViewComponent } from './tab-view/tab-view.component';
 import { TabViewRawDirective } from './tab-view/tab-view-raw.directive';
 import { TabViewSeparatedDirective } from './tab-view/tab-view-separated.directive';
+import {UtilService} from './services/util.service';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import { TabViewSeparatedDirective } from './tab-view/tab-view-separated.directi
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService],
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

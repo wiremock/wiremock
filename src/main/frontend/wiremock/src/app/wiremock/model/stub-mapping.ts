@@ -8,6 +8,10 @@ export class StubMapping extends Item{
   persistent: Boolean;
   request: RequestPattern;
   response: ResponseDefinition;
+  priority: number;
+  scenarioName: string;
+  requiredScenarioState: string;
+  newScenarioState: string;
 
   deserialize(unchecked: StubMapping): StubMapping{
     this.uuid = unchecked.uuid;
@@ -15,6 +19,10 @@ export class StubMapping extends Item{
     this.persistent = unchecked.persistent;
     this.request = new RequestPattern().deserialize(unchecked.request);
     this.response = new ResponseDefinition().deserialize(unchecked.response);
+    this.priority = unchecked.priority;
+    this.scenarioName = unchecked.scenarioName;
+    this.requiredScenarioState = unchecked.requiredScenarioState;
+    this.newScenarioState = unchecked.newScenarioState;
 
     return this;
   }

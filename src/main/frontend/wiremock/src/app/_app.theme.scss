@@ -1,0 +1,9 @@
+@import "wiremock-function";
+
+@mixin wm-app-theme($theme){
+  $background: mat-color(map-get($theme, background), 'card');
+
+  #wmRootContent{
+    background-color: $background;
+  }
+}

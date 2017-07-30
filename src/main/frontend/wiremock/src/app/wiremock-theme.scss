@@ -5,6 +5,7 @@
 @import "/list-view/list-view.template";
 @import "/code-entry-list/code-entry-list.theme";
 @import "/toolbar/toolbar.theme";
+@import "app.theme";
 
 @include mat-core();
 
@@ -81,6 +82,7 @@ $mat-wm-blue: (
   @include wm-list-view-theme($theme);
   @include wm-code-entry-list-theme($theme);
   @include wm-toolbar-theme($theme);
+  @include wm-app-theme($theme);
 }
 
 
@@ -126,8 +128,6 @@ $theme: mat-light-theme($primary, $accent, $warn);
   }
 
   $theme: wm-dark-theme($primary, $accent, $warn);
-
-
 
   @include angular-material-theme($theme);
   @include wiremock-theme($theme);
