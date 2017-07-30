@@ -21,4 +21,8 @@
   #wmThemeToggle .mat-slide-toggle-content{
     color: mat-color($foreground, text);
   }
+
+  .wmMenuItemSelected{
+    color:  mat-color(map-get($theme, primary));
+  }
 }

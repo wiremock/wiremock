@@ -4,9 +4,9 @@
       <img src="../../assets/images/wiremock-concept-icon-01.png" id="wmToolbarLogo">
       <span id="wmToolbarTitle">WireMock</span>
     </a>
-    <a routerLink="/">Mappings</a>
-    <a routerLink="/matched">Matched</a>
-    <a routerLink="/unmatched">Unmatched</a>
+    <a routerLink="/" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: true}">Mappings</a>
+    <a routerLink="/matched" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: true}">Matched</a>
+    <a routerLink="/unmatched" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: true}">Unmatched</a>
   </div>
 
   <div id="wmToolbarGroupTwo">
