@@ -6,7 +6,8 @@
   $foreground: map-get($theme, foreground);
 
   .mat-toolbar{
-    background-color: $background;
+    //background-color: $background;
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
     color:  mat-color($foreground, text);
   }
 

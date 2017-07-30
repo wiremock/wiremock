@@ -1,0 +1,10 @@
+@import "../wiremock-function";
+
+@mixin wm-list-theme($theme){
+
+  $is-dark-theme: map-get($theme, is-dark);
+
+  .wmNavList{
+    border-right: 1px solid if($is-dark-theme, rgba(map-get(wiremock-theme($theme), 'foregroundLight'), 0.3), rgba(0, 0, 0, 0.2));
+  }
+}

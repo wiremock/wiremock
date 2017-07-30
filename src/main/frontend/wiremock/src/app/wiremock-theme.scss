@@ -2,10 +2,11 @@
 @import "hljs";
 @import "/list-entry/list-entry.theme";
 @import "/mapping/mapping.theme";
-@import "/list-view/list-view.template";
+@import "/list-view/list-view.theme";
 @import "/code-entry-list/code-entry-list.theme";
 @import "/toolbar/toolbar.theme";
 @import "app.theme";
+@import "/list/list.theme";
 
 @include mat-core();
 
@@ -83,6 +84,7 @@ $mat-wm-blue: (
   @include wm-code-entry-list-theme($theme);
   @include wm-toolbar-theme($theme);
   @include wm-app-theme($theme);
+  @include wm-list-theme($theme);
 }
 
 
