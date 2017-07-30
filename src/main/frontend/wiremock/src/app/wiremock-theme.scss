@@ -1,4 +1,4 @@
-@import "~@angular/material/theming/";
+@import "~@angular/material/theming";
 
 @include mat-core();
 
@@ -6,7 +6,7 @@ $primary: mat-palette($mat-indigo);
 $accent: mat-palette($mat-pink, A200, A100, A400);
 $warn: mat-palette($mat-red, A700);
 
-$theme: mat-light-theme($primary, $accent);
+$theme: mat-light-theme($primary, $accent, $warn);
 
 @include angular-material-theme($theme);
 
@@ -19,3 +19,26 @@ $theme: mat-light-theme($primary, $accent);
 
   @include angular-material-theme($theme);
 }
+
+$is-dark-theme: map-get($theme, is-dark);
+$background: map-get($theme, background);
+$foreground: map-get($theme, foreground);
+
+$light-selected-foreground: mat-contrast($mat-grey, 600);
+$light-foreground: rgba(0, 0, 0, 0.87);
+
+$unselected-background: if($is-dark-theme, mat-color($background, card), #e0e0e0);
+$unselected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-foreground);
+
+$selected-background: if($is-dark-theme, mat-color($background, app-bar), #808080);
+$selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
+
+$primary-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($primary));
+$primary-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
+
+$accent-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($accent));
+$accent-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
+
+$warn-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($warn));
+$warn-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
+

@@ -2,7 +2,7 @@ import {RequestPattern} from './request-pattern';
 import {ResponseDefinition} from './response-definition';
 import {Item} from '../../list/list.component';
 
-export class StubMapping implements Item{
+export class StubMapping extends Item{
   uuid: string;
   name: string;
   persistent: Boolean;

@@ -1,0 +1,13 @@
+@import '../wiremock-theme.scss';
+
+
+
+.selected{
+  background-color: $primary-selected-background;
+  color: $primary-selected-foreground;
+}
+
+.selected:hover{
+  background-color: $primary-selected-background;
+  color: $primary-selected-foreground;
+}

@@ -1,2 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
 @import "app/wiremock-theme.scss";
+
+body{
+  margin: 0;
+}
+
+wm-list-view {
+  display: flex;
+}
+
+
+wm-list-view > div {
+  flex-grow: 1;
+}
+
+.mat-list-item-content{
+  height: auto! important;
+  min-height: 32px;
+  padding: 8px!important;
+}
+
+.mat-nav-list{
+  padding: 0!important;
+}

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {DataSource} from '@angular/cdk';
 import {Observable} from 'rxjs/Observable';
@@ -10,7 +10,8 @@ import 'rxjs/add/operator/map';
   templateUrl: './code-entry-list.component.html',
   styleUrls: ['./code-entry-list.component.scss']
 })
-export class CodeEntryListComponent implements OnInit {
+export class CodeEntryListComponent implements OnInit, OnChanges {
+
 
   @Input('entries')
   entries: DataEntries;
@@ -21,6 +22,9 @@ export class CodeEntryListComponent implements OnInit {
   constructor(private changeDetector: ChangeDetectorRef) { }
 
   ngOnInit() {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.dataSource = new EntryDataSource(this.entries);
     this.changeDetector.detectChanges();
   }

@@ -15,7 +15,6 @@ export class MappingComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log(this.selectedMapping);
   }
 
   isVisible(): boolean{

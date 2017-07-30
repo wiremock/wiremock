@@ -1,3 +1,5 @@
+@import "../wiremock-theme.scss";
+
 md-card.mat-card{
   padding: 0;
   margin-bottom: 10px;
@@ -5,8 +7,8 @@ md-card.mat-card{
 
 md-card-header.mat-card-header{
   padding: 10px;
-  background-color: darkblue;
-  color: white;
+  background-color: $primary-selected-background;
+  color: $primary-selected-foreground;
 }
 
 md-card-title.mat-card-title{

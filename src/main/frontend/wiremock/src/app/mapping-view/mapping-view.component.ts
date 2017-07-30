@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {WiremockService} from '../services/wiremock.service';
 import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
 import {StubMapping} from '../wiremock/model/stub-mapping';
@@ -20,10 +20,15 @@ export class MappingViewComponent implements OnInit {
     this.refreshMappings();
   }
 
+  setSelectedMapping(mapping: StubMapping){
+    this.selectedMapping = mapping;
+  }
+
   private refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
         this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
         if(this.mappingResult != null && this.mappingResult.mappings != null && this.mappingResult.mappings.length > 0){
+          this.mappingResult.mappings[0].setSelected(true);
           this.selectedMapping = this.mappingResult.mappings[0];
         }else{
           this.selectedMapping = null;

@@ -1,4 +1,3 @@
-<div *ngFor="let item of items">
-  <span class="wmListTitle">{{item.getTitle()}}</span>
-  <span class="wmListSubtitle">{{item.getSubtitle()}}</span>
-</div>
+<md-nav-list>
+  <wm-list-entry *ngFor="let item of items" [item]="item" (onSelect)="itemSelected(item)"></wm-list-entry>
+</md-nav-list>

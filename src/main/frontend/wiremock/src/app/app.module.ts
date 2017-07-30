@@ -17,6 +17,7 @@ import {MaterialModule} from './material/material.module';
 import { HighlightJsDirective } from './directives/highlight-js.directive';
 import { MappingViewComponent } from './mapping-view/mapping-view.component';
 import {ListViewModule} from 'app/list-view/list-view.module';
+import { ListEntryComponent } from './list-entry/list-entry.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import {ListViewModule} from 'app/list-view/list-view.module';
     CodeEntryComponent,
     CodeEntryListComponent,
     HighlightJsDirective,
-    MappingViewComponent
+    MappingViewComponent,
+    ListEntryComponent
   ],
   imports: [
     BrowserModule,
