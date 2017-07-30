@@ -1,6 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {WiremockService} from '../services/wiremock.service';
-import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
+import {Component, Input, OnInit} from '@angular/core';
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
 
@@ -11,12 +9,17 @@ import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
 })
 export class MappingComponent implements OnInit {
 
-  mappingResult: ListStubMappingsResult;
+  @Input('selectedMapping')
+  selectedMapping: StubMapping | null;
 
-  constructor(private wiremockService: WiremockService) { }
+  constructor() { }
 
   ngOnInit() {
-    this.refreshMappings();
+    console.log(this.selectedMapping);
+  }
+
+  isVisible(): boolean{
+    return !(this.selectedMapping == null || typeof this.selectedMapping === 'undefined');
   }
 
   toJson(value: any): string{
@@ -27,199 +30,195 @@ export class MappingComponent implements OnInit {
     }
   }
 
-  getGeneral(mapping: StubMapping){
+  getGeneral(){
     const dataEntries = new DataEntries();
+    if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
+      return dataEntries;
+    }
     dataEntries.addEntry({
         key: "uuid",
-        value: mapping.uuid,
+        value: this.selectedMapping.uuid,
         language: ""
     });
 
     dataEntries.addEntry({
       key: "name",
-      value: mapping.name,
+      value: this.selectedMapping.name,
       language: ""
     });
 
     return dataEntries;
   }
 
-  getRequest(mapping: StubMapping){
+  getRequest(){
     const dataEntries = new DataEntries();
+    if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
+      return dataEntries;
+    }
     dataEntries.addEntry({
       key: "url",
-      value: mapping.request.url,
+      value: this.selectedMapping.request.url,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "urlPattern",
-      value: mapping.request.urlPattern,
+      value: this.selectedMapping.request.urlPattern,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "urlPath",
-      value: mapping.request.urlPath,
+      value: this.selectedMapping.request.urlPath,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "urlPathPattern",
-      value: mapping.request.urlPathPattern,
+      value: this.selectedMapping.request.urlPathPattern,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "method",
-      value: mapping.request.method,
+      value: this.selectedMapping.request.method,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "headers",
-      value: this.toJson(mapping.request.headers),
+      value: this.toJson(this.selectedMapping.request.headers),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "queryParameters",
-      value: mapping.request.queryParameters,
+      value: this.selectedMapping.request.queryParameters,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "cookies",
-      value: this.toJson(mapping.request.cookies),
+      value: this.toJson(this.selectedMapping.request.cookies),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "basicAuth",
-      value: this.toJson(mapping.request.basicAuth),
+      value: this.toJson(this.selectedMapping.request.basicAuth),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "bodyPatterns",
-      value: this.toJson(mapping.request.bodyPatterns),
+      value: this.toJson(this.selectedMapping.request.bodyPatterns),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "customMatcher",
-      value: this.toJson(mapping.request.customMatcher),
+      value: this.toJson(this.selectedMapping.request.customMatcher),
       language: "json"
     });
 
     return dataEntries;
   }
 
-  getResponseDefinition(mapping: StubMapping){
+  getResponseDefinition(){
     const dataEntries = new DataEntries();
+    if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
+      return dataEntries;
+    }
     dataEntries.addEntry({
       key: "status",
-      value: mapping.response.status,
+      value: this.selectedMapping.response.status,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "name",
-      value: mapping.response.statusMessage,
+      value: this.selectedMapping.response.statusMessage,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "body",
-      value: mapping.response.body,
+      value: this.selectedMapping.response.body,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "jsonBody",
-      value: mapping.response.jsonBody,
+      value: this.selectedMapping.response.jsonBody,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "base64Body",
-      value: mapping.response.base64Body,
+      value: this.selectedMapping.response.base64Body,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "bodyFileName",
-      value: mapping.response.bodyFileName,
+      value: this.selectedMapping.response.bodyFileName,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "headers",
-      value: this.toJson(mapping.response.headers),
+      value: this.toJson(this.selectedMapping.response.headers),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "additionalProxyRequestHeaders",
-      value: this.toJson(mapping.response.additionalProxyRequestHeaders),
+      value: this.toJson(this.selectedMapping.response.additionalProxyRequestHeaders),
       language: ""
     });
 
     dataEntries.addEntry({
       key: "fixedDelayMilliseconds",
-      value: mapping.response.fixedDelayMilliseconds,
+      value: this.selectedMapping.response.fixedDelayMilliseconds,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "delayDistribution",
-      value: mapping.response.delayDistribution,
+      value: this.selectedMapping.response.delayDistribution,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "proxyBaseUrl",
-      value: mapping.response.proxyBaseUrl,
+      value: this.selectedMapping.response.proxyBaseUrl,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "fault",
-      value: mapping.response.fault,
+      value: this.selectedMapping.response.fault,
       language: ""
     });
 
     dataEntries.addEntry({
       key: "transformers",
-      value: this.toJson(mapping.response.transformers),
+      value: this.toJson(this.selectedMapping.response.transformers),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "transformerParameters",
-      value: this.toJson(mapping.response.transformerParameters),
+      value: this.toJson(this.selectedMapping.response.transformerParameters),
       language: "json"
     });
 
     dataEntries.addEntry({
       key: "fromConfiguredStub",
-      value: mapping.response.fromConfiguredStub,
+      value: this.selectedMapping.response.fromConfiguredStub,
       language: ""
     });
 
     return dataEntries;
   }
-
-
-  private refreshMappings(){
-    this.wiremockService.getMappings().subscribe(data => {
-      this.mappingResult = data.json();
-    },
-    err => {
-      console.log("failed!", err);
-    });
-  }
-
-
-
 }

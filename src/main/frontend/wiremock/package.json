@@ -23,7 +23,6 @@
     "@angular/platform-browser": "^4.3.2",
     "@angular/platform-browser-dynamic": "^4.3.2",
     "@angular/router": "^4.3.2",
-    "angular2-highlight-js": "^5.0.2",
     "core-js": "^2.4.1",
     "highlightjs": "^9.10.0",
     "rxjs": "^5.4.2",

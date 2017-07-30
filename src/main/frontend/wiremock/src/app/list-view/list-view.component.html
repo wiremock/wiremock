@@ -1,3 +1,14 @@
-<p>
-  list-view works!
-</p>
+<div class="wmList">
+  <ng-content select="wm-list-view-list"></ng-content>
+</div>
+<div class="wmContentContainer">
+  <div class="wmSearch">
+    <ng-content select="wm-list-view-search"></ng-content>
+  </div>
+  <div class="wmActions">
+    <ng-content select="wm-list-view-actions"></ng-content>
+  </div>
+  <div class="wmContent">
+    <ng-content select="wm-list-view-content"></ng-content>
+  </div>
+</div>

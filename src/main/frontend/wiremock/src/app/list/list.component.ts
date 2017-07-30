@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'wm-list',
@@ -7,9 +7,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ListComponent implements OnInit {
 
+  @Input('items')
+  items: Item[];
+
   constructor() { }
 
   ngOnInit() {
   }
 
+}
+
+export interface Item{
+  getTitle(): string;
+  getSubtitle(): string;
 }

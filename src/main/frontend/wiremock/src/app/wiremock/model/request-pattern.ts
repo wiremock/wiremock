@@ -12,4 +12,19 @@ export class RequestPattern {
   basicAuth: any;
   bodyPatterns: any;
   customMatcher: any;
+
+  deserialize(unchecked: RequestPattern): RequestPattern{
+    this.url = unchecked.url;
+    this.urlPattern = unchecked.urlPattern;
+    this.urlPath = unchecked.urlPath;
+    this.urlPathPattern = unchecked.urlPathPattern;
+    this.method = unchecked.method;
+    this.queryParameters = unchecked.queryParameters;
+    this.cookies = unchecked.cookies;
+    this.basicAuth = unchecked.basicAuth;
+    this.bodyPatterns = unchecked.bodyPatterns;
+    this.customMatcher = unchecked.customMatcher;
+
+    return this;
+  }
 }

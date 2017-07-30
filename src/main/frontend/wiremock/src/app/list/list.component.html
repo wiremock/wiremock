@@ -1,3 +1,4 @@
-<p>
-  list works!
-</p>
+<div *ngFor="let item of items">
+  <span class="wmListTitle">{{item.getTitle()}}</span>
+  <span class="wmListSubtitle">{{item.getSubtitle()}}</span>
+</div>
