@@ -19,8 +19,7 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "wm",
       "styles": [
-        "styles.scss",
-        "../node_modules/highlightjs/styles/railscasts.css"
+        "styles.scss"
       ],
       "scripts": [
         "../node_modules/highlightjs/highlight.pack.min.js"

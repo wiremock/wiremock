@@ -1,6 +1,6 @@
-<md-table #table [dataSource]="dataSource">
+<md-table #table [dataSource]="dataSource" class="wmCodeTable">
 
-  <ng-container cdkColumnDef="key">
+  <ng-container cdkColumnDef="key" class="">
     <md-header-cell *cdkHeaderCellDef> Key </md-header-cell>
     <md-cell *cdkCellDef="let row">{{row.key}}</md-cell>
   </ng-container>

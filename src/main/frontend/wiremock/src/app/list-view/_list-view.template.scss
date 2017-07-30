@@ -1,0 +1,13 @@
+@import "../wiremock-function";
+
+@mixin wm-list-view-theme($theme){
+  .wmList{
+    background-color: mat-color(map-get($theme, background), 'card');
+  }
+
+  $background: mat-color(map-get($theme, background), 'card');
+
+  .wmContentContainer{
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+  }
+}

@@ -1,0 +1,22 @@
+@import "../wiremock-function";
+
+@mixin wm-list-entry-theme($theme){
+
+  .wmListEntrySelected{
+    background-color: map-get(wiremock-theme($theme), 'primary')!important;
+    color: map-get(wiremock-theme($theme), 'foregroundLight')!important;
+  }
+
+  .wmListEntrySelected:hover{
+    background-color: map-get(wiremock-theme($theme), 'primary')!important;
+    color: map-get(wiremock-theme($theme), 'foregroundLight')!important;
+  }
+
+  .wmListItem:not(.wmListEntrySelected) .wmListTitle{
+    color: map-get(wiremock-theme($theme), 'primary')!important;
+  }
+
+  .wmListItem.wmListEntrySelected .wmListTitle{
+    color: map-get(wiremock-theme($theme), 'primaryDark')!important;
+  }
+}

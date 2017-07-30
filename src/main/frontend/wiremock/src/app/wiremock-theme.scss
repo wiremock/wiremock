@@ -1,44 +1,108 @@
 @import "~@angular/material/theming";
+@import "hljs";
+@import "/list-entry/list-entry.theme";
+@import "/mapping/mapping.theme";
+@import "/list-view/list-view.template";
+@import "/code-entry-list/code-entry-list.theme";
 
 @include mat-core();
 
-$primary: mat-palette($mat-indigo);
-$accent: mat-palette($mat-pink, A200, A100, A400);
-$warn: mat-palette($mat-red, A700);
+$mat-wm-orange: (
+  50 : #fef2e4,
+  100 : #fddfbc,
+  200 : #fbc98f,
+  300 : #f9b362,
+  400 : #f8a340,
+  500 : #f7931e,
+  600 : #f68b1a,
+  700 : #f58016,
+  800 : #f37612,
+  900 : #f1640a,
+  A100 : #ffffff,
+  A200 : #ffefe7,
+  A400 : #ffceb4,
+  A700 : #ffbd9b,
+  contrast: (
+    50: $black-87-opacity,
+    100: $black-87-opacity,
+    200: $black-87-opacity,
+    300: $black-87-opacity,
+    400: $black-87-opacity,
+    500: $black-87-opacity,
+    600: $black-87-opacity,
+    700: $black-87-opacity,
+    800: $black-87-opacity,
+    900: $black-87-opacity,
+    A100: $black-87-opacity,
+    A200: $black-87-opacity,
+    A400: $black-87-opacity,
+    A700: $black-87-opacity,
+  )
+);
+
+$mat-wm-blue: (
+  50: #A7C3CC,
+  100: #87BBCC,
+  200: #70B5CC,
+  300: #5CB0CC,
+  400: #41A9CC,
+  500: #29A3CC,
+  600: #149DCC,
+  700: #0399CC,
+  800: #008BBA,
+  900: #007AA3,
+  A100: #498EA6,
+  A200: #2E87A6,
+  A400: #1280A6,
+  A700: #007CA6,
+  contrast: (
+    50: $black-87-opacity,
+    100: $black-87-opacity,
+    200: $black-87-opacity,
+    300: $black-87-opacity,
+    400: $black-87-opacity,
+    500: white,
+    600: white,
+    700: $white-87-opacity,
+    800: $white-87-opacity,
+    900: $white-87-opacity,
+    A100: $black-87-opacity,
+    A200: $black-87-opacity,
+    A400: $black-87-opacity,
+    A700: $black-87-opacity,
+  )
+);
+
+@mixin wiremock-theme($theme){
+  @include wm-hljs-theme($theme);
+  @include wm-list-entry-theme($theme);
+  @include wm-mapping-theme($theme);
+  @include wm-list-view-theme($theme);
+  @include wm-code-entry-list-theme($theme);
+}
+
+
+//$primary: mat-palette($mat-indigo);
+$primary: mat-palette($mat-wm-orange);
+$accent: mat-palette($mat-wm-blue, A200, A100, A400);
+$warn: mat-palette($mat-red, 600);
 
 $theme: mat-light-theme($primary, $accent, $warn);
 
 @include angular-material-theme($theme);
+@include wiremock-theme($theme);
 
-.m2app-dark {
-  $primary: mat-palette($mat-pink, 700, 500, 900);
-  $accent: mat-palette($mat-blue-grey, A200, A100, A400);
-  $warn: mat-palette($mat-red, A700);
+.dark-theme {
+  $primary: mat-palette($mat-wm-orange, 700, 500, 900);
+  $accent: mat-palette($mat-wm-blue, A200, A100, A400);
+  $warn: mat-palette($mat-red, 700);
 
   $theme: mat-dark-theme($primary, $accent, $warn);
 
   @include angular-material-theme($theme);
+  @include wiremock-theme($theme);
 }
 
-$is-dark-theme: map-get($theme, is-dark);
-$background: map-get($theme, background);
-$foreground: map-get($theme, foreground);
 
-$light-selected-foreground: mat-contrast($mat-grey, 600);
-$light-foreground: rgba(0, 0, 0, 0.87);
 
-$unselected-background: if($is-dark-theme, mat-color($background, card), #e0e0e0);
-$unselected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-foreground);
-
-$selected-background: if($is-dark-theme, mat-color($background, app-bar), #808080);
-$selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
-
-$primary-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($primary));
-$primary-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
-
-$accent-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($accent));
-$accent-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
-
-$warn-selected-background: if($is-dark-theme, mat-color($background, app-bar), mat-color($warn));
-$warn-selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
 

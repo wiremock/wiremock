@@ -1,0 +1,22 @@
+@import "../wiremock-function";
+
+@mixin wm-mapping-theme($theme){
+  .wmHeaderFirst{
+    background-color: map-get(wiremock-theme($theme), 'primary');
+    color: map-get(wiremock-theme($theme), 'primary-selected-foreground');
+  }
+
+  .wmHeaderSecond{
+    background-color: map-get(wiremock-theme($theme), 'accent');
+    color: map-get(wiremock-theme($theme), 'accent-selected-foreground');
+  }
+
+  .wmHeaderThird{
+    background-color: map-get(wiremock-theme($theme), 'warn');
+    color: map-get(wiremock-theme($theme), 'warn-selected-foreground');
+  }
+}
+
+md-card-header.mat-card-header{
+  padding: 10px;
+}

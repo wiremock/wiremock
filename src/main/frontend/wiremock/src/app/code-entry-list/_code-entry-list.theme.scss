@@ -1,0 +1,10 @@
+@import "../wiremock-function";
+
+@mixin wm-code-entry-list-theme($theme){
+  $background: mat-color(map-get($theme, background), 'card');
+
+  .wmCodeTable {
+    background-color: if(map-get($theme, is-dark), lighten($background, 5), darken($background, 5));
+    color: #e6e1dc;
+  }
+}

@@ -1,13 +1,7 @@
-@import '../wiremock-theme.scss';
-
-
-
-.selected{
-  background-color: $primary-selected-background;
-  color: $primary-selected-foreground;
+.wmListItem {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-.selected:hover{
-  background-color: $primary-selected-background;
-  color: $primary-selected-foreground;
+.wmListTitle{
+  font-weight: bold!important;
 }

@@ -18,6 +18,7 @@ import { HighlightJsDirective } from './directives/highlight-js.directive';
 import { MappingViewComponent } from './mapping-view/mapping-view.component';
 import {ListViewModule} from 'app/list-view/list-view.module';
 import { ListEntryComponent } from './list-entry/list-entry.component';
+import {CookieService} from './services/cookie.service';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,7 @@ import { ListEntryComponent } from './list-entry/list-entry.component';
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService],
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
