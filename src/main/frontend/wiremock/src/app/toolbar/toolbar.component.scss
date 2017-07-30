@@ -1,3 +1,10 @@
+#wmToolbar{
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1000;
+}
+
 #wmToolbarLogo{
   width: 80px;
   margin: 0 2px 0 0;
@@ -39,12 +46,12 @@ a{
   height: 48px;
 }
 
-/deep/ #wmThemeToggle .mat-slide-toggle-content{
+::ng-deep #wmThemeToggle .mat-slide-toggle-content{
   line-height: 48px;
   font-size: 16px;
 }
 
-/deep/ #wmThemeToggle .mat-slide-toggle-bar{
+::ng-deep #wmThemeToggle .mat-slide-toggle-bar{
   margin-left: 8px;
   margin-right: 16px;
 }

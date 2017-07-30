@@ -1,7 +1,7 @@
 <div id="wmRootContentContainer" [class.dark-theme]="isDarkTheme">
   <div id="wmRootContent">
     <wm-toolbar (themeChanged)="changeTheme($event)"></wm-toolbar>
-    <router-outlet></router-outlet>
+    <router-outlet class="wmRoutingContent"></router-outlet>
   </div>
 </div>
 

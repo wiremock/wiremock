@@ -1,3 +1,8 @@
 .wmListTitle{
   font-weight: bold!important;
 }
+
+.wmListTitle {
+  white-space: pre-wrap!important;
+  word-break: break-all;
+}

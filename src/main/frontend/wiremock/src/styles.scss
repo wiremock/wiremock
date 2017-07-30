@@ -15,9 +15,22 @@ body{
 }
 
 wm-list-view {
-  display: flex;
+  display: block;
 }
 
+wm-list-view-content{
+  display: block;
+  height: 100%;
+}
+
+wm-tab-view{
+  display: block;
+  height: 100%;
+}
+
+.wmTabGroup{
+  height: 100%;
+}
 
 wm-list-view > div {
   flex-grow: 1;

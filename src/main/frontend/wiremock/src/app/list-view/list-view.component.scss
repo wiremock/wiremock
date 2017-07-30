@@ -1,7 +1,19 @@
 .wmList {
   max-width: 30%;
+  margin-top: 64px;
+  position: fixed;
+  height: calc(100% - 64px);
 }
 
 .wmContentContainer{
   max-width: 70%;
+  margin-top: 64px;
+  margin-left: 30%;
+  height: calc(100% - 64px)!important;
+  position: fixed;
+}
+
+.wmContent{
+  /*- height of search and actions*/
+  height: calc(100% - 0px);
 }
