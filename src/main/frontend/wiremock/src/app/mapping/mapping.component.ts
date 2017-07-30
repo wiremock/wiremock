@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
+import {UtilService} from 'app/services/util.service';
 
 @Component({
   selector: 'wm-mapping',
@@ -13,7 +14,7 @@ export class MappingComponent implements OnInit, OnChanges {
   selectedMapping: StubMapping | null;
   code: string;
 
-  constructor() { }
+  constructor(private utilSerivce: UtilService) { }
 
   ngOnInit() {
     this.code = this.toJson(this.selectedMapping);
@@ -40,41 +41,12 @@ export class MappingComponent implements OnInit, OnChanges {
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
       return dataEntries;
     }
-    dataEntries.addEntry({
-        key: 'uuid',
-        value: this.selectedMapping.uuid,
-        language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'name',
-      value: this.selectedMapping.name,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'priority',
-      value: this.selectedMapping.priority,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'scenarioName',
-      value: this.selectedMapping.scenarioName,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'requiredScenarioState',
-      value: this.selectedMapping.requiredScenarioState,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'newScenarioState',
-      value: this.selectedMapping.newScenarioState,
-      language: ''
-    });
+    dataEntries.addEntry(new Entry('uuid', this.selectedMapping.uuid, ''));
+    dataEntries.addEntry(new Entry('name', this.selectedMapping.name, ''));
+    dataEntries.addEntry(new Entry('priority', this.selectedMapping.priority, ''));
+    dataEntries.addEntry(new Entry('scenarioName', this.selectedMapping.scenarioName, ''));
+    dataEntries.addEntry(new Entry('requiredScenarioState', this.selectedMapping.requiredScenarioState, ''));
+    dataEntries.addEntry(new Entry('newScenarioState', this.selectedMapping.newScenarioState, ''));
 
     return dataEntries;
   }
@@ -84,71 +56,19 @@ export class MappingComponent implements OnInit, OnChanges {
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
       return dataEntries;
     }
-    dataEntries.addEntry({
-      key: 'url',
-      value: this.selectedMapping.request.url,
-      language: ''
-    });
 
-    dataEntries.addEntry({
-      key: 'urlPattern',
-      value: this.selectedMapping.request.urlPattern,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'urlPath',
-      value: this.selectedMapping.request.urlPath,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'urlPathPattern',
-      value: this.selectedMapping.request.urlPathPattern,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'method',
-      value: this.selectedMapping.request.method,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'headers',
-      value: this.toJson(this.selectedMapping.request.headers),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'queryParameters',
-      value: this.selectedMapping.request.queryParameters,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'cookies',
-      value: this.toJson(this.selectedMapping.request.cookies),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'basicAuth',
-      value: this.toJson(this.selectedMapping.request.basicAuth),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'bodyPatterns',
-      value: this.toJson(this.selectedMapping.request.bodyPatterns),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'customMatcher',
-      value: this.toJson(this.selectedMapping.request.customMatcher),
-      language: 'json'
-    });
+    dataEntries.addEntry(new Entry('url', this.selectedMapping.request.url, ''));
+    dataEntries.addEntry(new Entry('urlPattern', this.selectedMapping.request.urlPattern, ''));
+    dataEntries.addEntry(new Entry('urlPath', this.selectedMapping.request.urlPath, ''));
+    dataEntries.addEntry(new Entry('urlPathPattern', this.selectedMapping.request.urlPathPattern, ''));
+    dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedMapping.request.url),'', 'params'));
+    dataEntries.addEntry(new Entry('method', this.selectedMapping.request.method, ''));
+    dataEntries.addEntry(new Entry('headers', this.toJson(this.selectedMapping.request.headers), 'json'));
+    dataEntries.addEntry(new Entry('queryParameters', this.selectedMapping.request.queryParameters, ''));
+    dataEntries.addEntry(new Entry('cookies', this.toJson(this.selectedMapping.request.cookies), 'json'));
+    dataEntries.addEntry(new Entry('basicAuth', this.toJson(this.selectedMapping.request.basicAuth), 'json'));
+    dataEntries.addEntry(new Entry('bodyPatterns', this.toJson(this.selectedMapping.request.bodyPatterns), 'json'));
+    dataEntries.addEntry(new Entry('customMatcher', this.toJson(this.selectedMapping.request.customMatcher), 'json'));
 
     return dataEntries;
   }
@@ -158,95 +78,22 @@ export class MappingComponent implements OnInit, OnChanges {
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
       return dataEntries;
     }
-    dataEntries.addEntry({
-      key: 'status',
-      value: this.selectedMapping.response.status,
-      language: ''
-    });
 
-    dataEntries.addEntry({
-      key: 'name',
-      value: this.selectedMapping.response.statusMessage,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'body',
-      value: this.selectedMapping.response.body,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'jsonBody',
-      value: this.selectedMapping.response.jsonBody,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'base64Body',
-      value: this.selectedMapping.response.base64Body,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'bodyFileName',
-      value: this.selectedMapping.response.bodyFileName,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'headers',
-      value: this.toJson(this.selectedMapping.response.headers),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'additionalProxy RequestHeaders',
-      value: this.toJson(this.selectedMapping.response.additionalProxyRequestHeaders),
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'fixedDelayMilliseconds',
-      value: this.selectedMapping.response.fixedDelayMilliseconds,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'delayDistribution',
-      value: this.selectedMapping.response.delayDistribution,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'proxyBaseUrl',
-      value: this.selectedMapping.response.proxyBaseUrl,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'fault',
-      value: this.selectedMapping.response.fault,
-      language: ''
-    });
-
-    dataEntries.addEntry({
-      key: 'transformers',
-      value: this.toJson(this.selectedMapping.response.transformers),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'transformerParameters',
-      value: this.toJson(this.selectedMapping.response.transformerParameters),
-      language: 'json'
-    });
-
-    dataEntries.addEntry({
-      key: 'fromConfiguredStub',
-      value: this.selectedMapping.response.fromConfiguredStub,
-      language: ''
-    });
+    dataEntries.addEntry(new Entry('status', this.selectedMapping.response.status, ''));
+    dataEntries.addEntry(new Entry('name', this.selectedMapping.response.statusMessage, ''));
+    dataEntries.addEntry(new Entry('body', this.selectedMapping.response.body, ''));
+    dataEntries.addEntry(new Entry('jsonBody', this.selectedMapping.response.jsonBody, ''));
+    dataEntries.addEntry(new Entry('base64Body', this.selectedMapping.response.base64Body, ''));
+    dataEntries.addEntry(new Entry('bodyFileName', this.selectedMapping.response.bodyFileName, ''));
+    dataEntries.addEntry(new Entry('headers', this.toJson(this.selectedMapping.response.headers), 'json'));
+    dataEntries.addEntry(new Entry('additionalProxy RequestHeaders', this.toJson(this.selectedMapping.response.additionalProxyRequestHeaders), ''));
+    dataEntries.addEntry(new Entry('fixedDelayMilliseconds', this.selectedMapping.response.fixedDelayMilliseconds, ''));
+    dataEntries.addEntry(new Entry('delayDistribution', this.selectedMapping.response.delayDistribution, ''));
+    dataEntries.addEntry(new Entry('proxyBaseUrl', this.selectedMapping.response.proxyBaseUrl, ''));
+    dataEntries.addEntry(new Entry('fault', this.selectedMapping.response.fault, ''));
+    dataEntries.addEntry(new Entry('transformers', this.toJson(this.selectedMapping.response.transformers), 'json'));
+    dataEntries.addEntry(new Entry('transformerParameters', this.toJson(this.selectedMapping.response.transformerParameters), 'json'));
+    dataEntries.addEntry(new Entry('fromConfiguredStub', this.selectedMapping.response.fromConfiguredStub, ''));
 
     return dataEntries;
   }

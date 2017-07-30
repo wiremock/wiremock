@@ -6,3 +6,11 @@ pre{
   min-height: 17px;
   white-space: pre-wrap;
 }
+
+.wmUrlQueryParam{
+  min-height: 17px;
+}
+
+.wmUrlQueryParam tr td, .wmUrlQueryParam tr th {
+  padding-right: 10px;
+}

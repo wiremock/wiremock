@@ -4,6 +4,7 @@ import {DataSource} from '@angular/cdk';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/map';
+import {UtilService} from '../services/util.service';
 
 @Component({
   selector: 'wm-code-entry-list',
@@ -31,10 +32,22 @@ export class CodeEntryListComponent implements OnInit, OnChanges {
 
 }
 
-export interface Entry{
+export class Entry{
+  type: string;
   key: string;
   value: any;
   language: string;
+
+  constructor(key: string, value: any, language: string, type?: string){
+    this.key = key;
+    this.value = value;
+    this.language = language;
+    if(UtilService.isDefined(type)){
+      this.type = type;
+    }else{
+      this.type = 'code';
+    }
+  }
 }
 
 export class DataEntries{

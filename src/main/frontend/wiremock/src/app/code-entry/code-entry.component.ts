@@ -7,10 +7,13 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class CodeEntryComponent implements OnInit {
   @Input('code')
-  code: string;
+  code: any;
 
   @Input('language')
   language: string;
+
+  @Input('type')
+  type: string;
 
   constructor() { }
 
