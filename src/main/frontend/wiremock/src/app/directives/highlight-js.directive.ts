@@ -10,29 +10,41 @@ declare const hljs: any;
 export class HighlightJsDirective implements  AfterViewChecked{
 
   @Input('wm-highlight-js')
-  private code: string;
-  private previousCode: string;
+  code: string;
+
+  @Input('language')
+  language: string;
+
+  prevCode: string;
+
 
   constructor(private elementRef: ElementRef, private zone: NgZone) { }
 
+  isLangAvailable() {
+    return typeof this.language !== 'undefined' && this.language != null && this.language.length > 0;
+  }
+
   ngAfterViewChecked(): void {
     //We compare the old with new value to prevent loop
-    if(this.previousCode != null && this.previousCode === this.code){
+    if(this.code == this.prevCode){
       return;
     }
-    this.previousCode = this.code;
+    this.prevCode = this.code;
+
+
 
     this.zone.runOutsideAngular(() => {
 
       const code = this.elementRef.nativeElement;
 
-      const prettyCode = this.prettify(code.innerHTML);
+      const prettyCode = this.prettify(this.code);
       code.classList.add('hljs');
 
       try {
-        const highlighted = hljs.highlightAuto(prettyCode);
 
-        if (highlighted.language === 'json' || highlighted.language === 'xml' || highlighted.language === 'http') {
+        const highlighted = hljs.highlightAuto(prettyCode, this.isLangAvailable() ? [this.language]:['html', 'json', 'xml', 'http']);
+
+        if (highlighted.language === 'json' || highlighted.language === 'xml' || highlighted.language === 'http' || highlighted.language === 'html') {
           code.innerHTML = highlighted.value;
         } else {
           code.innerHTML = prettyCode;

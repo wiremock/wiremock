@@ -1,26 +1,37 @@
-<md-card *ngIf="isVisible()">
-  <md-card-header class="wmHeaderFirst">
-    <md-card-title>General</md-card-title>
-  </md-card-header>
-  <md-card-content>
-    <wm-code-entry-list [entries]="getGeneral()"></wm-code-entry-list>
-  </md-card-content>
-</md-card>
+<md-tab-group>
+  <md-tab label="Raw">
+    <wm-code-entry [code]="code" [language]="json"></wm-code-entry>
+    <!--<section><pre><code  class="{{language}} wmCode">{{getRaw()}}</code></pre></section>-->
+    <!--<pre><code wm-highlight-js class="json wmCode">{{code}}</code></pre>-->
+  </md-tab>
+  <md-tab label="Separated">
+    <md-card *ngIf="isVisible()">
+      <md-card-header class="wmHeaderFirst">
+        <md-card-title>General</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <wm-code-entry-list [entries]="getGeneral()"></wm-code-entry-list>
+      </md-card-content>
+    </md-card>
 
-<md-card *ngIf="isVisible()">
-  <md-card-header class="wmHeaderSecond">
-    <md-card-title>Request</md-card-title>
-  </md-card-header>
-  <md-card-content>
-    <wm-code-entry-list [entries]="getRequest()"></wm-code-entry-list>
-  </md-card-content>
-</md-card>
+    <md-card *ngIf="isVisible()">
+      <md-card-header class="wmHeaderSecond">
+        <md-card-title>Request</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <wm-code-entry-list [entries]="getRequest()"></wm-code-entry-list>
+      </md-card-content>
+    </md-card>
 
-<md-card *ngIf="isVisible()">
-  <md-card-header class="wmHeaderThird">
-    <md-card-title>Response Definition</md-card-title>
-  </md-card-header>
-  <md-card-content>
-    <wm-code-entry-list [entries]="getResponseDefinition()"></wm-code-entry-list>
-  </md-card-content>
-</md-card>
+    <md-card *ngIf="isVisible()">
+      <md-card-header class="wmHeaderThird">
+        <md-card-title>Response Definition</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <wm-code-entry-list [entries]="getResponseDefinition()"></wm-code-entry-list>
+      </md-card-content>
+    </md-card>
+  </md-tab>
+</md-tab-group>
+
+

@@ -6,7 +6,6 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./code-entry.component.scss']
 })
 export class CodeEntryComponent implements OnInit {
-
   @Input('code')
   code: string;
 
@@ -17,5 +16,4 @@ export class CodeEntryComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }

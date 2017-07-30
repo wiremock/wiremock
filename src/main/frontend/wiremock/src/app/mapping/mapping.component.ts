@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
 
@@ -7,14 +7,20 @@ import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
   templateUrl: './mapping.component.html',
   styleUrls: ['./mapping.component.scss']
 })
-export class MappingComponent implements OnInit {
+export class MappingComponent implements OnInit, OnChanges {
 
   @Input('selectedMapping')
   selectedMapping: StubMapping | null;
+  code: string;
 
   constructor() { }
 
   ngOnInit() {
+    this.code = this.toJson(this.selectedMapping);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.code = this.toJson(this.selectedMapping);
   }
 
   isVisible(): boolean{
@@ -23,10 +29,21 @@ export class MappingComponent implements OnInit {
 
   toJson(value: any): string{
     if(value == null || typeof value === 'undefined'){
-      return "";
+      return '';
     }else{
       return JSON.stringify(value);
     }
+  }
+
+  getRaw(): string{
+    const temp = this.toJson(this.selectedMapping);
+    if(temp === this.code){
+      return this.code;
+    }else{
+      this.code = temp;
+    }
+
+    return this.code;
   }
 
   getGeneral(){
@@ -35,15 +52,15 @@ export class MappingComponent implements OnInit {
       return dataEntries;
     }
     dataEntries.addEntry({
-        key: "uuid",
+        key: 'uuid',
         value: this.selectedMapping.uuid,
-        language: ""
+        language: ''
     });
 
     dataEntries.addEntry({
-      key: "name",
+      key: 'name',
       value: this.selectedMapping.name,
-      language: ""
+      language: ''
     });
 
     return dataEntries;
@@ -55,69 +72,69 @@ export class MappingComponent implements OnInit {
       return dataEntries;
     }
     dataEntries.addEntry({
-      key: "url",
+      key: 'url',
       value: this.selectedMapping.request.url,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "urlPattern",
+      key: 'urlPattern',
       value: this.selectedMapping.request.urlPattern,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "urlPath",
+      key: 'urlPath',
       value: this.selectedMapping.request.urlPath,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "urlPathPattern",
+      key: 'urlPathPattern',
       value: this.selectedMapping.request.urlPathPattern,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "method",
+      key: 'method',
       value: this.selectedMapping.request.method,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "headers",
+      key: 'headers',
       value: this.toJson(this.selectedMapping.request.headers),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "queryParameters",
+      key: 'queryParameters',
       value: this.selectedMapping.request.queryParameters,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "cookies",
+      key: 'cookies',
       value: this.toJson(this.selectedMapping.request.cookies),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "basicAuth",
+      key: 'basicAuth',
       value: this.toJson(this.selectedMapping.request.basicAuth),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "bodyPatterns",
+      key: 'bodyPatterns',
       value: this.toJson(this.selectedMapping.request.bodyPatterns),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "customMatcher",
+      key: 'customMatcher',
       value: this.toJson(this.selectedMapping.request.customMatcher),
-      language: "json"
+      language: 'json'
     });
 
     return dataEntries;
@@ -129,93 +146,93 @@ export class MappingComponent implements OnInit {
       return dataEntries;
     }
     dataEntries.addEntry({
-      key: "status",
+      key: 'status',
       value: this.selectedMapping.response.status,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "name",
+      key: 'name',
       value: this.selectedMapping.response.statusMessage,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "body",
+      key: 'body',
       value: this.selectedMapping.response.body,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "jsonBody",
+      key: 'jsonBody',
       value: this.selectedMapping.response.jsonBody,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "base64Body",
+      key: 'base64Body',
       value: this.selectedMapping.response.base64Body,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "bodyFileName",
+      key: 'bodyFileName',
       value: this.selectedMapping.response.bodyFileName,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "headers",
+      key: 'headers',
       value: this.toJson(this.selectedMapping.response.headers),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "additionalProxyRequestHeaders",
+      key: 'additionalProxyRequestHeaders',
       value: this.toJson(this.selectedMapping.response.additionalProxyRequestHeaders),
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "fixedDelayMilliseconds",
+      key: 'fixedDelayMilliseconds',
       value: this.selectedMapping.response.fixedDelayMilliseconds,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "delayDistribution",
+      key: 'delayDistribution',
       value: this.selectedMapping.response.delayDistribution,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "proxyBaseUrl",
+      key: 'proxyBaseUrl',
       value: this.selectedMapping.response.proxyBaseUrl,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "fault",
+      key: 'fault',
       value: this.selectedMapping.response.fault,
-      language: ""
+      language: ''
     });
 
     dataEntries.addEntry({
-      key: "transformers",
+      key: 'transformers',
       value: this.toJson(this.selectedMapping.response.transformers),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "transformerParameters",
+      key: 'transformerParameters',
       value: this.toJson(this.selectedMapping.response.transformerParameters),
-      language: "json"
+      language: 'json'
     });
 
     dataEntries.addEntry({
-      key: "fromConfiguredStub",
+      key: 'fromConfiguredStub',
       value: this.selectedMapping.response.fromConfiguredStub,
-      language: ""
+      language: ''
     });
 
     return dataEntries;
