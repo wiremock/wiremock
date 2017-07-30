@@ -1,0 +1,40 @@
+<md-toolbar>
+  <div id="wmToolbarGroupOne">
+    <a id="wmToolbarHomeLink" href="https://wiremock.org/" target="_blank">
+      <img src="../../assets/images/wiremock-concept-icon-01.png" id="wmToolbarLogo">
+      <span id="wmToolbarTitle">WireMock</span>
+    </a>
+    <a routerLink="/">Mappings</a>
+    <a routerLink="/matched">Matched</a>
+    <a routerLink="/unmatched">Unmatched</a>
+  </div>
+
+  <div id="wmToolbarGroupTwo">
+    <button md-icon-button [mdMenuTriggerFor]="wmGeneralMenu">
+      <md-icon>more_horiz</md-icon>
+    </button>
+    <md-menu #wmGeneralMenu="mdMenu">
+      <md-slide-toggle color="primary" [checked]="isDarkTheme" (change)="changeTheme()" id="wmThemeToggle">
+        Dark Theme
+      </md-slide-toggle>
+      <md-divider></md-divider>
+      <button md-menu-item>
+        <md-icon>radio_button_checked</md-icon>
+        <span>Enable Recording</span>
+      </button>
+      <button md-menu-item>
+        <md-icon>radio_button_checked</md-icon>
+        <span>Restart Recording</span>
+      </button>
+      <button md-menu-item>
+        <md-icon>stop</md-icon>
+        <span>Disable Recording</span>
+      </button>
+      <md-divider></md-divider>
+      <button md-menu-item>
+        <md-icon>power_settings_new</md-icon>
+        <span>Shutdown</span>
+      </button>
+    </md-menu>
+  </div>
+</md-toolbar>

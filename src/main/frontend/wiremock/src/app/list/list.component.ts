@@ -6,9 +6,6 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnChanges {
-
-
-
   @Input('items')
   items: Item[];
 

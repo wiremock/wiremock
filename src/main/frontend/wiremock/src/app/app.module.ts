@@ -19,6 +19,7 @@ import { MappingViewComponent } from './mapping-view/mapping-view.component';
 import {ListViewModule} from 'app/list-view/list-view.module';
 import { ListEntryComponent } from './list-entry/list-entry.component';
 import {CookieService} from './services/cookie.service';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import {CookieService} from './services/cookie.service';
     CodeEntryListComponent,
     HighlightJsDirective,
     MappingViewComponent,
-    ListEntryComponent
+    ListEntryComponent,
+    ToolbarComponent
   ],
   imports: [
     BrowserModule,

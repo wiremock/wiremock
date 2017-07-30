@@ -1,0 +1,50 @@
+#wmToolbarLogo{
+  width: 80px;
+  margin: 0 2px 0 0;
+}
+
+#wmToolbarTitle{
+  margin-right: 20px;
+  font-size: 30px;
+}
+
+#wmToolbarHomeLink{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+
+#wmToolbarGroupOne{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+
+#wmToolbarGroupTwo{
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  white-space: nowrap;
+}
+
+a{
+  margin-right: 20px;
+  text-decoration: none;
+}
+
+#wmThemeToggle {
+  height: 48px;
+}
+
+/deep/ #wmThemeToggle .mat-slide-toggle-content{
+  line-height: 48px;
+  font-size: 16px;
+}
+
+/deep/ #wmThemeToggle .mat-slide-toggle-bar{
+  margin-left: 8px;
+  margin-right: 16px;
+}

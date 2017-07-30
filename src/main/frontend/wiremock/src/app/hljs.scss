@@ -11,10 +11,10 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
   $background: mat-color(map-get($theme, background), 'card');
   $foreground: map-get($theme, foreground);
 
-  $factor: 15;
+  $factor: 20;
 
   @function adjust($theme, $color, $factor){
-    @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), 20));
+    @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), 40));
   }
 
   .hljs {

@@ -1,6 +1,5 @@
 <div [class.dark-theme]="isDarkTheme">
-  <wm-mapping-view></wm-mapping-view>
+  <wm-toolbar (themeChanged)="changeTheme($event)"></wm-toolbar>
   <router-outlet></router-outlet>
-  <button (click)="changeTheme()">Switch Theme</button>
 </div>
 

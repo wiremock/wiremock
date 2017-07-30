@@ -4,6 +4,7 @@
 @import "/mapping/mapping.theme";
 @import "/list-view/list-view.template";
 @import "/code-entry-list/code-entry-list.theme";
+@import "/toolbar/toolbar.theme";
 
 @include mat-core();
 
@@ -79,6 +80,7 @@ $mat-wm-blue: (
   @include wm-mapping-theme($theme);
   @include wm-list-view-theme($theme);
   @include wm-code-entry-list-theme($theme);
+  @include wm-toolbar-theme($theme);
 }
 
 
@@ -97,7 +99,35 @@ $theme: mat-light-theme($primary, $accent, $warn);
   $accent: mat-palette($mat-wm-blue, A200, A100, A400);
   $warn: mat-palette($mat-red, 700);
 
-  $theme: mat-dark-theme($primary, $accent, $warn);
+  $wm-dark-theme-background: (
+    status-bar: #262626,
+    app-bar:    map_get($mat-grey, 900),
+    background: #262626,
+    hover:      rgba(white, 0.04), // TODO(kara): check style with Material Design UX
+    card:       #262626,
+    dialog:     #262626,
+    disabled-button: $white-12-opacity,
+    raised-button: #262626,
+    focused-button: $white-6-opacity,
+    selected-button: map_get($mat-grey, 900),
+    selected-disabled-button: map_get($mat-grey, 800),
+    disabled-button-toggle: map_get($mat-grey, 1000),
+  );
+
+  @function wm-dark-theme($primary, $accent, $warn: mat-palette($mat-red)) {
+    @return (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+      is-dark: true,
+      foreground: $mat-dark-theme-foreground,
+      background: $wm-dark-theme-background,
+    );
+  }
+
+  $theme: wm-dark-theme($primary, $accent, $warn);
+
+
 
   @include angular-material-theme($theme);
   @include wiremock-theme($theme);

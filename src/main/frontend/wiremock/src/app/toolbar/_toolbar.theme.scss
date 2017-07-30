@@ -1,0 +1,24 @@
+@import "/../wiremock-function";
+
+@mixin wm-toolbar-theme($theme){
+
+  $background: mat-color(map-get($theme, background), 'card');
+  $foreground: map-get($theme, foreground);
+
+  .mat-toolbar{
+    background-color: $background;
+    color:  mat-color($foreground, text);
+  }
+
+  a{
+    color:  mat-color($foreground, text);
+  }
+
+  a:hover{
+    color:  mat-color(map-get($theme, primary));
+  }
+
+  #wmThemeToggle .mat-slide-toggle-content{
+    color: mat-color($foreground, text);
+  }
+}
