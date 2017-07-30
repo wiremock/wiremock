@@ -7,7 +7,7 @@
 
   <ng-container cdkColumnDef="value">
     <md-header-cell *cdkHeaderCellDef> Value </md-header-cell>
-    <md-cell *cdkCellDef="let row"><wm-code-entry code="{{row.value}}" language="{{row.language}}"></wm-code-entry></md-cell>
+    <md-cell *cdkCellDef="let row"><wm-code-entry [code]="row.value" [language]="row.language"></wm-code-entry></md-cell>
   </ng-container>
 
   <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>

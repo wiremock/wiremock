@@ -20,6 +20,9 @@ import {ListViewModule} from 'app/list-view/list-view.module';
 import { ListEntryComponent } from './list-entry/list-entry.component';
 import {CookieService} from './services/cookie.service';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { TabViewComponent } from './tab-view/tab-view.component';
+import { TabViewRawDirective } from './tab-view/tab-view-raw.directive';
+import { TabViewSeparatedDirective } from './tab-view/tab-view-separated.directive';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,10 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     HighlightJsDirective,
     MappingViewComponent,
     ListEntryComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    TabViewComponent,
+    TabViewRawDirective,
+    TabViewSeparatedDirective
   ],
   imports: [
     BrowserModule,

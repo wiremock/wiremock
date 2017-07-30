@@ -1,10 +1,8 @@
-<md-tab-group>
-  <md-tab label="Raw">
+<wm-tab-view>
+  <wm-tab-view-raw>
     <wm-code-entry [code]="code" [language]="json"></wm-code-entry>
-    <!--<section><pre><code  class="{{language}} wmCode">{{getRaw()}}</code></pre></section>-->
-    <!--<pre><code wm-highlight-js class="json wmCode">{{code}}</code></pre>-->
-  </md-tab>
-  <md-tab label="Separated">
+  </wm-tab-view-raw>
+  <wm-tab-view-separated>
     <md-card *ngIf="isVisible()">
       <md-card-header class="wmHeaderFirst">
         <md-card-title>General</md-card-title>
@@ -31,7 +29,5 @@
         <wm-code-entry-list [entries]="getResponseDefinition()"></wm-code-entry-list>
       </md-card-content>
     </md-card>
-  </md-tab>
-</md-tab-group>
-
-
+  </wm-tab-view-separated>
+</wm-tab-view>
