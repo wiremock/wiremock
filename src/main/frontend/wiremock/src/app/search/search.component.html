@@ -4,6 +4,7 @@
     <md-input-container class="wmSearchInputContainer">
       <input (input)="onSearchChanged($event.target.value)" mdInput placeholder="Enter expression or text here">
     </md-input-container>
-    <md-checkbox class="wmSearchCaseSensitive" (change)="onCaseSensitiveChanged($event)">case sensitive</md-checkbox>
+    <!--<md-checkbox class="wmSearchCaseSensitive" (change)="onCaseSensitiveChanged($event)">case sensitive</md-checkbox>-->
+    <md-checkbox class="wmSearchCaseSensitive" (change)="onCaseSensitiveChanged($event)" title="case sensitive">Aa</md-checkbox>
   </div>
 </form>

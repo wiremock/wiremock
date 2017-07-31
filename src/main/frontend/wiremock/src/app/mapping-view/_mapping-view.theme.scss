@@ -1,13 +1,12 @@
 @import "../wiremock-function";
 
-@mixin wm-search-theme($theme){
+@mixin wm-mapping-view-theme($theme){
 
   $background: mat-color(map-get($theme, background), 'card');
   $foreground: map-get($theme, foreground);
 
-  /*We need to set this because of currentColor*/
-  .wmSearchForm{
-    color: mat-color($foreground, text);
+  .wmActionToolbar{
+    //color: mat-color($foreground, text);
     background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
   }
 

@@ -4,11 +4,13 @@
 
   $background: mat-color(map-get($theme, background), 'card');
   $foreground: map-get($theme, foreground);
+  $is-dark-theme: map-get($theme, is-dark);
 
   .mat-toolbar{
     //background-color: $background;
     background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
     color:  mat-color($foreground, text);
+    border-bottom: 1px solid if($is-dark-theme, rgba(map-get(wiremock-theme($theme), 'foregroundLight'), 0.3), rgba(0, 0, 0, 0.2));
   }
 
   a{

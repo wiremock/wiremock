@@ -8,6 +8,7 @@
 @import "app.theme";
 @import "/list/list.theme";
 @import "/search/search.theme";
+@import "/mapping-view/mapping-view.theme";
 
 @include mat-core();
 
@@ -87,6 +88,7 @@ $mat-wm-blue: (
   @include wm-app-theme($theme);
   @include wm-list-theme($theme);
   @include wm-search-theme($theme);
+  @include wm-mapping-view-theme($theme);
 }
 
 

@@ -3,4 +3,26 @@
 <!--</wm-list-view>-->
 <wm-list-view #listView [items]="this.mappingResult?.mappings"  (onSelect)="setSelectedMapping($event)">
   <wm-list-view-content><wm-mapping [selectedMapping]="selectedMapping"></wm-mapping></wm-list-view-content>
+  <wm-list-view-actions>
+    <!--<md-toolbar class="wmActionToolbar">-->
+    <div class="wmActionToolbar">
+      <button md-raised-button><md-icon>add_circle</md-icon> New</button>
+      <button md-raised-button><md-icon>mode_edit</md-icon> Edit</button>
+      <button md-raised-button><md-icon>delete</md-icon> Remove</button>
+
+      <button md-raised-button [mdMenuTriggerFor]="mappings">Mappings <md-icon>more_vert</md-icon></button>
+      <md-menu #mappings="mdMenu">
+        <button md-menu-item><md-icon>save</md-icon> Save Mappings</button>
+        <button md-menu-item><md-icon>autorenew</md-icon> Reload File-Mappings</button>
+        <button md-menu-item><md-icon>delete</md-icon> Reset Mappings</button>
+      </md-menu>
+
+      <button md-raised-button [mdMenuTriggerFor]="scenarios">Scenarios <md-icon>more_vert</md-icon></button>
+      <md-menu #scenarios="mdMenu">
+        <button md-menu-item><md-icon>replay</md-icon> Reset selected Scenario</button>
+        <button md-menu-item><md-icon>autorenew</md-icon> Reset all Scenarios</button>
+      </md-menu>
+    </div>
+    <!--</md-toolbar>-->
+  </wm-list-view-actions>
 </wm-list-view>
