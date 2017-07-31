@@ -6,7 +6,7 @@ import { HttpModule } from '@angular/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {APP_BASE_HREF} from '@angular/common';
-import { ListComponent } from './list/list.component';
+// import { ListComponent } from './list/list.component';
 import { MatchedComponent } from './matched/matched.component';
 import { UnmatchedComponent } from './unmatched/unmatched.component';
 import { MappingComponent } from './mapping/mapping.component';
@@ -16,8 +16,8 @@ import { CodeEntryListComponent } from './code-entry-list/code-entry-list.compon
 import {MaterialModule} from './material/material.module';
 import { HighlightJsDirective } from './directives/highlight-js.directive';
 import { MappingViewComponent } from './mapping-view/mapping-view.component';
-import {ListViewModule} from 'app/list-view/list-view.module';
-import { ListEntryComponent } from './list-entry/list-entry.component';
+import {ListViewModule} from './list-view/list-view.module';
+// import { ListEntryComponent } from './list-entry/list-entry.component';
 import {CookieService} from './services/cookie.service';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { TabViewComponent } from './tab-view/tab-view.component';
@@ -29,7 +29,7 @@ import {PagerService} from './services/pager.service';
 @NgModule({
   declarations: [
     AppComponent,
-    ListComponent,
+    // ListComponent,
     MatchedComponent,
     UnmatchedComponent,
     MappingComponent,
@@ -37,7 +37,7 @@ import {PagerService} from './services/pager.service';
     CodeEntryListComponent,
     HighlightJsDirective,
     MappingViewComponent,
-    ListEntryComponent,
+    // ListEntryComponent,
     ToolbarComponent,
     TabViewComponent,
     TabViewRawDirective,

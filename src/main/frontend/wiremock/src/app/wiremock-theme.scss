@@ -7,6 +7,7 @@
 @import "/toolbar/toolbar.theme";
 @import "app.theme";
 @import "/list/list.theme";
+@import "/search/search.theme";
 
 @include mat-core();
 
@@ -85,6 +86,7 @@ $mat-wm-blue: (
   @include wm-toolbar-theme($theme);
   @include wm-app-theme($theme);
   @include wm-list-theme($theme);
+  @include wm-search-theme($theme);
 }
 
 
@@ -102,6 +104,22 @@ $theme: mat-light-theme($primary, $accent, $warn);
   $primary: mat-palette($mat-wm-orange, 700, 500, 900);
   $accent: mat-palette($mat-wm-blue, A200, A100, A400);
   $warn: mat-palette($mat-red, 700);
+
+  $wm-dark-theme-foreground: (
+    base:              white,
+    divider:           $white-12-opacity,
+    dividers:          $white-12-opacity,
+    disabled:          rgba(white, 0.4),
+    disabled-button:   rgba(white, 0.4),
+    disabled-text:     rgba(white, 0.4),
+    hint-text:         rgba(white, 0.5),
+    secondary-text:    rgba(white, 0.7),
+    icon:              white,
+    icons:             white,
+    text:              white,
+    slider-off:        rgba(white, 0.3),
+    slider-off-active: rgba(white, 0.3),
+  );
 
   $wm-dark-theme-background: (
     status-bar: #262626,
@@ -124,12 +142,14 @@ $theme: mat-light-theme($primary, $accent, $warn);
       accent: $accent,
       warn: $warn,
       is-dark: true,
-      foreground: $mat-dark-theme-foreground,
+      foreground: $wm-dark-theme-foreground,
       background: $wm-dark-theme-background,
     );
   }
 
   $theme: wm-dark-theme($primary, $accent, $warn);
+
+  //$theme: mat-dark-theme($primary, $accent, $warn);
 
   @include angular-material-theme($theme);
   @include wiremock-theme($theme);

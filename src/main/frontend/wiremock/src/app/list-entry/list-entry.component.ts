@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Item} from '../list/list.component';
+import {Item} from '../wiremock/model/item';
 
 @Component({
   selector: 'wm-list-entry',

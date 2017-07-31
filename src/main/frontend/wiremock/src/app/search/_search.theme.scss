@@ -1,0 +1,12 @@
+@import "../wiremock-function";
+
+@mixin wm-search-theme($theme){
+
+  $foreground: map-get($theme, foreground);
+
+  /*We need to set this because of currentColor*/
+  .wmSearchForm{
+    color: mat-color($foreground, text);
+  }
+
+}

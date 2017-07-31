@@ -5,7 +5,7 @@
   <wm-tab-view-separated>
     <md-card *ngIf="isVisible()">
       <md-card-header class="wmHeaderFirst">
-        <md-card-title>General</md-card-title>
+        <md-card-title><b>General</b></md-card-title>
       </md-card-header>
       <md-card-content>
         <wm-code-entry-list [entries]="getGeneral()"></wm-code-entry-list>
@@ -14,7 +14,7 @@
 
     <md-card *ngIf="isVisible()">
       <md-card-header class="wmHeaderSecond">
-        <md-card-title>Request</md-card-title>
+        <md-card-title><b>Request</b></md-card-title>
       </md-card-header>
       <md-card-content>
         <wm-code-entry-list [entries]="getRequest()"></wm-code-entry-list>
@@ -23,7 +23,7 @@
 
     <md-card *ngIf="isVisible()">
       <md-card-header class="wmHeaderThird">
-        <md-card-title>Response Definition</md-card-title>
+        <md-card-title><b>Response Definition</b></md-card-title>
       </md-card-header>
       <md-card-content>
         <wm-code-entry-list [entries]="getResponseDefinition()"></wm-code-entry-list>

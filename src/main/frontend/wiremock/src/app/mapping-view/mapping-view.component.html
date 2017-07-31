@@ -1,5 +1,6 @@
-<wm-list-view>
-  <wm-list-view-list><wm-list [items]="mappingResult?.mappings" (onSelect)="setSelectedMapping($event)"></wm-list></wm-list-view-list>
+<!--<wm-list-view #listView [items]="this.mappingResult?.mappings" (onSelect)="listView.selected = $event">-->
+  <!--<wm-list-view-content><wm-mapping [selectedMapping]="listView.selected"></wm-mapping></wm-list-view-content>-->
+<!--</wm-list-view>-->
+<wm-list-view #listView [items]="this.mappingResult?.mappings"  (onSelect)="setSelectedMapping($event)">
   <wm-list-view-content><wm-mapping [selectedMapping]="selectedMapping"></wm-mapping></wm-list-view-content>
 </wm-list-view>
-

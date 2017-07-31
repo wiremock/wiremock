@@ -15,5 +15,9 @@
 
 .wmContent{
   /*- height of search and actions*/
-  height: calc(100% - 0px);
+  height: calc(100% - 67px);
+}
+
+.wmSearch {
+  height: 67px;
 }

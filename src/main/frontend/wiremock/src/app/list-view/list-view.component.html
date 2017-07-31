@@ -1,9 +1,9 @@
 <div class="wmList">
-  <ng-content select="wm-list-view-list"></ng-content>
+  <wm-list [items]="filteredItem" (onSelect)="onSelect($event)"></wm-list>
 </div>
 <div class="wmContentContainer">
   <div class="wmSearch">
-    <ng-content select="wm-list-view-search"></ng-content>
+    <wm-search (onSearchChanged)="onSearchChanged($event)"></wm-search>
   </div>
   <div class="wmActions">
     <ng-content select="wm-list-view-actions"></ng-content>

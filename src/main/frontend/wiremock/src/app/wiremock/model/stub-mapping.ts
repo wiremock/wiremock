@@ -1,8 +1,9 @@
 import {RequestPattern} from './request-pattern';
 import {ResponseDefinition} from './response-definition';
-import {Item} from '../../list/list.component';
+import {Item} from './item';
 
-export class StubMapping extends Item{
+export class StubMapping implements Item{
+
   uuid: string;
   name: string;
   persistent: Boolean;
@@ -35,4 +36,7 @@ export class StubMapping extends Item{
     return "method=" + this.request.method + ", status=" + this.response.status;
   }
 
+  getId(): string {
+    return this.uuid;
+  }
 }

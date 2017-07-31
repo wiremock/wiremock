@@ -1,19 +1,22 @@
 @import "../wiremock-function";
 
 @mixin wm-mapping-theme($theme){
+
+  $foreground: map-get($theme, foreground);
+
   .wmHeaderFirst{
     background-color: map-get(wiremock-theme($theme), 'primary');
-    color: map-get(wiremock-theme($theme), 'primary-selected-foreground');
+    color: mat-color($foreground, text);
   }
 
   .wmHeaderSecond{
     background-color: map-get(wiremock-theme($theme), 'accent');
-    color: map-get(wiremock-theme($theme), 'accent-selected-foreground');
+    color: mat-color($foreground, text);
   }
 
   .wmHeaderThird{
     background-color: map-get(wiremock-theme($theme), 'warn');
-    color: map-get(wiremock-theme($theme), 'warn-selected-foreground');
+    color: mat-color($foreground, text);
   }
 }
 
