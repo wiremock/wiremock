@@ -3,6 +3,31 @@ md-list-item{
 }
 
 .wmNavList{
-  height: 100%;
+  height: calc(100% - 32px);
   overflow-y: auto;
+}
+
+.wmPageActive:hover{
+  cursor: default;
+}
+
+.wmPagination{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.wmPageItem{
+  cursor: pointer;
+  height: 30px;
+  //width: 30px;
+  /*14 items max - 1px border*/
+  width: calc(100% / 14 - 1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.wmPageDisabled:hover{
+ cursor: not-allowed;
 }

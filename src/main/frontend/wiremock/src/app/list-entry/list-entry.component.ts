@@ -14,6 +14,9 @@ export class ListEntryComponent implements OnInit {
   @Input()
   selected: boolean;
 
+  @Input()
+  first: boolean;
+
   @Output('onSelect')
   selectEmitter = new EventEmitter();
 

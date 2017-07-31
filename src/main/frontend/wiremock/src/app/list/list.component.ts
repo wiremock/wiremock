@@ -1,4 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {PagerService} from '../services/pager.service';
+import {UtilService} from '../services/util.service';
 
 @Component({
   selector: 'wm-list',
@@ -11,26 +13,62 @@ export class ListComponent implements OnInit, OnChanges {
 
   @Output('onSelect')
   selectEmitter = new EventEmitter();
-
   previousSelectedItem: Item;
 
-  constructor() { }
+  pager: any = {};
+  pagedItems: Item[];
+  currentPage: number;
+
+  constructor(private pagerService: PagerService) {
+  }
 
   ngOnInit() {
+    this.setPage(1);
+  }
+
+  setPage(page: number): void {
+    if (page < 1) {
+      page = 1;
+    }
+
+    if (page > this.pager.totalPages) {
+      page = this.pager.totalPages;
+    }
+
+    if (UtilService.isUndefined(this.items)) {
+      this.pagedItems = [];
+      this.currentPage = 1;
+    } else {
+      this.currentPage = page;
+      this.pager = this.pagerService.getPager(this.items.length, page, 100);
+      this.pagedItems = this.items.slice(this.pager.startIndex, this.pager.endIndex + 1);
+
+      this.selectPrev();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(this.items != null && typeof this.items !== 'undefined'){
-      for(const item of this.items){
-        if(item.selected){
+    this.setPage(this.currentPage);
+    this.selectPrev();
+  }
+
+  private selectPrev(): void {
+    if (UtilService.isDefined(this.pagedItems) && this.pagedItems.length > 0) {
+      let found = false;
+      for (const item of this.pagedItems) {
+        if (item.selected) {
           this.previousSelectedItem = item;
+          found = true;
         }
+      }
+      if (!found) {
+        this.itemSelected(this.pagedItems[0]);
       }
     }
   }
 
-  itemSelected(item :Item): void{
-    if(typeof this.previousSelectedItem !== 'undefined'){
+  itemSelected(item: Item): void {
+    if (UtilService.isDefined(this.previousSelectedItem)) {
       this.previousSelectedItem.setSelected(false);
     }
     item.setSelected(true);
@@ -41,14 +79,15 @@ export class ListComponent implements OnInit, OnChanges {
 
 }
 
-export abstract class Item{
+export abstract class Item {
 
   selected: boolean | false;
 
   abstract getTitle(): string;
+
   abstract getSubtitle(): string;
 
-  setSelected(value: boolean){
+  setSelected(value: boolean) {
     this.selected = value;
   }
 }

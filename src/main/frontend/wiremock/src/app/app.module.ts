@@ -24,6 +24,7 @@ import { TabViewComponent } from './tab-view/tab-view.component';
 import { TabViewRawDirective } from './tab-view/tab-view-raw.directive';
 import { TabViewSeparatedDirective } from './tab-view/tab-view-separated.directive';
 import {UtilService} from './services/util.service';
+import {PagerService} from './services/pager.service';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ import {UtilService} from './services/util.service';
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService],
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
