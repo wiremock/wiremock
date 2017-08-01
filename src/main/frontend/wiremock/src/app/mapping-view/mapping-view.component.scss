@@ -5,3 +5,10 @@ button{
 .wmActionToolbar{
   padding: 0 10px 10px;
 }
+
+.wmEditTextArea{
+  width: calc(100% - 6px);
+  /* - padding and border*/
+  height: calc(100% - 6px);
+  resize: none;
+}

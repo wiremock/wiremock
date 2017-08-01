@@ -28,6 +28,10 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Delete, 'mappings/' + id);
   }
 
+  resetScenarios(): Observable<Response>{
+    return this.createRequest(RequestMethod.Post, 'scenarios/reset');
+  }
+
   startRecording(): Observable<Response>{
     return this.createRequest(RequestMethod.Post, 'recordings/start');
   }

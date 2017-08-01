@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Item} from '../wiremock/model/item';
+import * as vkbeautify from 'vkbeautify';
 
 @Injectable()
 export class UtilService {
@@ -156,6 +157,21 @@ export class UtilService {
       }
     }
     return false;
+  }
+
+  public static prettify(code: string): string{
+    if (code === null || typeof code === 'undefined') {
+      return '';
+    }
+    try {
+      return vkbeautify.json(code);
+    } catch (err) {
+      try{
+        return vkbeautify.xml(code);
+      }catch(err2){
+        return code;
+      }
+    }
   }
 
 }

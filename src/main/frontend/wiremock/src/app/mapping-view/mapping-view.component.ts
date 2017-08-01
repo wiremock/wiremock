@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {WiremockService} from '../services/wiremock.service';
 import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
 import {StubMapping} from '../wiremock/model/stub-mapping';
+import {UtilService} from '../services/util.service';
 
 @Component({
   selector: 'wm-mapping-view',
@@ -10,13 +11,59 @@ import {StubMapping} from '../wiremock/model/stub-mapping';
 })
 export class MappingViewComponent implements OnInit {
 
+
   mappingResult: ListStubMappingsResult;
   selectedMapping: StubMapping;
+
+  editMode: State;
+  State = State;
 
   constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
+    this.editMode = State.NORMAL;
     this.refreshMappings();
+  }
+
+  setEditMode(value: State){
+    this.editMode = value;
+  }
+
+  saveEditedMapping(): void{
+    //TODO: save mapping
+    this.editMode = State.NORMAL;
+  }
+
+  saveNewMapping(): void{
+    //TODO: save mapping
+    this.editMode = State.NORMAL;
+  }
+
+  handleTabKey(event: any):void{
+    //TODO: not working properly.
+    if(event.which === 9){
+      event.preventDefault();
+
+      const elem = event.target;
+
+      // get caret position/selection
+      const start = elem.selectionStart;
+      const end = elem.selectionEnd;
+
+      const text = elem.innerHTML;
+
+      elem.innerHTML = text.substring(0, start) + "\t" + text.substring(end);
+
+      event.target.selectionStart = event.target.selectionEnd = start + 1;
+    }
+  }
+
+  getSelectedMappingText(): string{
+    return UtilService.prettify(JSON.stringify(this.selectedMapping));
+  }
+
+  getNewMappingText(): string{
+    return UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
   }
 
   setSelectedMapping(mapping: StubMapping){
@@ -59,6 +106,15 @@ export class MappingViewComponent implements OnInit {
     });
   }
 
+  resetScenarios(): void{
+    this.wiremockService.resetScenarios().subscribe(data =>{
+      //it worked fine
+      //TODO: feedback?
+    }, err =>{
+      //TODO: show popup with error
+    });
+  }
+
   private refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
         // this.cdr.detach();
@@ -70,3 +126,10 @@ export class MappingViewComponent implements OnInit {
       });
   }
 }
+
+export enum State {
+  NORMAL,
+  EDIT,
+  NEW,
+}
+
