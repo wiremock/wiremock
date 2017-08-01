@@ -33,7 +33,7 @@ public class RequestPatternBuilder {
     private RequestMethod method;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
-    private List<StringValuePattern> bodyPatterns = newArrayList();
+    private List<ContentPattern<?>> bodyPatterns = newArrayList();
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
     private BasicCredentials basicCredentials;
 
@@ -107,12 +107,10 @@ public class RequestPatternBuilder {
         return this;
     }
 
-    public RequestPatternBuilder withRequestBody(StringValuePattern valuePattern) {
+    public RequestPatternBuilder withRequestBody(ContentPattern valuePattern) {
         this.bodyPatterns.add(valuePattern);
         return this;
     }
-
-
 
     public RequestPattern build() {
         return customMatcher != null ?

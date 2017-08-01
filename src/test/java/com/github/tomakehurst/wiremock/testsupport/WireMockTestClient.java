@@ -55,6 +55,7 @@ public class WireMockTestClient {
     private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL = "http://%s:%d/__admin/mappings/edit";
     private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
     private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
+    private static final String LOCAL_WIREMOCK_SNAPSHOT_PATH = "/__admin/recordings/snapshot";
 
     private int port;
     private String address;
@@ -203,6 +204,14 @@ public class WireMockTestClient {
         if (status != HTTP_OK) {
             throw new RuntimeException("Returned status code was " + status);
         }
+    }
+
+    public String snapshot(String snapshotSpecJson) {
+        WireMockResponse response = postJson(LOCAL_WIREMOCK_SNAPSHOT_PATH, snapshotSpecJson);
+        if (response.statusCode() != HTTP_OK) {
+            throw new RuntimeException("Returned status code was " + response.statusCode());
+        }
+        return response.content();
     }
 
     private int postJsonAndReturnStatus(String url, String json) {

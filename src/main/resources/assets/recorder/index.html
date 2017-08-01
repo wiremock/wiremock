@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WireMock Recorder</title>
+
+    <script src='/__admin/recorder/lib/jquery-3.2.1.min.js' type='text/javascript'></script>
+
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 3rem;
+            color: #6C7692;
+        }
+
+        #logo {
+            height: 40px;
+            width: auto;
+            display: inline;
+            vertical-align: text-bottom;
+            padding-bottom: 0.2rem;
+        }
+
+        .content {
+            margin: auto;
+            width: 600px;
+            height: 300px;
+            padding-top: 100px;
+            vertical-align: middle;
+        }
+
+        button {
+            background-color: #1D2539;
+            padding: 10px;
+            color: white;
+            font-size: 1.5rem;
+            border-radius: 5px;
+            border: none;
+            margin-right: 1rem;
+        }
+
+        button:disabled {
+            background-color: #AAA;
+        }
+
+        input {
+            border-radius: 5px;
+        }
+
+        #targetBaseUrlLabel {
+            color: #777;
+            font-size: 1.2rem;
+        }
+
+        #targetBaseUrl {
+            height: 1.5rem;
+            width: 32rem;
+            display: block;
+            margin-top: 0.3rem;
+            margin-bottom: 1rem;
+            border: 2px solid grey;
+            padding: 5px;
+        }
+
+        #validationMessage {
+            margin-bottom: 3rem;
+            border: none;
+            color: transparent;
+            width: 32rem;
+            padding: 6px;
+        }
+
+        .showError {
+            border: 1px solid red !important;
+            color: red !important;
+        }
+
+        .showMessage {
+            border: 1px solid darkgreen !important;
+            color: darkgreen !important;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <h1>
+        <img src="/__admin/recorder/images/wiremock-concept-icon-01.png" id="logo"/>
+        WireMock Recorder
+    </h1>
+
+    <label id="targetBaseUrlLabel" for="targetBaseUrl">Target URL</label>
+    <input type="text" id="targetBaseUrl" name="targetBaseUrl" max="128"/>
+    <div id="validationMessage"></div>
+
+    <button id="startRecording" disabled="disabled">Record</button>
+    <button id="stopRecording" disabled="disabled">Stop</button>
+</div>
+
+<script type="text/javascript">
+    function showMessage(message) {
+        $('#validationMessage')
+            .removeClass('showError')
+            .addClass('showMessage')
+            .text(message);
+    }
+
+    function showError(message) {
+        $('#validationMessage')
+            .removeClass('showMessage')
+            .addClass('showError')
+            .text(message);
+    }
+
+    function hideMessage() {
+        $('#validationMessage').removeClass('showError');
+    }
+
+    $(function() {
+        var base = window.location.href.startsWith('file') ?
+            'http://localhost:8080' :
+            '';
+
+        $.getJSON(base + '/__admin/recordings/status', function(data) {
+            if (data.status === 'Recording') {
+                $('#stopRecording').attr('disabled', false);
+                showMessage('Recording...');
+            } else {
+                $('#startRecording').attr('disabled', false);
+            }
+        });
+
+        $('#startRecording').click(function(event) {
+            var baseUrl = $('#targetBaseUrl').val();
+            if (baseUrl == null || baseUrl.length === 0) {
+                showError('You need to enter a valid target URL.');
+                return;
+            } else {
+                hideMessage();
+            }
+
+            event.target.disabled = true;
+
+            $.ajax({
+                method: "POST",
+                url: base + '/__admin/recordings/start',
+                crossDomain: true,
+                mimeType: 'application/json',
+                data: JSON.stringify({
+                    targetBaseUrl: baseUrl
+                }),
+                dataType: 'json'
+            }).done(function() {
+                $('#stopRecording').attr('disabled', false);
+                showMessage('Recording...');
+            });
+        });
+
+        $('#stopRecording').click(function(event) {
+            event.target.disabled = true;
+            $.ajax({
+                method: 'POST',
+                crossDomain: true,
+                url: base + '/__admin/recordings/stop'
+            }).done(function(data) {
+                var count = data.mappings.length;
+                showMessage('Captured ' + count + ' stub mappings.');
+                $('#startRecording').attr('disabled', false);
+            });
+
+        });
+    });
+</script>
+
+</body>
+</html>

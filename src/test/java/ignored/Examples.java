@@ -34,9 +34,11 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -77,6 +79,20 @@ public class Examples extends AcceptanceTestBase {
                 .withRequestBody(matching("<status>OK</status>"))
                 .withRequestBody(notMatching("<status>ERROR</status>"))
                 .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void binaryBodyMatchingByteArray() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo(new byte[] { 1, 2, 3 }))
+            .willReturn(ok()));
+    }
+
+    @Test
+    public void binaryBodyMatchingBase64() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo("AQID"))
+            .willReturn(ok()));
     }
 
     @Test
@@ -398,5 +414,69 @@ public class Examples extends AcceptanceTestBase {
 
         stubFor(proxyAllTo("http://my.example.com"));
 
+    }
+
+    @Test
+    public void recordingDsl() {
+        startRecording(
+            recordSpec()
+                .forTarget("http://example.mocklab.io")
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .matchRequestBodyWithEqualToJson(false, true)
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .forTarget("http://example.mocklab.io")
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .matchRequestBodyWithEqualToJson(false, true)
+            .build()));
+    }
+
+    @Test
+    public void snapshotDsl() {
+        snapshotRecord(
+            recordSpec()
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .chooseBodyMatchTypeAutomatically()
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .chooseBodyMatchTypeAutomatically()
+            .build()));
     }
 }

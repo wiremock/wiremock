@@ -48,6 +48,12 @@ public class EqualToPatternTest {
     }
 
     @Test
+    public void matchesCaseInsensitive() {
+        StringValuePattern pattern = WireMock.equalToIgnoreCase("MaTchtHis");
+        assertThat(pattern.match("matchthis").isExactMatch(), is(true));
+    }
+
+    @Test
     public void correctlyDeserialisesEqualToFromJson() {
         StringValuePattern stringValuePattern = Json.read(
             "{                               \n" +
@@ -57,6 +63,20 @@ public class EqualToPatternTest {
 
         assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
         assertThat(stringValuePattern.getValue(), is("something"));
+    }
+
+    @Test
+    public void correctlyDeserialisesEqualToFromJsonWithIgnoreCase() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                              \n" +
+                "  \"equalTo\": \"something\",   \n" +
+                "  \"caseInsensitive\": true     \n" +
+                "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(EqualToPattern.class));
+        assertThat(stringValuePattern.getValue(), is("something"));
+        assertThat(((EqualToPattern) stringValuePattern).getCaseInsensitive(), is(true));
     }
 
     @Test

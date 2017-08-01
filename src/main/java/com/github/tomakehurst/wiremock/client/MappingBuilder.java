@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -25,7 +26,7 @@ public interface MappingBuilder {
     MappingBuilder atPriority(Integer priority);
     MappingBuilder withHeader(String key, StringValuePattern headerPattern);
     MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
-    MappingBuilder withRequestBody(StringValuePattern bodyPattern);
+    MappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
     ScenarioMappingBuilder inScenario(String scenarioName);
     MappingBuilder withId(UUID id);
     MappingBuilder withName(String name);

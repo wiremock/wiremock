@@ -30,12 +30,10 @@ import static com.google.common.collect.Iterables.filter;
 public class JsonFileMappingsSource implements MappingsSource {
 
 	private final FileSource mappingsFileSource;
-	private final VeryShortIdGenerator idGenerator;
 	private final Map<UUID, String> fileNameMap;
 
 	public JsonFileMappingsSource(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
-		idGenerator = new VeryShortIdGenerator();
 		fileNameMap = new HashMap<>();
 	}
 
@@ -52,7 +50,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 	public void save(StubMapping stubMapping) {
 		String mappingFileName = fileNameMap.get(stubMapping.getId());
 		if (mappingFileName == null) {
-			mappingFileName = "saved-mapping-" + idGenerator.generate() + ".json";
+			mappingFileName = SafeNames.makeSafeFileName(stubMapping);
 		}
 		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
         fileNameMap.put(stubMapping.getId(), mappingFileName);
