@@ -20,10 +20,13 @@ import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.Strings.DEFAULT_CHARSET;
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.google.common.base.Charsets.UTF_8;
 
 public class Gzip {
@@ -42,10 +45,18 @@ public class Gzip {
     }
 
     public static byte[] gzip(String plainContent) {
+        return gzip(plainContent, DEFAULT_CHARSET);
+    }
+
+    public static byte[] gzip(String plainContent, Charset charset) {
+        return gzip(bytesFromString(plainContent, charset));
+    }
+
+    public static byte[] gzip(byte[] plainContent) {
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(bytes);
-            gzipOutputStream.write(plainContent.getBytes(UTF_8));
+            gzipOutputStream.write(plainContent);
             gzipOutputStream.close();
             return bytes.toByteArray();
         } catch (IOException e) {

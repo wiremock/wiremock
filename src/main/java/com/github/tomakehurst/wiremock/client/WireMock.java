@@ -17,6 +17,9 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -31,8 +34,6 @@ import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
-import com.google.common.net.HttpHeaders;
-import org.apache.http.entity.ContentType;
 
 import java.io.File;
 import java.util.Collections;
@@ -152,6 +153,14 @@ public class WireMock {
 
     public static StringValuePattern equalTo(String value) {
         return new EqualToPattern(value);
+    }
+
+    public static BinaryEqualToPattern binaryEqualTo(byte[] content) {
+        return new BinaryEqualToPattern(content);
+    }
+
+    public static BinaryEqualToPattern binaryEqualTo(String content) {
+        return new BinaryEqualToPattern(content);
     }
 
 	public static StringValuePattern equalToIgnoreCase(String value) {
@@ -660,4 +669,56 @@ public class WireMock {
 		FileSource mappingsSource = new SingleRootFileSource(rootDir);
 		new RemoteMappingsLoader(mappingsSource, this).load();
 	}
+
+    public static List<StubMapping> snapshotRecord() {
+        return defaultInstance.get().takeSnapshotRecording();
+    }
+
+    public static List<StubMapping> snapshotRecord(RecordSpecBuilder spec) {
+        return defaultInstance.get().takeSnapshotRecording(spec);
+    }
+
+    public List<StubMapping> takeSnapshotRecording() {
+        return admin.snapshotRecord().getStubMappings();
+    }
+
+    public List<StubMapping> takeSnapshotRecording(RecordSpecBuilder spec) {
+        return admin.snapshotRecord(spec.build()).getStubMappings();
+    }
+
+    public static void startRecording(String targetBaseUrl) {
+        defaultInstance.get().startStubRecording(targetBaseUrl);
+    }
+
+    public static void startRecording(RecordSpecBuilder spec) {
+        defaultInstance.get().startStubRecording(spec);
+    }
+
+    public void startStubRecording(String targetBaseUrl) {
+        admin.startRecording(targetBaseUrl);
+    }
+
+    public void startStubRecording(RecordSpecBuilder spec) {
+        admin.startRecording(spec.build());
+    }
+
+    public static SnapshotRecordResult stopRecording() {
+        return defaultInstance.get().stopStubRecording();
+    }
+
+    public SnapshotRecordResult stopStubRecording() {
+        return admin.stopRecording();
+    }
+
+    public static RecordingStatusResult getRecordingStatus() {
+        return defaultInstance.get().getStubRecordingStatus();
+    }
+
+    public RecordingStatusResult getStubRecordingStatus() {
+        return admin.getRecordingStatus();
+    }
+
+    public static RecordSpecBuilder recordSpec() {
+        return new RecordSpecBuilder();
+    }
 }

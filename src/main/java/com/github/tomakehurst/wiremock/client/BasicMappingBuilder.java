@@ -86,7 +86,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     }
 
 	@Override
-	public BasicMappingBuilder withRequestBody(StringValuePattern bodyPattern) {
+	public BasicMappingBuilder withRequestBody(ContentPattern<?> bodyPattern) {
         requestPatternBuilder.withRequestBody(bodyPattern);
 		return this;
 	}

@@ -22,16 +22,11 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
-import com.github.tomakehurst.wiremock.matching.MultiValuePattern;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.BaseEncoding;
 
 import java.util.Collections;
 import java.util.List;
@@ -110,11 +105,18 @@ public class Diff {
             builder.add(SPACER);
         }
 
-        List<StringValuePattern> bodyPatterns = requestPattern.getBodyPatterns();
+        List<ContentPattern<?>> bodyPatterns = requestPattern.getBodyPatterns();
         if (bodyPatterns != null && !bodyPatterns.isEmpty()) {
-            for (StringValuePattern pattern: bodyPatterns) {
+            for (ContentPattern<?> pattern: bodyPatterns) {
                 String body = formatIfJsonOrXml(pattern);
-                builder.add(new Section<>(pattern, body, pattern.getExpected()));
+                if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
+                    StringValuePattern stringValuePattern = (StringValuePattern) pattern;
+                    builder.add(new Section<>(stringValuePattern, body, pattern.getExpected()));
+                } else {
+                    BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
+                    builder.add(new Section<>(nonStringPattern, body.getBytes(), pattern.getExpected()));
+                }
+
             }
         }
 
@@ -128,13 +130,15 @@ public class Diff {
         return sections.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
     }
 
-    private String formatIfJsonOrXml(StringValuePattern pattern) {
+    private String formatIfJsonOrXml(ContentPattern<?> pattern) {
         try {
             return pattern.getClass().equals(EqualToJsonPattern.class) ?
                 Json.prettyPrint(request.getBodyAsString()) :
                 pattern.getClass().equals(EqualToXmlPattern.class) ?
                     Xml.prettyPrint(request.getBodyAsString()) :
-                    request.getBodyAsString();
+                    pattern.getClass().equals(BinaryEqualToPattern.class) ?
+                        BaseEncoding.base64().encode(request.getBody()):
+                        request.getBodyAsString();
         } catch (Exception e) {
             return request.getBodyAsString();
         }

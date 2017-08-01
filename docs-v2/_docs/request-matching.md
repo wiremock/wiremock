@@ -193,6 +193,62 @@ JSON:
 }
 ```
 
+### Case-insensitive equality
+
+Deems a match if the entire attribute value equals the expected value, ignoring case.
+
+Java:
+
+```java
+.withHeader("Content-Type", equalToIgnoreCase("application/json"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "headers": {
+      "Content-Type": {
+        "equalTo": "application/json",
+        "caseInsensitive": true
+      }
+    }
+    ...
+  },
+  ...
+}
+```
+
+### Binary Equality
+
+Deems a match if the entire binary attribute value equals the expected value. Unlike the above equalTo operator, this compares byte arrays (or their equivalent base64 representation).
+
+Java:
+
+```java
+// Specifying the expected value as a byte array
+.withRequestBody(binaryEqualTo(new byte[] { 1, 2, 3 }))
+
+// Specifying the expected value as a base64 String
+.withRequestBody(binaryEqualTo("AQID"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [{
+        "binaryEqualTo" : "AQID" // Base 64
+    }]
+    ...
+  },
+  ...
+}
+```
 
 ### Substring (contains)
 

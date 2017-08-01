@@ -28,11 +28,15 @@ import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.net.HttpHeaders;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -41,6 +45,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
+import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -366,6 +372,21 @@ public class ProxyAcceptanceTest {
         LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/multi-value-header"))));
 
         assertThat(lastRequest.header("Accept").values(), hasItems("accept1", "accept2"));
+    }
+
+    @Test
+    public void maintainsGZippedRequest() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
+        proxyingServiceAdmin.register(post("/gzipped").willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        HttpEntity gzippedBody = new GzipCompressingEntity(new StringEntity("gzipped body", TEXT_PLAIN));
+        testClient.post("/gzipped", gzippedBody);
+
+        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/gzipped"))
+            .withHeader(CONTENT_ENCODING, containing("gzip"))
+            .withRequestBody(equalTo("gzipped body")));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

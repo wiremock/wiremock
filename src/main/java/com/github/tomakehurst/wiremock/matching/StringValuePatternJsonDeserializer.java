@@ -59,11 +59,17 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return StringValuePattern.ABSENT;
         }
 
+        return buildStringValuePattern(rootNode);
+    }
+
+    public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
         } else if (patternClass.equals(MatchesXPathPattern.class)) {
             return deserialiseMatchesXPathPattern(rootNode);
+        } else if (patternClass.equals(EqualToPattern.class)) {
+            return deserializeEqualTo(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
@@ -77,14 +83,26 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
     }
 
+    private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("equalTo")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        String operand = rootNode.findValue("equalTo").textValue();
+        Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
+
+        return new EqualToPattern(operand, ignoreCase);
+    }
+
     private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {
         if (!rootNode.has("equalToJson")) {
             throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
         }
 
         String operand = rootNode.findValue("equalToJson").textValue();
-        boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
-        boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
+
+        Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
+        Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
         return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
     }
@@ -114,8 +132,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         return builder.build();
     }
 
-    private static boolean fromNullable(JsonNode node) {
-        return node != null && node.asBoolean();
+    private static Boolean fromNullable(JsonNode node) {
+        return node == null ? null : node.asBoolean();
     }
 
     @SuppressWarnings("unchecked")

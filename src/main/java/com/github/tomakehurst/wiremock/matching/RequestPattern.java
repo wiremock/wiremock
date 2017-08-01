@@ -48,7 +48,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final Map<String, MultiValuePattern> queryParams;
     private final Map<String, StringValuePattern> cookies;
     private final BasicCredentials basicAuthCredentials;
-    private final List<StringValuePattern> bodyPatterns;
+    private final List<ContentPattern<?>> bodyPatterns;
 
     private CustomMatcherDefinition customMatcherDefinition;
     private ValueMatcher<Request> matcher;
@@ -79,7 +79,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           Map<String, MultiValuePattern> queryParams,
                           Map<String, StringValuePattern> cookies,
                           BasicCredentials basicAuthCredentials,
-                          List<StringValuePattern> bodyPatterns,
+                          List<ContentPattern<?>> bodyPatterns,
                           CustomMatcherDefinition customMatcherDefinition) {
         this.url = url;
         this.method = firstNonNull(method, RequestMethod.ANY);
@@ -102,7 +102,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           @JsonProperty("queryParameters") Map<String, MultiValuePattern> queryParams,
                           @JsonProperty("cookies") Map<String, StringValuePattern> cookies,
                           @JsonProperty("basicAuth") BasicCredentials basicAuthCredentials,
-                          @JsonProperty("bodyPatterns") List<StringValuePattern> bodyPatterns,
+                          @JsonProperty("bodyPatterns") List<ContentPattern<?>> bodyPatterns,
                           @JsonProperty("customMatcher") CustomMatcherDefinition customMatcherDefinition) {
 
         this(
@@ -220,14 +220,21 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return MatchResult.exactMatch();
     }
 
+    @SuppressWarnings("unchecked")
     private MatchResult allBodyPatternsMatch(final Request request) {
         if (bodyPatterns != null && !bodyPatterns.isEmpty() && request.getBody() != null) {
             return MatchResult.aggregate(
-                from(bodyPatterns).transform(new Function<StringValuePattern, MatchResult>() {
+                from(bodyPatterns).transform(new Function<ContentPattern, MatchResult>() {
                     @Override
-                    public MatchResult apply(StringValuePattern pattern) {
-                        return pattern.match(request.getBodyAsString());
+                    public MatchResult apply(ContentPattern pattern) {
+                        if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
+                            return pattern.match(request.getBodyAsString());
+                        }
+
+                        return ((BinaryEqualToPattern) pattern).match(request.getBody());
                     }
+
+
                 }).toList()
             );
         }
@@ -284,7 +291,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return cookies;
     }
 
-    public List<StringValuePattern> getBodyPatterns() {
+    public List<ContentPattern<?>> getBodyPatterns() {
         return bodyPatterns;
     }
 

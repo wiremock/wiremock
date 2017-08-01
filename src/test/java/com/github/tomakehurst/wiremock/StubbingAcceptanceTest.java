@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -43,6 +45,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -271,6 +274,23 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         response = testClient.putWithBody("/match/this/body/too", "BlahBlahBlah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
     }
+
+	@Test
+	public void matchingOnRequestBodyWithBinaryEqualTo() {
+		byte[] requestBody = new byte[] { 1, 2, 3 };
+
+		stubFor(post("/match/binary")
+			.withRequestBody(binaryEqualTo(requestBody))
+			.willReturn(ok("Matched binary"))
+        );
+
+        WireMockResponse response = testClient.post("/match/binary", new ByteArrayEntity(new byte[] { 9 }, APPLICATION_OCTET_STREAM));
+        assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+		response = testClient.post("/match/binary", new ByteArrayEntity(requestBody, APPLICATION_OCTET_STREAM));
+		assertThat(response.statusCode(), is(HTTP_OK));
+
+	}
 
 	@Test
 	public void responseWithFixedDelay() {
