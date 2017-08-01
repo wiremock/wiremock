@@ -24,9 +24,46 @@ export class MappingViewComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  saveMappings(): void{
+    this.wiremockService.saveMappings().subscribe(data =>{
+      //TODO: show popup with save ok.
+    }, err =>{
+      //TODO: show popup with error
+    })
+  }
+
+  resetMappings(): void{
+    this.wiremockService.resetMappings().subscribe(data =>{
+      this.refreshMappings();
+    }, err =>{
+      //TODO: show popup with error
+    })
+  }
+
+  removeMapping(): void{
+    this.wiremockService.deleteMapping(this.selectedMapping.uuid).subscribe(data =>{
+      //it worked fine
+      this.refreshMappings();
+    }, err =>{
+      //TODO: show popup with error
+    });
+  }
+
+  deleteAllMappings(): void{
+    this.wiremockService.deleteAllMappings().subscribe(data =>{
+      //it worked fine
+      this.refreshMappings();
+      this.selectedMapping = null;
+    }, err =>{
+      //TODO: show popup with error
+    });
+  }
+
   private refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
+        // this.cdr.detach();
         this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
+        // this.cdr.reattach();
       },
       err => {
         console.log("failed!", err);

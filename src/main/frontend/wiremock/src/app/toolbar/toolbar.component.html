@@ -18,20 +18,20 @@
         Dark Theme
       </md-slide-toggle>
       <md-divider></md-divider>
-      <button md-menu-item>
+      <button md-menu-item (click)="startRecording()">
         <md-icon>radio_button_checked</md-icon>
-        <span>Enable Recording</span>
+        <span>Start Recording</span>
       </button>
-      <button md-menu-item>
-        <md-icon>radio_button_checked</md-icon>
-        <span>Restart Recording</span>
-      </button>
-      <button md-menu-item>
+      <!--<button md-menu-item>-->
+        <!--<md-icon>radio_button_checked</md-icon>-->
+        <!--<span>Restart Recording</span>-->
+      <!--</button>-->
+      <button md-menu-item (click)="stopRecording()">
         <md-icon>stop</md-icon>
-        <span>Disable Recording</span>
+        <span>Stop Recording</span>
       </button>
       <md-divider></md-divider>
-      <button md-menu-item>
+      <button md-menu-item (click)="shutdown()">
         <md-icon>power_settings_new</md-icon>
         <span>Shutdown</span>
       </button>

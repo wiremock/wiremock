@@ -15,6 +15,7 @@ export class ListComponent implements OnInit, OnChanges {
   @Output('onSelect')
   selectEmitter = new EventEmitter();
   selectedItemId: string;
+  selectedItemPageIndex: number;
 
   pager: any = {};
   pagedItems: Item[];
@@ -41,11 +42,13 @@ export class ListComponent implements OnInit, OnChanges {
     }
 
     if (UtilService.isUndefined(this.items)) {
+      //We have no items. This is default config
       this.pagedItems = [];
       this.currentPage = 1;
     } else {
+      //We have some items. Initialize the pager and set the pagedItems
       this.currentPage = page;
-      this.pager = this.pagerService.getPager(this.items.length, page, 200);
+      this.pager = this.pagerService.getPager(this.items.length, page, 50);
       this.pagedItems = this.items.slice(this.pager.startIndex, this.pager.endIndex + 1);
 
       this.selectPrev();
@@ -60,20 +63,28 @@ export class ListComponent implements OnInit, OnChanges {
   private selectPrev(): void {
     if (UtilService.isDefined(this.pagedItems) && this.pagedItems.length > 0) {
       let found = false;
-      for (const item of this.pagedItems) {
+      //Search for item to select
+      let item: Item;
+      for (let index = 0; index < this.pagedItems.length; index++) {
+        item = this.pagedItems[index];
         if (item.getId() === this.selectedItemId) {
-          this.selectEmitter.emit(item);
+          this.itemSelected(item, index);
           found = true;
         }
       }
       if (!found) {
-        this.itemSelected(this.pagedItems[0]);
+        if(this.selectedItemPageIndex > 0 && this.selectedItemPageIndex < this.pagedItems.length){
+          this.itemSelected(this.pagedItems[this.selectedItemPageIndex], this.selectedItemPageIndex);
+        }else{
+          this.itemSelected(this.pagedItems[0], 0);
+        }
       }
     }
   }
 
-  itemSelected(item: Item): void {
+  itemSelected(item: Item, index: number): void {
     this.selectedItemId = item.getId();
+    this.selectedItemPageIndex = index;
     this.selectEmitter.emit(item);
   }
 

@@ -8,13 +8,13 @@
     <div class="wmActionToolbar">
       <button md-raised-button><md-icon>add_circle</md-icon> New</button>
       <button md-raised-button><md-icon>mode_edit</md-icon> Edit</button>
-      <button md-raised-button><md-icon>delete</md-icon> Remove</button>
+      <button md-raised-button (click)="removeMapping()"><md-icon>delete</md-icon> Remove</button>
 
       <button md-raised-button [mdMenuTriggerFor]="mappings">Mappings <md-icon>more_vert</md-icon></button>
       <md-menu #mappings="mdMenu">
-        <button md-menu-item><md-icon>save</md-icon> Save Mappings</button>
-        <button md-menu-item><md-icon>autorenew</md-icon> Reload File-Mappings</button>
-        <button md-menu-item><md-icon>delete</md-icon> Reset Mappings</button>
+        <button md-menu-item (click)="saveMappings()"><md-icon>save</md-icon> Save Mappings</button>
+        <button md-menu-item (click)="resetMappings()"><md-icon>autorenew</md-icon> Reset Mappings</button>
+        <button md-menu-item (click)="deleteAllMappings()"><md-icon>delete</md-icon> Remove all Mappings</button>
       </md-menu>
 
       <button md-raised-button [mdMenuTriggerFor]="scenarios">Scenarios <md-icon>more_vert</md-icon></button>

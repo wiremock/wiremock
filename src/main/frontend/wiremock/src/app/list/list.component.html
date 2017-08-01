@@ -6,5 +6,5 @@
   <a class="wmPageItem" (click)="setPage(pager.totalPages)" [class.wmPageDisabled]="pager.totalPages == pager.currentPage"><md-icon>last_page</md-icon></a>
 </div>
 <md-nav-list class="wmNavList">
-  <wm-list-entry *ngFor="let item of pagedItems; let i = index" [first]="i == 0" [item]="item" [selected]="isSelected(item)" (onSelect)="itemSelected(item)"></wm-list-entry>
+  <wm-list-entry *ngFor="let item of pagedItems; let i = index" [first]="i == 0" [item]="item" [selected]="isSelected(item)" (onSelect)="itemSelected(item, i)"></wm-list-entry>
 </md-nav-list>
