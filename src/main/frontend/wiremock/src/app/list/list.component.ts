@@ -33,12 +33,12 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   setPage(page: number): void {
-    if (page < 1) {
-      page = 1;
-    }
-
     if (page > this.pager.totalPages) {
       page = this.pager.totalPages;
+    }
+
+    if (page < 1) {
+      page = 1;
     }
 
     if (UtilService.isUndefined(this.items)) {

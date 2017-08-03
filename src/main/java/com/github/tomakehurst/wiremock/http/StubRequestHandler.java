@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.jetty9.sse.SseBroadcaster;
+import com.github.tomakehurst.wiremock.jetty9.sse.SseMessage;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
@@ -58,6 +60,12 @@ public class StubRequestHandler extends AbstractRequestHandler {
     @Override
     protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
         requestJournal.requestReceived(serveEvent);
+
+	    if (serveEvent.getWasMatched()) {
+		    SseBroadcaster.INSTANCE.sendMessage(SseMessage.MATCHED);
+	    }else{
+		    SseBroadcaster.INSTANCE.sendMessage(SseMessage.UNMATCHED);
+	    }
     }
 
     @Override

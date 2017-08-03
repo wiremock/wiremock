@@ -8,7 +8,7 @@
   /*We need to set this because of currentColor*/
   .wmSearchForm{
     color: mat-color($foreground, text);
-    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 5));
   }
 
 }

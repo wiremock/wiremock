@@ -25,9 +25,7 @@ export class ListViewComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // this.filteredItem = UtilService.deepSearch(this.items, '', false);
     this.onSearchChanged(this.lastSearch);
-    // this.filteredItem = this.items;
   }
 
   onSearchChanged(search: SearchEvent){
@@ -37,6 +35,11 @@ export class ListViewComponent implements OnInit, OnChanges {
       // this.filteredItem = UtilService.deepSearch(this.items, '', false);
     }else{
       this.filteredItem = UtilService.deepSearch(this.items, '', false);
+    }
+
+    //We deselect an item when there are no results.
+    if(UtilService.isUndefined(this.filteredItem) || this.filteredItem.length == 0){
+      this.selectEmitter.emit(null);
     }
   }
 

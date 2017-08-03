@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty9.sse.SseServlet;
 import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
@@ -331,6 +332,7 @@ public class JettyHttpServer implements HttpServer {
         adminContext.addServlet(DefaultServlet.class, "/swagger-ui/*");
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
         adminContext.addServlet(DefaultServlet.class, "/webapp/*");
+        adminContext.addServlet(SseServlet.class, "/sse/*");
 
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());
@@ -348,6 +350,7 @@ public class JettyHttpServer implements HttpServer {
 
         return adminContext;
     }
+
 
     private static class NetworkTrafficListenerAdapter implements NetworkTrafficListener {
         private final WiremockNetworkTrafficListener wiremockNetworkTrafficListener;

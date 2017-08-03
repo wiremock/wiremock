@@ -8,7 +8,7 @@
 
   .mat-toolbar{
     //background-color: $background;
-    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 5));
     color:  mat-color($foreground, text);
     border-bottom: 1px solid if($is-dark-theme, rgba(map-get(wiremock-theme($theme), 'foregroundLight'), 0.3), rgba(0, 0, 0, 0.2));
   }

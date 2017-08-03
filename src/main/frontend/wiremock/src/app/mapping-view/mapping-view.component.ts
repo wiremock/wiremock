@@ -3,6 +3,9 @@ import {WiremockService} from '../services/wiremock.service';
 import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {UtilService} from '../services/util.service';
+import {SseService} from '../services/sse.service';
+import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Rx';
 
 @Component({
   selector: 'wm-mapping-view',
@@ -18,10 +21,27 @@ export class MappingViewComponent implements OnInit {
   editMode: State;
   State = State;
 
-  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef) { }
+  private refreshMappingsObserver: Observer<string>;
+
+  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService) {
+  }
 
   ngOnInit() {
     this.editMode = State.NORMAL;
+
+    Observable.create(observer =>{
+      this.refreshMappingsObserver = observer;
+    }).debounceTime(200).subscribe(next =>{
+      this.refreshMappings();
+    });
+
+    this.sseService.register("message",data => {
+      if(data.data === 'mappings'){
+        // this.refreshMappings();
+        this.refreshMappingsObserver.next(data.data);
+      }
+    });
+
     this.refreshMappings();
   }
 
@@ -100,7 +120,6 @@ export class MappingViewComponent implements OnInit {
     this.wiremockService.deleteAllMappings().subscribe(data =>{
       //it worked fine
       this.refreshMappings();
-      this.selectedMapping = null;
     }, err =>{
       //TODO: show popup with error
     });
@@ -117,9 +136,11 @@ export class MappingViewComponent implements OnInit {
 
   private refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
-        // this.cdr.detach();
         this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
-        // this.cdr.reattach();
+        if(UtilService.isUndefined(this.mappingResult) || UtilService.isUndefined(this.mappingResult.mappings)
+          || this.mappingResult.mappings.length == 0){
+          this.selectedMapping = null;
+        }
       },
       err => {
         console.log("failed!", err);
