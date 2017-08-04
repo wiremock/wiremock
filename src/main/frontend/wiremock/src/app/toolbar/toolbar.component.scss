@@ -42,16 +42,17 @@ a{
   text-decoration: none;
 }
 
-#wmThemeToggle {
+.wmSlide {
   height: 48px;
+  display: block;
 }
 
-::ng-deep #wmThemeToggle .mat-slide-toggle-content{
+::ng-deep .wmSlide .mat-slide-toggle-content{
   line-height: 48px;
   font-size: 16px;
 }
 
-::ng-deep #wmThemeToggle .mat-slide-toggle-bar{
+::ng-deep .wmSlide .mat-slide-toggle-bar{
   margin-left: 8px;
   margin-right: 16px;
 }

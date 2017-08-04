@@ -1,4 +1,5 @@
-<md-tab-group class="wmTabGroup">
+<!--<md-tab-group class="wmTabGroup">-->
+<md-tab-group class="wmTabGroup" [@.disabled]="tabSlideDisabled()">
   <md-tab label="Raw">
     <ng-content select="wm-tab-view-raw"></ng-content>
   </md-tab>

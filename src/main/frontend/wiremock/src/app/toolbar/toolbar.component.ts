@@ -10,6 +10,7 @@ import {WiremockService} from '../services/wiremock.service';
 export class ToolbarComponent implements OnInit {
 
   isDarkTheme: boolean;
+  isTabSlide: boolean;
 
   @Output('themeChanged')
   eventEmitter = new EventEmitter();
@@ -23,8 +24,13 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    const isDarkTheme = this.cookieService.getCookie('darkTheme');
-    this.isDarkTheme = (isDarkTheme == 'true');
+    this.isDarkTheme = this.cookieService.getCookie('darkTheme') == 'true';
+    this.isTabSlide = this.cookieService.getCookie("tabSlide") == 'true';
+  }
+
+  changeTabSlide(): void{
+    this.isTabSlide = !this.isTabSlide;
+    this.cookieService.setCookie("tabSlide",  String(this.isTabSlide), 7300);
   }
 
   shutdown(): void{

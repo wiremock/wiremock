@@ -14,8 +14,11 @@
       <md-icon>more_horiz</md-icon>
     </button>
     <md-menu #wmGeneralMenu="mdMenu">
-      <md-slide-toggle color="primary" [checked]="isDarkTheme" (change)="changeTheme()" id="wmThemeToggle">
+      <md-slide-toggle color="primary" [checked]="isDarkTheme" (change)="changeTheme()" class="wmSlide">
         Dark Theme
+      </md-slide-toggle>
+      <md-slide-toggle color="primary" [checked]="isTabSlide" (change)="changeTabSlide()" class="wmSlide">
+        TabSlide
       </md-slide-toggle>
       <md-divider></md-divider>
       <button md-menu-item (click)="startRecording()">

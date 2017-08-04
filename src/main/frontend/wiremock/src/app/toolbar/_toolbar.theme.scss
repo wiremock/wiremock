@@ -21,7 +21,7 @@
     color:  mat-color(map-get($theme, primary));
   }
 
-  #wmThemeToggle .mat-slide-toggle-content{
+  .wmSlide .mat-slide-toggle-content{
     color: mat-color($foreground, text);
   }
 
