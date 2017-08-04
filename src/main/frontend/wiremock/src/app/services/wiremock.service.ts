@@ -32,6 +32,10 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Post, 'scenarios/reset');
   }
 
+  getMatched(): Observable<Response>{
+    return this.createRequest(RequestMethod.Get, 'requests');
+  }
+
   startRecording(): Observable<Response>{
     return this.createRequest(RequestMethod.Post, 'recordings/start');
   }

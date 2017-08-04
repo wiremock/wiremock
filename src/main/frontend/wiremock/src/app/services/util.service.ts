@@ -174,4 +174,12 @@ export class UtilService {
     }
   }
 
+  public static toJson(value: any): string{
+    if(UtilService.isUndefined(value)){
+      return '';
+    }else{
+      return JSON.stringify(value);
+    }
+  }
+
 }

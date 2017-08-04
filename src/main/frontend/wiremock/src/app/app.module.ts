@@ -24,6 +24,7 @@ import { TabViewSeparatedDirective } from './tab-view/tab-view-separated.directi
 import {UtilService} from './services/util.service';
 import {PagerService} from './services/pager.service';
 import {SseService} from './services/sse.service';
+import { MatchedViewComponent } from './matched-view/matched-view.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import {SseService} from './services/sse.service';
     ToolbarComponent,
     TabViewComponent,
     TabViewRawDirective,
-    TabViewSeparatedDirective
+    TabViewSeparatedDirective,
+    MatchedViewComponent
   ],
   imports: [
     BrowserModule,

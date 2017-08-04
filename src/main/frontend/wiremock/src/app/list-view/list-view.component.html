@@ -1,6 +1,4 @@
-<div class="wmList">
-  <wm-list [items]="filteredItem" (onSelect)="onSelect($event)"></wm-list>
-</div>
+<wm-list [items]="filteredItem" (onSelect)="onSelect($event)" class="wmList"></wm-list>
 <div class="wmContentContainer">
   <div class="wmSearch">
     <wm-search (onSearchChanged)="onSearchChanged($event)"></wm-search>

@@ -1,0 +1,42 @@
+<wm-list-view #listView [items]="matchedResult?.requests"  (onSelect)="setSelectedMatched($event)">
+  <wm-list-view-content>
+    <wm-matched [selectedMatched]="selectedMatched"></wm-matched>
+  </wm-list-view-content>
+  <!--<wm-list-view-actions>-->
+    <!--&lt;!&ndash;<md-toolbar class="wmActionToolbar">&ndash;&gt;-->
+    <!--<div class="wmActionToolbar" *ngIf="editMode == State.NORMAL">-->
+      <!--<button md-raised-button (click)="setEditMode(State.NEW)"><md-icon>add_circle</md-icon> New</button>-->
+      <!--<button md-raised-button [disabled]="!selectedMapping" (click)="setEditMode(State.EDIT)"><md-icon>mode_edit</md-icon> Edit</button>-->
+      <!--<button md-raised-button [disabled]="!selectedMapping" (click)="removeMapping()"><md-icon>delete</md-icon> Remove</button>-->
+
+      <!--<button md-raised-button [mdMenuTriggerFor]="mappings">Mappings <md-icon>more_vert</md-icon></button>-->
+      <!--<md-menu #mappings="mdMenu">-->
+        <!--<button md-menu-item [disabled]="mappingResult?.mappings?.length === 0" (click)="saveMappings()">-->
+          <!--<md-icon>save</md-icon> Save Mappings-->
+        <!--</button>-->
+        <!--<button md-menu-item (click)="resetMappings()">-->
+          <!--<md-icon>autorenew</md-icon> Reset Mappings-->
+        <!--</button>-->
+        <!--<button md-menu-item [disabled]="mappingResult?.mappings?.length === 0" (click)="deleteAllMappings()">-->
+          <!--<md-icon>delete</md-icon> Remove all Mappings-->
+        <!--</button>-->
+      <!--</md-menu>-->
+
+      <!--<button md-raised-button [mdMenuTriggerFor]="scenarios">Scenarios <md-icon>more_vert</md-icon></button>-->
+      <!--<md-menu #scenarios="mdMenu">-->
+        <!--&lt;!&ndash; TODO: not possible yet. A new method is needed. Maybe /scenarios/reset/{id} &ndash;&gt;-->
+        <!--&lt;!&ndash;<button md-menu-item><md-icon>replay</md-icon> Reset selected Scenario</button>&ndash;&gt;-->
+        <!--<button md-menu-item (click)="resetScenarios()"><md-icon>autorenew</md-icon> Reset all Scenarios</button>-->
+      <!--</md-menu>-->
+    <!--</div>-->
+    <!--<div class="wmActionToolbar" *ngIf="editMode == State.EDIT">-->
+      <!--<button md-raised-button (click)="saveEditedMapping()"><md-icon>save</md-icon> Save</button>-->
+      <!--<button md-raised-button (click)="setEditMode(State.NORMAL)"><md-icon>cancel</md-icon> Cancel</button>-->
+    <!--</div>-->
+    <!--<div class="wmActionToolbar" *ngIf="editMode == State.NEW">-->
+      <!--<button md-raised-button (click)="saveNewMapping()"><md-icon>save</md-icon> Save</button>-->
+      <!--<button md-raised-button (click)="setEditMode(State.NORMAL)"><md-icon>cancel</md-icon> Cancel</button>-->
+    <!--</div>-->
+    <!--&lt;!&ndash;</md-toolbar>&ndash;&gt;-->
+  <!--</wm-list-view-actions>-->
+</wm-list-view>

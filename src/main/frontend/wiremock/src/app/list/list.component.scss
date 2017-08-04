@@ -3,7 +3,7 @@ md-list-item{
 }
 
 .wmNavList{
-  height: calc(100% - 32px);
+  //height: calc(100% - 32px);
   overflow-y: auto;
 }
 
@@ -14,6 +14,7 @@ md-list-item{
 .wmPagination{
   display: flex;
   flex-wrap: wrap;
+  flex: 0 0 auto;
 }
 
 .wmPageItem{
@@ -30,4 +31,10 @@ md-list-item{
 
 .wmPageDisabled:hover{
  cursor: not-allowed;
+}
+
+.wmListContainer{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
