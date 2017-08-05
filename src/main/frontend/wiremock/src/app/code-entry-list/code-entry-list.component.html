@@ -11,5 +11,5 @@
   </ng-container>
 
   <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-  <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
+  <md-row *cdkRowDef="let row; columns: displayedColumns;" [class.invisible]="getEmptyCodeEntriesHidden(row.value)"></md-row>
 </md-table>

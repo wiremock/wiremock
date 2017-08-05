@@ -1,5 +1,10 @@
 <div class="wmListContainer">
-  <div *ngIf="pager.pages && pager.pages.length && pager.pages.length > 1" class="wmPagination">
+  <div *ngIf="pager.pages && pager.pages.length && pager.pages.length > 0" class="wmPagination">
+    <form>
+      <md-select [ngModel]="pagerMaxItemsPerPage" (change)="setPagerMaxItemsPerPage($event)" color="accent" name="pagerMaxItemsPerPage" class="pagerMaxItemsPerPage" title="Items per page">
+        <md-option *ngFor="let option of pagerMaxItemsPerPageOptions" [value]="option">{{option}}</md-option>
+      </md-select>
+    </form>
     <a class="wmPageItem" (click)="setPage(1)" [class.wmPageDisabled]="pager.currentPage === 1"><md-icon>first_page</md-icon></a>
     <a class="wmPageItem" (click)="setPage(pager.currentPage - 1)" [class.wmPageDisabled]="pager.currentPage === 1"><md-icon>navigate_before</md-icon></a>
     <a class="wmPageItem" *ngFor="let page of pager.pages" (click)="setPage(page)" [class.wmPageActive]="page == pager.currentPage">{{page}}</a>

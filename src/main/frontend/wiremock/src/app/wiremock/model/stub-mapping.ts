@@ -28,6 +28,7 @@ export class StubMapping implements Item{
     return this;
   }
 
+
   getTitle(): string {
     return this.request.url || this.request.urlPattern || this.request.urlPath || this.request.urlPathPattern;
   }

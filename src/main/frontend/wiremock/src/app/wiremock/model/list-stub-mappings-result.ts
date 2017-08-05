@@ -1,4 +1,5 @@
 import {StubMapping} from './stub-mapping';
+import {UtilService} from '../../services/util.service';
 
 export class ListStubMappingsResult {
   meta: any;
@@ -12,5 +13,9 @@ export class ListStubMappingsResult {
     });
 
     return this;
+  }
+
+  public static hasItems(value : ListStubMappingsResult): boolean{
+    return UtilService.isDefined(value) && UtilService.isDefined(value.mappings) && value.mappings.length > 0;
   }
 }

@@ -22,6 +22,7 @@ export class ListViewComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit() {
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -32,7 +33,6 @@ export class ListViewComponent implements OnInit, OnChanges {
     this.lastSearch = search;
     if(UtilService.isDefined(search)){
       this.filteredItem = UtilService.deepSearch(this.items, search.text, search.caseSensitive);
-      // this.filteredItem = UtilService.deepSearch(this.items, '', false);
     }else{
       this.filteredItem = UtilService.deepSearch(this.items, '', false);
     }
@@ -46,5 +46,4 @@ export class ListViewComponent implements OnInit, OnChanges {
   onSelect(item: Item){
     this.selectEmitter.emit(item);
   }
-
 }

@@ -4,6 +4,7 @@
 <wm-list-view #listView [items]="mappingResult?.mappings"  (onSelect)="setSelectedMapping($event)">
   <wm-list-view-content>
     <wm-mapping [selectedMapping]="selectedMapping" *ngIf="editMode == State.NORMAL"></wm-mapping>
+    <!--<wm-mapping  *ngIf="editMode == State.NORMAL"></wm-mapping>-->
     <textarea spellcheck="false" class="wmEditTextArea" *ngIf="editMode == State.EDIT" (keydown)="handleTabKey($event)">{{getSelectedMappingText()}}</textarea>
     <textarea spellcheck="false" class="wmEditTextArea" *ngIf="editMode == State.NEW" (keydown)="handleTabKey($event)">{{getNewMappingText()}}</textarea>
   </wm-list-view-content>

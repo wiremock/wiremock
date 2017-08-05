@@ -5,26 +5,34 @@ export class PagerService {
 
   constructor() { }
 
-  getPager(totalItems: number, currentPage: number = 1, pageSize: number){
+  public getPager(totalItems: number, currentPage: number = 1, pageSize: number, maxShowPage: number | 10){
     // calculate total pages
     let totalPages = Math.ceil(totalItems / pageSize);
 
+    if (currentPage > totalPages) {
+      currentPage = totalPages;
+    }
+
+    if (currentPage < 1) {
+      currentPage = 1;
+    }
+
     let startPage: number, endPage: number;
-    if (totalPages <= 10) {
+    if (totalPages <= maxShowPage) {
       // less than 10 total pages so show all
       startPage = 1;
       endPage = totalPages;
     } else {
       // more than 10 total pages so calculate start and end pages
-      if (currentPage <= 6) {
+      if (currentPage <= maxShowPage / 2) {
         startPage = 1;
-        endPage = 10;
-      } else if (currentPage + 4 >= totalPages) {
-        startPage = totalPages - 9;
+        endPage = maxShowPage;
+      } else if (currentPage + (maxShowPage / 2 - 1) >= totalPages) {
+        startPage = totalPages - (maxShowPage - 1);
         endPage = totalPages;
       } else {
-        startPage = currentPage - 5;
-        endPage = currentPage + 4;
+        startPage = currentPage - Math.ceil(maxShowPage / 2 - 1);
+        endPage = startPage + maxShowPage - 1;
       }
     }
 
@@ -33,7 +41,6 @@ export class PagerService {
     let endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
 
     // create an array of pages to ng-repeat in the pager control
-    // let pages = _.range(startPage, endPage + 1);
     let pages = this.getPages(startPage, endPage + 1);
 
     // return object with all pager properties required by the view

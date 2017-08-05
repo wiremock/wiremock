@@ -14,7 +14,6 @@ import {Observable} from 'rxjs/Rx';
 })
 export class MappingViewComponent implements OnInit {
 
-
   mappingResult: ListStubMappingsResult;
   selectedMapping: StubMapping;
 
@@ -23,25 +22,27 @@ export class MappingViewComponent implements OnInit {
 
   private refreshMappingsObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService) {
+  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
     this.editMode = State.NORMAL;
 
+    //soft update of mappings can  be triggered via observer
     Observable.create(observer =>{
       this.refreshMappingsObserver = observer;
-    }).debounceTime(200).subscribe(next =>{
+    }).debounceTime(100).subscribe(next =>{
       this.refreshMappings();
     });
 
+    //SSE registration for mappings updates
     this.sseService.register("message",data => {
       if(data.data === 'mappings'){
-        // this.refreshMappings();
         this.refreshMappingsObserver.next(data.data);
       }
     });
 
+    //initial mapping fetch
     this.refreshMappings();
   }
 
@@ -87,8 +88,13 @@ export class MappingViewComponent implements OnInit {
   }
 
   setSelectedMapping(mapping: StubMapping){
+    // const checkNeeded: boolean = this.selectedMapping != mapping;
+    const checkNeeded: boolean = this.selectedMapping == null;
     this.selectedMapping = mapping;
-    this.cdr.detectChanges();
+    if(checkNeeded){
+      //We need to detect changes when the value was null before.
+      // this.cdr.detectChanges();
+    }
   }
 
   saveMappings(): void{
@@ -137,8 +143,12 @@ export class MappingViewComponent implements OnInit {
   private refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
         this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
-        if(UtilService.isUndefined(this.mappingResult) || UtilService.isUndefined(this.mappingResult.mappings)
-          || this.mappingResult.mappings.length == 0){
+
+        if(ListStubMappingsResult.hasItems(this.mappingResult)){
+          //We set the first item if none is set to prevent change after change detection.
+          //This improves the performance because we do not need to execute change detection manually.
+          this.selectedMapping = this.mappingResult.mappings[0];
+        }else{
           this.selectedMapping = null;
         }
       },

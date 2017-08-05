@@ -15,8 +15,8 @@
   .wmPageItem{
     border-top: $border;
     border-right: $border;
-    border-bottom: $border;
-    margin-bottom: -1px;
+    //border-bottom: $border;
+    //margin-bottom: -1px;
     background-color: $background;
   }
 
@@ -45,4 +45,15 @@
     color: mat-color($foreground, text);
     background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
   }
+
+  .pagerMaxItemsPerPage{
+    border-top: $border;
+    border-right: $border;
+    //border-bottom: $border;
+  }
+
+  .wmPagination{
+    border-bottom: $border;
+  }
+
 }

@@ -1,10 +1,12 @@
-import {ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {DataSource} from '@angular/cdk';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/map';
 import {UtilService} from '../services/util.service';
+import {CookieService} from '../services/cookie.service';
+import {SettingsService} from '../services/settings.service';
 
 @Component({
   selector: 'wm-code-entry-list',
@@ -13,23 +15,29 @@ import {UtilService} from '../services/util.service';
 })
 export class CodeEntryListComponent implements OnInit, OnChanges {
 
-
   @Input('entries')
   entries: DataEntries;
   dataSource: EntryDataSource | null;
 
   displayedColumns = ['key', 'value'];
 
-  constructor(private changeDetector: ChangeDetectorRef) { }
+  areEmptyCodeEntriesHidden: boolean;
+
+  constructor(private settingsService: SettingsService) { }
 
   ngOnInit() {
+    this.settingsService.codeEntriesHidden$.subscribe(next=>{
+      this.areEmptyCodeEntriesHidden = next;
+    })
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.dataSource = new EntryDataSource(this.entries);
-    this.changeDetector.detectChanges();
   }
 
+  getEmptyCodeEntriesHidden(value: any): boolean{
+    return this.areEmptyCodeEntriesHidden && UtilService.isBlank(value);
+  }
 }
 
 export class Entry{
@@ -60,7 +68,7 @@ export class DataEntries{
 
   addEntry(entry: Entry){
     if(entry.value == null || typeof entry.value === 'undefined'){
-      entry.value = "";
+      entry.value = '';
     }
     const copiedData = this.data.slice();
     copiedData.push(entry);

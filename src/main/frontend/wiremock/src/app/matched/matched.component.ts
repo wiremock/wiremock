@@ -14,15 +14,20 @@ export class MatchedComponent implements OnInit, OnChanges {
   selectedMatched: ServeEvent;
   code: string;
 
+  general: DataEntries;
+  request: DataEntries;
+  responseDefinition: DataEntries;
+
   constructor() { }
 
 
-  ngOnInit() {
-    this.code = UtilService.toJson(this.selectedMatched);
-  }
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     this.code = UtilService.toJson(this.selectedMatched);
+    this.general = this.getGeneral();
+    this.request = this.getRequest();
+    this.responseDefinition = this.getResponseDefinition();
   }
 
   isVisible(): boolean{

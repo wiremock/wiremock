@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CookieService} from '../services/cookie.service';
 import {WiremockService} from '../services/wiremock.service';
+import {SettingsService} from '../services/settings.service';
 
 @Component({
   selector: 'wm-toolbar',
@@ -11,26 +12,34 @@ export class ToolbarComponent implements OnInit {
 
   isDarkTheme: boolean;
   isTabSlide: boolean;
+  areEmptyCodeEntriesHidden: boolean;
+
 
   @Output('themeChanged')
   eventEmitter = new EventEmitter();
 
-  constructor(private cookieService: CookieService, private wiremockService: WiremockService) { }
+  constructor(private cookieService: CookieService, private wiremockService: WiremockService, private settingsService: SettingsService) { }
+
+  changeHideEmptyCodeEntries(): void{
+    this.areEmptyCodeEntriesHidden = !this.areEmptyCodeEntriesHidden;
+    this.settingsService.setEmptyCodeEntriesHidden(this.areEmptyCodeEntriesHidden);
+  }
 
   changeTheme(): void{
     this.isDarkTheme = !this.isDarkTheme;
-    this.cookieService.setCookie('darkTheme', String(this.isDarkTheme), 7300);
+    this.settingsService.setDarkTheme(this.isDarkTheme);
     this.eventEmitter.emit(this.isDarkTheme);
   }
 
   ngOnInit() {
-    this.isDarkTheme = this.cookieService.getCookie('darkTheme') == 'true';
-    this.isTabSlide = this.cookieService.getCookie("tabSlide") == 'true';
+    this.isDarkTheme = this.settingsService.isDarkTheme();
+    this.isTabSlide = this.settingsService.isTabSlide();
+    this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();
   }
 
   changeTabSlide(): void{
     this.isTabSlide = !this.isTabSlide;
-    this.cookieService.setCookie("tabSlide",  String(this.isTabSlide), 7300);
+    this.settingsService.setTabSlide(this.isTabSlide);
   }
 
   shutdown(): void{

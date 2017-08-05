@@ -1,5 +1,6 @@
 import {AfterViewChecked, Directive, ElementRef, Input, NgZone} from '@angular/core';
 import * as vkbeautify from 'vkbeautify';
+import {UtilService} from '../services/util.service';
 
 declare const hljs: any;
 
@@ -8,6 +9,7 @@ declare const hljs: any;
   selector: '[wm-highlight-js]'
 })
 export class HighlightJsDirective implements  AfterViewChecked{
+
 
   @Input('wm-highlight-js')
   code: string;
@@ -25,16 +27,33 @@ export class HighlightJsDirective implements  AfterViewChecked{
   }
 
   ngAfterViewChecked(): void {
+    this.highlight();
+  }
+
+  private highlight():void{
     //We compare the old with new value to prevent loop
     if(this.code == this.prevCode){
       return;
     }
+
+    if(this.language === 'plain'){
+      const code = this.elementRef.nativeElement;
+      code.classList.add('hljs');
+      this.prevCode = this.code;
+      code.innerHTML = this.code;
+      return;
+    }
+
+    if(UtilService.isBlank(this.code)){
+      const code = this.elementRef.nativeElement;
+      code.classList.add('hljs');
+      this.prevCode = this.code;
+      return;
+    }
+
     this.prevCode = this.code;
 
-
-
     this.zone.runOutsideAngular(() => {
-
       const code = this.elementRef.nativeElement;
 
       const prettyCode = this.prettify(this.code);

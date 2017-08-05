@@ -25,6 +25,8 @@ import {UtilService} from './services/util.service';
 import {PagerService} from './services/pager.service';
 import {SseService} from './services/sse.service';
 import { MatchedViewComponent } from './matched-view/matched-view.component';
+import {SettingsService} from './services/settings.service';
+import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,8 @@ import { MatchedViewComponent } from './matched-view/matched-view.component';
     TabViewComponent,
     TabViewRawDirective,
     TabViewSeparatedDirective,
-    MatchedViewComponent
+    MatchedViewComponent,
+    UnmatchedViewComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +53,7 @@ import { MatchedViewComponent } from './matched-view/matched-view.component';
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService, SseService],
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService, SseService, SettingsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

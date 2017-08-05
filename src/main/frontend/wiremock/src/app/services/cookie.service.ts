@@ -6,7 +6,7 @@ export class CookieService {
   constructor() {
   }
 
-  public getCookie(name: string): string {
+  public static getCookie(name: string): string {
     let ca: Array<string> = document.cookie.split(';');
     let caLen: number = ca.length;
     let cookieName = `${name}=`;
@@ -21,11 +21,11 @@ export class CookieService {
     return '';
   }
 
-  public deleteCookie(name): void {
-    this.setCookie(name, '', -1);
+  public static deleteCookie(name): void {
+    CookieService.setCookie(name, '', -1);
   }
 
-  public setCookie(name: string, value: string, expireDays: number, path: string = ''): void {
+  public static setCookie(name: string, value: string, expireDays: number, path: string = ''): void {
     let d: Date = new Date();
     d.setTime(d.getTime() + expireDays * 24 * 60 * 60 * 1000);
     let expires: string = 'expires=' + d.toUTCString();

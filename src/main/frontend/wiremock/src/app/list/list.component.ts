@@ -2,6 +2,8 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
 import {PagerService} from '../services/pager.service';
 import {UtilService} from '../services/util.service';
 import {Item} from '../wiremock/model/item';
+import {MdSelectChange} from '@angular/material';
+import {SettingsService} from '../services/settings.service';
 
 @Component({
   selector: 'wm-list',
@@ -21,11 +23,26 @@ export class ListComponent implements OnInit, OnChanges {
   pagedItems: Item[];
   currentPage: number;
 
-  constructor(private pagerService: PagerService) {
+  pagerMaxItemsPerPage: number;
+  pagerMaxItemsPerPageOptions:number[] = [10,20,40,60,80,100,150,200];
+
+  constructor(private pagerService: PagerService, private settingsService: SettingsService) {
   }
 
   ngOnInit() {
+    this.pagerMaxItemsPerPage = this.settingsService.getPagerMaxItemsPerPage();
     this.setPage(1);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.setPage(this.currentPage);
+    this.selectPrev();
+  }
+
+  setPagerMaxItemsPerPage(value: MdSelectChange){
+    this.pagerMaxItemsPerPage = value.value;
+    this.settingsService.setPagerMaxItemsPerPage(this.pagerMaxItemsPerPage);
+    this.setPage(this.currentPage);
   }
 
   isSelected(item: Item): boolean{
@@ -33,31 +50,18 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   setPage(page: number): void {
-    if (page > this.pager.totalPages) {
-      page = this.pager.totalPages;
-    }
-
-    if (page < 1) {
-      page = 1;
-    }
-
     if (UtilService.isUndefined(this.items)) {
       //We have no items. This is default config
       this.pagedItems = [];
       this.currentPage = 1;
     } else {
       //We have some items. Initialize the pager and set the pagedItems
-      this.currentPage = page;
-      this.pager = this.pagerService.getPager(this.items.length, page, 50);
+      this.pager = this.pagerService.getPager(this.items.length, page, this.pagerMaxItemsPerPage, 8);
       this.pagedItems = this.items.slice(this.pager.startIndex, this.pager.endIndex + 1);
 
+      this.currentPage = this.pager.currentPage;
       this.selectPrev();
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    this.setPage(this.currentPage);
-    this.selectPrev();
   }
 
   private selectPrev(): void {
@@ -83,6 +87,9 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   itemSelected(item: Item, index: number): void {
+    if(this.selectedItemId == item.getId()){
+      return;
+    }
     this.selectedItemId = item.getId();
     this.selectedItemPageIndex = index;
     this.selectEmitter.emit(item);

@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CookieService} from './services/cookie.service';
+import {SettingsService} from './services/settings.service';
 
 @Component({
   selector: 'wm-root',
@@ -10,11 +11,10 @@ export class AppComponent implements OnInit{
 
   isDarkTheme: boolean = false;
 
-  constructor(private cookieService: CookieService) { }
+  constructor(private settingsService: SettingsService) { }
 
   ngOnInit(): void {
-    const isDarkTheme = this.cookieService.getCookie('darkTheme');
-    this.isDarkTheme = (isDarkTheme == 'true');
+    this.isDarkTheme = this.settingsService.isDarkTheme();
   }
 
   changeTheme(isDarkTheme: boolean): void{

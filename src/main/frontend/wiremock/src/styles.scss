@@ -36,6 +36,16 @@ wm-list-view > div {
   flex-grow: 1;
 }
 
+.pagerMaxItemsPerPage .mat-select-trigger{
+  min-width: 50px!important;
+  max-width: 50px!important;;
+  width: 50px!important;;
+}
+
+.pagerMaxItemsPerPage .mat-select-value{
+  padding-left: 4px!important;
+}
+
 .mat-list-item-content{
   height: auto! important;
   min-height: 32px;

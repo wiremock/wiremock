@@ -21,19 +21,21 @@ export class MatchedViewComponent implements OnInit {
   constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService) { }
 
   ngOnInit() {
+    //soft update of mappings can  be triggered via observer
     Observable.create(observer =>{
       this.refreshMatchedObserver = observer;
     }).debounceTime(200).subscribe(next =>{
       this.refreshMatched();
     });
 
+    //SSE registration for mappings updates
     this.sseService.register("message",data => {
       if(data.data === 'matched'){
-        // this.refreshMappings();
         this.refreshMatchedObserver.next(data.data);
       }
     });
 
+    //initial matched fetch
     this.refreshMatched();
   }
 

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {CookieService} from '../services/cookie.service';
+import {SettingsService} from '../services/settings.service';
 
 @Component({
   selector: 'wm-tab-view',
@@ -8,13 +9,13 @@ import {CookieService} from '../services/cookie.service';
 })
 export class TabViewComponent implements OnInit {
 
-  constructor(private cookieService: CookieService) { }
+  constructor(private settingsService: SettingsService) { }
 
   ngOnInit() {
   }
 
-  tabSlideDisabled(): boolean{
-    return this.cookieService.getCookie("tabSlide") !== 'true';
+  tabSlide(): boolean{
+    return this.settingsService.isTabSlide();
   }
 
 }

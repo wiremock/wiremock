@@ -2,6 +2,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
 import {UtilService} from 'app/services/util.service';
+import {Data} from '@angular/router';
 
 @Component({
   selector: 'wm-mapping',
@@ -14,14 +15,20 @@ export class MappingComponent implements OnInit, OnChanges {
   selectedMapping: StubMapping | null;
   code: string;
 
+  general: DataEntries;
+  request: DataEntries;
+  responseDefinition: DataEntries;
+
+
   constructor() { }
 
-  ngOnInit() {
-    this.code = UtilService.toJson(this.selectedMapping);
-  }
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
     this.code = UtilService.toJson(this.selectedMapping);
+    this.general = this.getGeneral();
+    this.request = this.getRequest();
+    this.responseDefinition = this.getResponseDefinition();
   }
 
   isVisible(): boolean{
@@ -33,12 +40,12 @@ export class MappingComponent implements OnInit, OnChanges {
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
       return dataEntries;
     }
-    dataEntries.addEntry(new Entry('uuid', this.selectedMapping.uuid, ''));
-    dataEntries.addEntry(new Entry('name', this.selectedMapping.name, ''));
-    dataEntries.addEntry(new Entry('priority', this.selectedMapping.priority, ''));
-    dataEntries.addEntry(new Entry('scenarioName', this.selectedMapping.scenarioName, ''));
-    dataEntries.addEntry(new Entry('requiredScenarioState', this.selectedMapping.requiredScenarioState, ''));
-    dataEntries.addEntry(new Entry('newScenarioState', this.selectedMapping.newScenarioState, ''));
+    dataEntries.addEntry(new Entry('uuid', this.selectedMapping.uuid, 'plain'));
+    dataEntries.addEntry(new Entry('name', this.selectedMapping.name, 'plain'));
+    dataEntries.addEntry(new Entry('priority', this.selectedMapping.priority, 'plain'));
+    dataEntries.addEntry(new Entry('scenarioName', this.selectedMapping.scenarioName, 'plain'));
+    dataEntries.addEntry(new Entry('requiredScenarioState', this.selectedMapping.requiredScenarioState, 'plain'));
+    dataEntries.addEntry(new Entry('newScenarioState', this.selectedMapping.newScenarioState, 'plain'));
 
     return dataEntries;
   }

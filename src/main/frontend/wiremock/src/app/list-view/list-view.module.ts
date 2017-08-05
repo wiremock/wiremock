@@ -10,6 +10,7 @@ import {MaterialModule} from '../material/material.module';
 import {ListComponent} from '../list/list.component';
 import {ListEntryComponent} from '../list-entry/list-entry.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {SettingsService} from '../services/settings.service';
 
 @NgModule({
   imports: [
