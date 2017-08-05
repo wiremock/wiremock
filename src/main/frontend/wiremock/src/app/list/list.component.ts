@@ -13,9 +13,15 @@ import {SettingsService} from '../services/settings.service';
 export class ListComponent implements OnInit, OnChanges {
   @Input('items')
   items: Item[];
+  itemsWereNull: boolean;
+
+  @Input('selectByItemId')
+  selectByItemId: string;
 
   @Output('onSelect')
   selectEmitter = new EventEmitter();
+
+  selectedItem: Item;
   selectedItemId: string;
   selectedItemPageIndex: number;
 
@@ -35,8 +41,12 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.setPage(this.currentPage);
-    this.selectPrev();
+    if(UtilService.isDefined(changes.selectByItemId)){
+      this.selectedItemId = changes.selectByItemId.currentValue;
+    }else{
+      this.setPage(this.currentPage);
+    }
+    // this.selectPrev();
   }
 
   setPagerMaxItemsPerPage(value: MdSelectChange){
@@ -50,6 +60,7 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   setPage(page: number): void {
+    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
     if (UtilService.isUndefined(this.items)) {
       //We have no items. This is default config
       this.pagedItems = [];
@@ -58,10 +69,9 @@ export class ListComponent implements OnInit, OnChanges {
       //We have some items. Initialize the pager and set the pagedItems
       this.pager = this.pagerService.getPager(this.items.length, page, this.pagerMaxItemsPerPage, 8);
       this.pagedItems = this.items.slice(this.pager.startIndex, this.pager.endIndex + 1);
-
       this.currentPage = this.pager.currentPage;
-      this.selectPrev();
     }
+    this.selectPrev();
   }
 
   private selectPrev(): void {
@@ -87,9 +97,16 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   itemSelected(item: Item, index: number): void {
-    if(this.selectedItemId == item.getId()){
+    // if(this.selectedItemId == item.getId() && ! this.itemsWereNull){
+    //   this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
+    //   return;
+    // }
+    if(this.selectedItem == item && ! this.itemsWereNull){
+      this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
       return;
     }
+    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
+    this.selectedItem = item;
     this.selectedItemId = item.getId();
     this.selectedItemPageIndex = index;
     this.selectEmitter.emit(item);

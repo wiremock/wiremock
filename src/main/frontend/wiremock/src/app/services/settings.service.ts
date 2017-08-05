@@ -10,7 +10,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class SettingsService {
   private darkTheme: boolean;
   private tabSlide: boolean;
-  private codeEntriesHidden = new BehaviorSubject<boolean>(false);
+  private codeEntriesHidden = new BehaviorSubject<boolean>(null);
   codeEntriesHidden$ = this.codeEntriesHidden.asObservable();
 
   private pagerMaxItemsPerPage: number;
@@ -38,7 +38,6 @@ export class SettingsService {
   areEmptyCodeEntriesHidden(): boolean{
     if(UtilService.isUndefined(this.codeEntriesHidden.getValue())){
       this.codeEntriesHidden.next(CookieService.getCookie(this.getCookieKey(Settings.EMPTY_CODE_ENTRIES_HIDDEN)) === 'true');
-      // this.codeEntriesHidden = CookieService.getCookie(this.getCookieKey(Settings.EMPTY_CODE_ENTRIES_HIDDEN)) === 'true';
     }
     return this.codeEntriesHidden.getValue();
   }

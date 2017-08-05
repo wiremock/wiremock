@@ -1,14 +1,11 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'wm-code-entry',
   templateUrl: './code-entry.component.html',
   styleUrls: ['./code-entry.component.scss']
 })
-export class CodeEntryComponent implements OnInit, OnChanges {
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log("change");
-  }
+export class CodeEntryComponent implements OnInit {
   @Input('code')
   code: any;
 

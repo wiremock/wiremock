@@ -12,6 +12,9 @@ export class ListViewComponent implements OnInit, OnChanges {
   @Input('items')
   items: Item[];
 
+  @Input('selectByItemId')
+  selectByItemId: string;
+
   filteredItem : Item[];
 
   @Output('onSelect')
@@ -26,7 +29,11 @@ export class ListViewComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.onSearchChanged(this.lastSearch);
+    if(UtilService.isDefined(changes.selectByItemId)){
+      this.selectByItemId = changes.selectByItemId.currentValue;
+    }else{
+      this.onSearchChanged(this.lastSearch);
+    }
   }
 
   onSearchChanged(search: SearchEvent){
@@ -39,7 +46,7 @@ export class ListViewComponent implements OnInit, OnChanges {
 
     //We deselect an item when there are no results.
     if(UtilService.isUndefined(this.filteredItem) || this.filteredItem.length == 0){
-      this.selectEmitter.emit(null);
+      this.onSelect(null);
     }
   }
 

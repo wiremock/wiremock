@@ -27,6 +27,7 @@ import {SseService} from './services/sse.service';
 import { MatchedViewComponent } from './matched-view/matched-view.component';
 import {SettingsService} from './services/settings.service';
 import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.component';
+import { TabEnabledDirective } from './directives/tab-enabled.directive';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.componen
     TabViewRawDirective,
     TabViewSeparatedDirective,
     MatchedViewComponent,
-    UnmatchedViewComponent
+    UnmatchedViewComponent,
+    TabEnabledDirective
   ],
   imports: [
     BrowserModule,

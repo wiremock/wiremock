@@ -28,7 +28,8 @@ export class CodeEntryListComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.settingsService.codeEntriesHidden$.subscribe(next=>{
       this.areEmptyCodeEntriesHidden = next;
-    })
+    });
+    this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

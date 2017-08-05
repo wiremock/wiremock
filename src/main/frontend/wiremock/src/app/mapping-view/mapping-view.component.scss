@@ -2,13 +2,22 @@ button{
   margin-right: 5px;
 }
 
+.wmEditTextArea{
+  width: calc(100% - 14px);
+  /* - padding and border*/
+  height: calc(100% - 62px);
+  resize: none;
+  padding: 0.5em;
+  border: 0;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 .wmActionToolbar{
   padding: 0 10px 10px;
 }
 
-.wmEditTextArea{
-  width: calc(100% - 6px);
-  /* - padding and border*/
-  height: calc(100% - 6px);
-  resize: none;
+.wmTabSpacer{
+  height: 48px;
 }

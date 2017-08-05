@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http, RequestMethod, RequestOptions, Request, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
+import {StubMapping} from '../wiremock/model/stub-mapping';
 
 @Injectable()
 export class WiremockService {
@@ -22,6 +23,14 @@ export class WiremockService {
 
   deleteAllMappings(): Observable<Response>{
     return this.createRequest(RequestMethod.Delete, 'mappings');
+  }
+
+  saveMapping(id: string, mapping: string){
+    return this.createRequest(RequestMethod.Put, 'mappings/' + id, mapping);
+  }
+
+  saveNewMapping(mapping: string){
+    return this.createRequest(RequestMethod.Post, 'mappings', mapping);
   }
 
   deleteMapping(id: string): Observable<Response>{
@@ -52,16 +61,15 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Post, 'shutdown');
   }
 
-
-
-  private createRequest(method: RequestMethod, query: string): Observable<Response>{
-    return this.http.request(new Request(WiremockService.options(method, query)));
+  private createRequest(method: RequestMethod, query: string, body?: any): Observable<Response>{
+    return this.http.request(new Request(WiremockService.options(method, query, body)));
   }
 
-  private static options(method: RequestMethod, query: string){
+  private static options(method: RequestMethod, query: string, body: any){
     return new RequestOptions({
       method: method,
-      url: environment.url + query
+      url: environment.url + query,
+      body: typeof body === 'string' ? body : JSON.stringify(body)
     });
   }
 }

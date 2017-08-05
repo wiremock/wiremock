@@ -2,7 +2,6 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {StubMapping} from '../wiremock/model/stub-mapping';
 import {DataEntries, Entry} from '../code-entry-list/code-entry-list.component';
 import {UtilService} from 'app/services/util.service';
-import {Data} from '@angular/router';
 
 @Component({
   selector: 'wm-mapping',
@@ -56,12 +55,12 @@ export class MappingComponent implements OnInit, OnChanges {
       return dataEntries;
     }
 
-    dataEntries.addEntry(new Entry('url', this.selectedMapping.request.url, ''));
-    dataEntries.addEntry(new Entry('urlPattern', this.selectedMapping.request.urlPattern, ''));
-    dataEntries.addEntry(new Entry('urlPath', this.selectedMapping.request.urlPath, ''));
-    dataEntries.addEntry(new Entry('urlPathPattern', this.selectedMapping.request.urlPathPattern, ''));
+    dataEntries.addEntry(new Entry('url', this.selectedMapping.request.url, 'plain'));
+    dataEntries.addEntry(new Entry('urlPattern', this.selectedMapping.request.urlPattern, 'plain'));
+    dataEntries.addEntry(new Entry('urlPath', this.selectedMapping.request.urlPath, 'plain'));
+    dataEntries.addEntry(new Entry('urlPathPattern', this.selectedMapping.request.urlPathPattern, 'plain'));
     dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedMapping.request.url),'', 'params'));
-    dataEntries.addEntry(new Entry('method', this.selectedMapping.request.method, ''));
+    dataEntries.addEntry(new Entry('method', this.selectedMapping.request.method, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedMapping.request.headers), 'json'));
     dataEntries.addEntry(new Entry('queryParameters', this.selectedMapping.request.queryParameters, ''));
     dataEntries.addEntry(new Entry('cookies', UtilService.toJson(this.selectedMapping.request.cookies), 'json'));

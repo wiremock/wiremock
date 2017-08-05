@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
 import {WiremockService} from '../services/wiremock.service';
 import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
 import {StubMapping} from '../wiremock/model/stub-mapping';
@@ -16,16 +16,22 @@ export class MappingViewComponent implements OnInit {
 
   mappingResult: ListStubMappingsResult;
   selectedMapping: StubMapping;
+  selectedMappingText: string;
+  newMappingText: string;
+
+
+  selectByItemId: string;
 
   editMode: State;
   State = State;
 
   private refreshMappingsObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef) {
+  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef, private zone: NgZone) {
   }
 
   ngOnInit() {
+    this.newMappingText = UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
     this.editMode = State.NORMAL;
 
     //soft update of mappings can  be triggered via observer
@@ -48,53 +54,46 @@ export class MappingViewComponent implements OnInit {
 
   setEditMode(value: State){
     this.editMode = value;
+    this.selectedMappingText = this.getSelectedMappingText();
+    this.newMappingText = this.getNewMappingsText();
   }
 
-  saveEditedMapping(): void{
-    //TODO: save mapping
-    this.editMode = State.NORMAL;
-  }
-
-  saveNewMapping(): void{
-    //TODO: save mapping
-    this.editMode = State.NORMAL;
-  }
-
-  handleTabKey(event: any):void{
-    //TODO: not working properly.
-    if(event.which === 9){
-      event.preventDefault();
-
-      const elem = event.target;
-
-      // get caret position/selection
-      const start = elem.selectionStart;
-      const end = elem.selectionEnd;
-
-      const text = elem.innerHTML;
-
-      elem.innerHTML = text.substring(0, start) + "\t" + text.substring(end);
-
-      event.target.selectionStart = event.target.selectionEnd = start + 1;
-    }
-  }
-
-  getSelectedMappingText(): string{
+  private getSelectedMappingText(): string{
     return UtilService.prettify(JSON.stringify(this.selectedMapping));
   }
 
-  getNewMappingText(): string{
+  private getNewMappingsText(): string{
     return UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
   }
 
   setSelectedMapping(mapping: StubMapping){
-    // const checkNeeded: boolean = this.selectedMapping != mapping;
-    const checkNeeded: boolean = this.selectedMapping == null;
+    // const checkNeeded: boolean = UtilService.isUndefined(this.selectedMapping) && this.selectedMapping != mapping;
     this.selectedMapping = mapping;
-    if(checkNeeded){
-      //We need to detect changes when the value was null before.
-      // this.cdr.detectChanges();
-    }
+    this.selectedMappingText = this.getSelectedMappingText();
+
+    this.cdr.detectChanges();
+  }
+
+  saveEditedMapping(): void{
+    this.wiremockService.saveMapping(this.selectedMapping.getId(), this.selectedMappingText).subscribe(response =>{
+      this.setEditMode(State.NORMAL);
+    }, err => {
+      //TODO: popup
+      console.log(err);
+    });
+  }
+
+  saveNewMapping(): void{
+    this.wiremockService.saveNewMapping(this.newMappingText).subscribe(response =>{
+      this.setEditMode(State.NORMAL);
+      const newMapping = new StubMapping().deserialize(response.json());
+      this.selectByItemId = newMapping.getId();
+
+      //TODO: select saved mapping
+    }, err => {
+      //TODO: popup
+      console.log(err);
+    });
   }
 
   saveMappings(): void{
@@ -107,16 +106,15 @@ export class MappingViewComponent implements OnInit {
 
   resetMappings(): void{
     this.wiremockService.resetMappings().subscribe(data =>{
-      this.refreshMappings();
+      //No feedback necessary
     }, err =>{
       //TODO: show popup with error
     })
   }
 
   removeMapping(): void{
-    this.wiremockService.deleteMapping(this.selectedMapping.uuid).subscribe(data =>{
-      //it worked fine
-      this.refreshMappings();
+    this.wiremockService.deleteMapping(this.selectedMapping.getId()).subscribe(data =>{
+      //No feedback necessary
     }, err =>{
       //TODO: show popup with error
     });
@@ -124,8 +122,7 @@ export class MappingViewComponent implements OnInit {
 
   deleteAllMappings(): void{
     this.wiremockService.deleteAllMappings().subscribe(data =>{
-      //it worked fine
-      this.refreshMappings();
+      //No feedback necessary
     }, err =>{
       //TODO: show popup with error
     });
@@ -133,24 +130,17 @@ export class MappingViewComponent implements OnInit {
 
   resetScenarios(): void{
     this.wiremockService.resetScenarios().subscribe(data =>{
-      //it worked fine
-      //TODO: feedback?
+      //TODO: show popup with rest ok.
     }, err =>{
       //TODO: show popup with error
     });
   }
 
-  private refreshMappings(){
+
+
+  refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
         this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
-
-        if(ListStubMappingsResult.hasItems(this.mappingResult)){
-          //We set the first item if none is set to prevent change after change detection.
-          //This improves the performance because we do not need to execute change detection manually.
-          this.selectedMapping = this.mappingResult.mappings[0];
-        }else{
-          this.selectedMapping = null;
-        }
       },
       err => {
         console.log("failed!", err);
@@ -163,4 +153,5 @@ export enum State {
   EDIT,
   NEW,
 }
+
 
