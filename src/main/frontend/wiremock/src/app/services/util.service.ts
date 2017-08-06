@@ -217,6 +217,18 @@ export class UtilService {
     if (UtilService.isUndefined(code)) {
       return '';
     }
+
+    // try {
+    //   return vkbeautify.xml(code);
+    // } catch (err) {
+    //   try {
+    //     return vkbeautify.json(code);
+    //   } catch (err2) {
+    //     return code;
+    //   }
+    // }
+
+
     try {
       return vkbeautify.json(code);
     } catch (err) {

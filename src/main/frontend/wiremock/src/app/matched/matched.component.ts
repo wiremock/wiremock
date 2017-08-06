@@ -64,7 +64,7 @@ export class MatchedComponent implements OnInit, OnChanges {
     dataEntries.addEntry(new Entry('browserProxyRequest', UtilService.toJson(this.selectedMatched.request.isBrowserProxyRequest), 'plain'));
     dataEntries.addEntry(new Entry('loggedDate', this.selectedMatched.request.loggedDate, 'plain'));
     dataEntries.addEntry(new Entry('Date', new Date(this.selectedMatched.request.loggedDate), 'plain'));
-    dataEntries.addEntry(new Entry('body', UtilService.toJson(this.selectedMatched.request.body), 'json'));
+    dataEntries.addEntry(new Entry('body', this.selectedMatched.request.body, ''));
     dataEntries.addEntry(new Entry('bodyAsBase64', UtilService.toJson(this.selectedMatched.request.bodyAsBase64), 'plain'));
 
     return dataEntries;
@@ -79,7 +79,7 @@ export class MatchedComponent implements OnInit, OnChanges {
     dataEntries.addEntry(new Entry('status', this.selectedMatched.response.status, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedMatched.response.headers), 'json'));
     dataEntries.addEntry(new Entry('body', this.selectedMatched.response.body, ''));
-    dataEntries.addEntry(new Entry('bodyAsBase64', this.selectedMatched.response.bodyAsBase64, ''));
+    dataEntries.addEntry(new Entry('bodyAsBase64', this.selectedMatched.response.bodyAsBase64, 'plain'));
     dataEntries.addEntry(new Entry('fault', this.selectedMatched.response.fault, ''));
 
     return dataEntries;

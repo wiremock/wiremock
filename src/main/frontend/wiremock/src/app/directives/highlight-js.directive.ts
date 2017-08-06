@@ -1,5 +1,4 @@
 import {AfterViewChecked, Directive, ElementRef, Input, NgZone} from '@angular/core';
-import * as vkbeautify from 'vkbeautify';
 import {UtilService} from '../services/util.service';
 
 declare const hljs: any;
@@ -56,7 +55,8 @@ export class HighlightJsDirective implements  AfterViewChecked{
     this.zone.runOutsideAngular(() => {
       const code = this.elementRef.nativeElement;
 
-      const prettyCode = this.prettify(this.code);
+      // const prettyCode = this.prettify(this.code);
+      const prettyCode = UtilService.prettify(this.code);
       code.classList.add('hljs');
 
       try {
@@ -74,20 +74,4 @@ export class HighlightJsDirective implements  AfterViewChecked{
       }
     });
   }
-
-  prettify(code: string): string{
-    if (code === null || typeof code === 'undefined') {
-      return '';
-    }
-    try {
-      return vkbeautify.json(code);
-    } catch (err) {
-      try{
-        return vkbeautify.xml(code);
-      }catch(err2){
-        return code;
-      }
-    }
-  }
-
 }
