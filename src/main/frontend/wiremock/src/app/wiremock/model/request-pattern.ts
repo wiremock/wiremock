@@ -1,4 +1,3 @@
-
 export class RequestPattern {
 
   url: string;
@@ -14,6 +13,9 @@ export class RequestPattern {
   customMatcher: any;
 
   deserialize(unchecked: RequestPattern): RequestPattern{
+
+    console.log(this.headers);
+
     return unchecked;
     // this.url = unchecked.url;
     // this.urlPattern = unchecked.urlPattern;

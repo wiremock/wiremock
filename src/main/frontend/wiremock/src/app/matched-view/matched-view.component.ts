@@ -4,6 +4,8 @@ import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {SseService} from '../services/sse.service';
 import {GetServeEventsResult} from '../wiremock/model/get-serve-events-result';
+import {Message, MessageService, MessageType} from '../message/message.service';
+import {UtilService} from '../services/util.service';
 
 
 @Component({
@@ -18,7 +20,7 @@ export class MatchedViewComponent implements OnInit {
 
   private refreshMatchedObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService) { }
+  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService, private messageService: MessageService) { }
 
   ngOnInit() {
     //soft update of mappings can  be triggered via observer
@@ -47,21 +49,16 @@ export class MatchedViewComponent implements OnInit {
     this.wiremockService.resetJournal().subscribe(next =>{
       //nothing to show
     }, err=>{
-      //TODO: show message
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
   refreshMatched(): void{
     this.wiremockService.getMatched().subscribe(data => {
         this.matchedResult = new GetServeEventsResult().deserialize(data.json(), true);
-
-        // if(UtilService.isUndefined(this.matchedResult) || UtilService.isUndefined(this.matchedResult.requests)
-        //   || this.matchedResult.requests.length == 0){
-        //   this.selectedMatched = null;
-        // }
       },
       err => {
-        console.log("failed!", err);
+        UtilService.showErrorMessage(this.messageService, err);
       });
   }
 

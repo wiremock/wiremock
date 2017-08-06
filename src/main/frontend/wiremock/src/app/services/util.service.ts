@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Item} from '../wiremock/model/item';
 import * as vkbeautify from 'vkbeautify';
+import {Message, MessageService, MessageType} from '../message/message.service';
 
 @Injectable()
 export class UtilService {
@@ -12,6 +13,10 @@ export class UtilService {
   private static SOAP_METHOD_REGEX = null;
 
   constructor() {
+  }
+
+  public static showErrorMessage(messageService: MessageService, err: any): void{
+    messageService.setMessage(new Message(err.statusText + ": status=" + err.status + ", message=", MessageType.ERROR, 10000, err._body));
   }
 
   public static getSoapRecognizeRegex(): RegExp {

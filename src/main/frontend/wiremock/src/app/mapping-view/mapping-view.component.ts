@@ -6,6 +6,7 @@ import {UtilService} from '../services/util.service';
 import {SseService} from '../services/sse.service';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Rx';
+import {Message, MessageService, MessageType} from '../message/message.service';
 
 @Component({
   selector: 'wm-mapping-view',
@@ -27,7 +28,7 @@ export class MappingViewComponent implements OnInit {
 
   private refreshMappingsObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef, private zone: NgZone) {
+  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef, private messageService: MessageService) {
   }
 
   ngOnInit() {
@@ -37,7 +38,7 @@ export class MappingViewComponent implements OnInit {
     //soft update of mappings can  be triggered via observer
     Observable.create(observer =>{
       this.refreshMappingsObserver = observer;
-    }).debounceTime(100).subscribe(next =>{
+    }).debounceTime(100).subscribe(() =>{
       this.refreshMappings();
     });
 
@@ -51,6 +52,8 @@ export class MappingViewComponent implements OnInit {
     //initial mapping fetch
     this.refreshMappings();
   }
+
+
 
   setEditMode(value: State){
     this.editMode = value;
@@ -67,19 +70,28 @@ export class MappingViewComponent implements OnInit {
   }
 
   setSelectedMapping(mapping: StubMapping){
-    // const checkNeeded: boolean = UtilService.isUndefined(this.selectedMapping) && this.selectedMapping != mapping;
     this.selectedMapping = mapping;
     this.selectedMappingText = this.getSelectedMappingText();
 
     this.cdr.detectChanges();
   }
 
+  saveMapping(): void{
+    switch(this.editMode){
+      case State.EDIT:
+        this.saveEditedMapping();
+        break;
+      case State.NEW:
+        this.saveNewMapping();
+        break;
+    }
+  }
+
   saveEditedMapping(): void{
     this.wiremockService.saveMapping(this.selectedMapping.getId(), this.selectedMappingText).subscribe(response =>{
       this.setEditMode(State.NORMAL);
     }, err => {
-      //TODO: popup
-      console.log(err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -88,19 +100,16 @@ export class MappingViewComponent implements OnInit {
       this.setEditMode(State.NORMAL);
       const newMapping = new StubMapping().deserialize(response.json());
       this.selectByItemId = newMapping.getId();
-
-      //TODO: select saved mapping
     }, err => {
-      //TODO: popup
-      console.log(err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
   saveMappings(): void{
     this.wiremockService.saveMappings().subscribe(data =>{
-      //TODO: show popup with save ok.
+      this.messageService.setMessage(new Message("Mappings saved", MessageType.INFO,3000));
     }, err =>{
-      //TODO: show popup with error
+      UtilService.showErrorMessage(this.messageService, err);
     })
   }
 
@@ -108,7 +117,7 @@ export class MappingViewComponent implements OnInit {
     this.wiremockService.resetMappings().subscribe(data =>{
       //No feedback necessary
     }, err =>{
-      //TODO: show popup with error
+      UtilService.showErrorMessage(this.messageService, err);
     })
   }
 
@@ -116,7 +125,7 @@ export class MappingViewComponent implements OnInit {
     this.wiremockService.deleteMapping(this.selectedMapping.getId()).subscribe(data =>{
       //No feedback necessary
     }, err =>{
-      //TODO: show popup with error
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -124,27 +133,99 @@ export class MappingViewComponent implements OnInit {
     this.wiremockService.deleteAllMappings().subscribe(data =>{
       //No feedback necessary
     }, err =>{
-      //TODO: show popup with error
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
   resetScenarios(): void{
     this.wiremockService.resetScenarios().subscribe(data =>{
-      //TODO: show popup with rest ok.
+      this.messageService.setMessage(new Message("Scenarios has been reset", MessageType.INFO,3000));
     }, err =>{
-      //TODO: show popup with error
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
+  //################ HELPER ###################
+  getMappingForHelper(): StubMapping{
+    switch (this.editMode){
+      case State.NEW:
+        return JSON.parse(this.newMappingText);
+      case State.EDIT:
+        return JSON.parse(this.selectedMappingText);
+    }
+  }
 
+  setMappingForHelper(mapping:StubMapping): void{
+    switch (this.editMode){
+      case State.NEW:
+        this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
+      case State.EDIT:
+        this.selectedMappingText = UtilService.prettify(JSON.stringify(mapping));
+    }
+  }
+
+  helperAddDelay(): void{
+    try{
+      const mapping:StubMapping = this.getMappingForHelper();
+      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) && UtilService.isUndefined(mapping.response.fixedDelayMilliseconds)){
+        mapping.response.fixedDelayMilliseconds = 2000;
+        this.setMappingForHelper(mapping);
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
+    }
+  }
+
+  helperAddPriority(): void{
+    try{
+      const mapping:StubMapping = this.getMappingForHelper();
+      if(UtilService.isDefined(mapping) && UtilService.isUndefined(mapping.priority)){
+        mapping.priority = 1;
+        this.setMappingForHelper(mapping);
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
+    }
+  }
+
+  helperAddHeaderRequest(): void{
+    try{
+      const mapping:StubMapping = this.getMappingForHelper();
+      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.request) && UtilService.isUndefined(mapping.request.headers)){
+        mapping.request.headers = {"Content-Type": {
+          "matches": ".*/xml"
+        }};
+        this.setMappingForHelper(mapping);
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
+    }
+  }
+
+  helperAddHeaderResponse(): void{
+    try{
+      const mapping:StubMapping = this.getMappingForHelper();
+      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) && UtilService.isUndefined(mapping.response.headers)){
+        mapping.response.headers = {"Content-Type": "application/json"};
+        this.setMappingForHelper(mapping);
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
+    }
+  }
+
+  private showHelperErrorMessage(err: any){
+    this.messageService.setMessage(new Message(err.name + ": message=" + err.message + ", lineNumber=" + err.lineNumber + ", columnNumber=" + err.columnNumber,
+      MessageType.ERROR,10000));
+  }
 
   refreshMappings(){
     this.wiremockService.getMappings().subscribe(data => {
-        this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
-      },
-      err => {
-        console.log("failed!", err);
-      });
+      this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
+    },
+    err => {
+      UtilService.showErrorMessage(this.messageService, err);
+    });
   }
 }
 

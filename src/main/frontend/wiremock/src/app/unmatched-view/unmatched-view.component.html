@@ -1,6 +1,6 @@
-<wm-list-view [items]="matchedResult?.requests"  (onSelect)="setSelectedMatched($event)">
+<wm-list-view [items]="unmatchedResult?.requests" (onSelect)="setSelectedMatched($event)">
   <wm-list-view-content>
-    <wm-unmatched [selectedUnmatched]="selectedMatched"></wm-unmatched>
+    <wm-unmatched [selectedUnmatched]="selectedUnmatched"></wm-unmatched>
   </wm-list-view-content>
   <wm-list-view-actions>
     <div class="wmActionToolbar">

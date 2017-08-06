@@ -11,7 +11,7 @@
       <button md-raised-button [disabled]="!selectedMapping" (click)="setEditMode(State.EDIT)"><md-icon>mode_edit</md-icon> Edit</button>
       <button md-raised-button [disabled]="!selectedMapping" (click)="removeMapping()"><md-icon>delete</md-icon> Remove</button>
 
-      <button md-raised-button [mdMenuTriggerFor]="mappings">Mappings <md-icon>more_vert</md-icon></button>
+      <button md-raised-button [mdMenuTriggerFor]="mappings"><md-icon>more_vert</md-icon> Mappings</button>
       <md-menu #mappings="mdMenu">
         <button md-menu-item [disabled]="mappingResult?.mappings?.length === 0" (click)="saveMappings()">
           <md-icon>save</md-icon> Save Mappings
@@ -24,20 +24,44 @@
         </button>
       </md-menu>
 
-      <button md-raised-button [mdMenuTriggerFor]="scenarios">Scenarios <md-icon>more_vert</md-icon></button>
+      <button md-raised-button [mdMenuTriggerFor]="scenarios"><md-icon>more_vert</md-icon> Scenarios</button>
       <md-menu #scenarios="mdMenu">
         <!-- TODO: not possible yet. A new method is needed. Maybe /scenarios/reset/{id} -->
         <!--<button md-menu-item><md-icon>replay</md-icon> Reset selected Scenario</button>-->
         <button md-menu-item (click)="resetScenarios()"><md-icon>autorenew</md-icon> Reset all Scenarios</button>
       </md-menu>
     </div>
-    <div class="wmActionToolbar" *ngIf="editMode == State.EDIT">
-      <button md-raised-button (click)="saveEditedMapping()"><md-icon>save</md-icon> Save</button>
+    <div class="wmActionToolbar" *ngIf="editMode == State.EDIT || editMode == State.NEW">
+      <button md-raised-button (click)="saveMapping()"><md-icon>save</md-icon> Save</button>
       <button md-raised-button (click)="setEditMode(State.NORMAL)"><md-icon>cancel</md-icon> Cancel</button>
-    </div>
-    <div class="wmActionToolbar" *ngIf="editMode == State.NEW">
-      <button md-raised-button (click)="saveNewMapping()"><md-icon>save</md-icon> Save</button>
-      <button md-raised-button (click)="setEditMode(State.NORMAL)"><md-icon>cancel</md-icon> Cancel</button>
+
+      <button md-raised-button [mdMenuTriggerFor]="helpers"><md-icon>more_vert</md-icon> Helpers</button>
+      <md-menu #helpers="mdMenu">
+        <button md-menu-item (click)="helperAddDelay()">
+          <md-icon>av_timer</md-icon> Add Delay
+        </button>
+        <button md-menu-item (click)="helperAddPriority()">
+          <md-icon>priority_high</md-icon> Add Priority
+        </button>
+        <button md-menu-item (click)="helperAddHeaderRequest()">
+          <md-icon>view_headline</md-icon> Add Request Header
+        </button>
+        <button md-menu-item (click)="helperAddHeaderResponse()">
+          <md-icon>view_headline</md-icon> Add Response Header
+        </button>
+        <!--<button md-menu-item [mdMenuTriggerFor]="hangleBarsHelpers"><md-icon>more_vert</md-icon> Handlebars Helpers</button>-->
+        <!--<md-menu #hangleBarsHelpers="mdMenu">-->
+          <!--<button md-menu-item>-->
+            <!--<md-icon>av_timer</md-icon> SOAP-->
+          <!--</button>-->
+          <!--<button md-menu-item>-->
+            <!--<md-icon>autorenew</md-icon> JSON-->
+          <!--</button>-->
+          <!--<button md-menu-item>-->
+            <!--<md-icon>delete</md-icon> String-->
+          <!--</button>-->
+        <!--</md-menu>-->
+      </md-menu>
     </div>
   </wm-list-view-actions>
 </wm-list-view>

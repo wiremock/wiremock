@@ -1,0 +1,10 @@
+<div class="wmSnackBarContainer"[class.dark-theme]="isDarkTheme">
+  <div class="wmSnackBarClose"><button md-mini-fab (click)="closeMessage()" color="{{getCloseColor(message.type)}}"><md-icon>close</md-icon></button></div>
+  <div class="wmSnackBar wmType{{getTypeClass(message.type)}}">
+    <div class="wmSnackBarMessageContainer" *ngIf="!message.html">
+      <span class="wmSnackBarMessage wmType{{getTypeClass(message.type)}}">{{message.message}}</span>
+    </div>
+    <div [innerHTML]="message.html">
+    </div>
+  </div>
+</div>

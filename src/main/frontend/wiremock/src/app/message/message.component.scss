@@ -1,0 +1,19 @@
+.wmSnackBarMessage{
+  font-size: 20px;
+  word-break: keep-all;
+}
+
+.wmSnackBarMessageContainer{
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.wmSnackBar{
+  word-break: break-all;
+  white-space: normal!important;
+}
+
+.wmSnackBarClose{
+  float: right;
+}

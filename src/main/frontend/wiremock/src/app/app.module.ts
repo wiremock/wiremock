@@ -28,6 +28,9 @@ import { MatchedViewComponent } from './matched-view/matched-view.component';
 import {SettingsService} from './services/settings.service';
 import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.component';
 import { TabEnabledDirective } from './directives/tab-enabled.directive';
+import { MessageComponent } from './message/message.component';
+import {MessageService} from './message/message.service';
+import {MdSnackBar} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -45,7 +48,8 @@ import { TabEnabledDirective } from './directives/tab-enabled.directive';
     TabViewSeparatedDirective,
     MatchedViewComponent,
     UnmatchedViewComponent,
-    TabEnabledDirective
+    TabEnabledDirective,
+    MessageComponent
   ],
   imports: [
     BrowserModule,
@@ -55,7 +59,8 @@ import { TabEnabledDirective } from './directives/tab-enabled.directive';
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService, SseService, SettingsService],
-  bootstrap: [AppComponent]
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService, SseService, SettingsService, MessageService],
+  bootstrap: [AppComponent],
+  entryComponents: [MessageComponent]
 })
 export class AppModule { }

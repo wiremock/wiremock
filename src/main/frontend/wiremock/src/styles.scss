@@ -98,3 +98,7 @@ wm-list-view > div {
   /* Support for IE. */
   font-feature-settings: 'liga';
 }
+
+.wmSnackBar pre{
+  white-space: normal!important;
+}
