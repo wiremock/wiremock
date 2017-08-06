@@ -43,6 +43,7 @@ export class MatchedViewComponent implements OnInit {
 
   setSelectedMatched(data: any): void{
     this.selectedMatched = data;
+    this.cdr.detectChanges();
   }
 
   resetJournal(): void{

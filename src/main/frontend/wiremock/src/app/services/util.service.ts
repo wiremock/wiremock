@@ -6,13 +6,55 @@ import {Message, MessageService, MessageType} from '../message/message.service';
 @Injectable()
 export class UtilService {
 
-  private static SOAP_REGEX = null;
-  private static SOAP_PATH_REGEX = null;
-  private static SOAP_RECOGNIZE_REGEX = null;
-  private static SOAP_NAMESPACE_REGEX = null;
-  private static SOAP_METHOD_REGEX = null;
-
   constructor() {
+  }
+
+  public static copyToClipboard(text: string): boolean{
+    //https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+
+    const textArea = document.createElement("textarea");
+
+    // Place in top-left corner of screen regardless of scroll position.
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+
+    // Ensure it has a small width and height. Setting to 1px / 1em
+    // doesn't work as this gives a negative w/h on some browsers.
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+
+    // We don't need padding, reducing the size if it does flash render.
+    textArea.style.padding = '0';
+
+    // Clean up any borders.
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+
+    // Avoid flash of white box if rendered for any reason.
+    textArea.style.background = 'transparent';
+
+
+    textArea.value = text;
+
+    document.body.appendChild(textArea);
+
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if(successful){
+        return true;
+      }else{
+        console.error("Was not able to copy. No exception was thrown. Result=" + successful);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    document.body.removeChild(textArea);
+
+    return false;
   }
 
   public static showErrorMessage(messageService: MessageService, err: any): void{
@@ -32,7 +74,7 @@ export class UtilService {
   }
 
   public static getSoapXPathRegex(): RegExp {
-    return new RegExp('/\s*?Envelope/\s*?Body/([^: ]+:)?(\s+)');
+    return /\/.*?Envelope\/.*?Body\/([^: ]+:)?(.+)/;
   }
 
   public static isDefined(value: any): boolean {
@@ -44,7 +86,7 @@ export class UtilService {
   }
 
   public static isBlank(value: string): boolean {
-    return (value === null || typeof value === 'undefined' || value.length == 0);
+    return (UtilService.isUndefined(value) || value.length == 0);
   }
 
   public static isNotBlank(value: string): boolean {
@@ -133,7 +175,8 @@ export class UtilService {
 
   public static eachRecursiveRegex(obj, regex): boolean {
     for (let k in obj) {
-      if (typeof obj[k] === 'object' && obj[k] !== null) {
+      //hasOwnProperty check not needed. We are iterating over properties of object
+      if (typeof obj[k] === 'object' && UtilService.isDefined(obj[k])) {
         if (UtilService.eachRecursiveRegex(obj[k], regex)) {
           return true;
         }
@@ -152,7 +195,8 @@ export class UtilService {
 
   public static eachRecursive(obj, text): boolean {
     for (let k in obj) {
-      if (typeof obj[k] === 'object' && obj[k] !== null) {
+      //hasOwnProperty check not needed. We are iterating over properties of object
+      if (typeof obj[k] === 'object' && UtilService.isDefined(obj[k])) {
         if (UtilService.eachRecursive(obj[k], text)) {
           return true;
         }
@@ -170,7 +214,7 @@ export class UtilService {
   }
 
   public static prettify(code: string): string {
-    if (code === null || typeof code === 'undefined') {
+    if (UtilService.isUndefined(code)) {
       return '';
     }
     try {
@@ -194,38 +238,27 @@ export class UtilService {
 
 
   public static generateUUID(): string { // Public Domain/MIT
-    // let d = new Date().getTime();
-    // if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
-    //   d += performance.now(); //use high-precision timer if available
-    // }
-    // return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    //   const r = (d + Math.random() * 16) % 16 | 0;
-    //   d = Math.floor(d / 16);
-    //   return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    // });
     return new UUID().generate();
   }
-
 }
 
+export class UUID{
+  lut = [];
 
-  export class UUID{
-    lut = [];
-
-    constructor(){
-      for (let i=0; i<256; i++) {
-        this.lut[i] = (i<16?'0':'')+(i).toString(16);
-      }
-    }
-
-    generate(): string {
-      const d0 = Math.random() * 0xffffffff | 0;
-      const d1 = Math.random() * 0xffffffff | 0;
-      const d2 = Math.random() * 0xffffffff | 0;
-      const d3 = Math.random() * 0xffffffff | 0;
-      return this.lut[d0 & 0xff] + this.lut[d0 >> 8 & 0xff] + this.lut[d0 >> 16 & 0xff] + this.lut[d0 >> 24 & 0xff] + '-' +
-        this.lut[d1 & 0xff] + this.lut[d1 >> 8 & 0xff] + '-' + this.lut[d1 >> 16 & 0x0f | 0x40] + this.lut[d1 >> 24 & 0xff] + '-' +
-        this.lut[d2 & 0x3f | 0x80] + this.lut[d2 >> 8 & 0xff] + '-' + this.lut[d2 >> 16 & 0xff] + this.lut[d2 >> 24 & 0xff] +
-        this.lut[d3 & 0xff] + this.lut[d3 >> 8 & 0xff] + this.lut[d3 >> 16 & 0xff] + this.lut[d3 >> 24 & 0xff];
+  constructor(){
+    for (let i=0; i<256; i++) {
+      this.lut[i] = (i<16?'0':'')+(i).toString(16);
     }
   }
+
+  generate(): string {
+    const d0 = Math.random() * 0xffffffff | 0;
+    const d1 = Math.random() * 0xffffffff | 0;
+    const d2 = Math.random() * 0xffffffff | 0;
+    const d3 = Math.random() * 0xffffffff | 0;
+    return this.lut[d0 & 0xff] + this.lut[d0 >> 8 & 0xff] + this.lut[d0 >> 16 & 0xff] + this.lut[d0 >> 24 & 0xff] + '-' +
+      this.lut[d1 & 0xff] + this.lut[d1 >> 8 & 0xff] + '-' + this.lut[d1 >> 16 & 0x0f | 0x40] + this.lut[d1 >> 24 & 0xff] + '-' +
+      this.lut[d2 & 0x3f | 0x80] + this.lut[d2 >> 8 & 0xff] + '-' + this.lut[d2 >> 16 & 0xff] + this.lut[d2 >> 24 & 0xff] +
+      this.lut[d3 & 0xff] + this.lut[d3 >> 8 & 0xff] + this.lut[d3 >> 16 & 0xff] + this.lut[d3 >> 24 & 0xff];
+  }
+}

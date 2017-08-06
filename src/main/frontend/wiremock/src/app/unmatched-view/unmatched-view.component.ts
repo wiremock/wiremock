@@ -56,12 +56,20 @@ export class UnmatchedViewComponent implements OnInit {
 
   createMapping(): void{
     const message = this._createMapping(this.selectedUnmatched);
-
-    this.messageService.setMessage(new Message(message, MessageType.INFO, 20000));
+    this.copyMappingTemplateToClipboard(message);
   }
 
   createSoapMapping():void{
-    this._createSoapMapping();
+    const message = this._createSoapMapping();
+    this.copyMappingTemplateToClipboard(message);
+  }
+
+  private copyMappingTemplateToClipboard(message: string){
+    if(UtilService.copyToClipboard(message)){
+      this.messageService.setMessage(new Message("Mapping template copied to clipboard", MessageType.INFO,3000));
+    }else{
+      this.messageService.setMessage(new Message("Was not able to copy. Details in log", MessageType.ERROR,10000));
+    }
   }
 
   private _createSoapMapping(): string{

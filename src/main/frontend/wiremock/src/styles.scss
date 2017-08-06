@@ -1,64 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
 @import "app/wiremock-theme.scss";
 
+/*Holy grail like Layout*/
 html, body, #wmRoot{
-  height: 100%;
-  width: 100%;
-}
-
-#wmRoot{
-  display: block;
-}
-
-body{
+  //height: 100%;
+  //width: 100%;
   margin: 0;
 }
 
-wm-list-view {
-  display: block;
-}
+//wm-list-view-content{
+//  display: block;
+//  height: 100%;
+//}
 
-wm-list-view-content{
-  display: block;
-  height: 100%;
-}
-
-wm-tab-view{
-  display: block;
-  height: 100%;
-}
+//wm-tab-view{
+//  display: block;
+//  height: 100%;
+//}
 
 .wmTabGroup{
   height: 100%;
 }
 
-wm-list-view > div {
-  flex-grow: 1;
+.wmTabGroup .mat-tab-body-wrapper{
+  /* - tab header. Just for tab slide so that content is not hidden*/
+  height: calc(100% - 49px);
 }
 
+//#wmRoot{
+//  display: block;
+//}
+
+//wm-list-view {
+//  display: block;
+//}
+//
+//wm-list-view > div {
+//  flex-grow: 1;
+//}
+
 .mat-toolbar, .mat-toolbar-row {
+  /*Make toolbar smaller. It takes to much space*/
   min-height: 50px!important;
   height: 50px!important;
 }
 
 .pagerMaxItemsPerPage .mat-select-trigger{
+  /* Make pagination smaller. It takes to much space*/
   min-width: 50px!important;
   max-width: 50px!important;;
   width: 50px!important;;
 }
 
 .pagerMaxItemsPerPage .mat-select-value{
+  /* Make pagination smaller. It takes to much space*/
   padding-left: 4px!important;
 }
 
 .mat-list-item-content{
+  /*Make list items smaller. It takes to much space*/
   height: auto! important;
   min-height: 32px;
   padding: 8px!important;
 }
 
 .mat-nav-list{
+  /*Remove padding at top of list. Connection to pagination is made here*/
   padding: 0!important;
+}
+
+.wmSnackBar pre{
+  /*Prevent html content from overflow. Although it is not that great to read then*/
+  white-space: normal!important;
 }
 
 @font-face {
@@ -99,6 +112,22 @@ wm-list-view > div {
   font-feature-settings: 'liga';
 }
 
-.wmSnackBar pre{
-  white-space: normal!important;
+.wmTwoIconFirst{
+  margin-right: 4px;
 }
+
+.wmTwoIconSecond{
+  position: absolute;
+  top: 14px;
+  left: 25px;
+  font-size: 20px;
+}
+
+.wmActionToolbar{
+  padding: 0 10px 0;
+}
+
+.wmActionToolbar button{
+  margin-bottom: 10px;
+}
+

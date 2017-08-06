@@ -3,8 +3,15 @@
 @mixin wm-app-theme($theme){
   $background: mat-color(map-get($theme, background), 'card');
 
+  $foreground: mat-color(map-get($theme, foreground), text);
+
   #wmRootContent{
     background-color: $background;
+  }
+
+
+  .wmTwoIconSecond{
+    text-shadow: -2px 0 $background, 0 2px $background, 2px 0 $background, 0 -2px $background;
   }
 
   //::-webkit-scrollbar-track

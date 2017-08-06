@@ -4,8 +4,8 @@
   </wm-list-view-content>
   <wm-list-view-actions>
     <div class="wmActionToolbar">
-      <button md-raised-button (click)="createMapping()"><md-icon class="material-icons">add_circle</md-icon> Create Mapping</button>
-      <button md-raised-button (click)="createSoapMapping()" [disabled]="!isSoapRequest()"><md-icon class="material-icons">opacity</md-icon> Copy Soap Mapping</button>
+      <button md-raised-button (click)="createMapping()"><md-icon class="material-icons">assignment</md-icon> Copy Mapping</button>
+      <button md-raised-button (click)="createSoapMapping()" [disabled]="!isSoapRequest()"><md-icon class="material-icons wmTwoIconFirst">assignment</md-icon><md-icon class="material-icons wmTwoIconSecond">opacity</md-icon> Copy Soap Mapping</button>
       <button md-raised-button (click)="resetJournal()"><md-icon class="material-icons">delete</md-icon> Reset Journal</button>
     </div>
   </wm-list-view-actions>

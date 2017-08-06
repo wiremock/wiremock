@@ -10,7 +10,7 @@ export class ServeEvent  implements Item{
   }
 
   getSubtitle(): string {
-    return "method=" + this.request.method + ", status=" + this.response.status;
+    return this.request.getSubtitle() + ", status=" + this.response.status;
   }
 
   getId(): string {
@@ -27,7 +27,7 @@ export class ServeEvent  implements Item{
 
   deserialize(unchecked: ServeEvent): ServeEvent{
     this.id = unchecked.id;
-    this.request = unchecked.request;
+    this.request = new LoggedRequest().deserialize(unchecked.request);
     this.mapping = unchecked.mapping;
     this.responseDefinition = unchecked.responseDefinition;
     this.response = unchecked.response;

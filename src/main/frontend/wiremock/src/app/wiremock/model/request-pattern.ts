@@ -9,13 +9,10 @@ export class RequestPattern {
   queryParameters: any;
   cookies: any;
   basicAuth: any;
-  bodyPatterns: any;
+  bodyPatterns: any[];
   customMatcher: any;
 
   deserialize(unchecked: RequestPattern): RequestPattern{
-
-    console.log(this.headers);
-
     return unchecked;
     // this.url = unchecked.url;
     // this.urlPattern = unchecked.urlPattern;

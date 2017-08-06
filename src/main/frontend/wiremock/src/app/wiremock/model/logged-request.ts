@@ -11,6 +11,11 @@ export class LoggedRequest implements Item{
   }
 
   getSubtitle(): string {
+    let soap;
+    if(UtilService.isDefined(this.body) &&
+      UtilService.isDefined(soap = UtilService.getSoapMethodRegex().exec(this.body))){
+      return soap[2];
+    }
     return "method=" + this.method;
   }
 

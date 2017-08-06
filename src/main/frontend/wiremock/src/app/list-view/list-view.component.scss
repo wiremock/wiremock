@@ -21,3 +21,15 @@
 .wmSearch {
   height: 67px;
 }
+
+.wmWrapper {
+  height: calc(100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.wmContent{
+  flex: 1;
+  overflow: hidden;
+}
