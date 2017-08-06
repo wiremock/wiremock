@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import {Http, RequestMethod, RequestOptions, Request, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
-import {StubMapping} from '../wiremock/model/stub-mapping';
 
 @Injectable()
 export class WiremockService {
 
   constructor(private http: Http) { }
+
+  resetAll(): Observable<Response>{
+    return this.createRequest(RequestMethod.Post, 'reset');
+  }
 
   getMappings(): Observable<Response>{
     return this.createRequest(RequestMethod.Get, 'mappings');
@@ -37,12 +40,20 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Delete, 'mappings/' + id);
   }
 
+  resetJournal(): Observable<Response>{
+    return this.createRequest(RequestMethod.Delete, 'requests');
+  }
+
   resetScenarios(): Observable<Response>{
     return this.createRequest(RequestMethod.Post, 'scenarios/reset');
   }
 
   getMatched(): Observable<Response>{
     return this.createRequest(RequestMethod.Get, 'requests');
+  }
+
+  getUnmatched(): Observable<Response>{
+    return this.createRequest(RequestMethod.Get, 'requests/unmatched');
   }
 
   startRecording(): Observable<Response>{

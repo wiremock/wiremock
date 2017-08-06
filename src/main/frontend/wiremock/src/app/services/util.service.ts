@@ -7,22 +7,27 @@ export class UtilService {
 
   private static SOAP_REGEX = null;
   private static SOAP_PATH_REGEX = null;
+  private static SOAP_RECOGNIZE_REGEX = null;
+  private static SOAP_NAMESPACE_REGEX = null;
+  private static SOAP_METHOD_REGEX = null;
 
   constructor() {
   }
 
-  public static getSoapRegex(): RegExp {
-    if (UtilService.SOAP_REGEX == null) {
-      UtilService.SOAP_REGEX = new RegExp('.*?<([^<>: ]+?:)?Envelope( xmlns:([^<>: ]+?)=([^<> ]+?))?><([^<>: ]+?:)?Body( xmlns:([^<>: ]+?)=([^<> ]+?))?><([^<>: ]+?:)?([^<>: ]+?)( xmlns:([^<>: ]+?)=([^<> ]+))([^>]*)?>');
-    }
-    return UtilService.SOAP_REGEX;
+  public static getSoapRecognizeRegex(): RegExp {
+    return /<([^/][^<> ]*?):Envelope[^<>]*?>\s*?<([^/][^<> ]*?):Body[^<>]*?>/;
+  }
+
+  public static getSoapNamespaceRegex(): RegExp {
+    return /xmlns:([^<> ]+?)="([^<> ]+?)"/g;
+  }
+
+  public static getSoapMethodRegex(): RegExp {
+    return /<[^/][^<> ]*?:Body[^<> ]*?>\s*?<([^/][^<> ]*?):([^<> ]+)[^<>]*?>/;
   }
 
   public static getSoapXPathRegex(): RegExp {
-    if (UtilService.SOAP_PATH_REGEX == null) {
-      UtilService.SOAP_PATH_REGEX = new RegExp('/.*?Envelope/.*?Body/([^: ]+:)?(.+)');
-    }
-    return UtilService.SOAP_PATH_REGEX;
+    return new RegExp('/\s*?Envelope/\s*?Body/([^: ]+:)?(\s+)');
   }
 
   public static isDefined(value: any): boolean {
@@ -93,7 +98,7 @@ export class UtilService {
     }
 
     let toSearch: any = null;
-    let func:any = UtilService.eachRecursiveRegex;
+    let func: any = UtilService.eachRecursiveRegex;
 
     try {
       if (caseSensitive) {
@@ -108,8 +113,8 @@ export class UtilService {
 
     const result: Item[] = [];
 
-    for(let item of items){
-      if(func(item, toSearch)){
+    for (let item of items) {
+      if (func(item, toSearch)) {
         result.push(item);
       }
     }
@@ -117,7 +122,7 @@ export class UtilService {
     return result;
   }
 
-  public static isFunction(obj: any):boolean{
+  public static isFunction(obj: any): boolean {
     return typeof obj === 'function';
   }
 
@@ -159,27 +164,63 @@ export class UtilService {
     return false;
   }
 
-  public static prettify(code: string): string{
+  public static prettify(code: string): string {
     if (code === null || typeof code === 'undefined') {
       return '';
     }
     try {
       return vkbeautify.json(code);
     } catch (err) {
-      try{
+      try {
         return vkbeautify.xml(code);
-      }catch(err2){
+      } catch (err2) {
         return code;
       }
     }
   }
 
-  public static toJson(value: any): string{
-    if(UtilService.isUndefined(value)){
+  public static toJson(value: any): string {
+    if (UtilService.isUndefined(value)) {
       return '';
-    }else{
+    } else {
       return JSON.stringify(value);
     }
   }
 
+
+  public static generateUUID(): string { // Public Domain/MIT
+    // let d = new Date().getTime();
+    // if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+    //   d += performance.now(); //use high-precision timer if available
+    // }
+    // return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    //   const r = (d + Math.random() * 16) % 16 | 0;
+    //   d = Math.floor(d / 16);
+    //   return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    // });
+    return new UUID().generate();
+  }
+
 }
+
+
+  export class UUID{
+    lut = [];
+
+    constructor(){
+      for (let i=0; i<256; i++) {
+        this.lut[i] = (i<16?'0':'')+(i).toString(16);
+      }
+    }
+
+    generate(): string {
+      const d0 = Math.random() * 0xffffffff | 0;
+      const d1 = Math.random() * 0xffffffff | 0;
+      const d2 = Math.random() * 0xffffffff | 0;
+      const d3 = Math.random() * 0xffffffff | 0;
+      return this.lut[d0 & 0xff] + this.lut[d0 >> 8 & 0xff] + this.lut[d0 >> 16 & 0xff] + this.lut[d0 >> 24 & 0xff] + '-' +
+        this.lut[d1 & 0xff] + this.lut[d1 >> 8 & 0xff] + '-' + this.lut[d1 >> 16 & 0x0f | 0x40] + this.lut[d1 >> 24 & 0xff] + '-' +
+        this.lut[d2 & 0x3f | 0x80] + this.lut[d2 >> 8 & 0xff] + '-' + this.lut[d2 >> 16 & 0xff] + this.lut[d2 >> 24 & 0xff] +
+        this.lut[d3 & 0xff] + this.lut[d3 >> 8 & 0xff] + this.lut[d3 >> 16 & 0xff] + this.lut[d3 >> 24 & 0xff];
+    }
+  }

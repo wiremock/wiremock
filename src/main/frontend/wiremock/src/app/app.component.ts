@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {CookieService} from './services/cookie.service';
 import {SettingsService} from './services/settings.service';
 
 @Component({

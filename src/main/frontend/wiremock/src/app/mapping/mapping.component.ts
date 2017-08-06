@@ -76,22 +76,22 @@ export class MappingComponent implements OnInit, OnChanges {
     if(this.selectedMapping == null || typeof this.selectedMapping === 'undefined'){
       return dataEntries;
     }
-
-    dataEntries.addEntry(new Entry('status', this.selectedMapping.response.status, ''));
-    dataEntries.addEntry(new Entry('name', this.selectedMapping.response.statusMessage, ''));
+    dataEntries.addEntry(new Entry('status', this.selectedMapping.response.status, 'plain'));
+    dataEntries.addEntry(new Entry('statusMessage', this.selectedMapping.response.statusMessage, 'plain'));
     dataEntries.addEntry(new Entry('body', this.selectedMapping.response.body, ''));
     dataEntries.addEntry(new Entry('jsonBody', this.selectedMapping.response.jsonBody, ''));
-    dataEntries.addEntry(new Entry('base64Body', this.selectedMapping.response.base64Body, ''));
-    dataEntries.addEntry(new Entry('bodyFileName', this.selectedMapping.response.bodyFileName, ''));
+    dataEntries.addEntry(new Entry('base64Body', this.selectedMapping.response.base64Body, 'plain'));
+    dataEntries.addEntry(new Entry('bodyFileName', this.selectedMapping.response.bodyFileName, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedMapping.response.headers), 'json'));
     dataEntries.addEntry(new Entry('additionalProxy RequestHeaders', UtilService.toJson(this.selectedMapping.response.additionalProxyRequestHeaders), ''));
-    dataEntries.addEntry(new Entry('fixedDelayMilliseconds', this.selectedMapping.response.fixedDelayMilliseconds, ''));
+    dataEntries.addEntry(new Entry('fixedDelayMilliseconds', this.selectedMapping.response.fixedDelayMilliseconds, 'plain'));
     dataEntries.addEntry(new Entry('delayDistribution', this.selectedMapping.response.delayDistribution, ''));
-    dataEntries.addEntry(new Entry('proxyBaseUrl', this.selectedMapping.response.proxyBaseUrl, ''));
+    dataEntries.addEntry(new Entry('proxyBaseUrl', this.selectedMapping.response.proxyBaseUrl, 'plain'));
     dataEntries.addEntry(new Entry('fault', this.selectedMapping.response.fault, ''));
     dataEntries.addEntry(new Entry('transformers', UtilService.toJson(this.selectedMapping.response.transformers), 'json'));
     dataEntries.addEntry(new Entry('transformerParameters', UtilService.toJson(this.selectedMapping.response.transformerParameters), 'json'));
-    dataEntries.addEntry(new Entry('fromConfiguredStub', this.selectedMapping.response.fromConfiguredStub, ''));
+    dataEntries.addEntry(new Entry('fromConfiguredStub', this.selectedMapping.response.fromConfiguredStub, 'plain'));
+    // dataEntries.addEntry(new Entry('isProxyingEnabled', this.selectedMapping.response.fromConfiguredStub, 'plain'));
 
     return dataEntries;
   }

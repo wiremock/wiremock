@@ -9,6 +9,7 @@
 @import "/list/list.theme";
 @import "/search/search.theme";
 @import "/mapping-view/mapping-view.theme";
+@import "/matched-view/matched-view.theme";
 
 @include mat-core();
 
@@ -89,6 +90,7 @@ $mat-wm-blue: (
   @include wm-list-theme($theme);
   @include wm-search-theme($theme);
   @include wm-mapping-view-theme($theme);
+  @include wm-matched-view-theme($theme);
 }
 
 

@@ -24,6 +24,11 @@
         Hide empty values
       </md-slide-toggle>
       <md-divider></md-divider>
+      <button md-menu-item (click)="resetAll()">
+        <md-icon>delete</md-icon>
+        <span>Reset All</span>
+      </button>
+      <md-divider></md-divider>
       <button md-menu-item (click)="startRecording()">
         <md-icon>radio_button_checked</md-icon>
         <span>Start Recording</span>

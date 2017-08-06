@@ -13,13 +13,13 @@
 
       <button md-raised-button [mdMenuTriggerFor]="mappings">Mappings <md-icon>more_vert</md-icon></button>
       <md-menu #mappings="mdMenu">
-        <button md-menu-item [disabled]="mappingResult?.mappings?.length > 0" (click)="saveMappings()">
+        <button md-menu-item [disabled]="mappingResult?.mappings?.length === 0" (click)="saveMappings()">
           <md-icon>save</md-icon> Save Mappings
         </button>
         <button md-menu-item (click)="resetMappings()">
           <md-icon>autorenew</md-icon> Reset Mappings
         </button>
-        <button md-menu-item [disabled]="mappingResult?.mappings?.length > 0" (click)="deleteAllMappings()">
+        <button md-menu-item [disabled]="mappingResult?.mappings?.length === 0" (click)="deleteAllMappings()">
           <md-icon>delete</md-icon> Remove all Mappings
         </button>
       </md-menu>

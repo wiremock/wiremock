@@ -36,6 +36,11 @@ wm-list-view > div {
   flex-grow: 1;
 }
 
+.mat-toolbar, .mat-toolbar-row {
+  min-height: 50px!important;
+  height: 50px!important;
+}
+
 .pagerMaxItemsPerPage .mat-select-trigger{
   min-width: 50px!important;
   max-width: 50px!important;;

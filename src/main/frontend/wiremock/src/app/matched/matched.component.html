@@ -23,6 +23,15 @@
 
     <md-card *ngIf="isVisible()">
       <md-card-header class="wmHeaderThird">
+        <md-card-title><b>Response</b></md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <wm-code-entry-list [entries]="response"></wm-code-entry-list>
+      </md-card-content>
+    </md-card>
+
+    <md-card *ngIf="isVisible()">
+      <md-card-header class="wmHeaderFirst">
         <md-card-title><b>Response Definition</b></md-card-title>
       </md-card-header>
       <md-card-content>

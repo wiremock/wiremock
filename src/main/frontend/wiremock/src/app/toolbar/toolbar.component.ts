@@ -20,6 +20,10 @@ export class ToolbarComponent implements OnInit {
 
   constructor(private cookieService: CookieService, private wiremockService: WiremockService, private settingsService: SettingsService) { }
 
+  resetAll(): void{
+    this.wiremockService.resetAll().subscribe();
+  }
+
   changeHideEmptyCodeEntries(): void{
     this.areEmptyCodeEntriesHidden = !this.areEmptyCodeEntriesHidden;
     this.settingsService.setEmptyCodeEntriesHidden(this.areEmptyCodeEntriesHidden);

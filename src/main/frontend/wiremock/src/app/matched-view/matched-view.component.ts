@@ -3,8 +3,8 @@ import {WiremockService} from '../services/wiremock.service';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {SseService} from '../services/sse.service';
-import {UtilService} from '../services/util.service';
 import {GetServeEventsResult} from '../wiremock/model/get-serve-events-result';
+
 
 @Component({
   selector: 'wm-matched-view',
@@ -41,16 +41,24 @@ export class MatchedViewComponent implements OnInit {
 
   setSelectedMatched(data: any): void{
     this.selectedMatched = data;
-    this.cdr.detectChanges();
+  }
+
+  resetJournal(): void{
+    this.wiremockService.resetJournal().subscribe(next =>{
+      //nothing to show
+    }, err=>{
+      //TODO: show message
+    });
   }
 
   refreshMatched(): void{
     this.wiremockService.getMatched().subscribe(data => {
         this.matchedResult = new GetServeEventsResult().deserialize(data.json(), true);
-        if(UtilService.isUndefined(this.matchedResult) || UtilService.isUndefined(this.matchedResult.requests)
-          || this.matchedResult.requests.length == 0){
-          this.selectedMatched = null;
-        }
+
+        // if(UtilService.isUndefined(this.matchedResult) || UtilService.isUndefined(this.matchedResult.requests)
+        //   || this.matchedResult.requests.length == 0){
+        //   this.selectedMatched = null;
+        // }
       },
       err => {
         console.log("failed!", err);

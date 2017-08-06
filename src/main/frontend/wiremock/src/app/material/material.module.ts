@@ -8,7 +8,7 @@ import {
   MdInputModule,
   MdListModule,
   MdTabsModule,
-  MdTableModule, MdToolbarModule, MdMenuModule, MdSlideToggleModule, MdCheckboxModule, MdSelectModule
+  MdTableModule, MdToolbarModule, MdMenuModule, MdSlideToggleModule, MdCheckboxModule, MdSelectModule, MdIconRegistry
 } from '@angular/material';
 import {CdkTableModule} from '@angular/cdk'
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -34,7 +34,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     MdSelectModule,
     BrowserAnimationsModule
   ],
-  declarations: []
+  declarations: [],
+  providers:[MdIconRegistry]
 })
 export class MaterialModule {
 }
