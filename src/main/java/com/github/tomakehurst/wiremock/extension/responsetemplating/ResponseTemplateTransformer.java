@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WiremockHelpers;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -59,6 +60,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         handlebars = new Handlebars();
 
         for (StringHelpers helper: StringHelpers.values()) {
+            handlebars.registerHelper(helper.name(), helper);
+        }
+
+        //Add all available wiremock helpers
+        for(WiremockHelpers helper: WiremockHelpers.values()){
             handlebars.registerHelper(helper.name(), helper);
         }
 
