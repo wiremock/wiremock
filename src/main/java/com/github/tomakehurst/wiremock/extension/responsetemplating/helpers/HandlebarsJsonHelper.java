@@ -3,6 +3,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
 
 import java.io.IOException;
 
@@ -28,6 +29,9 @@ public class HandlebarsJsonHelper extends HandlebarsHelper<String> {
             return this.handleError(
                     "HandlebarsJsonHelper: An error occurred. Helper not applied. See cause for more details.",
                     e.getJson(), e);
+        }catch(final JsonPathException e){
+            return this.handleError(
+                    "HandlebarsJsonHelper: An error occurred. Helper not applied. See cause for more details.", e);
         }
     }
 }
