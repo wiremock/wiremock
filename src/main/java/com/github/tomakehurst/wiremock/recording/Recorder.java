@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.InvalidRequestException;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -52,7 +52,7 @@ public class Recorder {
         }
 
         if (spec.getTargetBaseUrl() == null || spec.getTargetBaseUrl().isEmpty()) {
-            throw new InvalidRequestException(Errors.validation("/targetBaseUrl", "targetBaseUrl is required"));
+            throw new InvalidInputException(Errors.validation("/targetBaseUrl", "targetBaseUrl is required"));
         }
 
         StubMapping proxyMapping = proxyAllTo(spec.getTargetBaseUrl()).build();

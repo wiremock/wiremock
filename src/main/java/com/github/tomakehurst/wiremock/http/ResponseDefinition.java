@@ -21,15 +21,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.google.common.net.MediaType;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -156,6 +159,14 @@ public class ResponseDefinition {
 
     public static ResponseDefinition noContent() {
         return new ResponseDefinition(HTTP_NO_CONTENT, (byte[]) null);
+    }
+
+    public static ResponseDefinition badRequest(Errors errors) {
+        return ResponseDefinitionBuilder.responseDefinition()
+            .withStatus(422)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(Json.write(errors))
+            .build();
     }
 
     public static ResponseDefinition redirectTo(String path) {
@@ -340,5 +351,4 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
-
 }
