@@ -15,3 +15,11 @@ pre{
 .wmUrlQueryParam tr td, .wmUrlQueryParam tr th {
   padding-right: 10px;
 }
+
+.wmCodeEntryLink{
+  min-height: 17px;
+  padding: 0.5em;
+  display: flex;
+  align-items: center;
+  font-family: monospace;
+}

@@ -13,4 +13,6 @@
     </tbody>
   </table>
 </section>
-
+<section *ngIf="type === 'link'" class="hljs wmCodeEntryLink">
+  <a [routerLink]="code.link" [queryParams]="code.params">{{code.text}}</a>
+</section>

@@ -20,10 +20,9 @@ export class LoggedRequest implements Item{
   }
 
   getId(): string {
-    return this.id;
+    //value exists in transient layer. This way we skip typescripts type safety.
+    return (this as any).id;
   }
-
-  id: string;
 
   url: string;
   absoluteUrl: string;
@@ -38,7 +37,8 @@ export class LoggedRequest implements Item{
   loggedDate: any;
 
   deserialize(unchecked: LoggedRequest): LoggedRequest{
-    this.id = UtilService.generateUUID();
+    //We hide a generated id in a "transient" layer
+    UtilService.transient(this, "id", UtilService.generateUUID());
     this.url = unchecked.url;
     this.absoluteUrl = unchecked.absoluteUrl;
     this.clientIp = unchecked.clientIp;

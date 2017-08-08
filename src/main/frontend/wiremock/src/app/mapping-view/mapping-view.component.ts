@@ -7,6 +7,7 @@ import {SseService} from '../services/sse.service';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Rx';
 import {Message, MessageService, MessageType} from '../message/message.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'wm-mapping-view',
@@ -28,10 +29,16 @@ export class MappingViewComponent implements OnInit {
 
   private refreshMappingsObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef, private messageService: MessageService) {
+  constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef,
+              private messageService: MessageService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) =>{
+      const query = decodeURI(params['mapping'] || '');
+      this.selectByItemId = query;
+    });
+
     this.newMappingText = UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
     this.editMode = State.NORMAL;
 

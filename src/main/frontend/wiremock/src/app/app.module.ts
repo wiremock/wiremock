@@ -30,7 +30,6 @@ import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.componen
 import { TabEnabledDirective } from './directives/tab-enabled.directive';
 import { MessageComponent } from './message/message.component';
 import {MessageService} from './message/message.service';
-import {MdSnackBar} from '@angular/material';
 
 @NgModule({
   declarations: [

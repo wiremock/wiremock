@@ -5,10 +5,6 @@
       <trans-unit id="wmResetJournal" datatype="html">
         <source>Reset Journal</source>
         <target>Journal zurücksetzen</target>
-        <context-group purpose="location">
-          <context context-type="sourcefile">app\matched-view\matched-view.component.ts</context>
-          <context context-type="linenumber">7</context>
-        </context-group>
       </trans-unit>
     </body>
   </file>

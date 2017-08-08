@@ -11,6 +11,7 @@
 @import "/mapping-view/mapping-view.theme";
 @import "/matched-view/matched-view.theme";
 @import "/message/message.theme";
+@import "/code-entry/code-entry.theme";
 
 @include mat-core();
 
@@ -93,6 +94,7 @@ $mat-wm-blue: (
   @include wm-mapping-view-theme($theme);
   @include wm-matched-view-theme($theme);
   @include wm-message-theme($theme);
+  @include wm-code-entry-theme($theme);
 }
 
 

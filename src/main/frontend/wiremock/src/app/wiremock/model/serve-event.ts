@@ -20,7 +20,7 @@ export class ServeEvent  implements Item{
 
   id: string;
   request: LoggedRequest;
-  mapping: StubMapping;
+  stubMapping: StubMapping;
   responseDefinition: ResponseDefinition;
   response: LoggedResponse;
   wasMatched: boolean;
@@ -28,7 +28,7 @@ export class ServeEvent  implements Item{
   deserialize(unchecked: ServeEvent): ServeEvent{
     this.id = unchecked.id;
     this.request = new LoggedRequest().deserialize(unchecked.request);
-    this.mapping = unchecked.mapping;
+    this.stubMapping = new StubMapping().deserialize(unchecked.stubMapping);
     this.responseDefinition = unchecked.responseDefinition;
     this.response = unchecked.response;
     this.wasMatched = unchecked.wasMatched;

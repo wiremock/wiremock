@@ -9,7 +9,8 @@ const routes: Routes = [
     path: '',
     children: []
   }*/
-  {path: '', component: MappingViewComponent},
+  {path: '', redirectTo: '/mappings', pathMatch: 'full'},
+  {path: 'mappings', component: MappingViewComponent},
   {path: 'matched', component: MatchedViewComponent},
   {path: 'unmatched', component: UnmatchedViewComponent}
 ];

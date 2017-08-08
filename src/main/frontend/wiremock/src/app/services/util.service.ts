@@ -58,7 +58,16 @@ export class UtilService {
   }
 
   public static showErrorMessage(messageService: MessageService, err: any): void{
-    messageService.setMessage(new Message(err.statusText + ": status=" + err.status + ", message=", MessageType.ERROR, 10000, err._body));
+
+    if(UtilService.isDefined(err._body) && err._body instanceof ProgressEvent){
+      if(err.status == 0){
+        messageService.setMessage(new Message("status=" + err.status + ": Is Wiremock started?", MessageType.ERROR, 10000));
+      }else{
+        messageService.setMessage(new Message(err.statusText + ": status=" + err.status, MessageType.ERROR, 10000));
+      }
+    }else{
+      messageService.setMessage(new Message(err.statusText + ": status=" + err.status + ", message=", MessageType.ERROR, 10000, err._body));
+    }
   }
 
   public static getSoapRecognizeRegex(): RegExp {
@@ -248,6 +257,20 @@ export class UtilService {
     }
   }
 
+  public static transient(obj: any, key: string, value: any){
+    if (obj.hasOwnProperty(key)) {
+      //move key to transient layer
+      delete obj[key];
+    }
+    if(!obj.__proto__.__transient__){
+      //create transient layer
+      obj.__proto__ = {
+        "__proto__": obj.__proto__,
+        "__tansient__": true
+      }
+    }
+    obj.__proto__[key] = value;
+  }
 
   public static generateUUID(): string { // Public Domain/MIT
     return new UUID().generate();

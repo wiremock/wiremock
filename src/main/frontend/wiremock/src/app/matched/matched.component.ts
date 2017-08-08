@@ -18,6 +18,7 @@ export class MatchedComponent implements OnInit, OnChanges {
   request: DataEntries;
   response: DataEntries;
   responseDefinition: DataEntries;
+  stubMapping: DataEntries;
 
   constructor() { }
 
@@ -41,10 +42,12 @@ export class MatchedComponent implements OnInit, OnChanges {
     if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
       return dataEntries;
     }
-    dataEntries.addEntry(new Entry('uuid', this.selectedMatched.id, 'plain'));
-    if(UtilService.isDefined(this.selectedMatched.mapping)){
-      dataEntries.addEntry(new Entry('mapping', this.selectedMatched.mapping.getId(), 'plain'));
-    }
+
+    dataEntries.addEntry(new Entry('id', this.selectedMatched.getId(), 'plain'));
+
+      if(UtilService.isDefined(this.selectedMatched.stubMapping)){
+        dataEntries.addEntry(new Entry('stubMapping uuid', {text: this.selectedMatched.stubMapping.uuid, link: "/mappings", params: {"mapping": this.selectedMatched.stubMapping.uuid} }, '', 'link'));
+      }
 
     return dataEntries;
   }
@@ -110,5 +113,21 @@ export class MatchedComponent implements OnInit, OnChanges {
 
     return dataEntries;
   }
+
+  //I think this is too much here. If we really want to see the mapping we can jump to the other view.
+  // getStubMapping(): DataEntries{
+  //   const dataEntries = new DataEntries();
+  //   if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
+  //     return dataEntries;
+  //   }
+  //
+  //   dataEntries.addEntry(new Entry('uuid', {text: this.selectedMatched.id, link: "/", params: {"mapping": this.selectedMatched.id} }, '', 'link'));
+  //   if(UtilService.isDefined(this.selectedMatched.stubMapping)){
+  //     dataEntries.addEntry(new Entry('mapping', this.selectedMatched.stubMapping.getId(), 'plain'));
+  //   }
+  //   //...
+  //
+  //   return dataEntries;
+  // }
 
 }

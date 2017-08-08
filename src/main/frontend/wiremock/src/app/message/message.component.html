@@ -4,7 +4,7 @@
     <div class="wmSnackBarMessageContainer" *ngIf="!message.html">
       <span class="wmSnackBarMessage wmType{{getTypeClass(message.type)}}">{{message.message}}</span>
     </div>
-    <div [innerHTML]="message.html">
+    <div [class.invisible]="!message.html" class="wmSnackBarHtmlMessage" [innerHTML]="message.html">
     </div>
   </div>
 </div>

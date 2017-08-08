@@ -5,10 +5,15 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --base-href=/",
-    "build": "ng build --env=prod",
+    "buildOld": "ng build --prod --aot",
+    "start-i18n:de": "ng serve --base-href=/ --aot --i18n-file=src/i18n/messages.de.xlf --i18n-format=xlf --locale=de",
+    "build-i18n:de": "ng build --prod --base-href=/__admin/webapp/de --output-path=../../resources/assets/webapp/de --aot --i18n-file=src/i18n/messages.de.xlf --i18n-format=xlf locale=de",
+    "build-i18n:en": "ng build --prod --base-href=/__admin/webapp/en --output-path=../../resources/assets/webapp/en --aot --i18n-file=src/i18n/messages.en.xlf --i18n-format=xlf locale=en",
+    "build-i18n" : "yarn run build-i18n:de && yarn run build-i18n:en",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "i18n": "ng xi18n"
   },
   "private": true,
   "dependencies": {
@@ -30,7 +35,7 @@
     "zone.js": "^0.8.16"
   },
   "devDependencies": {
-    "@angular/cli": "1.0.1",
+    "@angular/cli": "1.2.7",
     "@angular/compiler-cli": "^4.0.0",
     "@types/jasmine": "2.5.38",
     "@types/node": "~6.0.60",

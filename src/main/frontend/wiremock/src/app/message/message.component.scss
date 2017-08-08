@@ -1,6 +1,12 @@
 .wmSnackBarMessage{
   font-size: 20px;
   word-break: keep-all;
+  margin-right: 4px;
+}
+
+.wmSnackBarHtmlMessage{
+  min-height:40px;
+  margin-right: 4px;
 }
 
 .wmSnackBarMessageContainer{

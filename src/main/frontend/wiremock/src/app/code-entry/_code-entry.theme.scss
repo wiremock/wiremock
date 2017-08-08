@@ -1,0 +1,11 @@
+@import "../wiremock-function";
+
+@mixin wm-code-entry-theme($theme){
+  .wmCodeEntryLink a{
+    color: map-get(wiremock-theme($theme), accent);
+  }
+
+  .wmCodeEntryLink a:hover{
+    color: map-get(wiremock-theme($theme), primary);
+  }
+}

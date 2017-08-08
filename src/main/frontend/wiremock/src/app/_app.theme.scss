@@ -9,8 +9,8 @@
     background-color: $background;
   }
 
-
-  .wmTwoIconSecond{
+  /* not efficient but it works as expected. But now it only works for buttons which are not disabled. Which is fine at the moment*/
+  button:not([disabled]) .wmTwoIconSecond{
     text-shadow: -2px 0 $background, 0 2px $background, 2px 0 $background, 0 -2px $background;
   }
 
