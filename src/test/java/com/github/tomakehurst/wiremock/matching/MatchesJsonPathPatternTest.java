@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.jmock.Expectations;
@@ -24,6 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -128,6 +130,31 @@ public class MatchesJsonPathPatternTest {
     @Test
     public void noMatchOnNullValue() {
         assertThat(WireMock.matchingJsonPath("$..*").match(null).isExactMatch(), is(false));
+    }
+
+    @Test
+    public void correctlyDeserialises() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                                         \n" +
+                "  \"matchesJsonPath\": \"$..thing\"       \n" +
+                "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
+    }
+
+    @Test
+    public void correctlyDeserialisesWithPattern() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                                        \n" +
+                "  \"matchesJsonPath\": \"$..thing\",      \n" +
+                "  \"equalTo\": \"the value\"              \n" +
+                "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
     }
 
     private void expectInfoNotification(final String message) {
