@@ -22,8 +22,6 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 public class NearMiss implements Comparable<NearMiss> {
 
     private final LoggedRequest request;
@@ -77,9 +75,8 @@ public class NearMiss implements Comparable<NearMiss> {
 
     @JsonIgnore
     public Diff getDiff() {
-        RequestPattern requestPattern =
-            firstNonNull(this.requestPattern, getStubMapping().getRequest());
-        return new Diff(requestPattern, request);
+        RequestPattern pattern = requestPattern != null ? requestPattern : mapping.getRequest();
+        return new Diff(pattern, request);
     }
 
     @Override
