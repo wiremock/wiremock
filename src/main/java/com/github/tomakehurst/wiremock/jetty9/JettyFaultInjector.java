@@ -23,7 +23,7 @@ import java.net.Socket;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.io.ChannelEndPoint;
+import org.eclipse.jetty.io.SocketChannelEndPoint;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
@@ -77,8 +77,7 @@ public class JettyFaultInjector implements FaultInjector {
 
     private Socket socket() {
         HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
-        ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
+        SocketChannelEndPoint ep = (SocketChannelEndPoint) httpChannel.getEndPoint();
         return ep.getSocket();
     }
-
 }

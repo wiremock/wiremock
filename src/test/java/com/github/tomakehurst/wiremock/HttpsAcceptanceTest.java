@@ -28,7 +28,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -53,9 +53,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class HttpsAcceptanceTest {
 
@@ -279,15 +277,14 @@ public class HttpsAcceptanceTest {
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy())
                 .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
-                .useTLS()
                 .build();
 
         // Allow TLSv1 protocol only
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                 sslcontext,
-                new String[] { "TLSv1" }, // supported protocols
+                new String[] { "TLSv1.2" }, // supported protocols
                 null,  // supported cipher suites
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(sslsf)

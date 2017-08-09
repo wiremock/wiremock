@@ -37,6 +37,7 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -88,6 +89,10 @@ public class JettyHttpServer implements HttpServer {
         }
 
         jettyServer.setHandler(createHandler(options, adminRequestHandler, stubRequestHandler));
+
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setHandler(jettyServer.getHandler());
+        jettyServer.setHandler(gzipHandler);
 
         finalizeSetup();
     }
