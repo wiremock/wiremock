@@ -65,6 +65,10 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Post, 'recordings/stop');
   }
 
+  snapshot(): Observable<Response>{
+    return this.createRequest(RequestMethod.Post, 'recordings/snapshot');
+  }
+
   getRecordingStatus(): Observable<Response>{
     return this.createRequest(RequestMethod.Get, 'recordings/status');
   }
@@ -84,4 +88,6 @@ export class WiremockService {
       body: typeof body === 'string' ? body : JSON.stringify(body)
     });
   }
+
+
 }

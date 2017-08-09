@@ -19,6 +19,9 @@ export class SearchComponent implements OnInit {
 
   search = new FormControl();
 
+  //Normally it should worked with local var and focused property of material. For some reason it did not. Therefore, via blur and focus and this var.
+  focused: boolean = false;
+
   constructor(private elementRef: ElementRef, private searchService: SearchService) { }
 
   ngOnInit() {
@@ -34,7 +37,6 @@ export class SearchComponent implements OnInit {
     this.searchService.searchValue$.subscribe(value =>{
       this.setSearchValue(value);
     });
-
   }
 
   onCaseSensitiveChanged(event: MdCheckboxChange){
@@ -42,7 +44,20 @@ export class SearchComponent implements OnInit {
     this.onChange.emit(new SearchEvent(this.lastSearchText, this.lastCaseSensitive));
   }
 
+  clearSearch(event: MouseEvent):void{
+    this.setSearchValue('');
+    event.stopPropagation();
+  }
+
   setSearchValue(value: string){
     this.search.setValue(value);
+  }
+
+  onBlur(): void{
+    this.focused = false;
+  }
+
+  onFocus(): void{
+    this.focused = true;
   }
 }

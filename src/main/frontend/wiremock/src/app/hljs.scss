@@ -11,10 +11,11 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
   $background: mat-color(map-get($theme, background), 'card');
   $foreground: map-get($theme, foreground);
 
-  $factor: 20;
+  $factor: 10;
+  $satFactor: 10;
 
-  @function adjust($theme, $color, $factor){
-    @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), 40));
+  @function adjust($theme, $color){
+    @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), $satFactor));
   }
 
   .hljs {
@@ -24,12 +25,12 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
 
   .hljs-comment,
   .hljs-quote {
-    color: adjust($theme, #bc9458, $factor);
+    color: adjust($theme, #bc9458);
   }
 
   .hljs-keyword,
   .hljs-selector-tag {
-    color: adjust($theme, #c26230, $factor);
+    color: adjust($theme, #c26230);
   }
 
   .hljs-string,
@@ -37,20 +38,20 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
   .hljs-regexp,
   .hljs-variable,
   .hljs-template-variable {
-    color: adjust($theme, #a5c261, $factor);
+    color: adjust($theme, #a5c261);
   }
 
   .hljs-subst {
-    color: adjust($theme, #519f50, $factor);
+    color: adjust($theme, #519f50);
   }
 
   .hljs-tag,
   .hljs-name {
-    color: adjust($theme, #e8bf6a, $factor);
+    color: adjust($theme, #e8bf6a);
   }
 
   .hljs-type {
-    color: adjust($theme, #da4939, $factor);
+    color: adjust($theme, #da4939);
   }
 
   .hljs-symbol,
@@ -59,42 +60,42 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
   .hljs-builtin-name,
   .hljs-attr,
   .hljs-link {
-    color: adjust($theme, #6d9cbe, $factor);
+    color: adjust($theme, #6d9cbe);
   }
 
   .hljs-params {
-    color: adjust($theme, #d0d0ff, $factor);
+    color: adjust($theme, #d0d0ff);
   }
 
   .hljs-attribute {
-    color: adjust($theme, #cda869, $factor);
+    color: adjust($theme, #cda869);
   }
 
   .hljs-meta {
-    color: adjust($theme, #9b859d, $factor);
+    color: adjust($theme, #9b859d);
   }
 
   .hljs-title,
   .hljs-section {
-    color: adjust($theme, #ffc66d, $factor);
+    color: adjust($theme, #ffc66d);
   }
 
   .hljs-addition {
-    background-color: adjust($theme, #144212, $factor);
-    color: adjust($theme, #e6e1dc, $factor);
+    background-color: adjust($theme, #144212);
+    color: adjust($theme, #e6e1dc);
   }
 
   .hljs-deletion {
-    background-color: adjust($theme, #600, $factor);
-    color: adjust($theme, #e6e1dc, $factor);
+    background-color: adjust($theme, #600);
+    color: adjust($theme, #e6e1dc);
   }
 
   .hljs-selector-class {
-    color: adjust($theme, #9b703f, $factor);
+    color: adjust($theme, #9b703f);
   }
 
   .hljs-selector-id {
-    color: adjust($theme, #8b98ab, $factor);
+    color: adjust($theme, #8b98ab);
   }
 }
 

@@ -11,4 +11,7 @@
     background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 5));
   }
 
+  .wmSearchClear:hover{
+    color: map-get(wiremock-theme($theme), primary);
+  }
 }

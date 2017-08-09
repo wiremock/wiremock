@@ -29,17 +29,17 @@
         <span>Reset All</span>
       </button>
       <md-divider></md-divider>
-      <button md-menu-item (click)="startRecording()">
+      <button md-menu-item (click)="startRecording()" [disabled]="recordingInterval">
         <md-icon>radio_button_checked</md-icon>
         <span>Start Recording</span>
       </button>
-      <!--<button md-menu-item>-->
-        <!--<md-icon>radio_button_checked</md-icon>-->
-        <!--<span>Restart Recording</span>-->
-      <!--</button>-->
-      <button md-menu-item (click)="stopRecording()">
+      <button md-menu-item (click)="stopRecording()" [disabled]="!recordingInterval">
         <md-icon>stop</md-icon>
         <span>Stop Recording</span>
+      </button>
+      <button md-menu-item (click)="snapshot()">
+        <md-icon>photo_camera</md-icon>
+        <span>Snapshot</span>
       </button>
       <md-divider></md-divider>
       <button md-menu-item (click)="shutdown()">

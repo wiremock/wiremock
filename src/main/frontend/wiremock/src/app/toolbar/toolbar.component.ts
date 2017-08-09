@@ -1,5 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {CookieService} from '../services/cookie.service';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {WiremockService} from '../services/wiremock.service';
 import {SettingsService} from '../services/settings.service';
 import {animate, state, style, transition, trigger} from '@angular/animations';
@@ -13,7 +12,6 @@ import {MessageService} from '../message/message.service';
 import {RecordSpec} from '../wiremock/model/record-spec';
 import {MdDialog} from '@angular/material';
 import {DialogRecordingComponent} from 'app/dialogs/dialog-recording/dialog-recording.component';
-import {StubMapping} from '../wiremock/model/stub-mapping';
 import {SnapshorRecordResult} from '../wiremock/model/snapshor-record-result';
 import {SearchService} from 'app/services/search.service';
 
@@ -156,6 +154,24 @@ export class ToolbarComponent implements OnInit {
 
   stopRecording(): void{
     this.wiremockService.stopRecording().subscribe(response =>{
+      const recordings = new SnapshorRecordResult().deserialize(response.json());
+
+      let result: string = '';
+      const ids = recordings.getIds();
+
+      for(let id of ids){
+        if(result.length != 0){
+          result += '|';
+        }
+        result += id;
+      }
+
+      this.searchService.setValue(result);
+    });
+  }
+
+  snapshot(): void{
+    this.wiremockService.snapshot().subscribe(response =>{
       const recordings = new SnapshorRecordResult().deserialize(response.json());
 
       let result: string = '';

@@ -54,13 +54,13 @@ export class UnmatchedViewComponent implements OnInit {
     return UtilService.isDefined(this.selectedUnmatched.body.match(UtilService.getSoapRecognizeRegex()));
   }
 
-  createMapping(): void{
-    const message = this._createMapping(this.selectedUnmatched);
+  copyMapping(): void{
+    const message = this.createMapping(this.selectedUnmatched);
     this.copyMappingTemplateToClipboard(message);
   }
 
-  createSoapMapping():void{
-    const message = this._createSoapMapping();
+  copySoapMapping():void{
+    const message = this.createSoapMapping();
     this.copyMappingTemplateToClipboard(message);
   }
 
@@ -72,7 +72,7 @@ export class UnmatchedViewComponent implements OnInit {
     }
   }
 
-  private _createSoapMapping(): string{
+  private createSoapMapping(): string{
     const request = this.selectedUnmatched;
 
     const method:string = request.method;
@@ -85,8 +85,6 @@ export class UnmatchedViewComponent implements OnInit {
     }
 
     const nameSpaces: {[key: string]: string} = {};
-
-    // const nameSpaces = [];
 
     let match;
     const regex = UtilService.getSoapNamespaceRegex();
@@ -116,7 +114,7 @@ export class UnmatchedViewComponent implements OnInit {
     return message;
   }
 
-  private _createMapping(request: LoggedRequest): string{
+  private createMapping(request: LoggedRequest): string{
     return UtilService.prettify('{"request": {"method": "' + request.method + '","url": "' + request.url + '"},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
   }
 

@@ -8,6 +8,7 @@ import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Rx';
 import {Message, MessageService, MessageType} from '../message/message.service';
 import {ActivatedRoute} from '@angular/router';
+import {MappingViewHelperService} from './mapping-view-helper.service';
 
 @Component({
   selector: 'wm-mapping-view',
@@ -35,8 +36,7 @@ export class MappingViewComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) =>{
-      const query = decodeURI(params['mapping'] || '');
-      this.selectByItemId = query;
+      this.selectByItemId = decodeURI(params['mapping'] || '');
     });
 
     this.newMappingText = UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
@@ -65,14 +65,14 @@ export class MappingViewComponent implements OnInit {
   setEditMode(value: State){
     this.editMode = value;
     this.selectedMappingText = this.getSelectedMappingText();
-    this.newMappingText = this.getNewMappingsText();
+    this.newMappingText = MappingViewComponent.getNewMappingsText();
   }
 
   private getSelectedMappingText(): string{
     return UtilService.prettify(JSON.stringify(this.selectedMapping));
   }
 
-  private getNewMappingsText(): string{
+  private static getNewMappingsText(): string{
     return UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
   }
 
@@ -154,76 +154,87 @@ export class MappingViewComponent implements OnInit {
 
   //################ HELPER ###################
   getMappingForHelper(): StubMapping{
-    switch (this.editMode){
-      case State.NEW:
-        return JSON.parse(this.newMappingText);
-      case State.EDIT:
-        return JSON.parse(this.selectedMappingText);
+    try{
+      switch (this.editMode){
+        case State.NEW:
+          return JSON.parse(this.newMappingText);
+        case State.EDIT:
+          return JSON.parse(this.selectedMappingText);
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
     }
   }
 
-  setMappingForHelper(mapping:StubMapping): void{
-    switch (this.editMode){
-      case State.NEW:
-        this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
-      case State.EDIT:
-        this.selectedMappingText = UtilService.prettify(JSON.stringify(mapping));
+  setMappingForHelper(mapping: StubMapping): void{
+    if(UtilService.isUndefined(mapping)){
+      return;
+    }
+    try{
+      switch (this.editMode){
+        case State.NEW:
+          this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
+          break;
+        case State.EDIT:
+          this.selectedMappingText = UtilService.prettify(JSON.stringify(mapping));
+          break;
+      }
+    }catch(err){
+      this.showHelperErrorMessage(err);
     }
   }
 
   helperAddDelay(): void{
-    try{
-      const mapping:StubMapping = this.getMappingForHelper();
-      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) && UtilService.isUndefined(mapping.response.fixedDelayMilliseconds)){
-        mapping.response.fixedDelayMilliseconds = 2000;
-        this.setMappingForHelper(mapping);
-      }
-    }catch(err){
-      this.showHelperErrorMessage(err);
-    }
+    this.setMappingForHelper(MappingViewHelperService.helperAddDelay(this.getMappingForHelper()));
   }
 
   helperAddPriority(): void{
-    try{
-      const mapping:StubMapping = this.getMappingForHelper();
-      if(UtilService.isDefined(mapping) && UtilService.isUndefined(mapping.priority)){
-        mapping.priority = 1;
-        this.setMappingForHelper(mapping);
-      }
-    }catch(err){
-      this.showHelperErrorMessage(err);
-    }
+    this.setMappingForHelper(MappingViewHelperService.helperAddPriority(this.getMappingForHelper()));
   }
 
   helperAddHeaderRequest(): void{
-    try{
-      const mapping:StubMapping = this.getMappingForHelper();
-      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.request) && UtilService.isUndefined(mapping.request.headers)){
-        mapping.request.headers = {"Content-Type": {
-          "matches": ".*/xml"
-        }};
-        this.setMappingForHelper(mapping);
-      }
-    }catch(err){
-      this.showHelperErrorMessage(err);
-    }
+    this.setMappingForHelper(MappingViewHelperService.helperAddHeaderRequest(this.getMappingForHelper()));
   }
 
   helperAddHeaderResponse(): void{
-    try{
-      const mapping:StubMapping = this.getMappingForHelper();
-      if(UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) && UtilService.isUndefined(mapping.response.headers)){
-        mapping.response.headers = {"Content-Type": "application/json"};
-        this.setMappingForHelper(mapping);
-      }
-    }catch(err){
-      this.showHelperErrorMessage(err);
-    }
+    this.setMappingForHelper(MappingViewHelperService.helperAddHeaderResponse(this.getMappingForHelper()));
+  }
+
+  helperAddScenario(): void{
+    this.setMappingForHelper(MappingViewHelperService.helperAddScenario(this.getMappingForHelper()));
+  }
+
+  helperAddProxyBaseUrl(): void{
+    this.setMappingForHelper(MappingViewHelperService.helperAddProxyBaseUrl(this.getMappingForHelper()));
+  }
+
+  helperAddAdditionalProxyRequestHeaders(): void{
+    this.setMappingForHelper(MappingViewHelperService.helperAddAdditionalProxyRequestHeaders(this.getMappingForHelper()));
+  }
+
+  helperAddResponseTemplatingTransformer(): void{
+    this.setMappingForHelper(MappingViewHelperService.helperAddResponseTemplatingTransformer(this.getMappingForHelper()));
+  }
+
+  helperRtCopyJson(): void{
+    MappingViewHelperService.helperRtCopyJson(this.messageService);
+  }
+
+  helperRtCopyXml(): void{
+    MappingViewHelperService.helperRtCopyXml(this.messageService);
+  }
+
+  helperRtCopySoap(): void{
+    MappingViewHelperService.helperRtCopySoap(this.messageService);
   }
 
   private showHelperErrorMessage(err: any){
     this.messageService.setMessage(new Message(err.name + ": message=" + err.message + ", lineNumber=" + err.lineNumber + ", columnNumber=" + err.columnNumber,
       MessageType.ERROR,10000));
+  }
+
+  noMappings(): boolean{
+    return UtilService.isUndefined(this.mappingResult) || UtilService.isUndefined(this.mappingResult.mappings) || this.mappingResult.mappings.length === 0;
   }
 
   refreshMappings(){
