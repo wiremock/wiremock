@@ -330,7 +330,7 @@ public class Examples extends AcceptanceTestBase {
             // Bind the WireMock server to this IP address locally. Defaults to the loopback adaptor.
             .bindAddress("192.168.1.111")
 
-            // Set the number of request handling threads in Jetty. Defaults to 10.
+            // Set the number of request handling threads in Jetty. Defaults to 14.
             .containerThreads(5)
 
             // Set the number of connection acceptor threads in Jetty. Defaults to 2.

@@ -43,7 +43,7 @@ Every option has a sensible default, so only options that you require an overrid
 Typically it is only necessary to tweak these settings if you are doing performance testing under significant loads.
 
 ```java
-// Set the number of request handling threads in Jetty. Defaults to 10.
+// Set the number of request handling threads in Jetty. Defaults to 14.
 .containerThreads(5)
 
 // Set the number of connection acceptor threads in Jetty. Defaults to 2.

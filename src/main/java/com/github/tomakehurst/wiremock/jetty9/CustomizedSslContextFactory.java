@@ -38,11 +38,13 @@ public class CustomizedSslContextFactory extends org.eclipse.jetty.util.ssl.SslC
         if (super.getNeedClientAuth())
             sslEngine.setNeedClientAuth(super.getNeedClientAuth());
 
-        sslEngine.setEnabledCipherSuites(super.selectCipherSuites(
+        super.selectCipherSuites(
                 sslEngine.getEnabledCipherSuites(),
-                sslEngine.getSupportedCipherSuites()));
+                sslEngine.getSupportedCipherSuites());
+        sslEngine.setEnabledCipherSuites(super.getSelectedCipherSuites());
 
-        sslEngine.setEnabledProtocols(super.selectProtocols(sslEngine.getEnabledProtocols(),sslEngine.getSupportedProtocols()));
+        super.selectProtocols(sslEngine.getEnabledProtocols(),sslEngine.getSupportedProtocols());
+        sslEngine.setEnabledProtocols(super.getSelectedProtocols());
     }
 
 
