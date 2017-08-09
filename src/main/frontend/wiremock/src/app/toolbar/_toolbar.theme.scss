@@ -14,11 +14,11 @@
   }
 
   a{
-    color:  mat-color($foreground, text);
+    color: mat-color($foreground, text);
   }
 
   a:hover{
-    color:  mat-color(map-get($theme, primary));
+    color: mat-color(map-get($theme, primary));
   }
 
   .wmSlide .mat-slide-toggle-content{
@@ -26,6 +26,10 @@
   }
 
   .wmMenuItemSelected{
-    color:  mat-color(map-get($theme, primary));
+    color: mat-color(map-get($theme, primary));
+  }
+
+  .wmRecordingStatus{
+    color: mat-color(map-get($theme, warn));
   }
 }

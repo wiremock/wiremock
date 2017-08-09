@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http, RequestMethod, RequestOptions, Request, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from '../../environments/environment';
+import {RecordSpec} from '../wiremock/model/record-spec';
 
 @Injectable()
 export class WiremockService {
@@ -56,8 +57,8 @@ export class WiremockService {
     return this.createRequest(RequestMethod.Get, 'requests/unmatched');
   }
 
-  startRecording(): Observable<Response>{
-    return this.createRequest(RequestMethod.Post, 'recordings/start');
+  startRecording(recordSpec: RecordSpec): Observable<Response>{
+    return this.createRequest(RequestMethod.Post, 'recordings/start', recordSpec);
   }
 
   stopRecording(): Observable<Response>{

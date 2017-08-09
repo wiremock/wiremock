@@ -50,6 +50,15 @@ a{
   //font-size: 16px;
 }
 
+.wmRecordingStatus{
+  display: flex;
+  align-items: center;
+}
+
+.wmRecordingStatusText{
+  margin-right: 4px;
+}
+
 ::ng-deep .wmSlide .mat-slide-toggle-content{
   line-height: 48px;
   font-size: 16px;

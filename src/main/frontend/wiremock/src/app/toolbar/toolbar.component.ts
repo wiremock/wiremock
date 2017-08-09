@@ -2,11 +2,37 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {CookieService} from '../services/cookie.service';
 import {WiremockService} from '../services/wiremock.service';
 import {SettingsService} from '../services/settings.service';
+import {animate, state, style, transition, trigger} from '@angular/animations';
+import {UtilService} from '../services/util.service';
+import {SseService} from '../services/sse.service';
+import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Observable';
+import {RecordingStatusResult} from '../wiremock/model/recording-status-result';
+import {RecordingStatus} from '../wiremock/model/recording-status';
+import {MessageService} from '../message/message.service';
+import {RecordSpec} from '../wiremock/model/record-spec';
+import {MdDialog} from '@angular/material';
+import {DialogRecordingComponent} from 'app/dialogs/dialog-recording/dialog-recording.component';
+import {StubMapping} from '../wiremock/model/stub-mapping';
+import {SnapshorRecordResult} from '../wiremock/model/snapshor-record-result';
+import {SearchService} from 'app/services/search.service';
 
 @Component({
   selector: 'wm-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.scss']
+  styleUrls: ['./toolbar.component.scss'],
+  animations:[
+    trigger('recordingState', [
+      state('flashOn', style({
+        opacity: 1.0
+      })),
+      state('flashOff', style({
+        opacity: 0.2
+      })),
+      transition('flashOn => flashOff', animate('800ms ease-out')),
+      transition('flashOff => flashOn', animate('800ms ease-in'))
+    ])
+  ]
 })
 export class ToolbarComponent implements OnInit {
 
@@ -14,11 +40,26 @@ export class ToolbarComponent implements OnInit {
   isTabSlide: boolean;
   areEmptyCodeEntriesHidden: boolean;
 
+  //this value is for the flashin animation
+  recordingState: string;
+
+  //interval remembered.
+  private recordingInterval;
+
+  //actual hide or show the recording status
+  private showRecording: boolean = false;
+  private recordingStatusObserver: Observer<RecordingStatus>;
+
+  //for the rest interface
+  private refreshRecordingStateObserver: Observer<RecordingStatus>;
+
 
   @Output('themeChanged')
   eventEmitter = new EventEmitter();
 
-  constructor(private cookieService: CookieService, private wiremockService: WiremockService, private settingsService: SettingsService) { }
+  constructor(private wiremockService: WiremockService, private settingsService: SettingsService,
+              private sseService: SseService, private messageService: MessageService, private dialog: MdDialog,
+              private searchService: SearchService) { }
 
   resetAll(): void{
     this.wiremockService.resetAll().subscribe();
@@ -39,6 +80,52 @@ export class ToolbarComponent implements OnInit {
     this.isDarkTheme = this.settingsService.isDarkTheme();
     this.isTabSlide = this.settingsService.isTabSlide();
     this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();
+
+    //soft update of mappings can  be triggered via observer
+    Observable.create(observer =>{
+      this.refreshRecordingStateObserver = observer;
+    }).debounceTime(100).subscribe(() =>{
+      this.refreshRecordingState();
+    });
+
+    //SSE registration for mappings updates
+    this.sseService.register('message',data => {
+      if(data.data === 'recording'){
+        this.refreshRecordingStateObserver.next(data.data);
+      }
+    });
+
+    Observable.create(observer =>{
+      this.recordingStatusObserver = observer;
+    }).subscribe(next =>{
+
+      const recordingStatus:RecordingStatus = (next as RecordingStatus);
+
+      switch(recordingStatus){
+        case RecordingStatus.Recording:
+          if(UtilService.isUndefined(this.recordingInterval)){
+            this.recordingInterval = setInterval(() =>{
+              if(UtilService.isUndefined(this.recordingState) ||this.recordingState === 'flashOff'){
+                this.recordingState = 'flashOn';
+              }else{
+                this.recordingState = 'flashOff';
+              }
+            }, 1100);
+          }
+          this.showRecording = true;
+          break;
+        case RecordingStatus.Stopped:
+        case RecordingStatus.NeverStarted:
+          if(UtilService.isDefined(this.recordingInterval)){
+            clearInterval(this.recordingInterval);
+            this.recordingInterval = null;
+          }
+          this.showRecording = false;
+          break;
+      }
+    });
+
+    this.refreshRecordingState();
   }
 
   changeTabSlide(): void{
@@ -51,11 +138,47 @@ export class ToolbarComponent implements OnInit {
   }
 
   startRecording(): void{
-    this.wiremockService.startRecording().subscribe();
+    const dialogRef = this.dialog.open(DialogRecordingComponent);
+
+    dialogRef.afterClosed().subscribe( result => {
+      if(result !== 'cancel'){
+        this.actualStartRecording(result);
+      }
+    });
+  }
+
+  private actualStartRecording(url : string) : void{
+    const recordSpec:RecordSpec = new RecordSpec();
+    recordSpec.targetBaseUrl = url;
+
+    this.wiremockService.startRecording(recordSpec).subscribe();
   }
 
   stopRecording(): void{
-    this.wiremockService.stopRecording().subscribe();
+    this.wiremockService.stopRecording().subscribe(response =>{
+      const recordings = new SnapshorRecordResult().deserialize(response.json());
+
+      let result: string = '';
+      const ids = recordings.getIds();
+
+      for(let id of ids){
+        if(result.length != 0){
+          result += '|';
+        }
+        result += id;
+      }
+
+      this.searchService.setValue(result);
+    });
+  }
+
+  refreshRecordingState(){
+    this.wiremockService.getRecordingStatus().subscribe(data => {
+        this.recordingStatusObserver.next(new RecordingStatusResult().deserialize(data.json()).status);
+      },
+      err => {
+        UtilService.showErrorMessage(this.messageService, err);
+      });
   }
 
 }

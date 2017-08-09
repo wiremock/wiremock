@@ -47,5 +47,8 @@
         <span>Shutdown</span>
       </button>
     </md-menu>
+    <div class="wmRecordingStatus" [class.invisible]="!showRecording">
+      <span class="wmRecordingStatusText">Recording</span><md-icon [@recordingState]="recordingState">radio_button_checked</md-icon>
+    </div>
   </div>
 </md-toolbar>

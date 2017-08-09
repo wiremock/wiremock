@@ -2,6 +2,7 @@ import {Component, EventEmitter, OnInit, Output, ElementRef} from '@angular/core
 import {MdCheckboxChange} from '@angular/material';
 import {SearchEvent} from '../wiremock/model/search-event';
 import {FormControl} from '@angular/forms';
+import {SearchService} from '../services/search.service';
 
 @Component({
   selector: 'wm-search',
@@ -18,7 +19,7 @@ export class SearchComponent implements OnInit {
 
   search = new FormControl();
 
-  constructor(private elementRef: ElementRef) { }
+  constructor(private elementRef: ElementRef, private searchService: SearchService) { }
 
   ngOnInit() {
     this.search.valueChanges.debounceTime(100).subscribe(next => {
@@ -29,10 +30,19 @@ export class SearchComponent implements OnInit {
         this.elementRef.nativeElement.click();
       });
     });
+
+    this.searchService.searchValue$.subscribe(value =>{
+      this.setSearchValue(value);
+    });
+
   }
 
   onCaseSensitiveChanged(event: MdCheckboxChange){
     this.lastCaseSensitive = event.checked;
     this.onChange.emit(new SearchEvent(this.lastSearchText, this.lastCaseSensitive));
+  }
+
+  setSearchValue(value: string){
+    this.search.setValue(value);
   }
 }

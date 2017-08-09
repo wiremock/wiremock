@@ -30,6 +30,8 @@ import { UnmatchedViewComponent } from './unmatched-view/unmatched-view.componen
 import { TabEnabledDirective } from './directives/tab-enabled.directive';
 import { MessageComponent } from './message/message.component';
 import {MessageService} from './message/message.service';
+import { DialogRecordingComponent } from './dialogs/dialog-recording/dialog-recording.component';
+import {SearchService} from './services/search.service';
 
 @NgModule({
   declarations: [
@@ -48,7 +50,8 @@ import {MessageService} from './message/message.service';
     MatchedViewComponent,
     UnmatchedViewComponent,
     TabEnabledDirective,
-    MessageComponent
+    MessageComponent,
+    DialogRecordingComponent
   ],
   imports: [
     BrowserModule,
@@ -58,8 +61,9 @@ import {MessageService} from './message/message.service';
     MaterialModule,
     ListViewModule
   ],
-  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService, PagerService, SseService, SettingsService, MessageService],
+  providers: [{provide: APP_BASE_HREF, useValue: '/__admin/webapp/'}, WiremockService, CookieService, UtilService,
+    PagerService, SseService, SettingsService, MessageService, SearchService],
   bootstrap: [AppComponent],
-  entryComponents: [MessageComponent]
+  entryComponents: [MessageComponent, DialogRecordingComponent]
 })
 export class AppModule { }
