@@ -15,7 +15,8 @@ export class CodeEntryComponent implements OnInit {
   @Input('type')
   type: string;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
   }

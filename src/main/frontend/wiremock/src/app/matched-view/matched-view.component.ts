@@ -4,7 +4,7 @@ import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {SseService} from '../services/sse.service';
 import {GetServeEventsResult} from '../wiremock/model/get-serve-events-result';
-import {Message, MessageService, MessageType} from '../message/message.service';
+import {MessageService} from '../message/message.service';
 import {UtilService} from '../services/util.service';
 
 
@@ -20,41 +20,43 @@ export class MatchedViewComponent implements OnInit {
 
   private refreshMatchedObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService, private messageService: MessageService) { }
+  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef,
+              private sseService: SseService, private messageService: MessageService) {
+  }
 
   ngOnInit() {
-    //soft update of mappings can  be triggered via observer
-    Observable.create(observer =>{
+    // soft update of mappings can  be triggered via observer
+    Observable.create(observer => {
       this.refreshMatchedObserver = observer;
-    }).debounceTime(200).subscribe(next =>{
+    }).debounceTime(200).subscribe(next => {
       this.refreshMatched();
     });
 
-    //SSE registration for mappings updates
-    this.sseService.register("message",data => {
-      if(data.data === 'matched'){
+    // SSE registration for mappings updates
+    this.sseService.register('message', data => {
+      if (data.data === 'matched') {
         this.refreshMatchedObserver.next(data.data);
       }
     });
 
-    //initial matched fetch
+    // initial matched fetch
     this.refreshMatched();
   }
 
-  setSelectedMatched(data: any): void{
+  setSelectedMatched(data: any): void {
     this.selectedMatched = data;
     this.cdr.detectChanges();
   }
 
-  resetJournal(): void{
-    this.wiremockService.resetJournal().subscribe(next =>{
-      //nothing to show
-    }, err=>{
+  resetJournal(): void {
+    this.wiremockService.resetJournal().subscribe(next => {
+      // nothing to show
+    }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  refreshMatched(): void{
+  refreshMatched(): void {
     this.wiremockService.getMatched().subscribe(data => {
         this.matchedResult = new GetServeEventsResult().deserialize(data.json(), true);
       },

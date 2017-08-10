@@ -6,13 +6,13 @@ export class GetServeEventsResult {
   meta: any;
   requestJournalDisabled: boolean;
 
-  deserialize(unchecked: GetServeEventsResult, onlyMatched: boolean): GetServeEventsResult{
+  deserialize(unchecked: GetServeEventsResult, onlyMatched: boolean): GetServeEventsResult {
     this.meta = unchecked.meta;
     this.requests = [];
     unchecked.requests.forEach(request => {
-      if(onlyMatched && request.wasMatched){
+      if (onlyMatched && request.wasMatched) {
         this.requests.push(new ServeEvent().deserialize(request));
-      }else if(!onlyMatched){
+      } else if (!onlyMatched) {
         this.requests.push(new ServeEvent().deserialize(request));
       }
     });

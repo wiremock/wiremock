@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 @Injectable()
 export class PagerService {
 
-  constructor() { }
+  constructor() {
+  }
 
-  public getPager(totalItems: number, currentPage: number = 1, pageSize: number, maxShowPage: number | 10){
+  public getPager(totalItems: number, currentPage: number = 1, pageSize: number, maxShowPage: number | 10) {
     // calculate total pages
-    let totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSize);
 
     if (currentPage > totalPages) {
       currentPage = totalPages;
@@ -37,11 +38,11 @@ export class PagerService {
     }
 
     // calculate start and end item indexes
-    let startIndex = (currentPage - 1) * pageSize;
-    let endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize - 1, totalItems - 1);
 
     // create an array of pages to ng-repeat in the pager control
-    let pages = this.getPages(startPage, endPage + 1);
+    const pages = this.getPages(startPage, endPage + 1);
 
     // return object with all pager properties required by the view
     return {
@@ -57,9 +58,9 @@ export class PagerService {
     };
   }
 
-  private getPages(startPage: number, endPage: number): any{
+  private getPages(startPage: number, endPage: number): any {
     const array = [];
-    for(let i = startPage; i < endPage; i++){
+    for (let i = startPage; i < endPage; i++) {
       array.push(i);
     }
 

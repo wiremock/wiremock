@@ -1,7 +1,6 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {ListViewComponent} from './list-view.component';
-import {ListViewListDirective} from './list-view-list.directive';
 import {ListViewActionsDirective} from './list-view-actions.directive';
 import {ListViewContentDirective} from './list-view-content.directive';
 import {ListViewSearchDirective} from './list-view-search.directive';
@@ -10,7 +9,6 @@ import {MaterialModule} from '../material/material.module';
 import {ListComponent} from '../list/list.component';
 import {ListEntryComponent} from '../list-entry/list-entry.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {SettingsService} from '../services/settings.service';
 
 @NgModule({
   imports: [
@@ -20,7 +18,6 @@ import {SettingsService} from '../services/settings.service';
     FormsModule
   ],
   exports: [
-    ListViewListDirective,
     ListViewActionsDirective,
     ListViewContentDirective,
     ListViewSearchDirective,
@@ -31,7 +28,6 @@ import {SettingsService} from '../services/settings.service';
     FormsModule
   ],
   declarations: [
-    ListViewListDirective,
     ListViewActionsDirective,
     ListViewContentDirective,
     ListViewSearchDirective,
@@ -41,4 +37,5 @@ import {SettingsService} from '../services/settings.service';
     ListEntryComponent
   ]
 })
-export class ListViewModule { }
+export class ListViewModule {
+}

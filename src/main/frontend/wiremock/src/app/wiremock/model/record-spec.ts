@@ -1,4 +1,4 @@
-export class RecordSpec{
+export class RecordSpec {
   targetBaseUrl: string;
   filters: any;
   captureHeaders: any;
@@ -10,7 +10,7 @@ export class RecordSpec{
   transformers: any;
   transformerParameters: any;
 
-  deserialize(unchecked: RecordSpec){
+  deserialize(unchecked: RecordSpec) {
     return this;
   }
 }

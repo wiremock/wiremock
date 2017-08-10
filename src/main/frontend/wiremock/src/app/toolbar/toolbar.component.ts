@@ -12,14 +12,14 @@ import {MessageService} from '../message/message.service';
 import {RecordSpec} from '../wiremock/model/record-spec';
 import {MdDialog} from '@angular/material';
 import {DialogRecordingComponent} from 'app/dialogs/dialog-recording/dialog-recording.component';
-import {SnapshorRecordResult} from '../wiremock/model/snapshor-record-result';
+import {SnapshotRecordResult} from '../wiremock/model/snapshot-record-result';
 import {SearchService} from 'app/services/search.service';
 
 @Component({
   selector: 'wm-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.scss'],
-  animations:[
+  animations: [
     trigger('recordingState', [
       state('flashOn', style({
         opacity: 1.0
@@ -38,40 +38,40 @@ export class ToolbarComponent implements OnInit {
   isTabSlide: boolean;
   areEmptyCodeEntriesHidden: boolean;
 
-  //this value is for the flashin animation
+  // this value is for the flashing animation
   recordingState: string;
 
-  //interval remembered.
+  // interval remembered.
   private recordingInterval;
 
-  //actual hide or show the recording status
-  private showRecording: boolean = false;
+  // actual hide or show the recording status
+  private showRecording = false;
   private recordingStatusObserver: Observer<RecordingStatus>;
 
-  //for the rest interface
+  // for the rest interface
   private refreshRecordingStateObserver: Observer<RecordingStatus>;
 
-
-  @Output('themeChanged')
-  eventEmitter = new EventEmitter();
+  @Output()
+  themeChanged = new EventEmitter();
 
   constructor(private wiremockService: WiremockService, private settingsService: SettingsService,
               private sseService: SseService, private messageService: MessageService, private dialog: MdDialog,
-              private searchService: SearchService) { }
+              private searchService: SearchService) {
+  }
 
-  resetAll(): void{
+  resetAll(): void {
     this.wiremockService.resetAll().subscribe();
   }
 
-  changeHideEmptyCodeEntries(): void{
+  changeHideEmptyCodeEntries(): void {
     this.areEmptyCodeEntriesHidden = !this.areEmptyCodeEntriesHidden;
     this.settingsService.setEmptyCodeEntriesHidden(this.areEmptyCodeEntriesHidden);
   }
 
-  changeTheme(): void{
+  changeTheme(): void {
     this.isDarkTheme = !this.isDarkTheme;
     this.settingsService.setDarkTheme(this.isDarkTheme);
-    this.eventEmitter.emit(this.isDarkTheme);
+    this.themeChanged.emit(this.isDarkTheme);
   }
 
   ngOnInit() {
@@ -79,33 +79,33 @@ export class ToolbarComponent implements OnInit {
     this.isTabSlide = this.settingsService.isTabSlide();
     this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();
 
-    //soft update of mappings can  be triggered via observer
-    Observable.create(observer =>{
+    // soft update of mappings can  be triggered via observer
+    Observable.create(observer => {
       this.refreshRecordingStateObserver = observer;
-    }).debounceTime(100).subscribe(() =>{
+    }).debounceTime(100).subscribe(() => {
       this.refreshRecordingState();
     });
 
-    //SSE registration for mappings updates
-    this.sseService.register('message',data => {
-      if(data.data === 'recording'){
+    // SSE registration for mappings updates
+    this.sseService.register('message', data => {
+      if (data.data === 'recording') {
         this.refreshRecordingStateObserver.next(data.data);
       }
     });
 
-    Observable.create(observer =>{
+    Observable.create(observer => {
       this.recordingStatusObserver = observer;
-    }).subscribe(next =>{
+    }).subscribe(next => {
 
-      const recordingStatus:RecordingStatus = (next as RecordingStatus);
+      const recordingStatus: RecordingStatus = (next as RecordingStatus);
 
-      switch(recordingStatus){
+      switch (recordingStatus) {
         case RecordingStatus.Recording:
-          if(UtilService.isUndefined(this.recordingInterval)){
-            this.recordingInterval = setInterval(() =>{
-              if(UtilService.isUndefined(this.recordingState) ||this.recordingState === 'flashOff'){
+          if (UtilService.isUndefined(this.recordingInterval)) {
+            this.recordingInterval = setInterval(() => {
+              if (UtilService.isUndefined(this.recordingState) || this.recordingState === 'flashOff') {
                 this.recordingState = 'flashOn';
-              }else{
+              } else {
                 this.recordingState = 'flashOff';
               }
             }, 1100);
@@ -114,7 +114,7 @@ export class ToolbarComponent implements OnInit {
           break;
         case RecordingStatus.Stopped:
         case RecordingStatus.NeverStarted:
-          if(UtilService.isDefined(this.recordingInterval)){
+          if (UtilService.isDefined(this.recordingInterval)) {
             clearInterval(this.recordingInterval);
             this.recordingInterval = null;
           }
@@ -126,41 +126,41 @@ export class ToolbarComponent implements OnInit {
     this.refreshRecordingState();
   }
 
-  changeTabSlide(): void{
+  changeTabSlide(): void {
     this.isTabSlide = !this.isTabSlide;
     this.settingsService.setTabSlide(this.isTabSlide);
   }
 
-  shutdown(): void{
+  shutdown(): void {
     this.wiremockService.shutdown().subscribe();
   }
 
-  startRecording(): void{
+  startRecording(): void {
     const dialogRef = this.dialog.open(DialogRecordingComponent);
 
-    dialogRef.afterClosed().subscribe( result => {
-      if(result !== 'cancel'){
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== 'cancel') {
         this.actualStartRecording(result);
       }
     });
   }
 
-  private actualStartRecording(url : string) : void{
-    const recordSpec:RecordSpec = new RecordSpec();
+  private actualStartRecording(url: string): void {
+    const recordSpec: RecordSpec = new RecordSpec();
     recordSpec.targetBaseUrl = url;
 
     this.wiremockService.startRecording(recordSpec).subscribe();
   }
 
-  stopRecording(): void{
-    this.wiremockService.stopRecording().subscribe(response =>{
-      const recordings = new SnapshorRecordResult().deserialize(response.json());
+  stopRecording(): void {
+    this.wiremockService.stopRecording().subscribe(response => {
+      const recordings = new SnapshotRecordResult().deserialize(response.json());
 
-      let result: string = '';
+      let result = '';
       const ids = recordings.getIds();
 
-      for(let id of ids){
-        if(result.length != 0){
+      for (const id of ids) {
+        if (result.length !== 0) {
           result += '|';
         }
         result += id;
@@ -170,15 +170,15 @@ export class ToolbarComponent implements OnInit {
     });
   }
 
-  snapshot(): void{
-    this.wiremockService.snapshot().subscribe(response =>{
-      const recordings = new SnapshorRecordResult().deserialize(response.json());
+  snapshot(): void {
+    this.wiremockService.snapshot().subscribe(response => {
+      const recordings = new SnapshotRecordResult().deserialize(response.json());
 
-      let result: string = '';
+      let result = '';
       const ids = recordings.getIds();
 
-      for(let id of ids){
-        if(result.length != 0){
+      for (const id of ids) {
+        if (result.length !== 0) {
           result += '|';
         }
         result += id;
@@ -188,7 +188,7 @@ export class ToolbarComponent implements OnInit {
     });
   }
 
-  refreshRecordingState(){
+  refreshRecordingState() {
     this.wiremockService.getRecordingStatus().subscribe(data => {
         this.recordingStatusObserver.next(new RecordingStatusResult().deserialize(data.json()).status);
       },

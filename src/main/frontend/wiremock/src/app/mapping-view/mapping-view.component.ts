@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {WiremockService} from '../services/wiremock.service';
 import {ListStubMappingsResult} from '../wiremock/model/list-stub-mappings-result';
 import {StubMapping} from '../wiremock/model/stub-mapping';
@@ -30,61 +30,63 @@ export class MappingViewComponent implements OnInit {
 
   private refreshMappingsObserver: Observer<string>;
 
+  private static getNewMappingsText(): string {
+    return UtilService.prettify(`{"request": {"method": "POST","url": ""},"response": 
+                                       {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}`);
+  }
+
   constructor(private wiremockService: WiremockService, private sseService: SseService, private cdr: ChangeDetectorRef,
               private messageService: MessageService, private route: ActivatedRoute) {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe((params) =>{
+    this.route.queryParams.subscribe((params) => {
       this.selectByItemId = decodeURI(params['mapping'] || '');
     });
 
-    this.newMappingText = UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
+    this.newMappingText = UtilService.prettify(`{"request": {"method": "POST","url": ""},"response": 
+                                                      {"status": 200,"body": "","headers": 
+                                                      {"Content-Type": "text/plain"}}}`);
     this.editMode = State.NORMAL;
 
-    //soft update of mappings can  be triggered via observer
-    Observable.create(observer =>{
+    // soft update of mappings can  be triggered via observer
+    Observable.create(observer => {
       this.refreshMappingsObserver = observer;
-    }).debounceTime(100).subscribe(() =>{
+    }).debounceTime(100).subscribe(() => {
       this.refreshMappings();
     });
 
-    //SSE registration for mappings updates
-    this.sseService.register("message",data => {
-      if(data.data === 'mappings'){
+    // SSE registration for mappings updates
+    this.sseService.register('message', data => {
+      if (data.data === 'mappings') {
         this.refreshMappingsObserver.next(data.data);
       }
     });
 
-    //initial mapping fetch
+    // initial mapping fetch
     this.refreshMappings();
   }
 
 
-
-  setEditMode(value: State){
+  setEditMode(value: State) {
     this.editMode = value;
     this.selectedMappingText = this.getSelectedMappingText();
     this.newMappingText = MappingViewComponent.getNewMappingsText();
   }
 
-  private getSelectedMappingText(): string{
+  private getSelectedMappingText(): string {
     return UtilService.prettify(JSON.stringify(this.selectedMapping));
   }
 
-  private static getNewMappingsText(): string{
-    return UtilService.prettify('{"request": {"method": "POST","url": ""},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
-  }
-
-  setSelectedMapping(mapping: StubMapping){
+  setSelectedMapping(mapping: StubMapping) {
     this.selectedMapping = mapping;
     this.selectedMappingText = this.getSelectedMappingText();
 
     this.cdr.detectChanges();
   }
 
-  saveMapping(): void{
-    switch(this.editMode){
+  saveMapping(): void {
+    switch (this.editMode) {
       case State.EDIT:
         this.saveEditedMapping();
         break;
@@ -94,16 +96,16 @@ export class MappingViewComponent implements OnInit {
     }
   }
 
-  saveEditedMapping(): void{
-    this.wiremockService.saveMapping(this.selectedMapping.getId(), this.selectedMappingText).subscribe(response =>{
+  saveEditedMapping(): void {
+    this.wiremockService.saveMapping(this.selectedMapping.getId(), this.selectedMappingText).subscribe(response => {
       this.setEditMode(State.NORMAL);
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  saveNewMapping(): void{
-    this.wiremockService.saveNewMapping(this.newMappingText).subscribe(response =>{
+  saveNewMapping(): void {
+    this.wiremockService.saveNewMapping(this.newMappingText).subscribe(response => {
       this.setEditMode(State.NORMAL);
       const newMapping = new StubMapping().deserialize(response.json());
       this.selectByItemId = newMapping.getId();
@@ -112,66 +114,66 @@ export class MappingViewComponent implements OnInit {
     });
   }
 
-  saveMappings(): void{
-    this.wiremockService.saveMappings().subscribe(data =>{
-      this.messageService.setMessage(new Message("Mappings saved", MessageType.INFO,3000));
-    }, err =>{
-      UtilService.showErrorMessage(this.messageService, err);
-    })
-  }
-
-  resetMappings(): void{
-    this.wiremockService.resetMappings().subscribe(data =>{
-      //No feedback necessary
-    }, err =>{
-      UtilService.showErrorMessage(this.messageService, err);
-    })
-  }
-
-  removeMapping(): void{
-    this.wiremockService.deleteMapping(this.selectedMapping.getId()).subscribe(data =>{
-      //No feedback necessary
-    }, err =>{
+  saveMappings(): void {
+    this.wiremockService.saveMappings().subscribe(data => {
+      this.messageService.setMessage(new Message('Mappings saved', MessageType.INFO, 3000));
+    }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  deleteAllMappings(): void{
-    this.wiremockService.deleteAllMappings().subscribe(data =>{
-      //No feedback necessary
-    }, err =>{
+  resetMappings(): void {
+    this.wiremockService.resetMappings().subscribe(data => {
+      // No feedback necessary
+    }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  resetScenarios(): void{
-    this.wiremockService.resetScenarios().subscribe(data =>{
-      this.messageService.setMessage(new Message("Scenarios has been reset", MessageType.INFO,3000));
-    }, err =>{
+  removeMapping(): void {
+    this.wiremockService.deleteMapping(this.selectedMapping.getId()).subscribe(data => {
+      // No feedback necessary
+    }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  //################ HELPER ###################
-  getMappingForHelper(): StubMapping{
-    try{
-      switch (this.editMode){
+  deleteAllMappings(): void {
+    this.wiremockService.deleteAllMappings().subscribe(data => {
+      // No feedback necessary
+    }, err => {
+      UtilService.showErrorMessage(this.messageService, err);
+    });
+  }
+
+  resetScenarios(): void {
+    this.wiremockService.resetScenarios().subscribe(data => {
+      this.messageService.setMessage(new Message('Scenarios has been reset', MessageType.INFO, 3000));
+    }, err => {
+      UtilService.showErrorMessage(this.messageService, err);
+    });
+  }
+
+  // ################ HELPER ###################
+  getMappingForHelper(): StubMapping {
+    try {
+      switch (this.editMode) {
         case State.NEW:
           return JSON.parse(this.newMappingText);
         case State.EDIT:
           return JSON.parse(this.selectedMappingText);
       }
-    }catch(err){
+    } catch (err) {
       this.showHelperErrorMessage(err);
     }
   }
 
-  setMappingForHelper(mapping: StubMapping): void{
-    if(UtilService.isUndefined(mapping)){
+  setMappingForHelper(mapping: StubMapping): void {
+    if (UtilService.isUndefined(mapping)) {
       return;
     }
-    try{
-      switch (this.editMode){
+    try {
+      switch (this.editMode) {
         case State.NEW:
           this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
           break;
@@ -179,71 +181,73 @@ export class MappingViewComponent implements OnInit {
           this.selectedMappingText = UtilService.prettify(JSON.stringify(mapping));
           break;
       }
-    }catch(err){
+    } catch (err) {
       this.showHelperErrorMessage(err);
     }
   }
 
-  helperAddDelay(): void{
+  helperAddDelay(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddDelay(this.getMappingForHelper()));
   }
 
-  helperAddPriority(): void{
+  helperAddPriority(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddPriority(this.getMappingForHelper()));
   }
 
-  helperAddHeaderRequest(): void{
+  helperAddHeaderRequest(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddHeaderRequest(this.getMappingForHelper()));
   }
 
-  helperAddHeaderResponse(): void{
+  helperAddHeaderResponse(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddHeaderResponse(this.getMappingForHelper()));
   }
 
-  helperAddScenario(): void{
+  helperAddScenario(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddScenario(this.getMappingForHelper()));
   }
 
-  helperAddProxyBaseUrl(): void{
+  helperAddProxyBaseUrl(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddProxyBaseUrl(this.getMappingForHelper()));
   }
 
-  helperAddAdditionalProxyRequestHeaders(): void{
+  helperAddAdditionalProxyRequestHeaders(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddAdditionalProxyRequestHeaders(this.getMappingForHelper()));
   }
 
-  helperAddResponseTemplatingTransformer(): void{
+  helperAddResponseTemplatingTransformer(): void {
     this.setMappingForHelper(MappingViewHelperService.helperAddResponseTemplatingTransformer(this.getMappingForHelper()));
   }
 
-  helperRtCopyJson(): void{
+  helperRtCopyJson(): void {
     MappingViewHelperService.helperRtCopyJson(this.messageService);
   }
 
-  helperRtCopyXml(): void{
+  helperRtCopyXml(): void {
     MappingViewHelperService.helperRtCopyXml(this.messageService);
   }
 
-  helperRtCopySoap(): void{
+  helperRtCopySoap(): void {
     MappingViewHelperService.helperRtCopySoap(this.messageService);
   }
 
-  private showHelperErrorMessage(err: any){
-    this.messageService.setMessage(new Message(err.name + ": message=" + err.message + ", lineNumber=" + err.lineNumber + ", columnNumber=" + err.columnNumber,
-      MessageType.ERROR,10000));
+  private showHelperErrorMessage(err: any) {
+    this.messageService.setMessage(new Message(err.name + ': message=' + err.message +
+      ', lineNumber=' + err.lineNumber + ', columnNumber=' + err.columnNumber,
+      MessageType.ERROR, 10000));
   }
 
-  noMappings(): boolean{
-    return UtilService.isUndefined(this.mappingResult) || UtilService.isUndefined(this.mappingResult.mappings) || this.mappingResult.mappings.length === 0;
+  noMappings(): boolean {
+    return UtilService.isUndefined(this.mappingResult) || UtilService.isUndefined(this.mappingResult.mappings) ||
+      this.mappingResult.mappings.length === 0;
   }
 
-  refreshMappings(){
+  refreshMappings() {
     this.wiremockService.getMappings().subscribe(data => {
-      this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
-    },
-    err => {
-      UtilService.showErrorMessage(this.messageService, err);
-    });
+        this.mappingResult = new ListStubMappingsResult().deserialize(data.json());
+      },
+      err => {
+        UtilService.showErrorMessage(this.messageService, err);
+      });
   }
 }
 

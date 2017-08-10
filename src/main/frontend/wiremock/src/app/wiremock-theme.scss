@@ -81,7 +81,7 @@ $mat-wm-blue: (
   )
 );
 
-@mixin wiremock-theme($theme){
+@mixin wiremock-theme($theme) {
   @include wm-hljs-theme($theme);
   @include wm-list-entry-theme($theme);
   @include wm-mapping-theme($theme);
@@ -96,7 +96,6 @@ $mat-wm-blue: (
   @include wm-message-theme($theme);
   @include wm-code-entry-theme($theme);
 }
-
 
 //$primary: mat-palette($mat-indigo);
 $primary: mat-palette($mat-wm-orange);
@@ -114,28 +113,28 @@ $theme: mat-light-theme($primary, $accent, $warn);
   $warn: mat-palette($mat-red, 700);
 
   $wm-dark-theme-foreground: (
-    base:              white,
-    divider:           $white-12-opacity,
-    dividers:          $white-12-opacity,
-    disabled:          rgba(white, 0.4),
-    disabled-button:   rgba(white, 0.4),
-    disabled-text:     rgba(white, 0.4),
-    hint-text:         rgba(white, 0.5),
-    secondary-text:    rgba(white, 0.7),
-    icon:              white,
-    icons:             white,
-    text:              white,
-    slider-off:        rgba(white, 0.3),
+    base: white,
+    divider: $white-12-opacity,
+    dividers: $white-12-opacity,
+    disabled: rgba(white, 0.4),
+    disabled-button: rgba(white, 0.4),
+    disabled-text: rgba(white, 0.4),
+    hint-text: rgba(white, 0.5),
+    secondary-text: rgba(white, 0.7),
+    icon: white,
+    icons: white,
+    text: white,
+    slider-off: rgba(white, 0.3),
     slider-off-active: rgba(white, 0.3),
   );
 
   $wm-dark-theme-background: (
     status-bar: #262626,
-    app-bar:    map_get($mat-grey, 900),
+    app-bar: map_get($mat-grey, 900),
     background: #262626,
-    hover:      rgba(white, 0.04), // TODO(kara): check style with Material Design UX
-    card:       #262626,
-    dialog:     #262626,
+    hover: rgba(white, 0.04), // TODO(kara): check style with Material Design UX
+    card: #262626,
+    dialog: #262626,
     disabled-button: $white-12-opacity,
     raised-button: #262626,
     focused-button: $white-6-opacity,

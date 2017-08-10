@@ -6,13 +6,10 @@ import {Message, MessageService, MessageType} from '../message/message.service';
 @Injectable()
 export class UtilService {
 
-  constructor() {
-  }
+  public static copyToClipboard(text: string): boolean {
+    // https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
 
-  public static copyToClipboard(text: string): boolean{
-    //https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
-
-    const textArea = document.createElement("textarea");
+    const textArea = document.createElement('textarea');
 
     // Place in top-left corner of screen regardless of scroll position.
     textArea.style.position = 'fixed';
@@ -44,10 +41,10 @@ export class UtilService {
 
     try {
       const successful = document.execCommand('copy');
-      if(successful){
+      if (successful) {
         return true;
-      }else{
-        console.error("Was not able to copy. No exception was thrown. Result=" + successful);
+      } else {
+        console.error('Was not able to copy. No exception was thrown. Result=' + successful);
       }
     } catch (err) {
       console.error(err);
@@ -57,16 +54,16 @@ export class UtilService {
     return false;
   }
 
-  public static showErrorMessage(messageService: MessageService, err: any): void{
+  public static showErrorMessage(messageService: MessageService, err: any): void {
 
-    if(UtilService.isDefined(err._body) && err._body instanceof ProgressEvent){
-      if(err.status == 0){
-        messageService.setMessage(new Message("status=" + err.status + ": Is Wiremock started?", MessageType.ERROR, 10000));
-      }else{
-        messageService.setMessage(new Message(err.statusText + ": status=" + err.status, MessageType.ERROR, 10000));
+    if (UtilService.isDefined(err._body) && err._body instanceof ProgressEvent) {
+      if (err.status === 0) {
+        messageService.setMessage(new Message('status=' + err.status + ': Is Wiremock started?', MessageType.ERROR, 10000));
+      } else {
+        messageService.setMessage(new Message(err.statusText + ': status=' + err.status, MessageType.ERROR, 10000));
       }
-    }else{
-      messageService.setMessage(new Message(err.statusText + ": status=" + err.status + ", message=", MessageType.ERROR, 10000, err._body));
+    } else {
+      messageService.setMessage(new Message(err.statusText + ': status=' + err.status + ', message=', MessageType.ERROR, 10000, err._body));
     }
   }
 
@@ -95,7 +92,7 @@ export class UtilService {
   }
 
   public static isBlank(value: string): boolean {
-    return (UtilService.isUndefined(value) || value.length == 0);
+    return (UtilService.isUndefined(value) || value.length === 0);
   }
 
   public static isNotBlank(value: string): boolean {
@@ -127,7 +124,7 @@ export class UtilService {
 
     const result = [];
 
-    //This works but typescript is not aware of entries function yet
+    // This works but typescript is not aware of entries function yet
     // if(isDefined(URLSearchParams)){
     //   const params = new URLSearchParams(decodeQueryParams);
     //
@@ -142,7 +139,7 @@ export class UtilService {
     let splitKeyValue;
     for (let i = 0; i < array.length; i++) {
       splitKeyValue = array[i].split('=');
-      result.push({key: splitKeyValue[0], value: splitKeyValue[1]})
+      result.push({key: splitKeyValue[0], value: splitKeyValue[1]});
     }
 
     return result;
@@ -169,7 +166,7 @@ export class UtilService {
 
     const result: Item[] = [];
 
-    for (let item of items) {
+    for (const item of items) {
       if (func(item, toSearch)) {
         result.push(item);
       }
@@ -183,14 +180,13 @@ export class UtilService {
   }
 
   public static eachRecursiveRegex(obj, regex): boolean {
-    for (let k in obj) {
-      //hasOwnProperty check not needed. We are iterating over properties of object
+    for (const k of Object.keys(obj)) {
+      // hasOwnProperty check not needed. We are iterating over properties of object
       if (typeof obj[k] === 'object' && UtilService.isDefined(obj[k])) {
         if (UtilService.eachRecursiveRegex(obj[k], regex)) {
           return true;
         }
-      }
-      else {
+      } else {
         if (!UtilService.isFunction(obj[k])) {
           const toCheck = obj[k] ? '' + obj[k] : '';
           if (toCheck.search(regex) > -1) {
@@ -203,14 +199,13 @@ export class UtilService {
   }
 
   public static eachRecursive(obj, text): boolean {
-    for (let k in obj) {
-      //hasOwnProperty check not needed. We are iterating over properties of object
+    for (const k of Object.keys(obj)) {
+      // hasOwnProperty check not needed. We are iterating over properties of object
       if (typeof obj[k] === 'object' && UtilService.isDefined(obj[k])) {
         if (UtilService.eachRecursive(obj[k], text)) {
           return true;
         }
-      }
-      else {
+      } else {
         if (!UtilService.isFunction(obj[k])) {
           const toCheck = obj[k] ? '' + obj[k] : '';
           if (toCheck.includes(text)) {
@@ -226,17 +221,6 @@ export class UtilService {
     if (UtilService.isUndefined(code)) {
       return '';
     }
-
-    // try {
-    //   return vkbeautify.xml(code);
-    // } catch (err) {
-    //   try {
-    //     return vkbeautify.json(code);
-    //   } catch (err2) {
-    //     return code;
-    //   }
-    // }
-
 
     try {
       return vkbeautify.json(code);
@@ -257,17 +241,17 @@ export class UtilService {
     }
   }
 
-  public static transient(obj: any, key: string, value: any){
+  public static transient(obj: any, key: string, value: any) {
     if (obj.hasOwnProperty(key)) {
-      //move key to transient layer
+      // move key to transient layer
       delete obj[key];
     }
-    if(!obj.__proto__.__transient__){
-      //create transient layer
+    if (!obj.__proto__.__transient__) {
+      // create transient layer
       obj.__proto__ = {
-        "__proto__": obj.__proto__,
-        "__tansient__": true
-      }
+        '__proto__': obj.__proto__,
+        '__tansient__': true
+      };
     }
     obj.__proto__[key] = value;
   }
@@ -275,14 +259,18 @@ export class UtilService {
   public static generateUUID(): string { // Public Domain/MIT
     return new UUID().generate();
   }
+
+  constructor() {
+  }
 }
 
-export class UUID{
+/* tslint:disable */
+export class UUID {
   lut = [];
 
-  constructor(){
-    for (let i=0; i<256; i++) {
-      this.lut[i] = (i<16?'0':'')+(i).toString(16);
+  constructor() {
+    for (let i = 0; i < 256; i++) {
+      this.lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
     }
   }
 
@@ -297,3 +285,5 @@ export class UUID{
       this.lut[d3 & 0xff] + this.lut[d3 >> 8 & 0xff] + this.lut[d3 >> 16 & 0xff] + this.lut[d3 >> 24 & 0xff];
   }
 }
+
+/* tslint:enable */

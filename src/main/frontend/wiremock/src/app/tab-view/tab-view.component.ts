@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {CookieService} from '../services/cookie.service';
+import {Component, OnInit} from '@angular/core';
 import {SettingsService} from '../services/settings.service';
 
 @Component({
@@ -9,12 +8,13 @@ import {SettingsService} from '../services/settings.service';
 })
 export class TabViewComponent implements OnInit {
 
-  constructor(private settingsService: SettingsService) { }
+  constructor(private settingsService: SettingsService) {
+  }
 
   ngOnInit() {
   }
 
-  tabSlide(): boolean{
+  tabSlide(): boolean {
     return this.settingsService.isTabSlide();
   }
 

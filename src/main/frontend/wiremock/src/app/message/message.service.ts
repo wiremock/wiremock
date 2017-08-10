@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
@@ -7,24 +7,25 @@ export class MessageService {
   private message = new BehaviorSubject<Message>(null);
   message$ = this.message.asObservable();
 
-  constructor() { }
+  constructor() {
+  }
 
-  setMessage(message: Message){
+  setMessage(message: Message) {
     this.message.next(message);
   }
 
-  getMessage(): Message{
+  getMessage(): Message {
     return this.message.getValue();
   }
 }
 
-export class Message{
+export class Message {
   message: string;
   html: string;
   type: MessageType;
   duration: number;
 
-  constructor(message: string, type: MessageType, duration: number, html?: string){
+  constructor(message: string, type: MessageType, duration: number, html?: string) {
     this.message = message;
     this.html = html;
     this.type = type;
@@ -32,7 +33,7 @@ export class Message{
   }
 }
 
-export enum MessageType{
+export enum MessageType {
   INFO,
   WARN,
   ERROR

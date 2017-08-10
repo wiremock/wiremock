@@ -15,42 +15,43 @@ export class ListViewComponent implements OnInit, OnChanges {
   @Input('selectByItemId')
   selectByItemId: string;
 
-  filteredItem : Item[];
+  filteredItem: Item[];
 
-  @Output('onSelect')
-  selectEmitter = new EventEmitter();
+  @Output()
+  onSelect = new EventEmitter();
 
   lastSearch: SearchEvent;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(UtilService.isDefined(changes.selectByItemId)){
+    if (UtilService.isDefined(changes.selectByItemId)) {
       this.selectByItemId = changes.selectByItemId.currentValue;
-    }else{
+    } else {
       this.onSearchChanged(this.lastSearch);
     }
   }
 
-  onSearchChanged(search: SearchEvent){
+  onSearchChanged(search: SearchEvent) {
     this.lastSearch = search;
-    if(UtilService.isDefined(search)){
+    if (UtilService.isDefined(search)) {
       this.filteredItem = UtilService.deepSearch(this.items, search.text, search.caseSensitive);
-    }else{
+    } else {
       this.filteredItem = UtilService.deepSearch(this.items, '', false);
     }
 
-    //We deselect an item when there are no results.
-    if(UtilService.isUndefined(this.filteredItem) || this.filteredItem.length == 0){
-      this.onSelect(null);
+    // We deselect an item when there are no results.
+    if (UtilService.isUndefined(this.filteredItem) || this.filteredItem.length === 0) {
+      this.onItemSelected(null);
     }
   }
 
-  onSelect(item: Item){
-    this.selectEmitter.emit(item);
+  onItemSelected(item: Item) {
+    this.onSelect.emit(item);
   }
 }

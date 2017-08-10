@@ -24,29 +24,29 @@ export class MessageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  closeMessage(): void{
+  closeMessage(): void {
     this.snackBar.dismiss();
   }
 
-  getTypeClass(type: MessageType):string{
-    switch (type){
+  getTypeClass(type: MessageType): string {
+    switch (type) {
       case MessageType.INFO:
-        return "Info";
+        return 'Info';
       case MessageType.WARN:
-        return "Warn";
+        return 'Warn';
       case MessageType.ERROR:
-        return "Error";
+        return 'Error';
     }
   }
 
-  getCloseColor(type: MessageType): string{
-    switch (type){
+  getCloseColor(type: MessageType): string {
+    switch (type) {
       case MessageType.INFO:
-        return "accent";
+        return 'accent';
       case MessageType.WARN:
-        return "primary";
+        return 'primary';
       case MessageType.ERROR:
-        return "warn";
+        return 'warn';
     }
   }
 

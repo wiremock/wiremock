@@ -1,14 +1,14 @@
 import {LoggedRequest} from './logged-request';
 
-export class FindRequestResult{
+export class FindRequestResult {
 
   requests: LoggedRequest[];
   requestJournalDisabled: boolean;
 
-  deserialize(unchecked: FindRequestResult): FindRequestResult{
+  deserialize(unchecked: FindRequestResult): FindRequestResult {
     this.requests = [];
     unchecked.requests.forEach(request => {
-        this.requests.push(new LoggedRequest().deserialize(request));
+      this.requests.push(new LoggedRequest().deserialize(request));
     });
     this.requestJournalDisabled = unchecked.requestJournalDisabled;
 

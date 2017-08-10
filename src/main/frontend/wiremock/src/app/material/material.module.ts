@@ -3,15 +3,22 @@ import {CommonModule} from '@angular/common';
 import {
   MdButtonModule,
   MdCardModule,
+  MdCheckboxModule,
   MdChipsModule,
+  MdDialogModule,
   MdIconModule,
+  MdIconRegistry,
   MdInputModule,
   MdListModule,
+  MdMenuModule,
+  MdSelectModule,
+  MdSlideToggleModule,
+  MdSnackBarModule,
+  MdTableModule,
   MdTabsModule,
-  MdTableModule, MdToolbarModule, MdMenuModule, MdSlideToggleModule, MdCheckboxModule, MdSelectModule, MdIconRegistry,
-  MdSnackBarModule, MdDialogModule
+  MdToolbarModule
 } from '@angular/material';
-import {CdkTableModule} from '@angular/cdk'
+import {CdkTableModule} from '@angular/cdk';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
@@ -38,7 +45,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     MdDialogModule
   ],
   declarations: [],
-  providers:[MdIconRegistry]
+  providers: [MdIconRegistry]
 })
 export class MaterialModule {
 }

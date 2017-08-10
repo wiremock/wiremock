@@ -7,7 +7,7 @@ import {FindRequestResult} from '../wiremock/model/find-request-result';
 import {UtilService} from '../services/util.service';
 import {isUndefined} from 'util';
 import {LoggedRequest} from '../wiremock/model/logged-request';
-import {MessageService, Message, MessageType} from 'app/message/message.service';
+import {Message, MessageService, MessageType} from 'app/message/message.service';
 
 @Component({
   selector: 'wm-unmatched-view',
@@ -21,112 +21,118 @@ export class UnmatchedViewComponent implements OnInit {
 
   private refreshUnmatchedObserver: Observer<string>;
 
-  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef, private sseService: SseService, private messageService: MessageService) { }
+  constructor(private wiremockService: WiremockService, private cdr: ChangeDetectorRef,
+              private sseService: SseService, private messageService: MessageService) {
+  }
 
   ngOnInit() {
-    //soft update of mappings can  be triggered via observer
-    Observable.create(observer =>{
+    // soft update of mappings can  be triggered via observer
+    Observable.create(observer => {
       this.refreshUnmatchedObserver = observer;
-    }).debounceTime(200).subscribe(next =>{
+    }).debounceTime(200).subscribe(next => {
       this.refreshMatched();
     });
 
-    //SSE registration for mappings updates
-    this.sseService.register('message',data => {
-      if(data.data === 'unmatched'){
+    // SSE registration for mappings updates
+    this.sseService.register('message', data => {
+      if (data.data === 'unmatched') {
         this.refreshUnmatchedObserver.next(data.data);
       }
     });
 
-    //initial matched fetch
+    // initial matched fetch
     this.refreshMatched();
   }
 
-  setSelectedMatched(data: any): void{
+  setSelectedMatched(data: any): void {
     this.selectedUnmatched = data;
     this.cdr.detectChanges();
   }
 
-  isSoapRequest(){
-    if(UtilService.isUndefined(this.selectedUnmatched) || UtilService.isUndefined(this.selectedUnmatched.body)){
+  isSoapRequest() {
+    if (UtilService.isUndefined(this.selectedUnmatched) || UtilService.isUndefined(this.selectedUnmatched.body)) {
       return false;
     }
     return UtilService.isDefined(this.selectedUnmatched.body.match(UtilService.getSoapRecognizeRegex()));
   }
 
-  copyMapping(): void{
+  copyMapping(): void {
     const message = this.createMapping(this.selectedUnmatched);
     this.copyMappingTemplateToClipboard(message);
   }
 
-  copySoapMapping():void{
+  copySoapMapping(): void {
     const message = this.createSoapMapping();
     this.copyMappingTemplateToClipboard(message);
   }
 
-  private copyMappingTemplateToClipboard(message: string){
-    if(UtilService.copyToClipboard(message)){
-      this.messageService.setMessage(new Message("Mapping template copied to clipboard", MessageType.INFO,3000));
-    }else{
-      this.messageService.setMessage(new Message("Was not able to copy. Details in log", MessageType.ERROR,10000));
+  private copyMappingTemplateToClipboard(message: string) {
+    if (UtilService.copyToClipboard(message)) {
+      this.messageService.setMessage(new Message('Mapping template copied to clipboard', MessageType.INFO, 3000));
+    } else {
+      this.messageService.setMessage(new Message('Was not able to copy. Details in log', MessageType.ERROR, 10000));
     }
   }
 
-  private createSoapMapping(): string{
+  private createSoapMapping(): string {
     const request = this.selectedUnmatched;
 
-    const method:string = request.method;
-    const url:string = request.url;
-    const body:string = request.body;
+    const method: string = request.method;
+    const url: string = request.url;
+    const body: string = request.body;
     const result = body.match(UtilService.getSoapRecognizeRegex());
 
-    if(isUndefined(result)){
+    if (isUndefined(result)) {
       return;
     }
 
-    const nameSpaces: {[key: string]: string} = {};
+    const nameSpaces: { [key: string]: string } = {};
 
     let match;
     const regex = UtilService.getSoapNamespaceRegex();
-    while((match = regex.exec(body)) !== null){
+    while ((match = regex.exec(body)) !== null) {
       nameSpaces[match[1]] = match[2];
     }
 
     const soapMethod = body.match(UtilService.getSoapMethodRegex());
 
-    const xPath = '/' + String(result[1]) + ':Envelope/' + String(result[2]) + ':Body/' + String(soapMethod[1]) + ':' + String(soapMethod[2]);
+    const xPath = '/' + String(result[1]) + ':Envelope/' + String(result[2]) + ':Body/'
+                      + String(soapMethod[1]) + ':' + String(soapMethod[2]);
 
-    let printedNamespaces:string = '';
+    let printedNamespaces = '';
 
-    let first: boolean = true;
-    for(let key in nameSpaces){
-      if(!first){
+    let first = true;
+    for (const key of Object.keys(nameSpaces)) {
+      if (!first) {
         printedNamespaces += ',';
-      }else{
+      } else {
         first = false;
       }
       printedNamespaces += '"' + key + '": "' + nameSpaces[key] + '"';
     }
 
-    let message = '{"request": {"method": "' + method + '","url": "' + url + '","bodyPatterns": [{"matchesXPath": "' + xPath + '","xPathNamespaces": {' + printedNamespaces + '}}]},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/xml"}}}';
+    let message = '{"request": {"method": "' + method + '","url": "' + url + '","bodyPatterns": [{"matchesXPath": "'
+                  + xPath + '","xPathNamespaces": {' + printedNamespaces
+                  + '}}]},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/xml"}}}';
     message = UtilService.prettify(message);
 
     return message;
   }
 
-  private createMapping(request: LoggedRequest): string{
-    return UtilService.prettify('{"request": {"method": "' + request.method + '","url": "' + request.url + '"},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
+  private createMapping(request: LoggedRequest): string {
+    return UtilService.prettify('{"request": {"method": "' + request.method + '","url": "' + request.url
+                      + '"},"response": {"status": 200,"body": "","headers": {"Content-Type": "text/plain"}}}');
   }
 
-  resetJournal(): void{
-    this.wiremockService.resetJournal().subscribe(next =>{
-      //nothing to show
-    }, err=>{
+  resetJournal(): void {
+    this.wiremockService.resetJournal().subscribe(next => {
+      // nothing to show
+    }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
-  refreshMatched(): void{
+  refreshMatched(): void {
     this.wiremockService.getUnmatched().subscribe(data => {
         this.unmatchedResult = new FindRequestResult().deserialize(data.json());
       },

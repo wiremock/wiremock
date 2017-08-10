@@ -1,4 +1,5 @@
 @import "wiremock-function";
+
 /*
 The colors depend on the railscasts style from Damien White. They are just for better readability depending on the theme.
 
@@ -6,15 +7,14 @@ Railscasts-like style (c) Visoft, Inc. (Damien White)
 
 */
 
-
-@mixin wm-hljs-theme($theme){
+@mixin wm-hljs-theme($theme) {
   $background: mat-color(map-get($theme, background), 'card');
   $foreground: map-get($theme, foreground);
 
   $factor: 10;
   $satFactor: 10;
 
-  @function adjust($theme, $color){
+  @function adjust($theme, $color) {
     @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), $satFactor));
   }
 

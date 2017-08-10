@@ -12,7 +12,7 @@ export class RequestPattern {
   bodyPatterns: any[];
   customMatcher: any;
 
-  deserialize(unchecked: RequestPattern): RequestPattern{
+  deserialize(unchecked: RequestPattern): RequestPattern {
     return unchecked;
     // this.url = unchecked.url;
     // this.urlPattern = unchecked.urlPattern;

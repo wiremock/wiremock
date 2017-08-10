@@ -1,6 +1,6 @@
 import {RecordingStatus} from './recording-status';
 
-export class RecordingStatusResult{
+export class RecordingStatusResult {
   status: RecordingStatus;
 
   deserialize(unchecked: RecordingStatusResult): RecordingStatusResult {
@@ -9,12 +9,12 @@ export class RecordingStatusResult{
   }
 
   private deserializeStatus(unchecked: any): RecordingStatus {
-    switch(unchecked){
-      case "NeverStarted":
+    switch (unchecked) {
+      case 'NeverStarted':
         return RecordingStatus.NeverStarted;
-      case "Recording":
+      case 'Recording':
         return RecordingStatus.Recording;
-      case "Stopped":
+      case 'Stopped':
         return RecordingStatus.Stopped;
     }
   }

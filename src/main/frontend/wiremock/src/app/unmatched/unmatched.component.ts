@@ -17,10 +17,12 @@ export class UnmatchedComponent implements OnInit, OnChanges {
   general: DataEntries;
   request: DataEntries;
 
-  constructor() { }
+  constructor() {
+  }
 
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.code = UtilService.toJson(this.selectedUnmatched);
@@ -28,13 +30,13 @@ export class UnmatchedComponent implements OnInit, OnChanges {
     this.request = this.getRequest();
   }
 
-  isVisible(): boolean{
+  isVisible(): boolean {
     return UtilService.isDefined(this.selectedUnmatched);
   }
 
-  getGeneral(): DataEntries{
+  getGeneral(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedUnmatched == null || typeof this.selectedUnmatched === 'undefined'){
+    if (this.selectedUnmatched == null || typeof this.selectedUnmatched === 'undefined') {
       return dataEntries;
     }
     dataEntries.addEntry(new Entry('uuid', this.selectedUnmatched.getId(), 'plain'));
@@ -42,14 +44,14 @@ export class UnmatchedComponent implements OnInit, OnChanges {
     return dataEntries;
   }
 
-  getRequest(): DataEntries{
+  getRequest(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedUnmatched == null || typeof this.selectedUnmatched === 'undefined'){
+    if (this.selectedUnmatched == null || typeof this.selectedUnmatched === 'undefined') {
       return dataEntries;
     }
     dataEntries.addEntry(new Entry('url', this.selectedUnmatched.url, 'plain'));
     dataEntries.addEntry(new Entry('absoluteUrl', this.selectedUnmatched.url, 'plain'));
-    dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedUnmatched.url),'', 'params'));
+    dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedUnmatched.url), '', 'params'));
     dataEntries.addEntry(new Entry('method', this.selectedUnmatched.method, 'plain'));
     dataEntries.addEntry(new Entry('clientIp', this.selectedUnmatched.clientIp, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedUnmatched.headers), 'json'));

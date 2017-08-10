@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MdDialogRef} from '@angular/material';
 
 @Component({
@@ -8,7 +8,8 @@ import {MdDialogRef} from '@angular/material';
 })
 export class DialogRecordingComponent implements OnInit {
 
-  constructor(public dialogRef: MdDialogRef<DialogRecordingComponent>) { }
+  constructor(public dialogRef: MdDialogRef<DialogRecordingComponent>) {
+  }
 
   ngOnInit() {
   }

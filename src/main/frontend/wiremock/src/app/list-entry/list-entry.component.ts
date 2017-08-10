@@ -17,13 +17,14 @@ export class ListEntryComponent implements OnInit {
   @Input()
   first: boolean;
 
-  @Output('onSelect')
-  selectEmitter = new EventEmitter();
+  @Output()
+  onSelect = new EventEmitter();
 
-  constructor() { }
+  constructor() {
+  }
 
-  selectItem(): void{
-    this.selectEmitter.emit(this.item);
+  selectItem(): void {
+    this.onSelect.emit(this.item);
   }
 
   ngOnInit() {

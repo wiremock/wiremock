@@ -11,15 +11,15 @@ import {SettingsService} from '../services/settings.service';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnChanges {
-  @Input('items')
+  @Input()
   items: Item[];
   itemsWereNull: boolean;
 
-  @Input('selectByItemId')
+  @Input()
   selectByItemId: string;
 
-  @Output('onSelect')
-  selectEmitter = new EventEmitter();
+  @Output()
+  onSelect = new EventEmitter();
 
   selectedItem: Item;
   selectedItemId: string;
@@ -30,7 +30,7 @@ export class ListComponent implements OnInit, OnChanges {
   currentPage: number;
 
   pagerMaxItemsPerPage: number;
-  pagerMaxItemsPerPageOptions:number[] = [10,20,40,60,80,100,150,200];
+  pagerMaxItemsPerPageOptions: number[] = [10, 20, 40, 60, 80, 100, 150, 200];
 
   constructor(private pagerService: PagerService, private settingsService: SettingsService) {
   }
@@ -41,26 +41,26 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(UtilService.isDefined(changes.selectByItemId)){
+    if (UtilService.isDefined(changes.selectByItemId)) {
       this.selectedItemId = changes.selectByItemId.currentValue;
-    }else{
+    } else {
       this.setPage(-1);
     }
   }
 
-  setPagerMaxItemsPerPage(value: MdSelectChange){
+  setPagerMaxItemsPerPage(value: MdSelectChange) {
     this.pagerMaxItemsPerPage = value.value;
     this.settingsService.setPagerMaxItemsPerPage(this.pagerMaxItemsPerPage);
     this.setPage(this.currentPage);
   }
 
-  isSelected(item: Item): boolean{
+  isSelected(item: Item): boolean {
     return item.getId() === this.selectedItemId;
   }
 
   setPage(page: number): void {
     if (UtilService.isUndefined(this.items)) {
-      //We have no items. This is default config
+      // We have no items. This is default config
       this.pagedItems = [];
       this.currentPage = 1;
       return;
@@ -69,31 +69,31 @@ export class ListComponent implements OnInit, OnChanges {
     let item: Item;
     let foundIndex = -1;
 
-    for(let index = 0; index < this.items.length; index++){
+    for (let index = 0; index < this.items.length; index++) {
       item = this.items[index];
 
       if (item.getId() === this.selectedItemId) {
-        //remember index to select the corresponding page later if no page is specified.
+        // remember index to select the corresponding page later if no page is specified.
         foundIndex = index;
         break;
       }
     }
 
-    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
+    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length === 0;
 
-    if(foundIndex > -1 && page == -1){
-      //We found the item which was selected earlier.
+    if (foundIndex > -1 && page === -1) {
+      // We found the item which was selected earlier.
       page = Math.floor(foundIndex / this.pagerMaxItemsPerPage) + 1;
 
-    }else if(page > -1){
-      //customer request page change. We jump to beginning
+    } else if (page > -1) {
+      // customer request page change. We jump to beginning
       this.selectedItemPageIndex = 0;
-    }else{
-      //We have no selected item and no page. We stay on the current page
+    } else {
+      // We have no selected item and no page. We stay on the current page
       page = this.currentPage;
     }
 
-    //We have some items. Initialize the pager and set the pagedItems
+    // We have some items. Initialize the pager and set the pagedItems
     this.pager = this.pagerService.getPager(this.items.length, page, this.pagerMaxItemsPerPage, 8);
     this.pagedItems = this.items.slice(this.pager.startIndex, this.pager.endIndex + 1);
     this.currentPage = this.pager.currentPage;
@@ -104,7 +104,7 @@ export class ListComponent implements OnInit, OnChanges {
   private selectPrev(): void {
     if (UtilService.isDefined(this.pagedItems) && this.pagedItems.length > 0) {
       let found = false;
-      //Search for item to select
+      // Search for item to select
       let item: Item;
       for (let index = 0; index < this.pagedItems.length; index++) {
         item = this.pagedItems[index];
@@ -115,9 +115,9 @@ export class ListComponent implements OnInit, OnChanges {
         }
       }
       if (!found) {
-        if(this.selectedItemPageIndex > 0 && this.selectedItemPageIndex < this.pagedItems.length){
+        if (this.selectedItemPageIndex > 0 && this.selectedItemPageIndex < this.pagedItems.length) {
           this.itemSelected(this.pagedItems[this.selectedItemPageIndex], this.selectedItemPageIndex);
-        }else{
+        } else {
           this.itemSelected(this.pagedItems[0], 0);
         }
       }
@@ -125,15 +125,15 @@ export class ListComponent implements OnInit, OnChanges {
   }
 
   itemSelected(item: Item, index: number): void {
-    if(this.selectedItem == item && ! this.itemsWereNull){
-      this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
+    if (this.selectedItem === item && !this.itemsWereNull) {
+      this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length === 0;
       return;
     }
-    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length == 0;
+    this.itemsWereNull = UtilService.isUndefined(this.pagedItems) || this.pagedItems.length === 0;
     this.selectedItem = item;
     this.selectedItemId = item.getId();
     this.selectedItemPageIndex = index;
-    this.selectEmitter.emit(item);
+    this.onSelect.emit(item);
   }
 
 }

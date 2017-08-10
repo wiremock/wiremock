@@ -1,4 +1,4 @@
-export enum RecordingStatus{
+export enum RecordingStatus {
   NeverStarted,
   Recording,
   Stopped

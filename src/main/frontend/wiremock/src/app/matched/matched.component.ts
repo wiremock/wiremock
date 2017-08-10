@@ -20,10 +20,12 @@ export class MatchedComponent implements OnInit, OnChanges {
   responseDefinition: DataEntries;
   stubMapping: DataEntries;
 
-  constructor() { }
+  constructor() {
+  }
 
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.code = UtilService.toJson(this.selectedMatched);
@@ -33,33 +35,37 @@ export class MatchedComponent implements OnInit, OnChanges {
     this.responseDefinition = this.getResponseDefinition();
   }
 
-  isVisible(): boolean{
+  isVisible(): boolean {
     return UtilService.isDefined(this.selectedMatched);
   }
 
-  getGeneral(): DataEntries{
+  getGeneral(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
+    if (this.selectedMatched == null || typeof this.selectedMatched === 'undefined') {
       return dataEntries;
     }
 
     dataEntries.addEntry(new Entry('id', this.selectedMatched.getId(), 'plain'));
 
-      if(UtilService.isDefined(this.selectedMatched.stubMapping)){
-        dataEntries.addEntry(new Entry('stubMapping uuid', {text: this.selectedMatched.stubMapping.uuid, link: "/mappings", params: {"mapping": this.selectedMatched.stubMapping.uuid} }, '', 'link'));
-      }
+    if (UtilService.isDefined(this.selectedMatched.stubMapping)) {
+      dataEntries.addEntry(new Entry('stubMapping uuid', {
+        text: this.selectedMatched.stubMapping.uuid,
+        link: '/mappings',
+        params: {'mapping': this.selectedMatched.stubMapping.uuid}
+      }, '', 'link'));
+    }
 
     return dataEntries;
   }
 
-  getRequest(): DataEntries{
+  getRequest(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
+    if (this.selectedMatched == null || typeof this.selectedMatched === 'undefined') {
       return dataEntries;
     }
     dataEntries.addEntry(new Entry('url', this.selectedMatched.request.url, 'plain'));
     dataEntries.addEntry(new Entry('absoluteUrl', this.selectedMatched.request.url, 'plain'));
-    dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedMatched.request.url),'', 'params'));
+    dataEntries.addEntry(new Entry('urlQueryParams', UtilService.getParametersOfUrl(this.selectedMatched.request.url), '', 'params'));
     dataEntries.addEntry(new Entry('method', this.selectedMatched.request.method, 'plain'));
     dataEntries.addEntry(new Entry('clientIp', this.selectedMatched.request.clientIp, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedMatched.request.headers), 'json'));
@@ -73,9 +79,9 @@ export class MatchedComponent implements OnInit, OnChanges {
     return dataEntries;
   }
 
-  getResponse(): DataEntries{
+  getResponse(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
+    if (this.selectedMatched == null || typeof this.selectedMatched === 'undefined') {
       return dataEntries;
     }
 
@@ -88,9 +94,9 @@ export class MatchedComponent implements OnInit, OnChanges {
     return dataEntries;
   }
 
-  getResponseDefinition(): DataEntries{
+  getResponseDefinition(): DataEntries {
     const dataEntries = new DataEntries();
-    if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
+    if (this.selectedMatched == null || typeof this.selectedMatched === 'undefined') {
       return dataEntries;
     }
 
@@ -101,33 +107,20 @@ export class MatchedComponent implements OnInit, OnChanges {
     dataEntries.addEntry(new Entry('base64Body', this.selectedMatched.responseDefinition.base64Body, 'plain'));
     dataEntries.addEntry(new Entry('bodyFileName', this.selectedMatched.responseDefinition.bodyFileName, 'plain'));
     dataEntries.addEntry(new Entry('headers', UtilService.toJson(this.selectedMatched.responseDefinition.headers), 'json'));
-    dataEntries.addEntry(new Entry('additionalProxy RequestHeaders', UtilService.toJson(this.selectedMatched.responseDefinition.additionalProxyRequestHeaders), ''));
-    dataEntries.addEntry(new Entry('fixedDelayMilliseconds', this.selectedMatched.responseDefinition.fixedDelayMilliseconds, 'plain'));
+    dataEntries.addEntry(new Entry('additionalProxy RequestHeaders',
+      UtilService.toJson(this.selectedMatched.responseDefinition.additionalProxyRequestHeaders), ''));
+    dataEntries.addEntry(new Entry('fixedDelayMilliseconds',
+      this.selectedMatched.responseDefinition.fixedDelayMilliseconds, 'plain'));
     dataEntries.addEntry(new Entry('delayDistribution', this.selectedMatched.responseDefinition.delayDistribution, ''));
     dataEntries.addEntry(new Entry('proxyBaseUrl', this.selectedMatched.responseDefinition.proxyBaseUrl, 'plain'));
     dataEntries.addEntry(new Entry('fault', this.selectedMatched.responseDefinition.fault, ''));
-    dataEntries.addEntry(new Entry('transformers', UtilService.toJson(this.selectedMatched.responseDefinition.transformers), 'json'));
-    dataEntries.addEntry(new Entry('transformerParameters', UtilService.toJson(this.selectedMatched.responseDefinition.transformerParameters), 'json'));
+    dataEntries.addEntry(new Entry('transformers',
+      UtilService.toJson(this.selectedMatched.responseDefinition.transformers), 'json'));
+    dataEntries.addEntry(new Entry('transformerParameters',
+      UtilService.toJson(this.selectedMatched.responseDefinition.transformerParameters), 'json'));
     dataEntries.addEntry(new Entry('fromConfiguredStub', this.selectedMatched.responseDefinition.fromConfiguredStub, 'plain'));
     // dataEntries.addEntry(new Entry('isProxyingEnabled', this.selectedMatched.responseDefinition.fromConfiguredStub, 'plain'));
 
     return dataEntries;
   }
-
-  //I think this is too much here. If we really want to see the mapping we can jump to the other view.
-  // getStubMapping(): DataEntries{
-  //   const dataEntries = new DataEntries();
-  //   if(this.selectedMatched == null || typeof this.selectedMatched === 'undefined'){
-  //     return dataEntries;
-  //   }
-  //
-  //   dataEntries.addEntry(new Entry('uuid', {text: this.selectedMatched.id, link: "/", params: {"mapping": this.selectedMatched.id} }, '', 'link'));
-  //   if(UtilService.isDefined(this.selectedMatched.stubMapping)){
-  //     dataEntries.addEntry(new Entry('mapping', this.selectedMatched.stubMapping.getId(), 'plain'));
-  //   }
-  //   //...
-  //
-  //   return dataEntries;
-  // }
-
 }

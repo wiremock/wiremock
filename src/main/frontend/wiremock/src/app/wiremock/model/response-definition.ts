@@ -15,7 +15,7 @@ export class ResponseDefinition {
   transformerParameters: any;
   fromConfiguredStub: Boolean;
 
-  deserialize(unchecked: ResponseDefinition): ResponseDefinition{
+  deserialize(unchecked: ResponseDefinition): ResponseDefinition {
     return unchecked;
     // this.status = unchecked.status;
     // this.statusMessage = unchecked.statusMessage;

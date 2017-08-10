@@ -1,28 +1,7 @@
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
 
-export class LoggedRequest implements Item{
-
-  constructor(){
-  }
-
-  getTitle(): string {
-    return this.url;
-  }
-
-  getSubtitle(): string {
-    let soap;
-    if(UtilService.isDefined(this.body) &&
-      UtilService.isDefined(soap = UtilService.getSoapMethodRegex().exec(this.body))){
-      return soap[2];
-    }
-    return "method=" + this.method;
-  }
-
-  getId(): string {
-    //value exists in transient layer. This way we skip typescripts type safety.
-    return (this as any).id;
-  }
+export class LoggedRequest implements Item {
 
   url: string;
   absoluteUrl: string;
@@ -36,9 +15,30 @@ export class LoggedRequest implements Item{
   isBrowserProxyRequest: boolean;
   loggedDate: any;
 
-  deserialize(unchecked: LoggedRequest): LoggedRequest{
-    //We hide a generated id in a "transient" layer
-    UtilService.transient(this, "id", UtilService.generateUUID());
+  constructor() {
+  }
+
+  getTitle(): string {
+    return this.url;
+  }
+
+  getSubtitle(): string {
+    let soap;
+    if (UtilService.isDefined(this.body) &&
+      UtilService.isDefined(soap = UtilService.getSoapMethodRegex().exec(this.body))) {
+      return soap[2];
+    }
+    return 'method=' + this.method;
+  }
+
+  getId(): string {
+    // value exists in transient layer. This way we skip typescripts type safety.
+    return (this as any).id;
+  }
+
+  deserialize(unchecked: LoggedRequest): LoggedRequest {
+    // We hide a generated id in a "transient" layer
+    UtilService.transient(this, 'id', UtilService.generateUUID());
     this.url = unchecked.url;
     this.absoluteUrl = unchecked.absoluteUrl;
     this.clientIp = unchecked.clientIp;
@@ -50,8 +50,6 @@ export class LoggedRequest implements Item{
     this.bodyAsBase64 = unchecked.bodyAsBase64;
     this.isBrowserProxyRequest = unchecked.isBrowserProxyRequest;
     this.loggedDate = unchecked.loggedDate;
-
-
     return this;
   }
 }

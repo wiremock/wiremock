@@ -10,18 +10,19 @@ import {UtilService} from './services/util.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
 
-  isDarkTheme: boolean = false;
+  isDarkTheme = false;
 
-  constructor(private settingsService: SettingsService, private messageService: MessageService, private snackBar: MdSnackBar) { }
+  constructor(private settingsService: SettingsService, private messageService: MessageService, private snackBar: MdSnackBar) {
+  }
 
   ngOnInit(): void {
     this.isDarkTheme = this.settingsService.isDarkTheme();
 
 
-    this.messageService.message$.subscribe(message =>{
-      if(UtilService.isDefined(message)){
+    this.messageService.message$.subscribe(message => {
+      if (UtilService.isDefined(message)) {
         this.snackBar.openFromComponent(MessageComponent, {
           duration: message.duration
         });
@@ -29,7 +30,7 @@ export class AppComponent implements OnInit{
     });
   }
 
-  changeTheme(isDarkTheme: boolean): void{
+  changeTheme(isDarkTheme: boolean): void {
     this.isDarkTheme = isDarkTheme;
   }
 }

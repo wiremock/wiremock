@@ -3,7 +3,7 @@ import {ResponseDefinition} from './response-definition';
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
 
-export class StubMapping implements Item{
+export class StubMapping implements Item {
 
   uuid: string;
   name: string;
@@ -15,7 +15,7 @@ export class StubMapping implements Item{
   requiredScenarioState: string;
   newScenarioState: string;
 
-  deserialize(unchecked: StubMapping): StubMapping{
+  deserialize(unchecked: StubMapping): StubMapping {
     this.uuid = unchecked.uuid;
     this.name = unchecked.name;
     this.persistent = unchecked.persistent;
@@ -35,22 +35,22 @@ export class StubMapping implements Item{
 
   getSubtitle(): string {
     let soap;
-    if(UtilService.isDefined(this.request) && UtilService.isDefined(this.request.bodyPatterns) &&
-      UtilService.isDefined(this.request.bodyPatterns)){
-      let soapResult: string = "";
+    if (UtilService.isDefined(this.request) && UtilService.isDefined(this.request.bodyPatterns) &&
+      UtilService.isDefined(this.request.bodyPatterns)) {
+      let soapResult = '';
 
-      for(let bodyPattern of this.request.bodyPatterns){
-        if(UtilService.isDefined(bodyPattern.matchesXPath) &&
-          UtilService.isDefined(soap = UtilService.getSoapXPathRegex().exec(bodyPattern.matchesXPath))){
-          if(soapResult.length != 0){
-            soapResult += ", ";
+      for (const bodyPattern of this.request.bodyPatterns) {
+        if (UtilService.isDefined(bodyPattern.matchesXPath) &&
+          UtilService.isDefined(soap = UtilService.getSoapXPathRegex().exec(bodyPattern.matchesXPath))) {
+          if (soapResult.length !== 0) {
+            soapResult += ', ';
           }
           soapResult += soap[2];
         }
       }
       return soapResult;
     }
-    return "method=" + this.request.method + ", status=" + this.response.status;
+    return 'method=' + this.request.method + ', status=' + this.response.status;
   }
 
   getId(): string {

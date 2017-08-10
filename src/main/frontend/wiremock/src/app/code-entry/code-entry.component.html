@@ -1,4 +1,4 @@
-<section *ngIf="type === 'code'"><pre><code wm-highlight-js="{{code}}" [language]="language" class="{{language}} wmCode"></code></pre></section>
+<section *ngIf="type === 'code'"><pre><code wmHighlightJs="{{code}}" [language]="language" class="{{language}} wmCode"></code></pre></section>
 <section *ngIf="type === 'params'">
   <table class="hljs wmUrlQueryParam">
     <tr *ngIf="code?.length > 0">

@@ -5,7 +5,6 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/map';
 import {UtilService} from '../services/util.service';
-import {CookieService} from '../services/cookie.service';
 import {SettingsService} from '../services/settings.service';
 
 @Component({
@@ -23,10 +22,11 @@ export class CodeEntryListComponent implements OnInit, OnChanges {
 
   areEmptyCodeEntriesHidden: boolean;
 
-  constructor(private settingsService: SettingsService) { }
+  constructor(private settingsService: SettingsService) {
+  }
 
   ngOnInit() {
-    this.settingsService.codeEntriesHidden$.subscribe(next=>{
+    this.settingsService.codeEntriesHidden$.subscribe(next => {
       this.areEmptyCodeEntriesHidden = next;
     });
     this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();
@@ -36,39 +36,41 @@ export class CodeEntryListComponent implements OnInit, OnChanges {
     this.dataSource = new EntryDataSource(this.entries);
   }
 
-  getEmptyCodeEntriesHidden(value: any): boolean{
+  getEmptyCodeEntriesHidden(value: any): boolean {
     return this.areEmptyCodeEntriesHidden && UtilService.isBlank(value);
   }
 }
 
-export class Entry{
+export class Entry {
   type: string;
   key: string;
   value: any;
   language: string;
 
-  constructor(key: string, value: any, language: string, type?: string){
+  constructor(key: string, value: any, language: string, type?: string) {
     this.key = key;
     this.value = value;
     this.language = language;
-    if(UtilService.isDefined(type)){
+    if (UtilService.isDefined(type)) {
       this.type = type;
-    }else{
+    } else {
       this.type = 'code';
     }
   }
 }
 
-export class DataEntries{
+export class DataEntries {
   dataChange: BehaviorSubject<Entry[]> = new BehaviorSubject<Entry[]>([]);
-  get data(): Entry[]{
+
+  get data(): Entry[] {
     return this.dataChange.value;
   };
 
-  constructor() { }
+  constructor() {
+  }
 
-  addEntry(entry: Entry){
-    if(entry.value == null || typeof entry.value === 'undefined'){
+  addEntry(entry: Entry) {
+    if (entry.value == null || typeof entry.value === 'undefined') {
       entry.value = '';
     }
     const copiedData = this.data.slice();
@@ -94,5 +96,6 @@ export class EntryDataSource extends DataSource<any> {
     });
   }
 
-  disconnect() {}
+  disconnect() {
+  }
 }
