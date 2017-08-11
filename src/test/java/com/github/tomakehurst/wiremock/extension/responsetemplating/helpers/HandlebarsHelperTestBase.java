@@ -2,6 +2,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
+import org.hamcrest.Matcher;
 import org.junit.Assert;
 
 import java.io.IOException;
@@ -11,31 +12,35 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
-/**
- * This class is the test base for all handlebars helper
- *
- * @author Christopher Holomek
- */
 public abstract class HandlebarsHelperTestBase {
 
     protected static final String FAIL_GRACEFULLY_MSG = "Handlebars helper should fail gracefully and show the issue directly in the response.";
 
-    protected static <T> void testHelperError(final Helper<T> helper,
-                                              final T content, final String xPath) {
+    protected static <T> void testHelperError(Helper<T> helper,
+                                              T content,
+                                              String pathExpression) {
+        testHelperError(helper, content, pathExpression, startsWith(HandlebarsHelper.ERROR_PREFIX));
+    }
+
+    protected static <T> void testHelperError(Helper<T> helper,
+                                              T content,
+                                              String pathExpression,
+                                              Matcher<String> expectation) {
         try {
-            assertThat((String) helper.apply(content, createOptions(xPath)), startsWith(HandlebarsHelper.ERROR_PREFIX));
+            assertThat((String) helper.apply(content, createOptions(pathExpression)), expectation);
         } catch (final IOException e) {
             Assert.fail(FAIL_GRACEFULLY_MSG);
         }
     }
 
-    protected static <T> void testHelper(final Helper<T> helper,
-                                         final T content, final String optionParam, final String expected) throws
-                                                                                                           IOException {
+    protected static <T> void testHelper(Helper<T> helper,
+                                         T content,
+                                         String optionParam,
+                                         String expected) throws IOException {
         assertThat((String) helper.apply(content, createOptions(optionParam)), is(expected));
     }
 
-    protected static Options createOptions(final String optionParam) {
+    protected static Options createOptions(String optionParam) {
         return new Options(null, null, null, null, null, null,
                            new Object[]{optionParam}, null, new ArrayList<String>(0));
     }

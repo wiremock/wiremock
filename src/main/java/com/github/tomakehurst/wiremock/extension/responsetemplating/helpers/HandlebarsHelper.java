@@ -9,11 +9,11 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
  * handling.
  *
  * @param <T> Type used as context for the Handlebars helper.
- * @author Christopher Holomek
  */
 public abstract class HandlebarsHelper<T> implements Helper<T> {
-    public static final String ERROR_PREFIX = "Handlebars Helper Error: ";
 
+    public static final String ERROR_PREFIX = "[ERROR: ";
+    public static final String ERROR_SUFFIX = "]";
 
     /**
      * Handle invalid helper data without exception details or because none was thrown.
@@ -22,8 +22,8 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
      * @return a message which will be used as content
      */
     protected String handleError(final String message) {
-        notifier().error(ERROR_PREFIX + message);
-        return ERROR_PREFIX + message;
+        notifier().error(formatMessage(message));
+        return formatMessage(message);
     }
 
     /**
@@ -34,8 +34,8 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
      * @return a message which will be used as content
      */
     protected String handleError(final String message, final Throwable cause) {
-        notifier().error(ERROR_PREFIX + message, cause);
-        return ERROR_PREFIX + message;
+        notifier().error(formatMessage(message), cause);
+        return formatMessage(message);
     }
 
     /**
@@ -49,6 +49,10 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
      */
     protected String handleError(final String message, final String logExclusive, final Throwable cause) {
         notifier().error(ERROR_PREFIX + message + " - " + logExclusive, cause);
-        return ERROR_PREFIX + message;
+        return formatMessage(message);
+    }
+
+    private String formatMessage(String message) {
+        return ERROR_PREFIX + message + ERROR_SUFFIX;
     }
 }

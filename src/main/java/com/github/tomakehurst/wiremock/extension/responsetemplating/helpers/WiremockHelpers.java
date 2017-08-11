@@ -8,11 +8,9 @@ import java.io.IOException;
 /**
  * This enum is implemented similar to the StringHelpers of handlebars.
  * It is basically a library of all available wiremock helpers
- *
- * @author Christopher Holomek
  */
 public enum WiremockHelpers implements Helper<Object> {
-    wmXml {
+    xPath {
         private HandlebarsXmlHelper helper = new HandlebarsXmlHelper();
 
         @Override
@@ -20,7 +18,7 @@ public enum WiremockHelpers implements Helper<Object> {
             return this.helper.apply(String.valueOf(context), options);
         }
     },
-    wmSoap {
+    soapXPath {
         private HandlebarsSoapHelper helper = new HandlebarsSoapHelper();
 
         @Override
@@ -28,7 +26,7 @@ public enum WiremockHelpers implements Helper<Object> {
             return this.helper.apply(String.valueOf(context), options);
         }
     },
-    wmJson {
+    jsonPath {
         private HandlebarsJsonHelper helper = new HandlebarsJsonHelper();
 
         @Override
