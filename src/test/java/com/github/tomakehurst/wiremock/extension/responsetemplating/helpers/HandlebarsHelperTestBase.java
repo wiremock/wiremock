@@ -18,12 +18,6 @@ public abstract class HandlebarsHelperTestBase {
 
     protected static <T> void testHelperError(Helper<T> helper,
                                               T content,
-                                              String pathExpression) {
-        testHelperError(helper, content, pathExpression, startsWith(HandlebarsHelper.ERROR_PREFIX));
-    }
-
-    protected static <T> void testHelperError(Helper<T> helper,
-                                              T content,
                                               String pathExpression,
                                               Matcher<String> expectation) {
         try {
@@ -37,7 +31,14 @@ public abstract class HandlebarsHelperTestBase {
                                          T content,
                                          String optionParam,
                                          String expected) throws IOException {
-        assertThat((String) helper.apply(content, createOptions(optionParam)), is(expected));
+        testHelper(helper, content, optionParam, is(expected));
+    }
+
+    protected static <T> void testHelper(Helper<T> helper,
+                                         T content,
+                                         String optionParam,
+                                         Matcher<String> expected) throws IOException {
+        assertThat((String) helper.apply(content, createOptions(optionParam)), expected);
     }
 
     protected static Options createOptions(String optionParam) {
