@@ -14,11 +14,6 @@ import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSou
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * This class tests the HandlebarsSoapHelper
- *
- * @author Christopher Holomek
- */
 public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsSoapHelper helper;
@@ -38,9 +33,11 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
     @Test
     public void positiveTestResponseTemplate(){
         final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/soap").body(
-                        "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-                aResponse().withBody("<test>{{wmSoap request.body '/a/test'}}</test>").build(),
+                mockRequest()
+                    .url("/soap")
+                    .body("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
+                aResponse()
+                    .withBody("<test>{{soapXPath request.body '/a/test'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -50,9 +47,11 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
     @Test
     public void negativeTestResponseTemplate(){
         final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/soap").body(
-                        "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
-                aResponse().withBody("<test>{{wmSoap request.body '/b/test'}}</test>").build(),
+                mockRequest()
+                    .url("/soap")
+                    .body("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
+                aResponse()
+                    .withBody("<test>{{soapXPath request.body '/b/test'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 

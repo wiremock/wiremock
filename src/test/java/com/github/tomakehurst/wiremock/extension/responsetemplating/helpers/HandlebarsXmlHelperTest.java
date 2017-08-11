@@ -15,11 +15,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
-/**
- * This class tests the HandlebarsXmlHelper
- *
- * @author Christopher Holomek
- */
 public class HandlebarsXmlHelperTest extends HandlebarsHelperTestBase {
 
     private HandlebarsXmlHelper helper;
@@ -32,15 +27,12 @@ public class HandlebarsXmlHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void positiveTestSimpleXml() throws IOException {
-        testHelper(this.helper, "<test>success</test>", "/test", "success");
-    }
-
-    @Test
     public void positiveTestResponseTemplate(){
         final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/xml").body("<a><test>success</test></a>"),
-                aResponse().withBody("<test>{{wmXml request.body '/a/test'}}</test>").build(),
+                mockRequest().url("/xml")
+                    .body("<a><test>success</test></a>"),
+                aResponse()
+                    .withBody("<test>{{xPath request.body '/a/test'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -50,8 +42,10 @@ public class HandlebarsXmlHelperTest extends HandlebarsHelperTestBase {
     @Test
     public void negativeTestResponseTemplate(){
         final ResponseDefinition responseDefinition = this.transformer.transform(
-                mockRequest().url("/xml").body("<a><test>success</test></a>"),
-                aResponse().withBody("<test>{{wmXml request.body '/b/test'}}</test>").build(),
+                mockRequest().url("/xml")
+                    .body("<a><test>success</test></a>"),
+                aResponse()
+                    .withBody("<test>{{xPath request.body '/b/test'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 
@@ -59,29 +53,30 @@ public class HandlebarsXmlHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void negativeTestInvalidXml() {
-        testHelperError(this.helper, "<testsuccess</test>", "/test");
+    public void extractsASimpleValue() throws IOException {
+        testHelper(this.helper, "<test>success</test>", "/test", "success");
     }
 
     @Test
-    public void negativeTestInvalidXPath() {
-        testHelperError(this.helper, "<test>success</test>", "/\\test");
+    public void rendersAMeaningfulErrorWhenTheInputXmlIsInvalid() {
+        testHelperError(this.helper, "<testsuccess</test>", "/test", is("[ERROR: <testsuccess</test> is not valid XML]"));
     }
 
     @Test
-    public void negativeTestXmlNull() {
-        testHelperError(this.helper, null, "/test");
+    public void rendersAMeaningfulErrorWhenTheXPathExpressionIsInvalid() {
+        testHelperError(this.helper, "<test>success</test>", "/\\test", is("[ERROR: /\\test is not a valid XPath expression]"));
     }
 
     @Test
-    public void negativeTestXPathNull() {
-        testHelperError(this.helper, "<test>success</test>", null);
+    public void rendersAMeaningfulErrorWhenTheXPathExpressionIsAbsent() {
+        testHelperError(this.helper, "<test>success</test>", null, is("[ERROR: The XPath expression cannot be empty]"));
     }
 
     @Test
-    public void negativeTestAllNull() {
-        testHelperError(this.helper, null, null);
+    public void rendersABlankWhenTheInputXmlIsAbsent() {
+        testHelperError(this.helper, null, "/test", is(""));
     }
+
 
 
 }

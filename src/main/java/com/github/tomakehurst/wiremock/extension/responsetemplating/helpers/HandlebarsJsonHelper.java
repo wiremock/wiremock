@@ -7,31 +7,27 @@ import com.jayway.jsonpath.JsonPathException;
 
 import java.io.IOException;
 
-
-/**
- * This class uses JsonPath from jayway for reading a json via jsonPath so that the result can be used for response
- * templating.
- *
- * @author Christopher Holomek
- */
 public class HandlebarsJsonHelper extends HandlebarsHelper<String> {
 
     @Override
-    public Object apply(final String context, final Options options) throws IOException {
-        if (context == null || options == null || options.param(0, null) == null) {
-            return this.handleError("HandlebarsJsonHelper: No parameters defined. Helper not applied");
+    public Object apply(final String inputJson, final Options options) throws IOException {
+        if (inputJson == null) {
+            return "";
+        }
+
+        if (options == null || options.param(0, null) == null) {
+            return this.handleError("The JSONPath cannot be empty");
         }
 
         final String jsonPath = options.param(0);
         try {
-            return String.valueOf(JsonPath.read(context, jsonPath));
-        } catch (final InvalidJsonException e) {
+            return String.valueOf(JsonPath.read(inputJson, jsonPath));
+        } catch (InvalidJsonException e) {
             return this.handleError(
-                    "HandlebarsJsonHelper: An error occurred. Helper not applied. See cause for more details.",
+                    inputJson + " is not valid JSON",
                     e.getJson(), e);
-        }catch(final JsonPathException e){
-            return this.handleError(
-                    "HandlebarsJsonHelper: An error occurred. Helper not applied. See cause for more details.", e);
+        } catch (JsonPathException e) {
+            return this.handleError(jsonPath + " is not a valid JSONPath expression", e);
         }
     }
 }

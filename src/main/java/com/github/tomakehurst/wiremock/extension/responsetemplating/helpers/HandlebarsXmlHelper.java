@@ -14,36 +14,46 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
 /**
  * This class uses javax.xml.xpath.* for reading a xml via xPath so that the result can be used for response
  * templating.
- *
- * @author Christopher Holomek
  */
 public class HandlebarsXmlHelper extends HandlebarsHelper<String> {
 
     @Override
-    public Object apply(final String context, final Options options) throws IOException {
-        if (context == null || options == null || options.param(0, null) == null) {
-            return this.handleError(this.getClass().getSimpleName() + ": No parameters defined. Helper not applied");
+    public Object apply(final String inputXml, final Options options) throws IOException {
+        if (inputXml == null ) {
+            return "";
+        }
+
+        if (options.param(0, null) == null) {
+            return handleError("The XPath expression cannot be empty");
         }
 
         final String xPathInput = options.param(0);
 
-        try (final StringReader reader = new StringReader(context)) {
-            final InputSource source = new InputSource(reader);
-
+        Document doc;
+        try (final StringReader reader = new StringReader(inputXml)) {
+            InputSource source = new InputSource(reader);
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = factory.newDocumentBuilder();
-            final Document doc = builder.parse(source);
+            doc = builder.parse(source);
+        } catch (SAXException se) {
+            return handleError(inputXml + " is not valid XML");
+        } catch (ParserConfigurationException e) {
+            return throwUnchecked(e, Object.class);
+        }
 
+        try {
             final XPathFactory xPathfactory = XPathFactory.newInstance();
             final XPath xpath = xPathfactory.newXPath();
 
             return xpath.evaluate(getXPathPrefix() + xPathInput, doc);
 
-        } catch (SAXException | XPathExpressionException | ParserConfigurationException e) {
-            return this.handleError(this.getClass().getSimpleName() + ": An error occurred. Helper not applied.", e);
+        } catch (XPathExpressionException e) {
+            return handleError(xPathInput + " is not a valid XPath expression", e);
         }
     }
 
