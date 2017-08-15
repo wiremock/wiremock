@@ -35,9 +35,10 @@ export class StubMapping implements Item {
 
   getSubtitle(): string {
     let soap;
+    let soapResult = '';
     if (UtilService.isDefined(this.request) && UtilService.isDefined(this.request.bodyPatterns) &&
       UtilService.isDefined(this.request.bodyPatterns)) {
-      let soapResult = '';
+
 
       for (const bodyPattern of this.request.bodyPatterns) {
         if (UtilService.isDefined(bodyPattern.matchesXPath) &&
@@ -48,9 +49,14 @@ export class StubMapping implements Item {
           soapResult += soap[2];
         }
       }
-      return soapResult;
     }
-    return 'method=' + this.request.method + ', status=' + this.response.status;
+    let result = '';
+    if(soapResult.length > 0){
+      result = soapResult;
+    }else{
+      result = 'method=' + this.request.method;
+    }
+    return result + ', status=' + this.response.status;
   }
 
   getId(): string {

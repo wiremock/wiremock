@@ -36,6 +36,10 @@ import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
+import org.eclipse.jetty.rewrite.handler.RedirectPatternRule;
+import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
+import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -333,6 +337,25 @@ public class JettyHttpServer implements HttpServer {
         adminContext.addServlet(DefaultServlet.class, "/recorder/*");
         adminContext.addServlet(DefaultServlet.class, "/webapp/*");
         adminContext.addServlet(SseServlet.class, "/sse/*");
+
+        RewriteHandler rewrite = new RewriteHandler();
+
+        RedirectRegexRule redirect = new RedirectRegexRule ();
+        redirect.setRegex("/webapp/mappings.*");
+        redirect.setReplacement("/__admin/webapp/index.html");
+        rewrite.addRule(redirect);
+
+        redirect = new RedirectRegexRule ();
+        redirect.setRegex("/webapp/unmatched.*");
+        redirect.setReplacement("/__admin/webapp/index.html");
+        rewrite.addRule(redirect);
+
+        redirect = new RedirectRegexRule ();
+        redirect.setRegex("/webapp/matched.*");
+        redirect.setReplacement("/__admin/webapp/index.html");
+        rewrite.addRule(redirect);
+
+        adminContext.setHandler(rewrite);
 
         ServletHolder servletHolder = adminContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, AdminRequestHandler.class.getName());

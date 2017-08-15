@@ -27,6 +27,8 @@ export class SearchComponent implements OnInit {
   }
 
   ngOnInit() {
+    // reset search
+    this.searchService.setValue("");
     this.search.valueChanges.debounceTime(100).subscribe(next => {
       this.lastSearchText = next;
       this.onSearchChanged.emit(new SearchEvent(this.lastSearchText, this.lastCaseSensitive));

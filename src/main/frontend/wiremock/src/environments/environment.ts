@@ -5,5 +5,6 @@
 
 export const environment = {
   production: false,
-  url: 'http://localhost:8080/__admin/'
+  url: 'http://localhost:8080/__admin/',
+  resourcesUrl: '/'
 };

@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  url: '/'
+  url: '/__admin/',
+  resourcesUrl: '/__admin/webapp/'
 };

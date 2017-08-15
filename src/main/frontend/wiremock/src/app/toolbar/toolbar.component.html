@@ -1,7 +1,7 @@
 <md-toolbar id="wmToolbar">
   <div id="wmToolbarGroupOne">
     <a id="wmToolbarHomeLink" href="https://wiremock.org/" target="_blank">
-      <img src="../../assets/images/wiremock-concept-icon-01.png" id="wmToolbarLogo">
+      <img [src]="wmLogo" id="wmToolbarLogo">
       <span id="wmToolbarTitle">WireMock</span>
     </a>
     <a routerLink="/mappings" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: false}">Mappings</a>

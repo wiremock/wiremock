@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --base-href=/",
-    "buildOld": "ng build --prod --aot",
+    "buildOld": "ng build --prod --aot --base-href=/__admin/webapp/",
     "start-i18n:de": "ng serve --base-href=/ --aot --i18n-file=src/i18n/messages.de.xlf --i18n-format=xlf --locale=de",
     "build-i18n:de": "ng build --prod --base-href=/__admin/webapp/de --output-path=../../resources/assets/webapp/de --aot --i18n-file=src/i18n/messages.de.xlf --i18n-format=xlf locale=de",
     "build-i18n:en": "ng build --prod --base-href=/__admin/webapp/en --output-path=../../resources/assets/webapp/en --aot --i18n-file=src/i18n/messages.en.xlf --i18n-format=xlf locale=en",

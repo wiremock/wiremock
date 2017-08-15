@@ -14,6 +14,7 @@ import {MdDialog} from '@angular/material';
 import {DialogRecordingComponent} from 'app/dialogs/dialog-recording/dialog-recording.component';
 import {SnapshotRecordResult} from '../wiremock/model/snapshot-record-result';
 import {SearchService} from 'app/services/search.service';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'wm-toolbar',
@@ -42,14 +43,16 @@ export class ToolbarComponent implements OnInit {
   recordingState: string;
 
   // interval remembered.
-  private recordingInterval;
+  recordingInterval;
 
   // actual hide or show the recording status
-  private showRecording = false;
+  showRecording = false;
   private recordingStatusObserver: Observer<RecordingStatus>;
 
   // for the rest interface
   private refreshRecordingStateObserver: Observer<RecordingStatus>;
+
+  wmLogo: string;
 
   @Output()
   themeChanged = new EventEmitter();
@@ -75,6 +78,7 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.wmLogo = environment.resourcesUrl + 'assets/images/wiremock-concept-icon-01.png';
     this.isDarkTheme = this.settingsService.isDarkTheme();
     this.isTabSlide = this.settingsService.isTabSlide();
     this.areEmptyCodeEntriesHidden = this.settingsService.areEmptyCodeEntriesHidden();

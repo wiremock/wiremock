@@ -6,13 +6,13 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./code-entry.component.scss']
 })
 export class CodeEntryComponent implements OnInit {
-  @Input('code')
+  @Input()
   code: any;
 
-  @Input('language')
+  @Input()
   language: string;
 
-  @Input('type')
+  @Input()
   type: string;
 
   constructor() {
