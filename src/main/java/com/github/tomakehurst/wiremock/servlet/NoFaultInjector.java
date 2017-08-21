@@ -31,6 +31,11 @@ public class NoFaultInjector implements FaultInjector {
     }
 
     @Override
+    public void connectionResetByPeer() {
+        sendError();
+    }
+
+    @Override
     public void emptyResponseAndCloseConnection() {
         sendError();
     }

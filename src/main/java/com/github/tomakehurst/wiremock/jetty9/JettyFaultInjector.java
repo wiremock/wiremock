@@ -44,6 +44,16 @@ public class JettyFaultInjector implements FaultInjector {
     }
 
     @Override
+    public void connectionResetByPeer() {
+        try {
+            socket.setSoLinger(true, 0);
+            socket.close();
+        } catch (IOException e) {
+            throwUnchecked(e);
+        }
+    }
+
+    @Override
     public void emptyResponseAndCloseConnection() {
         try {
             socket.close();
