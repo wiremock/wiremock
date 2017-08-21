@@ -28,9 +28,13 @@ import org.apache.http.entity.ContentType;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.net.SocketException;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -341,6 +345,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
 
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
+	}
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+
+	@Test
+	public void connectionResetByPeerFault() {
+		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
+                aResponse()
+                .withFault(Fault.CONNECTION_RESET_BY_PEER)));
+
+		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
+		exception.expectMessage("java.net.SocketException: Connection reset");
+		testClient.get("/connection/reset");
 	}
 
 	@Test

@@ -34,8 +34,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableCauseMatcher;
+import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
@@ -81,6 +85,21 @@ public class HttpsAcceptanceTest {
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
+    @Test
+    public void connectionResetByPeerFault() throws IOException {
+        startServerWithDefaultKeystore();
+        stubFor(get(urlEqualTo("/connection/reset")).willReturn(
+                aResponse()
+                        .withFault(Fault.CONNECTION_RESET_BY_PEER)));
+
+        exception.expect(SocketException.class);
+        exception.expectMessage("Connection reset");
+        httpClient.execute(new HttpGet(url("/connection/reset"))).getEntity();
     }
 
     @Test
