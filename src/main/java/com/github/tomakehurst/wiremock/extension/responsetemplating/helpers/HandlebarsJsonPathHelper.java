@@ -9,7 +9,7 @@ import com.jayway.jsonpath.JsonPathException;
 import java.io.IOException;
 import java.util.Map;
 
-public class HandlebarsJsonHelper extends HandlebarsHelper<String> {
+public class HandlebarsJsonPathHelper extends HandlebarsHelper<String> {
 
     @Override
     public Object apply(final String inputJson, final Options options) throws IOException {

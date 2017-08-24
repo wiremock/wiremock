@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -32,6 +33,10 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.ComparisonControllers;
+import org.xmlunit.diff.Diff;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +95,27 @@ public class WireMatchers {
 			
 		};
 	}
+
+	public static Matcher<String> equalToXml(final String expected) {
+	    return new TypeSafeMatcher<String>() {
+            @Override
+            protected boolean matchesSafely(String value) {
+                Diff diff = DiffBuilder.compare(Input.from(expected))
+                    .withTest(value)
+                    .withComparisonController(ComparisonControllers.StopWhenDifferent)
+                    .ignoreWhitespace()
+                    .ignoreComments()
+                    .build();
+
+                return !diff.hasDifferences();
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Expected:\n" + expected);
+            }
+        };
+    }
 
     public static Matcher<String> matches(final String regex) {
         return new TypeSafeMatcher<String>() {
