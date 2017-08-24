@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public enum WiremockHelpers implements Helper<Object> {
     xPath {
-        private HandlebarsXmlHelper helper = new HandlebarsXmlHelper();
+        private HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
@@ -27,7 +27,7 @@ public enum WiremockHelpers implements Helper<Object> {
         }
     },
     jsonPath {
-        private HandlebarsJsonHelper helper = new HandlebarsJsonHelper();
+        private HandlebarsJsonPathHelper helper = new HandlebarsJsonPathHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {

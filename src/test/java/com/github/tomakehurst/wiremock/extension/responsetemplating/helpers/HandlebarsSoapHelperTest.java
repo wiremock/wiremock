@@ -26,18 +26,18 @@ public class HandlebarsSoapHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void positiveTestSimpleSoap() throws IOException {
-        testHelper(this.helper, "<Envelope><Body><test>success</test></Body></Envelope>", "/test", "success");
+    public void extractsASimpleBodyValue() throws IOException {
+        testHelper(this.helper, "<Envelope><Body><test>success</test></Body></Envelope>", "/test/text()", "success");
     }
 
     @Test
-    public void positiveTestResponseTemplate(){
+    public void rendersASimpleValue() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
                 mockRequest()
                     .url("/soap")
                     .body("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope/\"><soap:Body><m:a><m:test>success</m:test></m:a></soap:Body></soap:Envelope>"),
                 aResponse()
-                    .withBody("<test>{{soapXPath request.body '/a/test'}}</test>").build(),
+                    .withBody("<test>{{soapXPath request.body '/a/test/text()'}}</test>").build(),
                 noFileSource(),
                 Parameters.empty());
 

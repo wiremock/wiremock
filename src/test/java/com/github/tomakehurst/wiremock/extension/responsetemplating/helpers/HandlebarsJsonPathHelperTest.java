@@ -2,11 +2,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,14 +18,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
-public class HandlebarsJsonHelperTest extends HandlebarsHelperTestBase {
+public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
-    private HandlebarsJsonHelper helper;
+    private HandlebarsJsonPathHelper helper;
     private ResponseTemplateTransformer transformer;
 
     @Before
     public void init() {
-        helper = new HandlebarsJsonHelper();
+        helper = new HandlebarsJsonPathHelper();
         transformer = new ResponseTemplateTransformer(true);
 
         LocalNotifier.set(new ConsoleNotifier(true));

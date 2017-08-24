@@ -38,7 +38,7 @@ public abstract class HandlebarsHelperTestBase {
                                          T content,
                                          String optionParam,
                                          Matcher<String> expected) throws IOException {
-        assertThat((String) helper.apply(content, createOptions(optionParam)), expected);
+        assertThat(helper.apply(content, createOptions(optionParam)).toString(), expected);
     }
 
     protected static Options createOptions(String optionParam) {
