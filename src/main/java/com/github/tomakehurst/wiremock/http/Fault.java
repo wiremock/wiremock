@@ -19,6 +19,13 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 
 public enum Fault {
 
+	CONNECTION_RESET_BY_PEER {
+		@Override
+		public void apply(FaultInjector faultInjector) {
+			faultInjector.connectionResetByPeer();
+		}
+	},
+
 	EMPTY_RESPONSE {
 		@Override
 		public void apply(FaultInjector faultInjector) {
