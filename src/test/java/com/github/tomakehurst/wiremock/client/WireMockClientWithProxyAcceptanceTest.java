@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -38,12 +39,11 @@ public class WireMockClientWithProxyAcceptanceTest {
 	private HttpProxyServer proxyServer;
 
 	@Before
-	public void init() {
+	public void init() throws Exception {
 
 		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
 		wireMockServer.start();
-		InetSocketAddress proxyAddress = new InetSocketAddress(Options.DYNAMIC_PORT);
-		proxyServer = DefaultHttpProxyServer.bootstrap().withAddress(proxyAddress).start();
+		proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
 
 		WireMock.configureFor("http", "localhost", wireMockServer.port(), proxyServer.getListenAddress().getHostString(), proxyServer.getListenAddress().getPort());
 		testClient = new WireMockTestClient(wireMockServer.port());

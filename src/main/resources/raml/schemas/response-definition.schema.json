@@ -48,6 +48,7 @@
             "type": "string",
             "description": "The fault to apply (instead of a full, valid response).",
             "enum": [
+                "CONNECTION_RESET_BY_PEER",
                 "EMPTY_RESPONSE",
                 "MALFORMED_RESPONSE_CHUNK",
                 "RANDOM_DATA_THEN_CLOSE"
