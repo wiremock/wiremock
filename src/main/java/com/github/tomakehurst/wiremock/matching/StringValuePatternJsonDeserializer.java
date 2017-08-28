@@ -66,6 +66,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
+        } else if (patternClass.equals(MatchesJsonPathPattern.class)) {
+            return deserialiseMatchesJsonPathPattern(rootNode);
         } else if (patternClass.equals(MatchesXPathPattern.class)) {
             return deserialiseMatchesXPathPattern(rootNode);
         } else if (patternClass.equals(EqualToPattern.class)) {
@@ -105,6 +107,26 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
         return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+    }
+
+    private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("matchesJsonPath")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        JsonNode outerPatternNode = rootNode.findValue("matchesJsonPath");
+        if (outerPatternNode.isTextual()) {
+            return new MatchesJsonPathPattern(outerPatternNode.textValue());
+        }
+
+        if (!outerPatternNode.has("expression")) {
+            throw new JsonMappingException("expression is required in the advanced matchesJsonPath form");
+        }
+
+        String expression = outerPatternNode.findValue("expression").textValue();
+        StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
+
+        return new MatchesJsonPathPattern(expression, valuePattern);
     }
 
     private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode) throws JsonMappingException {

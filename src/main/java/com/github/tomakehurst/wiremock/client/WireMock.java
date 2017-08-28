@@ -179,6 +179,10 @@ public class WireMock {
         return new MatchesJsonPathPattern(value);
     }
 
+    public static StringValuePattern matchingJsonPath(String value, StringValuePattern valuePattern) {
+        return new MatchesJsonPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
