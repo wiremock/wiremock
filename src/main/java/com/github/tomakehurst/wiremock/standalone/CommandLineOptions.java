@@ -54,7 +54,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 public class CommandLineOptions implements Options {
-	
+
 	private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
 	private static final String MATCH_HEADERS = "match-headers";
@@ -78,6 +78,7 @@ public class CommandLineOptions implements Options {
     private static final String PRINT_ALL_NETWORK_TRAFFIC = "print-all-network-traffic";
     private static final String JETTY_ACCEPT_QUEUE_SIZE = "jetty-accept-queue-size";
     private static final String JETTY_HEADER_BUFFER_SIZE = "jetty-header-buffer-size";
+    private static final String JETTY_STOP_TIMEOUT = "jetty-stop-timeout";
     private static final String ROOT_DIR = "root-dir";
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
@@ -114,12 +115,13 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPT_QUEUE_SIZE, "The size of Jetty's accept queue size").withRequiredArg();
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
+        optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
 
         optionParser.accepts(HELP, "Print this message");
-		
+
 		optionSet = optionParser.parse(args);
         validate();
 		captureHelpTextIfRequested(optionParser);
@@ -146,19 +148,19 @@ public class CommandLineOptions implements Options {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			
+
 			helpText = out.toString();
 		}
 	}
-	
+
 	public boolean verboseLoggingEnabled() {
 		return optionSet.has(VERBOSE);
 	}
-	
+
 	public boolean recordMappingsEnabled() {
 		return optionSet.has(RECORD_MAPPINGS);
 	}
-	
+
 	@Override
 	public List<CaseInsensitiveKey> matchingHeaders() {
 		if (optionSet.hasArgument(MATCH_HEADERS)) {
@@ -186,7 +188,7 @@ public class CommandLineOptions implements Options {
     private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
 	}
-	
+
 	@Override
     public int portNumber() {
         if (specifiesPortNumber()) {
@@ -231,6 +233,10 @@ public class CommandLineOptions implements Options {
 
         if (optionSet.hasArgument(JETTY_HEADER_BUFFER_SIZE)) {
             builder = builder.withRequestHeaderSize(Integer.parseInt((String) optionSet.valueOf(JETTY_HEADER_BUFFER_SIZE)));
+        }
+
+        if (optionSet.hasArgument(JETTY_STOP_TIMEOUT)) {
+            builder = builder.withStopTimeout(Long.parseLong((String) optionSet.valueOf(JETTY_STOP_TIMEOUT)));
         }
 
         return builder.build();

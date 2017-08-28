@@ -245,6 +245,12 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void returnsCorrectlyParsedJettyStopTimeout() {
+        CommandLineOptions options = new CommandLineOptions("--jetty-stop-timeout", "1000");
+        assertThat(options.jettySettings().getStopTimeout().get(), is(1000L));
+    }
+
+    @Test
     public void returnsAbsentIfJettyAcceptQueueSizeNotSet() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.jettySettings().getAcceptQueueSize().isPresent(), is(false));
@@ -260,6 +266,12 @@ public class CommandLineOptionsTest {
     public void returnsAbsentIfJettyHeaderBufferSizeNotSet() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.jettySettings().getRequestHeaderSize().isPresent(), is(false));
+    }
+
+    @Test
+    public void returnsAbsentIfJettyStopTimeoutNotSet() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.jettySettings().getStopTimeout().isPresent(), is(false));
     }
 
     @Test(expected=IllegalArgumentException.class)
