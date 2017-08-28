@@ -289,7 +289,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
 		response = testClient.post("/match/binary", new ByteArrayEntity(requestBody, APPLICATION_OCTET_STREAM));
 		assertThat(response.statusCode(), is(HTTP_OK));
+	}
 
+	@Test
+	public void matchingOnRequestBodyWithAdvancedJsonPath() {
+		stubFor(post("/jsonpath/advanced")
+			.withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
+			.willReturn(ok())
+		);
+
+		WireMockResponse response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 234 }");
+		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+        response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 123 }");
+		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
 	@Test
