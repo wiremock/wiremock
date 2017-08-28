@@ -70,13 +70,11 @@ public class StringValuePatternTest {
 
 
         for (Class<?> clazz: classes) {
-            Constructor<?> constructor = findConstructorWithStringParamInFirstPosition(clazz);
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            assertThat(constructor
-                .getParameterAnnotations()[0][0]
-                .annotationType()
-                .getSimpleName(), is("JsonProperty"));
-            stopwatch.stop();
+            findConstructorWithStringParamInFirstPosition(clazz);
+//            assertThat(constructor
+//                .getParameterAnnotations()[0][0]
+//                .annotationType()
+//                .getSimpleName(), is("JsonProperty"));
         }
 
     }
@@ -88,6 +86,7 @@ public class StringValuePatternTest {
                 return input.getParameterTypes().length > 0 &&
                        input.getParameterTypes()[0].equals(String.class) &&
                        input.getParameterAnnotations().length > 0 &&
+                       input.getParameterAnnotations()[0].length > 0 &&
                        input.getParameterAnnotations()[0][0].annotationType().equals(JsonProperty.class) ;
             }
         });
