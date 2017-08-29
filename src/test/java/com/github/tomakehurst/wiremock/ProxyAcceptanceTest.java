@@ -389,6 +389,19 @@ public class ProxyAcceptanceTest {
             .withRequestBody(equalTo("gzipped body")));
     }
 
+    @Test
+    public void removesTrailingSlashFromUrlBeforeForwarding() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/slashes").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse response = testClient.get("/slashes/");
+        assertThat(response.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/slashes")));
+    }
+
     private void register200StubOnProxyAndTarget(String url) {
         targetServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
         proxyingServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
