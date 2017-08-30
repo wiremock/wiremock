@@ -185,7 +185,7 @@ public class VerificationAcceptanceTest {
 
             HttpHeaders headers = requests.get(0).getHeaders();
             assertThat(headers.getHeader("X-Thing").values().size(), is(3));
-            assertThat(headers.getHeader("X-Thing").values().get(1), is("TWo"));
+            assertThat(headers.getHeader("X-Thing").values().get(1), is("Two"));
         }
 
         @Test(expected=VerificationException.class)
