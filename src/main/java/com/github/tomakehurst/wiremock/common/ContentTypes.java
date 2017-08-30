@@ -90,7 +90,7 @@ public class ContentTypes {
             return substringAfterLast(lastPathSegment, ".");
         }
 
-        return determineTextFileExtension(stringFromBytes(responseBody));
+        return determineTextFileExtension(stringFromBytes(responseBody, contentTypeHeader.charset()));
     }
 
     public static String determineTextFileExtension(String content) {

@@ -186,7 +186,11 @@ public class WireMockTestClient {
     }
 
     public void addResponse(String responseSpecJson) {
-        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
+        addResponse(responseSpecJson, "utf-8");
+    }
+
+    public void addResponse(String responseSpecJson, String charset) {
+        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson, charset);
         if (status != HTTP_CREATED) {
             throw new RuntimeException("Returned status code was " + status);
         }
@@ -215,10 +219,14 @@ public class WireMockTestClient {
     }
 
     private int postJsonAndReturnStatus(String url, String json) {
+        return postJsonAndReturnStatus(url, json, "utf-8");
+    }
+
+    private int postJsonAndReturnStatus(String url, String json, String charset) {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), "utf-8")));
+                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
             }
             HttpResponse httpResponse = httpClient().execute(post);
             return httpResponse.getStatusLine().getStatusCode();

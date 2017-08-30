@@ -17,12 +17,14 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
 import org.apache.http.entity.StringEntity;
@@ -30,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -66,6 +70,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
@@ -166,6 +171,21 @@ public class VerificationAcceptanceTest {
 
             verify(getRequestedFor(urlEqualTo("/multi/value/header"))
                     .withHeader("X-Thing", equalTo("Three")));
+        }
+
+        @Test
+        public void findsRequestsWithMultiValueHeaders() {
+            testClient.get("/multi/value/header",
+                withHeader("X-Thing", "One"),
+                withHeader("X-Thing", "Two"),
+                withHeader("X-Thing", "Three"));
+
+
+            List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/multi/value/header")));
+
+            HttpHeaders headers = requests.get(0).getHeaders();
+            assertThat(headers.getHeader("X-Thing").values().size(), is(3));
+            assertThat(headers.getHeader("X-Thing").values().get(1), is("Two"));
         }
 
         @Test(expected=VerificationException.class)

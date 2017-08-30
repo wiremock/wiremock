@@ -30,6 +30,7 @@ import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
 import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
 import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
 import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
@@ -114,7 +115,13 @@ public class JettyHttpServer implements HttpServer {
     }
 
     protected Server createServer(Options options) {
-        return new Server(new QueuedThreadPool(options.containerThreads()));
+        final Server server = new Server(new QueuedThreadPool(options.containerThreads()));
+        final JettySettings jettySettings = options.jettySettings();
+        final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
+        if(stopTimeout.isPresent()) {
+            server.setStopTimeout(stopTimeout.get());
+        }
+        return server;
     }
 
     /**
