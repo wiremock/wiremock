@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -69,13 +70,7 @@ public class StringValuePatternTest {
 
 
         for (Class<?> clazz: classes) {
-            Constructor<?> constructor = findConstructorWithStringParamInFirstPosition(clazz);
-            Stopwatch stopwatch = Stopwatch.createStarted();
-            assertThat(constructor
-                .getParameterAnnotations()[0][0]
-                .annotationType()
-                .getSimpleName(), is("JsonProperty"));
-            stopwatch.stop();
+            findConstructorWithStringParamInFirstPosition(clazz);
         }
 
     }
@@ -84,7 +79,11 @@ public class StringValuePatternTest {
         return Iterables.find(asList(clazz.getConstructors()), new Predicate<Constructor<?>>() {
             @Override
             public boolean apply(Constructor<?> input) {
-                return input.getParameterTypes().length > 0 && input.getParameterTypes()[0].equals(String.class);
+                return input.getParameterTypes().length > 0 &&
+                       input.getParameterTypes()[0].equals(String.class) &&
+                       input.getParameterAnnotations().length > 0 &&
+                       input.getParameterAnnotations()[0].length > 0 &&
+                       input.getParameterAnnotations()[0][0].annotationType().equals(JsonProperty.class) ;
             }
         });
     }

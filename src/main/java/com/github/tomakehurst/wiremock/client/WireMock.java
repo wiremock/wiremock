@@ -179,6 +179,10 @@ public class WireMock {
         return new MatchesJsonPathPattern(value);
     }
 
+    public static StringValuePattern matchingJsonPath(String value, StringValuePattern valuePattern) {
+        return new MatchesJsonPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
@@ -189,6 +193,10 @@ public class WireMock {
 
     public static StringValuePattern matchingXPath(String value, Map<String, String> namespaces) {
         return new MatchesXPathPattern(value, namespaces);
+    }
+
+    public static StringValuePattern matchingXPath(String value, StringValuePattern valuePattern) {
+        return new MatchesXPathPattern(value, valuePattern);
     }
 
     public static StringValuePattern containing(String value) {

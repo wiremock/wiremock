@@ -46,6 +46,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.apache.http.entity.ContentType.APPLICATION_XML;
 
 public class WireMockTestClient {
 
@@ -162,6 +163,12 @@ public class WireMockTestClient {
     public WireMockResponse postJson(String url, String body, TestHttpHeader... headers) {
         HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
         httpPost.setEntity(new StringEntity(body, APPLICATION_JSON));
+        return executeMethodAndConvertExceptions(httpPost, headers);
+    }
+
+    public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(new StringEntity(body, APPLICATION_XML));
         return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
