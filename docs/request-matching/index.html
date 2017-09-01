@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-07-31T14:13:41+01:00">
+  <meta property="article:published_time" content="2017-09-01T13:49:53+01:00">
   
     <link rel="next" href="/docs/response-templating/" title="Response Templating">
   
@@ -250,15 +250,15 @@
       </a>
       
       <li>
-        <a href="/docs/record-playback-legacy/">
-
-        Record and Playback (Legacy)
-      </a>
-      
-      <li>
         <a href="/docs/response-templating/">
 
         Response Templating
+      </a>
+      
+      <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
       </a>
       
       <li>
@@ -292,6 +292,12 @@
       </a>
       
       <li>
+        <a href="/docs/spring-boot/">
+
+        Spring Boot
+      </a>
+      
+      <li>
         <a href="/docs/api/">
 
         Admin API Reference
@@ -305,7 +311,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Request Matching">
     <meta itemprop="description" content="WireMock supports matching of requests to stubs and verification queries using the following attributes:">
-    <meta itemprop="datePublished" content="July 31, 2017">
+    <meta itemprop="datePublished" content="September 01, 2017">
     
 
     <div class="page__inner-wrap">
@@ -831,6 +837,71 @@ you need more precise control:</p>
 </code></pre>
 </div>
 
+<h4 id="nested-value-matching">Nested value matching</h4>
+
+<p>The JSONPath matcher can be combined with another matcher, such that the value returned from the JSONPath query is evaluated against it:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$..todoItem"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"wash"</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nt">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$..todoItem"</span><span class="p">,</span><span class="w">
+         </span><span class="nt">"contains"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wash"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Since WireMock’s matching operators all work on strings, the value selected by the JSONPath expression will be coerced to a string before the match is evaluated. This true even if the returned value
+is an object or array. A benefit of this is that this allows a sub-document to be selected using JSONPath, then matched using the <code class="highlighter-rouge">equalToJson</code> operator. E.g. for the following request body:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"inner"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The following will match:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.outer"</span><span class="o">,</span> <span class="n">equalToJson</span><span class="o">(</span><span class="s">"{                \n"</span> <span class="o">+</span>
+                                                         <span class="s">"   \"inner\": 42 \n"</span> <span class="o">+</span>
+                                                         <span class="s">"}"</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nt">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$.outer"</span><span class="p">,</span><span class="w">
+         </span><span class="nt">"equalToJson"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{ \"inner\": 42 }"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
 <h3 id="xml-equality">XML equality</h3>
 
 <p>Deems a match if the attribute value is valid XML and is semantically equal to the expected XML document. The underlying engine for determining XML equality is <a href="http://www.xmlunit.org/">XMLUnit</a>.</p>
@@ -901,6 +972,63 @@ you need more precise control:</p>
       </span><span class="nt">"xPathNamespaces"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"stuff"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://stuff.example.com"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"more"</span><span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://more.example.com"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h4 id="nested-value-matching-1">Nested value matching</h4>
+
+<p>The XPath matcher described above can be combined with another matcher, such that the value returned from the XPath query is evaluated against it:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">"//todo-item/text()"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"wash"</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesXPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nt">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"//todo-item/text()"</span><span class="p">,</span><span class="w">
+         </span><span class="nt">"contains"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wash"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>If multiple nodes are returned from the XPath query, all will be evaluated and the returned match will be the one with the shortest distance.</p>
+
+<p>If the XPath expression returns an XML element rather than a value, this will be rendered as an XML string before it is passed to the value matcher.
+This can be usefully combined with the <code class="highlighter-rouge">equalToXml</code> matcher e.g.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="o">.</span><span class="na">withRequestBody</span><span class="o">(</span><span class="n">matchingXPath</span><span class="o">(</span><span class="s">"//todo-item"</span><span class="o">,</span> <span class="n">equalToXml</span><span class="o">(</span><span class="s">"&lt;todo-item&gt;Do the washing&lt;/todo-item&gt;"</span><span class="o">)))</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+    </span><span class="nt">"bodyPatterns"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"matchesXPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nt">"expression"</span><span class="p">:</span><span class="w"> </span><span class="s2">"//todo-item"</span><span class="p">,</span><span class="w">
+         </span><span class="nt">"equalToXml"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;todo-item&gt;Do the washing&lt;/todo-item&gt;"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
     </span><span class="err">...</span><span class="w">
