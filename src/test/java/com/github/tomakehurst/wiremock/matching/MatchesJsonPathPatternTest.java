@@ -15,7 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import org.jmock.Expectations;
@@ -24,10 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MatchesJsonPathPatternTest {
 
@@ -128,6 +131,190 @@ public class MatchesJsonPathPatternTest {
     @Test
     public void noMatchOnNullValue() {
         assertThat(WireMock.matchingJsonPath("$..*").match(null).isExactMatch(), is(false));
+    }
+
+    @Test
+    public void matchesNumericExpressionResultAgainstValuePatternWhenSpecified() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": 11\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", equalTo("11"));
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesStringExpressionResultAgainstValuePatternWhenSpecified() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": \"eleven\"\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", equalTo("eleven"));
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesBooleanExpressionResultAgainstValuePatternWhenSpecified() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": true\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", equalTo("true"));
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesObjectExpressionResultAgainstValuePatternWhenSpecified() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": 11\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl", WireMock.equalToJson(
+            "{\n" +
+            "    \"max\": 11\n" +
+            "}"));
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesArrayExpressionResultAgainstValuePatternWhenSpecified() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": [1, 2, 3, 11]\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", WireMock.equalToJson("[1,2,3,11]"));
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesNotPresentExpressionResultAgainstAbsentValuePattern() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": true\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.min", absent());
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void matchesNullExpressionResultAgainstAbsentValuePattern() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": null\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", absent());
+        MatchResult match = pattern.match(json);
+        assertTrue(match.isExactMatch());
+    }
+
+    @Test
+    public void returnsTheDistanceFromTheValueMatcherWhenNotAMatch() {
+        String json = "{\n" +
+            "    \"volumeControl\": {\n" +
+            "        \"max\": \"eleven\"\n" +
+            "    }\n" +
+            "}";
+
+        StringValuePattern pattern = WireMock.matchingJsonPath("$.volumeControl.max", equalTo("ele"));
+        MatchResult match = pattern.match(json);
+        assertFalse(match.isExactMatch());
+        assertThat(match.getDistance(), is(0.5));
+    }
+
+    @Test
+    public void correctlySerialises() {
+        assertThat(Json.write(WireMock.matchingJsonPath("$..thing")), equalToJson(
+            "{                                \n" +
+                "  \"matchesJsonPath\": \"$..thing\"       \n" +
+                "}"
+        ));
+    }
+
+    @Test
+    public void correctlySerialisesWithValuePattern() {
+        assertThat(Json.write(WireMock.matchingJsonPath("$..thing", containing("123"))), equalToJson(
+            "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"contains\": \"123\"           \n" +
+                "    }                                   \n" +
+                "}"
+        ));
+    }
+
+    @Test
+    public void correctlyDeserialises() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                                         \n" +
+                "  \"matchesJsonPath\": \"$..thing\"       \n" +
+                "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
+    }
+
+    @Test
+    public void correctlyDeserialisesWithValuePattern() {
+        StringValuePattern stringValuePattern = Json.read(
+            "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"equalTo\": \"the value\"      \n" +
+                "    }                                   \n" +
+                "}",
+            StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
+
+        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(EqualToPattern.class));
+        assertThat(subMatcher.getExpected(), is("the value"));
+    }
+
+    @Test(expected = JsonMappingException.class)
+    public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
+        Json.read(
+            "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"express\": \"$..thing\",      \n" +
+                "        \"equalTo\": \"the value\"      \n" +
+                "    }                                   \n" +
+                "}",
+            StringValuePattern.class);
+    }
+
+    @Test(expected = JsonMappingException.class)
+    public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithBadValuePatternName() {
+        Json.read(
+            "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"badOperator\": \"the value\"  \n" +
+                "    }                                   \n" +
+                "}",
+            StringValuePattern.class);
     }
 
     private void expectInfoNotification(final String message) {
