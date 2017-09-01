@@ -25,9 +25,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToIgnoreCase;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
@@ -160,6 +158,18 @@ public class MatchesXPathPatternTest {
 
         assertThat(pattern.match(xml).isExactMatch(), is(false));
         assertThat(pattern.match(xml).getDistance(), is(1.0));
+    }
+
+    @Test
+    public void matchesComplexElementAgainstValuePattern() {
+        String xml =
+            "<outer>\n" +
+            "    <inner>stuff</inner>\n" +
+            "</outer>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/outer/inner", equalToXml("<inner>stuff</inner>"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
     }
 
     @Test
