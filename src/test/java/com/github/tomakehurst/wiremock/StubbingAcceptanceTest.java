@@ -306,6 +306,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 	}
 
 	@Test
+	public void matchingOnRequestBodyWithAdvancedXPath() {
+		stubFor(post("/xpath/advanced")
+			.withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
+			.willReturn(ok())
+		);
+
+		WireMockResponse response = testClient.postXml("/xpath/advanced", "<counter>6666</counter>");
+		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+		response = testClient.postXml("/xpath/advanced", "<counter>123</counter>");
+		assertThat(response.statusCode(), is(HTTP_OK));
+	}
+
+	@Test
 	public void responseWithFixedDelay() {
 	    stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
 			aResponse()
