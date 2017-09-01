@@ -71,10 +71,6 @@ public class StringValuePatternTest {
 
         for (Class<?> clazz: classes) {
             findConstructorWithStringParamInFirstPosition(clazz);
-//            assertThat(constructor
-//                .getParameterAnnotations()[0][0]
-//                .annotationType()
-//                .getSimpleName(), is("JsonProperty"));
         }
 
     }

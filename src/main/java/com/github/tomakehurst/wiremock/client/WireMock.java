@@ -195,6 +195,10 @@ public class WireMock {
         return new MatchesXPathPattern(value, namespaces);
     }
 
+    public static StringValuePattern matchingXPath(String value, StringValuePattern valuePattern) {
+        return new MatchesXPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern containing(String value) {
         return new ContainsPattern(value);
     }

@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -27,15 +26,12 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
-@JsonSerialize(using = MatchesJsonPathPatternJsonSerializer.class)
-public class MatchesJsonPathPattern extends StringValuePattern {
-
-    private final StringValuePattern valuePattern;
+@JsonSerialize(using = JsonPathPatternJsonSerializer.class)
+public class MatchesJsonPathPattern extends PathPattern {
 
     public MatchesJsonPathPattern(@JsonProperty("matchesJsonPath") String expectedJsonPath,
                                   StringValuePattern valuePattern) {
-        super(expectedJsonPath);
-        this.valuePattern = valuePattern;
+        super(expectedJsonPath, valuePattern);
     }
 
     public MatchesJsonPathPattern(String value) {
@@ -46,25 +42,7 @@ public class MatchesJsonPathPattern extends StringValuePattern {
         return expectedValue;
     }
 
-    public StringValuePattern getValuePattern() {
-        return valuePattern;
-    }
-
-    @JsonIgnore
-    public boolean isSimple() {
-        return valuePattern == null;
-    }
-
-    @Override
-    public MatchResult match(String value) {
-        if (isSimple()) {
-            return isSimpleJsonPathMatch(value);
-        }
-
-        return isAdvancedJsonPathMatch(value);
-    }
-
-    private MatchResult isSimpleJsonPathMatch(String value) {
+    protected MatchResult isSimpleJsonPathMatch(String value) {
         try {
             Object obj = JsonPath.read(value, expectedValue);
 
@@ -98,7 +76,7 @@ public class MatchesJsonPathPattern extends StringValuePattern {
 
     }
 
-    private MatchResult isAdvancedJsonPathMatch(String value) {
+    protected MatchResult isAdvancedJsonPathMatch(String value) {
         Object obj = null;
         try {
             obj = JsonPath.read(value, expectedValue);
