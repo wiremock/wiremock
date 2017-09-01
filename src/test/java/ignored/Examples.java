@@ -17,6 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -231,6 +232,35 @@ public class Examples extends AcceptanceTestBase {
                 .withRequestBody(matchingXPath("/stuff:outer/stuff:inner[.=111]")
                         .withXPathNamespace("stuff", "http://foo.com"))
                 .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedXPathMatching() {
+        stubFor(put(urlEqualTo("/xpath"))
+            .withRequestBody(matchingXPath("//todo-item/text()", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatching() {
+        stubFor(put(urlEqualTo("/jsonpath"))
+            .withRequestBody(matchingJsonPath("$..todoItem", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatchingWithObject() {
+        System.out.println(matchingJsonPath("$.outer",
+            equalToJson(
+            "{\n" +
+            "        \"inner\": 42\n" +
+            "    }"))
+            .match(
+            "{\n" +
+            "    \"outer\": {\n" +
+            "        \"inner\": 42\n" +
+            "    }\n" +
+            "}").isExactMatch());
     }
 
     @Test
