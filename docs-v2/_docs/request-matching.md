@@ -700,6 +700,35 @@ JSON:
 }
 ```
 
+If multiple nodes are returned from the XPath query, all will be evaluated and the returned match will be the one with the shortest distance.
+ 
+If the XPath expression returns an XML element rather than a value, this will be rendered as an XML string before it is passed to the value matcher.
+This can be usefully combined with the `equalToXml` matcher e.g.
+ 
+Java:
+
+```java
+.withRequestBody(matchingXPath("//todo-item", equalToXml("<todo-item>Do the washing</todo-item>")))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesXPath" : {
+         "expression": "//todo-item",
+         "equalToXml": "<todo-item>Do the washing</todo-item>"
+      }
+    } ]
+    ...
+  },
+  ...
+}
+```
+
 ### Absence
 
 Deems a match if the attribute specified is absent from the request.
