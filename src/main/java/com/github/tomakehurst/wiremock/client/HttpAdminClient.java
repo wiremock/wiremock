@@ -74,6 +74,10 @@ public class HttpAdminClient implements Admin {
         this(scheme, host, port, urlPathPrefix, null, null, 0);
     }
 
+    public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
+        this(scheme, host, port, urlPathPrefix, hostHeader, null, 0);
+    }
+
     public HttpAdminClient(String scheme,
                            String host,
                            int port,
