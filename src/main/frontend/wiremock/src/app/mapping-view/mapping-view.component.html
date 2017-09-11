@@ -1,0 +1,85 @@
+<wm-list-view #listView [items]="mappingResult?.mappings"  (onSelect)="setSelectedMapping($event)" [selectByItemId]="selectByItemId">
+  <wm-list-view-content>
+    <wm-mapping [selectedMapping]="selectedMapping" *ngIf="editMode == State.NORMAL"></wm-mapping>
+    <div class="wmTabSpacer"></div>
+    <textarea spellcheck="false" class="wmEditTextArea" *ngIf="editMode == State.EDIT" [(ngModel)]="selectedMappingText" wmTabEnabled></textarea>
+    <textarea spellcheck="false" class="wmEditTextArea" *ngIf="editMode == State.NEW" [(ngModel)]="newMappingText" wmTabEnabled></textarea>
+  </wm-list-view-content>
+  <wm-list-view-actions>
+    <div class="wmActionToolbar" *ngIf="editMode == State.NORMAL">
+      <button md-raised-button (click)="setEditMode(State.NEW)"><md-icon>add_circle</md-icon> New</button>
+      <button md-raised-button [disabled]="!selectedMapping" (click)="setEditMode(State.EDIT)"><md-icon>mode_edit</md-icon> Edit</button>
+      <button md-raised-button [disabled]="!selectedMapping" (click)="removeMapping()"><md-icon>delete</md-icon> Remove</button>
+
+      <button md-raised-button [mdMenuTriggerFor]="mappings"><md-icon>arrow_drop_down</md-icon> Mappings</button>
+      <md-menu #mappings="mdMenu">
+        <button md-menu-item [disabled]="noMappings()" (click)="saveMappings()">
+          <md-icon>save</md-icon> Save Mappings
+        </button>
+        <button md-menu-item (click)="resetMappings()">
+          <md-icon>autorenew</md-icon> Reset Mappings
+        </button>
+        <button md-menu-item [disabled]="noMappings()" (click)="deleteAllMappings()">
+          <md-icon>delete</md-icon> Remove all Mappings
+        </button>
+      </md-menu>
+
+      <button md-raised-button [mdMenuTriggerFor]="scenarios" [disabled]="noMappings()"><md-icon>arrow_drop_down</md-icon> Scenarios</button>
+      <md-menu #scenarios="mdMenu">
+        <!-- TODO: not possible yet. A new method is needed. Maybe /scenarios/reset/{id} -->
+        <!--<button md-menu-item><md-icon>replay</md-icon> Reset selected Scenario</button>-->
+        <button md-menu-item (click)="resetScenarios()"><md-icon>autorenew</md-icon> Reset all Scenarios</button>
+      </md-menu>
+    </div>
+
+    <!-- Edit or New Mode -->
+    <div class="wmActionToolbar" *ngIf="editMode == State.EDIT || editMode == State.NEW">
+      <button md-raised-button (click)="saveMapping()"><md-icon>save</md-icon> Save</button>
+      <button md-raised-button (click)="setEditMode(State.NORMAL)"><md-icon>cancel</md-icon> Cancel</button>
+
+      <!-- Helpers -->
+      <button md-raised-button [mdMenuTriggerFor]="helpers"><md-icon>arrow_drop_down</md-icon> Helpers</button>
+      <md-menu #helpers="mdMenu">
+        <button md-menu-item (click)="helperAddDelay()">
+          <md-icon>av_timer</md-icon> Add Delay
+        </button>
+        <button md-menu-item (click)="helperAddPriority()">
+          <md-icon>priority_high</md-icon> Add Priority
+        </button>
+        <button md-menu-item (click)="helperAddHeaderRequest()">
+          <md-icon>view_headline</md-icon> Add Request Header
+        </button>
+        <button md-menu-item (click)="helperAddHeaderResponse()">
+          <md-icon>view_headline</md-icon> Add Response Header
+        </button>
+        <button md-menu-item (click)="helperAddScenario()">
+          <md-icon>description</md-icon> Add Scenario
+        </button>
+
+        <md-divider></md-divider>
+
+        <button md-menu-item [mdMenuTriggerFor]="helperProxying"><md-icon>more_horiz</md-icon> Proxying</button>
+        <md-menu #helperProxying="mdMenu">
+          <button md-menu-item (click)="helperAddProxyBaseUrl()">
+            <md-icon>subdirectory_arrow_right</md-icon> Add Proxy URL
+          </button>
+          <button md-menu-item (click)="helperAddAdditionalProxyRequestHeaders()">
+            <md-icon>view_headline</md-icon> Add Proxy Header
+          </button>
+        </md-menu>
+
+        <button md-menu-item [mdMenuTriggerFor]="helperResponseTemplating"><md-icon>more_horiz</md-icon> Response Templating</button>
+        <md-menu #helperResponseTemplating="mdMenu">
+          <button md-menu-item (click)="helperAddResponseTemplatingTransformer()">
+            <md-icon>transform</md-icon> Add Transformer
+          </button>
+          <md-divider></md-divider>
+          <button md-menu-item (click)="helperRtCopyJson()">Copy Json Helper</button>
+          <button md-menu-item (click)="helperRtCopyXml()">Copy Xml Helper</button>
+          <button md-menu-item (click)="helperRtCopySoap()">Copy Soap Helper</button>
+        </md-menu>
+
+      </md-menu>
+    </div>
+  </wm-list-view-actions>
+</wm-list-view>

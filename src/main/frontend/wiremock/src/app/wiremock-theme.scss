@@ -1,0 +1,167 @@
+@import "~@angular/material/theming";
+@import "hljs";
+@import "/list-entry/list-entry.theme";
+@import "/mapping/mapping.theme";
+@import "/list-view/list-view.theme";
+@import "/code-entry-list/code-entry-list.theme";
+@import "/toolbar/toolbar.theme";
+@import "app.theme";
+@import "/list/list.theme";
+@import "/search/search.theme";
+@import "/mapping-view/mapping-view.theme";
+@import "/matched-view/matched-view.theme";
+@import "/message/message.theme";
+@import "/code-entry/code-entry.theme";
+
+@include mat-core();
+
+$mat-wm-orange: (
+  50 : #fef2e4,
+  100 : #fddfbc,
+  200 : #fbc98f,
+  300 : #f9b362,
+  400 : #f8a340,
+  500 : #f7931e,
+  600 : #f68b1a,
+  700 : #f58016,
+  800 : #f37612,
+  900 : #f1640a,
+  A100 : #ffffff,
+  A200 : #ffefe7,
+  A400 : #ffceb4,
+  A700 : #ffbd9b,
+  contrast: (
+    50: $black-87-opacity,
+    100: $black-87-opacity,
+    200: $black-87-opacity,
+    300: $black-87-opacity,
+    400: $black-87-opacity,
+    500: $black-87-opacity,
+    600: $black-87-opacity,
+    700: $black-87-opacity,
+    800: $black-87-opacity,
+    900: $black-87-opacity,
+    A100: $black-87-opacity,
+    A200: $black-87-opacity,
+    A400: $black-87-opacity,
+    A700: $black-87-opacity,
+  )
+);
+
+$mat-wm-blue: (
+  50: #A7C3CC,
+  100: #87BBCC,
+  200: #70B5CC,
+  300: #5CB0CC,
+  400: #41A9CC,
+  500: #29A3CC,
+  600: #149DCC,
+  700: #0399CC,
+  800: #008BBA,
+  900: #007AA3,
+  A100: #498EA6,
+  A200: #2E87A6,
+  A400: #1280A6,
+  A700: #007CA6,
+  contrast: (
+    50: $black-87-opacity,
+    100: $black-87-opacity,
+    200: $black-87-opacity,
+    300: $black-87-opacity,
+    400: $black-87-opacity,
+    500: white,
+    600: white,
+    700: $white-87-opacity,
+    800: $white-87-opacity,
+    900: $white-87-opacity,
+    A100: $black-87-opacity,
+    A200: $black-87-opacity,
+    A400: $black-87-opacity,
+    A700: $black-87-opacity,
+  )
+);
+
+@mixin wiremock-theme($theme) {
+  @include wm-hljs-theme($theme);
+  @include wm-list-entry-theme($theme);
+  @include wm-mapping-theme($theme);
+  @include wm-list-view-theme($theme);
+  @include wm-code-entry-list-theme($theme);
+  @include wm-toolbar-theme($theme);
+  @include wm-app-theme($theme);
+  @include wm-list-theme($theme);
+  @include wm-search-theme($theme);
+  @include wm-mapping-view-theme($theme);
+  @include wm-matched-view-theme($theme);
+  @include wm-message-theme($theme);
+  @include wm-code-entry-theme($theme);
+}
+
+//$primary: mat-palette($mat-indigo);
+$primary: mat-palette($mat-wm-orange);
+$accent: mat-palette($mat-wm-blue, A200, A100, A400);
+$warn: mat-palette($mat-red, 600);
+
+$theme: mat-light-theme($primary, $accent, $warn);
+
+@include angular-material-theme($theme);
+@include wiremock-theme($theme);
+
+.dark-theme {
+  $primary: mat-palette($mat-wm-orange, 700, 500, 900);
+  $accent: mat-palette($mat-wm-blue, A200, A100, A400);
+  $warn: mat-palette($mat-red, 700);
+
+  $wm-dark-theme-foreground: (
+    base: white,
+    divider: $white-12-opacity,
+    dividers: $white-12-opacity,
+    disabled: rgba(white, 0.4),
+    disabled-button: rgba(white, 0.4),
+    disabled-text: rgba(white, 0.4),
+    hint-text: rgba(white, 0.5),
+    secondary-text: rgba(white, 0.7),
+    icon: white,
+    icons: white,
+    text: white,
+    slider-off: rgba(white, 0.3),
+    slider-off-active: rgba(white, 0.3),
+  );
+
+  $wm-dark-theme-background: (
+    status-bar: #262626,
+    app-bar: map_get($mat-grey, 900),
+    background: #262626,
+    hover: rgba(white, 0.04), // TODO(kara): check style with Material Design UX
+    card: #262626,
+    dialog: #262626,
+    disabled-button: $white-12-opacity,
+    raised-button: #262626,
+    focused-button: $white-6-opacity,
+    selected-button: map_get($mat-grey, 900),
+    selected-disabled-button: map_get($mat-grey, 800),
+    disabled-button-toggle: map_get($mat-grey, 1000),
+  );
+
+  @function wm-dark-theme($primary, $accent, $warn: mat-palette($mat-red)) {
+    @return (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+      is-dark: true,
+      foreground: $wm-dark-theme-foreground,
+      background: $wm-dark-theme-background,
+    );
+  }
+
+  $theme: wm-dark-theme($primary, $accent, $warn);
+
+  //$theme: mat-dark-theme($primary, $accent, $warn);
+
+  @include angular-material-theme($theme);
+  @include wiremock-theme($theme);
+}
+
+
+
+

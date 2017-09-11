@@ -1,0 +1,11 @@
+<!--<md-tab-group class="wmTabGroup">-->
+<md-tab-group class="wmTabGroup" [@.disabled]="!tabSlide()">
+  <md-tab label="Raw">
+    <ng-content select="wm-tab-view-raw"></ng-content>
+  </md-tab>
+  <md-tab label="Separated">
+    <div class="wmSeparatedTabContent">
+      <ng-content select="wm-tab-view-separated"></ng-content>
+    </div>
+  </md-tab>
+</md-tab-group>

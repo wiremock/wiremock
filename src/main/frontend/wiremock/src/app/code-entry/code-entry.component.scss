@@ -1,0 +1,25 @@
+pre{
+  margin: 0;
+}
+
+.wmCode{
+  min-height: 17px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.wmUrlQueryParam{
+  min-height: 17px;
+}
+
+.wmUrlQueryParam tr td, .wmUrlQueryParam tr th {
+  padding-right: 10px;
+}
+
+.wmCodeEntryLink{
+  min-height: 17px;
+  padding: 0.5em;
+  display: flex;
+  align-items: center;
+  font-family: monospace;
+}

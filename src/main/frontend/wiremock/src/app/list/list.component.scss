@@ -1,0 +1,54 @@
+md-list-item{
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.wmNavList{
+  //height: calc(100% - 32px);
+  overflow-y: auto;
+}
+
+.wmPageActive:hover{
+  cursor: default;
+}
+
+.wmPagination{
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 0 auto;
+}
+
+.wmPageItem{
+  cursor: pointer;
+  height: 30px;
+  //width: 30px;
+  /*14 items max - 1px border*/
+  //width: calc(100% / 14 - 1px);
+  min-width: 24px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.wmPageDisabled:hover{
+ cursor: not-allowed;
+}
+
+.wmListContainer{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pagerMaxItemsPerPage{
+  min-width: 49px;
+  width: 49px;
+  max-width: 49px;
+}
+
+.pagerMaxItemsPerPage > div{
+  min-width: 50px;
+  max-width: 50px;
+  width: 50px;
+}

@@ -1,0 +1,6 @@
+<md-list-item class="wmListItem" (click)="selectItem()" [class.wmListEntrySelected]="selected" [class.wmListEntryFirst]="first">
+  <h4 class="wmListTitle" md-line>{{item.getTitle()}}</h4>
+  <p class="wmListSubtitle" md-line>{{item.getSubtitle()}}</p>
+</md-list-item>
+
+<!-- [class.selected]="item === selectedItem" -->

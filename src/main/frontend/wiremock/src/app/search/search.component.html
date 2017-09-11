@@ -1,0 +1,11 @@
+<form class="wmSearchForm">
+  <div class="wmSearchContainer">
+    <md-icon class="wmSearchIcon">search</md-icon>
+    <md-input-container class="wmSearchInputContainer">
+      <input mdInput placeholder="Enter expression or text here" [formControl]="search" autocomplete="off" id="wmSearchInput" (blur)="onBlur()" (focus)="onFocus()"
+        [class.wmSearchInputBig]="!focused">
+      <md-icon class="wmSearchClear" [class.wmSearchClearHidden]="!search.value || !focused" (click)="clearSearch($event)">clear</md-icon>
+    </md-input-container>
+    <md-checkbox class="wmSearchCaseSensitive" (change)="onCaseSensitiveChanged($event)" title="case sensitive">Aa</md-checkbox>
+  </div>
+</form>

@@ -41,6 +41,10 @@ wiremock.iws
 **/*.iml
 .idea
 
+# Frontend #
+############
+/src/main/resources/assets/webapp/*
+
 
 # Misc #
 ########

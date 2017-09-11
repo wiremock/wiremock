@@ -1,0 +1,135 @@
+@import "wiremock-function";
+
+/*
+The colors depend on the railscasts style from Damien White. They are just for better readability depending on the theme.
+
+Railscasts-like style (c) Visoft, Inc. (Damien White)
+
+*/
+
+@mixin wm-hljs-theme($theme) {
+  $background: mat-color(map-get($theme, background), 'card');
+  $foreground: map-get($theme, foreground);
+
+  $factor: 10;
+  $satFactor: 10;
+
+  @function adjust($theme, $color) {
+    @return if(map-get($theme, is-dark), $color, saturate(darken($color, $factor), $satFactor));
+  }
+
+  .hljs {
+    background-color: $background;
+    color: mat-color($foreground, text);
+  }
+
+  .hljs-comment,
+  .hljs-quote {
+    color: adjust($theme, #bc9458);
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag {
+    color: adjust($theme, #c26230);
+  }
+
+  .hljs-string,
+  .hljs-number,
+  .hljs-regexp,
+  .hljs-variable,
+  .hljs-template-variable {
+    color: adjust($theme, #a5c261);
+  }
+
+  .hljs-subst {
+    color: adjust($theme, #519f50);
+  }
+
+  .hljs-tag,
+  .hljs-name {
+    color: adjust($theme, #e8bf6a);
+  }
+
+  .hljs-type {
+    color: adjust($theme, #da4939);
+  }
+
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-built_in,
+  .hljs-builtin-name,
+  .hljs-attr,
+  .hljs-link {
+    color: adjust($theme, #6d9cbe);
+  }
+
+  .hljs-params {
+    color: adjust($theme, #d0d0ff);
+  }
+
+  .hljs-attribute {
+    color: adjust($theme, #cda869);
+  }
+
+  .hljs-meta {
+    color: adjust($theme, #9b859d);
+  }
+
+  .hljs-title,
+  .hljs-section {
+    color: adjust($theme, #ffc66d);
+  }
+
+  .hljs-addition {
+    background-color: adjust($theme, #144212);
+    color: adjust($theme, #e6e1dc);
+  }
+
+  .hljs-deletion {
+    background-color: adjust($theme, #600);
+    color: adjust($theme, #e6e1dc);
+  }
+
+  .hljs-selector-class {
+    color: adjust($theme, #9b703f);
+  }
+
+  .hljs-selector-id {
+    color: adjust($theme, #8b98ab);
+  }
+}
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+}
+
+.hljs-comment,
+.hljs-quote {
+  font-style: italic;
+}
+
+.hljs-addition {
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-deletion {
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}
+
+

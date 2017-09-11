@@ -1,0 +1,9 @@
+<form class="wmDialogRecordingContainer">
+  <md-input-container class="wmDialogRecordingInput">
+    <input #url mdInput placeholder="Target URL">
+  </md-input-container>
+  <div>
+    <button md-raised-button [md-dialog-close]="url.value">Start</button>
+    <button md-raised-button md-dialog-close="cancel">Cancel</button>
+  </div>
+</form>

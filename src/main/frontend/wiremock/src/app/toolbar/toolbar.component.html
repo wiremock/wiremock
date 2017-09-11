@@ -1,0 +1,54 @@
+<md-toolbar id="wmToolbar">
+  <div id="wmToolbarGroupOne">
+    <a id="wmToolbarHomeLink" href="https://wiremock.org/" target="_blank">
+      <img [src]="wmLogo" id="wmToolbarLogo">
+      <span id="wmToolbarTitle">WireMock</span>
+    </a>
+    <a routerLink="/mappings" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: false}">Mappings</a>
+    <a routerLink="/matched" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: true}">Matched</a>
+    <a routerLink="/unmatched" routerLinkActive="wmMenuItemSelected" [routerLinkActiveOptions]="{exact: true}">Unmatched</a>
+  </div>
+
+  <div id="wmToolbarGroupTwo">
+    <button md-icon-button [mdMenuTriggerFor]="wmGeneralMenu">
+      <md-icon>more_horiz</md-icon>
+    </button>
+    <md-menu #wmGeneralMenu="mdMenu">
+      <md-slide-toggle color="primary" [checked]="isDarkTheme" (change)="changeTheme()" class="wmSlide">
+        Dark Theme
+      </md-slide-toggle>
+      <md-slide-toggle color="primary" [checked]="isTabSlide" (change)="changeTabSlide()" class="wmSlide">
+        TabSlide
+      </md-slide-toggle>
+      <md-slide-toggle color="primary" [checked]="areEmptyCodeEntriesHidden" (change)="changeHideEmptyCodeEntries()" class="wmSlide">
+        Hide empty values
+      </md-slide-toggle>
+      <md-divider></md-divider>
+      <button md-menu-item (click)="resetAll()">
+        <md-icon>delete</md-icon>
+        <span>Reset All</span>
+      </button>
+      <md-divider></md-divider>
+      <button md-menu-item (click)="startRecording()" [disabled]="recordingInterval">
+        <md-icon>radio_button_checked</md-icon>
+        <span>Start Recording</span>
+      </button>
+      <button md-menu-item (click)="stopRecording()" [disabled]="!recordingInterval">
+        <md-icon>stop</md-icon>
+        <span>Stop Recording</span>
+      </button>
+      <button md-menu-item (click)="snapshot()">
+        <md-icon>photo_camera</md-icon>
+        <span>Snapshot</span>
+      </button>
+      <md-divider></md-divider>
+      <button md-menu-item (click)="shutdown()">
+        <md-icon>power_settings_new</md-icon>
+        <span>Shutdown</span>
+      </button>
+    </md-menu>
+    <div class="wmRecordingStatus" [class.invisible]="!showRecording">
+      <span class="wmRecordingStatusText">Recording</span><md-icon [@recordingState]="recordingState">radio_button_checked</md-icon>
+    </div>
+  </div>
+</md-toolbar>

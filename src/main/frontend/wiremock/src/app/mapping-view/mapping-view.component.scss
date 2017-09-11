@@ -1,0 +1,15 @@
+.wmEditTextArea{
+  width: calc(100% - 14px);
+  /* - padding and border*/
+  height: calc(100% - 62px);
+  resize: none;
+  padding: 0.5em;
+  border: 0;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.wmTabSpacer{
+  height: 48px;
+}

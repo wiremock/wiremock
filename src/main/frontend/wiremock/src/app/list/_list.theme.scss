@@ -1,0 +1,59 @@
+@import "../wiremock-function";
+
+@mixin wm-list-theme($theme){
+
+  $is-dark-theme: map-get($theme, is-dark);
+  $background: mat-color(map-get($theme, background), 'card');
+  $foreground: map-get($theme, foreground);
+
+  $border: 1px solid if($is-dark-theme, rgba(map-get(wiremock-theme($theme), 'foregroundLight'), 0.3), rgba(0, 0, 0, 0.2));
+
+  .wmNavList{
+    border-right: $border
+  }
+
+  .wmPageItem{
+    border-top: $border;
+    border-right: $border;
+    //border-bottom: $border;
+    //margin-bottom: -1px;
+    background-color: $background;
+  }
+
+  .wmPageItem:hover{
+    //color: map-get(wiremock-theme($theme), accent);
+    color: mat-color($foreground, text);
+    background-color: map-get(wiremock-theme($theme), accent);
+  }
+
+  .wmPageActive{
+    color: mat-color($foreground, text);
+    background-color: map-get(wiremock-theme($theme), accentDarker);
+  }
+
+  .wmPageActive:hover{
+    color: mat-color($foreground, text);
+    background-color: map-get(wiremock-theme($theme), accentDarker);
+  }
+
+  .wmPageDisabled{
+    color: mat-color($foreground, text);
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+  }
+
+  .wmPageDisabled:hover{
+    color: mat-color($foreground, text);
+    background-color: if(map-get($theme, is-dark), lighten($background, 10), darken($background, 10));
+  }
+
+  .pagerMaxItemsPerPage{
+    border-top: $border;
+    border-right: $border;
+    //border-bottom: $border;
+  }
+
+  .wmPagination{
+    border-bottom: $border;
+  }
+
+}

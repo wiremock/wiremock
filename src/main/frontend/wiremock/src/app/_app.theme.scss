@@ -1,0 +1,54 @@
+@import "wiremock-function";
+
+@mixin wm-app-theme($theme){
+  $background: mat-color(map-get($theme, background), 'card');
+
+  $foreground: mat-color(map-get($theme, foreground), text);
+
+  #wmRootContent{
+    background-color: $background;
+  }
+
+  /* not efficient but it works as expected. But now it only works for buttons which are not disabled. Which is fine at the moment*/
+  button:not([disabled]) .wmTwoIconSecond{
+    text-shadow: -2px 0 $background, 0 2px $background, 2px 0 $background, 0 -2px $background;
+  }
+
+  //::-webkit-scrollbar-track
+  //{
+  //  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  //  border-radius: 10px;
+  //  background-color: #F5F5F5;
+  //}
+  //
+  //::-webkit-scrollbar
+  //{
+  //  width: 12px;
+  //  background-color: $background;
+  //}
+  //
+  //::-webkit-scrollbar-thumb
+  //{
+  //  border-radius: 10px;
+  //  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  //  background-color: mat-color(map-get($theme, accent));
+  //}
+
+
+  ::-webkit-scrollbar-track
+  {
+    -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+  }
+
+  ::-webkit-scrollbar
+  {
+    width: 10px;
+    background-color: #F5F5F5;
+  }
+
+  ::-webkit-scrollbar-thumb
+  {
+    background-color: mat-color(map-get($theme, accent));
+  }
+}

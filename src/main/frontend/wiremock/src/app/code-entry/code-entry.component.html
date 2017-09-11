@@ -1,0 +1,18 @@
+<section *ngIf="type === 'code'"><pre><code wmHighlightJs="{{code}}" [language]="language" class="{{language}} wmCode"></code></pre></section>
+<section *ngIf="type === 'params'">
+  <table class="hljs wmUrlQueryParam">
+    <tr *ngIf="code?.length > 0">
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+    <tbody>
+      <tr *ngFor="let param of code">
+        <td class="hljs-attr">{{param.key}}</td>
+        <td class="hljs-string">{{param.value}}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+<section *ngIf="type === 'link'" class="hljs wmCodeEntryLink">
+  <a [routerLink]="code.link" [queryParams]="code.params">{{code.text}}</a>
+</section>

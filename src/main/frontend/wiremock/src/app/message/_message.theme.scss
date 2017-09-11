@@ -1,0 +1,26 @@
+@import "../wiremock-function";
+
+@mixin wm-message-theme($theme){
+
+  $background: mat-color(map-get($theme, background), 'card');
+  $foreground: map-get($theme, foreground);
+
+
+  .wmTypeInfo{
+    color: map-get(wiremock-theme($theme), accent);
+  }
+
+  .wmTypeWarn{
+    color: map-get(wiremock-theme($theme), primary);
+  }
+
+  .wmTypeError{
+    color: map-get(wiremock-theme($theme), warn);
+  }
+
+  .wmSnackBarClose{
+    color: mat-color($foreground, text);
+  }
+
+
+}

@@ -1,0 +1,15 @@
+<md-table #table [dataSource]="dataSource" class="wmCodeTable">
+
+  <ng-container cdkColumnDef="key" class="">
+    <md-header-cell *cdkHeaderCellDef> Key </md-header-cell>
+    <md-cell *cdkCellDef="let row">{{row.key}}</md-cell>
+  </ng-container>
+
+  <ng-container cdkColumnDef="value">
+    <md-header-cell *cdkHeaderCellDef> Value </md-header-cell>
+    <md-cell *cdkCellDef="let row"><wm-code-entry [code]="row.value" [language]="row.language" [type]="row.type"></wm-code-entry></md-cell>
+  </ng-container>
+
+  <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+  <md-row *cdkRowDef="let row; columns: displayedColumns;" [class.invisible]="getEmptyCodeEntriesHidden(row.value)"></md-row>
+</md-table>

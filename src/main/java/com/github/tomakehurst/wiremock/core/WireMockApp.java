@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.jetty9.sse.SseBroadcaster;
+import com.github.tomakehurst.wiremock.jetty9.sse.SseMessage;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.*;
@@ -182,6 +184,7 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
         }
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MAPPINGS);
     }
 
     @Override
@@ -190,6 +193,7 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.remove(stubMapping);
         }
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MAPPINGS);
     }
 
     @Override
@@ -198,6 +202,7 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
         }
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MAPPINGS);
     }
 
     @Override
@@ -223,6 +228,9 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void resetRequests() {
         requestJournal.reset();
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MATCHED);
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.UNMATCHED);
     }
 
     @Override
@@ -230,6 +238,10 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings.reset();
         resetRequests();
         loadDefaultMappings();
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MAPPINGS);
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MATCHED);
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.UNMATCHED);
     }
 
     @Override
@@ -241,6 +253,10 @@ public class WireMockApp implements StubServer, Admin {
     public void resetMappings() {
         mappingsSaver.removeAll();
         stubMappings.reset();
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MAPPINGS);
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.MATCHED);
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.UNMATCHED);
     }
 
     @Override
@@ -358,21 +374,31 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void startRecording(String targetBaseUrl) {
         recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.RECORDING);
     }
 
     @Override
     public void startRecording(RecordSpec recordSpec) {
         recorder.startRecording(recordSpec);
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.RECORDING);
     }
 
     @Override
     public void startRecording(RecordSpecBuilder recordSpec) {
         recorder.startRecording(recordSpec.build());
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.RECORDING);
     }
 
     @Override
     public SnapshotRecordResult stopRecording() {
-        return recorder.stopRecording();
+        SnapshotRecordResult result = recorder.stopRecording();
+
+        SseBroadcaster.INSTANCE.sendMessage(SseMessage.RECORDING);
+
+        return result;
     }
 
     @Override

@@ -1,0 +1,14 @@
+<wm-list [items]="filteredItem" [selectByItemId]="selectByItemId" (onSelect)="onItemSelected($event)" class="wmList"></wm-list>
+<div class="wmContentContainer">
+  <div class="wmWrapper">
+    <div class="wmSearch">
+      <wm-search (onSearchChanged)="onSearchChanged($event)"></wm-search>
+    </div>
+    <div class="wmActions">
+      <ng-content select="wm-list-view-actions"></ng-content>
+    </div>
+    <div class="wmContent">
+      <ng-content select="wm-list-view-content"></ng-content>
+    </div>
+  </div>
+</div>

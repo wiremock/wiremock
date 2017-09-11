@@ -1,0 +1,53 @@
+.wmSearchForm{
+  padding: 0 10px;
+}
+
+.wmSearchContainer{
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.wmSearchInputContainer{
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.wmSearchIcon{
+  margin-right: 5px;
+}
+
+#wmSearchInput.wmSearchInputBig{
+  width: 100%;
+}
+
+#wmSearchInput{
+  padding-right: 20px;
+  width: calc(100% - 20px);
+}
+
+.wmSearchClear{
+  position: absolute;
+  top: 6px;
+  right: 0;
+  padding: 2px;
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.wmSearchClear:not(.wmSearchClearHidden){
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.4s ease-in;
+}
+
+.wmSearchClearHidden{
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s, visibility 0.4s ease-out;
+}
+
+.wmSearchClear:hover{
+  cursor: pointer;
+}

@@ -1,0 +1,25 @@
+@import "../wiremock-function";
+
+@mixin wm-mapping-theme($theme){
+
+  $foreground: map-get($theme, foreground);
+
+  .wmHeaderFirst{
+    background-color: map-get(wiremock-theme($theme), 'primary');
+    color: mat-color($foreground, text);
+  }
+
+  .wmHeaderSecond{
+    background-color: map-get(wiremock-theme($theme), 'accent');
+    color: mat-color($foreground, text);
+  }
+
+  .wmHeaderThird{
+    background-color: map-get(wiremock-theme($theme), 'warn');
+    color: mat-color($foreground, text);
+  }
+}
+
+md-card-header.mat-card-header{
+  padding: 10px;
+}

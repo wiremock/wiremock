@@ -1,0 +1,35 @@
+.wmList {
+  width: 30%;
+  margin-top: 49px;
+  position: fixed;
+  height: calc(100% - 49px);
+}
+
+.wmContentContainer{
+  width: 70%;
+  margin-top: 50px;
+  margin-left: 30%;
+  height: calc(100% - 50px)!important;
+  position: fixed;
+}
+
+.wmContent{
+  /*- height of search and actions*/
+  height: calc(100% - 67px - 46px);
+}
+
+.wmSearch {
+  height: 67px;
+}
+
+.wmWrapper {
+  height: calc(100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.wmContent{
+  flex: 1;
+  overflow: hidden;
+}

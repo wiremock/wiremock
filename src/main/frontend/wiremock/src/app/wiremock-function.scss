@@ -1,0 +1,40 @@
+@import "~@angular/material/theming";
+
+@function wiremock-theme($theme) {
+  $is-dark-theme: map-get($theme, is-dark);
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+
+  $light-selected-foreground: mat-contrast($mat-grey, 600);
+  $light-foreground: rgba(0, 0, 0, 0.87);
+
+  $unselected-background: if($is-dark-theme, mat-color($background, card), #e0e0e0);
+  $unselected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-foreground);
+
+  $selected-background: if($is-dark-theme, mat-color($background, app-bar), #808080);
+  $selected-foreground: if($is-dark-theme, mat-color($foreground, text), $light-selected-foreground);
+
+  $primary-selected-background: mat-color(map-get($theme, primary));
+  $accent-selected-background: mat-color(map-get($theme, accent));
+  $warn-selected-background: mat-color(map-get($theme, warn));
+  @return (
+    primary: $primary-selected-background,
+    primaryLighter: mat-color(map-get($theme, primary), lighter, 1.0),
+    primaryLight: lighten(mat-color(map-get($theme, primary), lighter, 1.0), 20),
+    primaryDarker: mat-color(map-get($theme, primary), darker, 1.0),
+    primaryDark: darken(mat-color(map-get($theme, primary), darker, 1.0), 20),
+    accent: $accent-selected-background,
+    accentLighter: mat-color(map-get($theme, accent), lighter, 1.0),
+    accentLight: lighten(mat-color(map-get($theme, accent), lighter, 1.0), 20),
+    accentDarker: mat-color(map-get($theme, accent), darker, 1.0),
+    accentDark: darken(mat-color(map-get($theme, accent), darker, 1.0), 20),
+    warn: $warn-selected-background,
+    warnLighter: mat-color(map-get($theme, warn), lighter, 1.0),
+    warnLight: lighten(mat-color(map-get($theme, warn), lighter, 1.0), 20),
+    warnDarker: mat-color(map-get($theme, warn), darker, 1.0),
+    warnDark: darken(mat-color(map-get($theme, warn), darker, 1.0), 20),
+    background: $background,
+    foreground: $foreground,
+    foregroundLight: $light-selected-foreground
+  );
+}
