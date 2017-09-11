@@ -27,6 +27,8 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -55,6 +57,26 @@ public class WireMockServerTests {
         Options options = new WireMockConfiguration();
         WireMockServer wireMockServer = new WireMockServer(options);
         assertThat(wireMockServer.getOptions(), is(options));
+    }
+
+    @Test
+    public void buildsQualifiedHttpUrlFromPath() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        int port = wireMockServer.port();
+
+        assertThat(wireMockServer.url("/something"), is(String.format("http://localhost:%d/something", port)));
+        assertThat(wireMockServer.url("something"), is(String.format("http://localhost:%d/something", port)));
+    }
+
+    @Test
+    public void buildsQualifiedHttpsUrlFromPath() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicHttpsPort());
+        wireMockServer.start();
+        int port = wireMockServer.httpsPort();
+
+        assertThat(wireMockServer.url("/something"), is(String.format("https://localhost:%d/something", port)));
+        assertThat(wireMockServer.url("something"), is(String.format("https://localhost:%d/something", port)));
     }
 
     // https://github.com/tomakehurst/wiremock/issues/193
