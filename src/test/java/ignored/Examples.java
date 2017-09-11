@@ -372,6 +372,9 @@ public class Examples extends AcceptanceTestBase {
             // Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.
             .jettyHeaderBufferSize(16834)
 
+            // Set the timeout to wait for Jetty to stop in milliseconds. Defaults to 0 (no wait)
+            .jettyStopTimeout(5000L)
+
             // Set the keystore containing the HTTPS certificate
             .keystorePath("/path/to/https-certs-keystore.jks")
 
