@@ -72,6 +72,7 @@ public class WireMockConfiguration implements Options {
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
     private Integer jettyHeaderBufferSize;
+    private Long jettyStopTimeout;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
@@ -129,6 +130,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration jettyHeaderBufferSize(Integer jettyHeaderBufferSize) {
         this.jettyHeaderBufferSize = jettyHeaderBufferSize;
+        return this;
+    }
+
+    public WireMockConfiguration jettyStopTimeout(Long jettyStopTimeout) {
+        this.jettyStopTimeout = jettyStopTimeout;
         return this;
     }
 
@@ -305,6 +311,7 @@ public class WireMockConfiguration implements Options {
                 .withAcceptors(jettyAcceptors)
                 .withAcceptQueueSize(jettyAcceptQueueSize)
                 .withRequestHeaderSize(jettyHeaderBufferSize)
+                .withStopTimeout(jettyStopTimeout)
                 .build();
     }
 
