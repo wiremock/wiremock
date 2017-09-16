@@ -97,14 +97,29 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void matchesWhenRequiredAbsentCookieIsAbsent() {
         stubFor(get(urlEqualTo("/absent/cookie"))
-            .withCookie("not_this_cookie", absent())
-            .willReturn(aResponse().withStatus(200)));
+                .withCookie("not_this_cookie", absent())
+                .willReturn(aResponse().withStatus(200)));
 
         WireMockResponse response =
-            testClient.get("/absent/cookie",
-                withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=exact-other-value; irrelevant_cookie=whatever"));
+                testClient.get("/absent/cookie",
+                        withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=exact-other-value; irrelevant_cookie=whatever"));
 
         assertThat(response.statusCode(), is(200));
+    }
+
+    @Test
+    public void matchesWhenRequiredCookieSentAsDuplicate() {
+        stubFor(get(urlEqualTo("/duplicate/cookie"))
+                .withCookie("my_cookie", containing("mycookievalue"))
+                .withCookie("my_other_cookie", equalTo("exact-other-value"))
+                .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response =
+                testClient.get("/duplicate/cookie",
+                        withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=exact-other-value; my_other_cookie=exact-other-value"));
+
+        assertThat(response.statusCode(), is(200));
+
     }
 
     @Test
