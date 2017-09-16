@@ -79,5 +79,4 @@ public class Cookie {
     public String toString() {
         return isAbsent() ? "(absent)" : getSerializable().toString();
     }
-
 }
