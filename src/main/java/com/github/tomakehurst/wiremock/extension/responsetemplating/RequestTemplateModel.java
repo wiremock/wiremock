@@ -15,15 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
+import com.google.common.collect.Maps.EntryTransformer;
+import com.google.common.collect.Multimaps;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 public class RequestTemplateModel {
@@ -55,12 +62,27 @@ public class RequestTemplateModel {
                 return ListOrSingle.of(request.header(input).values());
             }
         });
-        Map<String, ListOrSingle<String>> adaptedCookies = Maps.transformValues(request.getCookies(), new Function<Cookie, ListOrSingle<String>>() {
-            @Override
-            public ListOrSingle<String> apply(Cookie input) {
-                return ListOrSingle.of(input.getValue());
-            }
-        });
+
+        ImmutableMap<String, Collection<Cookie>> groupedCookies = Multimaps.index(request.getCookies(), new Function<Cookie, String>() {
+                @Override
+                public String apply(Cookie input) {
+                    return input.getName();
+                }
+            })
+            .asMap();
+
+        Map<String, ListOrSingle<String>> adaptedCookies = Maps.transformEntries(groupedCookies, new EntryTransformer<String, Collection<Cookie>, ListOrSingle<String>>() {
+                @Override
+                public ListOrSingle<String> transformEntry(String key, Collection<Cookie> value) {
+                    return ListOrSingle.of(newArrayList(Collections2.transform(value, new Function<Cookie, String>() {
+                        @Override
+                        public String apply(Cookie input) {
+                            return input.getValue();
+
+                        }
+                    })));
+                }
+            });
 
         UrlPath path = new UrlPath(request.getUrl());
 

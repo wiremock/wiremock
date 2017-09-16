@@ -27,20 +27,21 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Predicate;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.tryFind;
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MockRequest implements Request {
 
     private String url = "/";
     private RequestMethod method = RequestMethod.ANY;
     private HttpHeaders headers = new HttpHeaders();
-    private Map<String, Cookie> cookies = newHashMap();
+    private List<Cookie> cookies = newArrayList();
     private byte[] body;
     private String clientIp = "1.1.1.1";
 
@@ -64,7 +65,7 @@ public class MockRequest implements Request {
     }
 
     public MockRequest cookie(String key, String value) {
-        cookies.put(key, new Cookie(value));
+        cookies.add(new Cookie(key, value));
         return this;
     }
 
@@ -138,7 +139,7 @@ public class MockRequest implements Request {
     }
 
     @Override
-    public Map<String, Cookie> getCookies() {
+    public List<Cookie> getCookies() {
         return cookies;
     }
 

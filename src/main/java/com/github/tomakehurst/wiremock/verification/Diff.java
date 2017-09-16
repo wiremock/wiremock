@@ -25,7 +25,9 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.io.BaseEncoding;
 
 import java.util.Collections;
@@ -86,11 +88,17 @@ public class Diff {
 
         boolean anyCookieSections = false;
         if (requestPattern.getCookies() != null) {
-            Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.<String, Cookie>emptyMap());
+            List<Cookie> cookies = firstNonNull(request.getCookies(), Collections.<Cookie>emptyList());
             for (Map.Entry<String, StringValuePattern> entry: requestPattern.getCookies().entrySet()) {
-                String key = entry.getKey();
+                final String key = entry.getKey();
                 StringValuePattern pattern = entry.getValue();
-                Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
+                Cookie cookie = Iterables.tryFind(cookies, new Predicate<Cookie>() {
+                    @Override
+                    public boolean apply(Cookie input) {
+                        return key.equals(input.getName());
+                    }
+                }).or(Cookie.absent());
+
                 Section<String> section = new Section<>(
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",

@@ -28,6 +28,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
+import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -161,12 +162,17 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             return MatchResult.aggregate(
                 from(cookies.entrySet())
                     .transform(new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
-                        public MatchResult apply(Map.Entry<String, StringValuePattern> cookiePattern) {
-                            Cookie cookie =
-                                firstNonNull(request.getCookies().get(cookiePattern.getKey()), Cookie.absent());
-
+                        public MatchResult apply(final Map.Entry<String, StringValuePattern> cookiePattern) {
+                            Cookie cookie = Iterables.tryFind(request.getCookies(), new Predicate<Cookie>() {
+                                @Override
+                                public boolean apply(Cookie input) {
+                                    return cookiePattern.getKey().equals(input.getName());
+                                }
+                            }).or(Cookie.absent());
                             return cookiePattern.getValue().match(cookie.getValue());
                         }
+
+
                     }).toList()
             );
         }

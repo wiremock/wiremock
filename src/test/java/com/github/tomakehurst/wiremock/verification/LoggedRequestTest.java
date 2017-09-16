@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
 import com.github.tomakehurst.wiremock.http.Cookie;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
@@ -87,10 +87,10 @@ public class LoggedRequestTest {
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
-            "      \"cookies\" : {\n" +
-            "        \"first_cookie\"   : \"yum\",\n" +
-            "        \"monster_cookie\" : \"COOKIIIEESS\"\n" +
-            "      },\n" +
+            "      \"cookies\" : [\n" +
+            "        {\"first_cookie\"   : \"yum\"},\n" +
+            "        {\"monster_cookie\" : \"COOKIIIEESS\"}\n" +
+            "      ],\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
             "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\",\n" +
@@ -101,9 +101,9 @@ public class LoggedRequestTest {
     @Test
     public void jsonRepresentation() throws Exception {
         HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
-        Map<String, Cookie> cookies = ImmutableMap.of(
-                "first_cookie", new Cookie("yum"),
-                "monster_cookie", new Cookie("COOKIIIEESS")
+        List<Cookie> cookies = Lists.newArrayList(
+                new Cookie("first_cookie", "yum"),
+                new Cookie("monster_cookie", "COOKIIIEESS")
         );
 
         Date loggedDate = Dates.parse(DATE);

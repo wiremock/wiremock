@@ -36,7 +36,7 @@ public class MockRequestBuilder {
 	private RequestMethod method = GET;
 	private String clientIp = "x.x.x.x";
 	private List<HttpHeader> individualHeaders = newArrayList();
-	private Map<String, Cookie> cookies = newHashMap();
+	private List<Cookie> cookies = newArrayList();
 	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
 	private String bodyAsBase64 = "";
@@ -87,7 +87,7 @@ public class MockRequestBuilder {
 	}
 
 	public MockRequestBuilder withCookie(String key, String value) {
-		cookies.put(key, new Cookie(value));
+		cookies.add(new Cookie(key, value));
 		return this;
 	}
 
