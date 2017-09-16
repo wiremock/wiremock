@@ -171,8 +171,6 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                             }).or(Cookie.absent());
                             return cookiePattern.getValue().match(cookie.getValue());
                         }
-
-
                     }).toList()
             );
         }

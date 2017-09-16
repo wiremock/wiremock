@@ -119,7 +119,6 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
                 withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=exact-other-value; my_other_cookie=exact-other-value"));
 
         assertThat(response.statusCode(), is(200));
-
     }
 
     @Test

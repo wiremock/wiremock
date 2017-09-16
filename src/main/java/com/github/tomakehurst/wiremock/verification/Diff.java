@@ -98,7 +98,6 @@ public class Diff {
                         return key.equals(input.getName());
                     }
                 }).or(Cookie.absent());
-
                 Section<String> section = new Section<>(
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",

@@ -88,8 +88,12 @@ public class LoggedRequestTest {
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
             "      \"cookies\" : [\n" +
-            "        {\"first_cookie\"   : \"yum\"},\n" +
-            "        {\"monster_cookie\" : \"COOKIIIEESS\"}\n" +
+            "        {\n" +
+            "           \"first_cookie\"   : \"yum\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "           \"monster_cookie\" : \"COOKIIIEESS\"\n" +
+            "        }\n" +
             "      ],\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
