@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Maps.EntryTransformer;
 import com.google.common.collect.Multimaps;
@@ -64,7 +63,7 @@ public class RequestTemplateModel {
             }
         });
 
-        ImmutableMap<String, Collection<Cookie>> indexedCookies = Multimaps.index(request.getCookies(), new Function<Cookie, String>() {
+        Map<String, Collection<Cookie>> indexedCookies = Multimaps.index(request.getCookies(), new Function<Cookie, String>() {
             @Override
             public String apply(Cookie input) {
                 return input.getName();
