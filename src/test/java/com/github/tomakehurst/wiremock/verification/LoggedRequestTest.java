@@ -18,11 +18,9 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.google.common.collect.Lists;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
@@ -40,6 +38,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
@@ -105,7 +104,7 @@ public class LoggedRequestTest {
     @Test
     public void jsonRepresentation() throws Exception {
         HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
-        List<Cookie> cookies = Lists.newArrayList(
+        List<Cookie> cookies = newArrayList(
                 new Cookie("first_cookie", "yum"),
                 new Cookie("monster_cookie", "COOKIIIEESS")
         );
