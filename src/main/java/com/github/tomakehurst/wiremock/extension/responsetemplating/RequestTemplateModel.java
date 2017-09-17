@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.MultiValue;
@@ -26,13 +24,15 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-
 import com.google.common.collect.Maps.EntryTransformer;
 import com.google.common.collect.Multimaps;
+
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RequestTemplateModel {
 
@@ -73,7 +73,7 @@ public class RequestTemplateModel {
         Map<String, ListOrSingle<String>> adaptedCookies = Maps.transformEntries(indexedCookies , new EntryTransformer<String, Collection<Cookie>, ListOrSingle<String>>() {
             @Override
             public ListOrSingle<String> transformEntry(String key, Collection<Cookie> value) {
-                ArrayList<String> cookieValues = newArrayList(Collections2.transform(value, new Function<Cookie, String>() {
+                List<String> cookieValues = newArrayList(Collections2.transform(value, new Function<Cookie, String>() {
                     @Override
                     public String apply(Cookie input) {
                         return input.getValue();
