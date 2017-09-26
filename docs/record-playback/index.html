@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-09-25T12:17:00+01:00">
+  <meta property="article:published_time" content="2017-09-26T12:15:05+01:00">
   
     <link rel="next" href="/docs/request-matching/" title="Request Matching">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Record and Playback (New)">
     <meta itemprop="description" content="WireMock can create stub mappings from requests it has received. Combined with its proxying feature this allows you to “record”stub mappings from interaction with existing APIs.">
-    <meta itemprop="datePublished" content="September 25, 2017">
+    <meta itemprop="datePublished" content="September 26, 2017">
     
 
     <div class="page__inner-wrap">
@@ -769,6 +769,10 @@ is reached, the last response will continue to be returned.</p>
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
       _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
     });
 
     if (!document.cookie.includes('mocklab_notification_seen')) {

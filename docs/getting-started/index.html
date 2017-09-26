@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-09-25T12:17:00+01:00">
+  <meta property="article:published_time" content="2017-09-26T12:15:05+01:00">
   
     <link rel="next" href="/docs/https/" title="HTTPS">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Getting Started">
     <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing justWireMock, and a standalone fat JAR containing WireMock plus all itsdependencies.">
-    <meta itemprop="datePublished" content="September 25, 2017">
+    <meta itemprop="datePublished" content="September 26, 2017">
     
 
     <div class="page__inner-wrap">
@@ -590,6 +590,10 @@ for details.</p>
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
       _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
     });
 
     if (!document.cookie.includes('mocklab_notification_seen')) {

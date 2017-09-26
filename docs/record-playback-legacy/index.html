@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-09-25T12:17:00+01:00">
+  <meta property="article:published_time" content="2017-09-26T12:15:05+01:00">
   
     <link rel="next" href="/docs/record-playback/" title="Record and Playback (New)">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Record and Playback (Legacy)">
     <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
-    <meta itemprop="datePublished" content="September 25, 2017">
+    <meta itemprop="datePublished" content="September 26, 2017">
     
 
     <div class="page__inner-wrap">
@@ -441,6 +441,10 @@ project.</p>
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
       _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
     });
 
     if (!document.cookie.includes('mocklab_notification_seen')) {

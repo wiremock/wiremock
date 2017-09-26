@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-09-25T12:17:00+01:00">
+  <meta property="article:published_time" content="2017-09-26T12:15:05+01:00">
   
     <link rel="next" href="/docs/stubbing/" title="Stubbing">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stateful Behaviour">
     <meta itemprop="description" content="Most web services tend to have some state, which changes as you andothers interact with it. So it’s pretty useful to be able to simulatethis when you’ve swapped a real service for a test double.">
-    <meta itemprop="datePublished" content="September 25, 2017">
+    <meta itemprop="datePublished" content="September 26, 2017">
     
 
     <div class="page__inner-wrap">
@@ -499,6 +499,10 @@ Java, or posting an empty request to <code class="highlighter-rouge">http://&lt;
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
       _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+    });
+
+    $("a[title='Consulting Services']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
     });
 
     if (!document.cookie.includes('mocklab_notification_seen')) {
