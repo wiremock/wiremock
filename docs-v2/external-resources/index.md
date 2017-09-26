@@ -31,17 +31,27 @@ request body into the response:<br>
 In a similar vein, Adam York has written a response transformer utilising Velocity templates:<br>
 [https://github.com/adamyork/wiremock-velocity-transformer](https://github.com/adamyork/wiremock-velocity-transformer)
 
+Mason Malone has built an extension for matching requests based on the contents of JSON web tokens:<br>
+[https://github.com/MasonM/wiremock-jwt-extension](https://github.com/MasonM/wiremock-jwt-extension)
+
+Also from Mason, an extension for finding and removing unused stub mappings:<br>
+[https://github.com/MasonM/wiremock-unused-stubs-extension](https://github.com/MasonM/wiremock-unused-stubs-extension)
+
 
 ## Other languages
 
-Rowan Hill has written a PHP binding:<br>
+PHP client by Rowan Hill:<br>
 [https://github.com/rowanhill/wiremock-php](https://github.com/rowanhill/wiremock-php)
 
-Jeffres S. Morgan has written a Ruby wrapper:<br>
+Ruby wrapper by Jeffres S. Morgan:<br>
 [https://rubygems.org/gems/service_mock](https://rubygems.org/gems/service_mock)
 
-Tom Jankes has written a Groovy binding:<br>
+Groovy binding by Tom Jankes:<br>
 [https://github.com/tomjankes/wiremock-groovy](https://github.com/tomjankes/wiremock-groovy)
+
+Python client by Cody Lee:<br>
+[https://pypi.python.org/pypi/wiremock/1.1.1](https://pypi.python.org/pypi/wiremock/1.1.1)
+
 
 
 ## Articles
