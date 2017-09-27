@@ -6,6 +6,13 @@ redirect_from: "/running-standalone.html"
 description: Running WireMock as a standalone mock server.
 ---
 
+<div class="mocklab-callout"> 
+  <p class="mocklab-callout__text">
+    Configuring servers can be a major distraction from building great software. <strong>MockLab</strong> provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.    
+  </p>
+  <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=docs-callout&utm_campaign=running-standalone" title="Learn more" class="mocklab-callout__learn-more-button">Learn more</a>
+</div>
+
 The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.
 

@@ -6,6 +6,13 @@ redirect_from: "/stubbing.html"
 description: Returning stubbed HTTP responses to specific requests.
 ---
 
+<div class="mocklab-callout"> 
+  <p class="mocklab-callout__text">
+    If you want start stubbing quickly with zero code, try <strong>MockLab</strong>. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.
+  </p>
+  <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=docs-callout&utm_campaign=stubbing" title="Learn more" class="mocklab-callout__learn-more-button">Learn more</a>
+</div>
+
 A core feature of WireMock is the ability to return canned HTTP
 responses for requests matching criteria. These are described in detail in [Request Matching](/docs/request-matching/).
 

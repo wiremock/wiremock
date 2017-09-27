@@ -24,3 +24,47 @@
     font-weight: bold;
   }
 }
+
+.mocklab-callout {
+
+  padding: 0.5rem;
+  padding-left: 70px;
+  margin-top: 1rem !important;
+  margin-bottom: 2rem !important;
+  background-color: #f9fcf5;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background-image: url("/images/mocklab_logo_transparent.png");
+  background-size: 46px 46px;
+  background-repeat: no-repeat;
+  background-position: 2% 50%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+
+  &__text {
+    margin: 0 !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  &__learn-more-button {
+    border: none !important;
+    border-radius: 5px;
+    background-color: #036334;
+    color: white;
+    padding: 0.5rem;
+    outline: none;
+    min-width: 6rem;
+    max-height: 2.5rem;
+    margin-top: auto;
+    margin-bottom: auto;
+
+    &:active,
+    &:visited,
+    &:hover {
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
