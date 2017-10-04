@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.containsString;
 
 public class WireMockRuleFailOnUnmatchedRequestsTest {
 
-
     public ExpectedException expectedException = ExpectedException.none();
 
     public WireMockRule wm = new WireMockRule(options()
@@ -77,6 +76,7 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
         client.get("/near-misssss");
         client.get("/hit");
     }
+
     @Test
     public void matchedRequestButUnmatchedStubShouldNotThrowVerificationException() {
         expectedException = ExpectedException.none();
@@ -84,12 +84,14 @@ public class WireMockRuleFailOnUnmatchedRequestsTest {
         wm.stubFor(get(urlEqualTo("/miss")).willReturn(aResponse().withStatus(404)));
         client.get("/hit");
     }
+
     @Test
     public void unmatchedRequestWithoutStubShouldThrowVerificationException() {
         expectedException.expect(VerificationException.class);
         expectedException.expectMessage(containsString("A request was unmatched by any stub mapping."));
         client.get("/miss");
     }
+
     @Test
     public void unmatchedStubWithoutRequestShouldNotThrowVerificationException() {
         expectedException = ExpectedException.none();
