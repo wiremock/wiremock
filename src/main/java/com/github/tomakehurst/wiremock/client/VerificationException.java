@@ -54,7 +54,7 @@ public class VerificationException extends AssertionError {
 
     }
 
-    private static String renderList(List list) {
+    private static String renderList(List<?> list) {
         return Joiner.on("\n\n").join(
             from(list).transform(toStringFunction())
         );
