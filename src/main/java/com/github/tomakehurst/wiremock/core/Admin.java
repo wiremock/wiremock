@@ -18,10 +18,10 @@ package com.github.tomakehurst.wiremock.core;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -38,6 +38,7 @@ public interface Admin {
     ListStubMappingsResult listAllStubMappings();
     SingleStubMappingResult getStubMapping(UUID id);
     void saveMappings();
+
 	void resetRequests();
     void resetScenarios();
     void resetMappings();
@@ -53,6 +54,8 @@ public interface Admin {
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
     FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
     FindNearMissesResult findNearMissesForUnmatchedRequests();
+
+    GetScenariosResult getAllScenarios();
 
     void updateGlobalSettings(GlobalSettings settings);
 

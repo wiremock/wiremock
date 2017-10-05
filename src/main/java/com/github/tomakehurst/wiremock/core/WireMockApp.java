@@ -314,6 +314,13 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public GetScenariosResult getAllScenarios() {
+        return new GetScenariosResult(
+            stubMappings.getAllScenarios()
+        );
+    }
+
+    @Override
     public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
         return new FindNearMissesResult(nearMissCalculator.findNearestTo(loggedRequest));
     }
