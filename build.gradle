@@ -332,7 +332,7 @@ task checkReleasePreconditions << {
     assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
 
     def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    assert currentGitBranch == REQUIRED_GIT_BRANCH, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release"
+    assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
 }
 publish.dependsOn checkReleasePreconditions
 
