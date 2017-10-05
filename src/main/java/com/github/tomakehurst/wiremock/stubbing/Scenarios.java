@@ -2,9 +2,11 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,7 +20,7 @@ public class Scenarios {
     public void onStubMappingAddedOrUpdated(StubMapping mapping) {
         if (mapping.isInScenario()) {
             String scenarioName = mapping.getScenarioName();
-            Scenario scenario = firstNonNull(scenarioMap.get(scenarioName), Scenario.inStartedState());
+            Scenario scenario = firstNonNull(scenarioMap.get(scenarioName), Scenario.inStartedState(scenarioName));
             scenario = scenario.withPossibleState(mapping.getNewScenarioState());
             scenarioMap.put(scenarioName, scenario);
         }
@@ -29,8 +31,8 @@ public class Scenarios {
         return scenarioMap.get(name);
     }
 
-    public Map<String, Scenario> getAll() {
-        return ImmutableMap.copyOf(scenarioMap);
+    public List<Scenario> getAll() {
+        return ImmutableList.copyOf(scenarioMap.values());
     }
 
     public void onStubMappingRemoved(StubMapping mapping, Iterable<StubMapping> remainingStubMappings) {

@@ -18,15 +18,21 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
+import static com.google.common.collect.Iterables.find;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
@@ -116,13 +122,15 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
 
         testClient.get("/scenarios/1");
 
-        Map<String, Scenario> scenarios = WireMock.getAllScenarios();
+        List<Scenario> scenarios = WireMock.getAllScenarios();
 
-        Scenario scenario1 = scenarios.get("scenario_one");
+        Scenario scenario1 = find(scenarios, withName("scenario_one"));
+        assertThat(scenario1.getId(), notNullValue(UUID.class));
         assertThat(scenario1.getPossibleStates(), hasItems(STARTED, "state_2"));
         assertThat(scenario1.getState(), is("state_2"));
 
-        assertThat(scenarios.get("scenario_two").getState(), is("Started"));
+        Scenario scenario2 = find(scenarios, withName("scenario_two"));
+        assertThat(scenario2.getState(), is("Started"));
     }
 
     @Test
@@ -145,4 +153,6 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
                 .atPriority(1)
                 .willSetStateTo("Next State");
     }
+
+
 }
