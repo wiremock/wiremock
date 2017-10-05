@@ -18,10 +18,12 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
@@ -31,22 +33,36 @@ import static java.util.Collections.singletonList;
 public class Scenario {
 
 	public static final String STARTED = "Started";
-	
+
+	private final UUID id;
+	private final String name;
 	private final String state;
 	private final List<String> possibleStates;
 
 	@JsonCreator
-	public Scenario(@JsonProperty("state") String currentState,
+	public Scenario(@JsonProperty("id") UUID id,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("state") String currentState,
                     @JsonProperty("possibleStates") List<String> possibleStates) {
-		this.state = currentState;
+        this.id = id;
+        this.name = name;
+        this.state = currentState;
 		this.possibleStates = possibleStates;
 	}
 	
-	public static Scenario inStartedState() {
-		return new Scenario(STARTED, singletonList(STARTED));
+	public static Scenario inStartedState(String name) {
+		return new Scenario(UUID.randomUUID(), name, STARTED, singletonList(STARTED));
 	}
-	
-	public String getState() {
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getState() {
 		return state;
 	}
 
@@ -55,11 +71,11 @@ public class Scenario {
     }
 
 	Scenario setState(String newState) {
-		return new Scenario(newState, possibleStates);
+		return new Scenario(id, name, newState, possibleStates);
 	}
 
 	Scenario reset() {
-        return new Scenario(STARTED, possibleStates);
+        return new Scenario(id, name, STARTED, possibleStates);
 	}
 
     Scenario withPossibleState(String newScenarioState) {
@@ -71,12 +87,12 @@ public class Scenario {
             .addAll(possibleStates)
             .add(newScenarioState)
             .build();
-        return new Scenario(state, newStates);
+        return new Scenario(id, name, state, newStates);
     }
 
     public Scenario withoutPossibleState(String scenarioState) {
         return new Scenario(
-            state,
+            id, name, state,
             from(possibleStates).filter(not(equalTo(scenarioState))).toList()
         );
     }
@@ -91,12 +107,22 @@ public class Scenario {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Scenario scenario = (Scenario) o;
-        return Objects.equals(state, scenario.state) &&
+        return Objects.equals(name, scenario.name) &&
+            Objects.equals(state, scenario.state) &&
             Objects.equals(possibleStates, scenario.possibleStates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(state, possibleStates);
+        return Objects.hash(name, state, possibleStates);
+    }
+
+    public static final Predicate<Scenario> withName(final String name) {
+	    return new Predicate<Scenario>() {
+            @Override
+            public boolean apply(Scenario input) {
+                return input.getName().equals(name);
+            }
+        };
     }
 }

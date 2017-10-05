@@ -156,7 +156,7 @@ public class InMemoryStubMappings implements StubMappings {
 	}
 
 	@Override
-	public Map<String, Scenario> getAllScenarios() {
+	public List<Scenario> getAllScenarios() {
 		return scenarios.getAll();
 	}
 

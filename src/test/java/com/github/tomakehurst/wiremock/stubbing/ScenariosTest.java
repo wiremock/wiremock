@@ -1,6 +1,5 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,9 +10,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ScenariosTest {
@@ -113,7 +110,7 @@ public class ScenariosTest {
         scenarios.onStubMappingRemoved(mapping1, singletonList(mapping2));
         scenarios.onStubMappingRemoved(mapping2, Collections.<StubMapping>emptyList());
 
-        assertThat(scenarios.getAll().values(), empty());
+        assertThat(scenarios.getAll(), empty());
     }
 
     @Test

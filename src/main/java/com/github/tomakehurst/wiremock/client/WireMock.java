@@ -252,11 +252,11 @@ public class WireMock {
 		admin.resetScenarios();
 	}
 
-    public static Map<String, Scenario> getAllScenarios() {
+    public static List<Scenario> getAllScenarios() {
         return defaultInstance.get().getScenarios();
     }
 
-    private Map<String, Scenario> getScenarios() {
+    private List<Scenario> getScenarios() {
         return admin.getAllScenarios().getScenarios();
     }
 

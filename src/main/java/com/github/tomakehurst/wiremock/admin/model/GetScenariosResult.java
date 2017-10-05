@@ -4,18 +4,19 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 
+import java.util.List;
 import java.util.Map;
 
 public class GetScenariosResult {
 
-    private final Map<String, Scenario> scenarios;
+    private final List<Scenario> scenarios;
 
     @JsonCreator
-    public GetScenariosResult(@JsonProperty("scenarios") Map<String, Scenario> scenarios) {
+    public GetScenariosResult(@JsonProperty("scenarios") List<Scenario> scenarios) {
         this.scenarios = scenarios;
     }
 
-    public Map<String, Scenario> getScenarios() {
+    public List<Scenario> getScenarios() {
         return scenarios;
     }
 }

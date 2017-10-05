@@ -35,5 +35,5 @@ public interface StubMappings {
     List<StubMapping> getAll();
 	Optional<StubMapping> get(UUID id);
 
-    Map<String,Scenario> getAllScenarios();
+	List<Scenario> getAllScenarios();
 }
