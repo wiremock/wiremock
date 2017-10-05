@@ -228,6 +228,14 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public GetScenariosResult getAllScenarios() {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetAllScenariosTask.class),
+            GetScenariosResult.class
+        );
+    }
+
+    @Override
     public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
         String body = postJsonAssertOkAndReturnBody(
                 urlFor(FindNearMissesForRequestTask.class),

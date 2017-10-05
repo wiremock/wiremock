@@ -16,12 +16,16 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
+
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -95,6 +99,35 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
         get(urlEqualTo("/some/resource"))
                 .willReturn(aResponse())
                 .inScenario(null);
+    }
+
+    @Test
+	public void getAllScenarios() {
+	    stubFor(get("/scenarios/1")
+            .inScenario("scenario_one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("state_2")
+            .willReturn(ok("1:1")));
+
+        stubFor(get("/scenarios/2")
+            .inScenario("scenario_two")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(ok("2:1")));
+
+        testClient.get("/scenarios/1");
+
+        Map<String, Scenario> scenarios = WireMock.getAllScenarios();
+
+        Scenario scenario1 = scenarios.get("scenario_one");
+        assertThat(scenario1.getPossibleStates(), hasItems(STARTED, "state_2"));
+        assertThat(scenario1.getState(), is("state_2"));
+
+        assertThat(scenarios.get("scenario_two").getState(), is("Started"));
+    }
+
+    @Test
+    public void returnsEmptyMapOnGetAllScenariosWhenThereAreNone() {
+        assertThat(WireMock.getAllScenarios().size(), is(0));
     }
 
     @Test

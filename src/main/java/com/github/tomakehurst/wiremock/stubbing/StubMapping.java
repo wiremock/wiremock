@@ -45,8 +45,6 @@ public class StubMapping {
 	private String requiredScenarioState;
 	private String newScenarioState;
 
-	private Scenario scenario;
-
     private Map<String, Parameters> postServeActions;
 
 	private long insertionIndex;
@@ -181,22 +179,6 @@ public class StubMapping {
 		this.newScenarioState = newScenarioState;
 	}
 
-	public void updateScenarioStateIfRequired() {
-		if (isInScenario() && modifiesScenarioState()) {
-			scenario.setState(newScenarioState);
-		}
-	}
-
-	@JsonIgnore
-	public Scenario getScenario() {
-		return scenario;
-	}
-
-	@JsonIgnore
-	public void setScenario(Scenario scenario) {
-		this.scenario = scenario;
-	}
-
 	@JsonIgnore
 	public boolean isInScenario() {
 		return scenarioName != null;
@@ -210,11 +192,6 @@ public class StubMapping {
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
-	}
-
-	@JsonIgnore
-	public boolean requiresCurrentScenarioState() {
-		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
 
 	public int comparePriorityWith(StubMapping otherMapping) {
@@ -244,12 +221,11 @@ public class StubMapping {
 			Objects.equals(scenarioName, that.scenarioName) &&
 			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
 			Objects.equals(newScenarioState, that.newScenarioState) &&
-			Objects.equals(scenario, that.scenario) &&
 			Objects.equals(postServeActions, that.postServeActions);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isDirty);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, isDirty);
 	}
 }

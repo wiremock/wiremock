@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -251,7 +252,15 @@ public class WireMock {
 		admin.resetScenarios();
 	}
 
-	public static void resetAllScenarios() {
+    public static Map<String, Scenario> getAllScenarios() {
+        return defaultInstance.get().getScenarios();
+    }
+
+    private Map<String, Scenario> getScenarios() {
+        return admin.getAllScenarios().getScenarios();
+    }
+
+    public static void resetAllScenarios() {
 		defaultInstance.get().resetScenarios();
 	}
 
