@@ -19,16 +19,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.google.common.base.Predicates.equalTo;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
-import static java.util.Collections.singletonList;
 
 public class Scenario {
 
@@ -37,13 +36,13 @@ public class Scenario {
 	private final UUID id;
 	private final String name;
 	private final String state;
-	private final List<String> possibleStates;
+	private final Set<String> possibleStates;
 
 	@JsonCreator
 	public Scenario(@JsonProperty("id") UUID id,
                     @JsonProperty("name") String name,
                     @JsonProperty("state") String currentState,
-                    @JsonProperty("possibleStates") List<String> possibleStates) {
+                    @JsonProperty("possibleStates") Set<String> possibleStates) {
         this.id = id;
         this.name = name;
         this.state = currentState;
@@ -51,7 +50,7 @@ public class Scenario {
 	}
 	
 	public static Scenario inStartedState(String name) {
-		return new Scenario(UUID.randomUUID(), name, STARTED, singletonList(STARTED));
+		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED));
 	}
 
     public UUID getId() {
@@ -66,7 +65,7 @@ public class Scenario {
 		return state;
 	}
 
-    public List<String> getPossibleStates() {
+    public Set<String> getPossibleStates() {
         return possibleStates;
     }
 
@@ -83,7 +82,7 @@ public class Scenario {
 	        return this;
         }
 
-        ImmutableList<String> newStates = ImmutableList.<String>builder()
+        ImmutableSet<String> newStates = ImmutableSet.<String>builder()
             .addAll(possibleStates)
             .add(newScenarioState)
             .build();
@@ -92,8 +91,12 @@ public class Scenario {
 
     public Scenario withoutPossibleState(String scenarioState) {
         return new Scenario(
-            id, name, state,
-            from(possibleStates).filter(not(equalTo(scenarioState))).toList()
+            id,
+            name,
+            state,
+            from(possibleStates)
+                .filter(not(equalTo(scenarioState)))
+                .toSet()
         );
     }
 

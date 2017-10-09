@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -274,5 +276,27 @@ public class ScenariosTest {
 
         assertThat(scenario.getState(), is(STARTED));
         assertThat(scenario.getPossibleStates(), hasItems(STARTED));
+    }
+
+    @Test
+    public void doesNotAddDuplicatePossibleStates() {
+        StubMapping mapping1 = get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step two")
+            .willReturn(ok())
+            .build();
+        StubMapping mapping2 = get("/scenarios/2")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step two")
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
+        scenarios.onStubMappingAddedOrUpdated(mapping1, asList(mapping1, mapping2));
+
+        Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
+        assertThat(possibleStates.size(), is(2));
+        assertThat(possibleStates, hasItems("Started", "step two"));
     }
 }
