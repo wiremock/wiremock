@@ -24,13 +24,13 @@ public class ScenariosTest {
 
     @Test
     public void addsANewScenarioWhenStubAddedWithNewScenarioName() {
-        scenarios.onStubMappingAddedOrUpdated(
-            get("/scenarios/1").inScenario("one")
-                .whenScenarioStateIs(STARTED)
-                .willSetStateTo("step_2")
-                .willReturn(ok())
-                .build()
-        );
+        StubMapping stub = get("/scenarios/1").inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+
+        scenarios.onStubMappingAddedOrUpdated(stub, singletonList(stub));
 
         Scenario scenario = scenarios.getByName("one");
 
@@ -40,21 +40,19 @@ public class ScenariosTest {
 
     @Test
     public void updatesAnExistingScenarioWhenStubAddedWithExistingScenarioName() {
-        scenarios.onStubMappingAddedOrUpdated(
-            get("/scenarios/1").inScenario("one")
-                .whenScenarioStateIs(STARTED)
-                .willSetStateTo("step_2")
-                .willReturn(ok())
-                .build()
-        );
+        StubMapping stub1 = get("/scenarios/1").inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAddedOrUpdated(stub1, singletonList(stub1));
 
-        scenarios.onStubMappingAddedOrUpdated(
-            get("/scenarios/1").inScenario("one")
-                .whenScenarioStateIs("step_2")
-                .willSetStateTo("step_3")
-                .willReturn(ok())
-                .build()
-        );
+        StubMapping stub2 = get("/scenarios/1").inScenario("one")
+            .whenScenarioStateIs("step_2")
+            .willSetStateTo("step_3")
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAddedOrUpdated(stub2, asList(stub1, stub2));
 
         assertThat(scenarios.getAll().size(), is(1));
 
@@ -70,14 +68,14 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         Scenario scenario = scenarios.getByName("one");
         assertThat(scenario.getPossibleStates(), hasItems(STARTED, "step_2", "step_3"));
@@ -89,20 +87,20 @@ public class ScenariosTest {
     }
 
     @Test
-    public void removesScenarioCompletelyWhenNoMoreMappingsReferToIt() {
+    public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToRemoval() {
         StubMapping mapping1 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         Scenario scenario = scenarios.getByName("one");
         assertThat(scenario.getPossibleStates(), hasItems(STARTED, "step_2", "step_3"));
@@ -114,20 +112,39 @@ public class ScenariosTest {
     }
 
     @Test
+    public void removesScenarioCompletelyWhenNoMoreMappingsReferToItDueToNameChange() {
+        StubMapping mapping = get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step_2")
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAddedOrUpdated(mapping, singletonList(mapping));
+
+        assertThat(scenarios.getByName("one"), notNullValue());
+
+        mapping.setScenarioName("two");
+        scenarios.onStubMappingAddedOrUpdated(mapping, singletonList(mapping));
+
+        assertThat(scenarios.getByName("one"), nullValue());
+    }
+
+
+    @Test
     public void modifiesScenarioStateWhenStubServed() {
         StubMapping mapping1 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         assertThat(scenarios.getByName("one").getState(), is(STARTED));
 
@@ -145,14 +162,14 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         assertThat(scenarios.getByName("one").getState(), is(STARTED));
 
@@ -167,21 +184,21 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         StubMapping mapping3 = get("/scenarios/2").inScenario("two")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("2_step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping3);
+        scenarios.onStubMappingAddedOrUpdated(mapping3, asList(mapping1, mapping2, mapping3));
 
         scenarios.onStubServed(mapping1);
         scenarios.onStubServed(mapping3);
@@ -202,21 +219,21 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         StubMapping mapping3 = get("/scenarios/2").inScenario("two")
             .whenScenarioStateIs(STARTED)
             .willSetStateTo("2_step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping3);
+        scenarios.onStubMappingAddedOrUpdated(mapping3, asList(mapping1, mapping2, mapping3));
 
         assertThat(scenarios.getAll().size(), is(2));
 
@@ -232,14 +249,14 @@ public class ScenariosTest {
             .willSetStateTo("step_2")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping1);
+        scenarios.onStubMappingAddedOrUpdated(mapping1, singletonList(mapping1));
 
         StubMapping mapping2 = get("/scenarios/1").inScenario("one")
             .whenScenarioStateIs("step_2")
             .willSetStateTo("step_3")
             .willReturn(ok())
             .build();
-        scenarios.onStubMappingAddedOrUpdated(mapping2);
+        scenarios.onStubMappingAddedOrUpdated(mapping2, asList(mapping1, mapping2));
 
         assertThat(scenarios.mappingMatchesScenarioState(mapping1), is(true));
         assertThat(scenarios.mappingMatchesScenarioState(mapping2), is(false));
@@ -247,12 +264,11 @@ public class ScenariosTest {
 
     @Test
     public void returnsOnlyStartedStateWhenNoNextStateSpecified() {
-        scenarios.onStubMappingAddedOrUpdated(
-            get("/scenarios/1").inScenario("one")
-                .whenScenarioStateIs(STARTED)
-                .willReturn(ok())
-                .build()
-        );
+        StubMapping mapping = get("/scenarios/1").inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAddedOrUpdated(mapping, singletonList(mapping));
 
         Scenario scenario = scenarios.getByName("one");
 

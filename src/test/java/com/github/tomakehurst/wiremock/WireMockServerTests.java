@@ -71,7 +71,10 @@ public class WireMockServerTests {
 
     @Test
     public void buildsQualifiedHttpsUrlFromPath() {
-        WireMockServer wireMockServer = new WireMockServer(options().dynamicHttpsPort());
+        WireMockServer wireMockServer = new WireMockServer(options()
+            .dynamicPort()
+            .dynamicHttpsPort()
+        );
         wireMockServer.start();
         int port = wireMockServer.httpsPort();
 
