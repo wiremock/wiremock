@@ -1,0 +1,8 @@
+{
+    "scenarios" : [ {
+        "id" : "c8d249ec-d86d-48b1-88a8-a660e6848042",
+        "name" : "my_scenario",
+        "state" : "Started",
+        "possibleStates" : [ "Started", "state_2", "state_3" ]
+    } ]
+}

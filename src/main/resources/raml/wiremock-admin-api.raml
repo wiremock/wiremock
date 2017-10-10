@@ -15,6 +15,7 @@ schemas:
   - stubMappings: !include schemas/stub-mappings.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
   - recordSpec: !include schemas/record-spec.schema.json
+  - scenarios: !include schemas/scenarios.schema.json
 
 /__admin/mappings:
   description: Stub mappings
@@ -302,6 +303,17 @@ schemas:
 
 /__admin/scenarios:
   description: Scenarios support modelling of stateful behaviour
+
+  get:
+    description: Get all scenarios
+
+    responses:
+      200:
+        description: All scenarios
+        body:
+          application/json:
+            schema: scenarios
+            example: !include examples/scenarios.example.json
 
   /reset:
     description: Scenarios
