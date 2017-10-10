@@ -108,8 +108,39 @@ The JSON equivalent for the above three stubs is:
 }
 ```
 
-## Scenarios reset
+## Getting scenario state
+
+The names, current state and possible states of all scenarios can be fetched.
+
+Java:
+
+```java
+List<Scenario> allScenarios = getAllScenarios();
+```
+
+
+JSON:
+
+```json
+GET /__admin/scenarios
+{
+  "scenarios" : [ {
+    "id" : "c8d249ec-d86d-48b1-88a8-a660e6848042",
+    "name" : "my_scenario",
+    "state" : "Started",
+    "possibleStates" : [ "Started", "state_2", "state_3" ]
+  } ]
+}
+```
+
+
+## Resetting scenarios
 
 The state of all configured scenarios can be reset back to
 `Scenario.START` either by calling `WireMock.resetAllScenarios()` in
 Java, or posting an empty request to `http://<host>:<port>/__admin/scenarios/reset`.
+
+
+
+
+
