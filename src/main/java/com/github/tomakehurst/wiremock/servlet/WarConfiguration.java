@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.google.common.base.Optional;
@@ -140,5 +142,10 @@ public class WarConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return new DoNothingWiremockNetworkTrafficListener();
+    }
+
+    @Override
+    public Authenticator getAdminAuthenticator() {
+        return new NoAuthenticator();
     }
 }

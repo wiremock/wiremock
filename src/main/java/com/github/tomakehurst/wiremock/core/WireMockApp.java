@@ -114,7 +114,8 @@ public class WireMockApp implements StubServer, Admin {
         return new AdminRequestHandler(
             adminRoutes,
             this,
-            new BasicResponseRenderer()
+            new BasicResponseRenderer(),
+            options.getAdminAuthenticator()
         );
     }
 

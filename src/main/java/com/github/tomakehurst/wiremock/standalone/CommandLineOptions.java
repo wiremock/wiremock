@@ -41,6 +41,8 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -304,6 +306,11 @@ public class CommandLineOptions implements Options {
         } else {
             return new DoNothingWiremockNetworkTrafficListener();
         }
+    }
+
+    @Override
+    public Authenticator getAdminAuthenticator() {
+        return new NoAuthenticator();
     }
 
     @Override

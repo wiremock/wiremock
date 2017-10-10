@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
@@ -33,15 +34,25 @@ public class AdminRequestHandler extends AbstractRequestHandler {
 
     private final AdminRoutes adminRoutes;
     private final Admin admin;
+    private final Authenticator authenticator;
 
-	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer) {
+	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer, Authenticator authenticator) {
 		super(responseRenderer);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
-	}
+        this.authenticator = authenticator;
+    }
 
 	@Override
 	public ServeEvent handleRequest(Request request) {
+	    if (!authenticator.authenticate(request)) {
+            notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
+            return ServeEvent.of(
+                LoggedRequest.createFrom(request),
+                ResponseDefinition.notAuthorised()
+            );
+        }
+
         notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
         String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
 

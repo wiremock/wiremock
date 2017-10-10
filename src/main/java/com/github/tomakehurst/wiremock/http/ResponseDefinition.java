@@ -30,11 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 public class ResponseDefinition {
 
@@ -169,6 +165,10 @@ public class ResponseDefinition {
         final ResponseDefinition response = new ResponseDefinition(HTTP_NOT_FOUND, (byte[]) null);
         response.wasConfigured = false;
         return response;
+    }
+
+    public static ResponseDefinition notAuthorised() {
+        return new ResponseDefinition(HTTP_UNAUTHORIZED, (byte[]) null);
     }
 
     public static ResponseDefinition browserProxy(Request originalRequest) {
@@ -340,5 +340,4 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
-
 }

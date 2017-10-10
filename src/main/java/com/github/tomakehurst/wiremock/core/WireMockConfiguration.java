@@ -23,6 +23,8 @@ import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
@@ -76,6 +78,8 @@ public class WireMockConfiguration implements Options {
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
+
+    private Authenticator adminAuthenticator = new NoAuthenticator();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -281,6 +285,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration adminAuthenticator(Authenticator authenticator) {
+        this.adminAuthenticator = authenticator;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -389,5 +398,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return networkTrafficListener;
+    }
+
+    @Override
+    public Authenticator getAdminAuthenticator() {
+        return adminAuthenticator;
     }
 }

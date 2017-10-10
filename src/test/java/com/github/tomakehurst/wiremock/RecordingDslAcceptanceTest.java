@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.InvalidRequestException;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
@@ -68,7 +69,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
         client = new WireMockTestClient(proxyingService.port());
         WireMock.configureFor(proxyingService.port());
-        adminClient = new WireMock(proxyingService.port());
+        adminClient = WireMock.create().port(proxyingService.port()).build();
     }
 
     @After
