@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -63,7 +64,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         client = new WireMockTestClient(proxyingService.port());
         WireMock.configureFor(proxyingService.port());
-        adminClient = new WireMock(proxyingService.port());
+        adminClient = WireMock.create().port(proxyingService.port()).build();
     }
 
     @After

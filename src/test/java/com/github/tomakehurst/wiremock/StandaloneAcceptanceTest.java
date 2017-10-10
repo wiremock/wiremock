@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
@@ -23,10 +24,8 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.conn.HttpHostConnectException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -37,7 +36,6 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -46,7 +44,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
-import static com.google.common.base.Predicates.containsPattern;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.size;
@@ -254,7 +251,7 @@ public class StandaloneAcceptanceTest {
 	public void startsOnPortSpecifiedOnCommandLine() throws Exception {
         int port = findFreePort();
 		startRunner("--port", "" + port);
-		WireMock client = new WireMock("localhost", port);
+		WireMock client = WireMock.create().host("localhost").port(port).build();
 		client.verifyThat(0, getRequestedFor(urlEqualTo("/bling/blang/blong"))); //Would throw an exception if couldn't connect
 	}
 	
@@ -424,7 +421,7 @@ public class StandaloneAcceptanceTest {
 	private WireMock startOtherServerAndClient() {
         otherServer = new WireMockServer(Options.DYNAMIC_PORT);
         otherServer.start();
-        return new WireMock(otherServer.port());
+        return WireMock.create().port(otherServer.port()).build();
     }
 
 	private void writeFileToFilesDir(String name, String contents) {

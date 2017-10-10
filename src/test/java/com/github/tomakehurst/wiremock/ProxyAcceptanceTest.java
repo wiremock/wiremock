@@ -22,13 +22,13 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.net.HttpHeaders;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -68,7 +68,7 @@ public class ProxyAcceptanceTest {
 	void init(WireMockConfiguration proxyingServiceOptions) {
 		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
 		targetService.start();
-		targetServiceAdmin = new WireMock("localhost", targetService.port());
+		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
         targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
@@ -76,7 +76,7 @@ public class ProxyAcceptanceTest {
         proxyingServiceOptions.dynamicPort();
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
-        proxyingServiceAdmin = new WireMock(proxyingService.port());
+        proxyingServiceAdmin = WireMock.create().port(proxyingService.port()).build();
         testClient = new WireMockTestClient(proxyingService.port());
 
         WireMock.configureFor(targetService.port());

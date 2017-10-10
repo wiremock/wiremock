@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.BasicResponseRenderer;
 import com.github.tomakehurst.wiremock.http.ResponseRenderer;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
+import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
@@ -33,7 +34,7 @@ public class JettyHttpServerTest {
         context = new Mockery();
         Admin admin = context.mock(Admin.class);
 
-        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer());
+        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator());
         stubRequestHandler = new StubRequestHandler(context.mock(StubServer.class),
                 context.mock(ResponseRenderer.class),
                 admin,
