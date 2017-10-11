@@ -35,16 +35,26 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private final AdminRoutes adminRoutes;
     private final Admin admin;
     private final Authenticator authenticator;
+    private final boolean requireHttps;
 
-	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer, Authenticator authenticator) {
+	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer, Authenticator authenticator, boolean requireHttps) {
 		super(responseRenderer);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
         this.authenticator = authenticator;
+        this.requireHttps = requireHttps;
     }
 
 	@Override
 	public ServeEvent handleRequest(Request request) {
+	    if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
+            notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
+            return ServeEvent.of(
+                LoggedRequest.createFrom(request),
+                ResponseDefinition.notPermitted("HTTPS is required for accessing the admin API")
+            );
+        }
+
 	    if (!authenticator.authenticate(request)) {
             notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
             return ServeEvent.of(

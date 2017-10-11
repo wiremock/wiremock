@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static java.net.HttpURLConnection.*;
 
 public class ResponseDefinition {
@@ -169,6 +171,12 @@ public class ResponseDefinition {
 
     public static ResponseDefinition notAuthorised() {
         return new ResponseDefinition(HTTP_UNAUTHORIZED, (byte[]) null);
+    }
+
+    public static ResponseDefinition notPermitted(String message) {
+        Errors errors = Errors.single(40, message);
+        return ResponseDefinitionBuilder
+            .jsonResponse(Json.write(errors), HTTP_FORBIDDEN);
     }
 
     public static ResponseDefinition browserProxy(Request originalRequest) {

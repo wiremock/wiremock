@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.security.*;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -28,7 +29,9 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -93,6 +96,7 @@ public class ClientAuthenticationAcceptanceTest {
             .build();
 
         badClient.getServeEvents();
+
     }
 
     @Test
@@ -103,19 +107,59 @@ public class ClientAuthenticationAcceptanceTest {
             ),
             new ClientBasicAuthenticator("user2", "password2")
         );
+        WireMockTestClient client = new WireMockTestClient(server.port());
 
         WireMock.configureFor(goodClient);
 
         WireMock.getAllServeEvents(); // Expect no exception thrown
+        assertThat(client.get("/__admin/requests").statusCode(), is(401));
     }
 
-	private void initialise(Authenticator adminAuthenticator, ClientAuthenticator clientAuthenticator) {
+    @Test
+    public void supportsShorthandBasicAuthWithHttps() {
+        server = new WireMockServer(wireMockConfig()
+            .dynamicPort()
+            .dynamicHttpsPort()
+            .basicAdminAuthenticator("user", "password"));
+        server.start();
+
+        goodClient = WireMock.create()
+            .port(server.httpsPort())
+            .https()
+            .basicAuthenticator("user", "password")
+            .build();
+
+        goodClient.getServeEvents();
+    }
+
+    @Test
+    public void canRequireHttpsOnAdminApi() {
+        server = new WireMockServer(wireMockConfig()
+            .dynamicPort()
+            .dynamicHttpsPort()
+            .basicAdminAuthenticator("user", "password")
+            .requireHttpsForAdminApi()
+        );
+        server.start();
+        WireMockTestClient client = new WireMockTestClient(server.port());
+
+        String authHeader = new BasicCredentials("user", "password").asAuthorizationHeaderValue();
+        WireMockResponse response = client.get("/__admin/requests", withHeader(AUTHORIZATION, authHeader));
+
+        assertThat(response.statusCode(), is(403));
+        assertThat(response.content(), containsString("HTTPS is required for accessing the admin API"));
+    }
+
+    private void initialise(Authenticator adminAuthenticator, ClientAuthenticator clientAuthenticator) {
         server = new WireMockServer(wireMockConfig()
             .dynamicPort()
             .adminAuthenticator(adminAuthenticator));
         server.start();
 
-        goodClient = WireMock.create().port(server.port()).authenticator(clientAuthenticator).build();
+        goodClient = WireMock.create()
+            .port(server.port())
+            .authenticator(clientAuthenticator)
+            .build();
     }
 
 }

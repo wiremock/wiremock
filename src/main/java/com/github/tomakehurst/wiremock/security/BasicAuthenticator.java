@@ -4,8 +4,6 @@ import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.net.HttpHeaders;
 
 import java.util.List;
 
@@ -36,6 +34,7 @@ public class BasicAuthenticator implements Authenticator {
                 return input.asAuthorizationHeaderValue();
             }
         }).toList();
-        return headerValues.contains(request.header(AUTHORIZATION).firstValue());
+        return request.containsHeader(AUTHORIZATION) &&
+               headerValues.contains(request.header(AUTHORIZATION).firstValue());
     }
 }

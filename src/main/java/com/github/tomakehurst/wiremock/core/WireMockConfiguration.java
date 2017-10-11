@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNet
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -80,6 +81,7 @@ public class WireMockConfiguration implements Options {
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
 
     private Authenticator adminAuthenticator = new NoAuthenticator();
+    private boolean requireHttpsForAdminApi = false;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -290,6 +292,15 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration basicAdminAuthenticator(String username, String password) {
+        return adminAuthenticator(new BasicAuthenticator(username, password));
+    }
+
+    public WireMockConfiguration requireHttpsForAdminApi() {
+        this.requireHttpsForAdminApi = true;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -403,5 +414,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public Authenticator getAdminAuthenticator() {
         return adminAuthenticator;
+    }
+
+    @Override
+    public boolean getHttpsRequiredForAdminApi() {
+        return requireHttpsForAdminApi;
     }
 }

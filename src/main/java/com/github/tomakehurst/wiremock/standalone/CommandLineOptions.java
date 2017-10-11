@@ -314,6 +314,11 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
+    public boolean getHttpsRequiredForAdminApi() {
+        return false;
+    }
+
+    @Override
     public boolean browserProxyingEnabled() {
 		return optionSet.has(ENABLE_BROWSER_PROXYING);
 	}

@@ -34,7 +34,7 @@ public class JettyHttpServerTest {
         context = new Mockery();
         Admin admin = context.mock(Admin.class);
 
-        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator());
+        adminRequestHandler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false);
         stubRequestHandler = new StubRequestHandler(context.mock(StubServer.class),
                 context.mock(ResponseRenderer.class),
                 admin,

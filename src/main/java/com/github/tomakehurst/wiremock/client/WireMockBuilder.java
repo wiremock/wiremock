@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.ClientBasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
 
 public class WireMockBuilder {
@@ -37,6 +38,14 @@ public class WireMockBuilder {
         return this;
     }
 
+    public WireMockBuilder http() {
+        return scheme("http");
+    }
+
+    public WireMockBuilder https() {
+        return scheme("https");
+    }
+
     public WireMockBuilder hostHeader(String hostHeader) {
         this.hostHeader = hostHeader;
         return this;
@@ -55,6 +64,10 @@ public class WireMockBuilder {
     public WireMockBuilder authenticator(ClientAuthenticator authenticator) {
         this.authenticator = authenticator;
         return this;
+    }
+
+    public WireMockBuilder basicAuthenticator(String username, String password) {
+        return authenticator(new ClientBasicAuthenticator(username, password));
     }
 
     public WireMock build() {

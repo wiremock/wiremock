@@ -54,4 +54,5 @@ public interface Options {
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
     WiremockNetworkTrafficListener networkTrafficListener();
     Authenticator getAdminAuthenticator();
+    boolean getHttpsRequiredForAdminApi();
 }
