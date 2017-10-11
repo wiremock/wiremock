@@ -153,6 +153,10 @@ public class WireMock {
         defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix("").hostHeader(null).proxyHost(proxyHost).proxyPort(proxyPort).build());
     }
 
+    public static void configureFor(WireMock client) {
+	    defaultInstance.set(client);
+    }
+
 	public static void configure() {
 		defaultInstance.set(WireMock.create().build());
 	}
