@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -26,11 +27,13 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
@@ -327,6 +330,29 @@ public class CommandLineOptionsTest {
         Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
         assertThat(extensions.entrySet(), hasSize(1));
         assertThat(extensions.get("response-template").applyGlobally(), is(false));
+    }
+
+    @Test
+    public void supportsAdminApiBasicAuth() {
+        CommandLineOptions options = new CommandLineOptions("--admin-api-basic-auth", "user:pass");
+        Authenticator authenticator = options.getAdminAuthenticator();
+
+        String correctAuthHeader = new BasicCredentials("user", "pass").asAuthorizationHeaderValue();
+        String incorrectAuthHeader = new BasicCredentials("user", "wrong_pass").asAuthorizationHeaderValue();
+        assertThat(authenticator.authenticate(mockRequest().header("Authorization", correctAuthHeader)), is(true));
+        assertThat(authenticator.authenticate(mockRequest().header("Authorization", incorrectAuthHeader)), is(false));
+    }
+
+    @Test
+    public void canRequireHttpsForAdminApi() {
+        CommandLineOptions options = new CommandLineOptions("--admin-api-require-https");
+        assertThat(options.getHttpsRequiredForAdminApi(), is(true));
+    }
+
+    @Test
+    public void defaultsToNotRequiringHttpsForAdminApi() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getHttpsRequiredForAdminApi(), is(false));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
