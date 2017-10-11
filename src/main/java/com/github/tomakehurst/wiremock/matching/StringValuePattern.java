@@ -54,7 +54,7 @@ public abstract class StringValuePattern extends ContentPattern<String> {
 
     public final String getName() {
         Constructor<?> constructor =
-            FluentIterable.of(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
+            FluentIterable.from(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
             @Override
             public boolean apply(Constructor<?> input) {
                 return (input.getParameterAnnotations().length > 0 &&
