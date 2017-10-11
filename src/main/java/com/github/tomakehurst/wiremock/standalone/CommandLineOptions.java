@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -85,6 +86,8 @@ public class CommandLineOptions implements Options {
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
     private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
+    private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
+    private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -121,6 +124,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
         optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+        optionParser.accepts(ADMIN_API_BASIC_AUTH, "Require HTTP Basic authentication for admin API calls with the supplied credentials in username:password format").withRequiredArg();
+        optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -310,12 +315,21 @@ public class CommandLineOptions implements Options {
 
     @Override
     public Authenticator getAdminAuthenticator() {
+        if (optionSet.has(ADMIN_API_BASIC_AUTH)) {
+            String[] parts = ((String) optionSet.valueOf(ADMIN_API_BASIC_AUTH)).split(":");
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Admin API credentials must be in the format username:password");
+            }
+
+            return new BasicAuthenticator(parts[0], parts[1]);
+        }
+
         return new NoAuthenticator();
     }
 
     @Override
     public boolean getHttpsRequiredForAdminApi() {
-        return false;
+        return optionSet.has(ADMIN_API_REQUIRE_HTTPS);
     }
 
     @Override
@@ -417,6 +431,14 @@ public class CommandLineOptions implements Options {
 
         if (jettySettings().getRequestHeaderSize().isPresent()) {
             builder.put(JETTY_HEADER_BUFFER_SIZE, jettySettings().getRequestHeaderSize().get());
+        }
+
+        if (!(getAdminAuthenticator() instanceof NoAuthenticator)) {
+            builder.put(ADMIN_API_BASIC_AUTH, "enabled");
+        }
+
+        if (getHttpsRequiredForAdminApi()) {
+            builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
         }
 
         StringBuilder sb = new StringBuilder();
