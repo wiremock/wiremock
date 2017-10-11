@@ -148,4 +148,9 @@ public class WarConfiguration implements Options {
     public Authenticator getAdminAuthenticator() {
         return new NoAuthenticator();
     }
+
+    @Override
+    public boolean getHttpsRequiredForAdminApi() {
+        return false;
+    }
 }

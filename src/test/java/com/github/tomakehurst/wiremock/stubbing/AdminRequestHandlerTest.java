@@ -55,7 +55,7 @@ public class AdminRequestHandlerTest {
         httpResponder = new MockHttpResponder();
 
 
-		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator());
+		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false);
 	}
 	
     @Test
