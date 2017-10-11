@@ -37,18 +37,18 @@ import static org.junit.Assert.assertThat;
 
 
 public class ClientAuthenticationAcceptanceTest {
-	
-	private WireMockServer server;
-	private WireMock goodClient;
-	private WireMock badClient;
+
+    private WireMockServer server;
+    private WireMock goodClient;
+    private WireMock badClient;
 
     @After
-	public void stopServer() {
-		server.stop();
-	}
+    public void stopServer() {
+        server.stop();
+    }
 
-	@Test
-	public void supportsCustomAuthenticator() {
+    @Test
+    public void supportsCustomAuthenticator() {
         initialise(new Authenticator() {
             @Override
             public boolean authenticate(Request request) {
@@ -63,18 +63,18 @@ public class ClientAuthenticationAcceptanceTest {
 
         WireMockTestClient noAuthClient = new WireMockTestClient(server.port());
 
-		assertThat(noAuthClient.get("/__admin/mappings").statusCode(), is(401));
-		assertThat(noAuthClient.get("/__admin/mappings", withHeader("X-Magic-Header", "anything")).statusCode(), is(200));
+        assertThat(noAuthClient.get("/__admin/mappings").statusCode(), is(401));
+        assertThat(noAuthClient.get("/__admin/mappings", withHeader("X-Magic-Header", "anything")).statusCode(), is(200));
 
         goodClient.getServeEvents(); // Throws an exception on a non 2xx response
-	}
+    }
 
-	@Test
+    @Test
     public void supportsBasicAuthenticator() {
         initialise(new BasicAuthenticator(
-            new BasicCredentials("user1", "password1"),
-            new BasicCredentials("user2", "password2")
-        ),
+                new BasicCredentials("user1", "password1"),
+                new BasicCredentials("user2", "password2")
+            ),
             new ClientBasicAuthenticator("user1", "password1")
         );
 
