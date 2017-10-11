@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock.client;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.security.Authenticator;
-import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.*;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
@@ -37,6 +36,8 @@ import static org.junit.Assert.assertThat;
 public class ClientAuthenticationAcceptanceTest {
 	
 	private WireMockServer server;
+	private WireMock goodClient;
+	private WireMock badClient;
 
     @After
 	public void stopServer() {
@@ -45,31 +46,76 @@ public class ClientAuthenticationAcceptanceTest {
 
 	@Test
 	public void supportsCustomAuthenticator() {
-	    server = new WireMockServer(wireMockConfig()
-            .dynamicPort()
-            .adminAuthenticator(
-                new Authenticator() {
-                    @Override
-                    public boolean authenticate(Request request) {
-                        return request.containsHeader("X-Magic-Header");
-                    }
-                }
-        ));
-	    server.start();
-        WireMockTestClient noAuthClient = new WireMockTestClient(server.port());
-		WireMock goodClient = WireMock.create().port(server.port()).authenticator(new ClientAuthenticator() {
+        initialise(new Authenticator() {
+            @Override
+            public boolean authenticate(Request request) {
+                return request.containsHeader("X-Magic-Header");
+            }
+        }, new ClientAuthenticator() {
             @Override
             public List<HttpHeader> generateAuthHeaders() {
                 return singletonList(httpHeader("X-Magic-Header", "blah"));
             }
-        }).build();
+        });
+
+        WireMockTestClient noAuthClient = new WireMockTestClient(server.port());
 
 		assertThat(noAuthClient.get("/__admin/mappings").statusCode(), is(401));
 		assertThat(noAuthClient.get("/__admin/mappings", withHeader("X-Magic-Header", "anything")).statusCode(), is(200));
 
         goodClient.getServeEvents(); // Throws an exception on a non 2xx response
 	}
-	
 
+	@Test
+    public void supportsBasicAuthenticator() {
+        initialise(new BasicAuthenticator(
+            new BasicCredentials("user1", "password1"),
+            new BasicCredentials("user2", "password2")
+        ),
+            new ClientBasicAuthenticator("user1", "password1")
+        );
+
+        goodClient.getServeEvents(); // Expect no exception thrown
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void throwsNotAuthorisedExceptionWhenWrongBasicCredentialsProvided() {
+        initialise(new BasicAuthenticator(
+                new BasicCredentials("user1", "password1"),
+                new BasicCredentials("user2", "password2")
+            ),
+            new ClientBasicAuthenticator("user1", "password1")
+        );
+
+        badClient = WireMock.create()
+            .port(server.port())
+            .authenticator(new ClientBasicAuthenticator("user1", "wrong_password"))
+            .build();
+
+        badClient.getServeEvents();
+    }
+
+    @Test
+    public void supportsBasicAuthenticatorViaStaticDsl() {
+        initialise(new BasicAuthenticator(
+                new BasicCredentials("user1", "password1"),
+                new BasicCredentials("user2", "password2")
+            ),
+            new ClientBasicAuthenticator("user2", "password2")
+        );
+
+        WireMock.configureFor(goodClient);
+
+        WireMock.getAllServeEvents(); // Expect no exception thrown
+    }
+
+	private void initialise(Authenticator adminAuthenticator, ClientAuthenticator clientAuthenticator) {
+        server = new WireMockServer(wireMockConfig()
+            .dynamicPort()
+            .adminAuthenticator(adminAuthenticator));
+        server.start();
+
+        goodClient = WireMock.create().port(server.port()).authenticator(clientAuthenticator).build();
+    }
 
 }

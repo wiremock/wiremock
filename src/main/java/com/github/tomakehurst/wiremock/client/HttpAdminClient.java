@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -409,6 +410,10 @@ public class HttpAdminClient implements Admin {
             if (HttpStatus.isServerError(statusCode)) {
                 throw new VerificationException(
                         "Expected status 2xx for " + url + " but was " + statusCode);
+            }
+
+            if (statusCode == 401) {
+                throw new NotAuthorisedException();
             }
 
             String body = getEntityAsStringAndCloseStream(response);
