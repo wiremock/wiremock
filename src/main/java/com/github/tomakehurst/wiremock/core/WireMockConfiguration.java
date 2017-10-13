@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
@@ -29,6 +30,8 @@ import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
@@ -82,6 +85,8 @@ public class WireMockConfiguration implements Options {
 
     private Authenticator adminAuthenticator = new NoAuthenticator();
     private boolean requireHttpsForAdminApi = false;
+
+    private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -301,6 +306,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
+        this.notMatchedRenderer = notMatchedRenderer;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -419,5 +429,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getHttpsRequiredForAdminApi() {
         return requireHttpsForAdminApi;
+    }
+
+    @Override
+    public NotMatchedRenderer getNotMatchedRenderer() {
+        return notMatchedRenderer;
     }
 }

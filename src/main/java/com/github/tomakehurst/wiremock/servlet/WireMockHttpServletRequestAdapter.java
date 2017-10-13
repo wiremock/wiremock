@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
+import com.google.common.base.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +39,8 @@ import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
 public class WireMockHttpServletRequestAdapter implements Request {
+
+    public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
     private final HttpServletRequest request;
     private byte[] cachedBody;
@@ -225,6 +229,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
 
         return false;
+    }
+
+    @Override
+    public Optional<Request> getOriginalRequest() {
+        Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
+        return Optional.fromNullable(originalRequest);
     }
 
     private boolean isJetty() {
