@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.verification;
+package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
+import static com.github.tomakehurst.wiremock.verification.diff.Diff.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

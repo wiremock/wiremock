@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import java.net.URI;
@@ -166,6 +167,11 @@ public class MockRequest implements Request {
     @Override
     public boolean isBrowserProxyRequest() {
         return false;
+    }
+
+    @Override
+    public Optional<Request> getOriginalRequest() {
+        return Optional.absent();
     }
 
     public LoggedRequest asLoggedRequest() {

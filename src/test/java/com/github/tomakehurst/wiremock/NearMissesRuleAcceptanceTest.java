@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
+import static com.github.tomakehurst.wiremock.verification.diff.Diff.junitStyleDiffMessage;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

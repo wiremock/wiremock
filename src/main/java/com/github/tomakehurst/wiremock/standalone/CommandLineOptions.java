@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
@@ -44,6 +45,8 @@ import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTraff
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -330,6 +333,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getHttpsRequiredForAdminApi() {
         return optionSet.has(ADMIN_API_REQUIRE_HTTPS);
+    }
+
+    @Override
+    public NotMatchedRenderer getNotMatchedRenderer() {
+        return new PlainTextStubNotMatchedRenderer();
     }
 
     @Override

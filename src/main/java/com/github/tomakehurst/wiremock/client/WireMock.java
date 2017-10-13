@@ -36,6 +36,7 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import java.io.File;
 import java.util.Collections;
