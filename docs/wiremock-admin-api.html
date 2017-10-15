@@ -2947,7 +2947,68 @@
         "uuid" : "093f1027-e5e0-4921-9e6d-e619dfd5d2c7",
         "persistent" : true
     } ]
-}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_scenarios" class="panel-title">/__admin/scenarios</h3></div><div class="panel-body"><div class="top-resource-description"><p>Scenarios support modelling of stateful behaviour</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_scenarios_reset"><span class="parent">/__admin/scenarios</span>/reset</a> <span class="methods"><a href="#admin_scenarios_reset_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_scenarios_reset" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Scenarios</p></div><div class="list-group"><div onclick="window.location.href = '#admin_scenarios_reset_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Reset the state of all scenarios</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_scenarios_reset_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/scenarios</span>/reset</h4></div><div class="modal-body"><div class="alert alert-info"><p>Reset the state of all scenarios</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_scenarios_reset_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_scenarios_reset_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully reset</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_near_misses" class="panel-title">/__admin/near-misses</h3></div><div class="panel-body"><div class="top-resource-description"><p>Near misses allow querying of received requests or request patterns according to similarity</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_near_misses_request"><span class="parent">/__admin/near-misses</span>/request</a> <span class="methods"><a href="#admin_near_misses_request_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_near_misses_request" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_near_misses_request_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_near_misses_request_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/near-misses</span>/request</h4></div><div class="modal-body"><div class="alert alert-info"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_near_misses_request_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_near_misses_request_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_near_misses_request_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
+}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_scenarios" class="panel-title">/__admin/scenarios</h3></div><div class="panel-body"><div class="top-resource-description"><p>Scenarios support modelling of stateful behaviour</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_scenarios"><span class="parent"></span>/__admin/scenarios</a> <span class="methods"><a href="#admin_scenarios_get"><span class="badge badge_get">get</span></a></span></h4></div><div id="panel_admin_scenarios" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_scenarios_get'" class="list-group-item"><span class="badge badge_get">get</span><div class="method_description"><p>Get all scenarios</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_scenarios_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get</span> <span class="parent"></span>/__admin/scenarios</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get all scenarios</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_scenarios_get_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_scenarios_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>All scenarios</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "type": "object",
+  "properties": {
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "id": {
+            "description": "The scenario ID",
+            "examples": [
+              "c8d249ec-d86d-48b1-88a8-a660e6848042"
+            ],
+            "id": "/properties/id",
+            "type": "string"
+          },
+          "name": {
+            "description": "The scenario name",
+            "examples": [
+              "my_scenario"
+            ],
+            "id": "/properties/name",
+            "type": "string"
+          },
+          "possibleStates": {
+            "id": "/properties/possibleStates",
+            "items": {
+              "default": "Started",
+              "description": "All the states this scenario can be in",
+              "examples": [
+                "Started",
+                "Step two",
+                "step_3"
+              ],
+              "id": "/properties/possibleStates/items",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "state": {
+            "default": "Started",
+            "description": "The current state of this scenario",
+            "examples": [
+              "Started",
+              "Step two",
+              "step_3"
+            ],
+            "id": "/properties/state",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  }
+}</code></pre><p><strong>Example</strong>:</p><pre><code>{
+    "scenarios" : [ {
+        "id" : "c8d249ec-d86d-48b1-88a8-a660e6848042",
+        "name" : "my_scenario",
+        "state" : "Started",
+        "possibleStates" : [ "Started", "state_2", "state_3" ]
+    } ]
+}</code></pre></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_scenarios_reset"><span class="parent">/__admin/scenarios</span>/reset</a> <span class="methods"><a href="#admin_scenarios_reset_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_scenarios_reset" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Scenarios</p></div><div class="list-group"><div onclick="window.location.href = '#admin_scenarios_reset_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Reset the state of all scenarios</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_scenarios_reset_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/scenarios</span>/reset</h4></div><div class="modal-body"><div class="alert alert-info"><p>Reset the state of all scenarios</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_scenarios_reset_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_scenarios_reset_post_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>Successfully reset</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{}</code></pre></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="admin_near_misses" class="panel-title">/__admin/near-misses</h3></div><div class="panel-body"><div class="top-resource-description"><p>Near misses allow querying of received requests or request patterns according to similarity</p></div><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_admin_near_misses_request"><span class="parent">/__admin/near-misses</span>/request</a> <span class="methods"><a href="#admin_near_misses_request_post"><span class="badge badge_post">post</span></a></span></h4></div><div id="panel_admin_near_misses_request" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#admin_near_misses_request_post'" class="list-group-item"><span class="badge badge_post">post</span><div class="method_description"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="admin_near_misses_request_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post</span> <span class="parent">/__admin/near-misses</span>/request</h4></div><div class="modal-body"><div class="alert alert-info"><p>Find at most 3 near misses for closest stub mappings to the specified request</p></div><ul class="nav nav-tabs"><li class="active"><a href="#admin_near_misses_request_post_request" data-toggle="tab">Request</a></li><li><a href="#admin_near_misses_request_post_response" data-toggle="tab">Response</a></li></ul><div class="tab-content"><div class="tab-pane active" id="admin_near_misses_request_post_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Example</strong>:</p><pre><code>{
     "url": "/actual",
     "absoluteUrl": "http://localhost:8080/actual",
     "method": "GET",

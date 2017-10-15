@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-09-27T15:04:55+01:00">
+  <meta property="article:published_time" content="2017-10-15T11:47:08+01:00">
   
     <link rel="next" href="/docs/stubbing/" title="Stubbing">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stateful Behaviour">
     <meta itemprop="description" content="Most web services tend to have some state, which changes as you andothers interact with it. So it’s pretty useful to be able to simulatethis when you’ve swapped a real service for a test double.">
-    <meta itemprop="datePublished" content="September 27, 2017">
+    <meta itemprop="datePublished" content="October 15, 2017">
     
 
     <div class="page__inner-wrap">
@@ -430,11 +430,36 @@ showing the updated list.</p>
 </span></code></pre>
 </div>
 
-<h2 id="scenarios-reset">Scenarios reset</h2>
+<h2 id="getting-scenario-state">Getting scenario state</h2>
+
+<p>The names, current state and possible states of all scenarios can be fetched.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">Scenario</span><span class="o">&gt;</span> <span class="n">allScenarios</span> <span class="o">=</span> <span class="n">getAllScenarios</span><span class="o">();</span>
+</code></pre>
+</div>
+
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">GET</span><span class="w"> </span><span class="err">/__admin/scenarios</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"scenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"c8d249ec-d86d-48b1-88a8-a660e6848042"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"name"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"my_scenario"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"state"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"Started"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"possibleStates"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"Started"</span><span class="p">,</span><span class="w"> </span><span class="s2">"state_2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"state_3"</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="resetting-scenarios">Resetting scenarios</h2>
 
 <p>The state of all configured scenarios can be reset back to
 <code class="highlighter-rouge">Scenario.START</code> either by calling <code class="highlighter-rouge">WireMock.resetAllScenarios()</code> in
 Java, or posting an empty request to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/scenarios/reset</code>.</p>
+
 
         
       </section>
