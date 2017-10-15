@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
@@ -23,8 +25,8 @@ public class PlainTextDiffRenderer {
 
         if (diff.getStubMappingName() != null) {
             int nameLength = diff.getStubMappingName().length();
-            writeSingleLine(sb, diff.getStubMappingName());
-            writeSingleLine(sb, rightPad("", nameLength, "-"));
+            writeLine(sb, diff.getStubMappingName(), "", null);
+//            writeSingleLine(sb, rightPad("", nameLength, "-"));
             writeBlankLine(sb);
         }
 
@@ -39,8 +41,8 @@ public class PlainTextDiffRenderer {
     }
 
     private static void writeLine(StringBuilder sb, String left, String right, String message) {
-        String[] leftLines = left.split("\n");
-        String[] rightLines = right.split("\n");
+        String[] leftLines = wrap(left).split("\n");
+        String[] rightLines = wrap(right).split("\n");
 
         int maxLines = Math.max(leftLines.length, rightLines.length);
 
@@ -88,5 +90,9 @@ public class PlainTextDiffRenderer {
         }
 
         sb.append("\n");
+    }
+
+    private static String wrap(String s) {
+        return WordUtils.wrap(s, 58, null, true);
     }
 }

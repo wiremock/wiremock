@@ -24,7 +24,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
-import com.google.common.net.HttpHeaders;
 import org.junit.After;
 import org.junit.Test;
 
@@ -51,7 +50,7 @@ public class NotFoundPageAcceptanceTest {
         configure();
 
         stubFor(post("/thing")
-            .withName("Post the thing")
+            .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
             .withHeader("X-My-Header", equalTo("correct value"))
             .withHeader("Accept", equalTo("text/plain"))
             .withRequestBody(equalToJson(
