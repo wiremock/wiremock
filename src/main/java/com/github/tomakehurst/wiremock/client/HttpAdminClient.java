@@ -91,6 +91,16 @@ public class HttpAdminClient implements Admin {
                            String urlPathPrefix,
                            String hostHeader,
                            String proxyHost,
+                           int proxyPort) {
+        this(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, noClientAuthenticator());
+    }
+
+    public HttpAdminClient(String scheme,
+                           String host,
+                           int port,
+                           String urlPathPrefix,
+                           String hostHeader,
+                           String proxyHost,
                            int proxyPort,
                            ClientAuthenticator authenticator) {
         this.scheme = scheme;
