@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 
 import java.util.List;
 
@@ -62,11 +63,40 @@ public abstract class MatchResult implements Comparable<MatchResult> {
             }
         };
     }
+    
+    public static MatchResult aggregateSupplier(final List<Supplier<MatchResult>> matchResultsSupplier) {
+        return new MatchResult() {
+            @Override
+            public boolean isExactMatch() {
+            	return all(matchResultsSupplier, new Predicate<Supplier<MatchResult>>() {
+					@Override
+					public boolean apply(Supplier<MatchResult> input) {
+						return input.get().isExactMatch();
+					}
+				});
+            }
+
+            @Override
+            public double getDistance() {
+                double totalDistance = 0;
+                for (Supplier<MatchResult> matchResultSupplier: matchResultsSupplier) {
+                    totalDistance += matchResultSupplier.get().getDistance();
+                }
+
+                return (totalDistance / matchResultsSupplier.size());
+            }
+        };
+    }
 
     public static MatchResult aggregate(MatchResult... matches) {
         return aggregate(asList(matches));
     }
-
+    
+    @SafeVarargs
+    public static MatchResult aggregateSupplier(Supplier<MatchResult>... matches) {
+        return aggregateSupplier(asList(matches));
+    }
+    
     @JsonIgnore
     public abstract boolean isExactMatch();
 
