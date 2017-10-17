@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.matching.NamedValueMatcher;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import org.apache.commons.lang3.StringUtils;
 
 class DiffLine<V> {
@@ -38,12 +39,37 @@ class DiffLine<V> {
     }
 
     public String getMessage() {
+        String message = null;
         if (value == null || StringUtils.isEmpty(value.toString())) {
-            return requestAttribute + " is not present";
+            message = requestAttribute + " is not present";
+        } else {
+            message = isExactMatch() ?
+                null :
+                requestAttribute + " does not match";
         }
 
-        return isExactMatch() ?
-            null :
-            requestAttribute + " does not match";
+        if (isUrlRegexPattern() && !anyQuestionsMarksAreEscaped(pattern.getExpected())) {
+            message += ". When using a regex, \"?\" should be \"\\\\?\"";
+        }
+
+        if (pattern instanceof UrlPattern && !pattern.getExpected().startsWith("/")) {
+            message += ". URLs must start with a /";
+        }
+
+        return message;
+    }
+
+    private static boolean anyQuestionsMarksAreEscaped(String s) {
+        int index = s.indexOf('?');
+        if (index == -1) {
+            return true;
+        }
+
+        String sub = s.substring(index - 2, index);
+        return sub.equals("\\\\");
+    }
+
+    private boolean isUrlRegexPattern() {
+        return pattern instanceof UrlPattern && ((UrlPattern) pattern).isRegex();
     }
 }

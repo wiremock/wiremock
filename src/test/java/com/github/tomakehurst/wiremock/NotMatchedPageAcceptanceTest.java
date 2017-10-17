@@ -35,7 +35,7 @@ import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class NotFoundPageAcceptanceTest {
+public class NotMatchedPageAcceptanceTest {
 
     WireMockServer wm;
     WireMockTestClient testClient;
@@ -83,7 +83,7 @@ public class NotFoundPageAcceptanceTest {
 
         assertThat(response.statusCode(), is(404));
         assertThat(response.firstHeader(CONTENT_TYPE), is("text/plain"));
-        assertThat(response.content(), is("No stub mappings exist in this WireMock instance."));
+        assertThat(response.content(), is("No response could be served as there are no stub mappings in this WireMock instance."));
     }
 
     @Test

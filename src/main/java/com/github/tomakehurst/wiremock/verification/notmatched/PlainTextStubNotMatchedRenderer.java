@@ -24,7 +24,7 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
 
         String body;
         if (nearMisses.isEmpty()) {
-            body = "No stub mappings exist in this WireMock instance.";
+            body = "No response could be served as there are no stub mappings in this WireMock instance.";
         } else {
             Diff firstDiff = nearMisses.get(0).getDiff();
             body = diffRenderer.render(firstDiff);

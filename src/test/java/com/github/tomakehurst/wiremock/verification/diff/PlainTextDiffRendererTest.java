@@ -185,4 +185,19 @@ public class PlainTextDiffRendererTest {
         String expected = file("not-found-diff-sample_json-path.txt");
         assertThat(output, is(expected));
     }
+
+    @Test
+    public void showsUrlRegexUnescapedMessage() {
+        Diff diff = new Diff(get(urlMatching("thing?query=value"))
+            .build(),
+            mockRequest()
+                .method(GET)
+                .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.printf(output);
+
+        assertThat(output, is(file("not-found-diff-sample_url-pattern.txt")));
+    }
 }
