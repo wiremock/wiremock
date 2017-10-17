@@ -16,19 +16,20 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.content.Text;
 
 public class ContainsPattern extends StringValuePattern {
 
-    public ContainsPattern(@JsonProperty("contains") String expectedValue) {
+    public ContainsPattern(@JsonProperty("contains") Text expectedValue) {
         super(expectedValue);
     }
 
     public String getContains() {
-        return expectedValue;
+        return expectedValue.getValue();
     }
 
     @Override
-    public MatchResult match(String value) {
-        return MatchResult.of(value != null && value.contains(expectedValue));
+    public MatchResult match(Text value) {
+        return MatchResult.of(value != null && value.getValue().contains(expectedValue.getValue()));
     }
 }

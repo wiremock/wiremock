@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.http.content.Text;
+
 import java.util.regex.Pattern;
 
 import static java.util.regex.Pattern.DOTALL;
@@ -23,15 +25,15 @@ public abstract class AbstractRegexPattern extends StringValuePattern {
 
     protected final Pattern pattern;
 
-    protected AbstractRegexPattern(String regex) {
+    protected AbstractRegexPattern(Text regex) {
         super(regex);
-        pattern = Pattern.compile(regex, DOTALL);
+        pattern = Pattern.compile(regex.getValue(), DOTALL);
     }
 
     @Override
-    public MatchResult match(String value) {
+    public MatchResult match(Text value) {
         return MatchResult.of(
-            value != null && pattern.matcher(value).matches()
+            value != null && pattern.matcher(value.getValue()).matches()
         );
     }
 

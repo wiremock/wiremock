@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.tomakehurst.wiremock.http.content.Text;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -25,11 +26,11 @@ import com.google.common.collect.FluentIterable;
 import java.lang.reflect.Constructor;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
-public abstract class StringValuePattern extends ContentPattern<String> {
+public abstract class StringValuePattern extends ContentPattern<Text> {
 
     public static final AbsentPattern ABSENT = new AbsentPattern(null);
 
-    public StringValuePattern(String expectedValue) {
+    public StringValuePattern(Text expectedValue) {
         super(expectedValue);
     }
 
@@ -72,7 +73,7 @@ public abstract class StringValuePattern extends ContentPattern<String> {
 
     @Override
     public String getExpected() {
-        return getValue();
+        return getValue().getAsString();
     }
 
     @Override

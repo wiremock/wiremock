@@ -16,15 +16,16 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.content.Content;
 
-public class AnythingPattern extends StringValuePattern {
+public class AnythingPattern<T extends Content> extends ContentPattern<T> {
 
-    public AnythingPattern(@JsonProperty("anything") String expectedValue) {
-        super(expectedValue);
+    public AnythingPattern(@JsonProperty("anything") T ignored) {
+        super(ignored);
     }
 
     public AnythingPattern() {
-        this("(always)");
+        super(null);
     }
 
     public String getAnything() {
@@ -32,8 +33,18 @@ public class AnythingPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(String value) {
+    public MatchResult match(T ignored) {
         return MatchResult.exactMatch();
+    }
+
+    @Override
+    public String getName() {
+        return "anything";
+    }
+
+    @Override
+    public String getExpected() {
+        return "(anything)";
     }
 
     @Override

@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.http.content.Text;
 
 import java.util.Objects;
 
@@ -26,19 +27,19 @@ public class EqualToPattern extends StringValuePattern {
     private final Boolean caseInsensitive;
 
     public EqualToPattern(
-        @JsonProperty("equalTo") String testValue,
+        @JsonProperty("equalTo") Text testValue,
         @JsonProperty("caseInsensitive") Boolean caseInsensitive
     ) {
         super(testValue);
         this.caseInsensitive = caseInsensitive;
     }
 
-    public EqualToPattern(String expectedValue) {
+    public EqualToPattern(Text expectedValue) {
         this(expectedValue, null);
     }
 
     public String getEqualTo() {
-        return expectedValue;
+        return expectedValue.getValue();
     }
 
     public Boolean getCaseInsensitive() {
@@ -46,19 +47,19 @@ public class EqualToPattern extends StringValuePattern {
     }
 
     @Override
-    public MatchResult match(final String value) {
+    public MatchResult match(final Text value) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
                 return
                     shouldMatchCaseInsensitive() ?
-                    value != null && value.equalsIgnoreCase(expectedValue) :
+                    value != null && value.getValue().equalsIgnoreCase(expectedValue.getValue()) :
                     Objects.equals(expectedValue, value);
             }
 
             @Override
             public double getDistance() {
-                return normalisedLevenshteinDistance(expectedValue, value);
+                return normalisedLevenshteinDistance(expectedValue.getValue(), value.getValue());
             }
         };
     }

@@ -30,7 +30,7 @@ public class PlainTextDiffRenderer {
             writeBlankLine(sb);
         }
 
-        for (DiffSection<?> section: diff.getSections()) {
+        for (DiffLine<?> section: diff.getLines()) {
             writeLine(sb, section.getExpected().toString(), section.getActual().toString(), section.getMessage());
         }
 

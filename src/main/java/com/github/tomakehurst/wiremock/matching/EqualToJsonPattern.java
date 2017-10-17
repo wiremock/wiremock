@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.content.Text;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -39,17 +40,17 @@ public class EqualToJsonPattern extends StringValuePattern {
     private final Boolean ignoreArrayOrder;
     private final Boolean ignoreExtraElements;
 
-    public EqualToJsonPattern(@JsonProperty("equalToJson") String json,
+    public EqualToJsonPattern(@JsonProperty("equalToJson") Text json,
                               @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
                               @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
         super(json);
-        expected = Json.read(json, JsonNode.class);
+        expected = Json.read(json.getValue(), JsonNode.class);
         this.ignoreArrayOrder = ignoreArrayOrder;
         this.ignoreExtraElements = ignoreExtraElements;
     }
 
     public String getEqualToJson() {
-        return expectedValue;
+        return expectedValue.getValue();
     }
 
     private boolean shouldIgnoreArrayOrder() {
@@ -70,13 +71,13 @@ public class EqualToJsonPattern extends StringValuePattern {
 
     @Override
     public String getExpected() {
-        return Json.prettyPrint(getValue());
+        return getValue().getAsString();
     }
 
     @Override
-    public MatchResult match(String value) {
+    public MatchResult match(Text value) {
         try {
-            final JsonNode actual = Json.read(value, JsonNode.class);
+            final JsonNode actual = Json.read(value.getValue(), JsonNode.class);
 
             return new MatchResult() {
                 @Override
