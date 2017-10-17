@@ -15,24 +15,38 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableMap;
+
+import java.io.Serializable;
 
 public class Cookie {
+
+    private String name;
 
     private String value;
 
     @JsonCreator
-    public static Cookie cookie(String value) {
-        return new Cookie(value);
+    public static Cookie cookie(@JsonProperty("name") String name, @JsonProperty("value") String value) {
+        return new Cookie(name, value);
+    }
+
+    @JsonAnySetter
+    public void set(String name, String value) {
+        this.name = name;
+        this.value = value;
     }
 
     public static Cookie absent() {
-        return new Cookie(null);
+        return new Cookie(null, null);
     }
 
-    public Cookie(String value) {
+    public Cookie(String name, String value) {
+        this.name = name;
         this.value = value;
     }
 
@@ -46,13 +60,23 @@ public class Cookie {
         return value == null;
     }
 
-    @JsonValue
+    @JsonIgnore
     public String getValue() {
         return value;
     }
 
+    @JsonValue
+    public Serializable getSerializable() {
+        return ImmutableMap.of(name, value);
+    }
+
+    @JsonIgnore
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
-        return isAbsent() ? "(absent)" : value;
+        return isAbsent() ? "(absent)" : getSerializable().toString();
     }
 }

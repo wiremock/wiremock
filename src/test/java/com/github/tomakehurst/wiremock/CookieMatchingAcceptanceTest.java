@@ -15,8 +15,10 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.net.HttpHeaders.COOKIE;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -105,6 +108,20 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void matchesWhenRequiredCookieSentAsDuplicate() {
+        stubFor(get(urlEqualTo("/duplicate/cookie"))
+            .withCookie("my_cookie", containing("mycookievalue"))
+            .withCookie("my_other_cookie", equalTo("exact-other-value"))
+            .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response =
+            testClient.get("/duplicate/cookie",
+                withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=exact-other-value; my_other_cookie=exact-other-value"));
+
+        assertThat(response.statusCode(), is(200));
+    }
+
+    @Test
     public void doesNotMatchWhenRequiredAbsentCookieIsPresent() {
         stubFor(get(urlEqualTo("/absent/cookie"))
             .withCookie("my_cookie", absent())
@@ -124,6 +141,7 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
         List<LoggedRequest> requests = findAll(getRequestedFor(urlEqualTo("/good/cookies")));
 
         assertThat(requests.size(), is(1));
-        assertThat(requests.get(0).getCookies().keySet(), hasItem("my_other_cookie"));
+        assertThat(requests.get(0).getCookies(), hasItem(Matchers.<Cookie>hasProperty("name", is("my_other_cookie"))));
+        assertThat(requests.get(0).getCookies(), hasItem(Matchers.<Cookie>hasProperty("value", is("exact-other-value"))));
     }
 }

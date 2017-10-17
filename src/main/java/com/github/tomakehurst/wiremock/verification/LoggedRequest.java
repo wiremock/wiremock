@@ -22,10 +22,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
-import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +38,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.Lists.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -47,7 +48,7 @@ public class LoggedRequest implements Request {
     private final String clientIp;
     private final RequestMethod method;
     private final HttpHeaders headers;
-    private final Map<String, Cookie> cookies;
+    private final List<Cookie> cookies;
     private final Map<String, QueryParameter> queryParams;
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
@@ -59,7 +60,7 @@ public class LoggedRequest implements Request {
             request.getMethod(),
             request.getClientIp(),
             copyOf(request.getHeaders()),
-            ImmutableMap.copyOf(request.getCookies()),
+            newArrayList(request.getCookies()),
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBodyAsBase64(),
@@ -73,7 +74,7 @@ public class LoggedRequest implements Request {
             @JsonProperty("method") RequestMethod method,
             @JsonProperty("clientIp") String clientIp,
             @JsonProperty("headers") HttpHeaders headers,
-            @JsonProperty("cookies") Map<String, Cookie> cookies,
+            @JsonProperty("cookies") List<Cookie> cookies,
             @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
             @JsonProperty("loggedDate") Date loggedDate,
             @JsonProperty("bodyAsBase64") String bodyAsBase64,
@@ -148,7 +149,7 @@ public class LoggedRequest implements Request {
     }
 
     @Override
-    public Map<String, Cookie> getCookies() {
+    public List<Cookie> getCookies() {
         return cookies;
     }
 

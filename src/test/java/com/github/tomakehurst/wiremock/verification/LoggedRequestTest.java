@@ -18,11 +18,9 @@ package com.github.tomakehurst.wiremock.verification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.google.common.collect.ImmutableMap;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
@@ -40,6 +38,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MockRequestBuilder.aRequest;
 import static com.github.tomakehurst.wiremock.verification.LoggedRequest.createFrom;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
@@ -87,10 +86,14 @@ public class LoggedRequestTest {
             "      \"headers\" : {\n" +
             "        \"Accept-Language\" : \"en-us,en;q=0.5\"\n" +
             "      },\n" +
-            "      \"cookies\" : {\n" +
-            "        \"first_cookie\"   : \"yum\",\n" +
-            "        \"monster_cookie\" : \"COOKIIIEESS\"\n" +
-            "      },\n" +
+            "      \"cookies\" : [\n" +
+            "        {\n" +
+            "           \"first_cookie\"   : \"yum\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "           \"monster_cookie\" : \"COOKIIIEESS\"\n" +
+            "        }\n" +
+            "      ],\n" +
             "      \"browserProxyRequest\" : true,\n" +
             "      \"loggedDate\" : %d,\n" +
             "      \"bodyAsBase64\" : \"" + REQUEST_BODY_AS_BASE64 + "\",\n" +
@@ -101,9 +104,9 @@ public class LoggedRequestTest {
     @Test
     public void jsonRepresentation() throws Exception {
         HttpHeaders headers = new HttpHeaders(httpHeader("Accept-Language", "en-us,en;q=0.5"));
-        Map<String, Cookie> cookies = ImmutableMap.of(
-                "first_cookie", new Cookie("yum"),
-                "monster_cookie", new Cookie("COOKIIIEESS")
+        List<Cookie> cookies = newArrayList(
+                new Cookie("first_cookie", "yum"),
+                new Cookie("monster_cookie", "COOKIIIEESS")
         );
 
         Date loggedDate = Dates.parse(DATE);

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -192,19 +193,19 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     @Override
-    public Map<String, Cookie> getCookies() {
-        ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
+    public List<Cookie> getCookies() {
+        ImmutableList.Builder<Cookie> builder = ImmutableList.builder();
 
         for (javax.servlet.http.Cookie cookie :
             firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
-            builder.put(cookie.getName(), convertCookie(cookie));
+            builder.add(convertCookie(cookie));
         }
 
         return builder.build();
     }
 
     private static Cookie convertCookie(javax.servlet.http.Cookie servletCookie) {
-        return new Cookie(servletCookie.getValue());
+        return new Cookie(servletCookie.getName(), servletCookie.getValue());
     }
 
     @Override

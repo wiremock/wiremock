@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public interface Request {
@@ -32,7 +32,7 @@ public interface Request {
     boolean containsHeader(String key);
     Set<String> getAllHeaderKeys();
 
-    Map<String, Cookie> getCookies();
+    List<Cookie> getCookies();
 
     QueryParameter queryParameter(String key);
 
