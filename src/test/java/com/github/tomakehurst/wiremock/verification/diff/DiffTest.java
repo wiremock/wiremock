@@ -19,14 +19,13 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
-import static com.github.tomakehurst.wiremock.verification.diff.Diff.junitStyleDiffMessage;
+import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,7 +34,7 @@ public class DiffTest {
 
     @Test
     public void correctlyRendersJUnitStyleDiffMessage() {
-        String diff = Diff.junitStyleDiffMessage("expected", "actual");
+        String diff = junitStyleDiffMessage("expected", "actual");
 
         assertThat(diff, is(" expected:<\nexpected> but was:<\nactual>"));
     }
@@ -109,11 +108,13 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "Content-Type: application/json\n" +
                 "X-My-Header: expected\n",
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "Content-Type: application/json\n" +
                 "X-My-Header: actual\n"
             )
@@ -133,10 +134,12 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "X-My-Header: expected\n",
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "\n")
         ));
     }
@@ -154,10 +157,11 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "X-My-Header: expected\n",
 
                 "ANY\n" +
-                "/thing\n\n")
+                "/thing\n\n\n")
         ));
     }
 
@@ -185,6 +189,7 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "{" + lineSeparator() +
                 "  \"outer\" : {" + lineSeparator() +
                 "    \"inner\" : {" + lineSeparator() +
@@ -195,6 +200,7 @@ public class DiffTest {
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "{" + lineSeparator() +
                 "  \"outer\" : { }" + lineSeparator() +
                 "}")
@@ -217,6 +223,7 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "{" + lineSeparator() +
                 "  \"outer\" : {" + lineSeparator() +
                 "    \"inner:\" : {" + lineSeparator() +
@@ -227,6 +234,7 @@ public class DiffTest {
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "{" + lineSeparator() +
                 "  \"outer\" : { }" + lineSeparator() +
                 "}")
@@ -255,11 +263,13 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "@.notfound\n" +
                 "@.nothereeither",
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "{\n" +
                 "    \"outer\": {\n" +
                 "        \"inner:\": {\n" +
@@ -293,6 +303,7 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "<my-elements>" + lineSeparator() +
                 "  <one attr-one=\"1111\"/>" + lineSeparator() +
                 "  <two/>" + lineSeparator() +
@@ -301,6 +312,7 @@ public class DiffTest {
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "<my-elements>" + lineSeparator() +
                 "  <one attr-one=\"2222\"/>" + lineSeparator() +
                 "  <two/>" + lineSeparator() +
@@ -323,10 +335,12 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "Cookie: my_cookie=expected-cookie\n",
 
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "Cookie: my_cookie=actual-cookie\n"
             )
         ));
@@ -345,10 +359,11 @@ public class DiffTest {
             junitStyleDiffMessage(
                 "ANY\n" +
                 "/thing\n" +
+                "\n" +
                 "Cookie: my_cookie=expected-cookie\n",
 
                 "ANY\n" +
-                "/thing\n\n"
+                "/thing\n\n\n"
             )
         ));
     }

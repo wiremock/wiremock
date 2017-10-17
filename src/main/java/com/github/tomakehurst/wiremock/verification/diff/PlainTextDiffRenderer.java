@@ -1,46 +1,73 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.common.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
 public class PlainTextDiffRenderer {
 
-    private static final String HEADER =
-        "\n" +
-        "                                               Request was not matched\n" +
-        "                                               =======================\n" +
-        "\n" +
-        "-----------------------------------------------------------------------------------------------------------------------\n" +
-        "| Closest stub                                             | Request                                                  |\n" +
-        "-----------------------------------------------------------------------------------------------------------------------\n" +
-        "                                                           |\n";
+    private final int consoleWidth;
 
-    private static final String FOOTER =
-        "-----------------------------------------------------------------------------------------------------------------------";
+    public PlainTextDiffRenderer() {
+        this(119);
+    }
+
+    public PlainTextDiffRenderer(int consoleWidth) {
+        this.consoleWidth = consoleWidth;
+    }
 
     public String render(Diff diff) {
-        StringBuilder sb = new StringBuilder(HEADER);
+        StringBuilder sb = new StringBuilder();
+        header(sb);
 
         if (diff.getStubMappingName() != null) {
-            int nameLength = diff.getStubMappingName().length();
             writeLine(sb, diff.getStubMappingName(), "", null);
-//            writeSingleLine(sb, rightPad("", nameLength, "-"));
             writeBlankLine(sb);
         }
 
-        for (DiffSection<?> section: diff.getSections()) {
-            writeLine(sb, section.getExpected().toString(), section.getActual().toString(), section.getMessage());
+        for (DiffLine<?> line: diff.getLines()) {
+            boolean isBodyLine = line.getRequestAttribute().equals("Body");
+            if (!isBodyLine || line.isForNonMatch()) {
+                writeLine(sb, line.getPrintedPatternValue(), line.getActual().toString(), line.getMessage());
+            }
         }
 
         writeBlankLine(sb);
-        sb.append(FOOTER).append("\n");
+        footer(sb);
 
         return sb.toString();
     }
 
-    private static void writeLine(StringBuilder sb, String left, String right, String message) {
+    private void header(StringBuilder sb) {
+        String titleLine = "Request was not matched";
+        int middle = getMiddle();
+        int titleLinePaddingLeft = middle - (titleLine.length() / 2);
+        sb
+            .append('\n')
+            .append(repeat(' ', titleLinePaddingLeft))
+            .append(titleLine)
+            .append('\n')
+            .append(repeat(' ', titleLinePaddingLeft))
+            .append(repeat('=', titleLine.length()))
+            .append('\n')
+            .append('\n')
+            .append(repeat('-', consoleWidth)).append('\n')
+            .append('|').append(rightPad(" Closest stub", middle)).append('|').append(rightPad(" Request", middle, ' ')).append('|')
+            .append('\n')
+            .append(repeat('-', consoleWidth)).append('\n');
+
+        writeBlankLine(sb);
+    }
+
+    private void footer(StringBuilder sb) {
+        sb.append(repeat('-', consoleWidth)).append('\n');
+    }
+
+    private void writeLine(StringBuilder sb, String left, String right, String message) {
         String[] leftLines = wrap(left).split("\n");
         String[] rightLines = wrap(right).split("\n");
 
@@ -57,22 +84,22 @@ public class PlainTextDiffRenderer {
         }
     }
 
-    private static void writeBlankLine(StringBuilder sb) {
+    private void writeBlankLine(StringBuilder sb) {
         writeSingleLine(sb, "", null, null);
     }
 
-    private static void writeSingleLine(StringBuilder sb, String left, String right) {
+    private void writeSingleLine(StringBuilder sb, String left, String right) {
         writeSingleLine(sb, left, right, null);
     }
 
-    private static void writeSingleLine(StringBuilder sb, String left) {
+    private void writeSingleLine(StringBuilder sb, String left) {
         writeSingleLine(sb, left, null);
     }
 
-    private static void writeSingleLine(StringBuilder sb, String left, String right, String message) {
+    private void writeSingleLine(StringBuilder sb, String left, String right, String message) {
         sb
             .append("")
-            .append(rightPad(left, 59, " "))
+            .append(rightPad(left, getMiddle() + 1, " "))
             .append("|");
 
         if (isNotEmpty(right)) {
@@ -80,19 +107,34 @@ public class PlainTextDiffRenderer {
 
             if (isNotEmpty(message)) {
                 sb
-                    .append(rightPad(right, 53, " "))
+                    .append(rightPad(right, getMiddle() - 6, " "))
                     .append("<<<<< ")
                     .append(message);
             } else {
                 sb.append(right);
             }
-
+        } else {
+            if (isNotEmpty(message)) {
+                sb
+                    .append(rightPad(right, getMiddle() - 5, " "))
+                    .append("<<<<< ")
+                    .append(message);
+            }
         }
 
         sb.append("\n");
     }
 
-    private static String wrap(String s) {
-        return WordUtils.wrap(s, 58, null, true);
+    private String wrap(String s) {
+        return Strings.wrapIfLongestLineExceedsLimit(s, getColumnWidth());
     }
+
+    private int getColumnWidth() {
+        return (consoleWidth / 2) - 2;
+    }
+
+    private int getMiddle() {
+        return (consoleWidth / 2) - 1;
+    }
+
 }

@@ -6,19 +6,12 @@
 | Closest stub                                             | Request                                                  |
 -----------------------------------------------------------------------------------------------------------------------
                                                            |
-The post stub with a really long name that ought to wrap   |
-and let us see exactly how that looks when it is done      |
+Missing header stub                                        |
                                                            |
 POST                                                       | POST
-/thing                                                     | /thin                                               <<<<< URL does not match
+/thing                                                     | /thing
                                                            |
-X-My-Header: correct value                                 | X-My-Header: incorrect value                        <<<<< Header does not match
-Accept: text/plain                                         | Accept: text/plain
+X-My-Header: correct value                                 |                                                     <<<<< Header is not present
                                                            |
-{                                                          | {                                                   <<<<< Body does not match
-  "thing" : {                                              |   "thing" : {
-    "stuff" : [ 1, 2, 3 ]                                  |     "nothing" : { }
-  }                                                        |   }
-}                                                          | }
                                                            |
 -----------------------------------------------------------------------------------------------------------------------

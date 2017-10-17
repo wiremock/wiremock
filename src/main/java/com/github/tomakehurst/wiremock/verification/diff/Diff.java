@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 
@@ -33,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 
@@ -56,46 +56,31 @@ public class Diff {
 
     @Override
     public String toString() {
-        if (requestPattern.hasCustomMatcher()) {
-            return "(Request pattern had a custom matcher so no diff can be shown)";
-        }
-
-        List<DiffSection<?>> sections = getSections();
-
-        String expected = Joiner.on("\n")
-            .join(from(sections).transform(EXPECTED));
-        String actual = Joiner.on("\n")
-            .join(from(sections).transform(ACTUAL));
-
-        return sections.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
+        return new JUnitStyleDiffRenderer().render(this);
     }
 
-    public List<DiffSection<?>> getSections() {
-        ImmutableList.Builder<DiffSection<?>> builder = ImmutableList.builder();
+    public List<DiffLine<?>> getLines() {
+        ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
-        DiffSection<RequestMethod> methodSection = new DiffSection<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
+        DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 
-        DiffSection<String> urlSection = new DiffSection<>("URL", requestPattern.getUrlMatcher(),
+        DiffLine<String> urlSection = new DiffLine<>("URL", requestPattern.getUrlMatcher(),
             request.getUrl(),
             requestPattern.getUrlMatcher().getExpected());
         builder.add(urlSection);
 
-        if (methodSection.shouldBeIncluded() || urlSection.shouldBeIncluded()) {
-            builder.add(SPACER);
-        }
+        builder.add(SPACER);
 
         boolean anyHeaderSections = false;
         Map<String, MultiValuePattern> headerPatterns = requestPattern.combineBasicAuthAndOtherHeaders();
         if (headerPatterns != null && !headerPatterns.isEmpty()) {
+            anyHeaderSections = true;
             for (String key : headerPatterns.keySet()) {
                 HttpHeader header = request.header(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
                 String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
-                DiffSection<MultiValue> section = new DiffSection<>("Header", headerPattern, header, printedPatternValue);
-                if (section.shouldBeIncluded()) {
-                    anyHeaderSections = true;
-                }
+                DiffLine<MultiValue> section = new DiffLine<>("Header", headerPattern, header, printedPatternValue);
                 builder.add(section);
             }
         }
@@ -111,7 +96,7 @@ public class Diff {
                 String key = entry.getKey();
                 StringValuePattern pattern = entry.getValue();
                 Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
-                DiffSection<String> section = new DiffSection<>(
+                DiffLine<String> section = new DiffLine<>(
                     "Cookie",
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",
@@ -132,10 +117,10 @@ public class Diff {
                 String body = formatIfJsonOrXml(pattern);
                 if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
                     StringValuePattern stringValuePattern = (StringValuePattern) pattern;
-                    builder.add(new DiffSection<>("Body", stringValuePattern, body, pattern.getExpected()));
+                    builder.add(new DiffLine<>("Body", stringValuePattern, body, pattern.getExpected()));
                 } else {
                     BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
-                    builder.add(new DiffSection<>("Body", nonStringPattern, body.getBytes(), pattern.getExpected()));
+                    builder.add(new DiffLine<>("Body", nonStringPattern, body.getBytes(), pattern.getExpected()));
                 }
 
             }
@@ -162,23 +147,8 @@ public class Diff {
         }
     }
 
-    public static String junitStyleDiffMessage(Object expected, Object actual) {
-        return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
+
+    public boolean hasCustomMatcher() {
+        return requestPattern.hasCustomMatcher();
     }
-
-    final DiffSection<String> SPACER = new DiffSection<>("", new EqualToPattern(""), "", "");
-
-    private static Function<DiffSection<?>, Object> EXPECTED = new Function<DiffSection<?>, Object>() {
-        @Override
-        public Object apply(DiffSection<?> input) {
-            return input.getExpected();
-        }
-    };
-
-    private static Function<DiffSection<?>, Object> ACTUAL = new Function<DiffSection<?>, Object>() {
-        @Override
-        public Object apply(DiffSection<?> input) {
-            return input.getActual();
-        }
-    };
 }
