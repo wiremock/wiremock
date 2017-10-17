@@ -218,6 +218,18 @@ wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
 }).willReturn(aResponse().withStatus(422)));
 ```
 
+
+To use it in a verification :
+```java
+WireMock.verify(RequestPatternBuilder.forCustomMatcher(new RequestMatcherExtension() {
+    @Override
+    public MatchResult match(Request request, Parameters parameters) {
+        return MatchResult.of(request.getBody().length > 2048);
+    }
+}));
+```
+
+
 In Java 8 and above this can be achieved using a lambda:
 
 ```java
