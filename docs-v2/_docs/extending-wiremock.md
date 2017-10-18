@@ -221,9 +221,9 @@ wireMockServer.stubFor(requestMatching(new RequestMatcherExtension() {
 
 To use it in a verification :
 ```java
-WireMock.verify(RequestPatternBuilder.forCustomMatcher(new RequestMatcherExtension() {
+verify(2, requestMadeFor(new ValueMatcher<Request>() {
     @Override
-    public MatchResult match(Request request, Parameters parameters) {
+    public MatchResult match(Request value) {
         return MatchResult.of(request.getBody().length > 2048);
     }
 }));
