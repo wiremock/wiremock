@@ -35,6 +35,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 
 public class MockRequest implements Request {
 
@@ -64,8 +65,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest cookie(String key, String value) {
-        cookies.put(key, new Cookie(value));
+    public MockRequest cookie(String key, String... values) {
+        cookies.put(key, new Cookie(asList(values)));
         return this;
     }
 

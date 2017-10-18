@@ -104,7 +104,9 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.headers.<key>.[<n>]`- nth value of a header (zero indexed) e.g. `request.headers.ManyThings.[1]`
 
-`request.cookies.<key>` - Value of a request cookie e.g. `request.cookies.JSESSIONID` 
+`request.cookies.<key>` - First value of a request cookie e.g. `request.cookies.JSESSIONID`
+ 
+ `request.cookies.<key>.[<n>]` - nth value of a request cookie e.g. `request.cookies.JSESSIONID.[2]`
 
 `request.body` - Request body text (avoid for non-text bodies)
 
