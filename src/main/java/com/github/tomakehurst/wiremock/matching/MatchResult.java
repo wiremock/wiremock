@@ -63,23 +63,23 @@ public abstract class MatchResult implements Comparable<MatchResult> {
             }
         };
     }
-    
+
     public static MatchResult aggregateSupplier(final List<Supplier<MatchResult>> matchResultsSupplier) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
-            	return all(matchResultsSupplier, new Predicate<Supplier<MatchResult>>() {
-					@Override
-					public boolean apply(Supplier<MatchResult> input) {
-						return input.get().isExactMatch();
-					}
-				});
+                return all(matchResultsSupplier, new Predicate<Supplier<MatchResult>>() {
+                    @Override
+                    public boolean apply(Supplier<MatchResult> input) {
+                        return input.get().isExactMatch();
+                    }
+                });
             }
 
             @Override
             public double getDistance() {
                 double totalDistance = 0;
-                for (Supplier<MatchResult> matchResultSupplier: matchResultsSupplier) {
+                for (Supplier<MatchResult> matchResultSupplier : matchResultsSupplier) {
                     totalDistance += matchResultSupplier.get().getDistance();
                 }
 
@@ -91,7 +91,7 @@ public abstract class MatchResult implements Comparable<MatchResult> {
     public static MatchResult aggregate(MatchResult... matches) {
         return aggregate(asList(matches));
     }
-    
+
     @SafeVarargs
     public static MatchResult aggregateSupplier(Supplier<MatchResult>... matches) {
         return aggregateSupplier(asList(matches));

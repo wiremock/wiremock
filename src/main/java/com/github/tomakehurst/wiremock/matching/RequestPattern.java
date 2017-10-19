@@ -57,44 +57,37 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
         @Override
         public MatchResult match(final Request request) {
-            return MatchResult.aggregateSupplier(
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return url.match(request.getUrl());
-					}
-				},
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return method.match(request.getMethod());
-					}
-				},
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return allHeadersMatchResult(request);
-					}
-				},
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return allQueryParamsMatch(request);
-					}
-				},
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return allCookiesMatch(request);
-					}
-				},
-                new Supplier<MatchResult>() {
-					@Override
-					public MatchResult get() {
-						return allBodyPatternsMatch(request);
-					}
-				}
-            );
+            return MatchResult.aggregateSupplier(new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return url.match(request.getUrl());
+                }
+            }, new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return method.match(request.getMethod());
+                }
+            }, new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return allHeadersMatchResult(request);
+                }
+            }, new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return allQueryParamsMatch(request);
+                }
+            }, new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return allCookiesMatch(request);
+                }
+            }, new Supplier<MatchResult>() {
+                @Override
+                public MatchResult get() {
+                    return allBodyPatternsMatch(request);
+                }
+            });
         }
 
         @Override

@@ -58,13 +58,13 @@ import joptsimple.OptionSet;
 
 public class CommandLineOptions implements Options {
 
-	private static final String HELP = "help";
-	private static final String RECORD_MAPPINGS = "record-mappings";
-	private static final String MATCH_HEADERS = "match-headers";
-	private static final String PROXY_ALL = "proxy-all";
+    private static final String HELP = "help";
+    private static final String RECORD_MAPPINGS = "record-mappings";
+    private static final String MATCH_HEADERS = "match-headers";
+    private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
-	private static final String PORT = "port";
+    private static final String PORT = "port";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
@@ -396,11 +396,11 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
-	public boolean reportNearMissDisabled() {
-		return optionSet.has(DISABLE_NEARMISS);
-	}
+    public boolean reportNearMissDisabled() {
+        return optionSet.has(DISABLE_NEARMISS);
+    }
 
-	@Override
+    @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         builder.put(PORT, portNumber());

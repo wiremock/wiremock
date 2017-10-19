@@ -301,10 +301,10 @@ public class WireMockConfiguration implements Options {
         this.requireHttpsForAdminApi = true;
         return this;
     }
-    
+
     public WireMockConfiguration reportNearMissesDisabled() {
-    	this.reportNearMissDisabled = true;
-    	return this;
+        this.reportNearMissDisabled = true;
+        return this;
     }
 
     @Override
@@ -427,9 +427,9 @@ public class WireMockConfiguration implements Options {
         return requireHttpsForAdminApi;
     }
 
-	@Override
-	public boolean reportNearMissDisabled() {
-		return reportNearMissDisabled;
-	}
-    
+    @Override
+    public boolean reportNearMissDisabled() {
+        return reportNearMissDisabled;
+    }
+
 }

@@ -154,9 +154,9 @@ public class WarConfiguration implements Options {
         return false;
     }
 
-	@Override
-	public boolean reportNearMissDisabled() {
-		return false;
-	}
-    
+    @Override
+    public boolean reportNearMissDisabled() {
+        return false;
+    }
+
 }

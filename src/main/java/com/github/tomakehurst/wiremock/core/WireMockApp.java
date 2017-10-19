@@ -164,10 +164,10 @@ public class WireMockApp implements StubServer, Admin {
             }
 
             if (options.reportNearMissDisabled()) {
-            	logUnmatchedRequestWithoutNearMisses(loggedRequest);
+                logUnmatchedRequestWithoutNearMisses(loggedRequest);
             }
             else {
-            	logUnmatchedRequest(loggedRequest);
+                logUnmatchedRequest(loggedRequest);
             }
         }
 
@@ -182,7 +182,7 @@ public class WireMockApp implements StubServer, Admin {
         }
         notifier().error(message);
     }
-    
+
     private void logUnmatchedRequestWithoutNearMisses(LoggedRequest request) {
         notifier().error("Request was not matched:\n" + request);
     }
