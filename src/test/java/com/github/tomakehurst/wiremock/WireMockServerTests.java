@@ -19,7 +19,11 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -94,4 +98,26 @@ public class WireMockServerTests {
         assertThat(client.get("http://localhost:" + wireMockServer.port() + "/something").statusCode(), is(200));
     }
 
+    // https://github.com/tomakehurst/wiremock/issues/691
+    @Test
+    public void testNotGettingNullPointerAtSecondRequest() throws Exception {
+
+        WireMockServer wireMockServer = new WireMockServer(Options.DYNAMIC_PORT, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", Options.DYNAMIC_PORT));
+
+        wireMockServer.start();
+        wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
+
+        wireMockServer.stubFor(post(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
+
+        WireMockTestClient client = new WireMockTestClient(wireMockServer.port());
+
+        final String firstRequest = "{\"columns\": [{\"name\": \"x\",\"y\": 3},{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"agreementstatus\",\"b\": 2}]}";
+        final WireMockResponse firstResponse = client.post("/something", new StringEntity(firstRequest, ContentType.APPLICATION_JSON));
+        assertThat(firstResponse.statusCode(), is(200));
+
+
+        final String secondRequest = "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
+        final WireMockResponse secondResponse = client.post("/something", new StringEntity(secondRequest, ContentType.APPLICATION_JSON));
+        assertThat(secondResponse.statusCode(), is(200));
+    }
 }
