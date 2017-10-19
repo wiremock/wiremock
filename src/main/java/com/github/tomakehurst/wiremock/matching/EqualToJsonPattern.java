@@ -144,6 +144,11 @@ public class EqualToJsonPattern extends StringValuePattern {
         if (pos >= path.size()) {
             return ret;
         }
+
+        if (ret == null) {
+            return null;
+        }
+
         String key = path.get(pos);
         if (ret.isArray()) {
             int keyInt = Integer.parseInt(key.replaceAll("\"", ""));
