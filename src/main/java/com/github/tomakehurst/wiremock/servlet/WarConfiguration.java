@@ -153,4 +153,10 @@ public class WarConfiguration implements Options {
     public boolean getHttpsRequiredForAdminApi() {
         return false;
     }
+
+	@Override
+	public boolean reportNearMissDisabled() {
+		return false;
+	}
+    
 }

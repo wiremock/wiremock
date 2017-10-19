@@ -88,6 +88,7 @@ public class CommandLineOptions implements Options {
     private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
     private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
     private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
+    private static final String DISABLE_NEARMISS = "no-nearmiss-report";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -126,6 +127,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
         optionParser.accepts(ADMIN_API_BASIC_AUTH, "Require HTTP Basic authentication for admin API calls with the supplied credentials in username:password format").withRequiredArg();
         optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
+        optionParser.accepts(DISABLE_NEARMISS, "Disable reporting of near miss when request not matched.");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -394,6 +396,11 @@ public class CommandLineOptions implements Options {
     }
 
     @Override
+	public boolean reportNearMissDisabled() {
+		return optionSet.has(DISABLE_NEARMISS);
+	}
+
+	@Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
         builder.put(PORT, portNumber());

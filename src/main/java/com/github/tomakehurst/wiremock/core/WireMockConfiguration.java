@@ -82,6 +82,7 @@ public class WireMockConfiguration implements Options {
 
     private Authenticator adminAuthenticator = new NoAuthenticator();
     private boolean requireHttpsForAdminApi = false;
+    private boolean reportNearMissDisabled = false;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -300,6 +301,11 @@ public class WireMockConfiguration implements Options {
         this.requireHttpsForAdminApi = true;
         return this;
     }
+    
+    public WireMockConfiguration reportNearMissesDisabled() {
+    	this.reportNearMissDisabled = true;
+    	return this;
+    }
 
     @Override
     public int portNumber() {
@@ -420,4 +426,10 @@ public class WireMockConfiguration implements Options {
     public boolean getHttpsRequiredForAdminApi() {
         return requireHttpsForAdminApi;
     }
+
+	@Override
+	public boolean reportNearMissDisabled() {
+		return reportNearMissDisabled;
+	}
+    
 }
