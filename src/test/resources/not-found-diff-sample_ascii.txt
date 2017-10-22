@@ -12,8 +12,8 @@ and let us see exactly how that looks when it is done      |
 POST                                                       | POST
 /thing                                                     | /thin                                               <<<<< URL does not match
                                                            |
-X-My-Header: correct value                                 | X-My-Header: incorrect value                        <<<<< Header does not match
-Accept: text/plain                                         | Accept: text/plain
+X-My-Header [contains] : correct value                     | X-My-Header: wrong value                            <<<<< Header does not match
+Accept [matches] : text/plain.*                            | Accept: text/plain
                                                            |
 {                                                          | {                                                   <<<<< Body does not match
   "thing" : {                                              |   "thing" : {

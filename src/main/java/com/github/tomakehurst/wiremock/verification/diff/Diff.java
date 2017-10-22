@@ -28,6 +28,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 
 public class Diff {
 
@@ -79,7 +82,10 @@ public class Diff {
             for (String key : headerPatterns.keySet()) {
                 HttpHeader header = request.header(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
-                String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
+
+                String operator = generateOperatorString(headerPattern.getValuePattern(), "");
+                String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
+
                 DiffLine<MultiValue> section = new DiffLine<>("Header", headerPattern, header, printedPatternValue);
                 builder.add(section);
             }
@@ -96,11 +102,13 @@ public class Diff {
                 String key = entry.getKey();
                 StringValuePattern pattern = entry.getValue();
                 Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
+
+                String operator = generateOperatorString(pattern, "=");
                 DiffLine<String> section = new DiffLine<>(
                     "Cookie",
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",
-                    "Cookie: " + key + "=" + pattern.getValue()
+                    "Cookie: " + key + operator + pattern.getValue()
                 );
                 builder.add(section);
                 anyCookieSections = true;
@@ -129,6 +137,10 @@ public class Diff {
         return builder.build();
     }
 
+    private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {
+        return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
+    }
+
     public String getStubMappingName() {
         return stubMappingName;
     }
@@ -145,6 +157,13 @@ public class Diff {
         } catch (Exception e) {
             return request.getBodyAsString();
         }
+    }
+
+    private static boolean isAnEqualToPattern(ContentPattern<?> pattern) {
+        return pattern instanceof EqualToPattern ||
+            pattern instanceof EqualToJsonPattern ||
+            pattern instanceof EqualToXmlPattern ||
+            pattern instanceof BinaryEqualToPattern;
     }
 
 
