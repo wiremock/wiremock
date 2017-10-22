@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2011 Thomas Akehurst
  *
@@ -51,8 +52,8 @@ public class NotMatchedPageAcceptanceTest {
 
         stubFor(post("/thing")
             .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
-            .withHeader("X-My-Header", equalTo("correct value"))
-            .withHeader("Accept", equalTo("text/plain"))
+            .withHeader("X-My-Header", containing("correct value"))
+            .withHeader("Accept", matching("text/plain.*"))
             .withRequestBody(equalToJson(
                 "{                              \n" +
                 "    \"thing\": {               \n" +
@@ -68,7 +69,7 @@ public class NotMatchedPageAcceptanceTest {
             "        \"nothing\": {}    \n" +
             "    }                      \n" +
             "}",
-            withHeader("X-My-Header", "incorrect value"),
+            withHeader("X-My-Header", "wrong value"),
             withHeader("Accept", "text/plain")
         );
 

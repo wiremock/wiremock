@@ -24,8 +24,8 @@ public class PlainTextDiffRendererTest {
     public void rendersWithDifferingUrlHeaderAndJsonBody() {
         Diff diff = new Diff(post("/thing")
             .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
-            .withHeader("X-My-Header", equalTo("correct value"))
-            .withHeader("Accept", equalTo("text/plain"))
+            .withHeader("X-My-Header", containing("correct value"))
+            .withHeader("Accept", matching("text/plain.*"))
             .withRequestBody(equalToJson("{     \n" +
                 "    \"thing\": {               \n" +
                 "        \"stuff\": [1, 2, 3]   \n" +
@@ -34,7 +34,7 @@ public class PlainTextDiffRendererTest {
             mockRequest()
                 .method(POST)
                 .url("/thin")
-                .header("X-My-Header", "incorrect value")
+                .header("X-My-Header", "wrong value")
                 .header("Accept", "text/plain")
                 .body("{                        \n" +
                     "    \"thing\": {           \n" +
@@ -47,6 +47,24 @@ public class PlainTextDiffRendererTest {
         System.out.printf(output);
 
         assertThat(output, is(file("not-found-diff-sample_ascii.txt")));
+    }
+
+    @Test
+    public void rendersWithDifferingCookies() {
+        Diff diff = new Diff(post("/thing")
+            .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
+            .withCookie("Cookie_1", containing("one value"))
+            .withCookie("Second_Cookie", matching("cookie two value [0-9]*"))
+            .build(),
+            mockRequest()
+                .method(POST)
+                .url("/thing")
+                .cookie("Cookie_1", "zero value")
+                .cookie("Second_Cookie", "cookie two value")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.printf(output);
     }
 
     @Test
