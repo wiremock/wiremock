@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,14 @@ public class JsonFileMappingsSource implements MappingsSource {
 	}
 
 	private String getFileName(TextFile mappingFile) {
-		return mappingFile.getUri().toString().replaceAll("^.*/", "");
+		URI mappingFileUri = mappingFile.getUri();
+		if (mappingFileUri.getScheme().equals("file")) {
+			return mappingsFileSource.getUri().relativize(mappingFileUri).getPath();
+		} else {
+			// Must be a file from ClasspathFileSource. The URI.getPath() method returns NULL with JAR URLs, so just
+			// strip out everything except the last path segment. Since ClasspathFileSource is read-only, the filename
+			// doesn't matter.
+			return mappingFileUri.toString().replaceAll("^.*/", "");
+		}
 	}
 }

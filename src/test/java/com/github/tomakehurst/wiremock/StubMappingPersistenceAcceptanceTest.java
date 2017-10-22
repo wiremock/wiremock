@@ -184,6 +184,26 @@ public class StubMappingPersistenceAcceptanceTest {
         assertMappingsDirIsEmpty();
     }
 
+    @Test
+    public void deletesNestedPersistentStubMapping() throws IOException {
+        UUID stubId = UUID.randomUUID();
+        Path subDirectoryUnderMappingsRoot = Files.createDirectory(mappingsDir.resolve("sub-dir"));
+        Path mappingFilePath = subDirectoryUnderMappingsRoot.resolve("mapping-to-delete.json");
+        writeMappingFile(mappingFilePath.toString(), get(urlEqualTo("/to-delete"))
+            .withId(stubId)
+            .persistent()
+        );
+
+        wireMockServer.resetToDefaultMappings(); // Loads from the file system
+        assertThat(mappingFilePath.toFile().exists(), is(true));
+
+        StubMapping stubMapping = wm.getStubMappings().get(0);
+        assertThat(stubMapping.getId(), is(stubId));
+
+        removeStub(stubMapping);
+        assertThat(mappingFilePath.toFile().exists(), is(false));
+    }
+
     private void writeMappingFile(String name, MappingBuilder stubBuilder) throws IOException {
         byte[] json = Json.write(stubBuilder.build()).getBytes(UTF_8);
         Files.write(mappingsDir.resolve(name), json);
