@@ -19,7 +19,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.junit.Test;
 
 import java.util.List;
