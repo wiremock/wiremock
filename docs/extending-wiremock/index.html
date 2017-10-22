@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-10-15T11:47:08+01:00">
+  <meta property="article:published_time" content="2017-10-22T12:35:47+01:00">
   
     <link rel="next" href="/docs/getting-started/" title="Getting Started">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Extending WireMock">
     <meta itemprop="description" content="Registering Extensions">
-    <meta itemprop="datePublished" content="October 15, 2017">
+    <meta itemprop="datePublished" content="October 22, 2017">
     
 
     <div class="page__inner-wrap">
@@ -533,6 +533,16 @@ to matchers.</p>
 <span class="o">}).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">422</span><span class="o">)));</span>
 </code></pre>
 </div>
+
+<p>To use it in a verification :
+<code class="highlighter-rouge">java
+verify(2, requestMadeFor(new ValueMatcher&lt;Request&gt;() {
+    @Override
+    public MatchResult match(Request value) {
+        return MatchResult.of(request.getBody().length &gt; 2048);
+    }
+}));
+</code></p>
 
 <p>In Java 8 and above this can be achieved using a lambda:</p>
 

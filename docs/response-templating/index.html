@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-10-15T11:47:08+01:00">
+  <meta property="article:published_time" content="2017-10-22T12:35:47+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="October 15, 2017">
+    <meta itemprop="datePublished" content="October 22, 2017">
     
 
     <div class="page__inner-wrap">
@@ -416,7 +416,9 @@ to being served.</p>
 
 <p><code class="highlighter-rouge">request.headers.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a header (zero indexed) e.g. <code class="highlighter-rouge">request.headers.ManyThings.[1]</code></p>
 
-<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;</code> - Value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID</code></p>
+<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;</code> - First value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID</code></p>
+
+<p><code class="highlighter-rouge">request.cookies.&lt;key&gt;.[&lt;n&gt;]</code> - nth value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID.[2]</code></p>
 
 <p><code class="highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
 
