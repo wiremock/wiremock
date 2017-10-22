@@ -36,6 +36,7 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
@@ -56,13 +57,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
         @Override
         public MatchResult match(Request request) {
-            return MatchResult.aggregate(
-                url.match(request.getUrl()),
-                method.match(request.getMethod()),
-                allHeadersMatchResult(request),
-                allQueryParamsMatch(request),
-                allCookiesMatch(request),
-                allBodyPatternsMatch(request)
+            return MatchResult.aggregateWeighted(
+                weight(url.match(request.getUrl()), 10.0),
+                weight(method.match(request.getMethod()), 3.0),
+
+                weight(allHeadersMatchResult(request)),
+                weight(allQueryParamsMatch(request)),
+                weight(allCookiesMatch(request)),
+                weight(allBodyPatternsMatch(request))
             );
         }
 
