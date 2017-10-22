@@ -68,7 +68,9 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
-		builder.transformerParameters = responseDefinition.getTransformerParameters();
+		builder.transformerParameters = responseDefinition.getTransformerParameters() != null ?
+			Parameters.from(responseDefinition.getTransformerParameters()) :
+			Parameters.empty();
 		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
