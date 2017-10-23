@@ -16,13 +16,11 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.google.common.annotations.VisibleForTesting;
 
 import java.util.Map;
 import java.util.Objects;
@@ -30,29 +28,28 @@ import java.util.UUID;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-@JsonPropertyOrder({ "id", "uuid", "request", "newRequest", "response" })
+@JsonPropertyOrder({ "id", "name", "request", "newRequest", "response", "uuid" })
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
 
 	private UUID uuid = UUID.randomUUID();
+	private String name;
 
 	private boolean persistent;
 
 	private RequestPattern request;
-
 	private ResponseDefinition response;
 	private Integer priority;
 	private String scenarioName;
 	private String requiredScenarioState;
 	private String newScenarioState;
-	private Scenario scenario;
 
     private Map<String, Parameters> postServeActions;
 
 	private long insertionIndex;
+	private boolean isDirty = true;
 
-    private boolean isDirty = true;
 	public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
 		setRequest(requestPattern);
 		this.response = response;
@@ -83,6 +80,14 @@ public class StubMapping {
 
 	public UUID getId() {
 		return uuid;
+	}
+
+	public String getName() {
+    	return name;
+	}
+
+	public void setName(String name) {
+    	this.name = name;
 	}
 
 	public void setUuid(UUID uuid) {
@@ -174,22 +179,6 @@ public class StubMapping {
 		this.newScenarioState = newScenarioState;
 	}
 
-	public void updateScenarioStateIfRequired() {
-		if (isInScenario() && modifiesScenarioState()) {
-			scenario.setState(newScenarioState);
-		}
-	}
-
-	@JsonIgnore
-	public Scenario getScenario() {
-		return scenario;
-	}
-
-	@JsonIgnore
-	public void setScenario(Scenario scenario) {
-		this.scenario = scenario;
-	}
-
 	@JsonIgnore
 	public boolean isInScenario() {
 		return scenarioName != null;
@@ -203,11 +192,6 @@ public class StubMapping {
 	@JsonIgnore
 	public boolean isIndependentOfScenarioState() {
 		return !isInScenario() || requiredScenarioState == null;
-	}
-
-	@JsonIgnore
-	public boolean requiresCurrentScenarioState() {
-		return !isIndependentOfScenarioState() && requiredScenarioState.equals(scenario.getState());
 	}
 
 	public int comparePriorityWith(StubMapping otherMapping) {
@@ -237,12 +221,11 @@ public class StubMapping {
 			Objects.equals(scenarioName, that.scenarioName) &&
 			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
 			Objects.equals(newScenarioState, that.newScenarioState) &&
-			Objects.equals(scenario, that.scenario) &&
 			Objects.equals(postServeActions, that.postServeActions);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, scenario, postServeActions, isDirty);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, isDirty);
 	}
 }

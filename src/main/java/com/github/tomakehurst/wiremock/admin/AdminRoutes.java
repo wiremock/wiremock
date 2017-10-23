@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.admin.tasks.*;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableBiMap;
@@ -36,18 +37,19 @@ public class AdminRoutes {
     private final Iterable<AdminApiExtension> apiExtensions;
 
     public static AdminRoutes defaults() {
-        return new AdminRoutes(Collections.<AdminApiExtension>emptyList());
+        return new AdminRoutes(Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer());
     }
 
-    public static AdminRoutes defaultsPlus(Iterable<AdminApiExtension> apiExtensions) {
-        return new AdminRoutes(apiExtensions);
+    public static AdminRoutes defaultsPlus(Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
+        return new AdminRoutes(apiExtensions, notMatchedTask);
     }
 
-    protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions) {
+    protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
         this.apiExtensions = apiExtensions;
         RouteBuilder routeBuilder = new RouteBuilder();
         initDefaultRoutes(routeBuilder);
         initAdditionalRoutes(routeBuilder);
+        routeBuilder.add(ANY, "/not-matched", notMatchedTask);
         routes = routeBuilder.build();
     }
 
@@ -69,6 +71,7 @@ public class AdminRoutes {
         router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
+        router.add(GET, "/scenarios", GetAllScenariosTask.class);
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
         router.add(GET,  "/requests", GetAllRequestsTask.class);
@@ -80,6 +83,11 @@ public class AdminRoutes {
         router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
         router.add(GET,  "/requests/{id}", GetServedStubTask.class);
 
+        router.add(POST, "/recordings/snapshot", SnapshotTask.class);
+        router.add(POST, "/recordings/start", StartRecordingTask.class);
+        router.add(POST, "/recordings/stop", StopRecordingTask.class);
+        router.add(GET,  "/recordings/status", GetRecordingStatusTask.class);
+        router.add(GET,  "/recorder", GetRecordingsIndexTask.class);
 
         router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
         router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);

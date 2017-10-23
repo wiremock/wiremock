@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,7 +31,9 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.PostServeActionExtensionTest.CounterNameParameter.counterNameParameter;
 import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
@@ -24,6 +41,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -46,7 +65,7 @@ public class PostServeActionExtensionTest {
     }
 
     @Test
-    public void triggersActionWhenAppliedToAStubMapping() {
+    public void triggersActionWhenAppliedToAStubMapping() throws Exception {
         initWithOptions(options()
             .dynamicPort()
             .extensions(new NamedCounterAction()));
@@ -63,8 +82,9 @@ public class PostServeActionExtensionTest {
         client.get("/count-me");
         client.get("/count-me");
 
-        String count = client.get("/__admin/named-counter/things").content();
-        assertThat(count, is("4"));
+        await()
+            .atMost(5, SECONDS)
+            .until(getContent("/__admin/named-counter/things"), is("4"));
     }
 
     @Test
@@ -80,6 +100,53 @@ public class PostServeActionExtensionTest {
         );
 
         assertThat(client.get("/as-normal").statusCode(), is(200));
+    }
+
+    @Test
+    public void providesServeEventWithResponseFieldPopulated() throws InterruptedException {
+        final AtomicInteger finalStatus = new AtomicInteger();
+        initWithOptions(options().dynamicPort().extensions(new PostServeAction() {
+            @Override
+            public String getName() {
+                return "response-field-test";
+            }
+
+            @Override
+            public void doGlobalAction(ServeEvent serveEvent, Admin admin) {
+                if (serveEvent.getResponse() != null) {
+                    finalStatus.set(serveEvent.getResponse().getStatus());
+                }
+            }
+        }));
+
+        wm.stubFor(get(urlPathEqualTo("/response-status"))
+            .willReturn(aResponse()
+                .withStatus(418))
+        );
+
+        client.get("/response-status");
+
+        await()
+            .atMost(5, SECONDS)
+            .until(getValue(finalStatus), is(418));
+    }
+
+    private Callable<Integer> getValue(final AtomicInteger value) {
+        return new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return value.get();
+            }
+        };
+    }
+
+    private Callable<String> getContent(final String url) {
+        return new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return client.get(url).content();
+            }
+        };
     }
 
     public static class NamedCounterAction extends PostServeAction implements AdminApiExtension {

@@ -17,12 +17,15 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Dates;
+import com.github.tomakehurst.wiremock.common.Encoding;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import static com.google.common.base.Charsets.UTF_8;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -118,7 +121,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void requestBodyEncodingRemainsUtf8() {
         byte[] body = new byte[] { -38, -100 }; // UTF-8 bytes for ڜ
-        testClient.post("/encoding", new ByteArrayEntity(body, ContentType.TEXT_PLAIN));
+        testClient.post("/encoding", new ByteArrayEntity(body, ContentType.TEXT_PLAIN.withCharset(UTF_8)));
 
         List<LoggedRequest> requests = findAll(postRequestedFor(urlEqualTo("/encoding")));
         LoggedRequest request = requests.get(0);
@@ -145,9 +148,23 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
         ServeEvent two = serveEvents.get(1);
         assertThat(two.isNoExactMatch(), is(false));
         assertThat(two.getRequest().getUrl(), is("/two"));
-        assertThat(two.getResponse().getBody(), is("Exactly 2"));
+        assertThat(two.getResponse().getBody(), is("Exactly 2".getBytes()));
+        assertThat(two.getResponse().getBodyAsString(), is("Exactly 2"));
+        assertThat(two.getResponse().getBodyAsBase64(), is(Encoding.encodeBase64("Exactly 2".getBytes())));
 
         assertThat(serveEvents.get(2).isNoExactMatch(), is(true));
+    }
+
+    @Test
+    public void getAllServeEventsPreservesBinaryBody() {
+        dsl.stubFor(any(anyUrl())
+            .willReturn(aResponse().withBody(MappingJsonSamples.BINARY_COMPRESSED_CONTENT)));
+
+        testClient.get("/");
+
+        List<ServeEvent> serveEvents = getAllServeEvents();
+        ServeEvent serveEvent = serveEvents.get(0);
+        assertThat(serveEvent.getResponse().getBody(), is(MappingJsonSamples.BINARY_COMPRESSED_CONTENT));
     }
 
     private Matcher<LoggedRequest> withUrl(final String url) {

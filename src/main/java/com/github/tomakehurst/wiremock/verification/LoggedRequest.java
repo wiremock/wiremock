@@ -22,12 +22,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+
+import java.nio.charset.Charset;
+import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
@@ -125,7 +129,18 @@ public class LoggedRequest implements Request {
 
     @Override
     public ContentTypeHeader contentTypeHeader() {
-        return headers.getContentTypeHeader();
+        if (headers != null) {
+            return headers.getContentTypeHeader();
+        } 
+        return null;
+    }
+
+    private Charset encodingFromContentTypeHeaderOrUtf8() {
+        ContentTypeHeader contentTypeHeader = contentTypeHeader();
+        if (contentTypeHeader != null) {
+            return contentTypeHeader.charset();
+        }
+        return UTF_8;
     }
 
     @Override
@@ -146,7 +161,7 @@ public class LoggedRequest implements Request {
     @Override
     @JsonProperty("body")
     public String getBodyAsString() {
-        return stringFromBytes(body);
+        return stringFromBytes(body, encodingFromContentTypeHeaderOrUtf8());
     }
 
     @Override
@@ -166,6 +181,11 @@ public class LoggedRequest implements Request {
         return firstNonNull(queryParams.get(key), QueryParameter.absent(key));
     }
 
+    @JsonProperty("queryParams")
+    public Map<String, QueryParameter> getQueryParams() {
+        return queryParams;
+    }
+
     public HttpHeaders getHeaders() {
         return headers;
     }
@@ -173,6 +193,12 @@ public class LoggedRequest implements Request {
     @Override
     public boolean isBrowserProxyRequest() {
         return isBrowserProxyRequest;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Request> getOriginalRequest() {
+        return Optional.absent();
     }
 
     public Date getLoggedDate() {

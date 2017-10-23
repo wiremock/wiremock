@@ -17,11 +17,14 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.Socket;
-
 public enum Fault {
+
+	CONNECTION_RESET_BY_PEER {
+		@Override
+		public void apply(FaultInjector faultInjector) {
+			faultInjector.connectionResetByPeer();
+		}
+	},
 
 	EMPTY_RESPONSE {
 		@Override

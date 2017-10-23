@@ -21,7 +21,6 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.collect.ImmutableList;
-import com.toomuchcoding.jsonassert.JsonAssertion;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 

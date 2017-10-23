@@ -19,7 +19,11 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,6 +31,9 @@ import org.junit.rules.TemporaryFolder;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -50,10 +57,40 @@ public class WireMockServerTests {
         }
     }
 
+    @Test
+    public void returnsOptionsWhenCallingGetOptions() {
+        Options options = new WireMockConfiguration();
+        WireMockServer wireMockServer = new WireMockServer(options);
+        assertThat(wireMockServer.getOptions(), is(options));
+    }
+
+    @Test
+    public void buildsQualifiedHttpUrlFromPath() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        int port = wireMockServer.port();
+
+        assertThat(wireMockServer.url("/something"), is(String.format("http://localhost:%d/something", port)));
+        assertThat(wireMockServer.url("something"), is(String.format("http://localhost:%d/something", port)));
+    }
+
+    @Test
+    public void buildsQualifiedHttpsUrlFromPath() {
+        WireMockServer wireMockServer = new WireMockServer(options()
+            .dynamicPort()
+            .dynamicHttpsPort()
+        );
+        wireMockServer.start();
+        int port = wireMockServer.httpsPort();
+
+        assertThat(wireMockServer.url("/something"), is(String.format("https://localhost:%d/something", port)));
+        assertThat(wireMockServer.url("something"), is(String.format("https://localhost:%d/something", port)));
+    }
+
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {
-        WireMockServer wireMockServer = new WireMockServer(Options.DYNAMIC_PORT, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", Options.DYNAMIC_PORT));
+        WireMockServer wireMockServer = new WireMockServer(DYNAMIC_PORT, new SingleRootFileSource(tempDir.getRoot()), false, new ProxySettings("proxy.company.com", DYNAMIC_PORT));
         wireMockServer.start();
         wireMockServer.enableRecordMappings(new SingleRootFileSource(tempDir.getRoot() + "/mappings"), new SingleRootFileSource(tempDir.getRoot() + "/__files"));
         wireMockServer.stubFor(get(urlEqualTo("/something")).willReturn(aResponse().withStatus(200)));
@@ -61,5 +98,5 @@ public class WireMockServerTests {
         WireMockTestClient client = new WireMockTestClient(wireMockServer.port());
         assertThat(client.get("http://localhost:" + wireMockServer.port() + "/something").statusCode(), is(200));
     }
-
+    
 }

@@ -23,6 +23,9 @@ main:
   - title: "External Resources"
     url: /external-resources/
 
+  - title: "Support & Consulting"
+    url: http://consulting.wiremock.org
+
   - title: "MockLab"
-    url: http://get.mocklab.io
+    url: http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab
     new_window: true

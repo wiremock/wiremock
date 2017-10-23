@@ -23,9 +23,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,11 +44,12 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         List<NearMiss> nearMisses = WireMock.findNearMissesForAllUnmatched();
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+
+        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
     }
 
     @Test
@@ -80,11 +79,12 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         ));
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+
+        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
     }
 
     @Test

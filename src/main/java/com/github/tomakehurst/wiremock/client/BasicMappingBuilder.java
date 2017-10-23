@@ -22,14 +22,12 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 class BasicMappingBuilder implements ScenarioMappingBuilder {
@@ -41,6 +39,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String requiredScenarioState;
 	private String newScenarioState;
 	private UUID id = UUID.randomUUID();
+	private String name;
     private boolean isPersistent = false;
     private Map<String, Parameters> postServeActions = newLinkedHashMap();
 
@@ -87,7 +86,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     }
 
 	@Override
-	public BasicMappingBuilder withRequestBody(StringValuePattern bodyPattern) {
+	public BasicMappingBuilder withRequestBody(ContentPattern<?> bodyPattern) {
         requestPatternBuilder.withRequestBody(bodyPattern);
 		return this;
 	}
@@ -115,6 +114,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	@Override
 	public BasicMappingBuilder withId(UUID id) {
 		this.id = id;
+		return this;
+	}
+
+	@Override
+	public BasicMappingBuilder withName(String name) {
+		this.name = name;
 		return this;
 	}
 
@@ -152,6 +157,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		mapping.setRequiredScenarioState(requiredScenarioState);
 		mapping.setNewScenarioState(newScenarioState);
 		mapping.setUuid(id);
+		mapping.setName(name);
         mapping.setPersistent(isPersistent);
 
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);

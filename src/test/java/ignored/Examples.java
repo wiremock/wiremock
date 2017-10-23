@@ -17,7 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -35,10 +35,11 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -79,6 +80,20 @@ public class Examples extends AcceptanceTestBase {
                 .withRequestBody(matching("<status>OK</status>"))
                 .withRequestBody(notMatching("<status>ERROR</status>"))
                 .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void binaryBodyMatchingByteArray() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo(new byte[] { 1, 2, 3 }))
+            .willReturn(ok()));
+    }
+
+    @Test
+    public void binaryBodyMatchingBase64() {
+        stubFor(post(urlEqualTo("/with/body"))
+            .withRequestBody(binaryEqualTo("AQID"))
+            .willReturn(ok()));
     }
 
     @Test
@@ -220,6 +235,35 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
+    public void advancedXPathMatching() {
+        stubFor(put(urlEqualTo("/xpath"))
+            .withRequestBody(matchingXPath("//todo-item/text()", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatching() {
+        stubFor(put(urlEqualTo("/jsonpath"))
+            .withRequestBody(matchingJsonPath("$..todoItem", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatchingWithObject() {
+        System.out.println(matchingJsonPath("$.outer",
+            equalToJson(
+            "{\n" +
+            "        \"inner\": 42\n" +
+            "    }"))
+            .match(
+            "{\n" +
+            "    \"outer\": {\n" +
+            "        \"inner\": 42\n" +
+            "    }\n" +
+            "}").isExactMatch());
+    }
+
+    @Test
     public void transformerParameters() {
         stubFor(get(urlEqualTo("/transform")).willReturn(
                 aResponse()
@@ -328,6 +372,9 @@ public class Examples extends AcceptanceTestBase {
             // Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.
             .jettyHeaderBufferSize(16834)
 
+            // Set the timeout to wait for Jetty to stop in milliseconds. Defaults to 0 (no wait)
+            .jettyStopTimeout(5000L)
+
             // Set the keystore containing the HTTPS certificate
             .keystorePath("/path/to/https-certs-keystore.jks")
 
@@ -370,5 +417,99 @@ public class Examples extends AcceptanceTestBase {
             // Provide an alternative notifier.
             .notifier(new ConsoleNotifier(true)
         );
+    }
+
+    @Test
+    public void abbreviatedDsl() {
+        stubFor(get("/some/thing").willReturn(aResponse().withStatus(200)));
+
+        stubFor(delete("/fine").willReturn(ok()));
+        stubFor(get("/json").willReturn(okJson("{ \"message\": \"Hello\" }")));
+        stubFor(get("/xml").willReturn(okXml("<hello />")));     // application/xml
+        stubFor(get("/xml").willReturn(okTextXml("<hello />"))); // text/xml
+        stubFor(post("/things").willReturn(noContent()));
+
+        stubFor(post("/temp-redirect").willReturn(temporaryRedirect("/new/place")));
+        stubFor(post("/perm-redirect").willReturn(permanentRedirect("/new/place")));
+        stubFor(post("/see-other").willReturn(seeOther("/new/place")));
+
+        stubFor(post("/sorry-no").willReturn(unauthorized()));
+        stubFor(post("/still-no").willReturn(forbidden()));
+
+        stubFor(put("/dodgy").willReturn(badRequest()));
+        stubFor(put("/dodgy-body").willReturn(badRequestEntity()));
+        stubFor(put("/nothing-to-see-here").willReturn(notFound()));
+
+        stubFor(put("/status-only").willReturn(status(418)));
+
+        stubFor(get("/dead-server").willReturn(serviceUnavailable()));
+        stubFor(put("/error").willReturn(serverError()));
+
+        stubFor(proxyAllTo("http://my.example.com"));
+
+    }
+
+    @Test
+    public void recordingDsl() {
+        startRecording(
+            recordSpec()
+                .forTarget("http://example.mocklab.io")
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .matchRequestBodyWithEqualToJson(false, true)
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .forTarget("http://example.mocklab.io")
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .matchRequestBodyWithEqualToJson(false, true)
+            .build()));
+    }
+
+    @Test
+    public void snapshotDsl() {
+        snapshotRecord(
+            recordSpec()
+                .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+                .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+                .captureHeader("Accept")
+                .captureHeader("Content-Type", true)
+                .extractBinaryBodiesOver(10240)
+                .extractTextBodiesOver(2048)
+                .makeStubsPersistent(false)
+                .ignoreRepeatRequests()
+                .transformers("modify-response-header")
+                .transformerParameters(Parameters.one("headerValue", "123"))
+                .chooseBodyMatchTypeAutomatically()
+        );
+
+        System.out.println(Json.write(recordSpec()
+            .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
+            .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+            .captureHeader("Accept")
+            .captureHeader("Content-Type", true)
+            .extractBinaryBodiesOver(10240)
+            .extractTextBodiesOver(2048)
+            .makeStubsPersistent(false)
+            .ignoreRepeatRequests()
+            .transformers("modify-response-header")
+            .transformerParameters(Parameters.one("headerValue", "123"))
+            .chooseBodyMatchTypeAutomatically()
+            .build()));
     }
 }

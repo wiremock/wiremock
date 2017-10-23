@@ -6,6 +6,13 @@ redirect_from: "/stubbing.html"
 description: Returning stubbed HTTP responses to specific requests.
 ---
 
+<div class="mocklab-callout"> 
+  <p class="mocklab-callout__text">
+    If you want start stubbing quickly with zero code, try <strong>MockLab</strong>. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.
+  </p>
+  <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=docs-callout&utm_campaign=stubbing" title="Learn more" class="mocklab-callout__learn-more-button">Learn more</a>
+</div>
+
 A core feature of WireMock is the ability to return canned HTTP
 responses for requests matching criteria. These are described in detail in [Request Matching](/docs/request-matching/).
 
@@ -55,6 +62,41 @@ document can either be posted to
 }
 ```
 
+### Java Shortcuts
+
+Some common request and response patterns can be expressed in Java in abbreviated forms.
+
+Requests matching an exact URL plus one of the most common HTTP methods (GET, POST, PUT, DELETE) can be stubbed like this:
+ 
+```java
+stubFor(get("/some/thing")
+    .willReturn(aResponse().withStatus(200)));
+```
+
+Common responses can also be abbreviated e.g.:
+
+```java
+stubFor(delete("/fine")
+    .willReturn(ok()));
+
+stubFor(get("/fine-with-body")
+    .willReturn(ok("body content")));
+
+stubFor(get("/json")
+    .willReturn(okJson("{ \"message\": \"Hello\" }")));
+
+stubFor(post("/redirect")
+    .willReturn(temporaryRedirect("/new/place")));
+
+stubFor(post("/sorry-no")
+    .willReturn(unauthorized()));
+
+stubFor(put("/status-only")
+    .willReturn(status(418)));
+
+```
+
+More DSL examples [can be found here](https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374). 
 
 
 HTTP methods currently supported are:
@@ -345,6 +387,16 @@ To do the equivalent via the JSON API, `PUT` the edited stub mapping to `/__admi
   }
 }
 ```
+
+## File serving
+When running the standalone JAR, files placed under the `__files` directory will
+be served up as if from under the docroot, except if stub mapping
+matching the URL exists. For example if a file exists
+`__files/things/myfile.html` and no stub mapping will match
+`/things/myfile.html` then hitting
+`http://<host>:<port>/things/myfile.html` will serve the file.
+
+This feature is also available with the standard JAR. To use it, define the filesRoot using `options.withRootDirectory()`, i.e. `options.withRootDirectory(getClass.getResource("/wiremock").getPath)`
 
 ## Removing stubs
 

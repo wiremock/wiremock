@@ -17,13 +17,18 @@ package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.*;
+import com.google.common.base.Optional;
+import com.google.common.collect.*;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.*;
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
+
+import java.nio.charset.Charset;
+import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
@@ -35,6 +40,8 @@ import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
 
 public class WireMockHttpServletRequestAdapter implements Request {
+
+    public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
     private final HttpServletRequest request;
     private byte[] cachedBody;
@@ -104,6 +111,14 @@ public class WireMockHttpServletRequestAdapter implements Request {
         return cachedBody;
     }
 
+    private Charset encodingFromContentTypeHeaderOrUtf8() {
+        ContentTypeHeader contentTypeHeader = contentTypeHeader();
+        if (contentTypeHeader != null) {
+            return contentTypeHeader.charset();
+        } 
+        return UTF_8;
+    }
+
     private boolean hasGzipEncoding() {
         String encodingHeader = request.getHeader("Content-Encoding");
         return encodingHeader != null && encodingHeader.contains("gzip");
@@ -111,7 +126,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     @Override
     public String getBodyAsString() {
-        return stringFromBytes(getBody());
+        return stringFromBytes(getBody(), encodingFromContentTypeHeaderOrUtf8());
     }
 
     @Override
@@ -183,18 +198,19 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     @Override
     public Map<String, Cookie> getCookies() {
-        ImmutableMap.Builder<String, Cookie> builder = ImmutableMap.builder();
+        ImmutableMultimap.Builder<String, String> builder = ImmutableMultimap.builder();
 
-        for (javax.servlet.http.Cookie cookie :
-            firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0])) {
-            builder.put(cookie.getName(), convertCookie(cookie));
+        javax.servlet.http.Cookie[] cookies = firstNonNull(request.getCookies(), new javax.servlet.http.Cookie[0]);
+        for (javax.servlet.http.Cookie cookie: cookies) {
+            builder.put(cookie.getName(), cookie.getValue());
         }
 
-        return builder.build();
-    }
-
-    private static Cookie convertCookie(javax.servlet.http.Cookie servletCookie) {
-        return new Cookie(servletCookie.getValue());
+        return Maps.transformValues(builder.build().asMap(), new Function<Collection<String>, Cookie>() {
+            @Override
+            public Cookie apply(Collection<String> input) {
+                return new Cookie(null, ImmutableList.copyOf(input));
+            }
+        });
     }
 
     @Override
@@ -215,6 +231,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
 
         return false;
+    }
+
+    @Override
+    public Optional<Request> getOriginalRequest() {
+        Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
+        return Optional.fromNullable(originalRequest);
     }
 
     private boolean isJetty() {

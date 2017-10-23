@@ -101,6 +101,15 @@ public class ClasspathFileSourceTest {
         assertFalse("Expected not to exist", new ClasspathFileSource("not/exist").exists());
     }
 
+    @Test
+    public void failsSilentlyOnWrites() {
+        initForFileSystem();
+        classpathFileSource.deleteFile("one");
+        classpathFileSource.writeBinaryFile("any-bytes", new byte[] {});
+        classpathFileSource.writeTextFile("any-text", "things");
+        classpathFileSource.createIfNecessary();
+    }
+
     void initForJar() {
         classpathFileSource = new ClasspathFileSource("META-INF/maven/com.google.guava");
     }

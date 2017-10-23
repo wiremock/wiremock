@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.admin;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 
+import static com.github.tomakehurst.wiremock.http.RequestMethod.ANY;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class RequestSpec {
@@ -53,7 +54,7 @@ public class RequestSpec {
     }
 
     public boolean matches(RequestMethod method, String path) {
-        return this.method.equals(method) && uriTemplate.matches(path);
+        return (this.method.equals(ANY) || this.method.equals(method)) && uriTemplate.matches(path);
     }
 
     @Override

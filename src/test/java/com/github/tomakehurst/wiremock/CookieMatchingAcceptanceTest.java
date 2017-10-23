@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.google.common.collect.Iterables.getFirst;
 import static com.google.common.net.HttpHeaders.COOKIE;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -127,4 +126,19 @@ public class CookieMatchingAcceptanceTest extends AcceptanceTestBase {
         assertThat(requests.size(), is(1));
         assertThat(requests.get(0).getCookies().keySet(), hasItem("my_other_cookie"));
     }
+
+    @Test
+    public void matchesWhenRequiredCookieSentAsDuplicate() {
+        stubFor(get(urlEqualTo("/duplicate/cookie"))
+            .withCookie("my_cookie", containing("mycookievalue"))
+            .withCookie("my_other_cookie", equalTo("value-2"))
+            .willReturn(aResponse().withStatus(200)));
+
+        WireMockResponse response =
+            testClient.get("/duplicate/cookie",
+                withHeader(COOKIE, "my_cookie=xxx-mycookievalue-xxx; my_other_cookie=value-1; my_other_cookie=value-2"));
+
+        assertThat(response.statusCode(), is(200));
+    }
+
 }

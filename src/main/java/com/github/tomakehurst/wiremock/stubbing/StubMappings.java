@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Optional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface StubMappings {
@@ -33,4 +34,6 @@ public interface StubMappings {
 
     List<StubMapping> getAll();
 	Optional<StubMapping> get(UUID id);
+
+	List<Scenario> getAllScenarios();
 }

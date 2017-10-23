@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.admin.model;
 
 import java.util.LinkedHashMap;
-import java.util.UUID;
 
 public class PathParams extends LinkedHashMap<String, String> {
 

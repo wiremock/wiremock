@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
@@ -33,21 +34,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsByteArrayAndCloseStream;
-import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.OPTIONS;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.TRACE;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class ProxyResponseRenderer implements ResponseRenderer {
 
     private static final int MINUTES = 1000 * 60;
     private static final String TRANSFER_ENCODING = "transfer-encoding";
+    private static final String CONTENT_ENCODING = "content-encoding";
     private static final String CONTENT_LENGTH = "content-length";
     private static final String HOST_HEADER = "host";
 
@@ -101,7 +97,10 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     public static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		final RequestMethod method = response.getOriginalRequest().getMethod();
-		final String url = response.getProxyUrl();
+		String url = response.getProxyUrl();
+		if (url.endsWith("/")) {
+		   url = url.substring(0, url.length() - 1);
+		}
 		return HttpClientFactory.getHttpRequestFor(method, url);
 	}
 	
@@ -148,11 +147,26 @@ public class ProxyResponseRenderer implements ResponseRenderer {
         ContentType contentType = ContentType.create(contentTypeHeader.mimeTypePart(), contentTypeHeader.encodingPart().or("utf-8"));
 
         if (originalRequest.containsHeader(TRANSFER_ENCODING) &&
-                originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
-            return new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBody()), -1, contentType);
+            originalRequest.header(TRANSFER_ENCODING).firstValue().equals("chunked")) {
+            return applyGzipWrapperIfRequired(
+                originalRequest,
+                new InputStreamEntity(new ByteArrayInputStream(originalRequest.getBody()), -1, contentType)
+            );
         }
 
-        return new ByteArrayEntity(originalRequest.getBody());
+        return applyGzipWrapperIfRequired(
+            originalRequest,
+            new ByteArrayEntity(originalRequest.getBody())
+        );
+    }
+
+    private static HttpEntity applyGzipWrapperIfRequired(Request originalRequest, HttpEntity content) {
+        if (originalRequest.containsHeader(CONTENT_ENCODING) &&
+            originalRequest.header(CONTENT_ENCODING).firstValue().contains("gzip")) {
+            return new GzipCompressingEntity(content);
+        }
+
+        return content;
     }
 
 }
