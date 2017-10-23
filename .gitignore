@@ -29,6 +29,8 @@ build
 .settings
 .gradle
 **/target
+classes
+.gradletasknamecache
 
 # IDEA #
 #################

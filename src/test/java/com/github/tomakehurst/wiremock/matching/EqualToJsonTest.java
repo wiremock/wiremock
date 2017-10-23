@@ -400,4 +400,33 @@ public class EqualToJsonTest {
         assertThat(match.getDistance(), is(1.0));
     }
 
+    @Test
+    public void doesNotBreakWhenComparingNestedArraysOfDifferentSizes() {
+        String expected = "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
+        String actual = "{\"columns\": [{\"name\": \"x\",\"y\": 3},{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"agreementstatus\",\"b\": 2}]}";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+
+        assertFalse(match.isExactMatch());
+    }
+
+    @Test
+    public void doesNotBreakWhenComparingTopLevelArraysOfDifferentSizesWithCommonElements() {
+        String expected = "[    \n" +
+            "  { \"one\": 1 },  \n" +
+            "  { \"two\": 2 },  \n" +
+            "  { \"three\": 3 } \n" +
+            "]";
+        String actual = "[      \n" +
+            "  { \"zero\": 0 }, \n" +
+            "  { \"one\": 1 },  \n" +
+            "  { \"two\": 2 },  \n" +
+            "  { \"four\": 4 }  \n" +
+            "]";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+
+        assertFalse(match.isExactMatch());
+    }
+
 }

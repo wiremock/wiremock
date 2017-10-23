@@ -10,10 +10,12 @@ WireMock is distributed in two flavours - a standard JAR containing just
 WireMock, and a standalone fat JAR containing WireMock plus all its
 dependencies.
 
-The fat JAR's dependencies are shaded i.e. they are hidden in
+The standalone JAR's dependencies are shaded i.e. they are hidden in
 alternative packages. This allows WireMock to be used in projects with
 conflicting versions of its dependencies. The standalone JAR is also
 runnable (discussed in more detail below).
+
+**Currently it is recommended that you use the standalone JAR as a dependency with Spring Boot projects. This avoids a conflict over the Jetty version**
 
 ## Maven
 

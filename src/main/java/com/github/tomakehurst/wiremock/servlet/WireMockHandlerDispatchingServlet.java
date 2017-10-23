@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +30,7 @@ import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
@@ -115,6 +117,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             if (Thread.currentThread().isInterrupted()) {
                 return;
             }
+
+            httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
 
             try {
                 if (response.wasConfigured()) {

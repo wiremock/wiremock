@@ -47,7 +47,7 @@ public class WireMockClientAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = new WireMock(wireMockServer.port());
+		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(
@@ -68,7 +68,7 @@ public class WireMockClientAcceptanceTest {
 	
 	@Test
 	public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
-		WireMock wireMock = new WireMock(wireMockServer.port());
+		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(

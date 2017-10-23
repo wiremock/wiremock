@@ -9,16 +9,20 @@ description: Extensions, integrations, blog posts and videos about WireMock.
 Code, articles and videos related to WireMock from around the web.
 
 ## Integrations
+Mark Winteringham wrote a very handy Chrome extension to provide a UI over WireMock:<br>
+[http://www.mwtestconsultancy.co.uk/wiremock-chrome-extension/](http://www.mwtestconsultancy.co.uk/wiremock-chrome-extension/)
 
 Spring Contract Verifier (previously called Accurest) is a consumer driven contracts tool that generates WireMock stub mappings as
 examples for client testing.
-[http://codearte.github.io/accurest/](http://codearte.github.io/accurest/)
+[http://cloud.spring.io/spring-cloud-contract/](http://cloud.spring.io/spring-cloud-contract/)
 
 A Spring REST Docs integration for WireMock that generates WireMock stub mappings from your test cases:<br>
 [https://github.com/epages-de/restdocs-wiremock](https://github.com/epages-de/restdocs-wiremock)
 
 
 ## Extensions
+Simulate webhooks with this extension:<br>
+[https://github.com/wiremock/wiremock-webhooks-extension](https://github.com/wiremock/wiremock-webhooks-extension)
 
 Some folks at Open Table have written a response transformer for injecting data from the
 request body into the response:<br>
@@ -27,17 +31,27 @@ request body into the response:<br>
 In a similar vein, Adam York has written a response transformer utilising Velocity templates:<br>
 [https://github.com/adamyork/wiremock-velocity-transformer](https://github.com/adamyork/wiremock-velocity-transformer)
 
+Mason Malone has built an extension for matching requests based on the contents of JSON web tokens:<br>
+[https://github.com/MasonM/wiremock-jwt-extension](https://github.com/MasonM/wiremock-jwt-extension)
+
+Also from Mason, an extension for finding and removing unused stub mappings:<br>
+[https://github.com/MasonM/wiremock-unused-stubs-extension](https://github.com/MasonM/wiremock-unused-stubs-extension)
+
 
 ## Other languages
 
-Rowan Hill has written a PHP binding:<br>
+PHP client by Rowan Hill:<br>
 [https://github.com/rowanhill/wiremock-php](https://github.com/rowanhill/wiremock-php)
 
-Jeffres S. Morgan has written a Ruby wrapper:<br>
+Ruby wrapper by Jeffres S. Morgan:<br>
 [https://rubygems.org/gems/service_mock](https://rubygems.org/gems/service_mock)
 
-Tom Jankes has written a Groovy binding:<br>
+Groovy binding by Tom Jankes:<br>
 [https://github.com/tomjankes/wiremock-groovy](https://github.com/tomjankes/wiremock-groovy)
+
+Python client by Cody Lee:<br>
+[https://pypi.python.org/pypi/wiremock/1.1.1](https://pypi.python.org/pypi/wiremock/1.1.1)
+
 
 
 ## Articles
@@ -57,6 +71,15 @@ Bas Dijkstra kindly open sourced the content for the workshop he ran on WireMock
 [http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/](http://www.ontestautomation.com/open-sourcing-my-workshop-on-wiremock/)
 
 ## Videos
+
+Fluent and thorough live-coding demonstration of WireMock delivered by Sam Edwards at DevFest DC:<br>
+[https://youtu.be/x3MvZ8DFrpE](https://youtu.be/x3MvZ8DFrpE)
+
+Sebastian Daschner presents a step-by-step guide to running your acceptance tests in Kubernetes using WireMock:<br>
+[https://blog.sebastian-daschner.com/entries/acceptance_tests_wiremock_kubernetes](https://blog.sebastian-daschner.com/entries/acceptance_tests_wiremock_kubernetes)
+
+Interesting and detailed presentation by Lotte Johansen on testing microservices with WireMock at Norway's top online marketplace:<br>
+[https://www.youtube.com/watch?v=cmJfMnGK-r0](https://www.youtube.com/watch?v=cmJfMnGK-r0)
 
 Chris Batey did an excellent talk at Skillsmatter in London about building fault tolerant microservices. He showed some practical
 failure testing strategies using WireMock and Saboteur he'd used for real while working at Sky:<br>

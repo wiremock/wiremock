@@ -17,20 +17,15 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
-import com.github.tomakehurst.wiremock.admin.model.GetServeEventsResult;
-import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleServedStubResult;
-import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
-import com.github.tomakehurst.wiremock.extension.PostServeAction;
-import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -45,13 +40,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
 import static com.google.common.collect.FluentIterable.from;
 
 public class WireMockApp implements StubServer, Admin {
-    
+
     public static final String FILES_ROOT = "__files";
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
@@ -64,6 +60,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+    private final Recorder recorder;
 
     private Options options;
 
@@ -82,6 +79,7 @@ public class WireMockApp implements StubServer, Admin {
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();
     }
@@ -105,17 +103,21 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        recorder = new Recorder(this);
         loadDefaultMappings();
     }
 
     public AdminRequestHandler buildAdminRequestHandler() {
         AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
-            options.extensionsOfType(AdminApiExtension.class).values()
+            options.extensionsOfType(AdminApiExtension.class).values(),
+            options.getNotMatchedRenderer()
         );
         return new AdminRequestHandler(
             adminRoutes,
             this,
-            new BasicResponseRenderer()
+            new BasicResponseRenderer(),
+            options.getAdminAuthenticator(),
+            options.getHttpsRequiredForAdminApi()
         );
     }
 
@@ -151,7 +153,7 @@ public class WireMockApp implements StubServer, Admin {
     public void loadMappingsUsing(final MappingsLoader mappingsLoader) {
         mappingsLoader.loadMappingsInto(stubMappings);
     }
-    
+
     @Override
     public ServeEvent serveStubFor(Request request) {
         ServeEvent serveEvent = stubMappings.serveFor(request);
@@ -270,7 +272,7 @@ public class WireMockApp implements StubServer, Admin {
             return VerificationResult.withRequestJournalDisabled();
         }
     }
-    
+
     @Override
     public FindRequestsResult findRequestsMatching(RequestPattern requestPattern) {
         try {
@@ -286,9 +288,9 @@ public class WireMockApp implements StubServer, Admin {
         try {
             List<LoggedRequest> requests =
                 from(requestJournal.getAllServeEvents())
-                .filter(NOT_MATCHED)
-                .transform(TO_LOGGED_REQUEST)
-                .toList();
+                    .filter(NOT_MATCHED)
+                    .transform(TO_LOGGED_REQUEST)
+                    .toList();
             return FindRequestsResult.withRequests(requests);
         } catch (RequestJournalDisabledException e) {
             return FindRequestsResult.withRequestJournalDisabled();
@@ -300,18 +302,25 @@ public class WireMockApp implements StubServer, Admin {
         ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
         Iterable<ServeEvent> unmatchedServeEvents =
             from(requestJournal.getAllServeEvents())
-            .filter(new Predicate<ServeEvent>() {
-                @Override
-                public boolean apply(ServeEvent input) {
-                    return input.isNoExactMatch();
-                }
-            });
+                .filter(new Predicate<ServeEvent>() {
+                    @Override
+                    public boolean apply(ServeEvent input) {
+                        return input.isNoExactMatch();
+                    }
+                });
 
         for (ServeEvent serveEvent : unmatchedServeEvents) {
             listBuilder.addAll(nearMissCalculator.findNearestTo(serveEvent.getRequest()));
         }
 
         return new FindNearMissesResult(listBuilder.build());
+    }
+
+    @Override
+    public GetScenariosResult getAllScenarios() {
+        return new GetScenariosResult(
+            stubMappings.getAllScenarios()
+        );
     }
 
     @Override
@@ -334,8 +343,50 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public Options getOptions() {
+        return options;
+    }
+
+    @Override
     public void shutdownServer() {
         container.shutdown();
     }
 
+    public SnapshotRecordResult snapshotRecord() {
+        return snapshotRecord(RecordSpec.DEFAULTS);
+    }
+
+    @Override
+    public SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec) {
+        return snapshotRecord(spec.build());
+    }
+
+    public SnapshotRecordResult snapshotRecord(RecordSpec recordSpec) {
+        return recorder.takeSnapshot(getServeEvents().getServeEvents(), recordSpec);
+    }
+
+    @Override
+    public void startRecording(String targetBaseUrl) {
+        recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+    }
+
+    @Override
+    public void startRecording(RecordSpec recordSpec) {
+        recorder.startRecording(recordSpec);
+    }
+
+    @Override
+    public void startRecording(RecordSpecBuilder recordSpec) {
+        recorder.startRecording(recordSpec.build());
+    }
+
+    @Override
+    public SnapshotRecordResult stopRecording() {
+        return recorder.stopRecording();
+    }
+
+    @Override
+    public RecordingStatusResult getRecordingStatus() {
+        return new RecordingStatusResult(recorder.getStatus().name());
+    }
 }

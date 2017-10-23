@@ -233,4 +233,20 @@ public class MappingJsonSamples {
             "		\"base64Body\": \""+ BINARY_COMPRESSED_JSON_STRING + "\"	    \n" +
             "	}												                    \n" +
             "}													                    ";
+
+    public static final String MAPPING_REQUEST_FOR_NON_UTF8 =
+            "{                                                                                                                      \n" +
+            "   \"request\": {                                                                                      \n" +
+            "           \"method\": \"GET\",                                                                \n" +
+            "           \"url\": \"/test/nonutf8/\"                         \n" +
+            "   },                                                                                                                  \n" +
+            "   \"response\": {                                                                                     \n" +
+            "           \"status\": 200,                                                                            \n" +
+            "           \"headers\": {                                                    \n" +
+            "               \"Content-type\": \"text/plain; charset=GB2312\"      \n" +
+            "           },                                                    \n" +
+            "           \"body\": \"国家标准\"                       \n" +
+            "   }                                                                                          \n" +
+            "}\n";
+
 }

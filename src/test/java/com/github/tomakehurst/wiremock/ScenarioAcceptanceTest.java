@@ -16,13 +16,20 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.UUID;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.withName;
+import static com.google.common.collect.Iterables.find;
 import static java.net.HttpURLConnection.HTTP_OK;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ScenarioAcceptanceTest extends AcceptanceTestBase {
@@ -98,6 +105,109 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+	public void canGetAllScenarios() {
+	    stubFor(get("/scenarios/1")
+            .inScenario("scenario_one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("state_2")
+            .willReturn(ok("1:1")));
+
+        stubFor(get("/scenarios/2")
+            .inScenario("scenario_two")
+            .whenScenarioStateIs(STARTED)
+            .willReturn(ok("2:1")));
+
+        testClient.get("/scenarios/1");
+
+        List<Scenario> scenarios = getAllScenarios();
+
+        Scenario scenario1 = find(scenarios, withName("scenario_one"));
+        assertThat(scenario1.getId(), notNullValue(UUID.class));
+        assertThat(scenario1.getPossibleStates(), hasItems(STARTED, "state_2"));
+        assertThat(scenario1.getState(), is("state_2"));
+
+        Scenario scenario2 = find(scenarios, withName("scenario_two"));
+        assertThat(scenario2.getState(), is("Started"));
+    }
+
+    @Test
+    public void scenarioIsRemovedWhenLastMappingReferringToItIsRemoved() {
+	    final String NAME = "remove_this_scenario";
+
+        StubMapping stub1 = stubFor(get("/scenarios/22")
+            .inScenario(NAME)
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("state_2")
+            .willReturn(ok("1")));
+
+        StubMapping stub2 = stubFor(get("/scenarios/22")
+            .inScenario(NAME)
+            .whenScenarioStateIs("state_2")
+            .willSetStateTo("state_2")
+            .willReturn(ok("2")));
+
+        StubMapping stub3 = stubFor(get("/scenarios/22")
+            .inScenario(NAME)
+            .whenScenarioStateIs("state_2")
+            .willSetStateTo("state_3")
+            .willReturn(ok("3")));
+
+        assertThat(getAllScenarios().size(), is(1));
+
+        removeStub(stub1);
+        removeStub(stub2);
+        removeStub(stub3);
+
+        assertThat(getAllScenarios().size(), is(0));
+    }
+
+    @Test
+    public void scenarioIsRemovedWhenLastMappingReferringToHasItsScenarioNameChanged() {
+	    final UUID ID1 = UUID.randomUUID();
+	    final UUID ID2 = UUID.randomUUID();
+        final String OLD_NAME = "old_scenario";
+        final String NEW_NAME = "new_scenario";
+
+        stubFor(get("/scenarios/33")
+            .withId(ID1)
+            .inScenario(OLD_NAME)
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("state_2")
+            .willReturn(ok("1")));
+
+        stubFor(get("/scenarios/33")
+            .withId(ID2)
+            .inScenario(OLD_NAME)
+            .whenScenarioStateIs("state_2")
+            .willSetStateTo("state_2")
+            .willReturn(ok("2")));
+
+        assertThat(getAllScenarios().size(), is(1));
+        assertThat(getAllScenarios().get(0).getName(), is(OLD_NAME));
+
+        editStub(get("/scenarios/33")
+            .withId(ID1)
+            .inScenario(NEW_NAME)
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("state_2")
+            .willReturn(ok("1")));
+        editStub(get("/scenarios/33")
+            .withId(ID2)
+            .inScenario(NEW_NAME)
+            .whenScenarioStateIs("state_2")
+            .willSetStateTo("state_2")
+            .willReturn(ok("2")));
+
+        assertThat(getAllScenarios().size(), is(1));
+        assertThat(getAllScenarios().get(0).getName(), is(NEW_NAME));
+    }
+
+    @Test
+    public void returnsEmptyMapOnGetAllScenariosWhenThereAreNone() {
+        assertThat(getAllScenarios().size(), is(0));
+    }
+
+    @Test
     public void scenarioBuilderMethodsDoNotNeedToBeContiguous() {
         // This test has no assertions, but is here to ensure that the following compiles - i.e. that
         // whenScenarioStatesIs and willSetStateTo don't have to immediately follow inScenario() calls, but can have
@@ -112,4 +222,6 @@ public class ScenarioAcceptanceTest extends AcceptanceTestBase {
                 .atPriority(1)
                 .willSetStateTo("Next State");
     }
+
+
 }

@@ -18,15 +18,16 @@ package com.github.tomakehurst.wiremock.matching;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.collect.ImmutableMap;
+import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -99,6 +100,79 @@ public class MatchesXPathPatternTest {
     }
 
     @Test
+    public void matchesAgainstValuePatternWhenSingleElementReturnedFromXPath() {
+        String xml =
+            "<outer>\n" +
+            "    <inner>stuff</inner>\n" +
+            "</outer>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("//inner/text()", matching("[a-z]*"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
+    }
+
+    @Test
+    public void matchesAgainstValuePatternWhenMultipleElementsReturnedFromXPath() {
+        String xml =
+            "<outer>\n" +
+            "    <inner>stuffing</inner>\n" +
+            "    <inner>stuffed</inner>\n" +
+            "    <inner>stuff</inner>\n" +
+            "    <inner>stuffable</inner>\n" +
+            "</outer>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("//inner/text()", WireMock.equalTo("stuff"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
+    }
+
+    @Test
+    public void returnsTheMatchFromTheClosestElementWhenNoneMatchExactly() {
+        String xml =
+            "<outer>\n" +
+                "    <inner>stuffing</inner>\n" +
+                "    <inner>stuffed</inner>\n" +
+                "    <inner>stuffy</inner>\n" +
+                "    <inner>stuffable</inner>\n" +
+                "</outer>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("//inner/text()", WireMock.equalTo("stuff"));
+
+        assertThat(pattern.match(xml).getDistance(), closeTo(0.16, 0.01));
+    }
+
+    @Test
+    public void matchesAttributeAgainstValuePattern() {
+        String xml = "<outer inner=\"stuff\"/>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/outer/@inner", equalToIgnoreCase("Stuff"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
+    }
+
+    @Test
+    public void returnsAMaxDistanceNoMatchWhenNoNodesReturnedAndValuePatternIsPresent() {
+        String xml = "<outer inner=\"stuff\"/>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/outer/@nothing", equalToIgnoreCase("Stuff"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(false));
+        assertThat(pattern.match(xml).getDistance(), is(1.0));
+    }
+
+    @Test
+    public void matchesComplexElementAgainstValuePattern() {
+        String xml =
+            "<outer>\n" +
+            "    <inner>stuff</inner>\n" +
+            "</outer>";
+
+        StringValuePattern pattern = WireMock.matchingXPath("/outer/inner", equalToXml("<inner>stuff</inner>"));
+
+        assertThat(pattern.match(xml).isExactMatch(), is(true));
+    }
+
+    @Test
     public void deserialisesCorrectlyWithoutNamespaces() {
         String json = "{ \"matchesXPath\" : \"/stuff:outer/stuff:inner[.=111]\" }";
 
@@ -122,6 +196,23 @@ public class MatchesXPathPatternTest {
 
         assertThat(pattern.getXPathNamespaces(), hasEntry("one", "http://one.com/"));
         assertThat(pattern.getXPathNamespaces(), hasEntry("two", "http://two.com/"));
+    }
+
+    @Test
+    public void deserialisesCorrectlyWithValuePattern() {
+        String json =
+            "{                                      \n" +
+            "    \"matchesXPath\": {                 \n" +
+            "        \"expression\": \"/thing\",     \n" +
+            "        \"matches\": \"[0-9]*\"         \n" +
+            "    }                                   \n" +
+            "}";
+
+        MatchesXPathPattern pattern = Json.read(json, MatchesXPathPattern.class);
+
+        assertThat(pattern.getValuePattern(), instanceOf(RegexPattern.class));
+        assertThat(pattern.getExpected(), is("/thing"));
+        assertThat(pattern.getValuePattern().getExpected(), is("[0-9]*"));
     }
 
     @Test
@@ -152,6 +243,18 @@ public class MatchesXPathPatternTest {
         JSONAssert.assertEquals(
             "{ \"matchesXPath\" : \"//*\" }",
             json, false);
+    }
+
+    @Test
+    public void serialisesCorrectlyWithValuePattern() {
+        assertThat(Json.write(WireMock.matchingXPath("/thing", containing("123"))), equalToJson(
+            "{                                      \n" +
+                "    \"matchesXPath\": {                 \n" +
+                "        \"expression\": \"/thing\",     \n" +
+                "        \"contains\": \"123\"           \n" +
+                "    }                                   \n" +
+                "}"
+        ));
     }
 
     @Test

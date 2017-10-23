@@ -57,7 +57,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
     @Override
     protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
-        requestJournal.requestReceived(serveEvent.complete(response));
+        requestJournal.requestReceived(serveEvent);
     }
 
     @Override

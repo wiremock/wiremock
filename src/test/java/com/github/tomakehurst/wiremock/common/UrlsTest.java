@@ -51,4 +51,29 @@ public class UrlsTest {
         assertThat(params.get("param1").isSingleValued(), is(false));
         assertThat(params.get("param1").values(), hasItems("1", "2", "3"));
     }
+
+    @Test
+    public void doesNotAttemptToDoubleDecodeSplitQueryString() {
+        URI url = URI.create("/thing?q=a%25b");
+        Map<String, QueryParameter> query = Urls.splitQuery(url);
+        assertThat(query.get("q").firstValue(), is("a%b"));
+    }
+
+    @Test
+    public void returnsEmptyStringForEmptyUrlPathParts() {
+        assertThat(Urls.urlToPathParts(URI.create("/")), is(""));
+        assertThat(Urls.urlToPathParts(URI.create("http://www.wiremock.org/")), is(""));
+    }
+
+    @Test
+    public void returnsNonDelimitedStringForUrlWithOnePathPart() {
+        String pathParts = Urls.urlToPathParts(URI.create("/foo?param=value"));
+        assertThat(pathParts, is("foo"));
+    }
+
+    @Test
+    public void returnsDelimitedStringForUrlWithTwoPathParts() {
+        String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/?param=value"));
+        assertThat(pathParts, is("foo-bar"));
+    }
 }

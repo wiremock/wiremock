@@ -22,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
@@ -32,7 +33,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
@@ -41,6 +45,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
+import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
+import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -62,7 +68,7 @@ public class ProxyAcceptanceTest {
 	void init(WireMockConfiguration proxyingServiceOptions) {
 		targetService = new WireMockServer(wireMockConfig().dynamicPort().dynamicHttpsPort());
 		targetService.start();
-		targetServiceAdmin = new WireMock("localhost", targetService.port());
+		targetServiceAdmin = WireMock.create().host("localhost").port(targetService.port()).build();
 
         targetServiceBaseUrl = "http://localhost:" + targetService.port();
         targetServiceBaseHttpsUrl = "https://localhost:" + targetService.httpsPort();
@@ -70,7 +76,7 @@ public class ProxyAcceptanceTest {
         proxyingServiceOptions.dynamicPort();
         proxyingService = new WireMockServer(proxyingServiceOptions);
         proxyingService.start();
-        proxyingServiceAdmin = new WireMock(proxyingService.port());
+        proxyingServiceAdmin = WireMock.create().port(proxyingService.port()).build();
         testClient = new WireMockTestClient(proxyingService.port());
 
         WireMock.configureFor(targetService.port());
@@ -366,6 +372,34 @@ public class ProxyAcceptanceTest {
         LoggedRequest lastRequest = getLast(targetServiceAdmin.find(getRequestedFor(urlEqualTo("/multi-value-header"))));
 
         assertThat(lastRequest.header("Accept").values(), hasItems("accept1", "accept2"));
+    }
+
+    @Test
+    public void maintainsGZippedRequest() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(post("/gzipped").willReturn(aResponse().withStatus(201)));
+        proxyingServiceAdmin.register(post("/gzipped").willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        HttpEntity gzippedBody = new GzipCompressingEntity(new StringEntity("gzipped body", TEXT_PLAIN));
+        testClient.post("/gzipped", gzippedBody);
+
+        targetServiceAdmin.verifyThat(postRequestedFor(urlEqualTo("/gzipped"))
+            .withHeader(CONTENT_ENCODING, containing("gzip"))
+            .withRequestBody(equalTo("gzipped body")));
+    }
+
+    @Test
+    public void removesTrailingSlashFromUrlBeforeForwarding() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/slashes").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse response = testClient.get("/slashes/");
+        assertThat(response.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/slashes")));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

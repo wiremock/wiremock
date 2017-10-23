@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.http.Cookie;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 

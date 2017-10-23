@@ -99,9 +99,9 @@ public class StubMappingJsonRecorder implements RequestListener {
         String fileId = idGenerator.generate();
         byte[] body = bodyDecompressedIfRequired(response);
 
-        String mappingFileName = UniqueFilenameGenerator.generate(request, "mapping", fileId);
+        String mappingFileName = UniqueFilenameGenerator.generate(request.getUrl(), "mapping", fileId);
         String bodyFileName = UniqueFilenameGenerator.generate(
-            request,
+            request.getUrl(),
             "body",
             fileId,
             ContentTypes.determineFileExtension(
@@ -144,7 +144,7 @@ public class StubMappingJsonRecorder implements RequestListener {
     private boolean requestNotAlreadyReceived(RequestPattern requestPattern) {
         VerificationResult verificationResult = admin.countRequestsMatching(requestPattern);
         verificationResult.assertRequestJournalEnabled();
-        return (verificationResult.getCount() <= 1);
+        return (verificationResult.getCount() < 1);
     }
 
     public void setIdGenerator(IdGenerator idGenerator) {

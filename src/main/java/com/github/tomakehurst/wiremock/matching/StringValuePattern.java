@@ -25,14 +25,12 @@ import com.google.common.collect.FluentIterable;
 import java.lang.reflect.Constructor;
 
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
-public abstract class StringValuePattern implements NamedValueMatcher<String> {
+public abstract class StringValuePattern extends ContentPattern<String> {
 
     public static final AbsentPattern ABSENT = new AbsentPattern(null);
 
-    protected final String expectedValue;
-
     public StringValuePattern(String expectedValue) {
-        this.expectedValue = expectedValue;
+        super(expectedValue);
     }
 
     @JsonIgnore
@@ -49,11 +47,6 @@ public abstract class StringValuePattern implements NamedValueMatcher<String> {
         return this == ABSENT;
     }
 
-    @JsonIgnore
-    public String getValue() {
-        return expectedValue;
-    }
-
     @Override
     public String toString() {
         return getName() + " " + getValue();
@@ -61,7 +54,7 @@ public abstract class StringValuePattern implements NamedValueMatcher<String> {
 
     public final String getName() {
         Constructor<?> constructor =
-            FluentIterable.of(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
+            FluentIterable.from(this.getClass().getDeclaredConstructors()).firstMatch(new Predicate<Constructor<?>>() {
             @Override
             public boolean apply(Constructor<?> input) {
                 return (input.getParameterAnnotations().length > 0 &&

@@ -17,8 +17,8 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -27,10 +27,8 @@ import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -40,14 +38,17 @@ import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PATCH;
 
 public class HttpClientFactory {
 
     public static final int DEFAULT_MAX_CONNECTIONS = 50;
+    public static final int DEFAULT_TIMEOUT = 30000;
 
     public static CloseableHttpClient createClient(
-            int maxConnections, int timeoutMilliseconds, ProxySettings proxySettings, KeyStoreSettings trustStoreSettings) {
+            int maxConnections,
+            int timeoutMilliseconds,
+            ProxySettings proxySettings,
+            KeyStoreSettings trustStoreSettings) {
 
         HttpClientBuilder builder = HttpClientBuilder.create()
                 .disableAuthCaching()
@@ -56,6 +57,7 @@ public class HttpClientFactory {
                 .disableRedirectHandling()
                 .disableContentCompression()
                 .setMaxConnTotal(maxConnections)
+                .setDefaultRequestConfig(RequestConfig.custom().setStaleConnectionCheckEnabled(true).build())
                 .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(timeoutMilliseconds).build())
                 .useSystemProperties()
                 .setHostnameVerifier(new AllowAllHostnameVerifier());
@@ -108,9 +110,13 @@ public class HttpClientFactory {
 		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
 	}
 
-	public static CloseableHttpClient createClient() {
-		return createClient(30000);
-	}
+    public static CloseableHttpClient createClient(ProxySettings proxySettings) {
+        return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE);
+    }
+
+    public static CloseableHttpClient createClient() {
+      return createClient(DEFAULT_TIMEOUT);
+    }
 
     public static HttpUriRequest getHttpRequestFor(RequestMethod method, String url) {
         notifier().info("Proxying: " + method + " " + url);

@@ -1,0 +1,11 @@
+{
+    "type": "object",
+    "properties": {
+        "scenarios": {
+            "type": "array",
+            "items": {
+                "$ref": "scenario.schema.json"
+            }
+        }
+    }
+}

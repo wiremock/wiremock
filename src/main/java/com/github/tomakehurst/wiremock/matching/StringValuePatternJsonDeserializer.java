@@ -25,6 +25,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -34,6 +36,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.tryFind;
+import static com.google.common.collect.Iterators.find;
 import static java.util.Arrays.asList;
 
 public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringValuePattern> {
@@ -59,16 +62,30 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             return StringValuePattern.ABSENT;
         }
 
+        return buildStringValuePattern(rootNode);
+    }
+
+    public StringValuePattern buildStringValuePattern(JsonNode rootNode) throws JsonMappingException {
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
+        } else if (patternClass.equals(MatchesJsonPathPattern.class)) {
+            return deserialiseMatchesJsonPathPattern(rootNode);
         } else if (patternClass.equals(MatchesXPathPattern.class)) {
             return deserialiseMatchesXPathPattern(rootNode);
+        } else if (patternClass.equals(EqualToPattern.class)) {
+            return deserializeEqualTo(rootNode);
         }
 
         Constructor<? extends StringValuePattern> constructor = findConstructor(patternClass);
 
-        Map.Entry<String, JsonNode> entry = rootNode.fields().next();
+        Map.Entry<String, JsonNode> entry = find(rootNode.fields(), new Predicate<Map.Entry<String, JsonNode>>() {
+            @Override
+            public boolean apply(Map.Entry<String, JsonNode> input) {
+                return PATTERNS.keySet().contains(input.getKey());
+            }
+        });
+
         String operand = entry.getValue().textValue();
         try {
             return constructor.newInstance(operand);
@@ -77,16 +94,48 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         }
     }
 
+    private EqualToPattern deserializeEqualTo(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("equalTo")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        String operand = rootNode.findValue("equalTo").textValue();
+        Boolean ignoreCase = fromNullable(rootNode.findValue("caseInsensitive"));
+
+        return new EqualToPattern(operand, ignoreCase);
+    }
+
     private EqualToJsonPattern deserializeEqualToJson(JsonNode rootNode) throws JsonMappingException {
         if (!rootNode.has("equalToJson")) {
             throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
         }
 
         String operand = rootNode.findValue("equalToJson").textValue();
-        boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
-        boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
+
+        Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
+        Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
         return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+    }
+
+    private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("matchesJsonPath")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
+        }
+
+        JsonNode outerPatternNode = rootNode.findValue("matchesJsonPath");
+        if (outerPatternNode.isTextual()) {
+            return new MatchesJsonPathPattern(outerPatternNode.textValue());
+        }
+
+        if (!outerPatternNode.has("expression")) {
+            throw new JsonMappingException("expression is required in the advanced matchesJsonPath form");
+        }
+
+        String expression = outerPatternNode.findValue("expression").textValue();
+        StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
+
+        return new MatchesJsonPathPattern(expression, valuePattern);
     }
 
     private MatchesXPathPattern deserialiseMatchesXPathPattern(JsonNode rootNode) throws JsonMappingException {
@@ -94,14 +143,25 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
         }
 
-        String operand = rootNode.findValue("matchesXPath").textValue();
         JsonNode namespacesNode = rootNode.findValue("xPathNamespaces");
 
         Map<String, String> namespaces = namespacesNode != null ?
             toNamespaceMap(namespacesNode) :
             Collections.<String, String>emptyMap() ;
 
-        return new MatchesXPathPattern(operand, namespaces);
+        JsonNode outerPatternNode = rootNode.findValue("matchesXPath");
+        if (outerPatternNode.isTextual()) {
+            return new MatchesXPathPattern(outerPatternNode.textValue(), namespaces);
+        }
+
+        if (!outerPatternNode.has("expression")) {
+            throw new JsonMappingException("expression is required in the advanced matchesXPath form");
+        }
+
+        String expression = outerPatternNode.findValue("expression").textValue();
+        StringValuePattern valuePattern = buildStringValuePattern(outerPatternNode);
+
+        return new MatchesXPathPattern(expression, namespaces, valuePattern);
     }
 
     private static Map<String, String> toNamespaceMap(JsonNode namespacesNode) {
@@ -114,8 +174,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         return builder.build();
     }
 
-    private static boolean fromNullable(JsonNode node) {
-        return node != null && node.asBoolean();
+    private static Boolean fromNullable(JsonNode node) {
+        return node == null ? null : node.asBoolean();
     }
 
     @SuppressWarnings("unchecked")

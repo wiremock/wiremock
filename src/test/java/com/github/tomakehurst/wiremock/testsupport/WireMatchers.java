@@ -17,11 +17,15 @@ package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.matching.EqualToXmlPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -29,6 +33,10 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.ComparisonControllers;
+import org.xmlunit.diff.Diff;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +47,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.*;
 import static java.util.Arrays.asList;
@@ -86,6 +95,27 @@ public class WireMatchers {
 			
 		};
 	}
+
+	public static Matcher<String> equalToXml(final String expected) {
+	    return new TypeSafeMatcher<String>() {
+            @Override
+            protected boolean matchesSafely(String value) {
+                Diff diff = DiffBuilder.compare(Input.from(expected))
+                    .withTest(value)
+                    .withComparisonController(ComparisonControllers.StopWhenDifferent)
+                    .ignoreWhitespace()
+                    .ignoreComments()
+                    .build();
+
+                return !diff.hasDifferences();
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Expected:\n" + expected);
+            }
+        };
+    }
 
     public static Matcher<String> matches(final String regex) {
         return new TypeSafeMatcher<String>() {
@@ -279,4 +309,61 @@ public class WireMatchers {
         }
     }
 
+    public static Predicate<StubMapping> withUrl(final String url) {
+        return new Predicate<StubMapping>() {
+            @Override
+            public boolean apply(StubMapping input) {
+                return url.equals(input.getRequest().getUrl());
+            }
+        };
+    }
+
+    public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final String url) {
+        return stubMappingWithUrl(urlEqualTo(url));
+    }
+
+    public static TypeSafeDiagnosingMatcher<StubMapping> stubMappingWithUrl(final UrlPattern urlPattern) {
+        return new TypeSafeDiagnosingMatcher<StubMapping>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub mapping with a request URL matching " + urlPattern);
+            }
+
+            @Override
+            protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
+                return urlPattern.match(item.getRequest().getUrl()).isExactMatch();
+            }
+        };
+    }
+
+    public static ServeEvent findServeEventWithUrl(List<ServeEvent> serveEvents, final String url) {
+        return find(serveEvents, new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent input) {
+                return url.equals(input.getRequest().getUrl());
+            }
+        });
+    }
+
+    public static StubMapping findMappingWithUrl(List<StubMapping> stubMappings, final String url) {
+        return find(stubMappings, withUrl(url));
+    }
+
+    public static List<StubMapping> findMappingsWithUrl(List<StubMapping> stubMappings, final String url) {
+        return ImmutableList.copyOf(filter(stubMappings, withUrl(url)));
+    }
+
+    public static TypeSafeDiagnosingMatcher<StubMapping> isInAScenario() {
+        return new TypeSafeDiagnosingMatcher<StubMapping>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub mapping with a scenario name");
+            }
+
+            @Override
+            protected boolean matchesSafely(StubMapping item, Description mismatchDescription) {
+                return item.getScenarioName() != null;
+            }
+        };
+    }
 }

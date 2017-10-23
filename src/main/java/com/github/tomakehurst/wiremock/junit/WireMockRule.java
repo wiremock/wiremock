@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Options;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import org.junit.rules.MethodRule;
 import org.junit.rules.TestRule;
@@ -32,15 +33,15 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 
 public class WireMockRule extends WireMockServer implements MethodRule, TestRule {
 
-    private final boolean failOnUnmatchedStubs;
+    private final boolean failOnUnmatchedRequests;
 
     public WireMockRule(Options options) {
         this(options, true);
     }
 
-    public WireMockRule(Options options, boolean failOnUnmatchedStubs) {
+    public WireMockRule(Options options, boolean failOnUnmatchedRequests) {
         super(options);
-        this.failOnUnmatchedStubs = failOnUnmatchedStubs;
+        this.failOnUnmatchedRequests = failOnUnmatchedRequests;
     }
 
     public WireMockRule(int port) {
@@ -81,10 +82,15 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
 	}
 
     private void checkForUnmatchedRequests() {
-        if (failOnUnmatchedStubs) {
-            List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
-            if (!nearMisses.isEmpty()) {
-                throw VerificationException.forUnmatchedRequests(nearMisses);
+        if (failOnUnmatchedRequests) {
+            List<LoggedRequest> unmatchedRequests = findAllUnmatchedRequests();
+            if (!unmatchedRequests.isEmpty()) {
+                List<NearMiss> nearMisses = findNearMissesForAllUnmatchedRequests();
+                if (nearMisses.isEmpty()) {
+                    throw VerificationException.forUnmatchedRequests(unmatchedRequests);
+                } else {
+                    throw VerificationException.forUnmatchedNearMisses(nearMisses);
+                }
             }
         }
     }

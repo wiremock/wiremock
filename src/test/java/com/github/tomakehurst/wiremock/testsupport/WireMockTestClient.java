@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.testsupport;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -47,6 +46,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.apache.http.entity.ContentType.APPLICATION_XML;
 
 public class WireMockTestClient {
 
@@ -56,6 +56,7 @@ public class WireMockTestClient {
     private static final String LOCAL_WIREMOCK_EDIT_RESPONSE_URL = "http://%s:%d/__admin/mappings/edit";
     private static final String LOCAL_WIREMOCK_RESET_URL = "http://%s:%d/__admin/reset";
     private static final String LOCAL_WIREMOCK_RESET_DEFAULT_MAPPINS_URL = "http://%s:%d/__admin/mappings/reset";
+    private static final String LOCAL_WIREMOCK_SNAPSHOT_PATH = "/__admin/recordings/snapshot";
 
     private int port;
     private String address;
@@ -165,6 +166,12 @@ public class WireMockTestClient {
         return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
+    public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(new StringEntity(body, APPLICATION_XML));
+        return executeMethodAndConvertExceptions(httpPost, headers);
+    }
+
     public WireMockResponse patchWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
         return patch(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
     }
@@ -186,7 +193,11 @@ public class WireMockTestClient {
     }
 
     public void addResponse(String responseSpecJson) {
-        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
+        addResponse(responseSpecJson, "utf-8");
+    }
+
+    public void addResponse(String responseSpecJson, String charset) {
+        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson, charset);
         if (status != HTTP_CREATED) {
             throw new RuntimeException("Returned status code was " + status);
         }
@@ -206,11 +217,23 @@ public class WireMockTestClient {
         }
     }
 
+    public String snapshot(String snapshotSpecJson) {
+        WireMockResponse response = postJson(LOCAL_WIREMOCK_SNAPSHOT_PATH, snapshotSpecJson);
+        if (response.statusCode() != HTTP_OK) {
+            throw new RuntimeException("Returned status code was " + response.statusCode());
+        }
+        return response.content();
+    }
+
     private int postJsonAndReturnStatus(String url, String json) {
+        return postJsonAndReturnStatus(url, json, "utf-8");
+    }
+
+    private int postJsonAndReturnStatus(String url, String json, String charset) {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), "utf-8")));
+                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
             }
             HttpResponse httpResponse = httpClient().execute(post);
             return httpResponse.getStatusLine().getStatusCode();

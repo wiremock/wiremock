@@ -17,14 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -301,9 +298,10 @@ public class AdminApiTest extends AcceptanceTestBase {
     @Test
     public void createStubMappingReturnsTheCreatedMapping() {
         WireMockResponse response = testClient.postJson("/__admin/mappings",
-            "{                                  \n" +
+            "{                                \n" +
+                "    \"name\": \"Teapot putter\",   \n" +
                 "    \"request\": {                 \n" +
-                "        \"method\": \"GET\",       \n" +
+                "        \"method\": \"PUT\",       \n" +
                 "        \"url\": \"/put/this\"     \n" +
                 "    },                             \n" +
                 "    \"response\": {                \n" +
@@ -316,6 +314,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.firstHeader("Content-Type"), is("application/json"));
         String body = response.content();
         JsonAssertion.assertThat(body).field("id").matches("[a-z0-9\\-]{36}");
+        JsonAssertion.assertThat(body).field("name").isEqualTo("Teapot putter");
     }
 
     @Test
