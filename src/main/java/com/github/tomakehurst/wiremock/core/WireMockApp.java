@@ -78,7 +78,12 @@ public class WireMockApp implements StubServer, Admin {
             options.extensionsOfType(RequestMatcherExtension.class),
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        if (!options.reportNearMissDisabled()) {
+          nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        }
+        else {
+          nearMissCalculator = new NullNearMissCalculator();
+        }
         recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();
@@ -164,12 +169,7 @@ public class WireMockApp implements StubServer, Admin {
                 return ServeEvent.of(loggedRequest, ResponseDefinition.browserProxy(request));
             }
 
-            if (options.reportNearMissDisabled()) {
-                logUnmatchedRequestWithoutNearMisses(loggedRequest);
-            }
-            else {
-                logUnmatchedRequest(loggedRequest);
-            }
+            logUnmatchedRequest(loggedRequest);
         }
 
         return serveEvent;
@@ -182,10 +182,6 @@ public class WireMockApp implements StubServer, Admin {
             message += "\nClosest match:\n" + nearest.get(0).getStubMapping().getRequest();
         }
         notifier().error(message);
-    }
-
-    private void logUnmatchedRequestWithoutNearMisses(LoggedRequest request) {
-        notifier().error("Request was not matched:\n" + request);
     }
 
     @Override
