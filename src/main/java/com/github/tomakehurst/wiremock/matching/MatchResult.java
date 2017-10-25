@@ -112,10 +112,6 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         };
     }
 
-    public static MatchResult aggregate(MatchResult... matches) {
-        return aggregate(asList(matches));
-    }
-
     @SafeVarargs
     public static MatchResult aggregateSupplier(Supplier<MatchResult>... matches) {
         return aggregateSupplier(asList(matches));

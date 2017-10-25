@@ -307,13 +307,13 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-<<<<<<< HEAD
     public WireMockConfiguration reportNearMissesDisabled() {
         this.reportNearMissDisabled = true;
-=======
+        return this;
+    }
+    
     public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
         this.notMatchedRenderer = notMatchedRenderer;
->>>>>>> master
         return this;
     }
 
