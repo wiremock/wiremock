@@ -20,11 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-<<<<<<< HEAD
 import com.google.common.base.Supplier;
-=======
 import com.google.common.collect.Lists;
->>>>>>> master
 
 import java.util.List;
 
@@ -88,13 +85,13 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         };
     }
 
-    public static MatchResult aggregateSupplier(final List<Supplier<MatchResult>> matchResultsSupplier) {
+    public static MatchResult aggregateSupplier(final List<Supplier<WeightedMatchResult>> matchResultsSupplier) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
-                return all(matchResultsSupplier, new Predicate<Supplier<MatchResult>>() {
+                return all(matchResultsSupplier, new Predicate<Supplier<WeightedMatchResult>>() {
                     @Override
-                    public boolean apply(Supplier<MatchResult> input) {
+                    public boolean apply(Supplier<WeightedMatchResult> input) {
                         return input.get().isExactMatch();
                     }
                 });
@@ -103,17 +100,20 @@ public abstract class MatchResult implements Comparable<MatchResult> {
             @Override
             public double getDistance() {
                 double totalDistance = 0;
-                for (Supplier<MatchResult> matchResultSupplier : matchResultsSupplier) {
-                    totalDistance += matchResultSupplier.get().getDistance();
+                double sizeWithWeighting = 0;
+                for (Supplier<WeightedMatchResult> matchResultSupplier: matchResultsSupplier) {
+                    WeightedMatchResult weightedMatchResult = matchResultSupplier.get();
+                    totalDistance += weightedMatchResult.getDistance();
+                    sizeWithWeighting += weightedMatchResult.getWeighting();
                 }
 
-                return (totalDistance / matchResultsSupplier.size());
+                return (totalDistance / sizeWithWeighting);
             }
         };
     }
 
     @SafeVarargs
-    public static MatchResult aggregateSupplier(Supplier<MatchResult>... matches) {
+    public static MatchResult aggregateWeightedSupplier(Supplier<WeightedMatchResult>... matches) {
         return aggregateSupplier(asList(matches));
     }
     
