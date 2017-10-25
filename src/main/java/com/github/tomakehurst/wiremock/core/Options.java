@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -56,4 +57,5 @@ public interface Options {
     Authenticator getAdminAuthenticator();
     boolean getHttpsRequiredForAdminApi();
     boolean reportNearMissDisabled();
+    NotMatchedRenderer getNotMatchedRenderer();
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.verification;
+package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Xml;
@@ -23,59 +23,70 @@ import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 
 public class Diff {
 
+    private final String stubMappingName;
     private final RequestPattern requestPattern;
     private final Request request;
 
     public Diff(RequestPattern expected, Request actual) {
         this.requestPattern = expected;
         this.request = actual;
+        this.stubMappingName = null;
+    }
+
+    public Diff(StubMapping expected, Request actual) {
+        this.requestPattern = expected.getRequest();
+        this.request = actual;
+        this.stubMappingName = expected.getName();
     }
 
     @Override
     public String toString() {
-        if (requestPattern.hasCustomMatcher()) {
-            return "(Request pattern had a custom matcher so no diff can be shown)";
-        }
+        return new JUnitStyleDiffRenderer().render(this);
+    }
 
-        ImmutableList.Builder<Section<?>> builder = ImmutableList.builder();
+    public List<DiffLine<?>> getLines() {
+        ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
-        Section<RequestMethod> methodSection = new Section<>(requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
+        DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 
-        Section<String> urlSection = new Section<>(requestPattern.getUrlMatcher(),
+        DiffLine<String> urlSection = new DiffLine<>("URL", requestPattern.getUrlMatcher(),
             request.getUrl(),
             requestPattern.getUrlMatcher().getExpected());
         builder.add(urlSection);
 
-        if (methodSection.shouldBeIncluded() || urlSection.shouldBeIncluded()) {
-            builder.add(SPACER);
-        }
+        builder.add(SPACER);
 
         boolean anyHeaderSections = false;
         Map<String, MultiValuePattern> headerPatterns = requestPattern.combineBasicAuthAndOtherHeaders();
         if (headerPatterns != null && !headerPatterns.isEmpty()) {
+            anyHeaderSections = true;
             for (String key : headerPatterns.keySet()) {
                 HttpHeader header = request.header(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
-                String printedPatternValue = header.key() + ": " + headerPattern.getExpected();
-                Section<MultiValue> section = new Section<>(headerPattern, header, printedPatternValue);
-                if (section.shouldBeIncluded()) {
-                    anyHeaderSections = true;
-                }
+
+                String operator = generateOperatorString(headerPattern.getValuePattern(), "");
+                String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
+
+                DiffLine<MultiValue> section = new DiffLine<>("Header", headerPattern, header, printedPatternValue);
                 builder.add(section);
             }
         }
@@ -91,10 +102,13 @@ public class Diff {
                 String key = entry.getKey();
                 StringValuePattern pattern = entry.getValue();
                 Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
-                Section<String> section = new Section<>(
+
+                String operator = generateOperatorString(pattern, "=");
+                DiffLine<String> section = new DiffLine<>(
+                    "Cookie",
                     pattern,
                     cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",
-                    "Cookie: " + key + "=" + pattern.getValue()
+                    "Cookie: " + key + operator + pattern.getValue()
                 );
                 builder.add(section);
                 anyCookieSections = true;
@@ -111,23 +125,24 @@ public class Diff {
                 String body = formatIfJsonOrXml(pattern);
                 if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
                     StringValuePattern stringValuePattern = (StringValuePattern) pattern;
-                    builder.add(new Section<>(stringValuePattern, body, pattern.getExpected()));
+                    builder.add(new DiffLine<>("Body", stringValuePattern, body, pattern.getExpected()));
                 } else {
                     BinaryEqualToPattern nonStringPattern = (BinaryEqualToPattern) pattern;
-                    builder.add(new Section<>(nonStringPattern, body.getBytes(), pattern.getExpected()));
+                    builder.add(new DiffLine<>("Body", nonStringPattern, body.getBytes(), pattern.getExpected()));
                 }
 
             }
         }
 
-        List<Section<?>> sections = builder.build();
+        return builder.build();
+    }
 
-        String expected = Joiner.on("\n")
-            .join(from(sections).transform(EXPECTED));
-        String actual = Joiner.on("\n")
-            .join(from(sections).transform(ACTUAL));
+    private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {
+        return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
+    }
 
-        return sections.isEmpty() ? "" : junitStyleDiffMessage(expected, actual);
+    public String getStubMappingName() {
+        return stubMappingName;
     }
 
     private String formatIfJsonOrXml(ContentPattern<?> pattern) {
@@ -144,49 +159,15 @@ public class Diff {
         }
     }
 
-    public static String junitStyleDiffMessage(Object expected, Object actual) {
-        return String.format(" expected:<\n%s> but was:<\n%s>", expected, actual);
+    private static boolean isAnEqualToPattern(ContentPattern<?> pattern) {
+        return pattern instanceof EqualToPattern ||
+            pattern instanceof EqualToJsonPattern ||
+            pattern instanceof EqualToXmlPattern ||
+            pattern instanceof BinaryEqualToPattern;
     }
 
-    final Section<String> SPACER = new Section<String>(new EqualToPattern(""), "", "");
 
-    private class Section<V> {
-        private final NamedValueMatcher<V> pattern;
-        private final V value;
-        private final String printedPatternValue;
-
-        public Section(NamedValueMatcher<V> pattern, V value, String printedPatternValue) {
-            this.pattern = pattern;
-            this.value = value;
-            this.printedPatternValue = printedPatternValue;
-        }
-
-        public Object getExpected() {
-            return shouldBeIncluded() ?
-                printedPatternValue :
-                value;
-        }
-
-        public Object getActual() {
-            return value;
-        }
-
-        private boolean shouldBeIncluded() {
-            return !pattern.match(value).isExactMatch();
-        }
+    public boolean hasCustomMatcher() {
+        return requestPattern.hasCustomMatcher();
     }
-
-    private static Function<Section<?>, Object> EXPECTED = new Function<Section<?>, Object>() {
-        @Override
-        public Object apply(Section<?> input) {
-            return input.getExpected();
-        }
-    };
-
-    private static Function<Section<?>, Object> ACTUAL = new Function<Section<?>, Object>() {
-        @Override
-        public Object apply(Section<?> input) {
-            return input.getActual();
-        }
-    };
 }

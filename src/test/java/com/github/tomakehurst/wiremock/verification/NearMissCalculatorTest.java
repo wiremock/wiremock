@@ -15,9 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.WeightedMatchResult;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
+import com.google.common.base.Function;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
@@ -25,17 +33,13 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static com.github.tomakehurst.wiremock.verification.NearMissCalculator.NEAR_MISS_COUNT;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static com.google.common.collect.FluentIterable.from;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -59,18 +63,14 @@ public class NearMissCalculatorTest {
 
     @Test
     public void returnsNearest3MissesForSingleRequest() {
-        context.checking(new Expectations() {{
-            one(stubMappings).getAll(); will(returnValue(
-                asList(
-                    get(urlEqualTo("/righ")).willReturn(aResponse()).build(),
-                    get(urlEqualTo("/totally-wrong1")).willReturn(aResponse()).build(),
-                    get(urlEqualTo("/totally-wrong222")).willReturn(aResponse()).build(),
-                    get(urlEqualTo("/almost-right")).willReturn(aResponse()).build(),
-                    get(urlEqualTo("/rig")).willReturn(aResponse()).build(),
-                    get(urlEqualTo("/totally-wrong33333")).willReturn(aResponse()).build()
-                )
-            ));
-        }});
+        givenStubMappings(
+            get(urlEqualTo("/righ")).willReturn(aResponse()),
+            get(urlEqualTo("/totally-wrong1")).willReturn(aResponse()),
+            get(urlEqualTo("/totally-wrong222")).willReturn(aResponse()),
+            get(urlEqualTo("/almost-right")).willReturn(aResponse()),
+            get(urlEqualTo("/rig")).willReturn(aResponse()),
+            get(urlEqualTo("/totally-wrong33333")).willReturn(aResponse())
+        );
 
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(mockRequest().url("/right").asLoggedRequest());
 
@@ -82,9 +82,7 @@ public class NearMissCalculatorTest {
 
     @Test
     public void returns0NearMissesForSingleRequestWhenNoStubsPresent() {
-        context.checking(new Expectations() {{
-            one(stubMappings).getAll(); will(returnValue(emptyList()));
-        }});
+        givenStubMappings();
 
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(mockRequest().url("/right").asLoggedRequest());
 
@@ -93,17 +91,11 @@ public class NearMissCalculatorTest {
 
     @Test
     public void returns3NearestMissesForTheGivenRequestPattern() {
-        context.checking(new Expectations() {{
-            one(requestJournal).getAllServeEvents();
-            will(returnValue(
-                asList(
-                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/rig")), new ResponseDefinition()),
-                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")), new ResponseDefinition()),
-                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(DELETE).url("/almost-right")), new ResponseDefinition()),
-                    ServeEvent.of(LoggedRequest.createFrom(mockRequest().method(POST).url("/almost-right")), new ResponseDefinition())
-                )
-            ));
-        }});
+        givenRequests(mockRequest().method(DELETE).url("/rig"),
+            mockRequest().method(DELETE).url("/righ"),
+            mockRequest().method(DELETE).url("/almost-right"),
+            mockRequest().method(POST).url("/almost-right")
+        );
 
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(
             newRequestPattern(DELETE, urlEqualTo("/right")).build()
@@ -118,17 +110,7 @@ public class NearMissCalculatorTest {
 
     @Test
     public void returns1NearestMissForTheGivenRequestPatternWhenOnlyOneRequestLogged() {
-        context.checking(new Expectations() {{
-            one(requestJournal).getAllServeEvents();
-            will(returnValue(
-                singletonList(
-                    ServeEvent.of(
-                        LoggedRequest.createFrom(mockRequest().method(DELETE).url("/righ")),
-                        new ResponseDefinition()
-                    )
-                )
-            ));
-        }});
+        givenRequests(mockRequest().method(DELETE).url("/righ"));
 
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(
             newRequestPattern(DELETE, urlEqualTo("/right")).build()
@@ -140,15 +122,72 @@ public class NearMissCalculatorTest {
 
     @Test
     public void returns0NearMissesForSingleRequestPatternWhenNoRequestsLogged() {
-        context.checking(new Expectations() {{
-            one(requestJournal).getAllServeEvents();
-            will(returnValue(emptyList()));
-        }});
+        givenRequests();
 
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(
             newRequestPattern(DELETE, urlEqualTo("/right")).build()
         );
 
         assertThat(nearest.size(), is(0));
+    }
+
+    @Test
+    public void stubMappingsWithIdenticalMethodAndUrlWillRankHigherDespiteOtherParametersBeingAbsent() {
+        givenStubMappings(
+            post("/the-correct-path")
+                .withName("Correct")
+                .withHeader("Accept", equalTo("text/plain"))
+                .withHeader("X-My-Header", matching("[0-9]*"))
+                .withQueryParam("search", containing("somethings"))
+                .withRequestBody(equalToJson("[1, 2, 3]"))
+                .withRequestBody(matchingJsonPath("$..*"))
+                .willReturn(ok()),
+            post("/another-path").withName("Another 1").willReturn(ok()),
+            get("/yet-another-path").withName("Yet another").willReturn(ok())
+        );
+
+        List<NearMiss> nearestForCorrectMethodAndUrl = nearMissCalculator.findNearestTo(
+            mockRequest().method(POST).url("/the-correct-path").asLoggedRequest()
+        );
+        assertThat(nearestForCorrectMethodAndUrl.get(0).getStubMapping().getName(), is("Correct"));
+
+        List<NearMiss> nearestForIncorrectMethodAndCorrectUrl = nearMissCalculator.findNearestTo(
+            mockRequest().method(POST).url("/the-incorrect-path").asLoggedRequest()
+        );
+        assertThat(nearestForIncorrectMethodAndCorrectUrl.get(0).getStubMapping().getName(), is("Correct"));
+
+        List<NearMiss> nearestForIncorrectMethodAndUrl = nearMissCalculator.findNearestTo(
+            mockRequest().method(PUT).url("/the-incorrect-path").asLoggedRequest()
+        );
+        assertThat(nearestForIncorrectMethodAndUrl.get(0).getStubMapping().getName(), is("Correct"));
+    }
+
+    private void givenStubMappings(final MappingBuilder... mappingBuilders) {
+        final List<StubMapping> mappings = from(mappingBuilders).transform(new Function<MappingBuilder, StubMapping>() {
+            @Override
+            public StubMapping apply(MappingBuilder input) {
+                return input.build();
+            }
+        }).toList();
+        context.checking(new Expectations() {{
+            allowing(stubMappings).getAll(); will(returnValue(mappings));
+        }});
+    }
+
+    private void givenRequests(final Request... requests) {
+        final List<ServeEvent> serveEvents = from(requests).transform(new Function<Request, ServeEvent>() {
+            @Override
+            public ServeEvent apply(Request request) {
+                return ServeEvent.of(
+                    LoggedRequest.createFrom(request),
+                    new ResponseDefinition()
+                );
+            }
+        }).toList();
+
+        context.checking(new Expectations() {{
+            allowing(requestJournal).getAllServeEvents();
+            will(returnValue(serveEvents));
+        }});
     }
 }

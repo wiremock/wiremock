@@ -44,11 +44,12 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         List<NearMiss> nearMisses = WireMock.findNearMissesForAllUnmatched();
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+
+        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
     }
 
     @Test
@@ -78,11 +79,12 @@ public class NearMissesAcceptanceTest extends AcceptanceTestBase {
         ));
 
         assertThat(nearMisses.get(0).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
         assertThat(nearMisses.get(1).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/mypath"));
         assertThat(nearMisses.get(2).getRequest().getUrl(), is("/otherpath"));
-        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+
+        assertThat(nearMisses.get(0).getStubMapping().getRequest().getUrl(), is("/otherpath"));
+        assertThat(nearMisses.get(1).getStubMapping().getRequest().getUrl(), is("/yet/another/path"));
+        assertThat(nearMisses.get(2).getStubMapping().getRequest().getUrl(), is("/mypath"));
     }
 
     @Test
