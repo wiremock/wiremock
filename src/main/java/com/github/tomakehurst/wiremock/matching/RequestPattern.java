@@ -315,6 +315,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return customMatcherDefinition;
     }
 
+    @JsonIgnore
+    public ValueMatcher<Request> getMatcher() {
+        return matcher;
+    }
+
     @Override
     public String getName() {
         return "requestMatching";
