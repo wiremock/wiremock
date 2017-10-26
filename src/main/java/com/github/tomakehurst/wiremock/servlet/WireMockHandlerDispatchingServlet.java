@@ -41,23 +41,23 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
 	private static final long serialVersionUID = -6602042274260495538L;
-	
+
     private RequestHandler requestHandler;
     private FaultInjectorFactory faultHandlerFactory;
 	private String mappedUnder;
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
-	
+
 	@Override
 	public void init(ServletConfig config) {
 	    ServletContext context = config.getServletContext();
 	    shouldForwardToFilesContext = getFileContextForwardingFlagFrom(config);
-	    
+
 	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
-		
+
         String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
 		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
 		mappedUnder = getNormalizedMappedUnder(config);
@@ -71,7 +71,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
-	
+
 	/**
 	 * @param config Servlet configuration to read
 	 * @return Normalized mappedUnder attribute without trailing slash
@@ -86,7 +86,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		}
 		return mappedUnder;
 	}
-	
+
 	private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
 		String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
 		return Boolean.valueOf(flagValue);
@@ -95,7 +95,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
-		
+
 		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, mappedUnder);
 
 		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
@@ -155,7 +155,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             }
         }
 
-        writeAndTranslateExceptions(httpServletResponse, response.getBody());
+        if (response.shouldAddChunkedDribbleDelay()) {
+			writeAndTranslateExceptionsWithChunkedDribbleDelay(httpServletResponse, response.getBody(), response.getChunkedDribbleDelay());
+		} else {
+			writeAndTranslateExceptions(httpServletResponse, response.getBody());
+		}
     }
 
 	private FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -172,6 +176,31 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             throwUnchecked(e);
         }
     }
+
+	private void writeAndTranslateExceptionsWithChunkedDribbleDelay(HttpServletResponse httpServletResponse, byte[] body, ChunkedDribbleDelay chunkedDribbleDelay) {
+
+		try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
+
+			if (body.length < 1) {
+				notifier.error("Cannot chunk dribble delay when no body set");
+				out.flush();
+				return;
+			}
+
+			byte[][] chunkedBody = BodyChunker.chunkBody(body, chunkedDribbleDelay.getNumberOfChunks());
+
+			int chunkInterval = chunkedDribbleDelay.getTotalDuration() / chunkedBody.length;
+
+			for (byte[] bodyChunk : chunkedBody) {
+				Thread.sleep(chunkInterval);
+				out.write(bodyChunk);
+				out.flush();
+			}
+
+		} catch (IOException | InterruptedException e) {
+			throwUnchecked(e);
+		}
+	}
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {
