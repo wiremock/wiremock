@@ -26,10 +26,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.util.*;
 
@@ -56,16 +54,38 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
         @Override
-        public MatchResult match(Request request) {
-            return MatchResult.aggregateWeighted(
-                weight(url.match(request.getUrl()), 10.0),
-                weight(method.match(request.getMethod()), 3.0),
-
-                weight(allHeadersMatchResult(request)),
-                weight(allQueryParamsMatch(request)),
-                weight(allCookiesMatch(request)),
-                weight(allBodyPatternsMatch(request))
-            );
+        public MatchResult match(final Request request) {
+            return MatchResult.aggregateWeightedSupplier(new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(url.match(request.getUrl()), 10.0);
+                }
+            }, new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(method.match(request.getMethod()), 3.0);
+                }
+            }, new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(allHeadersMatchResult(request));
+                }
+            }, new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(allQueryParamsMatch(request));
+                }
+            }, new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(allCookiesMatch(request));
+                }
+            }, new Supplier<WeightedMatchResult>() {
+                @Override
+                public WeightedMatchResult get() {
+                    return weight(allBodyPatternsMatch(request));
+                }
+            });
         }
 
         @Override

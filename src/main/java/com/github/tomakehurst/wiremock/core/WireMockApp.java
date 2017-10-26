@@ -78,7 +78,12 @@ public class WireMockApp implements StubServer, Admin {
             options.extensionsOfType(RequestMatcherExtension.class),
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
-        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        if (!options.reportNearMissDisabled()) {
+          nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        }
+        else {
+          nearMissCalculator = new NullNearMissCalculator();
+        }
         recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();

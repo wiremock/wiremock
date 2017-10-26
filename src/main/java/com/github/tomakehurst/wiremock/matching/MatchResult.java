@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -84,6 +85,38 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         };
     }
 
+    public static MatchResult aggregateSupplier(final List<Supplier<WeightedMatchResult>> matchResultsSupplier) {
+        return new MatchResult() {
+            @Override
+            public boolean isExactMatch() {
+                return all(matchResultsSupplier, new Predicate<Supplier<WeightedMatchResult>>() {
+                    @Override
+                    public boolean apply(Supplier<WeightedMatchResult> input) {
+                        return input.get().isExactMatch();
+                    }
+                });
+            }
+
+            @Override
+            public double getDistance() {
+                double totalDistance = 0;
+                double sizeWithWeighting = 0;
+                for (Supplier<WeightedMatchResult> matchResultSupplier: matchResultsSupplier) {
+                    WeightedMatchResult weightedMatchResult = matchResultSupplier.get();
+                    totalDistance += weightedMatchResult.getDistance();
+                    sizeWithWeighting += weightedMatchResult.getWeighting();
+                }
+
+                return (totalDistance / sizeWithWeighting);
+            }
+        };
+    }
+
+    @SafeVarargs
+    public static MatchResult aggregateWeightedSupplier(Supplier<WeightedMatchResult>... matches) {
+        return aggregateSupplier(asList(matches));
+    }
+    
     @JsonIgnore
     public abstract boolean isExactMatch();
 

@@ -85,6 +85,7 @@ public class WireMockConfiguration implements Options {
 
     private Authenticator adminAuthenticator = new NoAuthenticator();
     private boolean requireHttpsForAdminApi = false;
+    private boolean reportNearMissDisabled = false;
 
     private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
 
@@ -306,6 +307,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration reportNearMissesDisabled() {
+        this.reportNearMissDisabled = true;
+        return this;
+    }
+    
     public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
         this.notMatchedRenderer = notMatchedRenderer;
         return this;
@@ -432,6 +438,10 @@ public class WireMockConfiguration implements Options {
     }
 
     @Override
+    public boolean reportNearMissDisabled() {
+        return reportNearMissDisabled;
+    }
+
     public NotMatchedRenderer getNotMatchedRenderer() {
         return notMatchedRenderer;
     }
