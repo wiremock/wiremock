@@ -300,6 +300,35 @@ public class RequestPatternTest {
     }
 
     @Test
+    public void doesNotMatchWhenRequiredAbsentQueryParameterIsPresent() {
+        RequestPattern requestPattern =
+                newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+                        .withQueryParam("myparam", absent())
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(GET)
+                .url("/my/url?myparam=foo"));
+
+        assertFalse("Request is a match for the request pattern and should not be", matchResult.isExactMatch());
+    }
+
+    @Test
+    public void matchesExactlyWhenRequiredAbsentQueryParameterIsAbsent() {
+        RequestPattern requestPattern =
+                newRequestPattern(GET, WireMock.urlPathEqualTo("/my/url"))
+                        .withQueryParam("param1", absent())
+                        .withQueryParam("param2", equalTo("expected-value"))
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(GET)
+                .url("/my/url?param2=expected-value"));
+
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
     public void matchesExactlyWhenAllCookiesMatch() {
         RequestPattern requestPattern =
             newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))

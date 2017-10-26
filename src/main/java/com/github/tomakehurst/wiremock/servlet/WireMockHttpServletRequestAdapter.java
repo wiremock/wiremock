@@ -221,6 +221,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     @Override
+    public Set<String> getAllQueryParameterKeys() {
+        return splitQuery(request.getQueryString()).keySet();
+    }
+
+    @Override
     public boolean isBrowserProxyRequest() {
         if (!isJetty()) {
             return false;

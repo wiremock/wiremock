@@ -131,6 +131,11 @@ public class RequestPatternBuilder {
         return this;
     }
 
+    public RequestPatternBuilder withoutQueryParam(String key) {
+        queryParams.put(key, MultiValuePattern.absent());
+        return this;
+    }
+
     public RequestPatternBuilder withCookie(String key, StringValuePattern valuePattern) {
         cookies.put(key, valuePattern);
         return this;
