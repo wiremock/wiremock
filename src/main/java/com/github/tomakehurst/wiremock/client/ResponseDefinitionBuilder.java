@@ -60,6 +60,7 @@ public class ResponseDefinitionBuilder {
 		builder.bodyFileName = responseDefinition.getBodyFileName();
 		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
 		builder.delayDistribution = responseDefinition.getDelayDistribution();
+		builder.chunkedDribbleDelay = responseDefinition.getChunkedDribbleDelay();
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
