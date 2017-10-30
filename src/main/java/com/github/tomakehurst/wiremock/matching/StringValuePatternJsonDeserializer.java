@@ -110,12 +110,17 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             throw new JsonMappingException(rootNode.toString() + " is not a valid comparison");
         }
 
-        String operand = rootNode.findValue("equalToJson").textValue();
+        JsonNode operand = rootNode.findValue("equalToJson");
 
         Boolean ignoreArrayOrder = fromNullable(rootNode.findValue("ignoreArrayOrder"));
         Boolean ignoreExtraElements = fromNullable(rootNode.findValue("ignoreExtraElements"));
 
-        return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+        // Allow either a JSON value or a string containing JSON
+        if (operand.isTextual()) {
+            return new EqualToJsonPattern(operand.textValue(), ignoreArrayOrder, ignoreExtraElements);
+        } else {
+            return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
+        }
     }
 
     private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
