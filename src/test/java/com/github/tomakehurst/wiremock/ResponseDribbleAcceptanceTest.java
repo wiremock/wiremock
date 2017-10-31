@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,10 +37,11 @@ public class ResponseDribbleAcceptanceTest {
     private static final int SOCKET_TIMEOUT_MILLISECONDS = 500;
     private static final int DOUBLE_THE_SOCKET_TIMEOUT = SOCKET_TIMEOUT_MILLISECONDS * 2;
 
-    private static final byte[] BODY_OF_THREE_BYTES = new byte[] {1, 2, 3};
+    private static final byte[] BODY_BYTES = "the long sentence being sent".getBytes();
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
+//    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
+    public WireMockRule wireMockRule = new WireMockRule(8989, Options.DYNAMIC_PORT);
 
     private HttpClient httpClient;
 
@@ -50,12 +52,10 @@ public class ResponseDribbleAcceptanceTest {
 
     @Test
     public void requestIsSuccessfulButTakesLongerThanSocketTimeoutWhenDribbleIsEnabled() throws Exception {
-
-        stubFor(get(urlEqualTo("/delayedDribble")).willReturn(
-                aResponse()
-                        .withStatus(200)
-                        .withBody(BODY_OF_THREE_BYTES)
-                        .withChunkedDribbleDelay(BODY_OF_THREE_BYTES.length, DOUBLE_THE_SOCKET_TIMEOUT)));
+        stubFor(get("/delayedDribble").willReturn(
+                ok()
+                    .withBody(BODY_BYTES)
+                    .withChunkedDribbleDelay(BODY_BYTES.length, DOUBLE_THE_SOCKET_TIMEOUT)));
 
         HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
 
@@ -65,16 +65,34 @@ public class ResponseDribbleAcceptanceTest {
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
-        assertThat(BODY_OF_THREE_BYTES, is(responseBody));
+        assertThat(responseBody, is(BODY_BYTES));
+        assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
+    }
+
+    @Test
+    public void stringBody() throws Exception {
+        stubFor(get("/delayedDribble").willReturn(
+            ok()
+                .withBody("Send this in many pieces please!!!")
+                .withChunkedDribbleDelay(2, DOUBLE_THE_SOCKET_TIMEOUT)));
+
+        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
+
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
+
+        long start = System.currentTimeMillis();
+        String responseBody = EntityUtils.toString(response.getEntity());
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(responseBody, is("Send this in many pieces please!!!"));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
     }
 
     @Test
     public void requestIsSuccessfulAndBelowSocketTimeoutWhenDribbleIsDisabled() throws Exception {
-        stubFor(get(urlEqualTo("/nonDelayedDribble")).willReturn(
-                aResponse()
-                        .withStatus(200)
-                        .withBody(BODY_OF_THREE_BYTES)));
+        stubFor(get("/nonDelayedDribble").willReturn(
+                ok()
+                    .withBody(BODY_BYTES)));
 
         HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/nonDelayedDribble", wireMockRule.port())));
 
@@ -84,7 +102,7 @@ public class ResponseDribbleAcceptanceTest {
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
-        assertThat(BODY_OF_THREE_BYTES, is(responseBody));
+        assertThat(BODY_BYTES, is(responseBody));
         assertThat(duration, lessThan(SOCKET_TIMEOUT_MILLISECONDS));
     }
 }
