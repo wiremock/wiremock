@@ -45,8 +45,20 @@ public class SingleRootFileSourceTest {
 	}
 	
 	@Test(expected=RuntimeException.class)
-	public void writehrowsExceptionWhenRootIsNotDir() {
+	public void writeThrowsExceptionWhenRootIsNotDir() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
 		fileSource.writeTextFile("thing", "stuff");
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void writeThrowsExceptionWhenGivenPathNotUnderRoot() {
+		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
+		fileSource.writeTextFile("/somewhere/not/under/root", "stuff");
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
+		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
+		fileSource.deleteFile("/somewhere/not/under/root");
 	}
 }
