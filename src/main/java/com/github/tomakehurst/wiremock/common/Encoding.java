@@ -15,19 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import java.util.Base64; 
+import javax.xml.bind.DatatypeConverter;
 
 public class Encoding {
 
     public static byte[] decodeBase64(String base64) {
         return base64 != null ?
-            Base64.getDecoder().decode(base64) :
+            DatatypeConverter.parseBase64Binary(base64) :
             null;
     }
 
     public static String encodeBase64(byte[] content) {
         return content != null ?
-            Base64.getEncoder().encodeToString(content) :
+            DatatypeConverter.printBase64Binary(content) :
             null;
     }
 }
