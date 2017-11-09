@@ -299,4 +299,19 @@ public class ScenariosTest {
         assertThat(possibleStates.size(), is(2));
         assertThat(possibleStates, hasItems("Started", "step two"));
     }
+
+    @Test
+    public void supportsNewScenarioStateWhenRequiredStateIsNull() {
+        StubMapping mapping = get("/scenarios/1")
+            .inScenario("one")
+            .willSetStateTo("step two")
+            .willReturn(ok())
+            .build();
+
+        scenarios.onStubMappingAddedOrUpdated(mapping, singletonList(mapping));
+
+        scenarios.onStubServed(mapping);
+
+        assertThat(scenarios.getByName("one").getState(), is("step two"));
+    }
 }

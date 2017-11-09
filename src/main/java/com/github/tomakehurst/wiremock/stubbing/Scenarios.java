@@ -60,7 +60,7 @@ public class Scenarios {
             final String scenarioName = mapping.getScenarioName();
             Scenario scenario = scenarioMap.get(scenarioName);
             if (mapping.modifiesScenarioState() &&
-                scenario.getState().equals(mapping.getRequiredScenarioState())) {
+                (mapping.getRequiredScenarioState() == null || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
                 Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
                 scenarioMap.put(scenarioName, newScenario);
             }
