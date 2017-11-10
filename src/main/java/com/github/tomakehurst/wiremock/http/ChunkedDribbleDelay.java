@@ -24,7 +24,8 @@ public class ChunkedDribbleDelay {
     private final Integer totalDuration;
 
     @JsonCreator
-    public ChunkedDribbleDelay(@JsonProperty("numberOfChunks") Integer numberOfChunks, @JsonProperty("totalDuration") Integer totalDuration) {
+    public ChunkedDribbleDelay(@JsonProperty("numberOfChunks") Integer numberOfChunks,
+                               @JsonProperty("totalDuration") Integer totalDuration) {
         this.numberOfChunks = numberOfChunks;
         this.totalDuration = totalDuration;
     }

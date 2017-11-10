@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,14 +68,17 @@ public class ResponseDribbleAcceptanceTest {
 
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
+        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 50.0));
     }
 
     @Test
-    public void stringBody() throws Exception {
+    public void servesAStringBodyInChunks() throws Exception {
+        final int TOTAL_TIME = 300;
+
         stubFor(get("/delayedDribble").willReturn(
             ok()
                 .withBody("Send this in many pieces please!!!")
-                .withChunkedDribbleDelay(2, DOUBLE_THE_SOCKET_TIMEOUT)));
+                .withChunkedDribbleDelay(2, TOTAL_TIME)));
 
         HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
 
@@ -82,10 +86,10 @@ public class ResponseDribbleAcceptanceTest {
 
         long start = System.currentTimeMillis();
         String responseBody = EntityUtils.toString(response.getEntity());
-        int duration = (int) (System.currentTimeMillis() - start);
+        double duration = (double) (System.currentTimeMillis() - start);
 
         assertThat(responseBody, is("Send this in many pieces please!!!"));
-        assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
+        assertThat(duration, closeTo(TOTAL_TIME, 10.0));
     }
 
     @Test

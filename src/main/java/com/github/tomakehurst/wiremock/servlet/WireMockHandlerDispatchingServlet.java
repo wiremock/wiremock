@@ -197,9 +197,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 				out.flush();
 			}
 
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			throwUnchecked(e);
-		}
+		} catch (InterruptedException ignored) {
+		    // Ignore the interrupt quietly since it's probably the client timing out, which is a completely valid outcome
+        }
 	}
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
