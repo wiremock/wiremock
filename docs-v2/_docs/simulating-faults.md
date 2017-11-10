@@ -157,18 +157,18 @@ This is useful for simulating a slow network and testing deterministic timeouts.
 
 Use `#withChunkedDribbleDelay` on the stub to pass in the desired chunked response, it takes two parameters:
 
--   numberOfChunks - how many chunks you want your response body divided up into
--   totalDuration - the total duration you want the response to take in milliseconds
+-   `numberOfChunks` - how many chunks you want your response body divided up into
+-   `totalDuration` - the total duration you want the response to take in milliseconds
 
 ```java
-stubFor(get(urlEqualTo("/chunked/delayed")).willReturn(
+stubFor(get("/chunked/delayed").willReturn(
         aResponse()
                 .withStatus(200)
                 .withBody("Hello world!")
                 .withChunkedDribbleDelay(5, 1000)));
 ```
 
-Or set it on the `chunkedDribbleDelay` field via the JSON api:
+Or set it on the `chunkedDribbleDelay` field via the JSON API:
 
 ```json
 {
