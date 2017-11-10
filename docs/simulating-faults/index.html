@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-10-22T20:37:16+01:00">
+  <meta property="article:published_time" content="2017-11-10T21:15:56+00:00">
   
     <link rel="next" href="/docs/spring-boot/" title="Spring Boot">
   
@@ -318,7 +318,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Simulating Faults">
     <meta itemprop="description" content="One of the main reasons it’s beneficial to use web service fakes whentesting is to inject faulty behaviour that might be difficult to get thereal service to produce on demand. In addition to being able to sendback any HTTP response code indicating an error, WireMock is able togenerate a few other types of problem.">
-    <meta itemprop="datePublished" content="October 22, 2017">
+    <meta itemprop="datePublished" content="November 10, 2017">
     
 
     <div class="page__inner-wrap">
@@ -475,6 +475,49 @@ a fixed amount of jitter. It takes two parameters:</p>
 </span></code></pre>
 </div>
 
+<h2 id="chunked-dribble-delay">Chunked Dribble Delay</h2>
+
+<p>In addition to fixed and random delays, you can dibble your response back in chunks. 
+This is useful for simulating a slow network and testing deterministic timeouts.</p>
+
+<p>Use <code class="highlighter-rouge">#withChunkedDribbleDelay</code> on the stub to pass in the desired chunked response, it takes two parameters:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">numberOfChunks</code> - how many chunks you want your response body divided up into</li>
+  <li><code class="highlighter-rouge">totalDuration</code> - the total duration you want the response to take in milliseconds</li>
+</ul>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/chunked/delayed"</span><span class="o">).</span><span class="na">willReturn</span><span class="o">(</span>
+        <span class="n">aResponse</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Hello world!"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">withChunkedDribbleDelay</span><span class="o">(</span><span class="mi">5</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>Or set it on the <code class="highlighter-rouge">chunkedDribbleDelay</code> field via the JSON API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/chunked/delayed"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world!"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"chunkedDribbleDelay"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"numberOfChunks"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"totalDuration"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>With the above settings the <code class="highlighter-rouge">Hello world!</code> response body will be broken into 
+five chunks and returned one at a time with a 200ms gap between each.</p>
+
 <h2 id="bad-responses">Bad responses</h2>
 
 <p>It is also possible to create several kinds of corrupted responses:</p>
@@ -492,6 +535,9 @@ a fixed amount of jitter. It takes two parameters:</p>
 close the connection.</p>
 
 <p><code class="highlighter-rouge">RANDOM_DATA_THEN_CLOSE</code>: Send garbage then close the connection.</p>
+
+<p><code class="highlighter-rouge">CONNECTION_RESET_BY_PEER</code>: Close the connection, setting <code class="highlighter-rouge">SO_LINGER</code> to 0 and thus preventing the <code class="highlighter-rouge">TIME_WAIT</code> state being entered.
+Typically causes a “Connection reset by peer” type error to be thrown by the client.</p>
 
 <p>In JSON (fault values are the same as the ones listed above):</p>
 
