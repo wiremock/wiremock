@@ -209,6 +209,9 @@ close the connection.
 
 `RANDOM_DATA_THEN_CLOSE`: Send garbage then close the connection.
 
+`CONNECTION_RESET_BY_PEER`: Close the connection, setting `SO_LINGER` to 0 and thus preventing the `TIME_WAIT` state being entered.
+Typically causes a "Connection reset by peer" type error to be thrown by the client.
+
 In JSON (fault values are the same as the ones listed above):
 
 ```json
