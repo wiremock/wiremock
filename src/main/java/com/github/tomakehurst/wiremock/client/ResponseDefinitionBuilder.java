@@ -130,8 +130,8 @@ public class ResponseDefinitionBuilder {
 		return withRandomDelay(new UniformDistribution(lowerMilliseconds, upperMilliseconds));
 	}
 
-	public ResponseDefinitionBuilder withChunkedDribbleDelay(int numberOfChunks, int chunkedDuration) {
-		this.chunkedDribbleDelay = new ChunkedDribbleDelay(numberOfChunks, chunkedDuration);
+	public ResponseDefinitionBuilder withChunkedDribbleDelay(int numberOfChunks, int totalDuration) {
+		this.chunkedDribbleDelay = new ChunkedDribbleDelay(numberOfChunks, totalDuration);
 		return this;
 	}
 
