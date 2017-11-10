@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.apache.commons.io.IOUtils;
@@ -23,12 +22,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.Options.DYNAMIC_PORT;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
@@ -41,8 +40,7 @@ public class ResponseDribbleAcceptanceTest {
     private static final byte[] BODY_BYTES = "the long sentence being sent".getBytes();
 
     @Rule
-//    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT, Options.DYNAMIC_PORT);
-    public WireMockRule wireMockRule = new WireMockRule(8989, Options.DYNAMIC_PORT);
+    public WireMockRule wireMockRule = new WireMockRule(DYNAMIC_PORT, DYNAMIC_PORT);
 
     private HttpClient httpClient;
 
@@ -58,17 +56,15 @@ public class ResponseDribbleAcceptanceTest {
                     .withBody(BODY_BYTES)
                     .withChunkedDribbleDelay(BODY_BYTES.length, DOUBLE_THE_SOCKET_TIMEOUT)));
 
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
-
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
-
         long start = System.currentTimeMillis();
+        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is(BODY_BYTES));
         assertThat(duration, greaterThanOrEqualTo(SOCKET_TIMEOUT_MILLISECONDS));
-        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 50.0));
+        assertThat((double) duration, closeTo(DOUBLE_THE_SOCKET_TIMEOUT, 100.0));
     }
 
     @Test
@@ -80,16 +76,14 @@ public class ResponseDribbleAcceptanceTest {
                 .withBody("Send this in many pieces please!!!")
                 .withChunkedDribbleDelay(2, TOTAL_TIME)));
 
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
-
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
-
         long start = System.currentTimeMillis();
+        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/delayedDribble", wireMockRule.port())));
         String responseBody = EntityUtils.toString(response.getEntity());
         double duration = (double) (System.currentTimeMillis() - start);
 
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(responseBody, is("Send this in many pieces please!!!"));
-        assertThat(duration, closeTo(TOTAL_TIME, 10.0));
+        assertThat(duration, closeTo(TOTAL_TIME, 50.0));
     }
 
     @Test
@@ -98,14 +92,12 @@ public class ResponseDribbleAcceptanceTest {
                 ok()
                     .withBody(BODY_BYTES)));
 
-        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/nonDelayedDribble", wireMockRule.port())));
-
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
-
         long start = System.currentTimeMillis();
+        HttpResponse response = httpClient.execute(new HttpGet(String.format("http://localhost:%d/nonDelayedDribble", wireMockRule.port())));
         byte[] responseBody = IOUtils.toByteArray(response.getEntity().getContent());
         int duration = (int) (System.currentTimeMillis() - start);
 
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
         assertThat(BODY_BYTES, is(responseBody));
         assertThat(duration, lessThan(SOCKET_TIMEOUT_MILLISECONDS));
     }
