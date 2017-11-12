@@ -97,10 +97,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     public static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		final RequestMethod method = response.getOriginalRequest().getMethod();
-		String url = response.getProxyUrl();
-		if (url.endsWith("/")) {
-		   url = url.substring(0, url.length() - 1);
-		}
+		final String url = response.getProxyUrl();
 		return HttpClientFactory.getHttpRequestFor(method, url);
 	}
 	
