@@ -390,16 +390,53 @@ public class ProxyAcceptanceTest {
     }
 
     @Test
-    public void removesTrailingSlashFromUrlBeforeForwarding() {
+    public void contextPathsWithoutTrailingSlashesArePreserved() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/slashes").willReturn(ok()));
+        targetServiceAdmin.register(get("/example").willReturn(ok()));
         proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-        WireMockResponse response = testClient.get("/slashes/");
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example");
         assertThat(response.statusCode(), is(200));
 
-        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/slashes")));
+        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example/")));
+
+    }
+
+    @Test
+    public void contextPathsWithTrailingSlashesArePreserved() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/example/").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example/");
+        assertThat(response.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example/")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example")));
+    }
+
+    /**
+     * NOTE: {@link org.apache.http.client.HttpClient} always has a / when the context path is empty.
+     * This is also the behaviour of curl (see e.g. <a href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
+     */
+    @Test
+    public void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse responseToRequestWithoutSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port());
+        assertThat(responseToRequestWithoutSlash.statusCode(), is(200));
+
+        WireMockResponse responseToRequestWithSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/");
+        assertThat(responseToRequestWithSlash.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(2, getRequestedFor(urlEqualTo("/")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("")));
     }
 
     private void register200StubOnProxyAndTarget(String url) {
