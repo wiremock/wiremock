@@ -56,20 +56,24 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     }
 
     public ResponseTemplateTransformer(boolean global, Map<String, Helper> helpers) {
+        this(global, new Handlebars(), helpers);
+    }
+
+    public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers) {
         this.global = global;
-        handlebars = new Handlebars();
+        this.handlebars = handlebars;
 
         for (StringHelpers helper: StringHelpers.values()) {
-            handlebars.registerHelper(helper.name(), helper);
+            this.handlebars.registerHelper(helper.name(), helper);
         }
 
         //Add all available wiremock helpers
         for(WiremockHelpers helper: WiremockHelpers.values()){
-            handlebars.registerHelper(helper.name(), helper);
+            this.handlebars.registerHelper(helper.name(), helper);
         }
 
         for (Map.Entry<String, Helper> entry: helpers.entrySet()) {
-            handlebars.registerHelper(entry.getKey(), entry.getValue());
+            this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
     }
 

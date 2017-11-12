@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.github.jknack.handlebars.EscapingStrategy;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -25,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -268,6 +271,36 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
         ));
+    }
+
+    @Test
+    public void escapingIsTheDefault() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
+    }
+
+    @Test
+    public void escapingCanBeDisabled() {
+        Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
+        ResponseTemplateTransformer transformerWithEscapingDisabled = new ResponseTemplateTransformer(true, handlebars, Collections.<String, Helper>emptyMap());
+        final ResponseDefinition responseDefinition = transformerWithEscapingDisabled.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
