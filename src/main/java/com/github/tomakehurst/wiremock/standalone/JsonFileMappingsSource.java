@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.AbstractFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.SafeNames;
+import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
@@ -82,7 +85,8 @@ public class JsonFileMappingsSource implements MappingsSource {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
             mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
-			fileNameMap.put(mapping.getId(), mappingFile.getUri().getSchemeSpecificPart());
+			fileNameMap.put(mapping.getId(), mappingFile.getPath());
 		}
 	}
+
 }
