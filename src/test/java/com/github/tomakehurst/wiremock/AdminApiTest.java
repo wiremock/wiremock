@@ -468,7 +468,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
-        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid comparison"));
+        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
     }
 
     @Test
@@ -491,7 +491,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
-        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid comparison"));
+        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
     }
 
     @Test
