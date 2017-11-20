@@ -30,10 +30,13 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import java.io.File;
 import java.util.Collections;
@@ -59,9 +62,13 @@ public class WireMock {
 	private static ThreadLocal<WireMock> defaultInstance = new ThreadLocal<WireMock>(){
             @Override
             protected WireMock initialValue() {
-            	return new WireMock();
+            	return WireMock.create().build();
             }
 	};
+
+	public static WireMockBuilder create() {
+	    return new WireMockBuilder();
+    }
 
     public WireMock(Admin admin) {
         this.admin = admin;
@@ -87,8 +94,8 @@ public class WireMock {
 		admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
 	}
 
-    public WireMock(String scheme, String host, int port, String urlPathPrefix, String hostHeader, String proxyHost, int proxyPort) {
-        admin = new HttpAdminClient(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort);
+    public WireMock(String scheme, String host, int port, String urlPathPrefix, String hostHeader, String proxyHost, int proxyPort, ClientAuthenticator authenticator) {
+        admin = new HttpAdminClient(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
     }
 
 	public WireMock() {
@@ -124,31 +131,35 @@ public class WireMock {
     }
 
     public static void configureFor(int port) {
-        defaultInstance.set(new WireMock(port));
+        defaultInstance.set(WireMock.create().port(port).build());
     }
 
 	public static void configureFor(String host, int port) {
-		defaultInstance.set(new WireMock(host, port));
+		defaultInstance.set(WireMock.create().host(host).port(port).build());
 	}
 
 	public static void configureFor(String host, int port, String urlPathPrefix) {
-		defaultInstance.set(new WireMock(host, port, urlPathPrefix));
+		defaultInstance.set(WireMock.create().host(host).port(port).urlPathPrefix(urlPathPrefix).build());
 	}
 
 	public static void configureFor(String scheme, String host, int port, String urlPathPrefix) {
-		defaultInstance.set(new WireMock(scheme, host, port, urlPathPrefix));
+		defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix(urlPathPrefix).build());
 	}
 
 	public static void configureFor(String scheme, String host, int port) {
-		defaultInstance.set(new WireMock(scheme, host, port));
+		defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).build());
 	}
 
     public static void configureFor(String scheme, String host, int port, String proxyHost, int proxyPort) {
-        defaultInstance.set(new WireMock(scheme, host, port, "", null, proxyHost, proxyPort));
+        defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix("").hostHeader(null).proxyHost(proxyHost).proxyPort(proxyPort).build());
+    }
+
+    public static void configureFor(WireMock client) {
+	    defaultInstance.set(client);
     }
 
 	public static void configure() {
-		defaultInstance.set(new WireMock());
+		defaultInstance.set(WireMock.create().build());
 	}
 
     public static StringValuePattern equalTo(String value) {
@@ -179,6 +190,10 @@ public class WireMock {
         return new MatchesJsonPathPattern(value);
     }
 
+    public static StringValuePattern matchingJsonPath(String value, StringValuePattern valuePattern) {
+        return new MatchesJsonPathPattern(value, valuePattern);
+    }
+
     public static StringValuePattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
     }
@@ -189,6 +204,10 @@ public class WireMock {
 
     public static StringValuePattern matchingXPath(String value, Map<String, String> namespaces) {
         return new MatchesXPathPattern(value, namespaces);
+    }
+
+    public static StringValuePattern matchingXPath(String value, StringValuePattern valuePattern) {
+        return new MatchesXPathPattern(value, valuePattern);
     }
 
     public static StringValuePattern containing(String value) {
@@ -243,7 +262,15 @@ public class WireMock {
 		admin.resetScenarios();
 	}
 
-	public static void resetAllScenarios() {
+    public static List<Scenario> getAllScenarios() {
+        return defaultInstance.get().getScenarios();
+    }
+
+    private List<Scenario> getScenarios() {
+        return admin.getAllScenarios().getScenarios();
+    }
+
+    public static void resetAllScenarios() {
 		defaultInstance.get().resetScenarios();
 	}
 

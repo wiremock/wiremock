@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.jetty9.JettyUtils.unwrapResponse;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.channels.SocketChannel;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,6 +42,16 @@ public class JettyFaultInjector implements FaultInjector {
     public JettyFaultInjector(HttpServletResponse response) {
         this.response = unwrapResponse(response);
         this.socket = socket();
+    }
+
+    @Override
+    public void connectionResetByPeer() {
+        try {
+            socket.setSoLinger(true, 0);
+            socket.close();
+        } catch (IOException e) {
+            throwUnchecked(e);
+        }
     }
 
     @Override
@@ -78,7 +89,7 @@ public class JettyFaultInjector implements FaultInjector {
     private Socket socket() {
         HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
         ChannelEndPoint ep = (ChannelEndPoint) httpChannel.getEndPoint();
-        return ep.getSocket();
+        return ((SocketChannel) ep.getChannel()).socket();
     }
 
 }

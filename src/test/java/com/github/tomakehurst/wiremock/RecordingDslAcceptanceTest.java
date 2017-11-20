@@ -68,7 +68,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
         client = new WireMockTestClient(proxyingService.port());
         WireMock.configureFor(proxyingService.port());
-        adminClient = new WireMock(proxyingService.port());
+        adminClient = WireMock.create().port(proxyingService.port()).build();
     }
 
     @After

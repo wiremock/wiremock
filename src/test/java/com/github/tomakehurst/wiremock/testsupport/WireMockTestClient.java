@@ -46,6 +46,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
+import static org.apache.http.entity.ContentType.APPLICATION_XML;
 
 public class WireMockTestClient {
 
@@ -165,6 +166,12 @@ public class WireMockTestClient {
         return executeMethodAndConvertExceptions(httpPost, headers);
     }
 
+    public WireMockResponse postXml(String url, String body, TestHttpHeader... headers) {
+        HttpPost httpPost = new HttpPost(mockServiceUrlFor(url));
+        httpPost.setEntity(new StringEntity(body, APPLICATION_XML));
+        return executeMethodAndConvertExceptions(httpPost, headers);
+    }
+
     public WireMockResponse patchWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
         return patch(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
     }
@@ -186,7 +193,11 @@ public class WireMockTestClient {
     }
 
     public void addResponse(String responseSpecJson) {
-        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson);
+        addResponse(responseSpecJson, "utf-8");
+    }
+
+    public void addResponse(String responseSpecJson, String charset) {
+        int status = postJsonAndReturnStatus(newMappingUrl(), responseSpecJson, charset);
         if (status != HTTP_CREATED) {
             throw new RuntimeException("Returned status code was " + status);
         }
@@ -215,10 +226,14 @@ public class WireMockTestClient {
     }
 
     private int postJsonAndReturnStatus(String url, String json) {
+        return postJsonAndReturnStatus(url, json, "utf-8");
+    }
+
+    private int postJsonAndReturnStatus(String url, String json, String charset) {
         HttpPost post = new HttpPost(url);
         try {
             if (json != null) {
-                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), "utf-8")));
+                post.setEntity(new StringEntity(json, ContentType.create(JSON.toString(), charset)));
             }
             HttpResponse httpResponse = httpClient().execute(post);
             return httpResponse.getStatusLine().getStatusCode();

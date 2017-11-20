@@ -77,6 +77,40 @@ public class RequestPatternBuilder {
         return new RequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
     }
 
+    /**
+     * Construct a builder that uses an existing RequestPattern as a template
+     *
+     * @param requestPattern A RequestPattern to copy
+     * @return A builder based on the RequestPattern
+     */
+    public static RequestPatternBuilder like(RequestPattern requestPattern) {
+        RequestPatternBuilder builder = new RequestPatternBuilder();
+        builder.url = requestPattern.getUrlMatcher();
+        builder.method = requestPattern.getMethod();
+        if (requestPattern.getHeaders() != null) {
+            builder.headers = requestPattern.getHeaders();
+        }
+        if (requestPattern.getQueryParameters() != null) {
+            builder.queryParams = requestPattern.getQueryParameters();
+        }
+        if (requestPattern.getCookies() != null) {
+            builder.cookies = requestPattern.getCookies();
+        }
+        if (requestPattern.getBodyPatterns() != null) {
+            builder.bodyPatterns = requestPattern.getBodyPatterns();
+        }
+        if (requestPattern.hasCustomMatcher()) {
+            builder.customMatcher = requestPattern.getMatcher();
+        }
+        builder.basicCredentials = requestPattern.getBasicAuthCredentials();
+        builder.customMatcherDefinition = requestPattern.getCustomMatcher();
+        return builder;
+    }
+
+    public RequestPatternBuilder but() {
+        return this;
+    }
+
     public RequestPatternBuilder withUrl(String url) {
         this.url = WireMock.urlEqualTo(url);
         return this;

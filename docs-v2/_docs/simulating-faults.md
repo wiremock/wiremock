@@ -150,6 +150,47 @@ To use, instantiate a `new UniformDistribution(15, 25)`, or via JSON:
 }
 ```
 
+## Chunked Dribble Delay
+
+In addition to fixed and random delays, you can dibble your response back in chunks. 
+This is useful for simulating a slow network and testing deterministic timeouts. 
+
+Use `#withChunkedDribbleDelay` on the stub to pass in the desired chunked response, it takes two parameters:
+
+-   `numberOfChunks` - how many chunks you want your response body divided up into
+-   `totalDuration` - the total duration you want the response to take in milliseconds
+
+```java
+stubFor(get("/chunked/delayed").willReturn(
+        aResponse()
+                .withStatus(200)
+                .withBody("Hello world!")
+                .withChunkedDribbleDelay(5, 1000)));
+```
+
+Or set it on the `chunkedDribbleDelay` field via the JSON API:
+
+```json
+{
+    "request": {
+            "method": "GET",
+            "url": "/chunked/delayed"
+    },
+    "response": {
+            "status": 200,
+            "body": "Hello world!",
+            "chunkedDribbleDelay": {
+                    "numberOfChunks": 5,
+                    "totalDuration": 1000
+            }
+
+    }
+}
+```
+
+With the above settings the `Hello world!` response body will be broken into 
+five chunks and returned one at a time with a 200ms gap between each.  
+
 ## Bad responses
 
 It is also possible to create several kinds of corrupted responses:
@@ -167,6 +208,9 @@ The `Fault` enum has the following options:
 close the connection.
 
 `RANDOM_DATA_THEN_CLOSE`: Send garbage then close the connection.
+
+`CONNECTION_RESET_BY_PEER`: Close the connection, setting `SO_LINGER` to 0 and thus preventing the `TIME_WAIT` state being entered.
+Typically causes a "Connection reset by peer" type error to be thrown by the client.
 
 In JSON (fault values are the same as the ones listed above):
 

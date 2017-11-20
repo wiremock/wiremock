@@ -6,6 +6,13 @@ redirect_from: "/record-playback.html"
 description: Recording HTTP exchanges with other APIs and playing them back as stubs - the new way.
 ---
 
+<div class="mocklab-callout"> 
+  <p class="mocklab-callout__text">
+    If you want to record stubs and host them in the cloud with minimum hassle, try <strong>MockLab</strong>. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.    
+  </p>
+  <a href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=docs-callout&utm_campaign=record-and-playback" title="Learn more" class="mocklab-callout__learn-more-button">Learn more</a>
+</div>
+
 WireMock can create stub mappings from requests it has received. Combined with its proxying feature this allows you to "record"
 stub mappings from interaction with existing APIs.
 

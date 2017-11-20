@@ -17,6 +17,7 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -234,6 +235,35 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
+    public void advancedXPathMatching() {
+        stubFor(put(urlEqualTo("/xpath"))
+            .withRequestBody(matchingXPath("//todo-item/text()", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatching() {
+        stubFor(put(urlEqualTo("/jsonpath"))
+            .withRequestBody(matchingJsonPath("$..todoItem", containing("wash")))
+            .willReturn(aResponse().withStatus(200)));
+    }
+
+    @Test
+    public void advancedJSONPathMatchingWithObject() {
+        System.out.println(matchingJsonPath("$.outer",
+            equalToJson(
+            "{\n" +
+            "        \"inner\": 42\n" +
+            "    }"))
+            .match(
+            "{\n" +
+            "    \"outer\": {\n" +
+            "        \"inner\": 42\n" +
+            "    }\n" +
+            "}").isExactMatch());
+    }
+
+    @Test
     public void transformerParameters() {
         stubFor(get(urlEqualTo("/transform")).willReturn(
                 aResponse()
@@ -341,6 +371,9 @@ public class Examples extends AcceptanceTestBase {
 
             // Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.
             .jettyHeaderBufferSize(16834)
+
+            // Set the timeout to wait for Jetty to stop in milliseconds. Defaults to 0 (no wait)
+            .jettyStopTimeout(5000L)
 
             // Set the keystore containing the HTTPS certificate
             .keystorePath("/path/to/https-certs-keystore.jks")

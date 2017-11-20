@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
@@ -77,9 +78,11 @@ public class NearMiss implements Comparable<NearMiss> {
 
     @JsonIgnore
     public Diff getDiff() {
-        RequestPattern requestPattern =
-            firstNonNull(this.requestPattern, getStubMapping().getRequest());
-        return new Diff(requestPattern, request);
+        if (requestPattern != null) {
+            return new Diff(requestPattern, request);
+        }
+
+        return new Diff(getStubMapping(), request);
     }
 
     @Override

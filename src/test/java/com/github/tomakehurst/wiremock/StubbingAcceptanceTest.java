@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -24,13 +23,16 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.net.SocketException;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -285,7 +287,34 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
 		response = testClient.post("/match/binary", new ByteArrayEntity(requestBody, APPLICATION_OCTET_STREAM));
 		assertThat(response.statusCode(), is(HTTP_OK));
+	}
 
+	@Test
+	public void matchingOnRequestBodyWithAdvancedJsonPath() {
+		stubFor(post("/jsonpath/advanced")
+			.withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
+			.willReturn(ok())
+		);
+
+		WireMockResponse response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 234 }");
+		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+        response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 123 }");
+		assertThat(response.statusCode(), is(HTTP_OK));
+	}
+
+	@Test
+	public void matchingOnRequestBodyWithAdvancedXPath() {
+		stubFor(post("/xpath/advanced")
+			.withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
+			.willReturn(ok())
+		);
+
+		WireMockResponse response = testClient.postXml("/xpath/advanced", "<counter>6666</counter>");
+		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+
+		response = testClient.postXml("/xpath/advanced", "<counter>123</counter>");
+		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
 	@Test
@@ -301,6 +330,53 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         int duration = (int) (System.currentTimeMillis() - start);
 
         assertThat(duration, greaterThanOrEqualTo(500));
+	}
+
+	@Test
+	public void responseWithByteDribble() {
+		byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		int numberOfChunks = body.length / 2;
+		int chunkedDuration = 1000;
+
+		stubFor(get(urlEqualTo("/dribble")).willReturn(
+				aResponse()
+						.withStatus(200)
+						.withBody(body)
+						.withChunkedDribbleDelay(numberOfChunks, chunkedDuration)));
+
+		long start = System.currentTimeMillis();
+		WireMockResponse response = testClient.get("/dribble");
+		long timeTaken = System.currentTimeMillis() - start;
+
+		assertThat(response.statusCode(), is(200));
+		assertThat(timeTaken, greaterThanOrEqualTo((long) chunkedDuration));
+
+		assertThat(body, is(response.binaryContent()));
+	}
+
+	@Test
+	public void responseWithByteDribbleAndFixedDelay() {
+		byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		int numberOfChunks = body.length / 2;
+		int fixedDelay = 1000;
+		int chunkedDuration = 1000;
+		int totalDuration = fixedDelay + chunkedDuration;
+
+		stubFor(get(urlEqualTo("/dribbleWithFixedDelay")).willReturn(
+				aResponse()
+						.withStatus(200)
+						.withBody(body)
+						.withChunkedDribbleDelay(numberOfChunks, chunkedDuration)
+						.withFixedDelay(fixedDelay)));
+
+		long start = System.currentTimeMillis();
+		WireMockResponse response = testClient.get("/dribbleWithFixedDelay");
+		long timeTaken = System.currentTimeMillis() - start;
+
+		assertThat(response.statusCode(), is(200));
+		assertThat(timeTaken, greaterThanOrEqualTo((long) totalDuration));
+
+		assertThat(body, is(response.binaryContent()));
 	}
 
 	@Test
@@ -341,6 +417,20 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
 
 		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
+	}
+
+	@Rule
+	public final ExpectedException exception = ExpectedException.none();
+
+	@Test
+	public void connectionResetByPeerFault() {
+		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
+                aResponse()
+                .withFault(Fault.CONNECTION_RESET_BY_PEER)));
+
+		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
+		exception.expectMessage("java.net.SocketException: Connection reset");
+		testClient.get("/connection/reset");
 	}
 
 	@Test

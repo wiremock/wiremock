@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
+import static com.github.tomakehurst.wiremock.common.TextType.JSON;
+import static com.github.tomakehurst.wiremock.common.TextType.XML;
 import static com.google.common.collect.Iterables.any;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.substringAfterLast;
@@ -90,20 +92,32 @@ public class ContentTypes {
             return substringAfterLast(lastPathSegment, ".");
         }
 
-        return determineTextFileExtension(stringFromBytes(responseBody));
+        return determineTextFileExtension(stringFromBytes(responseBody, contentTypeHeader.charset()));
     }
 
-    public static String determineTextFileExtension(String content) {
+    public static TextType determineTextType(String content) {
         try {
             Json.read(content, JsonNode.class);
-            return "json";
+            return JSON;
         } catch (Exception e) {
             try {
                 Xml.read(content);
-                return "xml";
+                return TextType.XML;
             } catch (Exception e1) {
-                return "txt";
+                return TextType.PLAIN_TEXT;
             }
+        }
+    }
+
+    public static String determineTextFileExtension(String content) {
+        TextType textType = determineTextType(content);
+        switch(textType) {
+            case JSON:
+                return "json";
+            case XML:
+                return "xml";
+            default:
+                return "txt";
         }
     }
 

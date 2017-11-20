@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.google.common.base.Optional;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -41,4 +43,6 @@ public interface Request {
     String getBodyAsBase64();
 
     boolean isBrowserProxyRequest();
+
+    Optional<Request> getOriginalRequest();
 }

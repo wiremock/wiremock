@@ -24,12 +24,16 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpStatus;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
+import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -40,10 +44,12 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.HttpClientUtils.getEntityAsStringAndCloseStream;
+import static com.github.tomakehurst.wiremock.security.NoClientAuthenticator.noClientAuthenticator;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.http.HttpHeaders.HOST;
@@ -57,6 +63,7 @@ public class HttpAdminClient implements Admin {
     private final int port;
     private final String urlPathPrefix;
     private final String hostHeader;
+    private final ClientAuthenticator authenticator;
 
     private final AdminRoutes adminRoutes;
 
@@ -71,7 +78,11 @@ public class HttpAdminClient implements Admin {
     }
 
     public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix) {
-        this(scheme, host, port, urlPathPrefix, null, null, 0);
+        this(scheme, host, port, urlPathPrefix, null, null, 0, noClientAuthenticator());
+    }
+
+    public HttpAdminClient(String scheme, String host, int port, String urlPathPrefix, String hostHeader) {
+        this(scheme, host, port, urlPathPrefix, hostHeader, null, 0, noClientAuthenticator());
     }
 
     public HttpAdminClient(String scheme,
@@ -81,11 +92,23 @@ public class HttpAdminClient implements Admin {
                            String hostHeader,
                            String proxyHost,
                            int proxyPort) {
+        this(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, noClientAuthenticator());
+    }
+
+    public HttpAdminClient(String scheme,
+                           String host,
+                           int port,
+                           String urlPathPrefix,
+                           String hostHeader,
+                           String proxyHost,
+                           int proxyPort,
+                           ClientAuthenticator authenticator) {
         this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.urlPathPrefix = urlPathPrefix;
         this.hostHeader = hostHeader;
+        this.authenticator = authenticator;
 
         adminRoutes = AdminRoutes.defaults();
 
@@ -221,6 +244,14 @@ public class HttpAdminClient implements Admin {
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class));
         return Json.read(body, FindNearMissesResult.class);
+    }
+
+    @Override
+    public GetScenariosResult getAllScenarios() {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(GetAllScenariosTask.class),
+            GetScenariosResult.class
+        );
     }
 
     @Override
@@ -377,11 +408,22 @@ public class HttpAdminClient implements Admin {
             request.addHeader(HOST, hostHeader);
         }
 
+        List<HttpHeader> httpHeaders = authenticator.generateAuthHeaders();
+        for (HttpHeader header: httpHeaders) {
+            for (String value: header.values()) {
+                request.addHeader(header.key(), value);
+            }
+        }
+
         try (CloseableHttpResponse response = httpClient.execute(request)) {
             int statusCode = response.getStatusLine().getStatusCode();
             if (HttpStatus.isServerError(statusCode)) {
                 throw new VerificationException(
                         "Expected status 2xx for " + url + " but was " + statusCode);
+            }
+
+            if (statusCode == 401) {
+                throw new NotAuthorisedException();
             }
 
             String body = getEntityAsStringAndCloseStream(response);

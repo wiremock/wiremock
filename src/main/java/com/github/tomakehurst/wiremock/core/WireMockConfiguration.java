@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
@@ -23,9 +24,14 @@ import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory;
+import com.github.tomakehurst.wiremock.security.Authenticator;
+import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
+import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.JsonFileMappingsSource;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.standalone.MappingsSource;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
@@ -72,9 +78,15 @@ public class WireMockConfiguration implements Options {
     private Integer jettyAcceptors;
     private Integer jettyAcceptQueueSize;
     private Integer jettyHeaderBufferSize;
+    private Long jettyStopTimeout;
 
     private Map<String, Extension> extensions = newLinkedHashMap();
     private WiremockNetworkTrafficListener networkTrafficListener = new DoNothingWiremockNetworkTrafficListener();
+
+    private Authenticator adminAuthenticator = new NoAuthenticator();
+    private boolean requireHttpsForAdminApi = false;
+
+    private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -129,6 +141,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration jettyHeaderBufferSize(Integer jettyHeaderBufferSize) {
         this.jettyHeaderBufferSize = jettyHeaderBufferSize;
+        return this;
+    }
+
+    public WireMockConfiguration jettyStopTimeout(Long jettyStopTimeout) {
+        this.jettyStopTimeout = jettyStopTimeout;
         return this;
     }
 
@@ -275,6 +292,25 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration adminAuthenticator(Authenticator authenticator) {
+        this.adminAuthenticator = authenticator;
+        return this;
+    }
+
+    public WireMockConfiguration basicAdminAuthenticator(String username, String password) {
+        return adminAuthenticator(new BasicAuthenticator(username, password));
+    }
+
+    public WireMockConfiguration requireHttpsForAdminApi() {
+        this.requireHttpsForAdminApi = true;
+        return this;
+    }
+
+    public WireMockConfiguration notMatchedRenderer(NotMatchedRenderer notMatchedRenderer) {
+        this.notMatchedRenderer = notMatchedRenderer;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -305,6 +341,7 @@ public class WireMockConfiguration implements Options {
                 .withAcceptors(jettyAcceptors)
                 .withAcceptQueueSize(jettyAcceptQueueSize)
                 .withRequestHeaderSize(jettyHeaderBufferSize)
+                .withStopTimeout(jettyStopTimeout)
                 .build();
     }
 
@@ -382,5 +419,20 @@ public class WireMockConfiguration implements Options {
     @Override
     public WiremockNetworkTrafficListener networkTrafficListener() {
         return networkTrafficListener;
+    }
+
+    @Override
+    public Authenticator getAdminAuthenticator() {
+        return adminAuthenticator;
+    }
+
+    @Override
+    public boolean getHttpsRequiredForAdminApi() {
+        return requireHttpsForAdminApi;
+    }
+
+    @Override
+    public NotMatchedRenderer getNotMatchedRenderer() {
+        return notMatchedRenderer;
     }
 }

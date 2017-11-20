@@ -38,6 +38,7 @@ public class EqualToJsonPattern extends StringValuePattern {
     private final JsonNode expected;
     private final Boolean ignoreArrayOrder;
     private final Boolean ignoreExtraElements;
+    private final Boolean serializeAsString;
 
     public EqualToJsonPattern(@JsonProperty("equalToJson") String json,
                               @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
@@ -46,6 +47,22 @@ public class EqualToJsonPattern extends StringValuePattern {
         expected = Json.read(json, JsonNode.class);
         this.ignoreArrayOrder = ignoreArrayOrder;
         this.ignoreExtraElements = ignoreExtraElements;
+        this.serializeAsString = true;
+    }
+
+    public EqualToJsonPattern(JsonNode jsonNode,
+                              Boolean ignoreArrayOrder,
+                              Boolean ignoreExtraElements) {
+        super(Json.write(jsonNode));
+        expected = jsonNode;
+        this.ignoreArrayOrder = ignoreArrayOrder;
+        this.ignoreExtraElements = ignoreExtraElements;
+        this.serializeAsString = false;
+    }
+
+    @JsonProperty("equalToJson")
+    public Object getSerializedEqualToJson() {
+        return serializeAsString ? getValue() : expected;
     }
 
     public String getEqualToJson() {
@@ -144,6 +161,11 @@ public class EqualToJsonPattern extends StringValuePattern {
         if (pos >= path.size()) {
             return ret;
         }
+
+        if (ret == null) {
+            return null;
+        }
+
         String key = path.get(pos);
         if (ret.isArray()) {
             int keyInt = Integer.parseInt(key.replaceAll("\"", ""));

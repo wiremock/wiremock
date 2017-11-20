@@ -15,40 +15,117 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
 
 public class Scenario {
 
 	public static final String STARTED = "Started";
-	
-	private final AtomicReference<String> state;
 
-	public Scenario(String currentState) {
-		state = new AtomicReference<String>(currentState);
+	private final UUID id;
+	private final String name;
+	private final String state;
+	private final Set<String> possibleStates;
+
+	@JsonCreator
+	public Scenario(@JsonProperty("id") UUID id,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("state") String currentState,
+                    @JsonProperty("possibleStates") Set<String> possibleStates) {
+        this.id = id;
+        this.name = name;
+        this.state = currentState;
+		this.possibleStates = possibleStates;
 	}
 	
-	public static Scenario inStartedState() {
-		return new Scenario(STARTED);
+	public static Scenario inStartedState(String name) {
+		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED));
 	}
-	
-	public String getState() {
-		return state.get();
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getState() {
+		return state;
 	}
-	
-	public void setState(String newState) {
-		state.set(newState);
+
+    public Set<String> getPossibleStates() {
+        return possibleStates;
+    }
+
+	Scenario setState(String newState) {
+		return new Scenario(id, name, newState, possibleStates);
 	}
-	
-	public void reset() {
-		state.set(STARTED);
+
+	Scenario reset() {
+        return new Scenario(id, name, STARTED, possibleStates);
 	}
-	
-	public boolean stateIs(String state) {
-		return getState().equals(state);
-	}
+
+    Scenario withPossibleState(String newScenarioState) {
+	    if (newScenarioState == null) {
+	        return this;
+        }
+
+        ImmutableSet<String> newStates = ImmutableSet.<String>builder()
+            .addAll(possibleStates)
+            .add(newScenarioState)
+            .build();
+        return new Scenario(id, name, state, newStates);
+    }
+
+    public Scenario withoutPossibleState(String scenarioState) {
+        return new Scenario(
+            id,
+            name,
+            state,
+            from(possibleStates)
+                .filter(not(equalTo(scenarioState)))
+                .toSet()
+        );
+    }
 
 	@Override
 	public String toString() {
-		return "Scenario [currentState=" + state.get() + "]";
+		return Json.write(this);
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Scenario scenario = (Scenario) o;
+        return Objects.equals(name, scenario.name) &&
+            Objects.equals(state, scenario.state) &&
+            Objects.equals(possibleStates, scenario.possibleStates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, state, possibleStates);
+    }
+
+    public static final Predicate<Scenario> withName(final String name) {
+	    return new Predicate<Scenario>() {
+            @Override
+            public boolean apply(Scenario input) {
+                return input.getName().equals(name);
+            }
+        };
+    }
 }

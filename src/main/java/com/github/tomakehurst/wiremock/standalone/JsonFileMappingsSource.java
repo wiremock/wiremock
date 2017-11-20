@@ -82,11 +82,7 @@ public class JsonFileMappingsSource implements MappingsSource {
             StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
             mapping.setDirty(false);
 			stubMappings.addMapping(mapping);
-			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
+			fileNameMap.put(mapping.getId(), mappingFile.getUri().getSchemeSpecificPart());
 		}
-	}
-
-	private String getFileName(TextFile mappingFile) {
-		return mappingFile.getUri().toString().replaceAll("^.*/", "");
 	}
 }

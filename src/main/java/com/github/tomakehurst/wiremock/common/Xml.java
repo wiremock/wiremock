@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -23,6 +24,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -58,5 +60,30 @@ public class Xml {
         DocumentBuilder db = dbf.newDocumentBuilder();
         InputSource is = new InputSource(new StringReader(xml));
         return db.parse(is);
+    }
+
+    public static String toStringValue(Node node) {
+        switch(node.getNodeType()) {
+            case Node.TEXT_NODE:
+            case Node.ATTRIBUTE_NODE:
+                return node.getTextContent();
+            case Node.ELEMENT_NODE:
+                return render(node);
+            default:
+                return node.toString();
+        }
+    }
+
+    public static String render(Node node) {
+        try {
+            StringWriter sw = new StringWriter();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(INDENT, "yes");
+            transformer.transform(new DOMSource(node), new StreamResult(sw));
+            return sw.toString();
+        } catch (TransformerException e) {
+            return throwUnchecked(e, String.class);
+        }
     }
 }

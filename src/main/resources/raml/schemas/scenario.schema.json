@@ -1,0 +1,43 @@
+{
+    "properties": {
+        "id": {
+            "description": "The scenario ID",
+            "examples": [
+                "c8d249ec-d86d-48b1-88a8-a660e6848042"
+            ],
+            "id": "/properties/id",
+            "type": "string"
+        },
+        "name": {
+            "description": "The scenario name",
+            "examples": [
+                "my_scenario"
+            ],
+            "id": "/properties/name",
+            "type": "string"
+        },
+        "possibleStates": {
+            "id": "/properties/possibleStates",
+            "items": {
+                "default": "Started",
+                "description": "All the states this scenario can be in",
+                "examples": [
+                    "Started", "Step two", "step_3"
+                ],
+                "id": "/properties/possibleStates/items",
+                "type": "string"
+            },
+            "type": "array"
+        },
+        "state": {
+            "default": "Started",
+            "description": "The current state of this scenario",
+            "examples": [
+                "Started", "Step two", "step_3"
+            ],
+            "id": "/properties/state",
+            "type": "string"
+        }
+    },
+    "type": "object"
+}

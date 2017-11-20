@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
+import static com.google.common.base.Charsets.UTF_8;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -120,7 +121,7 @@ public class RequestQueryAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void requestBodyEncodingRemainsUtf8() {
         byte[] body = new byte[] { -38, -100 }; // UTF-8 bytes for ڜ
-        testClient.post("/encoding", new ByteArrayEntity(body, ContentType.TEXT_PLAIN));
+        testClient.post("/encoding", new ByteArrayEntity(body, ContentType.TEXT_PLAIN.withCharset(UTF_8)));
 
         List<LoggedRequest> requests = findAll(postRequestedFor(urlEqualTo("/encoding")));
         LoggedRequest request = requests.get(0);

@@ -347,7 +347,7 @@ JSON:
   "request": {
     ...
     "bodyPatterns" : [ {
-      "equalToJson" : "{ \"total_results\": 4 }"
+      "equalToJson" : { "total_results": 4 }
     } ]
     ...
   },
@@ -355,6 +355,20 @@ JSON:
 }
 ```
 
+JSON with string literal:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "equalToJson" : "{ \"total_results\": 4 }"
+    } ]
+    ...
+  },
+  ...
+}
+```
 
 By default different array orderings and additional object attributes will trigger a non-match. However, both of these conditions can be disabled individually.
 
@@ -527,6 +541,72 @@ Request body example:
 { "things": [ { "name": "RequiredThing" } ] }
 ```
 
+#### Nested value matching
+
+The JSONPath matcher can be combined with another matcher, such that the value returned from the JSONPath query is evaluated against it:
+ 
+Java:
+
+```java
+.withRequestBody(matchingJsonPath("$..todoItem", containing("wash")))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : {
+         "expression": "$..todoItem",
+         "contains": "wash"
+      }
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+Since WireMock's matching operators all work on strings, the value selected by the JSONPath expression will be coerced to a string before the match is evaluated. This true even if the returned value
+is an object or array. A benefit of this is that this allows a sub-document to be selected using JSONPath, then matched using the `equalToJson` operator. E.g. for the following request body:
+
+```json
+{
+    "outer": {
+        "inner": 42
+    }
+}
+```
+
+The following will match:
+
+```java
+.withRequestBody(matchingJsonPath("$.outer", equalToJson("{                \n" +
+                                                         "   \"inner\": 42 \n" +
+                                                         "}")))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : {
+         "expression": "$.outer",
+         "equalToJson": "{ \"inner\": 42 }"
+      }
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+
 ### XML equality
 
 Deems a match if the attribute value is valid XML and is semantically equal to the expected XML document. The underlying engine for determining XML equality is [XMLUnit](http://www.xmlunit.org/).
@@ -598,6 +678,63 @@ JSON:
       "xPathNamespaces" : {
         "stuff" : "http://stuff.example.com",
         "more"  : "http://more.example.com"
+      }
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+#### Nested value matching
+
+The XPath matcher described above can be combined with another matcher, such that the value returned from the XPath query is evaluated against it:
+ 
+Java:
+
+```java
+.withRequestBody(matchingXPath("//todo-item/text()", containing("wash")))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesXPath" : {
+         "expression": "//todo-item/text()",
+         "contains": "wash"
+      }
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+If multiple nodes are returned from the XPath query, all will be evaluated and the returned match will be the one with the shortest distance.
+ 
+If the XPath expression returns an XML element rather than a value, this will be rendered as an XML string before it is passed to the value matcher.
+This can be usefully combined with the `equalToXml` matcher e.g.
+ 
+Java:
+
+```java
+.withRequestBody(matchingXPath("//todo-item", equalToXml("<todo-item>Do the washing</todo-item>")))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "matchesXPath" : {
+         "expression": "//todo-item",
+         "equalToXml": "<todo-item>Do the washing</todo-item>"
       }
     } ]
     ...

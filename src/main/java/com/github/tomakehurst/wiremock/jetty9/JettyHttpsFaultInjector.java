@@ -39,11 +39,17 @@ public class JettyHttpsFaultInjector implements FaultInjector {
 
     public JettyHttpsFaultInjector(HttpServletResponse response) {
         this.response = JettyUtils.unwrapResponse(response);
+        this.socket = JettyUtils.getTlsSocket(this.response);
+    }
 
-        HttpChannel httpChannel = this.response.getHttpOutput().getHttpChannel();
-        SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
-        SelectChannelEndPoint selectChannelEndPoint = (SelectChannelEndPoint) sslEndpoint.getSslConnection().getEndPoint();
-        this.socket = selectChannelEndPoint.getSocket();
+    @Override
+    public void connectionResetByPeer() {
+        try {
+            socket.setSoLinger(true, 0);
+            socket.close();
+        } catch (IOException e) {
+            throwUnchecked(e);
+        }
     }
 
     @Override

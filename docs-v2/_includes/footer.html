@@ -43,6 +43,10 @@
       _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
     });
 
+    $("a[title='Consulting Services']").click(function() {
+      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
+    });
+
     if (!document.cookie.includes('mocklab_notification_seen')) {
       window.setTimeout(function () {
         $("#dialog").dialog({
@@ -59,7 +63,7 @@
             text: "Learn More",
             click: function () {
               _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
-              window.location.href = "http://get.mocklab.io"
+              window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
             }
           }]
         });

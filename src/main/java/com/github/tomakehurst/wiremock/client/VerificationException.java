@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.verification.Diff;
+import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.google.common.base.Joiner;
@@ -43,20 +43,20 @@ public class VerificationException extends AssertionError {
         return new VerificationException("A request was unmatched by any stub mapping. Closest stub mapping was:", diff);
     }
 
-    public static VerificationException forUnmatchedRequests(List<NearMiss> nearMisses) {
+    public static VerificationException forUnmatchedNearMisses(List<NearMiss> nearMisses) {
         if (nearMisses.size() == 1) {
             return forSingleUnmatchedRequest(nearMisses.get(0).getDiff());
         }
 
         return new VerificationException(nearMisses.size() +
             " requests were unmatched by any stub mapping. Shown with closest stub mappings:\n" +
-            renderNearMisses(nearMisses));
+            renderList(nearMisses));
 
     }
 
-    private static String renderNearMisses(List<NearMiss> nearMisses) {
+    private static String renderList(List<?> list) {
         return Joiner.on("\n\n").join(
-            from(nearMisses).transform(toStringFunction())
+            from(list).transform(toStringFunction())
         );
     }
 
@@ -85,5 +85,16 @@ public class VerificationException extends AssertionError {
             expectedCount.toString().toLowerCase(),
             actualCount,
             expected.toString()));
+    }
+
+    public static VerificationException forUnmatchedRequests(List<LoggedRequest> unmatchedRequests) {
+        if (unmatchedRequests.size() == 1) {
+            return new VerificationException(String.format("A request was unmatched by any stub mapping. Request was: ",
+                    unmatchedRequests.get(0)));
+        }
+
+        return new VerificationException(unmatchedRequests.size() +
+                " requests were unmatched by any stub mapping. Requests are:\n" +
+                renderList(unmatchedRequests));
     }
 }

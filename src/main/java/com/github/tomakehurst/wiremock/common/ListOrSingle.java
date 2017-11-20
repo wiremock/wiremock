@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.extension.responsetemplating;
+package com.github.tomakehurst.wiremock.common;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +24,8 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+@JsonSerialize(using = ListOrSingleSerialiser.class)
+@JsonDeserialize(using = ListOrStringDeserialiser.class)
 public class ListOrSingle<T> extends ArrayList<T> {
 
     public ListOrSingle(Collection<? extends T> c) {
@@ -42,5 +47,13 @@ public class ListOrSingle<T> extends ArrayList<T> {
 
     public static <T> ListOrSingle<T> of(List<T> items) {
         return new ListOrSingle<>(items);
+    }
+
+    public T first() {
+        return get(0);
+    }
+
+    public boolean isSingle() {
+        return size() == 1;
     }
 }

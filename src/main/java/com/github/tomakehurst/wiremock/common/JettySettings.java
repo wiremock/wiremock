@@ -24,13 +24,16 @@ public class JettySettings {
     private final Optional<Integer> acceptors;
     private final Optional<Integer> acceptQueueSize;
     private final Optional<Integer> requestHeaderSize;
+    private final Optional<Long> stopTimeout;
 
     private JettySettings(Optional<Integer> acceptors,
                           Optional<Integer> acceptQueueSize,
-                          Optional<Integer> requestHeaderSize) {
+                          Optional<Integer> requestHeaderSize,
+                          Optional<Long> stopTimeout) {
         this.acceptors = acceptors;
         this.acceptQueueSize = acceptQueueSize;
         this.requestHeaderSize = requestHeaderSize;
+        this.stopTimeout = stopTimeout;
     }
 
     public Optional<Integer> getAcceptors() {
@@ -43,6 +46,10 @@ public class JettySettings {
 
     public Optional<Integer> getRequestHeaderSize() {
         return requestHeaderSize;
+    }
+
+    public Optional<Long> getStopTimeout() {
+        return stopTimeout;
     }
 
     @Override
@@ -58,6 +65,7 @@ public class JettySettings {
         private Integer acceptors;
         private Integer acceptQueueSize;
         private Integer requestHeaderSize;
+        private Long stopTimeout;
 
         private Builder() {
         }
@@ -81,10 +89,16 @@ public class JettySettings {
             return this;
         }
 
+        public Builder withStopTimeout(Long stopTimeout) {
+            this.stopTimeout = stopTimeout;
+            return this;
+        }
+
         public JettySettings build() {
             return new JettySettings(Optional.fromNullable(acceptors),
                     Optional.fromNullable(acceptQueueSize),
-                    Optional.fromNullable(requestHeaderSize));
+                    Optional.fromNullable(requestHeaderSize),
+                    Optional.fromNullable(stopTimeout));
         }
     }
 

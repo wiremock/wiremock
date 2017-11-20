@@ -188,6 +188,18 @@ public class WireMockServer implements Container, Stubbing, Admin {
         return httpServer.httpsPort();
     }
 
+    public String url(String path) {
+        boolean https = options.httpsSettings().enabled();
+        String protocol = https ? "https" : "http";
+        int port = https ? httpsPort() : port();
+
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+
+        return String.format("%s://localhost:%d%s", protocol, port, path);
+    }
+
     public boolean isRunning() {
         return httpServer.isRunning();
     }
@@ -360,6 +372,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         return wireMockApp.findNearMissesForUnmatchedRequests();
+    }
+
+    @Override
+    public GetScenariosResult getAllScenarios() {
+        return wireMockApp.getAllScenarios();
     }
 
     @Override
