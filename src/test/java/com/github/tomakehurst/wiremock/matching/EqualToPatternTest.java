@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.JsonException;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
@@ -101,8 +102,9 @@ public class EqualToPatternTest {
 
             fail();
         } catch (Exception e) {
-            assertThat(e, instanceOf(JsonMappingException.class));
-            assertThat(e.getMessage(), containsString("{\"munches\":\"something\"} is not a valid comparison"));
+            assertThat(e, instanceOf(JsonException.class));
+            JsonException jsonException = (JsonException) e;
+            assertThat(jsonException.getErrors().first().getTitle(), containsString("{\"munches\":\"something\"} is not a valid comparison"));
         }
 
     }

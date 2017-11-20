@@ -495,19 +495,24 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void returnsBadEntityStatusOnInvalidBodyBase64() {
+    public void returnsBadEntityStatusOnEqualToJsonOperand() {
         WireMockResponse response = testClient.postJson("/__admin/mappings",
             "{\n" +
-                "    \"response\": {\n" +
-                "        \"base64Body\": \"!&  sdlfksld ==\"\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalToJson\": \"(wrong)\"\n" +
+                "            }\n" +
+                "        ]\n" +
                 "    }\n" +
                 "}");
 
         assertThat(response.statusCode(), is(422));
 
         Errors errors = Json.read(response.content(), Errors.class);
-        assertThat(errors.first().getSource().getPointer(), is("/response"));
-        assertThat(errors.first().getTitle(), is("Unrecognized character: !"));
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
+            " at [Source: (wrong); line: 1, column: 2]"));
     }
 
     @Test
