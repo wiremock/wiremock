@@ -77,6 +77,19 @@ public class NotMatchedPageAcceptanceTest {
     }
 
     @Test
+    public void rendersAPlainTextDiffWhenRequestIsOnlyUrlAndMethod() {
+        configure();
+
+        stubFor(get("/another-url")
+            .withRequestBody(absent())
+            .willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/gettable");
+
+        assertThat(response.statusCode(), is(404));
+    }
+
+    @Test
     public void showsADefaultMessageWhenNoStubsWerePresent() {
         configure();
 
