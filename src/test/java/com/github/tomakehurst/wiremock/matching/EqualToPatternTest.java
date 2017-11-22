@@ -101,7 +101,7 @@ public class EqualToPatternTest {
         } catch (Exception e) {
             assertThat(e, instanceOf(JsonException.class));
             JsonException jsonException = (JsonException) e;
-            assertThat(jsonException.getErrors().first().getTitle(), containsString("{\"munches\":\"something\"} is not a valid match operation"));
+            assertThat(jsonException.getErrors().first().getDetail(), containsString("{\"munches\":\"something\"} is not a valid match operation"));
         }
 
     }

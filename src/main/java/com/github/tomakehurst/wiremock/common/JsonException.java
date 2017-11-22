@@ -29,7 +29,7 @@ public class JsonException extends InvalidInputException {
         List<String> nodes = transform(e.getPath(), TO_NODE_NAMES);
         String pointer = '/' + Joiner.on('/').join(nodes);
 
-        return new JsonException(Errors.single(10, pointer, message));
+        return new JsonException(Errors.single(10, pointer, "Error parsing JSON", message));
     }
 
     private static Throwable getRootCause(Throwable e) {

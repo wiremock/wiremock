@@ -398,7 +398,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(422));
 
         Errors errors = Json.read(response.content(), Errors.class);
-        assertThat(errors.first().getTitle(), is("Unclosed character class near index 13\n" +
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 13\n" +
             "/@$&%*[[^^£$&%\n" +
             "             ^"));
         assertThat(errors.first().getSource().getPointer(), is("/request"));
@@ -420,7 +420,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(422));
 
         Errors errors = Json.read(response.content(), Errors.class);
-        assertThat(errors.first().getTitle(), is("Unclosed character class near index 8\n" +
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 8\n" +
             "%[[json[[\n" +
             "        ^"));
         assertThat(errors.first().getSource().getPointer(), is("/request/headers/Accept"));
@@ -446,7 +446,8 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
-        assertThat(errors.first().getTitle(), is("Unclosed character class near index 16\n" +
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 16\n" +
             "somebad]]][[stuff\n" +
             "                ^"));
     }
@@ -468,7 +469,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
-        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
     }
 
     @Test
@@ -491,7 +492,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
-        assertThat(errors.first().getTitle(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
     }
 
     @Test
@@ -511,7 +512,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
-        assertThat(errors.first().getTitle(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
+        assertThat(errors.first().getDetail(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
             " at [Source: (wrong); line: 1, column: 2]"));
     }
 
