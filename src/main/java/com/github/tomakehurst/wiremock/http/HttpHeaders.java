@@ -76,7 +76,7 @@ public class HttpHeaders {
     public ContentTypeHeader getContentTypeHeader() {
         HttpHeader header = getHeader(ContentTypeHeader.KEY);
         if (header.isPresent()) {
-            return new ContentTypeHeader(getHeader(ContentTypeHeader.KEY).firstValue());
+            return new ContentTypeHeader(header.firstValue());
         }
 
         return ContentTypeHeader.absent();

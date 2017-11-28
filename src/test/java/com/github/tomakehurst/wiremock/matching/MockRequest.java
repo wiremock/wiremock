@@ -27,15 +27,23 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
+import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 public class MockRequest implements Request {
 
@@ -45,6 +53,7 @@ public class MockRequest implements Request {
     private Map<String, Cookie> cookies = newHashMap();
     private byte[] body;
     private String clientIp = "1.1.1.1";
+    private Collection<Part> multiparts = null;
 
     public static MockRequest mockRequest() {
         return new MockRequest();
@@ -177,5 +186,40 @@ public class MockRequest implements Request {
 
     public LoggedRequest asLoggedRequest() {
         return LoggedRequest.createFrom(this);
+    }
+
+    @Override
+    public boolean isMultipart() {
+        return getHeader("Content-Type").contains("multipart/form-data");
+    }
+
+    @Override
+    public Collection<Part> getParts() {
+        if (body == null) {
+            return null;
+        }
+        if (multiparts == null) {
+            MultiPartInputStreamParser parser = new MultiPartInputStreamParser(new ByteArrayInputStream(body), getHeader(ContentTypeHeader.KEY), null, null);
+            try {
+                multiparts = parser.getParts();
+            } catch (ServletException | IOException e) {
+                e.printStackTrace();
+                multiparts = emptyList();
+            }
+        }
+        return multiparts;
+    }
+
+    @Override
+    public Part getPart(final String name) {
+        return (getParts() != null && name != null) ? from(multiparts).firstMatch(new Predicate<Part>() {
+            @Override
+            public boolean apply(Part input) {
+                if (name.equals(input.getName())) {
+                    return true;
+                }
+                return false;
+            }
+        }).get() : null;
     }
 }
