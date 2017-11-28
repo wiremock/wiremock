@@ -24,7 +24,9 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
 import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -300,6 +302,106 @@ public class RequestPatternTest {
     }
 
     @Test
+    public void matchesExactlyWith0DistanceWhenMultipartPatternsAllMatch() {
+        RequestPattern requestPattern =
+                newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+                        .withAnyRequestBodyPart(aMultipart()
+                                .withName("part-1")
+                                .withHeader("Content-Type", containing("text/plain"))
+                                .withMultipartBody(equalTo("body part value"))
+                        )
+                        .withAnyRequestBodyPart(aMultipart()
+                                .withName("part-2")
+                                .withHeader("Content-Type", containing("application/octet-stream"))
+                                .withMultipartBody(containing("other body"))
+                        )
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(POST)
+                .url("/my/url")
+                .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
+                        "body part value\r\n" +
+                        "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                        "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
+                        "--BOUNDARY--"
+                ));
+
+        assertThat(matchResult.getDistance(), is(0.0));
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void doesNotMatchExactlyWhenOneMultipartBodyPatternDoesNotMatch() {
+        RequestPattern requestPattern =
+                newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+                        .withAnyRequestBodyPart(aMultipart()
+                                .withName("part-2")
+                                .withMultipartBody(containing("non existing part"))
+                        )
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(PUT)
+                .url("/my/url")
+                .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                        "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
+                        "--BOUNDARY--"
+                ));
+
+        assertFalse(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void doesNotMatchExactlyWhenOneMultipartHeaderPatternDoesNotMatch() {
+        RequestPattern requestPattern =
+                newRequestPattern(PUT, WireMock.urlPathEqualTo("/my/url"))
+                        .withAnyRequestBodyPart(aMultipart()
+                                .withName("part-2")
+                                .withHeader("Content-Type", containing("application/json"))
+                        )
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(PUT)
+                .url("/my/url")
+                .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                        "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
+                        "--BOUNDARY--"
+                ));
+
+        assertFalse(matchResult.isExactMatch());
+    }
+
+    @Test
+    public void matchesExactlyWith0DistanceWhenAllMultipartPatternsMatchAllParts() {
+        RequestPattern requestPattern =
+                newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
+                        .withAllRequestBodyParts(aMultipart()
+                                .withHeader("Content-Type", containing("text/plain"))
+                                .withMultipartBody(containing("body value"))
+                        )
+                        .build();
+
+        MatchResult matchResult = requestPattern.match(mockRequest()
+                .method(POST)
+                .url("/my/url")
+                .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
+                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
+                        "body value-1\r\n" +
+                        "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: text/plain\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                        "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
+                        "--BOUNDARY--"
+                ));
+
+        assertThat(matchResult.getDistance(), is(0.0));
+        assertTrue(matchResult.isExactMatch());
+    }
+
+    @Test
     public void matchesExactlyWhenAllCookiesMatch() {
         RequestPattern requestPattern =
             newRequestPattern(POST, WireMock.urlPathEqualTo("/my/url"))
@@ -369,7 +471,7 @@ public class RequestPatternTest {
         "        { \"matchesJsonPath\": \"@.*\" },              \n" +
         "        { \"equalToXml\": \"<thing />\" },             \n" +
         "        { \"matchesXPath\": \"//thing\" },             \n" +
-        "        { \"contains\": \"thin\" },                  \n" +
+        "        { \"contains\": \"thin\" },                    \n" +
         "        { \"matches\": \".*thing.*\" },                \n" +
         "        { \"doesNotMatch\": \"^stuff.+\" }             \n" +
         "    ]                                                  \n" +

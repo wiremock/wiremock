@@ -24,8 +24,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aMultipart;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.google.common.collect.Maps.asMap;
+import static com.google.common.collect.Maps.newLinkedHashMap;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
@@ -55,6 +62,7 @@ public class RequestPatternBuilderTest {
             ImmutableMap.of("cookie", WireMock.equalTo("yum")),
             new BasicCredentials("user", "pass"),
             ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
+            null,
             null
         );
 
@@ -71,6 +79,42 @@ public class RequestPatternBuilderTest {
             }
         };
         RequestPattern requestPattern = new RequestPattern(customRequestMatcher);
+
+        RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
+        assertThat(newRequestPattern, is(requestPattern));
+    }
+
+    @Test
+    public void likeRequestPatternWithMultipartMatcher() {
+        MultipartValuePattern multipartValuePattern = aMultipart().withMultipartBody(equalToJson("[]")).build();
+
+        RequestPattern requestPattern = RequestPattern.everything();
+        RequestPattern newRequestPattern = RequestPatternBuilder
+                .like(requestPattern)
+                .but()
+                .withRequestBodyPart(multipartValuePattern)
+                .build();
+
+        assertThat(newRequestPattern.getMultipartPatterns(), everyItem(isIn(asList(multipartValuePattern))));
+        assertThat(newRequestPattern, not(equalTo(requestPattern)));
+    }
+
+    @Test
+    public void likeRequestPatternWithoutMultipartMatcher() {
+        MultipartValuePattern multipartPattern = aMultipart().withMultipartBody(equalToJson("[]")).build();
+
+        // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
+        RequestPattern requestPattern = new RequestPattern(
+                WireMock.urlEqualTo("/foo"),
+                RequestMethod.POST,
+                ImmutableMap.of("X-Header", MultiValuePattern.of(WireMock.equalTo("bar"))),
+                ImmutableMap.of("query_param", MultiValuePattern.of(WireMock.equalTo("bar"))),
+                ImmutableMap.of("cookie", WireMock.equalTo("yum")),
+                new BasicCredentials("user", "pass"),
+                ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
+                null,
+                asList(multipartPattern)
+        );
 
         RequestPattern newRequestPattern = RequestPatternBuilder.like(requestPattern).build();
         assertThat(newRequestPattern, is(requestPattern));

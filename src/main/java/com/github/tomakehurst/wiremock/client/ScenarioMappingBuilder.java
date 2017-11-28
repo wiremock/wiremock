@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
 import java.util.UUID;
@@ -29,6 +30,7 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
     ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
     ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
+    ScenarioMappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
     ScenarioMappingBuilder inScenario(String scenarioName);
     ScenarioMappingBuilder withId(UUID id);
     ScenarioMappingBuilder persistent();

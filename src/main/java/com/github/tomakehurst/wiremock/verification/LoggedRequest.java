@@ -23,14 +23,18 @@ import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 import java.nio.charset.Charset;
+import javax.servlet.http.Part;
+
 import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
@@ -39,6 +43,7 @@ import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.FluentIterable.from;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
@@ -53,6 +58,7 @@ public class LoggedRequest implements Request {
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
+    private final Collection<Part> multiparts;
 
     public static LoggedRequest createFrom(Request request) {
         return new LoggedRequest(request.getUrl(),
@@ -64,7 +70,9 @@ public class LoggedRequest implements Request {
             request.isBrowserProxyRequest(),
             new Date(),
             request.getBodyAsBase64(),
-            null);
+            null,
+            request.getParts()
+        );
     }
 
     @JsonCreator
@@ -78,7 +86,8 @@ public class LoggedRequest implements Request {
             @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
             @JsonProperty("loggedDate") Date loggedDate,
             @JsonProperty("bodyAsBase64") String bodyAsBase64,
-            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
+            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+            @JsonProperty("multiparts") Collection<Part> multiparts) {
         this.url = url;
         this.absoluteUrl = absoluteUrl;
         this.clientIp = clientIp;
@@ -89,6 +98,7 @@ public class LoggedRequest implements Request {
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
+        this.multiparts = multiparts;
     }
 
     @Override
@@ -212,5 +222,28 @@ public class LoggedRequest implements Request {
     @Override
     public String toString() {
         return Json.write(this);
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isMultipart() {
+        return (multiparts != null && multiparts.size() > 0);
+    }
+
+    @JsonIgnore
+    @Override
+    public Collection<Part> getParts() {
+        return multiparts;
+    }
+
+    @JsonIgnore
+    @Override
+    public Part getPart(final String name) {
+        return (multiparts != null && name != null) ? from(multiparts).firstMatch(new Predicate<Part>() {
+            @Override
+            public boolean apply(Part input) {
+                return (name.equals(input.getName()));
+            }
+        }).get() : null;
     }
 }
