@@ -3,12 +3,6 @@ main:
   - title: "Docs"
     url: /docs/
 
-  # - title: "Blog"
-  #   url: /blog
-
-#  - title: "Support & Training"
-#    url: /support-and-training/
-
   - title: "About"
     url: /about/
 
@@ -23,9 +17,6 @@ main:
   - title: "External Resources"
     url: /external-resources/
 
-  - title: "Support & Consulting"
+  - title: "Pro Support"
     url: http://consulting.wiremock.org
 
-  - title: "MockLab"
-    url: http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=primary-nav&utm_campaign=mocklab
-    new_window: true
