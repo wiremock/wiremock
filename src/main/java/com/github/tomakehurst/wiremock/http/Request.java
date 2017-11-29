@@ -37,6 +37,7 @@ public interface Request {
     Map<String, Cookie> getCookies();
 
     QueryParameter queryParameter(String key);
+    Set<String> getAllQueryParameterKeys();
 
     byte[] getBody();
     String getBodyAsString();
