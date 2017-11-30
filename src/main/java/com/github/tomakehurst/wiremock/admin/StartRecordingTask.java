@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.admin;
 
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
-import com.github.tomakehurst.wiremock.common.InvalidRequestException;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -33,7 +33,7 @@ public class StartRecordingTask implements AdminTask {
         try {
             admin.startRecording(recordSpec);
             return ResponseDefinition.okEmptyJson();
-        } catch (InvalidRequestException e) {
+        } catch (InvalidInputException e) {
             return jsonResponse(e.getErrors(), 422);
         }
     }
