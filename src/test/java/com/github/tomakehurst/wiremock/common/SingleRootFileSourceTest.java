@@ -20,11 +20,14 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SingleRootFileSourceTest {
@@ -71,6 +74,9 @@ public class SingleRootFileSourceTest {
 		String relativeRootPath = "./target/tmp/";
 		FileUtils.forceMkdir(new File(relativeRootPath));
 		SingleRootFileSource fileSource = new SingleRootFileSource(relativeRootPath);
-		fileSource.writeTextFile(Paths.get(relativeRootPath).toAbsolutePath().resolve("myFile").toString(), "stuff");
+		Path fileAbsolutePath = Paths.get(relativeRootPath).toAbsolutePath().resolve("myFile");
+		fileSource.writeTextFile(fileAbsolutePath.toString(), "stuff");
+
+		assertThat(Files.exists(fileAbsolutePath), is(true));
 	}
 }
