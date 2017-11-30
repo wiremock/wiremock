@@ -49,6 +49,15 @@
   }
 }
 
+.mocklab-section {
+  background-color: $mocklab-light-green;
+  border: 1px solid #c1c1c1;
+  //border-radius: 4px;
+
+  height: 200px;
+  padding: 0.5rem;
+}
+
 .users-of {
   display: flex;
   flex-wrap: wrap;
