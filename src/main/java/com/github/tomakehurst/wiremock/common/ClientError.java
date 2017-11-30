@@ -29,7 +29,7 @@ public class ClientError extends RuntimeException {
         Integer errorCode = errors.first().getCode();
         switch (errorCode) {
             case 10:
-                return new InvalidRequestException(errors);
+                return new InvalidInputException(errors);
             case 30:
                 return new NotRecordingException();
             default:

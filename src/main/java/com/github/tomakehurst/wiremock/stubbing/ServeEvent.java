@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -58,6 +59,10 @@ public class ServeEvent {
 
     public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
         return new ServeEvent(request, null, ResponseDefinition.notConfigured());
+    }
+
+    public static ServeEvent forBadRequest(LoggedRequest request, Errors errors) {
+        return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
     }
 
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
