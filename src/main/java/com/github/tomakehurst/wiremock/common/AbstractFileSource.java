@@ -123,7 +123,7 @@ public abstract class AbstractFileSource implements FileSource {
         assertWritable();
         final Path writablePath = Paths.get(name);
         if (writablePath.isAbsolute()) {
-            if (!writablePath.startsWith(rootDirectory.toPath())) {
+            if (!writablePath.startsWith(rootDirectory.toPath().toAbsolutePath())) {
                 throw new IllegalArgumentException(name + " is an absolute path not under the root directory");
             }
             return writablePath.toFile();
