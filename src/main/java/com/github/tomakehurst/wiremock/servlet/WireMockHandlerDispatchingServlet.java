@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -120,6 +121,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
             httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
 
+            delayIfRequired(response.getInitialDelay());
+
             try {
                 if (response.wasConfigured()) {
                     applyResponse(response, httpServletRequest, httpServletResponse);
@@ -132,6 +135,14 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
                 throwUnchecked(e);
             }
         }
+
+		private void delayIfRequired(long delayMillis) {
+			try {
+				TimeUnit.MILLISECONDS.sleep(delayMillis);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
     public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
