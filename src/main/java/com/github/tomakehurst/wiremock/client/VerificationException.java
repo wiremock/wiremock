@@ -73,7 +73,7 @@ public class VerificationException extends AssertionError {
 
     public VerificationException(RequestPattern expected, int expectedCount, int actualCount) {
         super(String.format(
-            "Expected exactly %d requests matching the following pattern but received only %d:\n%s",
+            "Expected exactly %d requests matching the following pattern but received %d:\n%s",
             expectedCount,
             actualCount,
             expected.toString()));
