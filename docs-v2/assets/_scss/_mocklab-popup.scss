@@ -91,18 +91,11 @@
 
   &--primary {
     background-color: $mocklab-dark-green;
-    position: absolute;
-    left: 120px;
-    bottom: 2px;
   }
 
   &--secondary {
-    //border: 3px solid $mocklab-dark-green !important;
     color: $mocklab-dark-green;
     background-color: transparent;
-    position: absolute;
-    left: 0;
-    bottom: 2px;
 
     &:active,
     &:visited,
