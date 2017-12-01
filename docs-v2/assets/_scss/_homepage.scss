@@ -49,6 +49,34 @@
   }
 }
 
+.mocklab-section {
+  background-color: $mocklab-light-green;
+  border: 1px solid #c1c1c1;
+  display: flex;
+  flex-wrap: wrap;
+
+  padding: 30px;
+
+  &__screenshot {
+    height: 300px;
+    border: 2px solid #c1c1c1;
+  }
+
+  &__copy {
+    font-family: Cairo, sans-serif;
+    padding: 0 30px 0 30px;
+    display: flex;
+    flex-direction: column;
+    max-width: 680px;
+  }
+
+  &__cta {
+    position: relative;
+    height: 100%;
+  }
+}
+
+
 .users-of {
   display: flex;
   flex-wrap: wrap;
