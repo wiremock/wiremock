@@ -261,7 +261,7 @@ public class BodyLengthMatcher extends RequestMatcherExtension {
 Then define a stub with it:
 
 ```java
-stubFor(requestMatching("body-too-long", Parameters.one("maxLemgth", 2048))
+stubFor(requestMatching("body-too-long", Parameters.one("maxLength", 2048))
         .willReturn(aResponse().withStatus(422)));
 ```
 
@@ -273,7 +273,7 @@ or via JSON:
         "customMatcher" : {
             "name" : "body-too-long",
             "parameters" : {
-                "maxLemgth" : 2048
+                "maxLength" : 2048
             }
         }
     },

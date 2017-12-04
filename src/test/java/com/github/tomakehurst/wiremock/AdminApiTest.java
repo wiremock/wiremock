@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
@@ -403,6 +405,136 @@ public class AdminApiTest extends AcceptanceTestBase {
         JsonAssertion.assertThat(body).field("response").field("status").isEqualTo(200);
 
         assertThat(testClient.get("/").statusCode(), is(200));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInUrl() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{                                      \n" +
+            "    \"request\": {                            \n" +
+            "        \"urlPattern\": \"/@$&%*[[^^£$&%\"    \n" +
+            "    }                                         \n" +
+            "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 13\n" +
+            "/@$&%*[[^^£$&%\n" +
+            "             ^"));
+        assertThat(errors.first().getSource().getPointer(), is("/request"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInHeader() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"headers\": {\n" +
+                "            \"Accept\": {\n" +
+                "                \"matches\": \"%[[json[[\"\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 8\n" +
+            "%[[json[[\n" +
+            "        ^"));
+        assertThat(errors.first().getSource().getPointer(), is("/request/headers/Accept"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInBodyPattern() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalTo\": \"fine\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"matches\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("Unclosed character class near index 16\n" +
+            "somebad]]][[stuff\n" +
+            "                ^"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidMatchOperator() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"matching\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidMatchOperatorManyBodyPatterns() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalTo\": \"fine\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"matching\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusOnEqualToJsonOperand() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalToJson\": \"(wrong)\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getDetail(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
+            " at [Source: (wrong); line: 1, column: 2]"));
     }
 
     @Test

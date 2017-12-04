@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-public class InvalidRequestException extends ClientError {
+public class InvalidInputException extends ClientError {
 
-    public InvalidRequestException(Errors errors) {
+    public InvalidInputException(Errors errors) {
         super(errors);
     }
 }

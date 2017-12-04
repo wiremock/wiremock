@@ -25,12 +25,14 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.google.common.net.MediaType;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static java.net.HttpURLConnection.*;
 
 public class ResponseDefinition {
@@ -158,6 +160,14 @@ public class ResponseDefinition {
 
     public static ResponseDefinition noContent() {
         return new ResponseDefinition(HTTP_NO_CONTENT, (byte[]) null);
+    }
+
+    public static ResponseDefinition badRequest(Errors errors) {
+        return ResponseDefinitionBuilder.responseDefinition()
+            .withStatus(422)
+            .withHeader(CONTENT_TYPE, "application/json")
+            .withBody(Json.write(errors))
+            .build();
     }
 
     public static ResponseDefinition redirectTo(String path) {
