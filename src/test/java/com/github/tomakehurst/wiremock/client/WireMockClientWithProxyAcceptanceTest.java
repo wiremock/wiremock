@@ -24,9 +24,6 @@ import org.junit.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -57,7 +54,7 @@ public class WireMockClientWithProxyAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = new WireMock("http", "localhost", wireMockServer.port(), "", null, proxyServer.getListenAddress().getHostString(), proxyServer.getListenAddress().getPort());
+		WireMock wireMock = WireMock.create().scheme("http").host("localhost").port(wireMockServer.port()).urlPathPrefix("").hostHeader(null).proxyHost(proxyServer.getListenAddress().getHostString()).proxyPort(proxyServer.getListenAddress().getPort()).build();
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(
@@ -78,7 +75,7 @@ public class WireMockClientWithProxyAcceptanceTest {
 
 	@Test
 	public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
-		WireMock wireMock = new WireMock("http", "localhost", wireMockServer.port(), "", null, proxyServer.getListenAddress().getHostString(), proxyServer.getListenAddress().getPort());
+		WireMock wireMock = WireMock.create().scheme("http").host("localhost").port(wireMockServer.port()).urlPathPrefix("").hostHeader(null).proxyHost(proxyServer.getListenAddress().getHostString()).proxyPort(proxyServer.getListenAddress().getPort()).build();
 		wireMock.register(
 				get(urlEqualTo("/my/new/resource"))
 				.willReturn(

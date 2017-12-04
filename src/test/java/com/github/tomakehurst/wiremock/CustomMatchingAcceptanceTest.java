@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -48,7 +49,7 @@ public class CustomMatchingAcceptanceTest {
     @Before
     public void init() {
         client = new WireMockTestClient(wmRule.port());
-        wm = new WireMock(wmRule.port());
+        wm = WireMock.create().port(wmRule.port()).build();
     }
 
     @Test

@@ -17,12 +17,11 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.matching.MatchResult;
-import com.github.tomakehurst.wiremock.matching.RequestMatcher;
-import com.github.tomakehurst.wiremock.matching.ValueMatcher;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
@@ -62,8 +61,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.forCustomMatcher;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static com.github.tomakehurst.wiremock.verification.Diff.junitStyleDiffMessage;
+import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
 import static java.lang.System.lineSeparator;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.allOf;
@@ -638,6 +638,18 @@ public class VerificationAcceptanceTest {
             } catch (VerificationException e) {
                 assertThat(e.getMessage(), containsString("No requests exactly matched."));
             }
+        }
+
+        @Test
+        public void verifiesWithCustomMatcherViaStaticDsl() {
+            testClient.get("/custom-verify");
+
+            verify(forCustomMatcher(new RequestMatcherExtension() {
+                @Override
+                public MatchResult match(Request request, Parameters parameters) {
+                    return MatchResult.of(request.getUrl().equals("/custom-verify"));
+                }
+            }));
         }
 
     }

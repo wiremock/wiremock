@@ -347,7 +347,7 @@ JSON:
   "request": {
     ...
     "bodyPatterns" : [ {
-      "equalToJson" : "{ \"total_results\": 4 }"
+      "equalToJson" : { "total_results": 4 }
     } ]
     ...
   },
@@ -355,6 +355,20 @@ JSON:
 }
 ```
 
+JSON with string literal:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "equalToJson" : "{ \"total_results\": 4 }"
+    } ]
+    ...
+  },
+  ...
+}
+```
 
 By default different array orderings and additional object attributes will trigger a non-match. However, both of these conditions can be disabled individually.
 

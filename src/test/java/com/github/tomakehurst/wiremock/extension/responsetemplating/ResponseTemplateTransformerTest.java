@@ -101,6 +101,21 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void multiValueCookies() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .cookie("multi", "one", "two"),
+            aResponse().withBody(
+                "{{request.cookies.multi}}, {{request.cookies.multi.[0]}}, {{request.cookies.multi.[1]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "one, one, two"
+        ));
+    }
+
+    @Test
     public void urlPath() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/the/entire/path"),

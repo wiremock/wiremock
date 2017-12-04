@@ -109,12 +109,15 @@ public class WireMockApp implements StubServer, Admin {
 
     public AdminRequestHandler buildAdminRequestHandler() {
         AdminRoutes adminRoutes = AdminRoutes.defaultsPlus(
-            options.extensionsOfType(AdminApiExtension.class).values()
+            options.extensionsOfType(AdminApiExtension.class).values(),
+            options.getNotMatchedRenderer()
         );
         return new AdminRequestHandler(
             adminRoutes,
             this,
-            new BasicResponseRenderer()
+            new BasicResponseRenderer(),
+            options.getAdminAuthenticator(),
+            options.getHttpsRequiredForAdminApi()
         );
     }
 
@@ -311,6 +314,13 @@ public class WireMockApp implements StubServer, Admin {
         }
 
         return new FindNearMissesResult(listBuilder.build());
+    }
+
+    @Override
+    public GetScenariosResult getAllScenarios() {
+        return new GetScenariosResult(
+            stubMappings.getAllScenarios()
+        );
     }
 
     @Override

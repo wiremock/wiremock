@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
@@ -42,7 +41,7 @@ import static com.google.common.collect.Iterables.tryFind;
 public class InMemoryStubMappings implements StubMappings {
 	
 	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-	private final ConcurrentHashMap<String, Scenario> scenarioMap = new ConcurrentHashMap<String, Scenario>();
+	private final Scenarios scenarios = new Scenarios();
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
@@ -66,7 +65,7 @@ public class InMemoryStubMappings implements StubMappings {
 				mappingMatchingAndInCorrectScenarioState(request),
 				StubMapping.NOT_CONFIGURED);
 		
-		matchingMapping.updateScenarioStateIfRequired();
+		scenarios.onStubServed(matchingMapping);
 
         ResponseDefinition responseDefinition = applyTransformations(request,
             matchingMapping.getResponse(),
@@ -97,14 +96,14 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void addMapping(StubMapping mapping) {
-		updateSenarioMapIfPresent(mapping);
 		mappings.add(mapping);
+		scenarios.onStubMappingAddedOrUpdated(mapping, mappings);
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
-		removeFromSenarioMapIfPresent(mapping);
 		mappings.remove(mapping);
+		scenarios.onStubMappingRemoved(mapping, mappings);
 	}
 
 	@Override
@@ -122,38 +121,23 @@ public class InMemoryStubMappings implements StubMappings {
 
 		final StubMapping existingMapping = optionalExistingMapping.get();
 
-		updateSenarioMapIfPresent(stubMapping);
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
 		stubMapping.setDirty(true);
 
 		mappings.replace(existingMapping, stubMapping);
+		scenarios.onStubMappingAddedOrUpdated(stubMapping, mappings);
 	}
 
-	private void removeFromSenarioMapIfPresent(StubMapping mapping) {
-		if (mapping.isInScenario()) {
-			scenarioMap.remove(mapping.getScenarioName(), Scenario.inStartedState());
-		}
-	}
-
-	private void updateSenarioMapIfPresent(StubMapping mapping) {
-		if (mapping.isInScenario()) {
-			scenarioMap.putIfAbsent(mapping.getScenarioName(), Scenario.inStartedState());
-			Scenario scenario = scenarioMap.get(mapping.getScenarioName());
-			mapping.setScenario(scenario);
-		}
-	}
 
 	@Override
 	public void reset() {
 		mappings.clear();
-        scenarioMap.clear();
+        scenarios.clear();
 	}
 	
 	@Override
 	public void resetScenarios() {
-		for (Scenario scenario: scenarioMap.values()) {
-			scenario.reset();
-		}
+		scenarios.reset();
 	}
 
     @Override
@@ -171,6 +155,11 @@ public class InMemoryStubMappings implements StubMappings {
 		});
 	}
 
+	@Override
+	public List<Scenario> getAllScenarios() {
+		return scenarios.getAll();
+	}
+
 	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
@@ -179,7 +168,7 @@ public class InMemoryStubMappings implements StubMappings {
 		return new Predicate<StubMapping>() {
 			public boolean apply(StubMapping mapping) {
 				return mapping.getRequest().match(request, customMatchers).isExactMatch() &&
-				(mapping.isIndependentOfScenarioState() || mapping.requiresCurrentScenarioState());
+				(mapping.isIndependentOfScenarioState() || scenarios.mappingMatchesScenarioState(mapping));
 			}
 		};
 	}
