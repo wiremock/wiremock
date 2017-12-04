@@ -28,4 +28,8 @@ public class TextFile extends BinaryFile {
 	public String readContentsAsString() {
         return new String(super.readContents(), UTF_8);
 	}
+
+    public String getPath() {
+        return getUri().getSchemeSpecificPart();
+    }
 }

@@ -22,14 +22,22 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import java.io.File;
+import java.nio.file.Paths;
 
-public class EditStubFileTask implements AdminTask {
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+
+public class DeleteStubFileTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        byte[] fileContent = request.getBody();
         FileSource fileSource = admin.getOptions().filesRoot().child(FILES_ROOT);
-        fileSource.writeBinaryFile(pathParams.get("filename"),  fileContent);
-        return ResponseDefinition.okForJson(fileContent);
+        File filename = Paths.get(fileSource.getPath()).resolve(pathParams.get("filename")).toFile();
+        boolean deleted = filename.delete();
+        if (deleted) {
+            return ResponseDefinition.ok();
+        } else {
+            return new ResponseDefinition(HTTP_INTERNAL_ERROR, "File not deleted");
+        }
     }
 }
