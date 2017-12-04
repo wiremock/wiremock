@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -44,7 +46,24 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         return isMatch ? exactMatch() : noMatch();
     }
 
+    public static MatchResult aggregate(MatchResult... matches) {
+        return aggregate(asList(matches));
+    }
+
     public static MatchResult aggregate(final List<MatchResult> matchResults) {
+        return aggregateWeighted(Lists.transform(matchResults, new Function<MatchResult, WeightedMatchResult>() {
+            @Override
+            public WeightedMatchResult apply(MatchResult matchResult) {
+                return new WeightedMatchResult(matchResult);
+            }
+        }));
+    }
+
+    public static MatchResult aggregateWeighted(WeightedMatchResult... matchResults) {
+        return aggregateWeighted(asList(matchResults));
+    }
+
+    public static MatchResult aggregateWeighted(final List<WeightedMatchResult> matchResults) {
         return new MatchResult() {
             @Override
             public boolean isExactMatch() {
@@ -54,17 +73,15 @@ public abstract class MatchResult implements Comparable<MatchResult> {
             @Override
             public double getDistance() {
                 double totalDistance = 0;
-                for (MatchResult matchResult: matchResults) {
+                double sizeWithWeighting = 0;
+                for (WeightedMatchResult matchResult: matchResults) {
                     totalDistance += matchResult.getDistance();
+                    sizeWithWeighting += matchResult.getWeighting();
                 }
 
-                return (totalDistance / matchResults.size());
+                return (totalDistance / sizeWithWeighting);
             }
         };
-    }
-
-    public static MatchResult aggregate(MatchResult... matches) {
-        return aggregate(asList(matches));
     }
 
     @JsonIgnore
@@ -76,9 +93,9 @@ public abstract class MatchResult implements Comparable<MatchResult> {
         return Double.compare(other.getDistance(), getDistance());
     }
 
-    public static final Predicate<MatchResult> ARE_EXACT_MATCH = new Predicate<MatchResult>() {
+    public static final Predicate<WeightedMatchResult> ARE_EXACT_MATCH = new Predicate<WeightedMatchResult>() {
         @Override
-        public boolean apply(MatchResult matchResult) {
+        public boolean apply(WeightedMatchResult matchResult) {
             return matchResult.isExactMatch();
         }
     };

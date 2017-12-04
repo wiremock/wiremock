@@ -24,6 +24,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -276,7 +277,7 @@ public class EqualToJsonTest {
     }
 
     @Test
-    public void correctlyDeserialisesFromJsonWhenAdditionalParamsPresent() {
+    public void correctlyDeserialisesFromJsonStringWhenAdditionalParamsPresent() {
         StringValuePattern pattern = Json.read(
             "{\n" +
             "    \"equalToJson\": \"2\",\n" +
@@ -287,10 +288,45 @@ public class EqualToJsonTest {
         );
 
         assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
+        assertThat(pattern.getExpected(), is("2"));
     }
 
     @Test
-    public void correctlySerialisesToJsonWhenAdditionalParamsPresent() throws JSONException {
+    public void correctlyDeserialisesFromJsonValueWhenAdditionalParamsPresent() throws JSONException {
+        String expectedJson = "{ \"someKey\": \"someValue\" }";
+        String serializedJson =
+            "{                                           \n" +
+            "    \"equalToJson\": " + expectedJson + ",  \n" +
+            "    \"ignoreArrayOrder\": true,             \n" +
+            "    \"ignoreExtraElements\": true           \n" +
+            "}                                             ";
+        StringValuePattern pattern = Json.read(serializedJson, StringValuePattern.class);
+
+        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
+        JSONAssert.assertEquals(pattern.getExpected(), expectedJson, false);
+    }
+
+    @Test
+    public void correctlySerialisesToJsonValueWhenAdditionalParamsPresentAndConstructedWithJsonValue() throws JSONException {
+        String expectedJson = "{ \"someKey\": \"someValue\" }";
+        EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), true, true);
+
+        String serialised = Json.write(pattern);
+        String expected =
+            "{                                           \n" +
+            "    \"equalToJson\": " + expectedJson + ",  \n" +
+            "    \"ignoreArrayOrder\": true,             \n" +
+            "    \"ignoreExtraElements\": true           \n" +
+            "}                                             ";
+        JSONAssert.assertEquals(expected, serialised, false);
+    }
+
+    @Test
+    public void correctlySerialisesToJsonWhenAdditionalParamsPresentAndConstructedWithString() throws JSONException {
         EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true);
 
         String serialised = Json.write(pattern);
@@ -305,7 +341,7 @@ public class EqualToJsonTest {
     }
 
     @Test
-    public void correctlyDeserialisesFromJsonWhenAdditionalParamsAbsent() {
+    public void correctlyDeserialisesFromJsonStringWhenAdditionalParamsAbsent() {
         StringValuePattern pattern = Json.read(
             "{\n" +
             "    \"equalToJson\": \"2\"\n" +
@@ -314,6 +350,29 @@ public class EqualToJsonTest {
         );
 
         assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
+        assertThat(pattern.getExpected(), is("2"));
+    }
+
+    @Test
+    public void correctlyDeserialisesFromJsonValueWhenAdditionalParamsAbsent() throws JSONException {
+        String expectedJson = "[ 1, 2, \"value\" ]";
+        StringValuePattern pattern = Json.read("{ \"equalToJson\": " + expectedJson + " }", StringValuePattern.class);
+
+        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
+        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
+        JSONAssert.assertEquals(pattern.getExpected(), expectedJson, false);
+    }
+
+    @Test
+    public void correctlySerialisesToJsonWhenAdditionalParamsAbsentAndConstructedWithJsonValue() throws JSONException {
+        String expectedJson = "[ 1, 2, \"value\" ]";
+        EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), null, null);
+
+        String serialised = Json.write(pattern);
+        JSONAssert.assertEquals("{ \"equalToJson\": " + expectedJson + " }", serialised, false);
     }
 
     @Test
@@ -398,6 +457,35 @@ public class EqualToJsonTest {
 
         assertFalse(match.isExactMatch());
         assertThat(match.getDistance(), is(1.0));
+    }
+
+    @Test
+    public void doesNotBreakWhenComparingNestedArraysOfDifferentSizes() {
+        String expected = "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
+        String actual = "{\"columns\": [{\"name\": \"x\",\"y\": 3},{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"agreementstatus\",\"b\": 2}]}";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+
+        assertFalse(match.isExactMatch());
+    }
+
+    @Test
+    public void doesNotBreakWhenComparingTopLevelArraysOfDifferentSizesWithCommonElements() {
+        String expected = "[    \n" +
+            "  { \"one\": 1 },  \n" +
+            "  { \"two\": 2 },  \n" +
+            "  { \"three\": 3 } \n" +
+            "]";
+        String actual = "[      \n" +
+            "  { \"zero\": 0 }, \n" +
+            "  { \"one\": 1 },  \n" +
+            "  { \"two\": 2 },  \n" +
+            "  { \"four\": 4 }  \n" +
+            "]";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+
+        assertFalse(match.isExactMatch());
     }
 
 }

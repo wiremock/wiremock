@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
 import java.net.URI;
@@ -34,6 +35,7 @@ import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 
 public class MockRequest implements Request {
 
@@ -63,8 +65,8 @@ public class MockRequest implements Request {
         return this;
     }
 
-    public MockRequest cookie(String key, String value) {
-        cookies.put(key, new Cookie(value));
+    public MockRequest cookie(String key, String... values) {
+        cookies.put(key, new Cookie(asList(values)));
         return this;
     }
 
@@ -166,6 +168,11 @@ public class MockRequest implements Request {
     @Override
     public boolean isBrowserProxyRequest() {
         return false;
+    }
+
+    @Override
+    public Optional<Request> getOriginalRequest() {
+        return Optional.absent();
     }
 
     public LoggedRequest asLoggedRequest() {

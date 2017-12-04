@@ -15,13 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import org.eclipse.jetty.io.ssl.SslConnection;
+import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import java.net.Socket;
 import java.net.URI;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class JettyUtils {
 
@@ -32,6 +37,17 @@ public class JettyUtils {
         }
 
         return (Response) httpServletResponse;
+    }
+
+    public static Socket getTlsSocket(Response response) {
+        HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
+        SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
+        Object endpoint = sslEndpoint.getSslConnection().getEndPoint();
+        try {
+            return (Socket) endpoint.getClass().getMethod("getSocket").invoke(endpoint);
+        } catch (Exception e) {
+            return throwUnchecked(e, Socket.class);
+        }
     }
 
     public static URI getUri(Request request) {

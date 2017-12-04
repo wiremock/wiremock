@@ -17,13 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.github.tomakehurst.wiremock.http.DelayDistribution;
-import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeaders;
-import com.github.tomakehurst.wiremock.http.LogNormal;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
-import com.github.tomakehurst.wiremock.http.UniformDistribution;
+import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -46,6 +40,7 @@ public class ResponseDefinitionBuilder {
 	protected List<HttpHeader> headers = newArrayList();
 	protected Integer fixedDelayMilliseconds;
 	protected DelayDistribution delayDistribution;
+	protected ChunkedDribbleDelay chunkedDribbleDelay;
 	protected String proxyBaseUrl;
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
@@ -65,10 +60,13 @@ public class ResponseDefinitionBuilder {
 		builder.bodyFileName = responseDefinition.getBodyFileName();
 		builder.fixedDelayMilliseconds = responseDefinition.getFixedDelayMilliseconds();
 		builder.delayDistribution = responseDefinition.getDelayDistribution();
+		builder.chunkedDribbleDelay = responseDefinition.getChunkedDribbleDelay();
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
-		builder.transformerParameters = responseDefinition.getTransformerParameters();
+		builder.transformerParameters = responseDefinition.getTransformerParameters() != null ?
+			Parameters.from(responseDefinition.getTransformerParameters()) :
+			Parameters.empty();
 		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
 		return builder;
 	}
@@ -130,6 +128,11 @@ public class ResponseDefinitionBuilder {
 
 	public ResponseDefinitionBuilder withUniformRandomDelay(int lowerMilliseconds, int upperMilliseconds) {
 		return withRandomDelay(new UniformDistribution(lowerMilliseconds, upperMilliseconds));
+	}
+
+	public ResponseDefinitionBuilder withChunkedDribbleDelay(int numberOfChunks, int totalDuration) {
+		this.chunkedDribbleDelay = new ChunkedDribbleDelay(numberOfChunks, totalDuration);
+		return this;
 	}
 
 	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
@@ -244,6 +247,7 @@ public class ResponseDefinitionBuilder {
 						additionalProxyRequestHeaders,
 						fixedDelayMilliseconds,
 						delayDistribution,
+						chunkedDribbleDelay,
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
@@ -260,6 +264,7 @@ public class ResponseDefinitionBuilder {
 						additionalProxyRequestHeaders,
 						fixedDelayMilliseconds,
 						delayDistribution,
+						chunkedDribbleDelay,
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,

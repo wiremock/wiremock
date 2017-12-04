@@ -20,7 +20,9 @@ import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
+import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -52,4 +54,7 @@ public interface Options {
     HttpServerFactory httpServerFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
     WiremockNetworkTrafficListener networkTrafficListener();
+    Authenticator getAdminAuthenticator();
+    boolean getHttpsRequiredForAdminApi();
+    NotMatchedRenderer getNotMatchedRenderer();
 }

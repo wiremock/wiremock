@@ -375,6 +375,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public GetScenariosResult getAllScenarios() {
+        return wireMockApp.getAllScenarios();
+    }
+
+    @Override
     public FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest) {
         return wireMockApp.findTopNearMissesFor(loggedRequest);
     }

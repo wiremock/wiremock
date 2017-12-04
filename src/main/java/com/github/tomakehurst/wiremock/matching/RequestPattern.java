@@ -26,16 +26,17 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weight;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
@@ -56,13 +57,14 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final RequestMatcher defaultMatcher = new RequestMatcher() {
         @Override
         public MatchResult match(Request request) {
-            return MatchResult.aggregate(
-                url.match(request.getUrl()),
-                method.match(request.getMethod()),
-                allHeadersMatchResult(request),
-                allQueryParamsMatch(request),
-                allCookiesMatch(request),
-                allBodyPatternsMatch(request)
+            return MatchResult.aggregateWeighted(
+                weight(url.match(request.getUrl()), 10.0),
+                weight(method.match(request.getMethod()), 3.0),
+
+                weight(allHeadersMatchResult(request)),
+                weight(allQueryParamsMatch(request)),
+                weight(allCookiesMatch(request)),
+                weight(allBodyPatternsMatch(request))
             );
         }
 
@@ -161,11 +163,25 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             return MatchResult.aggregate(
                 from(cookies.entrySet())
                     .transform(new Function<Map.Entry<String, StringValuePattern>, MatchResult>() {
-                        public MatchResult apply(Map.Entry<String, StringValuePattern> cookiePattern) {
-                            Cookie cookie =
-                                firstNonNull(request.getCookies().get(cookiePattern.getKey()), Cookie.absent());
+                        public MatchResult apply(final Map.Entry<String, StringValuePattern> cookiePattern) {
+                            Cookie cookie = request.getCookies().get(cookiePattern.getKey());
+                            if (cookie == null) {
+                                return cookiePattern.getValue().nullSafeIsAbsent() ?
+                                    MatchResult.exactMatch() :
+                                    MatchResult.noMatch();
+                            }
 
-                            return cookiePattern.getValue().match(cookie.getValue());
+                            return from(cookie.getValues()).transform(new Function<String, MatchResult>() {
+                                @Override
+                                public MatchResult apply(String cookieValue) {
+                                    return cookiePattern.getValue().match(cookieValue);
+                                }
+                            }).toSortedList(new Comparator<MatchResult>() {
+                                @Override
+                                public int compare(MatchResult o1, MatchResult o2) {
+                                    return o2.compareTo(o1);
+                                }
+                            }).get(0);
                         }
                     }).toList()
             );
@@ -297,6 +313,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     public CustomMatcherDefinition getCustomMatcher() {
         return customMatcherDefinition;
+    }
+
+    @JsonIgnore
+    public ValueMatcher<Request> getMatcher() {
+        return matcher;
     }
 
     @Override

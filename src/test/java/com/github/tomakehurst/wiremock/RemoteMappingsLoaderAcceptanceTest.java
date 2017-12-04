@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.google.common.io.Resources;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class RemoteMappingsLoaderAcceptanceTest extends AcceptanceTestBase {
     @BeforeClass
     public static void initWithTempDir() throws Exception {
         setupServerWithTempFileRoot();
-        wmClient = new WireMock(wireMockServer.port());
+        wmClient = WireMock.create().port(wireMockServer.port()).build();
         rootDir = new File(Resources.getResource("remoteloader").toURI());
     }
 

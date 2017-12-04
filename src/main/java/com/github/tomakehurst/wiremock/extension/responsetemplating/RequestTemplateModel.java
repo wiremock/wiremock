@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.MultiValue;
@@ -57,8 +58,8 @@ public class RequestTemplateModel {
         });
         Map<String, ListOrSingle<String>> adaptedCookies = Maps.transformValues(request.getCookies(), new Function<Cookie, ListOrSingle<String>>() {
             @Override
-            public ListOrSingle<String> apply(Cookie input) {
-                return ListOrSingle.of(input.getValue());
+            public ListOrSingle<String> apply(Cookie cookie) {
+                return ListOrSingle.of(cookie.getValues());
             }
         });
 

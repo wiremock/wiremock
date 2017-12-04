@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -30,11 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 public class ResponseDefinition {
 
@@ -46,6 +43,7 @@ public class ResponseDefinition {
     private final HttpHeaders additionalProxyRequestHeaders;
     private final Integer fixedDelayMilliseconds;
     private final DelayDistribution delayDistribution;
+    private final ChunkedDribbleDelay chunkedDribbleDelay;
     private final String proxyBaseUrl;
     private final Fault fault;
     private final List<String> transformers;
@@ -66,12 +64,13 @@ public class ResponseDefinition {
                               @JsonProperty("additionalProxyRequestHeaders") HttpHeaders additionalProxyRequestHeaders,
                               @JsonProperty("fixedDelayMilliseconds") Integer fixedDelayMilliseconds,
                               @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
+                              @JsonProperty("chunkedDribbleDelay") ChunkedDribbleDelay chunkedDribbleDelay,
                               @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
                               @JsonProperty("fault") Fault fault,
                               @JsonProperty("transformers") List<String> transformers,
                               @JsonProperty("transformerParameters") Parameters transformerParameters,
                               @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
     }
 
     public ResponseDefinition(int status,
@@ -84,12 +83,13 @@ public class ResponseDefinition {
                               HttpHeaders additionalProxyRequestHeaders,
                               Integer fixedDelayMilliseconds,
                               DelayDistribution delayDistribution,
+                              ChunkedDribbleDelay chunkedDribbleDelay,
                               String proxyBaseUrl,
                               Fault fault,
                               List<String> transformers,
                               Parameters transformerParameters,
                               Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
     }
 
     private ResponseDefinition(int status,
@@ -100,6 +100,7 @@ public class ResponseDefinition {
                                HttpHeaders additionalProxyRequestHeaders,
                                Integer fixedDelayMilliseconds,
                                DelayDistribution delayDistribution,
+                               ChunkedDribbleDelay chunkedDribbleDelay,
                                String proxyBaseUrl,
                                Fault fault,
                                List<String> transformers,
@@ -115,6 +116,7 @@ public class ResponseDefinition {
         this.additionalProxyRequestHeaders = additionalProxyRequestHeaders;
         this.fixedDelayMilliseconds = fixedDelayMilliseconds;
         this.delayDistribution = delayDistribution;
+        this.chunkedDribbleDelay = chunkedDribbleDelay;
         this.proxyBaseUrl = proxyBaseUrl;
         this.fault = fault;
         this.transformers = transformers;
@@ -123,15 +125,15 @@ public class ResponseDefinition {
     }
 
     public ResponseDefinition(final int statusCode, final String bodyContent) {
-        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition() {
-        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public static ResponseDefinition notFound() {
@@ -171,6 +173,16 @@ public class ResponseDefinition {
         return response;
     }
 
+    public static ResponseDefinition notAuthorised() {
+        return new ResponseDefinition(HTTP_UNAUTHORIZED, (byte[]) null);
+    }
+
+    public static ResponseDefinition notPermitted(String message) {
+        Errors errors = Errors.single(40, message);
+        return ResponseDefinitionBuilder
+            .jsonResponse(Json.write(errors), HTTP_FORBIDDEN);
+    }
+
     public static ResponseDefinition browserProxy(Request originalRequest) {
         final ResponseDefinition response = new ResponseDefinition();
         response.browserProxyUrl = originalRequest.getAbsoluteUrl();
@@ -187,6 +199,7 @@ public class ResponseDefinition {
             original.additionalProxyRequestHeaders,
             original.fixedDelayMilliseconds,
             original.delayDistribution,
+            original.chunkedDribbleDelay,
             original.proxyBaseUrl,
             original.fault,
             original.transformers,
@@ -248,6 +261,10 @@ public class ResponseDefinition {
 
     public DelayDistribution getDelayDistribution() {
         return delayDistribution;
+    }
+
+    public ChunkedDribbleDelay getChunkedDribbleDelay() {
+        return chunkedDribbleDelay;
     }
 
     @JsonIgnore
@@ -323,6 +340,7 @@ public class ResponseDefinition {
             Objects.equals(additionalProxyRequestHeaders, that.additionalProxyRequestHeaders) &&
             Objects.equals(fixedDelayMilliseconds, that.fixedDelayMilliseconds) &&
             Objects.equals(delayDistribution, that.delayDistribution) &&
+            Objects.equals(chunkedDribbleDelay, that.chunkedDribbleDelay) &&
             Objects.equals(proxyBaseUrl, that.proxyBaseUrl) &&
             fault == that.fault &&
             Objects.equals(transformers, that.transformers) &&
@@ -333,12 +351,11 @@ public class ResponseDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
+        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
     }
 
     @Override
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
-
 }

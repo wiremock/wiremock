@@ -88,7 +88,8 @@ public class StubResponseRenderer implements ResponseRenderer {
                 .status(responseDefinition.getStatus())
 				.statusMessage(responseDefinition.getStatusMessage())
                 .headers(responseDefinition.getHeaders())
-                .fault(responseDefinition.getFault());
+                .fault(responseDefinition.getFault())
+				.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());

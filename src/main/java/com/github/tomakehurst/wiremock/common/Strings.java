@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.nio.charset.Charset;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -45,4 +47,28 @@ public class Strings {
 
         return str.getBytes(charset);
     }
+
+    public static String wrapIfLongestLineExceedsLimit(String s, int maxLineLength) {
+        int longestLength = findLongestLineLength(s);
+        if (longestLength > maxLineLength) {
+            String wrapped = WordUtils.wrap(s, maxLineLength, null, true);
+            return wrapped.replaceAll("(?m)^[ \t]*\r?\n", "");
+        }
+
+        return s;
+    }
+
+    private static int findLongestLineLength(String s) {
+        String[] lines = s.split("\n");
+        int longestLength = 0;
+        for (String line: lines) {
+            int length = line.length();
+            if (length > longestLength) {
+                longestLength = length;
+            }
+        }
+
+        return longestLength;
+    }
+
 }
