@@ -18,18 +18,26 @@ package com.github.tomakehurst.wiremock.admin.tasks;
 import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 
-public class EditStubFileTask implements AdminTask {
+public class GetAllStubFilesTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        byte[] fileContent = request.getBody();
         FileSource fileSource = admin.getOptions().filesRoot().child(FILES_ROOT);
-        fileSource.writeBinaryFile(pathParams.get("filename"),  fileContent);
-        return ResponseDefinition.okForJson(fileContent);
+        List<String> filePaths = new ArrayList<>();
+        for (TextFile textFile : fileSource.listFilesRecursively()) {
+            filePaths.add(textFile.getPath());
+        }
+        Collections.sort(filePaths);
+        return ResponseDefinition.okForJson(filePaths);
     }
 }
