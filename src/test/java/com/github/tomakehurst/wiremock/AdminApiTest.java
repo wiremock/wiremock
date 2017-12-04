@@ -57,10 +57,12 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     private void deleteAllBodyFiles() throws IOException {
-        FileSource child = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
-        List<TextFile> textFiles = child.listFilesRecursively();
-        for (TextFile textFile : textFiles) {
-            Files.delete(Paths.get(textFile.getPath()));
+        FileSource filesRoot = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        if (filesRoot.exists()) {
+            List<TextFile> textFiles = filesRoot.listFilesRecursively();
+            for (TextFile textFile : textFiles) {
+                Files.delete(Paths.get(textFile.getPath()));
+            }
         }
     }
 
