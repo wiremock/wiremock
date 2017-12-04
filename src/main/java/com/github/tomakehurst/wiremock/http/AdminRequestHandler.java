@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.admin.AdminUriTemplate;
 import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -78,6 +79,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             );
         } catch (NotFoundException e) {
             return ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request));
+        } catch (InvalidInputException iie) {
+            return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), iie.getErrors());
         }
     }
 

@@ -126,7 +126,8 @@ public class PlainTextDiffRenderer {
     }
 
     private String wrap(String s) {
-        return Strings.wrapIfLongestLineExceedsLimit(s, getColumnWidth());
+        String safeString = s == null ? "" : s;
+        return Strings.wrapIfLongestLineExceedsLimit(safeString, getColumnWidth());
     }
 
     private int getColumnWidth() {
