@@ -58,6 +58,7 @@ analytics:
   provider               : google
   google:
     tracking_id          : 'UA-36386229-2'
+    optimize_id          : 'GTM-WQTGSSM'
 
 # Google AdSense
 google_ad_client         :
