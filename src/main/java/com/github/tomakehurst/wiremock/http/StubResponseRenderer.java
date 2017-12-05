@@ -29,7 +29,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
-	
+
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
@@ -104,19 +104,19 @@ public class StubResponseRenderer implements ResponseRenderer {
 
         return responseBuilder;
 	}
-	
+
     private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
     	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(responseDefinition);
         if (optionalDelay.isPresent()) {
         	responseBuilder.incrementInitialDelay(optionalDelay.get());
 	    }
     }
-    
+
     private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition responseDefinition) {
     	Integer delay = responseDefinition.getFixedDelayMilliseconds() != null ?
     			responseDefinition.getFixedDelayMilliseconds() :
     			globalSettingsHolder.get().getFixedDelay();
-    	
+
     	return Optional.fromNullable(delay);
     }
 
