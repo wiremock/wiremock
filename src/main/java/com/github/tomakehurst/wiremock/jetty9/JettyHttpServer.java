@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
@@ -96,6 +97,7 @@ public class JettyHttpServer implements HttpServer {
         ServletContextHandler mockServiceContext = addMockServiceContext(
                 stubRequestHandler,
                 options.filesRoot(),
+                options.getAsynchronousResponseSettings(),
                 notifier
         );
 
@@ -275,10 +277,11 @@ public class JettyHttpServer implements HttpServer {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private ServletContextHandler addMockServiceContext(
             StubRequestHandler stubRequestHandler,
             FileSource fileSource,
+            AsynchronousResponseSettings asynchronousResponseSettings,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -296,6 +299,8 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
+        servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_ENABLED, Boolean.toString(asynchronousResponseSettings.isEnabled()));
+        servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_THREADS, Integer.toString(asynchronousResponseSettings.getThreads()));
 
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
