@@ -47,7 +47,7 @@
       _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
     });
 
-    if (!document.cookie.includes('mocklab_notification_seen')) {
+    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
         $("#dialog").dialog({
           dialogClass: 'mocklab-popup',
