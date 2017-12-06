@@ -49,6 +49,7 @@
   }
 }
 
+
 .mocklab-section {
   background-color: $mocklab-light-green;
   border: 1px solid #c1c1c1;
@@ -56,10 +57,24 @@
   flex-wrap: wrap;
 
   padding: 30px;
+  margin-bottom: 3rem;
+
+  &__screenshot-chrome {
+    background-color: #e6e6e6;
+    border-radius: 3px;
+    padding: 2px;
+  }
+
+  &__screenshot-chrome-control {
+    display: inline;
+    font-size: 11px !important;
+  }
 
   &__screenshot {
     height: 300px;
-    border: 2px solid #c1c1c1;
+    //border: 2px solid #e6e6e6;
+    //border-top: 12px solid #e6e6e6;
+    //border-radius: 3px;
   }
 
   &__copy {
@@ -68,11 +83,17 @@
     @include breakpoint($x-large) {
       padding: 0 30px 0 30px;
     }
-    
+
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     max-width: 680px;
+
+    p {
+      margin-top: -20px !important;
+      font-size: 1.2rem !important;
+      color: $dark-gray;
+    }
   }
 
   &__logo {
