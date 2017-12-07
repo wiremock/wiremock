@@ -349,14 +349,23 @@ task signAll {
 
 task npmInstall(type: Exec) {
     workingDir 'docs-v2'
-    commandLine 'npm', 'i'
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine 'cmd', '/c', 'npm', 'i'
+	} else {
+		commandLine 'npm', 'i'
+	}    
 }
 
 task generateApiDocs(type: Exec) {
     dependsOn npmInstall
     workingDir 'docs-v2'
-    commandLine 'npm', 'run', 'apidocs'
+		if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine 'cmd', '/c', 'npm', 'run', 'apidocs'
+	} else {
+		commandLine 'npm', 'run', 'apidocs'
+	}
 }
+
 jar.dependsOn generateApiDocs
 processResources.dependsOn generateApiDocs
 
