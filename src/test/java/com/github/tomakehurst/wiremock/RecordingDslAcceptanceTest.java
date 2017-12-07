@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
-import com.github.tomakehurst.wiremock.common.InvalidRequestException;
+import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
@@ -389,12 +388,12 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
         proxyingService.stopRecording();
     }
 
-    @Test(expected = InvalidRequestException.class)
+    @Test(expected = InvalidInputException.class)
     public void throwsValidationErrorWhenAttemptingToStartRecordingViaStaticDslWithNoTargetUrl() {
         startRecording(recordSpec());
     }
 
-    @Test(expected = InvalidRequestException.class)
+    @Test(expected = InvalidInputException.class)
     public void throwsValidationErrorWhenAttemptingToStartRecordingViaDirectDslWithNoTargetUrl() {
         proxyingService.startRecording(recordSpec());
     }
