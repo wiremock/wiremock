@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -110,7 +111,10 @@ public class PlainTextDiffRendererTest {
         String output = diffRenderer.render(diff);
         System.out.println(output);
 
-        String expected = file("not-found-diff-sample_large_json.txt");
+        // Ugh. The joys of Microsoft's line ending innovations.
+        String expected = SystemUtils.IS_OS_WINDOWS ?
+            file("not-found-diff-sample_large_json_windows.txt") :
+            file("not-found-diff-sample_large_json.txt");
         assertThat(output, equalsMultiLine(expected));
     }
 
