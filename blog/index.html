@@ -70,6 +70,32 @@
 <!-- end SEO -->
 
 
+
+
+
+  <!-- Google Analytics -->
+<style>.async-hide { opacity: 0 !important} </style>
+<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+  h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+  (a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+})(window,document.documentElement,'async-hide','dataLayer',4000,
+  {'GTM-WQTGSSM':true});</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-36386229-2', 'auto');
+  ga('require', 'GTM-WQTGSSM');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+
 <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="WireMock Feed">
 
 <!-- http://t.co/dKP3o1e -->
@@ -81,7 +107,7 @@
   document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
 </script>
 
-<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Lato|Source+Code+Pro|Cairo" rel="stylesheet">
 
 <!-- For all browsers -->
 <link rel="stylesheet" href="/assets/css/main.css">
@@ -235,14 +261,14 @@
 
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
-      _gaq.push(['_trackEvent', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1]);
+      ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
     });
 
     $("a[title='Consulting Services']").click(function() {
-      _gaq.push(['_trackEvent', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1]);
+      ga('send', 'event', 'primary_nav', 'consulting_services_clicked', 'Consulting Services clicked', 1);
     });
 
-    if (!document.cookie.includes('mocklab_notification_seen')) {
+    if (!document.cookie.includes('mocklab_notification_seen') && !window.suppressMockLabPopover) {
       window.setTimeout(function () {
         $("#dialog").dialog({
           dialogClass: 'mocklab-popup',
@@ -257,17 +283,25 @@
             class: 'mocklab-popup__confirm-button',
             text: "Learn More",
             click: function () {
-              _gaq.push(['_trackEvent', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1]);
+              ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
               window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
             }
           }]
         });
 
         setNotificationSeenCookie();
-        _gaq.push(['_trackEvent', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0]);
+        ga('send', 'event', 'mocklab_popup', 'mocklab_popup_seen', 'MockLab popup seen', 0);
       }, 500);
 
     }
+
+    $("#mocklab-callout-learn-more").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
+    });
+
+    $("#mocklab-callout-try-it-now").click(function() {
+      ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
+    });
   };
 </script>
 
@@ -275,23 +309,6 @@
     </div>
 
     <script src="/assets/js/main.min.js"></script>
-
-
-
-
-  <script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-36386229-2']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-
-
 
 
 

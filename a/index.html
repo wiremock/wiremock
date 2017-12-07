@@ -19,7 +19,7 @@
 
 
 
-<title>Record and Playback (Legacy) - WireMock</title>
+<title>WireMock - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the old way.">
+<meta name="description" content="WireMock is a flexible API mocking tool for fast, robust and comprehensive testing.">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Record and Playback (Legacy)">
+<meta property="og:title" content="WireMock">
 
 
 
 
-  <meta property="og:description" content="Recording HTTP exchanges with other APIs and playing them back as stubs - the old way.">
+  <meta property="og:description" content="WireMock is a flexible API mocking tool for fast, robust and comprehensive testing.">
 
 
 
@@ -49,15 +49,6 @@
 
 
 
-
-  <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-12-07T13:46:04+00:00">
-  
-    <link rel="next" href="/docs/record-playback/" title="Record and Playback (New)">
-  
-  
-    <link rel="prev" href="/docs/proxying/" title="Proxying">
-  
 
 
 
@@ -210,222 +201,117 @@
 
     
 
+
+
 <div id="main" role="main">
-  
-
-
-<div class="sidebar sticky">
-  <nav class="nav__list">
-
-    <ul>
-      
-
-      
-      <li>
-        <a href="/docs/getting-started/">
-
-        Getting Started
-      </a>
-      
-      <li>
-        <a href="/docs/junit-rule/">
-
-        The JUnit 4.x Rule
-      </a>
-      
-      <li>
-        <a href="/docs/java-usage/">
-
-        Java (Non-JUnit) Usage
-      </a>
-      
-      <li>
-        <a href="/docs/configuration/">
-
-        Configuration
-      </a>
-      
-      <li>
-        <a href="/docs/running-standalone/">
-
-        Running as a Standalone Process
-      </a>
-      
-      <li>
-        <a href="/docs/stubbing/">
-
-        Stubbing
-      </a>
-      
-      <li>
-        <a href="/docs/verifying/">
-
-        Verifying
-      </a>
-      
-      <li>
-        <a href="/docs/request-matching/">
-
-        Request Matching
-      </a>
-      
-      <li>
-        <a href="/docs/proxying/">
-
-        Proxying
-      </a>
-      
-      <li>
-        <a href="/docs/record-playback/">
-
-        Record and Playback (New)
-      </a>
-      
-      <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
-        <a href="/docs/record-playback-legacy/" class="nav__list-item--selected">
-        
-
-        Record and Playback (Legacy)
-      </a>
-      
-      <li>
-        <a href="/docs/simulating-faults/">
-
-        Simulating Faults
-      </a>
-      
-      <li>
-        <a href="/docs/stateful-behaviour/">
-
-        Stateful Behaviour
-      </a>
-      
-      <li>
-        <a href="/docs/https/">
-
-        HTTPS
-      </a>
-      
-      <li>
-        <a href="/docs/extending-wiremock/">
-
-        Extending WireMock
-      </a>
-      
-      <li>
-        <a href="/docs/android/">
-
-        Android
-      </a>
-      
-      <li>
-        <a href="/docs/spring-boot/">
-
-        Spring Boot
-      </a>
-      
-      <li>
-        <a href="/docs/api/">
-
-        Admin API Reference
-      </a>
-      
-    </ul>
-  </nav>
-</div>
-
-
-  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Record and Playback (Legacy)">
-    <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
-    <meta itemprop="datePublished" content="December 07, 2017">
+  <article class="splash" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="WireMock">
+    
+    
     
 
-    <div class="page__inner-wrap">
-      <header>
-        <h1 class="page__title" itemprop="headline">Record and Playback (Legacy)
-</h1>
-      </header>
+    <section class="page__content" itemprop="text">
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 3em; margin-bottom: -2em;">
+  <section class="homepage-section" style="margin-right: 2em; flex: 1; border-bottom: none;">
 
-      <section class="page__content" itemprop="text">
-        <p><strong>WireMock has the ability to create stub mappings by recording them
-while you send requests. This can be used to quickly capture a
-collection of responses from a real service then use them offline in
-your tests.</strong></p>
+    <h1 class="page__title homepage__title">WireMock</h1>
+    <h2 class="homepage__subtitle">Mock your APIs for fast, robust and comprehensive testing</h2>
+    <p>WireMock is a simulator for HTTP-based APIs. Some might consider it a <strong>service virtualization</strong> tool or a <strong>mock server</strong>.<br><br>
+    It enables you to <strong>stay productive</strong> when an API you depend on <strong>doesn't exist</strong> or isn't complete.
+    It supports testing of <strong>edge cases and failure modes</strong> that the real API won't reliably produce.
+    And because it's fast it can <strong>reduce your build time</strong> from hours down to minutes.<p>
 
-<h2 id="recording">Recording</h2>
-
-<p>Recording is done by starting the standalone runner like this:</p>
-
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.12.0.jar --proxy-all<span class="o">=</span><span class="s2">"http://search.twitter.com"</span> --record-mappings --verbose
-</code></pre>
+  </section>
+  <img class="code-shots__code-shot" src="/images/small-json-idea-shot.png" style="position: relative; top: -48px; height: 460px; width: auto;"/>
 </div>
 
-<p>Once it’s started you send requests to it as if it was the remote
-service:</p>
-
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s2">"http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</span>
-</code></pre>
-</div>
-
-<p>Now if you look under <code class="highlighter-rouge">mappings</code> and <code class="highlighter-rouge">__files</code> (under the current
-directory you’re running WireMock in) you’ll see that a new file has
-been one created under each, the former for the stub mapping and the
-latter for the body content.</p>
-
-<h3 id="capturing-request-headers">Capturing request headers</h3>
-
-<p>Optionally, you can record request headers so that your stub mappings
-will match on those in addition to URL, method and body (if a POST or
-PUT). This is done by adding an extra parameter to the command line e.g.
-<code class="highlighter-rouge">--match-headers="Accept,Content-Type"</code></p>
-
-<blockquote>
-  <p><strong>note</strong></p>
-
-  <p>The recorder will ignore any request matching one it has already
-captured.</p>
-</blockquote>
-
-<h2 id="playback">Playback</h2>
-
-<p>If you start the standalone runner again without the extra commandline
-options it will automatically load the newly created stub mappings and
-start serving them.</p>
-
-<p>Alternatively you can copy the files created under
-<code class="highlighter-rouge">src/test/resources/mappings</code> and <code class="highlighter-rouge">src/test/resources/__files</code> in your
-Java project, or the equivalents under <code class="highlighter-rouge">WEB-INF/wiremock</code> in your WAR
-project.</p>
-
-        
-      </section>
-
-      <footer class="page__meta">
-        
-        
-
-
-
-
-      </footer>
-
-      
+<section class="mocklab-section">
+  <div class="mocklab-section__screenshot-chrome">
+    <div style="margin-top: -8px; margin-left: 3px;">
+      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #FF6259"></i>
+      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #FFBD2E"></i>
+      <i class="fa fa-circle mocklab-section__screenshot-chrome-control" aria-hidden="true" style="color: #2AD043"></i>
     </div>
 
-    
-  </article>
+    <img src="/images/mocklab/stub-form-screenshot-5.png" title="Stub form" class="mocklab-section__screenshot"/>
+  </div>
 
-  
-  
+  <div class="mocklab-section__copy">
+    <img src="/images/mocklab/Mocklab_Logo_4x.png" title="MockLab Logo" class="mocklab-section__logo" />
+
+    <p class="mocklab-section__copy-paragraph">In a hurry? MockLab is a <strong>hosted API mocking service</strong> built on WireMock.</p>
+
+    <p class="mocklab-section__copy-paragraph">
+      Get immediate access to all of WireMock's features, without the hassle of configuring servers, DNS or SSL certificates.
+    </p>
+
+    <!--<div class="mocklab-section__cta">-->
+      <!--<a id="mocklab-callout-learn-more" href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=homepage-callout_learn-more&utm_campaign=homepage_variant_a" class="mocklab-cta mocklab-cta&#45;&#45;secondary">Learn more</a>-->
+      <!--<a id="mocklab-callout-try-it-now" href="https://app.mocklab.io/login?for=signup&utm_source=wiremock.org&utm_medium=homepage-callout_try-it-now&utm_campaign=homepage_variant_a" class="mocklab-cta mocklab-cta&#45;&#45;primary">Try it now</a>-->
+    <!--</div>-->
+    <div class="mocklab-section__cta">
+      <a id="mocklab-callout-learn-more" href="http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=homepage-callout_learn-more&utm_campaign=homepage_variant_a" class="mocklab-cta mocklab-cta--primary">Learn more</a>
+    </div>
+  </div>
+
+</section>
+
+<div class="feature__wrapper">
+    <div class="feature__item">
+        <div class="archive__item">
+
+            <div class="archive__item-body"><h2 class="archive__item-title">Flexible Deployment</h2>
+                <div class="archive__item-excerpt">
+                  <p>Run WireMock from within your Java application, JUnit test, Servlet container or as a standalone process.</p>
+                </div>
+                <p><a href="/docs/getting-started/" class="btn">Learn More</a></p></div>
+        </div>
+    </div>
+    <div class="feature__item">
+        <div class="archive__item">
+
+            <div class="archive__item-body"><h2 class="archive__item-title">Powerful Request Matching</h2>
+                <div class="archive__item-excerpt">
+                  <p>Match request URLs, methods, headers cookies and bodies using a wide variety of strategies. First class support for JSON and XML.</p>
+                </div>
+                <p><a href="/docs/request-matching/" class="btn ">Learn More</a></p></div>
+        </div>
+    </div>
+    <div class="feature__item">
+        <div class="archive__item">
+
+            <div class="archive__item-body"><h2 class="archive__item-title">Record and Playback</h2>
+                <div class="archive__item-excerpt">
+                  <p>Get up and running quickly by capturing traffic to and from an existing API.<br><br></p>
+                </div>
+                <p><a href="/docs/record-playback/" class="btn ">Learn More</a></p></div>
+        </div>
+    </div>
 </div>
 
+<section class="homepage-section">
+  <h2 class="homepage-section__heading homepage-section__heading--centred">Who uses WireMock?</h2>
+  <div class="users-of">
+    <img src="/images/logos/Pivotal_WhiteOnTeal.png" alt="Pivotal" class="users-of__logo"/>
+    <img src="/images/logos/softwire-logo.jpg" alt="Softwire" class="users-of__logo"/>
+    <img src="/images/logos/Yenlo_logo_trans.png" alt="Yenlo" class="users-of__logo"/>
+    <img src="/images/logos/EW-logo.png" alt="Energized Work" class="users-of__logo"/>
+    <img src="/images/logos/sky-logo.png" alt="Sky" class="users-of__logo"/>
+    <img src="/images/logos/The_Guardian_logo.png" alt="The Guardian" class="users-of__logo"/>
+    <img src="/images/logos/FT-Logo.jpg" alt="The Financial Times" class="users-of__logo"/>
+    <img src="/images/logos/intuit_blue.gif" alt="Intuit" class="users-of__logo" style="height: 70px;"/>
+    <img src="/images/logos/Piksel_master.png" alt="Piksel" class="users-of__logo" style="height: 70px;"/>
+
+  </div>
+</section>
+
+<script type="text/javascript">
+  window.suppressMockLabPopover = true;
+</script>
+
+    </section>
+  </article>
+</div>
 
     <div class="page__footer">
       <footer>
