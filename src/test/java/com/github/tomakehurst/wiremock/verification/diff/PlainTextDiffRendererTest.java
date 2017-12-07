@@ -1,14 +1,17 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
-import static org.hamcrest.Matchers.is;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static java.lang.System.lineSeparator;
 import static org.junit.Assert.assertThat;
 
 public class PlainTextDiffRendererTest {
@@ -46,7 +49,7 @@ public class PlainTextDiffRendererTest {
         String output = diffRenderer.render(diff);
         System.out.printf(output);
 
-        assertThat(output, is(file("not-found-diff-sample_ascii.txt")));
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_ascii.txt")));
     }
 
     @Test
@@ -89,7 +92,7 @@ public class PlainTextDiffRendererTest {
                 .method(POST)
                 .url("/thing")
                 .header("Accept", "text/plain")
-                .body("{\n" +
+                .body(prettyPrint("{\n" +
                     "  \"one\": {\n" +
                     "    \"two\": {\n" +
                     "      \"three\": {\n" +
@@ -101,14 +104,14 @@ public class PlainTextDiffRendererTest {
                     "      }\n" +
                     "    }\n" +
                     "  }\n" +
-                    "}")
+                    "}"))
         );
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
 
         String expected = file("not-found-diff-sample_large_json.txt");
-        assertThat(output, is(expected));
+        assertThat(output, equalsMultiLine(expected));
     }
 
     @Test
@@ -153,7 +156,7 @@ public class PlainTextDiffRendererTest {
         String output = diffRenderer.render(diff);
         System.out.println(output);
 
-        assertThat(output, is(file("not-found-diff-sample_large_xml.txt")));
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_large_xml.txt")));
     }
 
     @Test
@@ -170,7 +173,7 @@ public class PlainTextDiffRendererTest {
         String output = diffRenderer.render(diff);
         System.out.printf(output);
 
-        assertThat(output, is(file("not-found-diff-sample_missing_header.txt")));
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_header.txt")));
     }
 
     @Test
@@ -182,7 +185,7 @@ public class PlainTextDiffRendererTest {
             mockRequest()
                 .method(POST)
                 .url("/thing")
-                .body("{\n" +
+                .body(prettyPrint("{\n" +
                     "  \"one\": {\n" +
                     "    \"two\": {\n" +
                     "      \"three\": {\n" +
@@ -194,14 +197,14 @@ public class PlainTextDiffRendererTest {
                     "      }\n" +
                     "    }\n" +
                     "  }\n" +
-                    "}")
+                    "}"))
         );
 
         String output = diffRenderer.render(diff);
         System.out.println(output);
 
         String expected = file("not-found-diff-sample_json-path.txt");
-        assertThat(output, is(expected));
+        assertThat(output, equalsMultiLine(expected));
     }
 
     @Test
@@ -216,6 +219,6 @@ public class PlainTextDiffRendererTest {
         String output = diffRenderer.render(diff);
         System.out.printf(output);
 
-        assertThat(output, is(file("not-found-diff-sample_url-pattern.txt")));
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-pattern.txt")));
     }
 }
