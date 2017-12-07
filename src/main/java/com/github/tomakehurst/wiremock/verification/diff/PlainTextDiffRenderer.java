@@ -4,11 +4,14 @@ import com.github.tomakehurst.wiremock.common.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
+import static java.lang.System.lineSeparator;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
 public class PlainTextDiffRenderer {
+
+    private final String SEPARATOR = lineSeparator();
 
     private final int consoleWidth;
 
@@ -47,29 +50,29 @@ public class PlainTextDiffRenderer {
         int middle = getMiddle();
         int titleLinePaddingLeft = middle - (titleLine.length() / 2);
         sb
-            .append('\n')
+            .append(SEPARATOR)
             .append(repeat(' ', titleLinePaddingLeft))
             .append(titleLine)
-            .append('\n')
+            .append(SEPARATOR)
             .append(repeat(' ', titleLinePaddingLeft))
             .append(repeat('=', titleLine.length()))
-            .append('\n')
-            .append('\n')
-            .append(repeat('-', consoleWidth)).append('\n')
+            .append(SEPARATOR)
+            .append(SEPARATOR)
+            .append(repeat('-', consoleWidth)).append(SEPARATOR)
             .append('|').append(rightPad(" Closest stub", middle)).append('|').append(rightPad(" Request", middle, ' ')).append('|')
-            .append('\n')
-            .append(repeat('-', consoleWidth)).append('\n');
+            .append(SEPARATOR)
+            .append(repeat('-', consoleWidth)).append(SEPARATOR);
 
         writeBlankLine(sb);
     }
 
     private void footer(StringBuilder sb) {
-        sb.append(repeat('-', consoleWidth)).append('\n');
+        sb.append(repeat('-', consoleWidth)).append(SEPARATOR);
     }
 
     private void writeLine(StringBuilder sb, String left, String right, String message) {
-        String[] leftLines = wrap(left).split("\n");
-        String[] rightLines = wrap(right).split("\n");
+        String[] leftLines = wrap(left).split(SEPARATOR);
+        String[] rightLines = wrap(right).split(SEPARATOR);
 
         int maxLines = Math.max(leftLines.length, rightLines.length);
 
@@ -122,7 +125,7 @@ public class PlainTextDiffRenderer {
             }
         }
 
-        sb.append("\n");
+        sb.append(SEPARATOR);
     }
 
     private String wrap(String s) {
