@@ -1,6 +1,7 @@
 package com.github.tomakehurst.wiremock.core;
 
 import com.google.common.base.Optional;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -23,5 +24,15 @@ public class WireMockConfigurationTest {
         WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig();
         Optional<Long> jettyStopTimeout = wireMockConfiguration.jettySettings().getStopTimeout();
         assertThat(jettyStopTimeout.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldUseQueuedThreadPoolByDefault() {
+        int maxThreads = 20;
+        WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().containerThreads(maxThreads);
+
+        QueuedThreadPool threadPool = (QueuedThreadPool) wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
+
+        assertThat(threadPool.getMaxThreads(), is(maxThreads));
     }
 }
