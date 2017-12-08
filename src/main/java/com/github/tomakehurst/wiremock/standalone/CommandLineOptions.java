@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -197,15 +198,7 @@ public class CommandLineOptions implements Options {
 
     @Override
     public ThreadPoolFactory threadPoolFactory() {
-        try {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            Class<?> cls = loader.loadClass(
-                    "com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory"
-            );
-            return (ThreadPoolFactory) cls.newInstance();
-        } catch (Exception e) {
-            return throwUnchecked(e, null);
-        }
+        return new QueuedThreadPoolFactory();
     }
 
     private boolean specifiesPortNumber() {
@@ -274,7 +267,7 @@ public class CommandLineOptions implements Options {
     public boolean help() {
 		return optionSet.has(HELP);
 	}
-	
+
 	public String helpText() {
 		return helpText;
 	}
