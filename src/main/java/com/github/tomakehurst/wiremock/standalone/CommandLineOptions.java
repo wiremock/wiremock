@@ -28,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -190,6 +190,19 @@ public class CommandLineOptions implements Options {
                     "com.github.tomakehurst.wiremock.jetty9.JettyHttpServerFactory"
             );
             return (HttpServerFactory) cls.newInstance();
+        } catch (Exception e) {
+            return throwUnchecked(e, null);
+        }
+    }
+
+    @Override
+    public ThreadPoolFactory threadPoolFactory() {
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            Class<?> cls = loader.loadClass(
+                    "com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory"
+            );
+            return (ThreadPoolFactory) cls.newInstance();
         } catch (Exception e) {
             return throwUnchecked(e, null);
         }
