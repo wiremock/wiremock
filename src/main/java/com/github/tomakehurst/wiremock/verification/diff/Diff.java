@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.Xml;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -67,9 +69,10 @@ public class Diff {
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 
-        DiffLine<String> urlSection = new DiffLine<>("URL", requestPattern.getUrlMatcher(),
+        UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+        DiffLine<String> urlSection = new DiffLine<>("URL", urlPattern,
             request.getUrl(),
-            requestPattern.getUrlMatcher().getExpected());
+            urlPattern.getExpected());
         builder.add(urlSection);
 
         builder.add(SPACER);
