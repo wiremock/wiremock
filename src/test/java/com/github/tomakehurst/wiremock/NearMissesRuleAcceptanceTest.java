@@ -79,11 +79,11 @@ public class NearMissesRuleAcceptanceTest {
             client.post("/a-near-mis", new StringEntity(""));
 
             assertThat(testNotifier.getErrorMessages(), hasItem(allOf(
-                containsString("Request was not matched:"),
+                containsString("Request was not matched"),
                 containsString("/a-near-mis"),
-
-                containsString("Closest match:"),
-                containsString("/near-miss")
+                containsString("/near-miss"),
+                containsString("HTTP method does not match"),
+                containsString("URL does not match")
                 )
             ));
         }
