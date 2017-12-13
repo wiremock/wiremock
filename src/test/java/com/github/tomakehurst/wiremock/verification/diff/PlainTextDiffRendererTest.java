@@ -1,6 +1,5 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
-import com.github.tomakehurst.wiremock.common.Json;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
-import static java.lang.System.lineSeparator;
 import static org.junit.Assert.assertThat;
 
 public class PlainTextDiffRendererTest {
@@ -48,7 +46,7 @@ public class PlainTextDiffRendererTest {
         );
 
         String output = diffRenderer.render(diff);
-        System.out.printf(output);
+        System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_ascii.txt")));
     }
@@ -56,7 +54,7 @@ public class PlainTextDiffRendererTest {
     @Test
     public void rendersWithDifferingCookies() {
         Diff diff = new Diff(post("/thing")
-            .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
+            .withName("Cookie diff")
             .withCookie("Cookie_1", containing("one value"))
             .withCookie("Second_Cookie", matching("cookie two value [0-9]*"))
             .build(),
@@ -64,11 +62,32 @@ public class PlainTextDiffRendererTest {
                 .method(POST)
                 .url("/thing")
                 .cookie("Cookie_1", "zero value")
-                .cookie("Second_Cookie", "cookie two value")
+                .cookie("Second_Cookie", "cookie two value 123")
         );
 
         String output = diffRenderer.render(diff);
-        System.out.printf(output);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_cookies.txt")));
+    }
+
+    @Test
+    public void rendersWithDifferingQueryParameters() {
+        Diff diff = new Diff(get(urlPathEqualTo("/thing"))
+            .withName("Query params diff")
+            .withQueryParam("one", equalTo("1"))
+            .withQueryParam("two", containing("two things"))
+            .withQueryParam("three", matching("[a-z]{5}"))
+            .build(),
+            mockRequest()
+                .method(GET)
+                .url("/thing?one=2&two=wrong%20things&three=abcde")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_query.txt")));
     }
 
     @Test
@@ -175,7 +194,7 @@ public class PlainTextDiffRendererTest {
         );
 
         String output = diffRenderer.render(diff);
-        System.out.printf(output);
+        System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_missing_header.txt")));
     }
@@ -221,7 +240,7 @@ public class PlainTextDiffRendererTest {
         );
 
         String output = diffRenderer.render(diff);
-        System.out.printf(output);
+        System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-pattern.txt")));
     }
