@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee">
+
+  <listener>
+  	<display-name>wiremock-startup-listener</display-name>
+  	<listener-class>com.github.tomakehurst.wiremock.servlet.WireMockWebContextListener</listener-class>
+  </listener>
+  
+  <context-param>
+  	<param-name>WireMockFileSourceRoot</param-name>
+  	<param-value>/WEB-INF/wiremock</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>verboseLoggingEnabled</param-name>
+    <param-value>true</param-value>
+  </context-param>
+
+  <servlet>
+  	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet</servlet-class>
+  	<init-param>
+  		<param-name>RequestHandlerClass</param-name>
+  		<param-value>com.github.tomakehurst.wiremock.http.StubRequestHandler</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>wiremock-mock-service-handler-servlet</servlet-name>
+  	<url-pattern>/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
+  	<servlet-class>com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet</servlet-class>
+  	<init-param>
+  		<param-name>RequestHandlerClass</param-name>
+  		<param-value>com.github.tomakehurst.wiremock.http.AdminRequestHandler</param-value>
+  	</init-param>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>wiremock-admin-handler-servlet</servlet-name>
+  	<url-pattern>/__admin/*</url-pattern>
+  </servlet-mapping>
+  
+  <welcome-file-list>
+  	<welcome-file>index.json</welcome-file>
+  	<welcome-file>index.xml</welcome-file>
+  	<welcome-file>index.html</welcome-file>
+  	<welcome-file>index.txt</welcome-file>
+  </welcome-file-list>
+  
+  <mime-mapping>
+  	<extension>json</extension>
+  	<mime-type>application/json</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+  	<extension>xml</extension>
+  	<mime-type>application/xml</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+  	<extension>html</extension>
+  	<mime-type>text/html</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+  	<extension>txt</extension>
+  	<mime-type>text/plain</mime-type>
+  </mime-mapping>
+  
+</web-app>
