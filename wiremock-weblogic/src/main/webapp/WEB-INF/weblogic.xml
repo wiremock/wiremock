@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<weblogic-web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://xmlns.oracle.com/weblogic/weblogic-web-app"
+                  xsi:schemaLocation="http://xmlns.oracle.com/weblogic/weblogic-web-app http://xmlns.oracle.com/weblogic/weblogic-web-app/1.4/weblogic-web-app.xsd">
+    <context-root>/wiremock</context-root>
+    <container-descriptor>
+        <allow-all-roles>true</allow-all-roles>
+    </container-descriptor>
+</weblogic-web-app>
