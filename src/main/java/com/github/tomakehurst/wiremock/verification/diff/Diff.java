@@ -15,25 +15,26 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.common.Xml;
-import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
-import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.verification.diff.SpacerLine.SPACER;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -68,9 +69,10 @@ public class Diff {
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
         builder.add(methodSection);
 
-        DiffLine<String> urlSection = new DiffLine<>("URL", requestPattern.getUrlMatcher(),
+        UrlPattern urlPattern = firstNonNull(requestPattern.getUrlMatcher(), anyUrl());
+        DiffLine<String> urlSection = new DiffLine<>("URL", urlPattern,
             request.getUrl(),
-            requestPattern.getUrlMatcher().getExpected());
+            urlPattern.getExpected());
         builder.add(urlSection);
 
         builder.add(SPACER);
@@ -95,6 +97,31 @@ public class Diff {
             builder.add(SPACER);
         }
 
+        boolean anyQueryParams = false;
+        if (requestPattern.getQueryParameters() != null) {
+            Map<String, QueryParameter> requestQueryParams = Urls.splitQuery(URI.create(request.getUrl()));
+
+            for (Map.Entry<String, MultiValuePattern> entry: requestPattern.getQueryParameters().entrySet()) {
+                String key = entry.getKey();
+                MultiValuePattern pattern = entry.getValue();
+                QueryParameter queryParameter = firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
+
+                String operator = generateOperatorString(pattern.getValuePattern(), " = ");
+                DiffLine<MultiValue> section = new DiffLine<>(
+                    "Query",
+                    pattern,
+                    queryParameter,
+                    "Query: " + key + operator + pattern.getValuePattern().getValue()
+                );
+                builder.add(section);
+                anyQueryParams = true;
+            }
+        }
+
+        if (anyQueryParams) {
+            builder.add(SPACER);
+        }
+
         boolean anyCookieSections = false;
         if (requestPattern.getCookies() != null) {
             Map<String, Cookie> cookies = firstNonNull(request.getCookies(), Collections.<String, Cookie>emptyMap());
@@ -107,7 +134,7 @@ public class Diff {
                 DiffLine<String> section = new DiffLine<>(
                     "Cookie",
                     pattern,
-                    cookie.isPresent() ? "Cookie: " + key + "=" + cookie.getValue() : "",
+                    cookie.isPresent() ? cookie.getValue() : "",
                     "Cookie: " + key + operator + pattern.getValue()
                 );
                 builder.add(section);

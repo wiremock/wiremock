@@ -32,6 +32,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.*;
+import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +53,8 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
+    private static final PlainTextDiffRenderer diffRenderer = new PlainTextDiffRenderer();
+
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
     private final GlobalSettingsHolder globalSettingsHolder;
@@ -60,6 +63,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+
     private final Recorder recorder;
 
     private Options options;
@@ -172,9 +176,11 @@ public class WireMockApp implements StubServer, Admin {
 
     private void logUnmatchedRequest(LoggedRequest request) {
         List<NearMiss> nearest = nearMissCalculator.findNearestTo(request);
-        String message = "Request was not matched:\n" + request;
+        String message;
         if (!nearest.isEmpty()) {
-            message += "\nClosest match:\n" + nearest.get(0).getStubMapping().getRequest();
+            message = diffRenderer.render(nearest.get(0).getDiff());
+        } else {
+            message = "Request was not matched as were no stubs registered:\n" + request;
         }
         notifier().error(message);
     }
