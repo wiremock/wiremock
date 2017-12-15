@@ -60,13 +60,15 @@ public class SingleRootFileSourceTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void writeThrowsExceptionWhenGivenPathNotUnderRoot() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
-		fileSource.writeTextFile("/somewhere/not/under/root", "stuff");
+		String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
+		fileSource.writeTextFile(badPath, "stuff");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
-		fileSource.deleteFile("/somewhere/not/under/root");
+        String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
+		fileSource.deleteFile(badPath);
 	}
 
 	@Test

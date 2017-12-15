@@ -10,12 +10,12 @@ POST                                                       | POST
 /thing                                                     | /thing
                                                            |
 $..seven                                                   | {                                                   <<<<< Body does not match
-                                                           |   "one": {
-                                                           |     "two": {
-                                                           |       "three": {
-                                                           |         "four": {
-                                                           |           "five": {
-                                                           |             "six": "match this"
+                                                           |   "one" : {
+                                                           |     "two" : {
+                                                           |       "three" : {
+                                                           |         "four" : {
+                                                           |           "five" : {
+                                                           |             "six" : "match this"
                                                            |           }
                                                            |         }
                                                            |       }

@@ -32,6 +32,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -73,7 +74,7 @@ public class NotMatchedPageAcceptanceTest {
             withHeader("Accept", "text/plain")
         );
 
-        assertThat(response.content(), is(file("not-found-diff-sample_ascii.txt")));
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample_ascii.txt")));
     }
 
     @Test

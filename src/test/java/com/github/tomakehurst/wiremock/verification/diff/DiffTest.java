@@ -341,7 +341,31 @@ public class DiffTest {
                 "ANY\n" +
                 "/thing\n" +
                 "\n" +
-                "Cookie: my_cookie=actual-cookie\n"
+                "actual-cookie\n"
+            )
+        ));
+    }
+
+    @Test
+    public void showsQueryParametersInDiffWhenNotMatching() {
+        Diff diff = new Diff(
+            newRequestPattern(ANY, urlPathEqualTo("/thing"))
+                .withQueryParam("search", equalTo("everything"))
+                .build(),
+            mockRequest().url("/thing?search=nothing")
+        );
+
+        assertThat(diff.toString(), is(
+            junitStyleDiffMessage(
+                "ANY\n" +
+                    "/thing?search=nothing\n" +
+                    "\n" +
+                    "Query: search = everything\n",
+
+                "ANY\n" +
+                    "/thing?search=nothing\n" +
+                    "\n" +
+                    "search: nothing\n"
             )
         ));
     }

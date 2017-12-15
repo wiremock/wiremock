@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -398,7 +399,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(422));
 
         Errors errors = Json.read(response.content(), Errors.class);
-        assertThat(errors.first().getDetail(), is("Unclosed character class near index 13\n" +
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 13\n" +
             "/@$&%*[[^^£$&%\n" +
             "             ^"));
         assertThat(errors.first().getSource().getPointer(), is("/request"));
@@ -420,7 +421,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(422));
 
         Errors errors = Json.read(response.content(), Errors.class);
-        assertThat(errors.first().getDetail(), is("Unclosed character class near index 8\n" +
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 8\n" +
             "%[[json[[\n" +
             "        ^"));
         assertThat(errors.first().getSource().getPointer(), is("/request/headers/Accept"));
@@ -447,7 +448,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-        assertThat(errors.first().getDetail(), is("Unclosed character class near index 16\n" +
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 16\n" +
             "somebad]]][[stuff\n" +
             "                ^"));
     }
