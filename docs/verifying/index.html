@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2017-12-07T13:46:04+00:00">
+  <meta property="article:published_time" content="2017-12-15T11:01:56+00:00">
   
   
     <link rel="prev" href="/docs/stubbing/" title="Stubbing">
@@ -342,7 +342,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Verifying">
     <meta itemprop="description" content="The WireMock server records all requests it receives in memory (atleast until it is reset). This makes it possible to verify thata request matching a specific pattern was received, and also to fetchthe requests’ details.">
-    <meta itemprop="datePublished" content="December 07, 2017">
+    <meta itemprop="datePublished" content="December 15, 2017">
     
 
     <div class="page__inner-wrap">
@@ -797,9 +797,14 @@ for the query for near misses by request.</p>
     document.cookie = "mocklab_notification_seen=true;expires=" + expiresDate.toGMTString() + ";path=/";
   }
 
+  function sendNavigatedToMockLabEvent(location) {
+    ga('send', 'event', location, 'navigated_to_mocklab', 'Navigated to MockLab', 1);
+  }
+
   window.onload = function () {
     $("a[title='MockLab']").click(function() {
       ga('send', 'event', 'primary_nav', 'mocklab_clicked', 'MockLab clicked', 1);
+      sendNavigatedToMockLabEvent('primary_nav');
     });
 
     $("a[title='Consulting Services']").click(function() {
@@ -822,6 +827,7 @@ for the query for near misses by request.</p>
             text: "Learn More",
             click: function () {
               ga('send', 'event', 'mocklab_popup', 'learn_more_clicked', 'Learn More clicked', 1);
+              sendNavigatedToMockLabEvent();
               window.location.href = "http://get.mocklab.io/?utm_source=wiremock.org&utm_medium=mocklab-popup&utm_campaign=mocklab"
             }
           }]
@@ -835,10 +841,12 @@ for the query for near misses by request.</p>
 
     $("#mocklab-callout-learn-more").click(function() {
       ga('send', 'event', 'mocklab_homepage_section', 'learn_more_clicked', 'Learn More clicked', 1);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
     });
 
     $("#mocklab-callout-try-it-now").click(function() {
       ga('send', 'event', 'mocklab_homepage_section', 'try_it_now_clicked', 'Try It Now clicked', 2);
+      sendNavigatedToMockLabEvent('mocklab_homepage_section');
     });
   };
 </script>
