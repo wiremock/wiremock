@@ -22,7 +22,6 @@ import com.google.common.base.Stopwatch;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -37,7 +36,6 @@ import java.util.concurrent.Future;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
@@ -68,7 +66,7 @@ public class ResponseDelayAsynchronousAcceptanceTest {
         for (Future<TimedHttpResponse> response: responses) {
             TimedHttpResponse timedResponse = response.get();
             assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
-            assertThat(timedResponse.milliseconds, closeTo(SHORTER_THAN_SOCKET_TIMEOUT, 75));
+            assertThat(timedResponse.milliseconds, greaterThan((double) SHORTER_THAN_SOCKET_TIMEOUT));
         }
     }
 
@@ -82,7 +80,6 @@ public class ResponseDelayAsynchronousAcceptanceTest {
             TimedHttpResponse timedResponse = response.get();
             assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
             assertThat(timedResponse.milliseconds, greaterThan(100.0));
-            assertThat(timedResponse.milliseconds, Matchers.lessThan(350.0));
         }
     }
 
