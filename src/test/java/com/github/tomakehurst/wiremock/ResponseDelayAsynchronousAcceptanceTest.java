@@ -18,8 +18,11 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.google.common.base.Stopwatch;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -31,11 +34,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class ResponseDelayAsynchronousAcceptanceTest {
@@ -57,32 +60,61 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     }
 
     @Test
-    public void requestIsSuccessfulWhenMultipleRequestsHitAsynchronousServer() throws Exception {
-        stubFor(get(urlEqualTo("/delayed")).willReturn(
-                aResponse()
-                        .withStatus(200)
-                        .withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
+    public void addsFixedDelayAsynchronously() throws Exception {
+        stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
-        List<Future<HttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(10));
+        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(10));
 
-        for (Future<HttpResponse> response : responses) {
-            assertThat(response.get().getStatusLine().getStatusCode(), is(200));
+        for (Future<TimedHttpResponse> response: responses) {
+            TimedHttpResponse timedResponse = response.get();
+            assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
+            assertThat(timedResponse.milliseconds, closeTo(SHORTER_THAN_SOCKET_TIMEOUT, 50));
         }
     }
 
-    private List<Callable<HttpResponse>> getHttpRequestCallables(int requestCount) throws IOException {
-        List<Callable<HttpResponse>> requests = new ArrayList<>();
+    @Test
+    public void addsRandomDelayAsynchronously() throws Exception {
+        stubFor(get("/delayed").willReturn(ok().withUniformRandomDelay(100, 500)));
+
+        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(10));
+
+        for (Future<TimedHttpResponse> response: responses) {
+            TimedHttpResponse timedResponse = response.get();
+            assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
+            assertThat(timedResponse.milliseconds, greaterThan(100.0));
+            assertThat(timedResponse.milliseconds, Matchers.lessThan(550.0));
+        }
+    }
+
+    private List<Callable<TimedHttpResponse>> getHttpRequestCallables(int requestCount) throws IOException {
+        List<Callable<TimedHttpResponse>> requests = new ArrayList<>();
         for (int i = 0; i < requestCount; i++) {
-            requests.add(new Callable<HttpResponse>() {
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+            requests.add(new Callable<TimedHttpResponse>() {
                 @Override
-                public HttpResponse call() throws Exception {
-                    return HttpClientFactory
-                            .createClient(SOCKET_TIMEOUT_MILLISECONDS)
-                            .execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+                public TimedHttpResponse call() throws Exception {
+                    CloseableHttpResponse response = HttpClientFactory
+                        .createClient(SOCKET_TIMEOUT_MILLISECONDS)
+                        .execute(new HttpGet(String.format("http://localhost:%d/delayed", wireMockRule.port())));
+
+                    return new TimedHttpResponse(
+                        response,
+                        stopwatch.stop().elapsed(MILLISECONDS)
+                    );
                 }
             });
         }
         return requests;
+    }
+
+    private static class TimedHttpResponse {
+        public final HttpResponse response;
+        public final double milliseconds;
+
+        public TimedHttpResponse(HttpResponse response, long milliseconds) {
+            this.response = response;
+            this.milliseconds = milliseconds;
+        }
     }
 
 }
