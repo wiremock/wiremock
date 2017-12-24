@@ -92,6 +92,8 @@ public class CommandLineOptions implements Options {
     private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
     private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
     private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
+    private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
+    private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -130,6 +132,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
         optionParser.accepts(ADMIN_API_BASIC_AUTH, "Require HTTP Basic authentication for admin API calls with the supplied credentials in username:password format").withRequiredArg();
         optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
+        optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
+        optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -475,4 +479,20 @@ public class CommandLineOptions implements Options {
 
         return value.toString();
     }
+
+    @Override
+    public AsynchronousResponseSettings getAsynchronousResponseSettings() {
+        return new AsynchronousResponseSettings(isAsynchronousResponseEnabled(), getAsynchronousResponseThreads());
+    }
+
+    private boolean isAsynchronousResponseEnabled() {
+        return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED) ?
+                Boolean.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED)) :
+                false;
+    }
+
+    private int getAsynchronousResponseThreads() {
+        return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+    }
+
 }

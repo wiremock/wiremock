@@ -89,6 +89,8 @@ public class WireMockConfiguration implements Options {
     private boolean requireHttpsForAdminApi = false;
 
     private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
+    private boolean asynchronousResponseEnabled;
+    private int asynchronousResponseThreads;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -318,6 +320,16 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration asynchronousResponseEnabled(boolean asynchronousResponseEnabled) {
+        this.asynchronousResponseEnabled = asynchronousResponseEnabled;
+        return this;
+    }
+
+    public WireMockConfiguration asynchronousResponseThreads(int asynchronousResponseThreads) {
+        this.asynchronousResponseThreads = asynchronousResponseThreads;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -447,4 +459,10 @@ public class WireMockConfiguration implements Options {
     public NotMatchedRenderer getNotMatchedRenderer() {
         return notMatchedRenderer;
     }
+
+    @Override
+    public AsynchronousResponseSettings getAsynchronousResponseSettings() {
+        return new AsynchronousResponseSettings(asynchronousResponseEnabled, asynchronousResponseThreads);
+    }
+
 }

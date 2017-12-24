@@ -44,16 +44,16 @@ public class Response {
                 null,
                 0,
                 null,
-                false
-        );
-	}
+                false);
+    }
 
     public static Builder response() {
         return new Builder();
     }
 
-	public Response(int status, String statusMessage, byte[] body, HttpHeaders headers, boolean configured, Fault fault, long initialDelay, ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
-		this.status = status;
+    public Response(int status, String statusMessage, byte[] body, HttpHeaders headers, boolean configured, Fault fault, long initialDelay,
+                    ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
+        this.status = status;
         this.statusMessage = statusMessage;
         this.body = body;
         this.headers = headers;
@@ -64,7 +64,8 @@ public class Response {
         this.fromProxy = fromProxy;
     }
 
-    public Response(int status, String statusMessage, String body, HttpHeaders headers, boolean configured, Fault fault, long initialDelay, ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
+    public Response(int status, String statusMessage, String body, HttpHeaders headers, boolean configured, Fault fault, long initialDelay,
+                    ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
         this.status = status;
         this.statusMessage = statusMessage;
         this.headers = headers;
@@ -87,11 +88,11 @@ public class Response {
     public byte[] getBody() {
         return body;
     }
-	
+
 	public String getBodyAsString() {
         return Strings.stringFromBytes(body, headers.getContentTypeHeader().charset());
 	}
-	
+
 	public HttpHeaders getHeaders() {
 		return headers;
 	}

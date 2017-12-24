@@ -355,6 +355,30 @@ public class CommandLineOptionsTest {
         assertThat(options.getHttpsRequiredForAdminApi(), is(false));
     }
 
+    @Test
+    public void enablesAsynchronousResponse() {
+        CommandLineOptions options = new CommandLineOptions("--async-response-enabled", "true");
+        assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(true));
+    }
+
+    @Test
+    public void disablesAsynchronousResponseByDefault() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(false));
+    }
+
+    @Test
+    public void setsNumberOfAsynchronousResponseThreads() {
+        CommandLineOptions options = new CommandLineOptions("--async-response-threads", "20");
+        assertThat(options.getAsynchronousResponseSettings().getThreads(), is(20));
+    }
+
+    @Test
+    public void setsDefaultNumberOfAsynchronousResponseThreads() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getAsynchronousResponseSettings().getThreads(), is(10));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -35,13 +36,18 @@ import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequest
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
-	public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
-	public static final String MAPPED_UNDER_KEY = "mappedUnder";
+    public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
+    public static final String ASYNCHRONOUS_RESPONSE_ENABLED = "asynchronousResponseEnabled";
+    public static final String ASYNCHRONOUS_RESPONSE_THREADS = "asynchronousResponseThreads";
+    public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
 	private static final long serialVersionUID = -6602042274260495538L;
+
+    private ScheduledExecutorService scheduledExecutorService;
 
     private RequestHandler requestHandler;
     private FaultInjectorFactory faultHandlerFactory;
@@ -49,6 +55,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
+    private boolean asynchronousResponseEnabled;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -58,6 +65,12 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
+
+        asynchronousResponseEnabled = Boolean.valueOf(config.getInitParameter(ASYNCHRONOUS_RESPONSE_ENABLED));
+
+        if (asynchronousResponseEnabled) {
+            scheduledExecutorService = newScheduledThreadPool(Integer.valueOf(config.getInitParameter(ASYNCHRONOUS_RESPONSE_THREADS)));
+        }
 
         String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
 		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
@@ -114,15 +127,53 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		}
 
 		@Override
-		public void respond(Request request, Response response) {
-            if (Thread.currentThread().isInterrupted()) {
-                return;
+		public void respond(final Request request, final Response response) {
+			if (Thread.currentThread().isInterrupted()) {
+				return;
+			}
+
+			httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
+
+            if (isAsyncSupported(response, httpServletRequest)) {
+                respondAsync(request, response);
+            } else {
+                respondSync(request, response);
             }
+        }
 
-            httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
-
+        private void respondSync(Request request, Response response) {
             delayIfRequired(response.getInitialDelay());
+            respondTo(request, response);
+        }
 
+
+        private void delayIfRequired(long delayMillis) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(delayMillis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        private boolean isAsyncSupported(Response response, HttpServletRequest httpServletRequest) {
+            return asynchronousResponseEnabled && response.getInitialDelay() > 0 && httpServletRequest.isAsyncSupported();
+        }
+
+        private void respondAsync(final Request request, final Response response) {
+            final AsyncContext asyncContext = httpServletRequest.startAsync();
+            scheduledExecutorService.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        respondTo(request, response);
+                    } finally {
+                        asyncContext.complete();
+                    }
+                }
+            }, response.getInitialDelay(), TimeUnit.MILLISECONDS);
+        }
+
+        private void respondTo(Request request, Response response) {
             try {
                 if (response.wasConfigured()) {
                     applyResponse(response, httpServletRequest, httpServletResponse);
@@ -135,15 +186,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
                 throwUnchecked(e);
             }
         }
-
-		private void delayIfRequired(long delayMillis) {
-			try {
-				TimeUnit.MILLISECONDS.sleep(delayMillis);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
+    }
 
     public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         Fault fault = response.getFault();
