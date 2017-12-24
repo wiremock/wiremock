@@ -36,21 +36,7 @@ import static com.google.common.io.ByteStreams.toByteArray;
 
 public class MultipartValuePattern implements ValueMatcher<Part> {
 
-    public enum MatchingType {
-        ALL("ALL"),
-        ANY("ANY");
-
-        private final String value;
-
-        @JsonValue
-        public String getValue() {
-            return value;
-        }
-
-        MatchingType(String type) {
-            value = type;
-        }
-    }
+    public enum MatchingType { ALL, ANY }
 
     private final Map<String, List<MultiValuePattern>> multipartHeaders;
     private final List<ContentPattern<?>> bodyPatterns;
