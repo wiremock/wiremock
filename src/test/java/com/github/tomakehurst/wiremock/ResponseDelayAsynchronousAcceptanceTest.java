@@ -63,26 +63,26 @@ public class ResponseDelayAsynchronousAcceptanceTest {
     public void addsFixedDelayAsynchronously() throws Exception {
         stubFor(get("/delayed").willReturn(ok().withFixedDelay(SHORTER_THAN_SOCKET_TIMEOUT)));
 
-        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(10));
+        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(5));
 
         for (Future<TimedHttpResponse> response: responses) {
             TimedHttpResponse timedResponse = response.get();
             assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
-            assertThat(timedResponse.milliseconds, closeTo(SHORTER_THAN_SOCKET_TIMEOUT, 50));
+            assertThat(timedResponse.milliseconds, closeTo(SHORTER_THAN_SOCKET_TIMEOUT, 75));
         }
     }
 
     @Test
     public void addsRandomDelayAsynchronously() throws Exception {
-        stubFor(get("/delayed").willReturn(ok().withUniformRandomDelay(100, 500)));
+        stubFor(get("/delayed").willReturn(ok().withUniformRandomDelay(100, 300)));
 
-        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(10));
+        List<Future<TimedHttpResponse>> responses = httpClientExecutor.invokeAll(getHttpRequestCallables(5));
 
         for (Future<TimedHttpResponse> response: responses) {
             TimedHttpResponse timedResponse = response.get();
             assertThat(timedResponse.response.getStatusLine().getStatusCode(), is(200));
             assertThat(timedResponse.milliseconds, greaterThan(100.0));
-            assertThat(timedResponse.milliseconds, Matchers.lessThan(550.0));
+            assertThat(timedResponse.milliseconds, Matchers.lessThan(350.0));
         }
     }
 
