@@ -166,4 +166,9 @@ public class WarConfiguration implements Options {
     public NotMatchedRenderer getNotMatchedRenderer() {
         return new PlainTextStubNotMatchedRenderer();
     }
+
+    @Override
+    public AsynchronousResponseSettings getAsynchronousResponseSettings() {
+        return new AsynchronousResponseSettings(false, 0);
+    }
 }
