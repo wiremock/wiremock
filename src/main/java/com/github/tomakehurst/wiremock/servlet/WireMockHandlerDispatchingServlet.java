@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
@@ -37,6 +36,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
@@ -149,7 +149,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
         private void delayIfRequired(long delayMillis) {
             try {
-                TimeUnit.MILLISECONDS.sleep(delayMillis);
+                MILLISECONDS.sleep(delayMillis);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -170,7 +170,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
                         asyncContext.complete();
                     }
                 }
-            }, response.getInitialDelay(), TimeUnit.MILLISECONDS);
+            }, response.getInitialDelay(), MILLISECONDS);
         }
 
         private void respondTo(Request request, Response response) {
