@@ -14,6 +14,7 @@ WireMock supports matching of requests to stubs and verification queries using t
 * Basic authentication (a special case of header matching)
 * Cookies
 * Request body
+* Multipart/form-data
 
 Here's an example showing all attributes being matched using WireMock's in-built match operators. It is also possible to write [custom matching logic](/docs/extending-wiremock/#custom-request-matchers) if
 you need more precise control:
@@ -28,6 +29,12 @@ stubFor(any(urlPathEqualTo("/everything"))
   .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
   .withRequestBody(equalToXml("<search-results />"))
   .withRequestBody(matchingXPath("//search-results"))
+  .withMultipartRequestBody(
+  	aMultipart()
+  		.withName("info")
+  		.withHeader("Content-Type", containing("charset"))
+  		.withMultipartBody(equalToJson("{}"))
+  )
   .willReturn(aResponse()));
 ```
 
@@ -57,6 +64,20 @@ JSON:
       "equalToXml" : "<search-results />"
     }, {
       "matchesXPath" : "//search-results"
+    } ],
+    "multipartPatterns" : [ {
+      "matchingType" : "ANY",
+      "multipartHeaders" : {
+        "Content-Disposition" : [ {
+          "contains" : "name=\"info\""
+        } ],
+        "Content-Type" : [ {
+          "contains" : "charset"
+        } ]
+      },
+      "bodyPatterns" : [ {
+        "equalToJson" : "{}"
+      } ]
     } ],
     "basicAuthCredentials" : {
       "username" : "jeff@example.com",
@@ -776,6 +797,50 @@ JSON:
         "absent" : true
       }
     }
+    ...
+  },
+  ...
+}
+```
+
+## Multipart/form-data
+
+Deems a match if a multipart value is valid and matches any or all the the multipart pattern matchers supplied.   As a Multipart is a 'mini' HTTP request in itself all existing Header and Body content matchers can by applied to a Multipart pattern.
+A Multipart pattern can be defined as matching `ANY` request multiparts or `ALL`. The default matching type is `ANY`.
+
+Java:
+
+```java
+stubFor(...)
+  ...
+  .withMultipartRequestBody(
+  	aMultipart()
+  		.withName("info")
+  		.withHeader("Content-Type", containing("charset"))
+  		.withMultipartBody(equalToJson("{}"))
+  )
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "multipartPatterns" : [ {
+      "matchingType" : "ANY",
+      "multipartHeaders" : {
+        "Content-Disposition" : [ {
+          "contains" : "name=\"info\""
+        } ],
+        "Content-Type" : [ {
+          "contains" : "charset"
+        } ]
+      },
+      "bodyPatterns" : [ {
+        "equalToJson" : "{}"
+      } ]
+    } ],
     ...
   },
   ...

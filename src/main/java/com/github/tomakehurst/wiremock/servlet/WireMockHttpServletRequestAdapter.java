@@ -269,7 +269,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
                 InputStream inputStream = new ByteArrayInputStream(getBody());
                 MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
                 request.setAttribute(org.eclipse.jetty.server.Request.__MULTIPART_INPUT_STREAM, inputStreamParser);
-                cachedMultiparts = request.getParts();
+                cachedMultiparts = from(request.getParts()).transform(new Function<javax.servlet.http.Part, Part>() {
+                    @Override
+                    public Part apply(javax.servlet.http.Part input) {
+                        return WireMockHttpServletMultipartAdapter.from(input);
+                    }
+                }).toList();
             } catch (IOException | ServletException exception) {
                 exception.printStackTrace();
                 cachedMultiparts = newArrayList();

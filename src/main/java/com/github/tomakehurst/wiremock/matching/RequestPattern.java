@@ -32,7 +32,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.servlet.http.Part;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
@@ -287,18 +286,18 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     }
 
     private static MatchResult matchAllMultiparts(final Request request, final MultipartValuePattern pattern) {
-        return from(request.getParts()).allMatch(new Predicate<Part>() {
+        return from(request.getParts()).allMatch(new Predicate<Request.Part>() {
             @Override
-            public boolean apply(Part input) {
+            public boolean apply(Request.Part input) {
                 return pattern.match(input).isExactMatch();
             }
         }) ? MatchResult.exactMatch() : MatchResult.noMatch();
     }
 
     private static MatchResult matchAnyMultipart(final Request request, final MultipartValuePattern pattern) {
-        return from(request.getParts()).anyMatch(new Predicate<Part>() {
+        return from(request.getParts()).anyMatch(new Predicate<Request.Part>() {
             @Override
-            public boolean apply(Part input) {
+            public boolean apply(Request.Part input) {
                 return pattern.match(input).isExactMatch();
             }
         }) ? MatchResult.exactMatch() : MatchResult.noMatch();
