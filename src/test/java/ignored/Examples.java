@@ -324,6 +324,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withMultipartBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()).build()));
 
         stubFor(any(urlPathEqualTo("/everything"))
@@ -333,6 +339,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withMultipartBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()));
     }
 

@@ -18,9 +18,9 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import java.io.IOException;
@@ -28,23 +28,23 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.Part;
+import org.eclipse.jetty.util.MultiMap;
 
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.io.ByteStreams.toByteArray;
 
-public class MultipartValuePattern implements ValueMatcher<Part> {
+public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     public enum MatchingType { ALL, ANY }
 
-    private final Map<String, List<MultiValuePattern>> multipartHeaders;
+    private final MultiMap<MultiValuePattern> multipartHeaders;
     private final List<ContentPattern<?>> bodyPatterns;
     private final MatchingType matchingType;
 
     @JsonCreator
     public MultipartValuePattern(@JsonProperty("matchingType") MatchingType type,
-                                 @JsonProperty("multipartHeaders") Map<String, List<MultiValuePattern>> headers,
+                                 @JsonProperty("multipartHeaders") MultiMap<MultiValuePattern> headers,
                                  @JsonProperty("bodyPatterns") List<ContentPattern<?>> body) {
         this.matchingType = type;
         this.multipartHeaders = headers;
@@ -62,7 +62,7 @@ public class MultipartValuePattern implements ValueMatcher<Part> {
     }
 
     @Override
-    public MatchResult match(final Part value) {
+    public MatchResult match(final Request.Part value) {
         if (multipartHeaders != null || bodyPatterns != null) {
             return MatchResult.aggregate(
                     multipartHeaders != null ? matchHeaderPatterns(value) : MatchResult.exactMatch(),
@@ -73,7 +73,7 @@ public class MultipartValuePattern implements ValueMatcher<Part> {
         return MatchResult.exactMatch();
     }
 
-    private MatchResult matchHeaderPatterns(final Part value) {
+    private MatchResult matchHeaderPatterns(final Request.Part value) {
         return MatchResult.aggregate(
                 from(multipartHeaders.entrySet()).transform(new Function<Map.Entry<String, List<MultiValuePattern>>, MatchResult>() {
                     @Override
@@ -91,7 +91,7 @@ public class MultipartValuePattern implements ValueMatcher<Part> {
         );
     }
 
-    private MatchResult matchBodyPatterns(final Part value) {
+    private MatchResult matchBodyPatterns(final Request.Part value) {
         return MatchResult.aggregate(
                 from(bodyPatterns).transform(new Function<ContentPattern, MatchResult>() {
                     @Override
@@ -102,7 +102,7 @@ public class MultipartValuePattern implements ValueMatcher<Part> {
         );
     }
 
-    private static MatchResult matchBody(Part value, ContentPattern<?> bodyPattern) {
+    private static MatchResult matchBody(Request.Part value, ContentPattern<?> bodyPattern) {
         final byte[] body;
         try {
             body = toByteArray(value.getInputStream());
@@ -121,7 +121,7 @@ public class MultipartValuePattern implements ValueMatcher<Part> {
         return ((BinaryEqualToPattern) bodyPattern).match(body);
     }
 
-    private static HttpHeader header(String name, Part value) {
+    private static HttpHeader header(String name, Request.Part value) {
         Collection<String> headerNames = value.getHeaderNames();
         for (String currentKey : headerNames) {
             if (currentKey.toLowerCase().equals(name.toLowerCase())) {

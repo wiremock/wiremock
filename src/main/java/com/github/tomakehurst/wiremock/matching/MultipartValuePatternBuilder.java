@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.jetty.util.MultiMap;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -62,6 +63,6 @@ public class MultipartValuePatternBuilder {
     public MultipartValuePattern build() {
         return headerPatterns.isEmpty() && bodyPatterns.isEmpty() ? null :
                 headerPatterns.isEmpty() ? new MultipartValuePattern(matchingType, null, bodyPatterns) :
-                        new MultipartValuePattern(matchingType, headerPatterns, bodyPatterns);
+                        new MultipartValuePattern(matchingType, new MultiMap<>(headerPatterns), bodyPatterns);
     }
 }

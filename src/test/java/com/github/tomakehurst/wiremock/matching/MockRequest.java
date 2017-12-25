@@ -23,7 +23,9 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 
@@ -34,7 +36,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
-import javax.servlet.http.Part;
 import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
@@ -201,7 +202,12 @@ public class MockRequest implements Request {
         if (multiparts == null) {
             MultiPartInputStreamParser parser = new MultiPartInputStreamParser(new ByteArrayInputStream(body), getHeader(ContentTypeHeader.KEY), null, null);
             try {
-                multiparts = parser.getParts();
+                multiparts = from(parser.getParts()).transform(new Function<javax.servlet.http.Part, Part>() {
+                    @Override
+                    public Part apply(javax.servlet.http.Part input) {
+                        return WireMockHttpServletMultipartAdapter.from(input);
+                    }
+                }).toList();
             } catch (ServletException | IOException e) {
                 e.printStackTrace();
                 multiparts = emptyList();

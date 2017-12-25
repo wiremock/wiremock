@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import java.nio.charset.Charset;
-import javax.servlet.http.Part;
 
 import static com.google.common.base.Charsets.UTF_8;
 
