@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.HttpsSettings;
 import com.github.tomakehurst.wiremock.common.JettySettings;
@@ -63,4 +64,5 @@ public interface Options {
     Authenticator getAdminAuthenticator();
     boolean getHttpsRequiredForAdminApi();
     NotMatchedRenderer getNotMatchedRenderer();
+    AsynchronousResponseSettings getAsynchronousResponseSettings();
 }
