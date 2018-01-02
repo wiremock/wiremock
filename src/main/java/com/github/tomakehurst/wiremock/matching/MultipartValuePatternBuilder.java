@@ -23,6 +23,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class MultipartValuePatternBuilder {
+
+    private String name = null;
     private Map<String, MultiValuePattern> headerPatterns = newLinkedHashMap();
     private List<ContentPattern<?>> bodyPatterns = new LinkedList<>();
     private MultipartValuePattern.MatchingType matchingType = MultipartValuePattern.MatchingType.ANY;
@@ -40,6 +42,7 @@ public class MultipartValuePatternBuilder {
     }
 
     public MultipartValuePatternBuilder withName(String name) {
+        this.name = name;
         return withHeader("Content-Disposition", containing("name=\"" + name + "\""));
     }
 
@@ -48,7 +51,7 @@ public class MultipartValuePatternBuilder {
         return this;
     }
 
-    public MultipartValuePatternBuilder withMultipartBody(ContentPattern<?> bodyPattern) {
+    public MultipartValuePatternBuilder withBody(ContentPattern<?> bodyPattern) {
         bodyPatterns.add(bodyPattern);
         return this;
     }
@@ -56,8 +59,9 @@ public class MultipartValuePatternBuilder {
     public MultipartValuePattern build() {
         return headerPatterns.isEmpty() && bodyPatterns.isEmpty() ? null :
                 headerPatterns.isEmpty() ?
-                    new MultipartValuePattern(matchingType, null, bodyPatterns) :
+                    new MultipartValuePattern(name, matchingType, null, bodyPatterns) :
                     new MultipartValuePattern(
+                        name,
                         matchingType,
                         headerPatterns,
                         bodyPatterns

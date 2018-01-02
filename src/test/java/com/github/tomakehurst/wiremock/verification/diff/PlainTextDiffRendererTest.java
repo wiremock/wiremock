@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
@@ -243,5 +244,63 @@ public class PlainTextDiffRendererTest {
         System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_url-pattern.txt")));
+    }
+
+    @Test
+    public void showsMultipartDifference() {
+        Diff diff = new Diff(post("/thing")
+            .withName("Multipart request body stub")
+
+            .withMultipartRequestBody(aMultipart()
+                .withName("part_one")
+                .withHeader("X-My-Stuff", containing("stuff_parts"))
+                .withBody(matching("Some expected text.*")))
+
+            .withMultipartRequestBody(aMultipart()
+                .withHeader("X-More", containing("stuff_parts"))
+                .withBody(equalTo("Correct body")))
+
+            .build(),
+
+            mockRequest()
+                .method(POST)
+                .url("/thing")
+                .header("Content-Type", "multipart/form-data")
+                .part(mockPart()
+                    .name("part_one")
+                    .header("X-My-Stuff", "wrong value")
+                    .body("Wrong body")
+                )
+                .part(mockPart()
+                    .name("part_two")
+                    .body("Correct body")
+                )
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_multipart.txt")));
+    }
+
+    @Test
+    public void showsErrorInDiffWhenMultipartExpectedButNotSent() {
+        Diff diff = new Diff(post("/thing")
+            .withName("Multipart request body stub")
+            .withMultipartRequestBody(aMultipart()
+                .withHeader("X-My-Stuff", containing("stuff_parts"))
+                .withBody(matching("Some expected text.*")))
+            .build(),
+
+            mockRequest()
+                .method(POST)
+                .url("/thing")
+                .body("Non-multipart body")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-multipart.txt")));
     }
 }

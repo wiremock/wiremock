@@ -26,6 +26,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.Matchers.*;
@@ -298,12 +299,12 @@ public class RequestPatternTest {
                         .withAnyRequestBodyPart(aMultipart()
                                 .withName("part-1")
                                 .withHeader("Content-Type", containing("text/plain"))
-                                .withMultipartBody(equalTo("body part value"))
+                                .withBody(equalTo("body part value"))
                         )
                         .withAnyRequestBodyPart(aMultipart()
                                 .withName("part-2")
                                 .withHeader("Content-Type", containing("application/octet-stream"))
-                                .withMultipartBody(containing("other body"))
+                                .withBody(containing("other body"))
                         )
                         .build();
 
@@ -311,7 +312,7 @@ public class RequestPatternTest {
                 .method(POST)
                 .url("/my/url")
                 .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
-                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
+                .multipartBody("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
                         "body part value\r\n" +
                         "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
                         "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
@@ -328,7 +329,7 @@ public class RequestPatternTest {
                 newRequestPattern(PUT, urlPathEqualTo("/my/url"))
                         .withAnyRequestBodyPart(aMultipart()
                                 .withName("part-2")
-                                .withMultipartBody(containing("non existing part"))
+                                .withBody(containing("non existing part"))
                         )
                         .build();
 
@@ -336,7 +337,7 @@ public class RequestPatternTest {
                 .method(PUT)
                 .url("/my/url")
                 .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
-                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                .multipartBody("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
                         "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
                         "--BOUNDARY--"
                 ));
@@ -349,7 +350,7 @@ public class RequestPatternTest {
         RequestPattern requestPattern =
                 newRequestPattern(PUT, urlPathEqualTo("/my/url"))
                         .withAnyRequestBodyPart(aMultipart()
-                                .withName("part-2")
+                                .withName("part-1")
                                 .withHeader("Content-Type", containing("application/json"))
                         )
                         .build();
@@ -358,7 +359,7 @@ public class RequestPatternTest {
                 .method(PUT)
                 .url("/my/url")
                 .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
-                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
+                .multipartBody("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
                         "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value
                         "--BOUNDARY--"
                 ));
@@ -372,7 +373,7 @@ public class RequestPatternTest {
                 newRequestPattern(POST, urlPathEqualTo("/my/url"))
                         .withAllRequestBodyParts(aMultipart()
                                 .withHeader("Content-Type", containing("text/plain"))
-                                .withMultipartBody(containing("body value"))
+                                .withBody(containing("body value"))
                         )
                         .build();
 
@@ -380,7 +381,7 @@ public class RequestPatternTest {
                 .method(POST)
                 .url("/my/url")
                 .header("Content-Type", "multipart/form-data; boundary=BOUNDARY")
-                .body("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
+                .multipartBody("--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-1\"; filename=\"\"\r\nContent-Type: text/plain\r\n\r\n" +
                         "body value-1\r\n" +
                         "--BOUNDARY\r\nContent-Disposition: form-data; name=\"part-2\"; filename=\"\"\r\nContent-Type: text/plain\r\nContent-Transfer-Encoding: base64\r\n\r\n" +
                         "c29tZSBvdGhlciBib2R5IHZhbHVl\r\n" + //some other body value

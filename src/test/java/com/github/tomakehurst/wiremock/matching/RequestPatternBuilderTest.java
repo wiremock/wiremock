@@ -86,7 +86,7 @@ public class RequestPatternBuilderTest {
 
     @Test
     public void likeRequestPatternWithMultipartMatcher() {
-        MultipartValuePattern multipartValuePattern = aMultipart().withMultipartBody(equalToJson("[]")).build();
+        MultipartValuePattern multipartValuePattern = aMultipart().withBody(equalToJson("[]")).build();
 
         RequestPattern requestPattern = RequestPattern.everything();
         RequestPattern newRequestPattern = RequestPatternBuilder
@@ -101,7 +101,7 @@ public class RequestPatternBuilderTest {
 
     @Test
     public void likeRequestPatternWithoutMultipartMatcher() {
-        MultipartValuePattern multipartPattern = aMultipart().withMultipartBody(equalToJson("[]")).build();
+        MultipartValuePattern multipartPattern = aMultipart().withBody(equalToJson("[]")).build();
 
         // Use a RequestPattern with everything defined except a custom matcher to ensure all fields are set properly
         RequestPattern requestPattern = new RequestPattern(

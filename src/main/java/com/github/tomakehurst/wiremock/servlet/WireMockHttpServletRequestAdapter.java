@@ -254,17 +254,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     @Override
-    public boolean isMultipart() {
-        String header = getHeader("Content-Type");
-        return (header != null && header.contains("multipart/form-data"));
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public Collection<Part> getParts() {
         if (!isMultipart()) {
             return null;
         }
+
         if (cachedMultiparts == null) {
             try {
                 String contentTypeHeaderValue = from(contentTypeHeader().values()).join(Joiner.on(" "));
@@ -283,6 +278,12 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
 
         return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
+    }
+
+    @Override
+    public boolean isMultipart() {
+        String header = getHeader("Content-Type");
+        return (header != null && header.contains("multipart"));
     }
 
     @Override

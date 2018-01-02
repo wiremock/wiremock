@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
+import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Cookie;
@@ -23,6 +24,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.jetty9.MultipartParser;
 import com.github.tomakehurst.wiremock.servlet.WireMockHttpServletMultipartAdapter;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Function;
@@ -38,10 +40,12 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
+import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.tryFind;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -92,6 +96,20 @@ public class MockRequest implements Request {
 
     public MockRequest clientIp(String clientIp) {
         this.clientIp = clientIp;
+        return this;
+    }
+
+    public MockRequest parts(Collection<Part> multiparts) {
+        this.multiparts = multiparts;
+        return this;
+    }
+
+    public MockRequest part(MockMultipart part) {
+        if (multiparts == null) {
+            multiparts = newArrayList();
+        }
+
+        multiparts.add(part);
         return this;
     }
 
@@ -191,28 +209,11 @@ public class MockRequest implements Request {
 
     @Override
     public boolean isMultipart() {
-        return getHeader("Content-Type").contains("multipart/form-data");
+        return getParts() != null;
     }
 
     @Override
     public Collection<Part> getParts() {
-        if (body == null) {
-            return null;
-        }
-        if (multiparts == null) {
-            MultiPartInputStreamParser parser = new MultiPartInputStreamParser(new ByteArrayInputStream(body), getHeader(ContentTypeHeader.KEY), null, null);
-            try {
-                multiparts = from(parser.getParts()).transform(new Function<javax.servlet.http.Part, Part>() {
-                    @Override
-                    public Part apply(javax.servlet.http.Part input) {
-                        return WireMockHttpServletMultipartAdapter.from(input);
-                    }
-                }).toList();
-            } catch (ServletException | IOException e) {
-                e.printStackTrace();
-                multiparts = emptyList();
-            }
-        }
         return multiparts;
     }
 
@@ -227,5 +228,13 @@ public class MockRequest implements Request {
                 return false;
             }
         }).get() : null;
+    }
+
+    public MockRequest multipartBody(String body) {
+        ContentTypeHeader contentTypeHeader = headers.getContentTypeHeader();
+        String contentType = contentTypeHeader.isPresent() ? contentTypeHeader.firstValue() : "multipart/form-data; boundary=BOUNDARY";
+        this.multiparts = MultipartParser.parse(bytesFromString(body), contentType);
+
+        return this;
     }
 }

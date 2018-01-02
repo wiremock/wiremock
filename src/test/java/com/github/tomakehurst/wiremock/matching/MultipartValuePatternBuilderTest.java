@@ -70,7 +70,7 @@ public class MultipartValuePatternBuilderTest {
                 aMultipart("name")
                         .withHeader("X-Header", containing("something"))
                         .withHeader("X-Other", absent())
-                        .withMultipartBody(equalToXml("<xml />"))
+                        .withBody(equalToXml("<xml />"))
                         .build();
 
         Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
@@ -95,7 +95,7 @@ public class MultipartValuePatternBuilderTest {
                 aMultipart()
                         .withHeader("X-Header", containing("something"))
                         .withHeader("X-Other", absent())
-                        .withMultipartBody(equalToXml("<xml />"))
+                        .withBody(equalToXml("<xml />"))
                         .build();
 
         Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();

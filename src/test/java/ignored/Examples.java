@@ -17,7 +17,6 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -100,7 +99,7 @@ public class Examples extends AcceptanceTestBase {
     public void multipartBodyMatchingBase64() {
         stubFor(post(urlEqualTo("/with/multipart"))
                 .withMultipartRequestBody(aMultipart()
-                        .withMultipartBody(binaryEqualTo("Content")))
+                        .withBody(binaryEqualTo("Content")))
                 .willReturn(ok()));
     }
 
@@ -328,7 +327,7 @@ public class Examples extends AcceptanceTestBase {
                 aMultipart()
                     .withName("info")
                     .withHeader("Content-Type", containing("charset"))
-                    .withMultipartBody(equalToJson("{}"))
+                    .withBody(equalToJson("{}"))
             )
             .willReturn(aResponse()).build()));
 
@@ -343,7 +342,7 @@ public class Examples extends AcceptanceTestBase {
                 aMultipart()
                     .withName("info")
                     .withHeader("Content-Type", containing("charset"))
-                    .withMultipartBody(equalToJson("{}"))
+                    .withBody(equalToJson("{}"))
             )
             .willReturn(aResponse()));
     }
