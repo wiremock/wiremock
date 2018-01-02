@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.GenericHttpUriRequest;
-import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -151,11 +150,11 @@ public class WireMockTestClient {
         return post(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
     }
 
-    public WireMockResponse postWithMultiparts(String url, Collection<MockMultipart> parts, TestHttpHeader... headers) {
+    public WireMockResponse postWithMultiparts(String url, Collection<MultipartBody> parts, TestHttpHeader... headers) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 
         if (parts != null) {
-            for (MockMultipart part : parts) {
+            for (MultipartBody part : parts) {
                 builder.addPart(part.getFilename(), part);
             }
         }
