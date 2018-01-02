@@ -29,7 +29,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 group = 'com.github.tomakehurst'
-version = '2.12.0'
+version = '2.12.1'
 
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
@@ -86,6 +86,8 @@ dependencies {
     testCompile "commons-io:commons-io:2.4"
     testCompile 'org.scala-lang:scala-library:2.11.12'
     testCompile 'org.littleshoot:littleproxy:1.1.2'
+
+    testCompile 'org.apache.httpcomponents:httpmime:4.5'
 
     testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
     testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')

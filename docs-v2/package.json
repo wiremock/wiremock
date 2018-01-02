@@ -30,7 +30,7 @@
     "postcss-cli": "^2.5.1",
     "raml2html": "3.0.1",
     "uglify-js": "^2.6.1",
-	"shx": "0.2.2"
+    "shx": "0.2.2"
   },
   "scripts": {
     "scss": "node-sass --output-style compressed -o assets/css assets/_scss",

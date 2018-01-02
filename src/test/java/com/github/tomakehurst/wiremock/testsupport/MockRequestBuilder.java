@@ -16,6 +16,8 @@
 package com.github.tomakehurst.wiremock.testsupport;
 
 import com.github.tomakehurst.wiremock.http.*;
+import java.util.Collection;
+import javax.servlet.http.Part;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 
@@ -40,6 +42,7 @@ public class MockRequestBuilder {
 	private List<QueryParameter> queryParameters = newArrayList();
 	private String body = "";
 	private String bodyAsBase64 = "";
+	private Collection<Part> multiparts = newArrayList();
 
 	private boolean browserProxyRequest = false;
 	private String mockName;
@@ -106,6 +109,11 @@ public class MockRequestBuilder {
 		return this;
 	}
 
+	public MockRequestBuilder withMultiparts(Collection<Part> parts) {
+		this.multiparts = parts;
+		return this;
+	}
+
 	public Request build() {
 		final HttpHeaders headers = new HttpHeaders(individualHeaders);
 
@@ -141,6 +149,7 @@ public class MockRequestBuilder {
 			allowing(request).getBodyAsBase64(); will(returnValue(bodyAsBase64));
 			allowing(request).getAbsoluteUrl(); will(returnValue("http://localhost:8080" + url));
 			allowing(request).isBrowserProxyRequest(); will(returnValue(browserProxyRequest));
+			allowing(request).getParts(); will(returnValue(multiparts));
 		}});
 
 		return request;

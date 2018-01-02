@@ -97,6 +97,14 @@ public class Examples extends AcceptanceTestBase {
     }
 
     @Test
+    public void multipartBodyMatchingBase64() {
+        stubFor(post(urlEqualTo("/with/multipart"))
+                .withMultipartRequestBody(aMultipart()
+                        .withMultipartBody(binaryEqualTo("Content")))
+                .willReturn(ok()));
+    }
+
+    @Test
     public void priorities() {
 
         //Catch-all case
@@ -316,6 +324,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withMultipartBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()).build()));
 
         stubFor(any(urlPathEqualTo("/everything"))
@@ -325,6 +339,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withMultipartBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()));
     }
 

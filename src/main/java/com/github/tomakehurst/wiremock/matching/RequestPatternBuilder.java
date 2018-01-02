@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class RequestPatternBuilder {
@@ -36,6 +37,7 @@ public class RequestPatternBuilder {
     private List<ContentPattern<?>> bodyPatterns = newArrayList();
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
     private BasicCredentials basicCredentials;
+    private List<MultipartValuePattern> multiparts = newLinkedList();
 
     private ValueMatcher<Request> customMatcher;
 
@@ -102,6 +104,9 @@ public class RequestPatternBuilder {
         if (requestPattern.hasCustomMatcher()) {
             builder.customMatcher = requestPattern.getMatcher();
         }
+        if (requestPattern.getMultipartPatterns() != null) {
+            builder.multiparts = requestPattern.getMultipartPatterns();
+        }
         builder.basicCredentials = requestPattern.getBasicAuthCredentials();
         builder.customMatcherDefinition = requestPattern.getCustomMatcher();
         return builder;
@@ -146,6 +151,21 @@ public class RequestPatternBuilder {
         return this;
     }
 
+    public RequestPatternBuilder withRequestBodyPart(MultipartValuePattern multiPattern) {
+        if (multiPattern != null) {
+            multiparts.add(multiPattern);
+        }
+        return this;
+    }
+
+    public RequestPatternBuilder withAnyRequestBodyPart(MultipartValuePatternBuilder multiPatternBuilder) {
+        return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ANY).build());
+    }
+
+    public RequestPatternBuilder withAllRequestBodyParts(MultipartValuePatternBuilder multiPatternBuilder) {
+        return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ALL).build());
+    }
+
     public RequestPattern build() {
         return customMatcher != null ?
             new RequestPattern(customMatcher) :
@@ -159,7 +179,8 @@ public class RequestPatternBuilder {
                     cookies.isEmpty() ? null : cookies,
                     basicCredentials,
                     bodyPatterns.isEmpty() ? null : bodyPatterns,
-                    null
+                    null,
+                    multiparts.isEmpty() ? null : multiparts
                 );
     }
 }
