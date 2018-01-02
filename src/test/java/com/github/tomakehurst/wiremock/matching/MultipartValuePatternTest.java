@@ -17,21 +17,14 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
-import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.List;
-import java.util.Map;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.Maps.newLinkedHashMap;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isIn;
-import static org.hamcrest.core.Every.everyItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
@@ -133,6 +126,7 @@ public class MultipartValuePatternTest {
         String expectedBinary = "RG9jdW1lbnQgYm9keSBjb250ZW50cw==";
         String serializedPattern =
                 "{\n" +
+                "    \"name\": \"my_part_name\",\n" +
                 "    \"matchingType\": \"ALL\",\n" +
                 "    \"headers\": {\n" +
                 "        \"Content-Disposition\": \n" +
@@ -155,6 +149,7 @@ public class MultipartValuePatternTest {
 
         MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
+        assertThat(pattern.getName(), is("my_part_name"));
         assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedBinary);
         assertThat(pattern.getHeaders().get("Content-Type").getValuePattern().getExpected(), is("application/octet-stream"));
         assertTrue(pattern.isMatchAll());
@@ -167,13 +162,14 @@ public class MultipartValuePatternTest {
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
             .withHeader("X-Second-Header", matching(".*2"))
-            .withMultipartBody(equalToJson("{ \"thing\": 123 }"))
+            .withBody(equalToJson("{ \"thing\": 123 }"))
             .build();
 
         String json = Json.write(pattern);
 
         assertThat(json, WireMatchers.equalToJson(
             "{\n" +
+                "  \"name\" : \"title\",\n" +
                 "  \"matchingType\" : \"ANY\",\n" +
                 "  \"headers\" : {\n" +
                 "    \"Content-Disposition\" : {\n" +

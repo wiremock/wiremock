@@ -268,39 +268,20 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     @SuppressWarnings("unchecked")
     private MatchResult allMultipartPatternsMatch(final Request request) {
         if (multipartPatterns != null && !multipartPatterns.isEmpty()) {
-            if (request.getBody() == null || !request.isMultipart()) {
+            if (!request.isMultipart()) {
                 return MatchResult.noMatch();
             }
             return MatchResult.aggregate(
                     from(multipartPatterns)
                             .transform(new Function<MultipartValuePattern, MatchResult>() {
                                 public MatchResult apply(MultipartValuePattern pattern) {
-                                    return (pattern.isMatchAll()) ? matchAllMultiparts(request, pattern) :
-                                            matchAnyMultipart(request, pattern);
+                                    return pattern.match(request);
                                 }
                             }).toList()
             );
         }
 
         return MatchResult.exactMatch();
-    }
-
-    private static MatchResult matchAllMultiparts(final Request request, final MultipartValuePattern pattern) {
-        return from(request.getParts()).allMatch(new Predicate<Request.Part>() {
-            @Override
-            public boolean apply(Request.Part input) {
-                return pattern.match(input).isExactMatch();
-            }
-        }) ? MatchResult.exactMatch() : MatchResult.noMatch();
-    }
-
-    private static MatchResult matchAnyMultipart(final Request request, final MultipartValuePattern pattern) {
-        return from(request.getParts()).anyMatch(new Predicate<Request.Part>() {
-            @Override
-            public boolean apply(Request.Part input) {
-                return pattern.match(input).isExactMatch();
-            }
-        }) ? MatchResult.exactMatch() : MatchResult.noMatch();
     }
 
     public boolean isMatchedBy(Request request, Map<String, RequestMatcherExtension> customMatchers) {

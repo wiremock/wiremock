@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 import java.util.List;
 import java.util.Map;
@@ -31,14 +32,17 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     public enum MatchingType { ALL, ANY }
 
+    private final String name;
     private final Map<String, MultiValuePattern> headers;
     private final List<ContentPattern<?>> bodyPatterns;
     private final MatchingType matchingType;
 
     @JsonCreator
-    public MultipartValuePattern(@JsonProperty("matchingType") MatchingType type,
+    public MultipartValuePattern(@JsonProperty("name") String name,
+                                 @JsonProperty("matchingType") MatchingType type,
                                  @JsonProperty("headers") Map<String, MultiValuePattern> headers,
                                  @JsonProperty("bodyPatterns") List<ContentPattern<?>> body) {
+        this.name = name;
         this.matchingType = type;
         this.headers = headers;
         this.bodyPatterns = body;
@@ -66,9 +70,39 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
         return MatchResult.exactMatch();
     }
 
+    public MatchResult match(final Request request) {
+        return isMatchAll() ?
+            matchAllMultiparts(request) :
+            matchAnyMultipart(request);
+    }
+
+    private MatchResult matchAllMultiparts(final Request request) {
+        return from(request.getParts()).allMatch(new Predicate<Request.Part>() {
+            @Override
+            public boolean apply(Request.Part input) {
+                return MultipartValuePattern.this.match(input).isExactMatch();
+            }
+        }) ? MatchResult.exactMatch() : MatchResult.noMatch();
+    }
+
+    private MatchResult matchAnyMultipart(final Request request) {
+        return from(request.getParts()).anyMatch(new Predicate<Request.Part>() {
+            @Override
+            public boolean apply(Request.Part input) {
+                return MultipartValuePattern.this.match(input).isExactMatch();
+            }
+        }) ? MatchResult.exactMatch() : MatchResult.noMatch();
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public Map<String, MultiValuePattern> getHeaders() {
         return headers;
     }
+
+
 
     public MatchingType getMatchingType() {
         return matchingType;
@@ -106,6 +140,10 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     private static MatchResult matchBody(Request.Part part, ContentPattern<?> bodyPattern) {
         Body body = part.getBody();
+        if (body == null) {
+            return MatchResult.noMatch();
+        }
+
         if (BinaryEqualToPattern.class.isAssignableFrom(bodyPattern.getClass())) {
             return ((BinaryEqualToPattern) bodyPattern).match(body.asBytes());
         }
