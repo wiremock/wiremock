@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.github.tomakehurst.wiremock.common.ContentTypes;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Strings;
 
@@ -57,6 +58,10 @@ public class Body {
 
     static Body fromString(String str) {
         return str != null ? new Body(str) : none();
+    }
+
+    public static Body ofBinaryOrText(byte[] content, ContentTypeHeader contentTypeHeader) {
+        return new Body(content, ContentTypes.determineIsTextFromMimeType(contentTypeHeader.mimeTypePart()));
     }
 
     public static Body fromOneOf(byte[] bytes, String str, JsonNode json, String base64) {

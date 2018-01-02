@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
+import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -28,8 +29,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.core.Every.everyItem;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class MultipartValuePatternTest {
@@ -51,22 +54,20 @@ public class MultipartValuePatternTest {
         String serializedPattern =
                 "{                                           \n" +
                 "    \"matchingType\": \"ALL\",              \n" +
-                "    \"multipartHeaders\": {                 \n" +
-                "        \"Content-Disposition\": [          \n" +
-                "            {\n" +
-                "                \"contains\": \"name=\\\"part1\\\"\"\n" +
-                "            }\n" +
-                "        ]\n" +
+                "    \"headers\": {                          \n" +
+                "        \"Content-Disposition\": {\n        \n" +
+                "            \"contains\": \"name=\\\"part1\\\"\"\n" +
+                "        }\n" +
                 "    }" +
                 "}";
 
         MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
-        Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
-        headerPatterns.put("Content-Disposition", singletonList(MultiValuePattern.of(containing("name=\"part1\""))));
-        assertThat(headerPatterns.entrySet(), everyItem(isIn(pattern.getMultipartHeaders().entrySet())));
+
+        StringValuePattern headerPattern = pattern.getHeaders().get("Content-Disposition").getValuePattern();
+        assertThat(headerPattern, instanceOf(ContainsPattern.class));
+        assertThat(headerPattern.getValue(), is("name=\"part1\""));
 
         assertNull(pattern.getBodyPatterns());
-
         assertTrue(pattern.isMatchAll());
         assertFalse(pattern.isMatchAny());
     }
@@ -86,7 +87,7 @@ public class MultipartValuePatternTest {
 
         JSONAssert.assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedJson, false);
 
-        assertNull(pattern.getMultipartHeaders());
+        assertNull(pattern.getHeaders());
         assertTrue(pattern.isMatchAny());
         assertFalse(pattern.isMatchAll());
     }
@@ -97,20 +98,17 @@ public class MultipartValuePatternTest {
         String serializedPattern =
             "{\n" +
             "    \"matchingType\": \"ANY\",\n" +
-            "    \"multipartHeaders\": {\n" +
-            "        \"Content-Disposition\": [\n" +
+            "    \"headers\": {\n" +
+            "        \"Content-Disposition\": \n" +
             "            {\n" +
             "                \"contains\": \"name=\\\"part1\\\"\"\n" +
             "            }\n" +
-            "        ],\n" +
-            "        \"Content-Type\": [\n" +
+            "        ,\n" +
+            "        \"Content-Type\": \n" +
             "            {\n" +
             "                \"contains\": \"application/json\"\n" +
-            "            },\n" +
-            "            {\n" +
-            "                \"contains\": \"charset=utf-8\"\n" +
-            "            }\n" +
-            "        ]\n" +
+            "            }" +
+            "        \n" +
             "    },\n" +
             "    \"bodyPatterns\": [\n" +
             "        {\n" +
@@ -121,12 +119,11 @@ public class MultipartValuePatternTest {
 
         MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
-        JSONAssert.assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedJson, false);
+        assertThat(pattern.getBodyPatterns().get(0).getExpected(), WireMatchers.equalToJson(expectedJson));
 
-        List<MultiValuePattern> contentTypeHeaderPattern = pattern.getMultipartHeaders().get("Content-Type");
-        List<MultiValuePattern> expectedContentTypeHeaders = asList(MultiValuePattern.of(containing("application/json")), MultiValuePattern.of(containing("charset=utf-8")));
-        assertThat(contentTypeHeaderPattern, everyItem(isIn(expectedContentTypeHeaders)));
-
+        MultiValuePattern contentTypeHeaderPattern = pattern.getHeaders().get("Content-Type");
+        assertThat(contentTypeHeaderPattern.getValuePattern(), instanceOf(ContainsPattern.class));
+        assertThat(contentTypeHeaderPattern.getValuePattern().getExpected(), is("application/json"));
         assertTrue(pattern.isMatchAny());
         assertFalse(pattern.isMatchAll());
     }
@@ -137,17 +134,17 @@ public class MultipartValuePatternTest {
         String serializedPattern =
                 "{\n" +
                 "    \"matchingType\": \"ALL\",\n" +
-                "    \"multipartHeaders\": {\n" +
-                "        \"Content-Disposition\": [\n" +
+                "    \"headers\": {\n" +
+                "        \"Content-Disposition\": \n" +
                 "            {\n" +
                 "                \"contains\": \"name=\\\"file\\\"\"\n" +
                 "            }\n" +
-                "        ],\n" +
-                "        \"Content-Type\": [\n" +
+                "        ,\n" +
+                "        \"Content-Type\": \n" +
                 "            {\n" +
                 "                \"equalTo\": \"application/octet-stream\"\n" +
                 "            }\n" +
-                "        ]\n" +
+                "        \n" +
                 "    },\n" +
                 "    \"bodyPatterns\": [\n" +
                 "        {\n" +
@@ -159,11 +156,7 @@ public class MultipartValuePatternTest {
         MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
         assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedBinary);
-
-        List<MultiValuePattern> contentTypeHeaderPattern = pattern.getMultipartHeaders().get("Content-Type");
-        List<MultiValuePattern> expectedContentTypeHeaders = asList(MultiValuePattern.of(equalTo("application/octet-stream")));
-        assertThat(contentTypeHeaderPattern, everyItem(isIn(expectedContentTypeHeaders)));
-
+        assertThat(pattern.getHeaders().get("Content-Type").getValuePattern().getExpected(), is("application/octet-stream"));
         assertTrue(pattern.isMatchAll());
         assertFalse(pattern.isMatchAny());
     }
@@ -173,7 +166,6 @@ public class MultipartValuePatternTest {
         MultipartValuePattern pattern = aMultipart()
             .withName("title")
             .withHeader("X-First-Header", equalTo("One"))
-            .withHeader("X-First-Header", containing("n"))
             .withHeader("X-Second-Header", matching(".*2"))
             .withMultipartBody(equalToJson("{ \"thing\": 123 }"))
             .build();
@@ -183,18 +175,16 @@ public class MultipartValuePatternTest {
         assertThat(json, WireMatchers.equalToJson(
             "{\n" +
                 "  \"matchingType\" : \"ANY\",\n" +
-                "  \"multipartHeaders\" : {\n" +
-                "    \"Content-Disposition\" : [ {\n" +
+                "  \"headers\" : {\n" +
+                "    \"Content-Disposition\" : {\n" +
                 "      \"contains\" : \"name=\\\"title\\\"\"\n" +
-                "    } ],\n" +
-                "    \"X-First-Header\" : [ {\n" +
+                "    },\n" +
+                "    \"X-First-Header\" : {\n" +
                 "      \"equalTo\" : \"One\"\n" +
-                "    }, {\n" +
-                "      \"contains\" : \"n\"\n" +
-                "    } ],\n" +
-                "    \"X-Second-Header\" : [ {\n" +
+                "    },\n" +
+                "    \"X-Second-Header\" : {\n" +
                 "      \"matches\" : \".*2\"\n" +
-                "    } ]\n" +
+                "    }\n" +
                 "  },\n" +
                 "  \"bodyPatterns\" : [ {\n" +
                 "    \"equalToJson\" : \"{ \\\"thing\\\": 123 }\"\n" +

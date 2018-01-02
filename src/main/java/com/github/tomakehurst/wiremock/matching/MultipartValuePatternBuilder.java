@@ -18,13 +18,12 @@ package com.github.tomakehurst.wiremock.matching;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.jetty.util.MultiMap;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class MultipartValuePatternBuilder {
-    private Map<String, List<MultiValuePattern>> headerPatterns = newLinkedHashMap();
+    private Map<String, MultiValuePattern> headerPatterns = newLinkedHashMap();
     private List<ContentPattern<?>> bodyPatterns = new LinkedList<>();
     private MultipartValuePattern.MatchingType matchingType = MultipartValuePattern.MatchingType.ANY;
 
@@ -45,13 +44,7 @@ public class MultipartValuePatternBuilder {
     }
 
     public MultipartValuePatternBuilder withHeader(String name, StringValuePattern headerPattern) {
-        List<MultiValuePattern> patterns = headerPatterns.get(name);
-        if (patterns == null) {
-            patterns = new LinkedList<>();
-        }
-        patterns.add(MultiValuePattern.of(headerPattern));
-        headerPatterns.put(name, patterns);
-
+        headerPatterns.put(name, MultiValuePattern.of(headerPattern));
         return this;
     }
 
@@ -62,7 +55,12 @@ public class MultipartValuePatternBuilder {
 
     public MultipartValuePattern build() {
         return headerPatterns.isEmpty() && bodyPatterns.isEmpty() ? null :
-                headerPatterns.isEmpty() ? new MultipartValuePattern(matchingType, null, bodyPatterns) :
-                        new MultipartValuePattern(matchingType, new MultiMap<>(headerPatterns), bodyPatterns);
+                headerPatterns.isEmpty() ?
+                    new MultipartValuePattern(matchingType, null, bodyPatterns) :
+                    new MultipartValuePattern(
+                        matchingType,
+                        headerPatterns,
+                        bodyPatterns
+                    );
     }
 }

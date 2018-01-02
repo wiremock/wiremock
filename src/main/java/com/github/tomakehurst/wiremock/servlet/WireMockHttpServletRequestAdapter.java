@@ -47,6 +47,7 @@ import javax.servlet.http.Part;
 import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.google.common.base.Charsets.UTF_8;
@@ -259,6 +260,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<Part> getParts() {
         if (!isMultipart()) {
             return null;
@@ -276,10 +278,10 @@ public class WireMockHttpServletRequestAdapter implements Request {
                     }
                 }).toList();
             } catch (IOException | ServletException exception) {
-                exception.printStackTrace();
-                cachedMultiparts = newArrayList();
+                return throwUnchecked(exception, Collection.class);
             }
         }
+
         return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
     }
 
