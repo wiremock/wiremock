@@ -67,13 +67,13 @@ JSON:
     } ],
     "multipartPatterns" : [ {
       "matchingType" : "ANY",
-      "multipartHeaders" : {
-        "Content-Disposition" : [ {
+      "headers" : {
+        "Content-Disposition" : {
           "contains" : "name=\"info\""
-        } ],
-        "Content-Type" : [ {
+        },
+        "Content-Type" : {
           "contains" : "charset"
-        } ]
+        }
       },
       "bodyPatterns" : [ {
         "equalToJson" : "{}"
@@ -829,13 +829,13 @@ JSON:
     ...
     "multipartPatterns" : [ {
       "matchingType" : "ANY",
-      "multipartHeaders" : {
-        "Content-Disposition" : [ {
+      "headers" : {
+        "Content-Disposition" : {
           "contains" : "name=\"info\""
-        } ],
-        "Content-Type" : [ {
+        },
+        "Content-Type" : {
           "contains" : "charset"
-        } ]
+        }
       },
       "bodyPatterns" : [ {
         "equalToJson" : "{}"
