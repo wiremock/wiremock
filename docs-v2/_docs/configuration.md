@@ -55,7 +55,7 @@ Typically it is only necessary to tweak these settings if you are doing performa
  // Set the size of Jetty's header buffer (to avoid exceptions when very large request headers are sent). Defaults to 8192.
 .jettyHeaderBufferSize(16834)
 
-// Enable asynchronous request processing in Jetty. Should be used when responses are sent with a specified delay. Defaults to false. 
+// Enable asynchronous request processing in Jetty. Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to false. 
 .asynchronousResponseEnabled(true)
 
 // Set the number of asynchronous response threads. Effective only with asynchronousResponseEnabled=true. Defaults to 10.

@@ -104,9 +104,9 @@ accepting requests.
 e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
 
 `--async-response-enabled`: Enable asynchronous request processing in Jetty. 
-Should be used when responses are sent with a specified delay. Defaults to `false`.
+Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to `false`.
 
-`--async-response-threads`: Set the number of asynchronous response threads. 
+`--async-response-threads`: Set the number of asynchronous (background) response threads. 
 Effective only with `asynchronousResponseEnabled=true`. Defaults to 10.
 
 `--extensions`: Extension class names e.g.
