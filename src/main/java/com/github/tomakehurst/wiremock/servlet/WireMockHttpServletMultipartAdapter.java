@@ -15,17 +15,33 @@
  */
 package com.github.tomakehurst.wiremock.servlet;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
+import com.github.tomakehurst.wiremock.http.*;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.io.ByteStreams;
+
 import javax.servlet.http.Part;
+import java.io.IOException;
+import java.util.Collection;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class WireMockHttpServletMultipartAdapter implements Request.Part {
-    private final Part mPart;
 
-    public WireMockHttpServletMultipartAdapter(Part servletPart) {
+    private final Part mPart;
+    private final HttpHeaders headers;
+
+    public WireMockHttpServletMultipartAdapter(final Part servletPart) {
         mPart = servletPart;
+        Iterable<HttpHeader> httpHeaders = FluentIterable.from(mPart.getHeaderNames()).transform(new Function<String, HttpHeader>() {
+            @Override
+            public HttpHeader apply(String name) {
+                Collection<String> headerValues = servletPart.getHeaders(name);
+                return HttpHeader.httpHeader(name, headerValues.toArray(new String[headerValues.size()]));
+            }
+        });
+
+        headers = new HttpHeaders(httpHeaders);
     }
 
     public static WireMockHttpServletMultipartAdapter from(Part servletPart) {
@@ -38,17 +54,27 @@ public class WireMockHttpServletMultipartAdapter implements Request.Part {
     }
 
     @Override
-    public Collection<String> getHeaders(String name) {
-        return mPart.getHeaders(name);
+    public HttpHeader getHeader(String name) {
+        return headers.getHeader(name);
     }
 
     @Override
-    public Collection<String> getHeaderNames() {
-        return mPart.getHeaderNames();
+    public HttpHeaders getHeaders() {
+        return headers;
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return mPart.getInputStream();
+    public Body getBody() {
+        try {
+            byte[] bytes = ByteStreams.toByteArray(mPart.getInputStream());
+            HttpHeader header = getHeader(ContentTypeHeader.KEY);
+            ContentTypeHeader contentTypeHeader = header.isPresent() ?
+                new ContentTypeHeader(header.firstValue()) :
+                ContentTypeHeader.absent();
+            return Body.ofBinaryOrText(bytes, contentTypeHeader);
+        } catch (IOException e) {
+            return throwUnchecked(e, Body.class);
+        }
     }
+
 }

@@ -18,36 +18,29 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
-import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.Body;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collection;
+
 import java.util.List;
 import java.util.Map;
-import org.eclipse.jetty.util.MultiMap;
 
-import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.io.ByteStreams.toByteArray;
 
 public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     public enum MatchingType { ALL, ANY }
 
-    private final MultiMap<MultiValuePattern> multipartHeaders;
+    private final Map<String, MultiValuePattern> headers;
     private final List<ContentPattern<?>> bodyPatterns;
     private final MatchingType matchingType;
 
     @JsonCreator
     public MultipartValuePattern(@JsonProperty("matchingType") MatchingType type,
-                                 @JsonProperty("multipartHeaders") MultiMap<MultiValuePattern> headers,
+                                 @JsonProperty("headers") Map<String, MultiValuePattern> headers,
                                  @JsonProperty("bodyPatterns") List<ContentPattern<?>> body) {
         this.matchingType = type;
-        this.multipartHeaders = headers;
+        this.headers = headers;
         this.bodyPatterns = body;
     }
 
@@ -63,9 +56,9 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
 
     @Override
     public MatchResult match(final Request.Part value) {
-        if (multipartHeaders != null || bodyPatterns != null) {
+        if (headers != null || bodyPatterns != null) {
             return MatchResult.aggregate(
-                    multipartHeaders != null ? matchHeaderPatterns(value) : MatchResult.exactMatch(),
+                    headers != null ? matchHeaderPatterns(value) : MatchResult.exactMatch(),
                     bodyPatterns != null ? matchBodyPatterns(value) : MatchResult.exactMatch()
             );
         }
@@ -73,79 +66,50 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
         return MatchResult.exactMatch();
     }
 
-    private MatchResult matchHeaderPatterns(final Request.Part value) {
-        return MatchResult.aggregate(
-                from(multipartHeaders.entrySet()).transform(new Function<Map.Entry<String, List<MultiValuePattern>>, MatchResult>() {
-                    @Override
-                    public MatchResult apply(final Map.Entry<String, List<MultiValuePattern>> input) {
-                        return MatchResult.aggregate(
-                                from(input.getValue()).transform(new Function<MultiValuePattern, MatchResult>() {
-                                    @Override
-                                    public MatchResult apply(MultiValuePattern pattern) {
-                                        return pattern.match(header(input.getKey(), value));
-                                    }
-                                }).toList()
-                        );
-                    }
-                }).toList()
-        );
-    }
-
-    private MatchResult matchBodyPatterns(final Request.Part value) {
-        return MatchResult.aggregate(
-                from(bodyPatterns).transform(new Function<ContentPattern, MatchResult>() {
-                    @Override
-                    public MatchResult apply(ContentPattern bodyPattern) {
-                        return matchBody(value, bodyPattern);
-                    }
-                }).toList()
-        );
-    }
-
-    private static MatchResult matchBody(Request.Part value, ContentPattern<?> bodyPattern) {
-        final byte[] body;
-        try {
-            body = toByteArray(value.getInputStream());
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        if (StringValuePattern.class.isAssignableFrom(bodyPattern.getClass())) {
-            HttpHeader contentTypeHeader = header(ContentTypeHeader.KEY, value);
-            Charset charset = (contentTypeHeader != null) ? new ContentTypeHeader(contentTypeHeader.firstValue()).charset() : null;
-            if (charset == null) {
-                charset = Charsets.UTF_8;
-            }
-            return ((StringValuePattern) bodyPattern).match(stringFromBytes(body, charset));
-        }
-
-        return ((BinaryEqualToPattern) bodyPattern).match(body);
-    }
-
-    private static HttpHeader header(String name, Request.Part value) {
-        Collection<String> headerNames = value.getHeaderNames();
-        for (String currentKey : headerNames) {
-            if (currentKey.toLowerCase().equals(name.toLowerCase())) {
-                Collection<String> valueList = value.getHeaders(currentKey);
-                if (valueList.isEmpty()) {
-                    return HttpHeader.empty(name);
-                }
-
-                return new HttpHeader(name, valueList);
-            }
-        }
-
-        return HttpHeader.absent(name);
+    public Map<String, MultiValuePattern> getHeaders() {
+        return headers;
     }
 
     public MatchingType getMatchingType() {
         return matchingType;
     }
 
-    public Map<String, List<MultiValuePattern>> getMultipartHeaders() {
-        return multipartHeaders;
-    }
-
     public List<ContentPattern<?>> getBodyPatterns() {
         return bodyPatterns;
+    }
+
+    private MatchResult matchHeaderPatterns(final Request.Part part) {
+        if (headers != null && !headers.isEmpty()) {
+            return MatchResult.aggregate(
+                from(headers.entrySet())
+                    .transform(new Function<Map.Entry<String, MultiValuePattern>, MatchResult>() {
+                        public MatchResult apply(Map.Entry<String, MultiValuePattern> headerPattern) {
+                            return headerPattern.getValue().match(part.getHeader(headerPattern.getKey()));
+                        }
+                    }).toList()
+            );
+        }
+
+        return MatchResult.exactMatch();
+    }
+
+    private MatchResult matchBodyPatterns(final Request.Part value) {
+        return MatchResult.aggregate(
+            from(bodyPatterns).transform(new Function<ContentPattern, MatchResult>() {
+                @Override
+                public MatchResult apply(ContentPattern bodyPattern) {
+                    return matchBody(value, bodyPattern);
+                }
+            }).toList()
+        );
+    }
+
+    private static MatchResult matchBody(Request.Part part, ContentPattern<?> bodyPattern) {
+        Body body = part.getBody();
+        if (BinaryEqualToPattern.class.isAssignableFrom(bodyPattern.getClass())) {
+            return ((BinaryEqualToPattern) bodyPattern).match(body.asBytes());
+        }
+
+        return ((StringValuePattern) bodyPattern).match(body.asString());
     }
 }
