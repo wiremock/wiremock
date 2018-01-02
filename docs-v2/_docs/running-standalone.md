@@ -103,6 +103,12 @@ accepting requests.
 `--jetty-header-buffer-size`: The Jetty buffer size for request headers,
 e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
 
+`--async-response-enabled`: Enable asynchronous request processing in Jetty. 
+Should be used when responses are sent with a specified delay. Defaults to `false`.
+
+`--async-response-threads`: Set the number of asynchronous response threads. 
+Effective only with `asynchronousResponseEnabled=true`. Defaults to 10.
+
 `--extensions`: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
