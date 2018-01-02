@@ -713,6 +713,14 @@ public class WireMock {
         return admin.snapshotRecord(spec.build()).getStubMappings();
     }
 
+    public static MultipartValuePatternBuilder aMultipart() {
+        return new MultipartValuePatternBuilder();
+    }
+
+    public static MultipartValuePatternBuilder aMultipart(String name) {
+        return new MultipartValuePatternBuilder(name);
+    }
+
     public static void startRecording(String targetBaseUrl) {
         defaultInstance.get().startStubRecording(targetBaseUrl);
     }

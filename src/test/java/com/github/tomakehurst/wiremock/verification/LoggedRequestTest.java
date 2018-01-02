@@ -118,6 +118,7 @@ public class LoggedRequestTest {
                 true,
                 loggedDate,
                 REQUEST_BODY_AS_BASE64,
+                null,
                 null
         );
 
@@ -138,6 +139,7 @@ public class LoggedRequestTest {
                 true,
                 null,
                 REQUEST_BODY_AS_BASE64,
+                null,
                 null
         );
 
@@ -175,6 +177,7 @@ public class LoggedRequestTest {
                 null,
                 true,
                 new Date(0),
+                null,
                 null,
                 null);
 
