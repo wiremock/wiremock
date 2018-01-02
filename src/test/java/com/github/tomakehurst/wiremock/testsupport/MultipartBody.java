@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.matching;
+package com.github.tomakehurst.wiremock.testsupport;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,11 +23,11 @@ import org.apache.http.util.Args;
 
 import static com.github.tomakehurst.wiremock.common.Strings.bytesFromString;
 
-public class MockMultipart extends AbstractContentBody {
+public class MultipartBody extends AbstractContentBody {
     private final String name;
     private final byte[] body;
 
-    MockMultipart(String name, byte[] body) {
+    MultipartBody(String name, byte[] body) {
         super(ContentType.APPLICATION_OCTET_STREAM);
         Args.notEmpty(name, "Name was empty");
         Args.notNull(body, "Body was null");
@@ -35,7 +35,7 @@ public class MockMultipart extends AbstractContentBody {
         this.body = body;
     }
 
-    MockMultipart(String name, String body, ContentType contentType) {
+    MultipartBody(String name, String body, ContentType contentType) {
         super(contentType);
         Args.notEmpty(name, "Name was empty");
         Args.notEmpty(body, "Body was null");
@@ -43,12 +43,12 @@ public class MockMultipart extends AbstractContentBody {
         this.body = bytesFromString(body, contentType.getCharset());
     }
 
-    public static MockMultipart part(String name, byte[] body) {
-        return new MockMultipart(name, body);
+    public static MultipartBody part(String name, byte[] body) {
+        return new MultipartBody(name, body);
     }
 
-    public static MockMultipart part(String name, String body, ContentType contentType) {
-        return new MockMultipart(name, body, contentType);
+    public static MultipartBody part(String name, String body, ContentType contentType) {
+        return new MultipartBody(name, body, contentType);
     }
 
     @Override

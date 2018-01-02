@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
-import com.github.tomakehurst.wiremock.matching.MockMultipart;
+import com.github.tomakehurst.wiremock.testsupport.MultipartBody;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import java.util.Collections;
@@ -621,12 +621,12 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 						.withStatus(HTTP_OK)
 						.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MockMultipart.part("part-1", "Blah...but not the rest", TEXT_PLAIN)));
+		WireMockResponse response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MultipartBody.part("part-1", "Blah...but not the rest", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-		response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MockMultipart.part("part-1", "@12345@...but not the rest", TEXT_PLAIN)));
+		response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MultipartBody.part("part-1", "@12345@...but not the rest", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MockMultipart.part("good-part", "BlahBlah@56565@Blah", TEXT_PLAIN)));
+		response = testClient.postWithMultiparts("/match/this/part", Collections.singletonList(MultipartBody.part("good-part", "BlahBlah@56565@Blah", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
@@ -643,10 +643,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 						.withStatus(HTTP_OK)
 						.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MockMultipart.part("part-name", "Blah12345", TEXT_PLAIN)));
+		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MultipartBody.part("part-name", "Blah12345", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MockMultipart.part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
+		response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MultipartBody.part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
@@ -662,10 +662,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 						.withStatus(HTTP_OK)
 						.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MockMultipart.part("part", "Blah12345", TEXT_PLAIN)));
+		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MultipartBody.part("part", "Blah12345", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MockMultipart.part("part", "BlahBlahBlah", TEXT_PLAIN)));
+		response = testClient.postWithMultiparts("/match/this/part/too", Collections.singletonList(MultipartBody.part("part", "BlahBlahBlah", TEXT_PLAIN)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
@@ -682,10 +682,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				.willReturn(ok("Matched binary"))
 		);
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/part/binary", Collections.singletonList(MockMultipart.part("file", new byte[] { 9 })));
+		WireMockResponse response = testClient.postWithMultiparts("/match/part/binary", Collections.singletonList(MultipartBody.part("file", new byte[] { 9 })));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/part/binary", Collections.singletonList(MockMultipart.part("file", requestBody)));
+		response = testClient.postWithMultiparts("/match/part/binary", Collections.singletonList(MultipartBody.part("file", requestBody)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
@@ -701,10 +701,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				.willReturn(ok())
 		);
 
-		WireMockResponse response = testClient.postWithMultiparts("/jsonpath/advanced/part", Collections.singletonList(MockMultipart.part("json", "{ \"counter\": 234 }", APPLICATION_JSON)));
+		WireMockResponse response = testClient.postWithMultiparts("/jsonpath/advanced/part", Collections.singletonList(MultipartBody.part("json", "{ \"counter\": 234 }", APPLICATION_JSON)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/jsonpath/advanced/part", Collections.singletonList(MockMultipart.part("json", "{ \"counter\": 123 }", APPLICATION_JSON)));
+		response = testClient.postWithMultiparts("/jsonpath/advanced/part", Collections.singletonList(MultipartBody.part("json", "{ \"counter\": 123 }", APPLICATION_JSON)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
@@ -720,10 +720,10 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 				.willReturn(ok())
 		);
 
-		WireMockResponse response = testClient.postWithMultiparts("/xpath/advanced/part", Collections.singletonList(MockMultipart.part("xml", "<counter>6666</counter>", APPLICATION_XML)));
+		WireMockResponse response = testClient.postWithMultiparts("/xpath/advanced/part", Collections.singletonList(MultipartBody.part("xml", "<counter>6666</counter>", APPLICATION_XML)));
 		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/xpath/advanced/part", Collections.singletonList(MockMultipart.part("xml", "<counter>123</counter>", APPLICATION_XML)));
+		response = testClient.postWithMultiparts("/xpath/advanced/part", Collections.singletonList(MultipartBody.part("xml", "<counter>123</counter>", APPLICATION_XML)));
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
