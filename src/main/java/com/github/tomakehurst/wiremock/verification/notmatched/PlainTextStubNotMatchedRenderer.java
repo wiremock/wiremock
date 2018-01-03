@@ -15,12 +15,16 @@ import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
 
-    private final PlainTextDiffRenderer diffRenderer = new PlainTextDiffRenderer();
+    public static final String CONSOLE_WIDTH_HEADER_KEY = "X-WireMock-Console-Width";
 
     @Override
     public ResponseDefinition render(Admin admin, Request request) {
         LoggedRequest loggedRequest = LoggedRequest.createFrom(request.getOriginalRequest().or(request));
         List<NearMiss> nearMisses = admin.findTopNearMissesFor(loggedRequest).getNearMisses();
+
+        PlainTextDiffRenderer diffRenderer = loggedRequest.containsHeader(CONSOLE_WIDTH_HEADER_KEY) ?
+            new PlainTextDiffRenderer(Integer.parseInt(loggedRequest.getHeader(CONSOLE_WIDTH_HEADER_KEY))) :
+            new PlainTextDiffRenderer();
 
         String body;
         if (nearMisses.isEmpty()) {
