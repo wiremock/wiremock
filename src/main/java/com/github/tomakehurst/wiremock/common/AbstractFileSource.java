@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static com.google.common.base.Charsets.UTF_8;
@@ -121,15 +119,16 @@ public abstract class AbstractFileSource implements FileSource {
     private File writableFileFor(String name) {
         assertExistsAndIsDirectory();
         assertWritable();
-        final Path writablePath = Paths.get(name);
-        if (writablePath.isAbsolute()) {
-            if (!writablePath.startsWith(rootDirectory.toPath().toAbsolutePath())) {
+        final File filePath = new File(name);
+
+        if (filePath.isAbsolute()) {
+            if (!filePath.getAbsolutePath().startsWith(rootDirectory.getAbsolutePath())) {
                 throw new IllegalArgumentException(name + " is an absolute path not under the root directory");
             }
-            return writablePath.toFile();
+            return filePath;
         } else {
             // Convert to absolute path
-            return rootDirectory.toPath().resolve(writablePath).toFile();
+            return new File(rootDirectory, name);
         }
     }
 
