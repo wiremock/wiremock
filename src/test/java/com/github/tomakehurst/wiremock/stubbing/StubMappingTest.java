@@ -6,6 +6,7 @@ import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
@@ -29,5 +30,24 @@ public class StubMappingTest {
         System.out.println(json);
 
         assertThat(json, containsString("insertionIndex"));
+    }
+
+    @Test
+    public void deserialisesInsertionIndex() {
+        String json =
+            "{\n" +
+            "    \"request\": {\n" +
+            "        \"method\": \"ANY\",\n" +
+            "        \"url\": \"/\"\n" +
+            "    },\n" +
+            "    \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "    },\n" +
+            "    \"insertionIndex\": 42\n" +
+            "}";
+
+        StubMapping stub = Json.read(json, StubMapping.class);
+
+        assertThat(stub.getInsertionIndex(), is(42L));
     }
 }
