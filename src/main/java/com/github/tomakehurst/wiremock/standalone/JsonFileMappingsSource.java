@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
+import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 import static com.google.common.collect.Iterables.filter;
 
 public class JsonFileMappingsSource implements MappingsSource {
@@ -55,7 +56,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 		if (mappingFileName == null) {
 			mappingFileName = SafeNames.makeSafeFileName(stubMapping);
 		}
-		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
+		mappingsFileSource.writeTextFile(mappingFileName, writePrivate(stubMapping));
         fileNameMap.put(stubMapping.getId(), mappingFileName);
 		stubMapping.setDirty(false);
 	}
