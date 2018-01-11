@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -127,12 +128,11 @@ public class StubMapping {
 		return Json.write(this);
 	}
 
-	@JsonIgnore
+	@JsonView(Json.PrivateView.class)
 	public long getInsertionIndex() {
 		return insertionIndex;
 	}
 
-	@JsonIgnore
 	public void setInsertionIndex(long insertionIndex) {
 		this.insertionIndex = insertionIndex;
 	}
