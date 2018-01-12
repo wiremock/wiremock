@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Wojciech Bulaty
+ * Copyright (C) 2011 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -32,7 +31,7 @@ public class DeleteStubFileTask implements AdminTask {
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
         FileSource fileSource = admin.getOptions().filesRoot().child(FILES_ROOT);
-        File filename = Paths.get(fileSource.getPath()).resolve(pathParams.get("filename")).toFile();
+        File filename = new File(fileSource.getPath(), pathParams.get("filename"));
         boolean deleted = filename.delete();
         if (deleted) {
             return ResponseDefinition.ok();
