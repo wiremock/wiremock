@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>/blog/</loc>
-</url>
-<url>
 <loc>/</loc>
 </url>
 <url>
@@ -13,13 +10,16 @@
 <loc>/a/</loc>
 </url>
 <url>
+<loc>/blog/</loc>
+</url>
+<url>
+<loc>/about/</loc>
+</url>
+<url>
 <loc>/external-resources/</loc>
 </url>
 <url>
 <loc>/support-and-training/</loc>
-</url>
-<url>
-<loc>/about/</loc>
 </url>
 <url>
 <loc>/docs/android/</loc>
