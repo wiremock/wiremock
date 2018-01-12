@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -25,24 +27,45 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
+import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
+
+    @After
+    public void tearDown() throws Exception {
+        deleteAllBodyFiles();
+    }
+
+    private void deleteAllBodyFiles() throws IOException {
+        FileSource filesRoot = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        if (filesRoot.exists()) {
+            List<TextFile> textFiles = filesRoot.listFilesRecursively();
+            for (TextFile textFile : textFiles) {
+                Files.delete(Paths.get(textFile.getPath()));
+            }
+        }
+    }
 
     @Test
     public void getAllStubMappings() throws Exception {
@@ -543,5 +566,45 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
         assertThat(response.content(), containsString("<html"));
     }
+
+    @Test
+    public void deleteStubFile() throws Exception {
+        String fileName = "bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "contents");
+
+        int statusCode = testClient.delete("/__admin/files/bar.txt").statusCode();
+
+        assertEquals(200, statusCode);
+        assertFalse("File should have been deleted", Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists());
+    }
+
+    @Test
+    public void editStubFileContent() throws Exception {
+        String fileName = "bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "AAA");
+
+        int statusCode = testClient.putWithBody("/__admin/files/bar.txt", "BBB", "text/plain").statusCode();
+
+        assertEquals(200, statusCode);
+        assertEquals("File should have been changed", "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString());
+    }
+
+    @Test
+    public void listStubFiles() throws Exception {
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile("bar.txt", "contents");
+        fileSource.writeTextFile("zoo.txt", "contents");
+
+        WireMockResponse response = testClient.get("/__admin/files");
+
+        assertEquals(200, response.statusCode());
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
+    }
+
 
 }

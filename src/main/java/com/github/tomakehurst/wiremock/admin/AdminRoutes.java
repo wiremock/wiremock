@@ -71,6 +71,10 @@ public class AdminRoutes {
         router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
+        router.add(GET, "/files", GetAllStubFilesTask.class);
+        router.add(PUT, "/files/{filename}", EditStubFileTask.class);
+        router.add(DELETE, "/files/{filename}", DeleteStubFileTask.class);
+
         router.add(GET, "/scenarios", GetAllScenariosTask.class);
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
