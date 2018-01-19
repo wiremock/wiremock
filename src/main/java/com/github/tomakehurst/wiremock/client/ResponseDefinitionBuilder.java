@@ -92,6 +92,14 @@ public class ResponseDefinitionBuilder {
 		return this;
 	}
 
+	/**
+	 * @since 2.14.1
+	 */
+	public ResponseDefinitionBuilder withCookie(String name, String value) {
+		return withHeader(com.google.common.net.HttpHeaders.SET_COOKIE,
+				String.format("%s=%s", name, value));
+	}
+
 	public ResponseDefinitionBuilder withHeader(String key, String... values) {
 		headers.add(new HttpHeader(key, values));
 		return this;
