@@ -60,8 +60,6 @@ public class StubResponseRenderer implements ResponseRenderer {
 			return proxyResponseRenderer.render(responseDefinition);
 		} else {
 			Response.Builder responseBuilder = renderDirectly(responseDefinition);
-			addDelayIfSpecifiedGloballyOrIn(responseDefinition, responseBuilder);
-			addRandomDelayIfSpecifiedGloballyOrIn(responseDefinition, responseBuilder);
 			return responseBuilder.build();
 		}
 	}
@@ -89,6 +87,12 @@ public class StubResponseRenderer implements ResponseRenderer {
 				.statusMessage(responseDefinition.getStatusMessage())
                 .headers(responseDefinition.getHeaders())
                 .fault(responseDefinition.getFault())
+				.configureDelay(
+					globalSettingsHolder.get().getFixedDelay(),
+					globalSettingsHolder.get().getDelayDistribution(),
+					responseDefinition.getFixedDelayMilliseconds(),
+					responseDefinition.getDelayDistribution()
+				)
 				.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
 		if (responseDefinition.specifiesBodyFile()) {
@@ -105,32 +109,32 @@ public class StubResponseRenderer implements ResponseRenderer {
         return responseBuilder;
 	}
 
-    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
-    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(responseDefinition);
-        if (optionalDelay.isPresent()) {
-        	responseBuilder.incrementInitialDelay(optionalDelay.get());
-	    }
-    }
-
-    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition responseDefinition) {
-    	Integer delay = responseDefinition.getFixedDelayMilliseconds() != null ?
-    			responseDefinition.getFixedDelayMilliseconds() :
-    			globalSettingsHolder.get().getFixedDelay();
-
-    	return Optional.fromNullable(delay);
-    }
-
-    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
-		DelayDistribution delayDistribution;
-
-		if (responseDefinition.getDelayDistribution() != null) {
-			delayDistribution = responseDefinition.getDelayDistribution();
-		} else {
-			delayDistribution = globalSettingsHolder.get().getDelayDistribution();
-		}
-
-		if (delayDistribution != null) {
-			responseBuilder.incrementInitialDelay(delayDistribution.sampleMillis());
-		}
-    }
+//    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
+//    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(responseDefinition);
+//        if (optionalDelay.isPresent()) {
+//        	responseBuilder.incrementInitialDelay(optionalDelay.get());
+//	    }
+//    }
+//
+//    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition responseDefinition) {
+//    	Integer delay = responseDefinition.getFixedDelayMilliseconds() != null ?
+//    			responseDefinition.getFixedDelayMilliseconds() :
+//    			globalSettingsHolder.get().getFixedDelay();
+//
+//    	return Optional.fromNullable(delay);
+//    }
+//
+//    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
+//		DelayDistribution delayDistribution;
+//
+//		if (responseDefinition.getDelayDistribution() != null) {
+//			delayDistribution = responseDefinition.getDelayDistribution();
+//		} else {
+//			delayDistribution = globalSettingsHolder.get().getDelayDistribution();
+//		}
+//
+//		if (delayDistribution != null) {
+//			responseBuilder.incrementInitialDelay(delayDistribution.sampleMillis());
+//		}
+//    }
 }
