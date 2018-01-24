@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.Thread.sleep;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -53,10 +56,104 @@ public class ResponseDelayAcceptanceTest {
     public ExpectedException exception = ExpectedException.none();
 
     private HttpClient httpClient;
+    private WireMockTestClient testClient;
 
     @Before
     public void init() {
         httpClient = HttpClientFactory.createClient(SOCKET_TIMEOUT_MILLISECONDS);
+        testClient = new WireMockTestClient(wireMockRule.port());
+    }
+
+    @Test
+    public void responseWithFixedDelay() {
+        stubFor(get(urlEqualTo("/delayed/resource")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withFixedDelay(500)));
+
+        long start = System.currentTimeMillis();
+        testClient.get("/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(duration, greaterThanOrEqualTo(500));
+    }
+
+    @Test
+    public void responseWithByteDribble() {
+        byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int numberOfChunks = body.length / 2;
+        int chunkedDuration = 1000;
+
+        stubFor(get(urlEqualTo("/dribble")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody(body)
+                .withChunkedDribbleDelay(numberOfChunks, chunkedDuration)));
+
+        long start = System.currentTimeMillis();
+        WireMockResponse response = testClient.get("/dribble");
+        long timeTaken = System.currentTimeMillis() - start;
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(timeTaken, greaterThanOrEqualTo((long) chunkedDuration));
+
+        assertThat(body, is(response.binaryContent()));
+    }
+
+    @Test
+    public void responseWithByteDribbleAndFixedDelay() {
+        byte[] body = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int numberOfChunks = body.length / 2;
+        int fixedDelay = 1000;
+        int chunkedDuration = 1000;
+        int totalDuration = fixedDelay + chunkedDuration;
+
+        stubFor(get(urlEqualTo("/dribbleWithFixedDelay")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody(body)
+                .withChunkedDribbleDelay(numberOfChunks, chunkedDuration)
+                .withFixedDelay(fixedDelay)));
+
+        long start = System.currentTimeMillis();
+        WireMockResponse response = testClient.get("/dribbleWithFixedDelay");
+        long timeTaken = System.currentTimeMillis() - start;
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(timeTaken, greaterThanOrEqualTo((long) totalDuration));
+
+        assertThat(body, is(response.binaryContent()));
+    }
+
+    @Test
+    public void responseWithLogNormalDistributedDelay() {
+        stubFor(get(urlEqualTo("/lognormal/delayed/resource")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withLogNormalRandomDelay(90, 0.1)));
+
+        long start = System.currentTimeMillis();
+        testClient.get("/lognormal/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(duration, greaterThanOrEqualTo(60));
+    }
+
+    @Test
+    public void responseWithUniformDistributedDelay() {
+        stubFor(get(urlEqualTo("/uniform/delayed/resource")).willReturn(
+            aResponse()
+                .withStatus(200)
+                .withBody("Content")
+                .withUniformRandomDelay(50, 60)));
+
+        long start = System.currentTimeMillis();
+        testClient.get("/uniform/delayed/resource");
+        int duration = (int) (System.currentTimeMillis() - start);
+
+        assertThat(duration, greaterThanOrEqualTo(50));
     }
 
     @Test
