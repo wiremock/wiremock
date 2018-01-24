@@ -208,6 +208,44 @@ public class Response {
             return this;
         }
 
+        public Builder configureDelay(Integer globalFixedDelay,
+                                      DelayDistribution globalDelayDistribution,
+                                      Integer fixedDelay,
+                                      DelayDistribution delayDistribution) {
+            addDelayIfSpecifiedGloballyOrIn(fixedDelay, globalFixedDelay);
+            addRandomDelayIfSpecifiedGloballyOrIn(delayDistribution, globalDelayDistribution);
+            return this;
+        }
+
+        private void addDelayIfSpecifiedGloballyOrIn(Integer fixedDelay, Integer globalFixedDelay) {
+            Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(fixedDelay, globalFixedDelay);
+            if (optionalDelay.isPresent()) {
+                incrementInitialDelay(optionalDelay.get());
+            }
+        }
+
+        private Optional<Integer> getDelayFromResponseOrGlobalSetting(Integer fixedDelay, Integer globalFixedDelay) {
+            Integer delay = fixedDelay != null ?
+                fixedDelay :
+                globalFixedDelay;
+
+            return Optional.fromNullable(delay);
+        }
+
+        private void addRandomDelayIfSpecifiedGloballyOrIn(DelayDistribution localDelayDistribution, DelayDistribution globalDelayDistribution) {
+            DelayDistribution delayDistribution;
+
+            if (localDelayDistribution != null) {
+                delayDistribution = localDelayDistribution;
+            } else {
+                delayDistribution = globalDelayDistribution;
+            }
+
+            if (delayDistribution != null) {
+                incrementInitialDelay(delayDistribution.sampleMillis());
+            }
+        }
+
         public Builder incrementInitialDelay(long amountMillis) {
             this.initialDelay += amountMillis;
             return this;
