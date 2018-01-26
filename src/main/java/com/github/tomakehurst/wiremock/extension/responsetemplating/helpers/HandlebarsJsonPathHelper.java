@@ -39,10 +39,7 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<String> {
         final String jsonPath = options.param(0);
         try {
             Object result = JsonPath.read(inputJson, jsonPath);
-            if (result instanceof Map) {
-                return Json.write(result);
-            }
-            return String.valueOf(result);
+            return JsonData.create(result);
         } catch (InvalidJsonException e) {
             return this.handleError(
                     inputJson + " is not valid JSON",
