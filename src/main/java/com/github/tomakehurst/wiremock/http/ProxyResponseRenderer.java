@@ -81,6 +81,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                         responseDefinition.getFixedDelayMilliseconds(),
                         responseDefinition.getDelayDistribution()
                     )
+                    .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                     .build();
 		} catch (IOException e) {
 			throw new RuntimeException(e);

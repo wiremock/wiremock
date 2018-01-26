@@ -461,6 +461,24 @@ public class ProxyAcceptanceTest {
         assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(300L));
     }
 
+    @Test
+    public void chunkedDribbleDelayIsAddedToProxiedResponse() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/chunk-delayed").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl())
+            .willReturn(aResponse()
+                .proxiedFrom(targetServiceBaseUrl)
+                .withChunkedDribbleDelay(10, 300)));
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/chunk-delayed");
+        stopwatch.stop();
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(300L));
+    }
+
     private void register200StubOnProxyAndTarget(String url) {
         targetServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().withStatus(200)));
         proxyingServiceAdmin.register(get(urlEqualTo(url)).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
