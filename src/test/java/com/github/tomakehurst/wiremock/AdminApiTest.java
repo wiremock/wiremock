@@ -541,6 +541,27 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void returnsBadEntityStatusWhenInvalidEqualToXmlSpecified() {
+        WireMockResponse response = testClient.postXml("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalToXml\": \"(wrong)\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("Content is not allowed in prolog.; line 1; column 1"));
+    }
+
+    @Test
     public void servesRamlSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/raml");
         assertThat(response.statusCode(), is(200));
