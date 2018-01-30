@@ -19,16 +19,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -40,7 +41,14 @@ public class Xml {
 
     public static String prettyPrint(String xml) {
         try {
-            Document doc = read(xml);
+            return prettyPrint(read(xml));
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static String prettyPrint(Document doc) {
+        try {
             TransformerFactory transformerFactory = createTransformerFactory();
             transformerFactory.setAttribute("indent-number", 2);
             Transformer transformer = transformerFactory.newTransformer();
@@ -63,11 +71,18 @@ public class Xml {
         }
     }
 
-    public static Document read(String xml) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        InputSource is = new InputSource(new StringReader(xml));
-        return db.parse(is);
+    public static Document read(String xml) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(xml));
+            return db.parse(is);
+        } catch (SAXException e) {
+            throw XmlException.fromSaxException(e);
+        } catch (Exception e) {
+            return throwUnchecked(e, Document.class);
+        }
     }
 
     public static String toStringValue(Node node) {

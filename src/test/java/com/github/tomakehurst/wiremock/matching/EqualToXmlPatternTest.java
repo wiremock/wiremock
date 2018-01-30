@@ -270,12 +270,6 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
-    public void logsASensibleErrorMessageWhenTestXmlIsBadlyFormed() {
-        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        WireMock.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
-    }
-
-    @Test
     public void doesNotFetchDtdBecauseItCouldResultInAFailedMatch() throws Exception {
         String xmlWithDtdThatCannotBeFetched = "<!DOCTYPE my_request SYSTEM \"https://thishostname.doesnotexist.com/one.dtd\"><do_request/>";
         EqualToXmlPattern pattern = new EqualToXmlPattern(xmlWithDtdThatCannotBeFetched);

@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.Xml;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -75,8 +76,11 @@ public class EqualToXmlPattern extends StringValuePattern {
         ATTR_NAME_LOOKUP
     );
 
+    private final Document xmlDocument;
+
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
         super(expectedValue);
+        xmlDocument = Xml.read(expectedValue);
     }
 
     public String getEqualToXml() {

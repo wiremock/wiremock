@@ -24,6 +24,8 @@ public class JsonException extends InvalidInputException {
             message = patternSyntaxException.getMessage();
         } else if (rootCause instanceof JsonMappingException) {
             message = ((JsonMappingException) rootCause).getOriginalMessage();
+        } else if (rootCause instanceof InvalidInputException) {
+            message = ((InvalidInputException) rootCause).getErrors().first().getDetail();
         }
 
         List<String> nodes = transform(e.getPath(), TO_NODE_NAMES);

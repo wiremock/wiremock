@@ -41,6 +41,10 @@ public class Errors {
         return new Errors(singletonList(new Error(code, title)));
     }
 
+    public static Errors singleWithDetail(Integer code, String title, String detail) {
+        return new Errors(singletonList(new Error(code, null, title, detail)));
+    }
+
     public static Errors notRecording() {
         return single(30, "Not currently recording.");
     }
