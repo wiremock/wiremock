@@ -40,28 +40,15 @@ a `VerificationException` is thrown, failing the test. This behaviour can be dis
 public WireMockRule wireMockRule = new WireMockRule(options().port(8888), false);
 ```
 
-## Other @Rule configurations
+## @ClassRule configuration
 
-With a bit more effort you can make the WireMock server continue to run
-between test cases. This is easiest in JUnit 4.10:
-
-```java
-@ClassRule
-@Rule
-public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
-```
-
-Unfortunately JUnit 4.11 and above prohibits `@Rule` on static members so a
-slightly more verbose form is required:
+Thanks to `@ClassRule`, you can make the WireMock server continue to run
+between test cases:
 
 ```java
 @ClassRule
-public static WireMockClassRule wireMockRule = new WireMockClassRule(8089);
-
-@Rule
-public WireMockClassRule instanceRule = wireMockRule;
+public static WireMockRule wireMockRule = new WireMockRule(8089);
 ```
-
 
 ## Accessing the stubbing and verification DSL from the rule
 
