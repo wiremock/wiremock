@@ -27,6 +27,7 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
@@ -416,9 +417,11 @@ public class StandaloneAcceptanceTest {
     public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
         writeMappingFile("bad-mapping.json", BAD_MAPPING);
 
-        expectException.expectMessage("Error loading file /Users/tomakehurst/dev/java/wiremock/build/standalone-files/mappings/bad-mapping.json:\n" +
-            "Unrecognized field \"requesttttt\" (class com.github.tomakehurst.wiremock.stubbing.StubMapping), not marked as ignorable");
-
+        expectException.expectMessage(allOf(
+            containsString("Error loading file"),
+            containsString("bad-mapping.json"),
+            containsString("Unrecognized field \"requesttttt\" (class com.github.tomakehurst.wiremock.stubbing.StubMapping), not marked as ignorable")
+        ));
         startRunner();
     }
 
