@@ -100,7 +100,9 @@ public class WireMockServerRunner {
 	}
 	
 	public void stop() {
-		wireMockServer.stop();
+		if (wireMockServer != null) {
+			wireMockServer.stop();
+		}
 	}
 
     public boolean isRunning() {
