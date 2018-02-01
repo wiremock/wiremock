@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.standalone.WireMockServerRunner;
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
@@ -31,7 +30,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -41,12 +42,12 @@ import java.util.zip.GZIPInputStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.testsupport.Network.findFreePort;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Iterables.any;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Iterables.*;
 import static com.google.common.io.Files.createParentDirs;
 import static com.google.common.io.Files.write;
 import static java.io.File.separator;
@@ -74,6 +75,9 @@ public class StandaloneAcceptanceTest {
 
 	private File mappingsDirectory;
 	private File filesDirectory;
+
+	@Rule
+    public ExpectedException expectException = ExpectedException.none();
 	
 	@Before
 	public void init() throws Exception {
@@ -394,6 +398,28 @@ public class StandaloneAcceptanceTest {
             }
         }
         fail("WireMock did not shut down");
+    }
+
+    private static final String BAD_MAPPING =
+        "{ 													\n" +
+            "	\"requesttttt\": {      						\n" +
+            "		\"method\": \"GET\",						\n" +
+            "		\"url\": \"/resource/from/file\"			\n" +
+            "	},												\n" +
+            "	\"response\": {									\n" +
+            "		\"status\": 200,							\n" +
+            "		\"body\": \"Body from mapping file\"		\n" +
+            "	}												\n" +
+            "}													";
+
+    @Test
+    public void failsWithUsefulErrorMessageWhenMappingFileIsInvalid() {
+        writeMappingFile("bad-mapping.json", BAD_MAPPING);
+
+        expectException.expectMessage("Error loading file /Users/tomakehurst/dev/java/wiremock/build/standalone-files/mappings/bad-mapping.json:\n" +
+            "Unrecognized field \"requesttttt\" (class com.github.tomakehurst.wiremock.stubbing.StubMapping), not marked as ignorable");
+
+        startRunner();
     }
 
     private String contentsOfFirstFileNamedLike(String namePart) throws IOException {
