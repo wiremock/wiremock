@@ -92,7 +92,8 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
         final ImmutableMap<String, RequestTemplateModel> model = ImmutableMap.of("request", RequestTemplateModel.from(request));
 
-        if (responseDefinition.specifiesBodyContent()) {
+
+        if (responseDefinition.specifiesTextBodyContent()) {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {

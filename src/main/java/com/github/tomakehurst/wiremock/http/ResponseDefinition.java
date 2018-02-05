@@ -301,6 +301,11 @@ public class ResponseDefinition {
     }
 
     @JsonIgnore
+    public boolean specifiesTextBodyContent() {
+        return body.isPresent() && !body.isBinary();
+    }
+
+    @JsonIgnore
     public boolean specifiesBinaryBodyContent() {
         return (body.isPresent() && body.isBinary());
     }
