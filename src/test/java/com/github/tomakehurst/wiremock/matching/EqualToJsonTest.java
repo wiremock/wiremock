@@ -488,4 +488,20 @@ public class EqualToJsonTest {
         assertFalse(match.isExactMatch());
     }
 
+    @Test
+    public void ignoresExtraElementsWhenParameterIsPresentsWithoutIgnoreArrayOrder() {
+        StringValuePattern pattern = Json.read(
+            "{\n" +
+                "    \"equalToJson\": { \"one\": 1 },\n" +
+                "    \"ignoreExtraElements\": true\n" +
+                "}",
+            StringValuePattern.class
+        );
+
+        assertThat(pattern.match("{\n" +
+            "    \"one\": 1,\n" +
+            "    \"two\": 2\n" +
+            "}").isExactMatch(), is(true));
+    }
+
 }

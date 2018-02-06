@@ -78,7 +78,7 @@ public class EqualToJsonPattern extends StringValuePattern {
     }
 
     private boolean shouldIgnoreExtraElements() {
-        return ignoreArrayOrder != null && ignoreExtraElements;
+        return ignoreExtraElements != null && ignoreExtraElements;
     }
 
     public Boolean isIgnoreExtraElements() {
