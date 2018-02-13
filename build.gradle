@@ -34,7 +34,7 @@ version = '2.15.0'
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
-    jackson: '2.8.9',
+    jackson: '2.9.3',
     jetty  : '9.2.22.v20170606',
     xmlUnit: '2.3.0'
 ]
