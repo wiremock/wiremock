@@ -92,7 +92,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
         final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
-                .putAll(firstNonNull(parameters, Collections.<String, Object>emptyMap()))
+                .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
                 .put("request", RequestTemplateModel.from(request)).build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
