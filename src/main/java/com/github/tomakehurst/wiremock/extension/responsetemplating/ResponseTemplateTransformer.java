@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
@@ -90,8 +91,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     @Override
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
-        final ImmutableMap<String, RequestTemplateModel> model = ImmutableMap.of("request", RequestTemplateModel.from(request));
-
+        final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
+                .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
+                .put("request", RequestTemplateModel.from(request)).build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
@@ -129,7 +131,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         return newResponseDefBuilder.build();
     }
 
-    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, RequestTemplateModel> model, Template bodyTemplate) {
+    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
         String newBody = uncheckedApplyTemplate(bodyTemplate, model);
         newResponseDefBuilder.withBody(newBody);
     }
