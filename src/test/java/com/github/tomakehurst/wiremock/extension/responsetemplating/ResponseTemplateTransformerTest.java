@@ -303,6 +303,21 @@ public class ResponseTemplateTransformerTest {
         assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
     }
 
+    @Test
+    public void transformerParametersAreAppliedToTemplate() throws Exception {
+        ResponseDefinition responseDefinition = transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{variable}}\"}").build(),
+                noFileSource(),
+                Parameters.one("variable", "some.value")
+        );
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
+    }
+
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
         return transformer.transform(
             request,
