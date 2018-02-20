@@ -310,12 +310,27 @@ public class ResponseTemplateTransformerTest {
                         .url("/json").
                         body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
                 aResponse()
-                        .withBody("{\"test\": \"{{variable}}\"}").build(),
+                        .withBody("{\"test\": \"{{parameters.variable}}\"}").build(),
                 noFileSource(),
                 Parameters.one("variable", "some.value")
         );
 
         assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
+    }
+
+    @Test
+    public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
+        ResponseDefinition responseDefinition = transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}").build(),
+                noFileSource(),
+                Parameters.one("variable", "some.value")
+        );
+
+        assertThat(responseDefinition.getBody(), is("{\"test1\": \"some.value\", \"test2\": \"\"}"));
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
