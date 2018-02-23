@@ -15,8 +15,15 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.StreamSource;
+import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
+import com.google.common.io.ByteStreams;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -26,7 +33,7 @@ public class Response {
 
 	private final int status;
     private final String statusMessage;
-	private final byte[] body;
+    private final StreamSource bodyStreamSource;
 	private final HttpHeaders headers;
 	private final boolean configured;
 	private final Fault fault;
@@ -55,7 +62,20 @@ public class Response {
                     ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
         this.status = status;
         this.statusMessage = statusMessage;
-        this.body = body;
+        this.bodyStreamSource = StreamSources.forBytes(body);
+        this.headers = headers;
+        this.configured = configured;
+        this.fault = fault;
+        this.initialDelay = initialDelay;
+        this.chunkedDribbleDelay = chunkedDribbleDelay;
+        this.fromProxy = fromProxy;
+    }
+
+    public Response(int status, String statusMessage, StreamSource streamSource, HttpHeaders headers, boolean configured, Fault fault, long initialDelay,
+                    ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
+        this.status = status;
+        this.statusMessage = statusMessage;
+        this.bodyStreamSource = streamSource;
         this.headers = headers;
         this.configured = configured;
         this.fault = fault;
@@ -69,7 +89,7 @@ public class Response {
         this.status = status;
         this.statusMessage = statusMessage;
         this.headers = headers;
-        this.body = body == null ? null : Strings.bytesFromString(body, headers.getContentTypeHeader().charset());
+        this.bodyStreamSource = StreamSources.forString(body, headers.getContentTypeHeader().charset());
         this.configured = configured;
         this.fault = fault;
         this.initialDelay = initialDelay;
@@ -86,12 +106,20 @@ public class Response {
     }
 
     public byte[] getBody() {
-        return body;
+        try (InputStream stream = bodyStreamSource == null ? null : getBodyStream()) {
+            return stream == null ? null : ByteStreams.toByteArray(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 	public String getBodyAsString() {
-        return Strings.stringFromBytes(body, headers.getContentTypeHeader().charset());
+        return Strings.stringFromBytes(getBody(), headers.getContentTypeHeader().charset());
 	}
+
+    public InputStream getBodyStream() {
+        return bodyStreamSource == null ? null : bodyStreamSource.getStream();
+    }
 
 	public HttpHeaders getHeaders() {
 		return headers;
@@ -126,30 +154,27 @@ public class Response {
         StringBuilder sb = new StringBuilder();
         sb.append("HTTP/1.1 ").append(status).append("\n");
         sb.append(headers).append("\n");
-        if (body != null) {
-            sb.append(getBodyAsString()).append("\n");
-        }
-
+        // no longer printing body
         return sb.toString();
     }
 
     public static class Builder {
         private int status = HTTP_OK;
         private String statusMessage;
-        private byte[] body;
+        private byte[] bodyBytes;
         private String bodyString;
+        private StreamSource bodyStream;
         private HttpHeaders headers = new HttpHeaders();
         private boolean configured = true;
         private Fault fault;
         private boolean fromProxy;
-        private Optional<ResponseDefinition> renderedFromDefinition;
         private long initialDelay;
         private ChunkedDribbleDelay chunkedDribbleDelay;
 
         public static Builder like(Response response) {
             Builder responseBuilder = new Builder();
             responseBuilder.status = response.getStatus();
-            responseBuilder.body = response.getBody();
+            responseBuilder.bodyStream = response.bodyStreamSource;
             responseBuilder.headers = response.getHeaders();
             responseBuilder.configured = response.wasConfigured();
             responseBuilder.fault = response.getFault();
@@ -174,23 +199,24 @@ public class Response {
         }
 
         public Builder body(byte[] body) {
-            this.body = body;
+            this.bodyBytes = body;
             this.bodyString = null;
-            ensureOnlyOneBodySet();
+            this.bodyStream = null;
             return this;
         }
 
         public Builder body(String body) {
+            this.bodyBytes = null;
             this.bodyString = body;
-            this.body = null;
-            ensureOnlyOneBodySet();
+            this.bodyStream = null;
             return this;
         }
 
-        private void ensureOnlyOneBodySet() {
-            if (body != null && bodyString != null) {
-                throw new IllegalStateException("Body should either be set as a String or byte[], not both");
-            }
+        public Builder body(URI body) {
+            this.bodyBytes = null;
+            this.bodyString = null;
+            this.bodyStream = StreamSources.forURI(body);
+            return this;
         }
 
         public Builder headers(HttpHeaders headers) {
@@ -262,10 +288,12 @@ public class Response {
         }
 
         public Response build() {
-            if (body != null) {
-                return new Response(status, statusMessage, body, headers, configured, fault, initialDelay, chunkedDribbleDelay, fromProxy);
+            if (bodyBytes != null) {
+                return new Response(status, statusMessage, bodyBytes, headers, configured, fault, initialDelay, chunkedDribbleDelay, fromProxy);
             } else if (bodyString != null) {
                 return new Response(status, statusMessage, bodyString, headers, configured, fault, initialDelay, chunkedDribbleDelay, fromProxy);
+            } else if (bodyStream != null) {
+                return new Response(status, statusMessage, bodyStream, headers, configured, fault, initialDelay, chunkedDribbleDelay, fromProxy);
             } else {
                 return new Response(status, statusMessage, new byte[0], headers, configured, fault, initialDelay, chunkedDribbleDelay, fromProxy);
             }
