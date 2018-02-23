@@ -19,13 +19,10 @@ import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.google.common.base.Optional;
 
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
@@ -97,7 +94,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            responseBuilder.body(bodyFile.readContents());
+            responseBuilder.body(bodyFile.getUri());
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
