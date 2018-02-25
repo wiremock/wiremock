@@ -180,7 +180,7 @@ public class WireMockApp implements StubServer, Admin {
         if (!nearest.isEmpty()) {
             message = diffRenderer.render(nearest.get(0).getDiff());
         } else {
-            message = "Request was not matched as were no stubs registered:\n" + request;
+            message = "Request was not matched as there were no stubs registered:\n" + request;
         }
         notifier().error(message);
     }
