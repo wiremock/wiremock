@@ -21,12 +21,14 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.io.ByteStreams;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -210,9 +212,9 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         }
 
         if (response.shouldAddChunkedDribbleDelay()) {
-			writeAndTranslateExceptionsWithChunkedDribbleDelay(httpServletResponse, response.getBody(), response.getChunkedDribbleDelay());
+			writeAndTranslateExceptionsWithChunkedDribbleDelay(httpServletResponse, response.getBodyStream(), response.getChunkedDribbleDelay());
 		} else {
-			writeAndTranslateExceptions(httpServletResponse, response.getBody());
+			writeAndTranslateExceptions(httpServletResponse, response.getBodyStream());
 		}
     }
 
@@ -220,20 +222,24 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	    return faultHandlerFactory.buildFaultInjector(httpServletRequest, httpServletResponse);
 	}
 
-    private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, byte[] content) {
-        try {
-            ServletOutputStream out = httpServletResponse.getOutputStream();
-            out.write(content);
+    private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, InputStream content) {
+        try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
+            ByteStreams.copy(content, out);
             out.flush();
-            out.close();
         } catch (IOException e) {
             throwUnchecked(e);
+        } finally {
+            try {
+                content.close();
+            } catch (IOException e) {
+                // well, we tried
+            }
         }
     }
 
-	private void writeAndTranslateExceptionsWithChunkedDribbleDelay(HttpServletResponse httpServletResponse, byte[] body, ChunkedDribbleDelay chunkedDribbleDelay) {
-
-		try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
+    private void writeAndTranslateExceptionsWithChunkedDribbleDelay(HttpServletResponse httpServletResponse, InputStream bodyStream, ChunkedDribbleDelay chunkedDribbleDelay) {
+        try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
+            byte[] body = ByteStreams.toByteArray(bodyStream);
 
 			if (body.length < 1) {
 				notifier.error("Cannot chunk dribble delay when no body set");
