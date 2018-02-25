@@ -32,14 +32,15 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.io.NetworkTrafficListener;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.*;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.servlets.GzipFilter;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import javax.servlet.DispatcherType;
 import java.net.Socket;
@@ -215,9 +216,18 @@ public class JettyHttpServer implements HttpServer {
             sslContextFactory.setTrustStoreType(httpsSettings.trustStoreType());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
+        sslContextFactory.setProvider("Conscrypt");
+        sslContextFactory.setExcludeCipherSuites(new String[]{}); // TLSv1, TLSv1.1 are no longer supported by default: https://www.eclipse.org/jetty/documentation/9.4.x/configuring-ssl.html
 
         HttpConfiguration httpConfig = createHttpConfig(jettySettings);
         httpConfig.addCustomizer(new SecureRequestCustomizer());
+
+        ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory("h2", "HTTP/1.1");
+        alpn.setDefaultProtocol("HTTP/1.1"); //"HTTP/1.1"
+
+        // HTTP/2 Connection Factory
+        HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfig);
+
 
         final int port = httpsSettings.port();
 
@@ -227,10 +237,11 @@ public class JettyHttpServer implements HttpServer {
                 port,
                 listener,
                 new SslConnectionFactory(
-                        sslContextFactory,
-                        "http/1.1"
-                ),
-                new HttpConnectionFactory(httpConfig)
+                    sslContextFactory,
+                    alpn.getProtocol()),
+                new HttpConnectionFactory(httpConfig),
+                alpn,
+                h2
         );
     }
 
@@ -312,10 +323,13 @@ public class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setErrorHandler(new NotFoundHandler());
 
-        mockServiceContext.addFilter(GzipFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.addIncludedPaths("/*");
+        gzipHandler.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.FORWARD);
+        mockServiceContext.setGzipHandler(new GzipHandler());
         return mockServiceContext;
     }
 
