@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "fixedDelay": {
+            "required": false,
+            "type": "number"
+        },
+        "delayDistribution": {
+            "required": false,
+            "$ref": "delay-distribution.schema.json"
+        }
+    }
+}

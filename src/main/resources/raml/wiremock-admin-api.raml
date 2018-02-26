@@ -13,9 +13,12 @@ documentation:
 schemas:
   - stubMapping: !include schemas/stub-mapping.schema.json
   - stubMappings: !include schemas/stub-mappings.schema.json
+  - loggedRequest: !include schemas/logged-request.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
-  - recordSpec: !include schemas/record-spec.schema.json
+  - snapshot: !include schemas/snapshot.schema.json
+  - startRecording: !include schemas/start-recording.schema.json
   - scenarios: !include schemas/scenarios.schema.json
+  - globalSettings: !include schemas/global-settings.schema.json
 
 /__admin/mappings:
   description: Stub mappings
@@ -250,7 +253,7 @@ schemas:
       description: Start recording stub mappings
       body:
         application/json:
-          schema: recordSpec
+          schema: startRecording
           example: !include examples/record-spec.example.json
 
       responses:
@@ -290,7 +293,7 @@ schemas:
       description: Take a snapshot recording
       body:
         application/json:
-          schema: recordSpec
+          schema: snapshot
           example: !include examples/snapshot-spec.example.json
 
       responses:
@@ -335,6 +338,7 @@ schemas:
       description: Find at most 3 near misses for closest stub mappings to the specified request
       body:
         application/json:
+          schema: loggedRequest
           example: !include examples/logged-request.example.json
 
       responses:
@@ -366,6 +370,7 @@ schemas:
     description: Update global settings
     body:
       application/json:
+        schema: globalSettings
         example: |
           {
               "fixedDelay": 500
