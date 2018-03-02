@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.http.Fault;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.testsupport.MultipartBody;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -35,6 +36,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -154,6 +157,19 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
     }
 
+    @Test
+    public void matchesOnUrlPathAndMultipleQueryParameters() {
+        Map<String, StringValuePattern> queryParameters = new HashMap<>();
+        queryParameters.put("search", containing("WireMock"));
+        queryParameters.put("since", equalTo("2018-03-02"));
+
+        stubFor(get(urlPathEqualTo("/path-and-query/match"))
+                .withQueryParams(queryParameters)
+                .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/path-and-query/match?since=2018-03-02&search=WireMock%20stubbing").statusCode(), is(200));
+    }
+
 	@Test
 	public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
 		stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
@@ -177,6 +193,19 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
 		assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
 	}
+
+    @Test
+    public void matchesOnUrlPathPatternAndMultipleQueryParameters() {
+        Map<String, StringValuePattern> queryParameters = new HashMap<>();
+        queryParameters.put("search", containing("WireMock"));
+        queryParameters.put("since", equalTo("2018-03-02"));
+
+        stubFor(get(urlPathMatching("/path(.*)/match"))
+                .withQueryParams(queryParameters)
+                .willReturn(aResponse().withStatus(200)));
+
+        assertThat(testClient.get("/path-and-query/match?since=2018-03-02&search=WireMock%20stubbing").statusCode(), is(200));
+    }
 
 	@Test
 	public void doesNotMatchOnUrlPathPatternWhenPathShorter() {
