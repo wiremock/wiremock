@@ -85,6 +85,13 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
+    @Override
+    public BasicMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams) {
+        for (Map.Entry<String, StringValuePattern> queryParam : queryParams.entrySet())
+            requestPatternBuilder.withQueryParam(queryParam.getKey(), queryParam.getValue());
+        return this;
+    }
+
 	@Override
 	public BasicMappingBuilder withRequestBody(ContentPattern<?> bodyPattern) {
         requestPatternBuilder.withRequestBody(bodyPattern);
