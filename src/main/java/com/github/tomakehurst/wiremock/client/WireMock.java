@@ -59,7 +59,7 @@ public class WireMock {
 	private final Admin admin;
 	private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
 
-	private static ThreadLocal<WireMock> defaultInstance = new ThreadLocal<WireMock>(){
+	private static InheritableThreadLocal<WireMock> defaultInstance = new InheritableThreadLocal<WireMock>(){
             @Override
             protected WireMock initialValue() {
             	return WireMock.create().build();
