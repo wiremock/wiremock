@@ -379,6 +379,15 @@ public class CommandLineOptionsTest {
         assertThat(options.getAsynchronousResponseSettings().getThreads(), is(10));
     }
 
+    @Test
+    public void usesPortInToString() {
+        CommandLineOptions options = new CommandLineOptions("--port", "1337");
+        assertThat(options.toString(), allOf(containsString("1337")));
+
+        options.setResultingPort(1338);
+        assertThat(options.toString(), allOf(containsString("1338")));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }

@@ -26,7 +26,7 @@ $ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
 
 The following can optionally be specified on the command line:
 
-`--port`: Set the HTTP port number e.g. `--port 9999`
+`--port`: Set the HTTP port number e.g. `--port 9999`. Use `--port 0` to dynamically determine a port.
 
 `--https-port`: If specified, enables HTTPS on the supplied port.
 
