@@ -74,6 +74,7 @@ public class WireMockServerRunner {
 
         try {
             wireMockServer.start();
+            options.setResultingPort(wireMockServer.port());
             out.println(BANNER);
             out.println();
             out.println(options);
