@@ -100,10 +100,11 @@ public class CommandLineOptions implements Options {
     private final MappingsSource mappingsSource;
 
     private String helpText;
+    private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
+		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -143,6 +144,8 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+
+        resultingPort = Optional.absent();
 	}
 
     private void validate() {
@@ -216,6 +219,10 @@ public class CommandLineOptions implements Options {
         }
 
         return DEFAULT_PORT;
+	}
+
+	public void setResultingPort(int port) {
+		resultingPort = Optional.of(port);
 	}
 
     @Override
@@ -414,7 +421,8 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        builder.put(PORT, portNumber());
+        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
+        builder.put(PORT, port);
 
         if (httpsSettings().enabled()) {
             builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
