@@ -108,7 +108,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                         .ignoreWhitespace()
                         .ignoreComments()
                         .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
+                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
                         .build();
 
                     return !diff.hasDifferences();
@@ -147,7 +147,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                                 }
                             }
                         })
-                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
+                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
                         .build();
                 } catch (XMLUnitException e) {
                     notifier().info("Failed to process XML. " + e.getMessage() +
@@ -176,19 +176,5 @@ public class EqualToXmlPattern extends StringValuePattern {
         }
     };
 
-    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
-        @Override
-        public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
-            DocumentBuilder documentBuilder = super.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new ResolveToEmptyString());
-            return documentBuilder;
-        }
 
-        private class ResolveToEmptyString implements EntityResolver {
-            @Override
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                return new InputSource(new StringReader(""));
-            }
-        }
-    }
 }
