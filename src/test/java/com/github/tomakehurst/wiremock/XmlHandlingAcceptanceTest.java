@@ -93,4 +93,40 @@ public class XmlHandlingAcceptanceTest {
 
         externalDtdServer.verify(0, getRequestedFor(anyUrl()));
     }
+
+    @Test
+    public void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnEqualToXml() {
+        String xml =
+            "<?xml version=\"1.0\"?>\n" +
+                "<!DOCTYPE things [\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "%sp;\n" +
+                "]>\n" +
+                "\n" +
+                "<badly-formed-things/>";
+
+        wm.stubFor(post("/bad-xml-match")
+            .withRequestBody(equalToXml(xml))
+            .willReturn(ok()));
+
+        assertThat(client.postXml("/bad-xml-match", xml).statusCode(), is(200));
+    }
+
+    @Test
+    public void doesNotAttemptToValidateXmlAgainstDtdWhenMatchingOnXPath() {
+        String xml =
+            "<?xml version=\"1.0\"?>\n" +
+                "<!DOCTYPE things [\n" +
+                "<!ENTITY % sp SYSTEM \"http://localhost:" + externalDtdServer.port() + "/dodgy.dtd\">\n" +
+                "%sp;\n" +
+                "]>\n" +
+                "\n" +
+                "<badly-formed-things/>";
+
+        wm.stubFor(post("/bad-xpath-match")
+            .withRequestBody(matchingXPath("/badly-formed-things"))
+            .willReturn(ok()));
+
+        assertThat(client.postXml("/bad-xpath-match", xml).statusCode(), is(200));
+    }
 }
