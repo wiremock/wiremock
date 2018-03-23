@@ -22,6 +22,7 @@ public class ClientError extends RuntimeException {
     private final Errors errors;
 
     public ClientError(Errors errors) {
+        super(Json.write(errors));
         this.errors = errors;
     }
 
