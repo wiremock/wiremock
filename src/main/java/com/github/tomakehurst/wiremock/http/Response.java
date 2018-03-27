@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
-import com.github.tomakehurst.wiremock.common.StreamSource;
+import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
@@ -23,7 +23,6 @@ import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -33,7 +32,7 @@ public class Response {
 
 	private final int status;
     private final String statusMessage;
-    private final StreamSource bodyStreamSource;
+    private final InputStreamSource bodyStreamSource;
 	private final HttpHeaders headers;
 	private final boolean configured;
 	private final Fault fault;
@@ -71,7 +70,7 @@ public class Response {
         this.fromProxy = fromProxy;
     }
 
-    public Response(int status, String statusMessage, StreamSource streamSource, HttpHeaders headers, boolean configured, Fault fault, long initialDelay,
+    public Response(int status, String statusMessage, InputStreamSource streamSource, HttpHeaders headers, boolean configured, Fault fault, long initialDelay,
                     ChunkedDribbleDelay chunkedDribbleDelay, boolean fromProxy) {
         this.status = status;
         this.statusMessage = statusMessage;
@@ -163,7 +162,7 @@ public class Response {
         private String statusMessage;
         private byte[] bodyBytes;
         private String bodyString;
-        private StreamSource bodyStream;
+        private InputStreamSource bodyStream;
         private HttpHeaders headers = new HttpHeaders();
         private boolean configured = true;
         private Fault fault;
@@ -212,10 +211,10 @@ public class Response {
             return this;
         }
 
-        public Builder body(URI body) {
+        public Builder body(InputStreamSource bodySource) {
             this.bodyBytes = null;
             this.bodyString = null;
-            this.bodyStream = StreamSources.forURI(body);
+            this.bodyStream = bodySource;
             return this;
         }
 

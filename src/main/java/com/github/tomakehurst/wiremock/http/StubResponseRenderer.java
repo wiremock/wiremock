@@ -94,7 +94,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            responseBuilder.body(bodyFile.getUri());
+            responseBuilder.body(bodyFile);
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());

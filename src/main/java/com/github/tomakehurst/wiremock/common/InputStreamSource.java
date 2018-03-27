@@ -2,6 +2,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import java.io.InputStream;
 
-public interface StreamSource {
+public interface InputStreamSource {
     InputStream getStream();
 }
