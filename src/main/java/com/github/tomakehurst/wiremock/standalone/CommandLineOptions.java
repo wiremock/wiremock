@@ -78,6 +78,7 @@ public class CommandLineOptions implements Options {
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String DISABLE_BANNER = "disable-banner";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String EXTENSIONS = "extensions";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
@@ -100,10 +101,11 @@ public class CommandLineOptions implements Options {
     private final MappingsSource mappingsSource;
 
     private String helpText;
+    private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
+		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -121,6 +123,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
+        optionParser.accepts(DISABLE_BANNER, "Disable print banner logo");
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
@@ -143,6 +146,8 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+
+        resultingPort = Optional.absent();
 	}
 
     private void validate() {
@@ -216,6 +221,10 @@ public class CommandLineOptions implements Options {
         }
 
         return DEFAULT_PORT;
+	}
+
+	public void setResultingPort(int port) {
+		resultingPort = Optional.of(port);
 	}
 
     @Override
@@ -389,6 +398,10 @@ public class CommandLineOptions implements Options {
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
+    
+    public boolean bannerDisabled() {
+        return optionSet.has(DISABLE_BANNER);
+    }
 
     private boolean specifiesMaxRequestJournalEntries() {
         return optionSet.has(MAX_ENTRIES_REQUEST_JOURNAL);
@@ -414,7 +427,8 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        builder.put(PORT, portNumber());
+        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
+        builder.put(PORT, port);
 
         if (httpsSettings().enabled()) {
             builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
@@ -430,6 +444,8 @@ public class CommandLineOptions implements Options {
         }
 
         builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+        
+        builder.put(DISABLE_BANNER, bannerDisabled());
 
         if (recordMappingsEnabled()) {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())

@@ -15,21 +15,22 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -73,8 +74,7 @@ public class Xml {
 
     public static Document read(String xml) {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            DocumentBuilderFactory dbf = newDocumentBuilderFactory();
             DocumentBuilder db = dbf.newDocumentBuilder();
             InputSource is = new InputSource(new StringReader(xml));
             return db.parse(is);
@@ -86,7 +86,7 @@ public class Xml {
     }
 
     public static String toStringValue(Node node) {
-        switch(node.getNodeType()) {
+        switch (node.getNodeType()) {
             case Node.TEXT_NODE:
             case Node.ATTRIBUTE_NODE:
                 return node.getTextContent();
@@ -107,6 +107,34 @@ public class Xml {
             return sw.toString();
         } catch (TransformerException e) {
             return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static DocumentBuilderFactory newDocumentBuilderFactory() {
+        try {
+            DocumentBuilderFactory dbf = new SkipResolvingEntitiesDocumentBuilderFactory();
+            dbf.setFeature("http://xml.org/sax/features/validation", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            return dbf;
+        } catch (ParserConfigurationException e) {
+            return throwUnchecked(e, DocumentBuilderFactory.class);
+        }
+    }
+
+    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+        @Override
+        public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+            DocumentBuilder documentBuilder = super.newDocumentBuilder();
+            documentBuilder.setEntityResolver(new SkipResolvingEntitiesDocumentBuilderFactory.ResolveToEmptyString());
+            return documentBuilder;
+        }
+
+        private static class ResolveToEmptyString implements EntityResolver {
+            @Override
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                return new InputSource(new StringReader(""));
+            }
         }
     }
 }
