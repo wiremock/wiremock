@@ -8,8 +8,8 @@ public class StreamSources {
     private StreamSources() {
     }
 
-    public static StreamSource forString(final String string, final Charset charset) {
-        return new StreamSource() {
+    public static InputStreamSource forString(final String string, final Charset charset) {
+        return new InputStreamSource() {
             @Override
             public InputStream getStream() {
                 return string == null ? null : new ByteArrayInputStream(Strings.bytesFromString(string, charset));
@@ -17,8 +17,8 @@ public class StreamSources {
         };
     }
 
-    public static StreamSource forBytes(final byte[] bytes) {
-        return new StreamSource() {
+    public static InputStreamSource forBytes(final byte[] bytes) {
+        return new InputStreamSource() {
             @Override
             public InputStream getStream() {
                 return bytes == null ? null : new ByteArrayInputStream(bytes);
@@ -26,8 +26,8 @@ public class StreamSources {
         };
     }
 
-    public static StreamSource forURI(final URI uri) {
-        return  new StreamSource() {
+    public static InputStreamSource forURI(final URI uri) {
+        return  new InputStreamSource() {
             @Override
             public InputStream getStream() {
                 try {

@@ -88,10 +88,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 	}
 
-	/**
-	 * @param config Servlet configuration to read
-	 * @return Normalized mappedUnder attribute without trailing slash
-	*/
 	private String getNormalizedMappedUnder(ServletConfig config) {
 		String mappedUnder = config.getInitParameter(MAPPED_UNDER_KEY);
 		if(mappedUnder == null) {
