@@ -78,6 +78,7 @@ public class CommandLineOptions implements Options {
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String DISABLE_BANNER = "disable-banner";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String EXTENSIONS = "extensions";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
@@ -122,6 +123,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
+        optionParser.accepts(DISABLE_BANNER, "Disable print banner logo");
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
@@ -396,6 +398,10 @@ public class CommandLineOptions implements Options {
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
+    
+    public boolean bannerDisabled() {
+        return optionSet.has(DISABLE_BANNER);
+    }
 
     private boolean specifiesMaxRequestJournalEntries() {
         return optionSet.has(MAX_ENTRIES_REQUEST_JOURNAL);
@@ -438,6 +444,8 @@ public class CommandLineOptions implements Options {
         }
 
         builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+        
+        builder.put(DISABLE_BANNER, bannerDisabled());
 
         if (recordMappingsEnabled()) {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
