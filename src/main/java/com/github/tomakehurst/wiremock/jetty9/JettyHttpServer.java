@@ -45,9 +45,11 @@ import javax.servlet.DispatcherType;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
@@ -299,8 +301,11 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
-        servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_ENABLED, Boolean.toString(asynchronousResponseSettings.isEnabled()));
-        servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_THREADS, Integer.toString(asynchronousResponseSettings.getThreads()));
+
+        if (asynchronousResponseSettings.isEnabled()) {
+            ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
+        }
 
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
