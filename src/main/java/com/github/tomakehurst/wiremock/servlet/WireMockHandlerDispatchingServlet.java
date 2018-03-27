@@ -43,8 +43,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     public static final String SHOULD_FORWARD_TO_FILES_CONTEXT = "shouldForwardToFilesContext";
-    public static final String ASYNCHRONOUS_RESPONSE_ENABLED = "asynchronousResponseEnabled";
-    public static final String ASYNCHRONOUS_RESPONSE_THREADS = "asynchronousResponseThreads";
+    public static final String ASYNCHRONOUS_RESPONSE_EXECUTOR = WireMockHandlerDispatchingServlet.class.getSimpleName() + ".asynchronousResponseExecutor";
     public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
 	private static final long serialVersionUID = -6602042274260495538L;
@@ -57,7 +56,6 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
-    private boolean asynchronousResponseEnabled;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -68,11 +66,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
 
-        asynchronousResponseEnabled = Boolean.valueOf(config.getInitParameter(ASYNCHRONOUS_RESPONSE_ENABLED));
-
-        if (asynchronousResponseEnabled) {
-            scheduledExecutorService = newScheduledThreadPool(Integer.valueOf(config.getInitParameter(ASYNCHRONOUS_RESPONSE_THREADS)));
-        }
+        scheduledExecutorService = (ScheduledExecutorService) config.getServletContext().getAttribute(ASYNCHRONOUS_RESPONSE_EXECUTOR);
 
         String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
 		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
@@ -154,7 +148,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         }
 
         private boolean isAsyncSupported(Response response, HttpServletRequest httpServletRequest) {
-            return asynchronousResponseEnabled && response.getInitialDelay() > 0 && httpServletRequest.isAsyncSupported();
+            return scheduledExecutorService != null && response.getInitialDelay() > 0 && httpServletRequest.isAsyncSupported();
         }
 
         private void respondAsync(final Request request, final Response response) {
