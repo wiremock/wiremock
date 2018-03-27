@@ -105,33 +105,4 @@ public class StubResponseRenderer implements ResponseRenderer {
 
         return responseBuilder;
 	}
-
-//    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
-//    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(responseDefinition);
-//        if (optionalDelay.isPresent()) {
-//        	responseBuilder.incrementInitialDelay(optionalDelay.get());
-//	    }
-//    }
-//
-//    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition responseDefinition) {
-//    	Integer delay = responseDefinition.getFixedDelayMilliseconds() != null ?
-//    			responseDefinition.getFixedDelayMilliseconds() :
-//    			globalSettingsHolder.get().getFixedDelay();
-//
-//    	return Optional.fromNullable(delay);
-//    }
-//
-//    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition responseDefinition, Response.Builder responseBuilder) {
-//		DelayDistribution delayDistribution;
-//
-//		if (responseDefinition.getDelayDistribution() != null) {
-//			delayDistribution = responseDefinition.getDelayDistribution();
-//		} else {
-//			delayDistribution = globalSettingsHolder.get().getDelayDistribution();
-//		}
-//
-//		if (delayDistribution != null) {
-//			responseBuilder.incrementInitialDelay(delayDistribution.sampleMillis());
-//		}
-//    }
 }
