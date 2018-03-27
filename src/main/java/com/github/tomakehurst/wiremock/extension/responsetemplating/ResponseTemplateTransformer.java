@@ -44,6 +44,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
+    public static final String NAME = "response-template";
+
     private final boolean global;
 
     private final Handlebars handlebars;
@@ -85,7 +87,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
     @Override
     public String getName() {
-        return "response-template";
+        return NAME;
     }
 
     @Override
