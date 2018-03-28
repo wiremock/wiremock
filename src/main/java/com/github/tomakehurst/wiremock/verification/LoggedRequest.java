@@ -68,8 +68,7 @@ public class LoggedRequest implements Request {
             ImmutableMap.copyOf(request.getCookies()),
             request.isBrowserProxyRequest(),
             new Date(),
-            request.getBodyAsBase64(),
-            null,
+            request.getBody(),
             request.getParts()
         );
     }
@@ -87,11 +86,25 @@ public class LoggedRequest implements Request {
             @JsonProperty("bodyAsBase64") String bodyAsBase64,
             @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
             @JsonProperty("multiparts") Collection<Part> multiparts) {
+        this(url, absoluteUrl, method, clientIp, headers, cookies, isBrowserProxyRequest, loggedDate, decodeBase64(bodyAsBase64), multiparts);
+    }
+
+    public LoggedRequest(
+            @JsonProperty("url") String url,
+            @JsonProperty("absoluteUrl") String absoluteUrl,
+            @JsonProperty("method") RequestMethod method,
+            @JsonProperty("clientIp") String clientIp,
+            @JsonProperty("headers") HttpHeaders headers,
+            @JsonProperty("cookies") Map<String, Cookie> cookies,
+            @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
+            @JsonProperty("loggedDate") Date loggedDate,
+            @JsonProperty("body") byte[] body,
+            @JsonProperty("multiparts") Collection<Part> multiparts) {
         this.url = url;
         this.absoluteUrl = absoluteUrl;
         this.clientIp = clientIp;
         this.method = method;
-        this.body = decodeBase64(bodyAsBase64);
+        this.body = body;
         this.headers = headers;
         this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
