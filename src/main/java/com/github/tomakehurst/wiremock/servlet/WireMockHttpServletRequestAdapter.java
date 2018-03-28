@@ -35,12 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -266,7 +261,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
                 InputStream inputStream = new ByteArrayInputStream(getBody());
                 MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
                 request.setAttribute(org.eclipse.jetty.server.Request.__MULTIPART_INPUT_STREAM, inputStreamParser);
-                cachedMultiparts = from(request.getParts()).transform(new Function<javax.servlet.http.Part, Part>() {
+                cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
                     @Override
                     public Part apply(javax.servlet.http.Part input) {
                         return WireMockHttpServletMultipartAdapter.from(input);
@@ -278,6 +273,18 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
 
         return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
+    }
+
+    private Collection<javax.servlet.http.Part> safelyGetRequestParts() throws IOException, ServletException {
+        try {
+            return request.getParts();
+        } catch (IOException ioe) {
+            if (ioe.getMessage().contains("Missing content for multipart")) {
+                return Collections.emptyList();
+            }
+
+            throw ioe;
+        }
     }
 
     @Override

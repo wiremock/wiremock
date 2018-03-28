@@ -38,6 +38,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -101,7 +102,12 @@ public class MultipartValuePattern implements ValueMatcher<Request.Part> {
     }
 
     private MatchResult matchAnyMultipart(final Request request) {
-        return from(request.getParts()).anyMatch(new Predicate<Request.Part>() {
+        Collection<Request.Part> parts = request.getParts();
+        if (parts == null || parts.isEmpty()) {
+            return MatchResult.noMatch();
+        }
+
+        return from(parts).anyMatch(new Predicate<Request.Part>() {
             @Override
             public boolean apply(Request.Part input) {
                 return MultipartValuePattern.this.match(input).isExactMatch();
