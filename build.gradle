@@ -62,7 +62,7 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-core"
     }
     compile 'org.apache.commons:commons-lang3:3.6'
-    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.3.0'
+    compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.3'
     compile 'com.github.jknack:handlebars:4.0.6', {
         exclude group: 'org.mozilla', module: 'rhino'
     }
