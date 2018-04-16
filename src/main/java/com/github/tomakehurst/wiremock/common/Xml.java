@@ -51,7 +51,6 @@ public class Xml {
     public static String prettyPrint(Document doc) {
         try {
             TransformerFactory transformerFactory = createTransformerFactory();
-            transformerFactory.setAttribute("indent-number", 2);
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(INDENT, "yes");
             transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
@@ -66,7 +65,9 @@ public class Xml {
 
     private static TransformerFactory createTransformerFactory() {
         try {
-            return (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+            transformerFactory.setAttribute("indent-number", 2);
+            return transformerFactory;
         } catch (Exception e) {
             return TransformerFactory.newInstance();
         }
