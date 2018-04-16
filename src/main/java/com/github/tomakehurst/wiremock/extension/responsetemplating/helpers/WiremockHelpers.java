@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * This enum is implemented similar to the StringHelpers of handlebars.
@@ -55,6 +56,15 @@ public enum WiremockHelpers implements Helper<Object> {
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
             return this.helper.apply(null, options);
+        }
+    },
+    now {
+        private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+
+        @Override
+        public Object apply(final Object context, final Options options) throws IOException {
+            Date dateContext = context instanceof Date ? (Date) context : null;
+            return this.helper.apply(dateContext, options);
         }
     }
 }
