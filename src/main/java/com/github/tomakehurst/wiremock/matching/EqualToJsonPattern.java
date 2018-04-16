@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.flipkart.zjsonpatch.DiffFlags;
 import com.flipkart.zjsonpatch.JsonDiff;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Function;
@@ -25,9 +26,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
+import static com.flipkart.zjsonpatch.DiffFlags.OMIT_COPY_OPERATION;
+import static com.flipkart.zjsonpatch.DiffFlags.OMIT_MOVE_OPERATION;
 import static com.github.tomakehurst.wiremock.common.Json.deepSize;
 import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
 import static com.google.common.collect.Iterables.getLast;
@@ -105,7 +109,8 @@ public class EqualToJsonPattern extends StringValuePattern {
 
                 @Override
                 public double getDistance() {
-                    ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual);
+                    EnumSet<DiffFlags> flags = EnumSet.of(OMIT_COPY_OPERATION);
+                    ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual, flags);
 
                     double maxNodes = maxDeepSize(expected, actual);
                     return diffSize(diff) / maxNodes;
@@ -123,7 +128,8 @@ public class EqualToJsonPattern extends StringValuePattern {
             JsonNode pathString = getFromPathString(operation, child);
             List<String> path = getPath(pathString.textValue());
             if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation)) {
-                JsonNode valueNode = child.findValue("value");
+                JsonNode valueNode = operation.equals("remove") ? null : child.findValue("value");
+//                JsonNode valueNode = child.findValue("value");
                 JsonNode referencedExpectedNode = getNodeAtPath(expected, pathString);
                 if (valueNode == null) {
                     acc += deepSize(referencedExpectedNode);
