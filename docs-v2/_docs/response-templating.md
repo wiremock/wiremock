@@ -123,6 +123,24 @@ are available e.g.
 {% endraw %}
 
 
+## Number and assignment helpers
+Variable assignment and number helpers are available:
+
+{% raw %}
+```
+{{#assign 'myCapitalisedQuery'}}{{capitalize request.query.search}}{{/assign}}
+
+{{isOdd 3}}
+{{isOdd 3 'rightBox'}}
+
+{{isEven 2}}
+{{isEven 4 'leftBox'}}
+
+{{stripes 3 'row-even' 'row-odd'}}
+```
+{% endraw %}
+
+
 ## XPath helpers
 Addiionally some helpers are available for working with JSON and XML.
  
@@ -173,7 +191,6 @@ The following will render "success" in the output:
 
 
 ## JSONPath helper
-
 It is similarly possible to extract JSON values or sub documents via JSONPath using the `jsonPath` helper. Given the JSON
 
 ```json
@@ -197,6 +214,36 @@ And for the same JSON the following will render `{ "inner": "Stuff" }`:
 {% raw %}
 ```
 {{jsonPath request.body '$.outer'}}
+```
+{% endraw %}
+
+
+## Date and time helpers
+A helper is present to render the current date/time, with the ability to specify the format ([via Java's SimpleDateFormat](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html)) and offset.
+ 
+{% raw %}
+```
+{{now}}
+{{now offset='3 days'}}
+{{now offset='-24 seconds'}}
+{{now offset='1 years'}}
+{{now offset='10 years' format='yyyy-MM-dd'}}
+```
+{% endraw %}
+
+
+## Random value helper
+Random strings of various kinds can be generated:
+
+{% raw %}
+```
+{{randomValue length=33 type='ALPHANUMERIC'}}
+{{randomValue length=12 type='ALPHANUMERIC' uppercase=true}}
+{{randomValue length=55 type='ALPHABETIC'}}
+{{randomValue length=27 type='ALPHABETIC' uppercase=true}}
+{{randomValue length=10 type='NUMERIC'}}
+{{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
+{{randomValue type='UUID'}}
 ```
 {% endraw %}
 
