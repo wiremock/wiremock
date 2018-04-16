@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.helper.AssignHelper;
+import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
@@ -69,6 +71,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         for (StringHelpers helper: StringHelpers.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
+
+        for (NumberHelper helper: NumberHelper.values()) {
+            this.handlebars.registerHelper(helper.name(), helper);
+        }
+
+        this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
 
         //Add all available wiremock helpers
         for(WiremockHelpers helper: WiremockHelpers.values()){
