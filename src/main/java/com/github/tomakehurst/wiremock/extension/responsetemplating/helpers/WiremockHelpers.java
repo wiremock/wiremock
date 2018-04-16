@@ -48,5 +48,13 @@ public enum WiremockHelpers implements Helper<Object> {
         public Object apply(final Object context, final Options options) throws IOException {
             return this.helper.apply(String.valueOf(context), options);
         }
+    },
+    randomValue {
+        private HandlebarsRandomValuesHelper helper = new HandlebarsRandomValuesHelper();
+
+        @Override
+        public Object apply(final Object context, final Options options) throws IOException {
+            return this.helper.apply(null, options);
+        }
     }
 }
