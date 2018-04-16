@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-03-28T13:07:15+01:00">
+  <meta property="article:published_time" content="2018-04-16T19:02:21+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -344,7 +344,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="March 28, 2018">
+    <meta itemprop="datePublished" content="April 16, 2018">
     
 
     <div class="page__inner-wrap">
@@ -457,6 +457,21 @@ are available e.g.</p>
 </span></code></pre>
 </div>
 
+<h2 id="number-and-assignment-helpers">Number and assignment helpers</h2>
+<p>Variable assignment and number helpers are available:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{#assign</span><span class="w"> </span><span class="err">'myCapitalisedQuery'</span><span class="p">}</span><span class="err">}</span><span class="p">{</span><span class="err">{capitalize</span><span class="w"> </span><span class="err">request.query.search</span><span class="p">}</span><span class="err">}</span><span class="p">{</span><span class="err">{/assign</span><span class="p">}</span><span class="err">}</span><span class="w">
+
+</span><span class="p">{</span><span class="err">{isOdd</span><span class="w"> </span><span class="err">3</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{isOdd</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="err">'rightBox'</span><span class="p">}</span><span class="err">}</span><span class="w">
+
+</span><span class="p">{</span><span class="err">{isEven</span><span class="w"> </span><span class="err">2</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{isEven</span><span class="w"> </span><span class="err">4</span><span class="w"> </span><span class="err">'leftBox'</span><span class="p">}</span><span class="err">}</span><span class="w">
+
+</span><span class="p">{</span><span class="err">{stripes</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="err">'row-even'</span><span class="w"> </span><span class="err">'row-odd'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
 <h2 id="xpath-helpers">XPath helpers</h2>
 <p>Addiionally some helpers are available for working with JSON and XML.</p>
 
@@ -499,7 +514,6 @@ are available e.g.</p>
 </div>
 
 <h2 id="jsonpath-helper">JSONPath helper</h2>
-
 <p>It is similarly possible to extract JSON values or sub documents via JSONPath using the <code class="highlighter-rouge">jsonPath</code> helper. Given the JSON</p>
 
 <div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
@@ -519,6 +533,30 @@ are available e.g.</p>
 <p>And for the same JSON the following will render <code class="highlighter-rouge"><span class="p">{</span><span class="w"> </span><span class="nt">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w"> </span><span class="p">}</span></code>:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{jsonPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'$.outer'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="date-and-time-helpers">Date and time helpers</h2>
+<p>A helper is present to render the current date/time, with the ability to specify the format (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">via Java’s SimpleDateFormat</a>) and offset.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='3</span><span class="w"> </span><span class="err">days'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='-24</span><span class="w"> </span><span class="err">seconds'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='1</span><span class="w"> </span><span class="err">years'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='10</span><span class="w"> </span><span class="err">years'</span><span class="w"> </span><span class="err">format='yyyy-MM-dd'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="random-value-helper">Random value helper</h2>
+<p>Random strings of various kinds can be generated:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=33</span><span class="w"> </span><span class="err">type='ALPHANUMERIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=12</span><span class="w"> </span><span class="err">type='ALPHANUMERIC'</span><span class="w"> </span><span class="err">uppercase=true</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=55</span><span class="w"> </span><span class="err">type='ALPHABETIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=27</span><span class="w"> </span><span class="err">type='ALPHABETIC'</span><span class="w"> </span><span class="err">uppercase=true</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=10</span><span class="w"> </span><span class="err">type='NUMERIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=5</span><span class="w"> </span><span class="err">type='ALPHANUMERIC_AND_SYMBOLS'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">type='UUID'</span><span class="p">}</span><span class="err">}</span><span class="w">
 </span></code></pre>
 </div>
 
