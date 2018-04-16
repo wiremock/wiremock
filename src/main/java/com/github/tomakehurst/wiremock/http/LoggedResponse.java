@@ -37,9 +37,13 @@ public class LoggedResponse {
                           @JsonProperty("bodyAsBase64") String bodyAsBase64,
                           @JsonProperty("fault") Fault fault,
                           @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
+        this(status, headers, Encoding.decodeBase64(bodyAsBase64), fault);
+    }
+
+    private LoggedResponse(int status, HttpHeaders headers, byte[] body, Fault fault) {
         this.status = status;
         this.headers = headers;
-        this.body = Encoding.decodeBase64(bodyAsBase64);
+        this.body = body;
         this.fault = fault;
     }
 
@@ -47,9 +51,8 @@ public class LoggedResponse {
         return new LoggedResponse(
             response.getStatus(),
             response.getHeaders() == null || response.getHeaders().all().isEmpty() ? null : response.getHeaders(),
-            Encoding.encodeBase64(response.getBody()),
-            response.getFault(),
-            null
+            response.getBody(),
+            response.getFault()
         );
     }
 
