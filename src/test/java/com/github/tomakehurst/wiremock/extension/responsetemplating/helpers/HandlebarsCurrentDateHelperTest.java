@@ -84,6 +84,18 @@ public class HandlebarsCurrentDateHelperTest {
     }
 
     @Test
+    public void rendersNowAsUnixEpoch() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+            "format", "epoch"
+        );
+
+        Date date = new Date();
+        Object output = render(date, optionsHash);
+
+        assertThat(output.toString(), is(String.valueOf(date.getTime())));
+    }
+
+    @Test
     public void helperIsIncludedInTemplateTransformer() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
             mockRequest().url("/random-value"),

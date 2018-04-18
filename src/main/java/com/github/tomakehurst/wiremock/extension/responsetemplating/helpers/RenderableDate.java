@@ -17,9 +17,12 @@ public class RenderableDate {
 
     @Override
     public String toString() {
-        return
-            format != null ?
-                new SimpleDateFormat(format).format(date) :
-                ISO8601Utils.format(date, false);
+        if (format != null) {
+            return format.equals("epoch") ?
+                String.valueOf(date.getTime()) :
+                new SimpleDateFormat(format).format(date);
+        }
+
+        return ISO8601Utils.format(date, false);
     }
 }
