@@ -231,6 +231,14 @@ A helper is present to render the current date/time, with the ability to specify
 ```
 {% endraw %}
 
+Pass `epoch` as the format to render the date as unix epoch time.
+
+{% raw %}
+```
+{{now offset='2 years' format='epoch'}}
+```
+{% endraw %}
+
 
 ## Random value helper
 Random strings of various kinds can be generated:
