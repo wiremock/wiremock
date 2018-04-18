@@ -15,11 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -27,7 +23,10 @@ import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.servlet.*;
+import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
+import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
+import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
+import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -36,10 +35,12 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.*;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.servlets.GzipFilter;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.servlets.gzip.GzipHandler;
 
 import javax.servlet.DispatcherType;
 import java.net.Socket;
@@ -104,7 +105,12 @@ public class JettyHttpServer implements HttpServer {
         );
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext, mockServiceContext));
+        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
+
+        GzipHandler gzipWrapper = new GzipHandler();
+        gzipWrapper.setHandler(mockServiceContext);
+        handlers.addHandler(gzipWrapper);
+
         return handlers;
     }
 
@@ -317,7 +323,6 @@ public class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setErrorHandler(new NotFoundHandler());
 
-        mockServiceContext.addFilter(GzipFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
