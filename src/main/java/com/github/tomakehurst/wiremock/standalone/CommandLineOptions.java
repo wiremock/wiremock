@@ -68,6 +68,8 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
+    private static final String PROXY_VIA_USERNAME = "proxy-via-username";
+    private static final String PROXY_VIA_PASSWORD = "proxy-via-password";
 	private static final String PORT = "port";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
@@ -117,6 +119,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
+        optionParser.accepts(PROXY_VIA_USERNAME, "Specifies a proxy server username to use when routing proxy mapped requests").withRequiredArg();
+        optionParser.accepts(PROXY_VIA_PASSWORD, "Specifies a proxy server password to use when routing proxy mapped requests").withRequiredArg();
 		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
 		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
 		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
@@ -368,9 +372,15 @@ public class CommandLineOptions implements Options {
     public ProxySettings proxyVia() {
         if (optionSet.has(PROXY_VIA)) {
             String proxyVia = (String) optionSet.valueOf(PROXY_VIA);
-            return ProxySettings.fromString(proxyVia);
+            ProxySettings proxySettings = ProxySettings.fromString(proxyVia);
+            if(optionSet.has(PROXY_VIA_USERNAME) && optionSet.has(PROXY_VIA_PASSWORD)){
+                proxySettings.setUsername((String) optionSet.valueOf(PROXY_VIA_USERNAME));
+                proxySettings.setPassword((String) optionSet.valueOf(PROXY_VIA_PASSWORD));
+            }else if(optionSet.has(PROXY_VIA_USERNAME) || optionSet.has(PROXY_VIA_PASSWORD)){
+                throw new IllegalArgumentException(String.format("Both %s and %s must be provided", PROXY_VIA_USERNAME, PROXY_VIA_PASSWORD));
+            }
+            return proxySettings;
         }
-
         return NO_PROXY;
     }
 

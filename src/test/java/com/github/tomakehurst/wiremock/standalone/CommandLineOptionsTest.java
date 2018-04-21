@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -41,6 +42,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -183,6 +185,33 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
+        assertThat(options.proxyVia().getUsername(), isEmptyOrNullString());
+        assertThat(options.proxyVia().getPassword(), isEmptyOrNullString());
+    }
+
+    @Test
+    public void returnsCorrectlyParsedProxyViaCredentialsParameter() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-username", "user", "--proxy-via-password", "pwd");
+        assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
+        assertThat(options.proxyVia().port(), is(8080));
+        assertThat(options.proxyVia().getUsername(), is("user"));
+        assertThat(options.proxyVia().getPassword(), is("pwd"));
+    }
+
+    @Test
+    public void shouldIgnoreProxyViaCredentialsIfNoProxyViaConfiguredParameter() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via-username", "user", "--proxy-via-password", "pwd");
+        assertThat(options.proxyVia(), is(NO_PROXY));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfOnlyProxyViaUsernameIsProvided() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-username", "user");
+        options.proxyVia();
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfOnlyProxyViaPasswordIsProvided() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-password", "pwd");
+        options.proxyVia();
     }
 
     @Test
