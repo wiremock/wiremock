@@ -15,11 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.base.Preconditions;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import static com.google.common.base.Splitter.on;
-import static com.google.common.collect.Iterables.get;
-import static com.google.common.collect.Iterables.getFirst;
+import com.google.common.base.Preconditions;
 
 public class ProxySettings {
 
@@ -28,17 +26,26 @@ public class ProxySettings {
     private final String host;
     private final int port;
 
+    private String username;
+    private String password;
+
     public ProxySettings(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
     public static ProxySettings fromString(String config) {
-        Iterable<String> parts = on(":").split(config);
-        String host = getFirst(parts, "");
+        int portPosition = config.lastIndexOf(":");
+        String host;
+        int port;
+        if(portPosition != -1){
+            host = config.substring(0, portPosition);
+            port = Integer.valueOf(config.substring(portPosition+1));
+        }else{
+            host = config;
+            port = 80;
+        }
         Preconditions.checkArgument(!host.isEmpty(), "Host part of proxy must be specified");
-
-        int port = Integer.valueOf(get(parts, 1, "80"));
         return new ProxySettings(host, port);
     }
 
@@ -50,12 +57,28 @@ public class ProxySettings {
         return port;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         if (this == NO_PROXY) {
             return "(no proxy)";
         }
 
-        return host() + ":" + port();
+        return String.format("%s:%s%s", host(), port(), (!isEmpty(this.username) ? " (with credentials)" : ""));
     }
 }
