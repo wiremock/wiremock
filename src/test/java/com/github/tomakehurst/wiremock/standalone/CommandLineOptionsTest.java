@@ -190,29 +190,14 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void returnsCorrectlyParsedProxyViaCredentialsParameter() {
-        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-username", "user", "--proxy-via-password", "pwd");
+    public void returnsCorrectlyParsedProxyViaParameterWithCredentials() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "user:password@somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
         assertThat(options.proxyVia().getUsername(), is("user"));
-        assertThat(options.proxyVia().getPassword(), is("pwd"));
+        assertThat(options.proxyVia().getPassword(), is("password"));
     }
 
-    @Test
-    public void shouldIgnoreProxyViaCredentialsIfNoProxyViaConfiguredParameter() {
-        CommandLineOptions options = new CommandLineOptions("--proxy-via-username", "user", "--proxy-via-password", "pwd");
-        assertThat(options.proxyVia(), is(NO_PROXY));
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfOnlyProxyViaUsernameIsProvided() {
-        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-username", "user");
-        options.proxyVia();
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfOnlyProxyViaPasswordIsProvided() {
-        CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080", "--proxy-via-password", "pwd");
-        options.proxyVia();
-    }
 
     @Test
     public void returnsNoProxyWhenNoProxyViaSpecified() {
