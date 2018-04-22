@@ -55,6 +55,7 @@ public class ProxySettings {
             if(!"http".equals(proxyUrl.getProtocol())){
                 throw new IllegalArgumentException("Proxy via does not support any other protocol than http");
             }
+            Preconditions.checkArgument(!proxyUrl.getHost().isEmpty(), "Host part of proxy must be specified");
             ProxySettings proxySettings = new ProxySettings(proxyUrl.getHost(), proxyUrl.getPort() == -1 ? DEFAULT_PORT : proxyUrl.getPort());
             if(!isEmpty(proxyUrl.getUserInfo())){
                 String[] userInfoArray = proxyUrl.getUserInfo().split(":");
