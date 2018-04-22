@@ -39,10 +39,7 @@
         },
         "delayDistribution": {
             "description": "Random delay settings.",
-            "oneOf": [
-                { "$ref": "#/definitions/logNormalDistribution" },
-                { "$ref": "#/definitions/uniformDistribution" }
-            ]
+            "$ref": "delay-distribution.schema.json"
         },
         "fault": {
             "type": "string",
@@ -72,55 +69,6 @@
         "fromConfiguredStub": {
             "description": "Read-only flag indicating false if this was the default, unmatched response. Not present otherwise.",
             "type": "boolean"
-        }
-    },
-
-    "definitions": {
-        "logNormalDistribution": {
-            "descrioption": "Log normal randomly distributed response delay.",
-            "type": "object",
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "lognormal"
-                    ]
-                },
-                "median": {
-                    "type": "integer"
-                },
-                "sigma": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "type",
-                "median",
-                "sigma"
-            ]
-        },
-        "uniformDistribution": {
-            "descrioption": "Uniformly distributed random response delay.",
-            "type": "object",
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "uniform"
-                    ]
-                },
-                "upper": {
-                    "type": "integer"
-                },
-                "lower": {
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "type",
-                "upper",
-                "lower"
-            ]
         }
     }
 }
