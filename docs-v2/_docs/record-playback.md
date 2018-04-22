@@ -327,7 +327,7 @@ If you only require the IDs of captured stubs you can specify:
 By default generated stubs will be set to persistent, meaning that they will be saved to the file system
 (or other back-end if you've implemented your own `MappingsSource`) and will survive calls to reset mappings to default.
 
-Setting `persistent` to `false` means that stubs will not be saved and will be deleted on the next reset.
+Setting `persist` to `false` means that stubs will not be saved and will be deleted on the next reset.
 
 
 ### Repeats as scenarios
