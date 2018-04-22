@@ -3,6 +3,7 @@
 title: WireMock
 version: 2.15.0
 mediaType: application/json
+baseUri: /__admin
 
 documentation:
   - title: WireMock admin
@@ -17,7 +18,7 @@ schemas:
   - recordSpec: !include schemas/record-spec.schema.json
   - scenarios: !include schemas/scenarios.schema.json
 
-/__admin/mappings:
+/mappings:
   description: Stub mappings
 
   get:
@@ -129,7 +130,7 @@ schemas:
           description: Successfully removed
 
 
-/__admin/requests:
+/requests:
   description: Logged requests and responses received by the mock service
 
   get:
@@ -241,7 +242,7 @@ schemas:
               application/json:
                 example: !include examples/near-misses.example.json
 
-/__admin/recordings:
+/recordings:
   description: Stub mapping record and snapshot functions
 
   /start:
@@ -301,7 +302,7 @@ schemas:
                 schema: stubMappings
                 example: !include examples/recorded-stub-mappings.example.json
 
-/__admin/scenarios:
+/scenarios:
   description: Scenarios support modelling of stateful behaviour
 
   get:
@@ -327,7 +328,7 @@ schemas:
               example: !include examples/empty.example.json
 
 
-/__admin/near-misses:
+/near-misses:
   description: Near misses allow querying of received requests or request patterns according to similarity
 
   /request:
@@ -360,7 +361,7 @@ schemas:
             application/json:
               example: !include examples/near-misses.example.json
 
-/__admin/settings:
+/settings:
   description: Global settings
   post:
     description: Update global settings
@@ -375,7 +376,7 @@ schemas:
       200:
         description: Settings successfully updated
 
-/__admin/shutdown:
+/shutdown:
   description: Shutdown function
   post:
     description: Shutdown the WireMock server
