@@ -14,7 +14,8 @@ schemas:
   - stubMapping: !include schemas/stub-mapping.schema.json
   - stubMappings: !include schemas/stub-mappings.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
-  - recordSpec: !include schemas/record-spec.schema.json
+  - snapshot: !include schemas/snapshot.schema.json
+  - startRecording: !include schemas/start-recording.schema.json
   - scenarios: !include schemas/scenarios.schema.json
 
 /__admin/mappings:
@@ -250,7 +251,7 @@ schemas:
       description: Start recording stub mappings
       body:
         application/json:
-          schema: recordSpec
+          schema: startRecording
           example: !include examples/record-spec.example.json
 
       responses:
@@ -290,7 +291,7 @@ schemas:
       description: Take a snapshot recording
       body:
         application/json:
-          schema: recordSpec
+          schema: snapshot
           example: !include examples/snapshot-spec.example.json
 
       responses:
