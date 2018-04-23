@@ -2,7 +2,6 @@ package com.github.tomakehurst.wiremock.common;
 
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.security.KeyStore;
 
 import static org.junit.Assert.assertNotNull;

@@ -17,9 +17,10 @@ package com.github.tomakehurst.wiremock.common;
 
 import com.google.common.io.Resources;
 
-import java.io.*;
-import java.net.URL;
-import java.rmi.server.ExportException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
