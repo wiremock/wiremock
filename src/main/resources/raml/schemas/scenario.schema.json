@@ -5,7 +5,6 @@
             "examples": [
                 "c8d249ec-d86d-48b1-88a8-a660e6848042"
             ],
-            "id": "/properties/id",
             "type": "string"
         },
         "name": {
@@ -13,18 +12,15 @@
             "examples": [
                 "my_scenario"
             ],
-            "id": "/properties/name",
             "type": "string"
         },
         "possibleStates": {
-            "id": "/properties/possibleStates",
             "items": {
                 "default": "Started",
                 "description": "All the states this scenario can be in",
                 "examples": [
                     "Started", "Step two", "step_3"
                 ],
-                "id": "/properties/possibleStates/items",
                 "type": "string"
             },
             "type": "array"
@@ -35,7 +31,6 @@
             "examples": [
                 "Started", "Step two", "step_3"
             ],
-            "id": "/properties/state",
             "type": "string"
         }
     },
