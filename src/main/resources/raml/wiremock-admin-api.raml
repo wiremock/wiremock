@@ -16,6 +16,7 @@ schemas:
   - requestPattern: !include schemas/request-pattern.schema.json
   - recordSpec: !include schemas/record-spec.schema.json
   - scenarios: !include schemas/scenarios.schema.json
+  - globalSettings: !include schemas/global-settings.schema.json
 
 /__admin/mappings:
   description: Stub mappings
@@ -366,6 +367,7 @@ schemas:
     description: Update global settings
     body:
       application/json:
+        schema: globalSettings
         example: |
           {
               "fixedDelay": 500
