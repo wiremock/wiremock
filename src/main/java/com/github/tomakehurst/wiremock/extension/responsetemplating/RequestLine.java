@@ -64,6 +64,18 @@ public class RequestLine {
         return  port;
     }
 
+    public String getBaseUrl() {
+        String portPart = isStandardPort(scheme, port) ?
+            "" :
+            ":" + port;
+
+        return scheme + "://" + host + portPart;
+    }
+
+    private boolean isStandardPort(String scheme, int port) {
+        return (scheme.equals("http") && port == 80) || (scheme.equals("https") && port == 443);
+    }
+
     private static final Function<MultiValue, ListOrSingle<String>> TO_TEMPLATE_MODEL = new Function<MultiValue, ListOrSingle<String>>() {
         @Override
         public ListOrSingle<String> apply(MultiValue input) {

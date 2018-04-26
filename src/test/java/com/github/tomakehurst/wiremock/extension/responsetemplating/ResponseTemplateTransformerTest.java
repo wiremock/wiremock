@@ -402,6 +402,57 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void requestLineBaseUrlNonStandardPort() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: https://my.domain.io:8080"
+        ));
+    }
+
+    @Test
+    public void requestLineBaseUrlHttp() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("http")
+                .host("my.domain.io")
+                .port(80)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: http://my.domain.io"
+        ));
+    }
+
+    @Test
+    public void requestLineBaseUrlHttps() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(443)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: https://my.domain.io"
+        ));
+    }
+
+    @Test
     public void requestLinePathSegment() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .scheme("https")
