@@ -52,6 +52,9 @@ import static java.util.Collections.emptyList;
 
 public class MockRequest implements Request {
 
+    private String scheme = "http";
+    private String host = "my.domain";
+    private int port = 80;
     private String url = "/";
     private RequestMethod method = RequestMethod.ANY;
     private HttpHeaders headers = new HttpHeaders();
@@ -62,6 +65,21 @@ public class MockRequest implements Request {
 
     public static MockRequest mockRequest() {
         return new MockRequest();
+    }
+
+    public MockRequest scheme(String scheme){
+        this.scheme = scheme;
+        return this;
+    }
+
+    public MockRequest host(String host) {
+        this.host = host;
+        return this;
+    }
+
+    public MockRequest port(int port) {
+        this.port = port;
+        return this;
     }
 
     public MockRequest url(String url) {
@@ -126,6 +144,21 @@ public class MockRequest implements Request {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String getScheme() {
+        return scheme;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     @Override

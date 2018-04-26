@@ -21,12 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -34,6 +36,8 @@ import java.util.Set;
 
 import java.nio.charset.Charset;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
 import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
@@ -47,6 +51,9 @@ import static com.google.common.collect.FluentIterable.from;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
+    private final String scheme;
+    private final String host;
+    private final int port;
     private final String url;
     private final String absoluteUrl;
     private final String clientIp;
@@ -90,18 +97,30 @@ public class LoggedRequest implements Request {
     }
 
     public LoggedRequest(
-            @JsonProperty("url") String url,
-            @JsonProperty("absoluteUrl") String absoluteUrl,
-            @JsonProperty("method") RequestMethod method,
-            @JsonProperty("clientIp") String clientIp,
-            @JsonProperty("headers") HttpHeaders headers,
-            @JsonProperty("cookies") Map<String, Cookie> cookies,
-            @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
-            @JsonProperty("loggedDate") Date loggedDate,
-            @JsonProperty("body") byte[] body,
-            @JsonProperty("multiparts") Collection<Part> multiparts) {
+            String url,
+            String absoluteUrl,
+            RequestMethod method,
+            String clientIp,
+            HttpHeaders headers,
+            Map<String, Cookie> cookies,
+            boolean isBrowserProxyRequest,
+            Date loggedDate,
+            byte[] body,
+            Collection<Part> multiparts) {
         this.url = url;
+
         this.absoluteUrl = absoluteUrl;
+        if (absoluteUrl == null) {
+            this.scheme = null;
+            this.host = null;
+            this.port = -1;
+        } else {
+            URL fullUrl = safelyCreateURL(absoluteUrl);
+            this.scheme = fullUrl.getProtocol();
+            this.host = fullUrl.getHost();
+            this.port = fullUrl.getPort();
+        }
+
         this.clientIp = clientIp;
         this.method = method;
         this.body = body;
@@ -129,6 +148,21 @@ public class LoggedRequest implements Request {
     }
 
     @Override
+    public String getScheme() {
+        return scheme;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
+    }
+
+    @Override
     public String getClientIp() {
         return clientIp;
     }
@@ -153,7 +187,7 @@ public class LoggedRequest implements Request {
     public ContentTypeHeader contentTypeHeader() {
         if (headers != null) {
             return headers.getContentTypeHeader();
-        } 
+        }
         return null;
     }
 

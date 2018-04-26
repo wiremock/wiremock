@@ -33,6 +33,9 @@ public interface Request {
     String getUrl();
     String getAbsoluteUrl();
     RequestMethod getMethod();
+    String getScheme();
+    String getHost();
+    int getPort();
     String getClientIp();
 
     String getHeader(String key);
