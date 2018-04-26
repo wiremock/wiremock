@@ -24,7 +24,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,6 +87,14 @@ public class Urls {
             return URLDecoder.decode(encoded, "utf-8");
         } catch (UnsupportedEncodingException e) {
             return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static URL safelyCreateURL(String url) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            return throwUnchecked(e, URL.class);
         }
     }
 }

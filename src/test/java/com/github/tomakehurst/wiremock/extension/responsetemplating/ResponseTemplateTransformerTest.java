@@ -333,6 +333,122 @@ public class ResponseTemplateTransformerTest {
         assertThat(responseDefinition.getBody(), is("{\"test1\": \"some.value\", \"test2\": \"\"}"));
     }
 
+    @Test
+    public void requestLineScheme() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "scheme: {{{request.requestLine.scheme}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "scheme: https"
+        ));
+    }
+
+    @Test
+    public void requestLineHost() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "host: {{{request.requestLine.host}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "host: my.domain.io"
+        ));
+    }
+
+    @Test
+    public void requestLinePort() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "port: {{{request.requestLine.port}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "port: 8080"
+        ));
+    }
+
+    @Test
+    public void requestLinePath() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path: {{{request.requestLine.path}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path: /the/entire/path?query1=one&query2=two"
+        ));
+    }
+
+    @Test
+    public void requestLinePathSegment() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path segments: {{{request.requestLine.pathSegments}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path segments: /the/entire/path"
+        ));
+    }
+
+    @Test
+    public void requestLinePathSegment0() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path segments 0: {{{request.requestLine.pathSegments.[0]}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path segments 0: the"
+        ));
+    }
+
+    @Test
+    public void requestLinequeryParameters() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things?multi_param=one&multi_param=two&single-param=1234"),
+            aResponse().withBody(
+                "Multi 1: {{request.requestLine.query.multi_param.[0]}}, Multi 2: {{request.requestLine.query.multi_param.[1]}}, Single 1: {{request.requestLine.query.single-param}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "Multi 1: one, Multi 2: two, Single 1: 1234"
+        ));
+    }
+
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
         return transformer.transform(
             request,

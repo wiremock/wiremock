@@ -18,38 +18,28 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 import com.github.tomakehurst.wiremock.common.ListOrSingle;
 import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.Cookie;
-import com.github.tomakehurst.wiremock.http.MultiValue;
-import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-
-import java.net.URI;
 import java.util.Map;
 
 public class RequestTemplateModel {
 
-    private final String url;
-    private final UrlPath path;
-    private final Map<String, ListOrSingle<String>> query;
+    private final RequestLine requestLine;
     private final Map<String, ListOrSingle<String>> headers;
     private final Map<String, ListOrSingle<String>> cookies;
     private final String body;
 
 
-    public RequestTemplateModel(String url, UrlPath path, Map<String, ListOrSingle<String>> query, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
-        this.url = url;
-        this.path = path;
-        this.query = query;
+    protected RequestTemplateModel(RequestLine requestLine, Map<String, ListOrSingle<String>> headers, Map<String, ListOrSingle<String>> cookies, String body) {
+        this.requestLine = requestLine;
         this.headers = headers;
         this.cookies = cookies;
         this.body = body;
     }
 
     public static RequestTemplateModel from(final Request request) {
-        URI url = URI.create(request.getUrl());
-        Map<String, QueryParameter> rawQuery = Urls.splitQuery(url);
-        Map<String, ListOrSingle<String>> adaptedQuery = Maps.transformValues(rawQuery, TO_TEMPLATE_MODEL);
+        RequestLine requestLine = RequestLine.fromRequest(request);
         Map<String, ListOrSingle<String>> adaptedHeaders = Maps.toMap(request.getAllHeaderKeys(), new Function<String, ListOrSingle<String>>() {
             @Override
             public ListOrSingle<String> apply(String input) {
@@ -63,28 +53,40 @@ public class RequestTemplateModel {
             }
         });
 
-        UrlPath path = new UrlPath(request.getUrl());
-
         return new RequestTemplateModel(
-            request.getUrl(),
-            path,
-            adaptedQuery,
+            requestLine,
             adaptedHeaders,
             adaptedCookies,
             request.getBodyAsString()
         );
     }
 
+    public RequestLine getRequestLine() {
+        return requestLine;
+    }
+
+    /**
+     * @deprecated use requestLine to access information about the request
+     */
+    @Deprecated
     public String getUrl() {
-        return url;
+        return requestLine.getPath();
     }
 
+    /**
+     * @deprecated use requestLine to access information about the request
+     */
+    @Deprecated
     public UrlPath getPath() {
-        return path;
+        return requestLine.getPathSegments();
     }
 
+    /**
+     * @deprecated use requestLine to access information about the request
+     */
+    @Deprecated
     public Map<String, ListOrSingle<String>> getQuery() {
-        return query;
+        return requestLine.getQuery();
     }
 
     public Map<String, ListOrSingle<String>> getHeaders() {
@@ -99,10 +101,4 @@ public class RequestTemplateModel {
         return body;
     }
 
-    private static final Function<MultiValue, ListOrSingle<String>> TO_TEMPLATE_MODEL = new Function<MultiValue, ListOrSingle<String>>() {
-        @Override
-        public ListOrSingle<String> apply(MultiValue input) {
-            return ListOrSingle.of(input.values());
-        }
-    };
 }
