@@ -39,6 +39,7 @@ public class RecordSpecBuilder {
     private boolean repeatsAsScenarios = true;
     private List<String> transformerNames;
     private Parameters transformerParameters;
+    private boolean allowNonProxied;
 
     public RecordSpecBuilder forTarget(String targetBaseUrl) {
         this.targetBaseUrl = targetBaseUrl;
@@ -130,12 +131,17 @@ public class RecordSpecBuilder {
         return this;
     }
 
+    public RecordSpecBuilder allowNonProxied(boolean allowNonProxied) {
+        this.allowNonProxied = allowNonProxied;
+        return this;
+    }
+
     public RecordSpec build() {
         RequestPattern filterRequestPattern = filterRequestPatternBuilder != null ?
             filterRequestPatternBuilder.build() :
             null;
-        ProxiedServeEventFilters filters = filterRequestPatternBuilder != null || filterIds != null ?
-            new ProxiedServeEventFilters(filterRequestPattern, filterIds) :
+        ProxiedServeEventFilters filters = filterRequestPatternBuilder != null || filterIds != null || allowNonProxied ?
+            new ProxiedServeEventFilters(filterRequestPattern, filterIds, allowNonProxied) :
             null;
 
         ResponseDefinitionBodyMatcher responseDefinitionBodyMatcher = new ResponseDefinitionBodyMatcher(maxTextBodySize, maxBinaryBodySize);
@@ -150,6 +156,7 @@ public class RecordSpecBuilder {
             persistentStubs,
             repeatsAsScenarios,
             transformerNames,
-            transformerParameters);
+            transformerParameters
+        );
     }
 }

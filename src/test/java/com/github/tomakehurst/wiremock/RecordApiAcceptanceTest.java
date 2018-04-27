@@ -32,6 +32,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
@@ -52,7 +53,7 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         proxyingService = new WireMockServer(config.dynamicPort());
         proxyingService.start();
         proxyTargetUrl = "http://localhost:" + wireMockServer.port();
-        proxyingService.stubFor(proxyAllTo(proxyTargetUrl));
+        proxyingService.stubFor(proxyAllTo(proxyTargetUrl).withMetadata(metadata().attr("proxy", true)));
 
         proxyingTestClient = new WireMockTestClient(proxyingService.port());
         wireMockServer.stubFor(any(anyUrl()).willReturn(ok()));
@@ -217,6 +218,42 @@ public class RecordApiAcceptanceTest extends AcceptanceTestBase {
         assertThat(
             proxyingTestClient.snapshot(request),
             equalToJson(FILTER_BY_REQUEST_PATTERN_AND_IDS_SNAPSHOT_RESPONSE, JSONCompareMode.STRICT_ORDER)
+        );
+    }
+
+    private static final String FILTER_BY_WITH_NON_PROXIED_TRUE_SNAPSHOT_REQUEST =
+        "{                                                 \n" +
+        "    \"persist\": false,                           \n" +
+        "    \"filters\": {                                \n" +
+        "        \"allowNonProxied\": true                 \n" +
+        "    }                                             \n" +
+        "}                                                   ";
+
+    private static final String FILTER_BY_WITH_NON_PROXIED_TRUE_SNAPSHOT_RESPONSE =
+        "{                                                       \n" +
+        "    \"mappings\": [                                     \n" +
+        "        {                                               \n" +
+        "            \"request\" : {                             \n" +
+        "                \"url\" : \"/record-anyway\",           \n" +
+        "                \"method\" : \"GET\"                    \n" +
+        "            },                                          \n" +
+        "            \"response\" : {                            \n" +
+        "                \"status\" : 404                        \n" +
+        "            }                                           \n" +
+        "        }                                               \n" +
+        "    ]                                                   \n" +
+        "}                                                         ";
+
+    @Test
+    public void returnsStubsFromNonProxiedRequestsWhenRequested() {
+        proxyServerStartWithEmptyFileRoot();
+        proxyingService.removeStubsByMetadata(matchingJsonPath("$.proxy"));
+
+        proxyingTestClient.get("/record-anyway");
+
+        assertThat(
+            proxyingTestClient.snapshot(FILTER_BY_WITH_NON_PROXIED_TRUE_SNAPSHOT_REQUEST),
+            equalToJson(FILTER_BY_WITH_NON_PROXIED_TRUE_SNAPSHOT_RESPONSE, JSONCompareMode.LENIENT)
         );
     }
 
