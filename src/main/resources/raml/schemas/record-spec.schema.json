@@ -1,83 +1,162 @@
 {
     "type": "object",
     "properties": {
-        "targetBaseUrl": {
-            "type": "string"
-        },
         "captureHeaders": {
-            "type": "object"
+            "description": "Headers from the request to include in the generated stub mappings, mapped to parameter objects. The only parameter available is \"caseInsensitive\", which defaults to false",
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "caseInsensitive": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "example": [
+                {
+                    "Accept": {}
+                },
+                {
+                    "Accept": {},
+                    "Content-Type": {
+                        "caseInsensitive": true
+                    }
+                }
+            ]
         },
         "extractBodyCriteria": {
+            "description": "Criteria for extracting response bodies to a separate file instead of including it in the stub mapping",
             "type": "object",
             "properties": {
                 "binarySizeThreshold": {
-                    "type": "string"
-                },
-                "textSizeThreshold": {
-                    "type": "string"
-                }
-            }
-        },
-        "requestBodyPattern": {
-            "type": "object",
-            "properties": {
-                "matcher": {
+                    "description": "Size threshold for extracting binary response bodies. Default unit is bytes",
                     "type": "string",
-                    "enum": [
-                        "equalTo",
-                        "equalToJson",
-                        "equalToXml",
-                        "auto"
+                    "default": "0",
+                    "example": [
+                        "56 kb",
+                        "10 Mb",
+                        "18.2 GB",
+                        "255"
                     ]
                 },
-                "ignoreArrayOrder": {
-                    "type": "boolean"
-                },
-                "ignoreExtraElements": {
-                    "type": "boolean"
-                },
-                "caseInsensitive": {
-                    "type": "boolean"
+                "textSizeThreshold": {
+                    "description": "Size threshold for extracting text response bodies. Default unit is bytes",
+                    "type": "string",
+                    "default": "0",
+                    "example": [
+                        "56 kb",
+                        "10 Mb",
+                        "18.2 GB",
+                        "255"
+                    ]
                 }
-            }
+            },
+            "example": [{
+                "textSizeThreshold" : "2 kb",
+                "binarySizeThreshold" : "1 Mb"
+            }]
         },
-        "filters": {
+        "requestBodyPattern": {
+            "description": "Control the request body matcher used in generated stub mappings",
             "type": "object",
-            "properties": {
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
+            "oneOf": [
+                {
+                    "description": "Automatically determine matcher based on content type (the default)",
+                    "properties": {
+                        "matcher": {
+                            "type": "string",
+                            "enum": [
+                                "auto"
+                            ]
+                        },
+                        "ignoreArrayOrder": {
+                            "description": "If equalToJson is used, ignore order of array elements",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "ignoreExtraElements": {
+                            "description": "If equalToJson is used, matcher ignores extra elements in objects",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "caseInsensitive": {
+                            "description": "If equalTo is used, match body use case-insensitive string comparison",
+                            "type": "boolean",
+                            "default": false
+                        }
                     }
                 },
-                "method": {
-                    "type": "string"
+                {
+                    "description": "Always match request bodies using equalTo",
+                    "properties": {
+                        "matcher": {
+                            "type": "string",
+                            "enum": [
+                                "equalTo"
+                            ]
+                        },
+                        "caseInsensitive": {
+                            "description": "Match body using case-insensitive string comparison",
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
                 },
-                "urlPathPattern": {
-                    "type": "string"
+                {
+                    "description": "Always match request bodies using equalToJson",
+                    "properties": {
+                        "matcher": {
+                            "type": "string",
+                            "enum": [
+                                "equalToJson"
+                            ]
+                        },
+                        "ignoreArrayOrder": {
+                            "description": "Ignore order of array elements",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "ignoreExtraElements": {
+                            "description": "Ignore extra elements in objects",
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                },
+                {
+                    "description": "Always match request bodies using equalToXml",
+                    "properties": {
+                        "matcher": {
+                            "type": "string",
+                            "enum": [
+                                "equalToXml"
+                            ]
+                        }
+                    }
                 }
-            }
+            ]
         },
         "persist": {
-            "type": "boolean"
+            "description": "Whether to save stub mappings to the file system or just return them",
+            "type": "boolean",
+            "default": true
         },
         "repeatsAsScenarios": {
-            "type": "boolean"
+            "description": "When true, duplicate requests will be added to a Scenario. When false, duplicates are discarded",
+            "type": "boolean",
+            "default": true
         },
         "transformerParameters": {
-            "type": "object",
-            "properties": {
-                "headerValue": {
-                    "type": "string"
-                }
-            }
+            "description": "List of names of stub mappings transformers to apply to generated stubs",
+            "type": "object"
         },
         "transformers": {
+            "description": "Parameters to pass to stub mapping transformers",
             "type": "array",
             "items": {
                 "type": "string"
             }
         }
     }
-
 }
