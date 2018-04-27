@@ -121,4 +121,5 @@ public class RecordSpec {
     public ResponseDefinitionBodyMatcher getExtractBodyCriteria() { return extractBodyCriteria; }
 
     public RequestBodyPatternFactory getRequestBodyPatternFactory() { return requestBodyPatternFactory; }
+
 }
