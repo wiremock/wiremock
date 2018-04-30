@@ -2,14 +2,14 @@
     "properties": {
         "id": {
             "description": "The scenario ID",
-            "examples": [
+            "example": [
                 "c8d249ec-d86d-48b1-88a8-a660e6848042"
             ],
             "type": "string"
         },
         "name": {
             "description": "The scenario name",
-            "examples": [
+            "example": [
                 "my_scenario"
             ],
             "type": "string"
@@ -18,7 +18,7 @@
             "items": {
                 "default": "Started",
                 "description": "All the states this scenario can be in",
-                "examples": [
+                "example": [
                     "Started", "Step two", "step_3"
                 ],
                 "type": "string"
@@ -28,7 +28,7 @@
         "state": {
             "default": "Started",
             "description": "The current state of this scenario",
-            "examples": [
+            "example": [
                 "Started", "Step two", "step_3"
             ],
             "type": "string"
