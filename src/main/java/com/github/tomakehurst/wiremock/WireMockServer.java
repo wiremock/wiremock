@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
@@ -240,6 +241,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public List<StubMapping> findStubMappingsByMetadata(StringValuePattern pattern) {
+        return client.findAllStubsByMetadata(pattern);
+    }
+
+    @Override
+    public void removeStubMappingsByMetadata(StringValuePattern pattern) {
+        client.removeStubsByMetadataPattern(pattern);
+    }
+
+    @Override
     public void removeStubMapping(StubMapping stubMapping){
         wireMockApp.removeStubMapping(stubMapping);
     }
@@ -437,5 +448,15 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void shutdownServer() {
         shutdown();
+    }
+
+    @Override
+    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
+        return wireMockApp.findAllStubsByMetadata(pattern);
+    }
+
+    @Override
+    public void removeStubsByMetadata(StringValuePattern pattern) {
+        wireMockApp.removeStubsByMetadata(pattern);
     }
 }

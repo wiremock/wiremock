@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
@@ -40,6 +41,10 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
     <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+
+    ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
+    ScenarioMappingBuilder withMetadata(Metadata metadata);
+    ScenarioMappingBuilder withMetadata(Metadata.Builder metadata);
 
     ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

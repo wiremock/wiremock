@@ -80,7 +80,7 @@ dependencies {
         exclude group: "org.hamcrest", module: "hamcrest-library"
     }
     testCompile "org.skyscreamer:jsonassert:1.2.3"
-    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.7'
+    testCompile 'com.toomuchcoding.jsonassert:jsonassert:0.4.12'
     testCompile 'org.awaitility:awaitility:2.0.0'
 
     testCompile "com.googlecode.jarjar:jarjar:1.3"

@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
@@ -42,6 +43,7 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 	private String name;
     private boolean isPersistent = false;
     private Map<String, Parameters> postServeActions = newLinkedHashMap();
+    private Metadata metadata;
 
     BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
@@ -157,6 +159,24 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
+	@Override
+	public BasicMappingBuilder withMetadata(Map<String, ?> metadataMap) {
+    	this.metadata = new Metadata(metadataMap);
+		return this;
+	}
+
+    @Override
+    public BasicMappingBuilder withMetadata(Metadata metadata) {
+        this.metadata = metadata;
+        return this;
+    }
+
+    @Override
+    public BasicMappingBuilder withMetadata(Metadata.Builder metadata) {
+        this.metadata = metadata.build();
+        return this;
+    }
+
     @Override
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
@@ -174,6 +194,8 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         mapping.setPersistent(isPersistent);
 
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
+
+        mapping.setMetadata(metadata);
 
 		return mapping;
 	}
