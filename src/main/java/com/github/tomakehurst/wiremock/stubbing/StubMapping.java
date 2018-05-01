@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -47,6 +48,8 @@ public class StubMapping {
 	private String newScenarioState;
 
     private Map<String, Parameters> postServeActions;
+
+    private Metadata metadata;
 
 	private long insertionIndex;
 	private boolean isDirty = true;
@@ -208,7 +211,15 @@ public class StubMapping {
         this.postServeActions = postServeActions;
     }
 
-	@Override
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+    }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -221,11 +232,12 @@ public class StubMapping {
 			Objects.equals(scenarioName, that.scenarioName) &&
 			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
 			Objects.equals(newScenarioState, that.newScenarioState) &&
-			Objects.equals(postServeActions, that.postServeActions);
+			Objects.equals(postServeActions, that.postServeActions) &&
+			Objects.equals(metadata, that.metadata);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, isDirty);
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, metadata, isDirty);
 	}
 }

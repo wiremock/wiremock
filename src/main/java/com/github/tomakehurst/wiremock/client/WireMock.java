@@ -756,4 +756,20 @@ public class WireMock {
     public static RecordSpecBuilder recordSpec() {
         return new RecordSpecBuilder();
     }
+
+    public List<StubMapping> findAllStubsByMetadata(StringValuePattern pattern) {
+	    return admin.findAllStubsByMetadata(pattern).getMappings();
+    }
+
+    public static List<StubMapping> findStubsByMetadata(StringValuePattern pattern) {
+	    return defaultInstance.get().findAllStubsByMetadata(pattern);
+    }
+
+    public void removeStubsByMetadataPattern(StringValuePattern pattern) {
+	    admin.removeStubsByMetadata(pattern);
+    }
+
+    public static void removeStubsByMetadata(StringValuePattern pattern) {
+	    defaultInstance.get().removeStubsByMetadataPattern(pattern);
+    }
 }

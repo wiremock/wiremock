@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 
 
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -36,4 +37,6 @@ public interface StubMappings {
 	Optional<StubMapping> get(UUID id);
 
 	List<Scenario> getAllScenarios();
+
+    List<StubMapping> findByMetadata(StringValuePattern pattern);
 }

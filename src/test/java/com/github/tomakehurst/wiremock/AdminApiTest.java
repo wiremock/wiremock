@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -44,8 +46,7 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class AdminApiTest extends AcceptanceTestBase {
@@ -627,5 +628,38 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
     }
 
+    @Test
+    public void fetchStubWithMetadata() {
+        UUID id = UUID.randomUUID();
+        wireMockServer.stubFor(get("/with-metadata")
+            .withId(id)
+            .withMetadata(ImmutableMap.<String, Object>of(
+                "one", 1,
+                "two", "2",
+                "three", true,
+                "four", ImmutableMap.of(
+                    "five", "55555"
+                )
+            )));
+
+        WireMockResponse response = testClient.get("/__admin/mappings/" + id);
+
+        JsonAssertion.assertThat(response.content()).field("metadata").field("one").isEqualTo(1);
+        JsonAssertion.assertThat(response.content()).field("metadata").field("two").isEqualTo("2");
+        JsonAssertion.assertThat(response.content()).field("metadata").field("three").isEqualTo(true);
+        JsonAssertion.assertThat(response.content()).field("metadata").field("four").field("five").isEqualTo("55555");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void stubMetadataIsAbsentWhenNoneSpecified() {
+        UUID id = UUID.randomUUID();
+        wireMockServer.stubFor(get("/without-metadata").withId(id));
+
+        WireMockResponse response = testClient.get("/__admin/mappings/" + id);
+        Map<String, ?> data = Json.read(response.content(), Map.class);
+
+        assertThat(data, not(hasKey("metadata")));
+    }
 
 }

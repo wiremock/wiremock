@@ -25,6 +25,7 @@ import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.*;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.InMemoryStubMappings;
@@ -395,4 +396,19 @@ public class WireMockApp implements StubServer, Admin {
     public RecordingStatusResult getRecordingStatus() {
         return new RecordingStatusResult(recorder.getStatus().name());
     }
+
+    @Override
+    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
+        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(stubMappings.findByMetadata(pattern)));
+    }
+
+    @Override
+    public void removeStubsByMetadata(StringValuePattern pattern) {
+        List<StubMapping> foundMappings = stubMappings.findByMetadata(pattern);
+        for (StubMapping mapping: foundMappings) {
+            removeStubMapping(mapping);
+        }
+    }
+
+
 }
