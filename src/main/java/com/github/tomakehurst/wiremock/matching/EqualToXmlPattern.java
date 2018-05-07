@@ -27,13 +27,7 @@ import org.xml.sax.SAXException;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Comparison;
-import org.xmlunit.diff.ComparisonControllers;
-import org.xmlunit.diff.ComparisonListener;
-import org.xmlunit.diff.ComparisonResult;
-import org.xmlunit.diff.ComparisonType;
-import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,23 +38,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.xmlunit.diff.ComparisonType.ATTR_NAME_LOOKUP;
-import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
-import static org.xmlunit.diff.ComparisonType.CHILD_LOOKUP;
-import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_LENGTH;
-import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_SEQUENCE;
-import static org.xmlunit.diff.ComparisonType.ELEMENT_NUM_ATTRIBUTES;
-import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
-import static org.xmlunit.diff.ComparisonType.NODE_TYPE;
-import static org.xmlunit.diff.ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
-import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_DATA;
-import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_TARGET;
-import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
-import static org.xmlunit.diff.ComparisonType.TEXT_VALUE;
+import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
     private static List<ComparisonType> COUNTED_COMPARISONS = ImmutableList.of(
+        ELEMENT_TAG_NAME,
         SCHEMA_LOCATION,
         NO_NAMESPACE_SCHEMA_LOCATION,
         NODE_TYPE,

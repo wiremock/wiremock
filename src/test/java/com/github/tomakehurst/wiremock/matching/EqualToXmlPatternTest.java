@@ -25,6 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -125,7 +127,7 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
-    public void returnsNoMatchAnd1DistanceWhenDocumentsAreTotallyDifferent() {
+    public void returnsNoMatchWhenDocumentsAreTotallyDifferent() {
         EqualToXmlPattern pattern = new EqualToXmlPattern(
             "<things>\n" +
             "    <thing characteristic=\"tepid\"/>\n" +
@@ -136,7 +138,7 @@ public class EqualToXmlPatternTest {
         MatchResult matchResult = pattern.match("<no-things-at-all />");
 
         assertFalse(matchResult.isExactMatch());
-        assertThat(matchResult.getDistance(), is(0.375)); //Not high enough really, some more tweaking needed
+        assertThat(matchResult.getDistance(), closeTo(0.444, 0.001)); //Not high enough really, some more tweaking needed
     }
 
     @Test
@@ -261,6 +263,15 @@ public class EqualToXmlPatternTest {
             "    <one />\n" +
             "</my-elements>"
         ).isExactMatch());
+    }
+
+    @Test
+    public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
+        final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
+        final MatchResult matchResult = pattern.match("<two>Hello</two>");
+
+        assertThat(matchResult.isExactMatch(), equalTo(false));
+        assertThat(matchResult.getDistance(), not(equalTo(0.0)));
     }
 
     @Test
