@@ -33,9 +33,9 @@ public class MultithreadConfigurationInheritanceTest {
 
     @BeforeClass
     public static void setup(){
-        wireMockServer = new WireMockServer(8082);
+        wireMockServer = new WireMockServer(0);
         wireMockServer.start();
-        WireMock.configureFor(8082);
+        WireMock.configureFor(wireMockServer.port());
     }
 
 
