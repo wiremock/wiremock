@@ -101,14 +101,28 @@ public class HandlebarsCurrentDateHelperTest {
             mockRequest().url("/random-value"),
             aResponse()
                 .withBody(
-                    "{{now offset='6 days'}}"
+                    "{{date offset='6 days'}}"
                 ).build(),
             noFileSource(),
             Parameters.empty());
 
         String body = responseDefinition.getBody().trim();
-        System.out.println(body);
         assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+    }
+
+    @Test
+    public void acceptsDateParameter() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest().url("/parsed-date"),
+            aResponse()
+                .withBody(
+                    "{{date (parseDate '2018-05-05T10:11:12Z') offset='-1 days'}}"
+                ).build(),
+            noFileSource(),
+            Parameters.empty());
+
+        String body = responseDefinition.getBody().trim();
+        assertThat(body, is("2018-05-04T10:11:12Z"));
     }
 
     private Object render(ImmutableMap<String, Object> optionsHash) throws IOException {

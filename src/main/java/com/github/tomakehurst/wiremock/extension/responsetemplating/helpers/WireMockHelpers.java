@@ -25,7 +25,7 @@ import java.util.Date;
  * This enum is implemented similar to the StringHelpers of handlebars.
  * It is basically a library of all available wiremock helpers
  */
-public enum WiremockHelpers implements Helper<Object> {
+public enum WireMockHelpers implements Helper<Object> {
     xPath {
         private HandlebarsXPathHelper helper = new HandlebarsXPathHelper();
 
@@ -58,13 +58,21 @@ public enum WiremockHelpers implements Helper<Object> {
             return this.helper.apply(null, options);
         }
     },
-    now {
+    date {
         private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
             Date dateContext = context instanceof Date ? (Date) context : null;
             return this.helper.apply(dateContext, options);
+        }
+    },
+    parseDate {
+        private ParseDateHelper helper = new ParseDateHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context.toString(), options);
         }
     }
 }
