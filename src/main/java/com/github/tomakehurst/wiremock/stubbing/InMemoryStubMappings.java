@@ -26,10 +26,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
@@ -67,9 +64,10 @@ public class InMemoryStubMappings implements StubMappings {
 		
 		scenarios.onStubServed(matchingMapping);
 
-        ResponseDefinition responseDefinition = applyTransformations(request,
-            matchingMapping.getResponse(),
-            ImmutableList.copyOf(transformers.values()));
+        ResponseDefinition response = matchingMapping.getResponse();
+		List<ResponseDefinitionTransformer> transformers = new LinkedList<>(this.transformers.values());
+		transformers.addAll(response.getResponseDefinitionTransformers());
+		ResponseDefinition responseDefinition = applyTransformations(request, response, transformers);
 
 		return ServeEvent.of(
             LoggedRequest.createFrom(request),

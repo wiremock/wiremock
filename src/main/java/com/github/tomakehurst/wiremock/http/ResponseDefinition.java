@@ -25,8 +25,10 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.google.common.net.MediaType;
+import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -50,6 +52,7 @@ public class ResponseDefinition {
     private final Fault fault;
     private final List<String> transformers;
     private final Parameters transformerParameters;
+    private final List<AbstractTransformer> transformerInstances;
 
     private String browserProxyUrl;
     private Boolean wasConfigured = true;
@@ -72,7 +75,26 @@ public class ResponseDefinition {
                               @JsonProperty("transformers") List<String> transformers,
                               @JsonProperty("transformerParameters") Parameters transformerParameters,
                               @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, Collections.<AbstractTransformer>emptyList(), wasConfigured);
+    }
+
+    public ResponseDefinition(int status,
+                              String statusMessage,
+                              String body,
+                              String base64Body,
+                              String bodyFileName,
+                              HttpHeaders headers,
+                              HttpHeaders additionalProxyRequestHeaders,
+                              Integer fixedDelayMilliseconds,
+                              DelayDistribution delayDistribution,
+                              ChunkedDribbleDelay chunkedDribbleDelay,
+                              String proxyBaseUrl,
+                              Fault fault,
+                              List<String> transformers,
+                              Parameters transformerParameters,
+                              List<AbstractTransformer> transformerInstances,
+                              Boolean wasConfigured) {
+        this(status, statusMessage, Body.fromOneOf(null, body, null, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, transformerInstances, wasConfigured);
     }
 
     public ResponseDefinition(int status,
@@ -90,8 +112,9 @@ public class ResponseDefinition {
                               Fault fault,
                               List<String> transformers,
                               Parameters transformerParameters,
+                              List<AbstractTransformer> transformerInstances,
                               Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, transformerInstances, wasConfigured);
     }
 
     private ResponseDefinition(int status,
@@ -107,6 +130,7 @@ public class ResponseDefinition {
                                Fault fault,
                                List<String> transformers,
                                Parameters transformerParameters,
+                               List<AbstractTransformer> transformerInstances,
                                Boolean wasConfigured) {
         this.status = status > 0 ? status : 200;
         this.statusMessage = statusMessage;
@@ -123,19 +147,20 @@ public class ResponseDefinition {
         this.fault = fault;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
+        this.transformerInstances = transformerInstances;
         this.wasConfigured = wasConfigured == null ? true : wasConfigured;
     }
 
     public ResponseDefinition(final int statusCode, final String bodyContent) {
-        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), Collections.<AbstractTransformer>emptyList(),true);
     }
 
     public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), Collections.<AbstractTransformer>emptyList(), true);
     }
 
     public ResponseDefinition() {
-        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), Collections.<AbstractTransformer>emptyList(),true);
     }
 
     public static ResponseDefinition notFound() {
@@ -214,6 +239,7 @@ public class ResponseDefinition {
             original.fault,
             original.transformers,
             original.transformerParameters,
+            original.transformerInstances,
             original.wasConfigured
         );
         return newResponseDef;
@@ -338,8 +364,36 @@ public class ResponseDefinition {
         return transformerParameters;
     }
 
+    @JsonIgnore
+    public List<AbstractTransformer> getTransformerInstances() {
+        return transformerInstances;
+    }
+
+    @JsonIgnore
+    public List<ResponseTransformer> getResponseTransformers() {
+        List<ResponseTransformer> result = new ArrayList<>();
+        for (AbstractTransformer transformerInstance : transformerInstances) {
+            if (transformerInstance instanceof ResponseTransformer) {
+                result.add((ResponseTransformer)transformerInstance);
+            }
+        }
+        return result;
+    }
+
+    @JsonIgnore
+    public List<ResponseDefinitionTransformer> getResponseDefinitionTransformers() {
+        List<ResponseDefinitionTransformer> result = new ArrayList<>();
+        for (AbstractTransformer transformerInstance : transformerInstances) {
+            if (transformerInstance instanceof ResponseDefinitionTransformer) {
+                result.add((ResponseDefinitionTransformer)transformerInstance);
+            }
+        }
+        return result;
+    }
+
     public boolean hasTransformer(AbstractTransformer transformer) {
-        return transformers != null && transformers.contains(transformer.getName());
+        return (transformers != null && transformers.contains(transformer.getName()))
+                || transformerInstances.contains(transformer);
     }
 
     @Override

@@ -16,11 +16,14 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
+import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +47,7 @@ public class ResponseDefinitionBuilder {
 	protected String proxyBaseUrl;
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
+	protected List<AbstractTransformer> responseTransformers = new ArrayList<>();
 	protected Map<String, Object> transformerParameters = newHashMap();
 	protected Boolean wasConfigured = true;
 
@@ -64,6 +68,7 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
+		builder.responseTransformers = responseDefinition.getTransformerInstances(); //TODO: check where used
 		builder.transformerParameters = responseDefinition.getTransformerParameters() != null ?
 			Parameters.from(responseDefinition.getTransformerParameters()) :
 			Parameters.empty();
@@ -137,6 +142,11 @@ public class ResponseDefinitionBuilder {
 
 	public ResponseDefinitionBuilder withTransformers(String... responseTransformerNames) {
 		this.responseTransformerNames = asList(responseTransformerNames);
+		return this;
+	}
+
+	public ResponseDefinitionBuilder withTransformers(AbstractTransformer... responseTransformers) {
+		this.responseTransformers = asList(responseTransformers);
 		return this;
 	}
 
@@ -252,12 +262,12 @@ public class ResponseDefinitionBuilder {
 						fault,
 						responseTransformerNames,
 						transformerParameters,
-                        wasConfigured) :
+						responseTransformers,
+						wasConfigured) :
 				new ResponseDefinition(
 						status,
 						statusMessage,
 						stringBody,
-						null,
 						base64Body,
 						bodyFileName,
 						httpHeaders,
@@ -269,7 +279,8 @@ public class ResponseDefinitionBuilder {
 						fault,
 						responseTransformerNames,
 						transformerParameters,
-					    wasConfigured
+						responseTransformers,
+						wasConfigured
 				);
 	}
 }

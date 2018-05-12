@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
@@ -49,6 +50,8 @@ public class StubResponseRenderer implements ResponseRenderer {
 		}
 
 		Response response = buildResponse(responseDefinition);
+		LinkedList<ResponseTransformer> responseTransformers = new LinkedList<>(this.responseTransformers);
+		responseTransformers.addAll(responseDefinition.getResponseTransformers());
 		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
 	}
 
