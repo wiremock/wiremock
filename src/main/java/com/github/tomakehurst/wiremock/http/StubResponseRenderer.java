@@ -50,7 +50,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 		}
 
 		Response response = buildResponse(responseDefinition);
-		LinkedList<ResponseTransformer> responseTransformers = new LinkedList<>(this.responseTransformers);
+		List<ResponseTransformer> responseTransformers = new LinkedList<>(this.responseTransformers);
 		responseTransformers.addAll(responseDefinition.getResponseTransformers());
 		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
 	}
