@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
-import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
@@ -68,7 +67,7 @@ public class ResponseDefinitionBuilder {
 		builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
 		builder.fault = responseDefinition.getFault();
 		builder.responseTransformerNames = responseDefinition.getTransformers();
-		builder.responseTransformers = responseDefinition.getTransformerInstances(); //TODO: check where used
+		builder.responseTransformers = responseDefinition.getTransformerInstances();
 		builder.transformerParameters = responseDefinition.getTransformerParameters() != null ?
 			Parameters.from(responseDefinition.getTransformerParameters()) :
 			Parameters.empty();
@@ -214,6 +213,7 @@ public class ResponseDefinitionBuilder {
 			this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
 			this.proxyBaseUrl = from.proxyBaseUrl;
 			this.responseTransformerNames = from.responseTransformerNames;
+			this.responseTransformers = from.responseTransformers;
 		}
 
 		public ProxyResponseDefinitionBuilder withAdditionalRequestHeader(String key, String value) {
@@ -261,8 +261,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters,
 						responseTransformers,
+						transformerParameters,
 						wasConfigured) :
 				new ResponseDefinition(
 						status,
@@ -278,8 +278,8 @@ public class ResponseDefinitionBuilder {
 						proxyBaseUrl,
 						fault,
 						responseTransformerNames,
-						transformerParameters,
 						responseTransformers,
+						transformerParameters,
 						wasConfigured
 				);
 	}
