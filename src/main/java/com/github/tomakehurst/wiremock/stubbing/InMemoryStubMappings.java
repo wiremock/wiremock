@@ -72,7 +72,7 @@ public class InMemoryStubMappings implements StubMappings {
 
 		return ServeEvent.of(
             LoggedRequest.createFrom(request),
-            copyOf(response), //TODO: check we cannot modify original response from the transformers. maybe copy needs to happen at the beginning.
+            copyOf(response),
             matchingMapping
         );
 	}
