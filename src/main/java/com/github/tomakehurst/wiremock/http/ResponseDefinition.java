@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -371,24 +372,16 @@ public class ResponseDefinition {
 
     @JsonIgnore
     public List<ResponseTransformer> getResponseTransformers() {
-        List<ResponseTransformer> result = new ArrayList<>();
-        for (AbstractTransformer transformerInstance : transformerInstances) {
-            if (transformerInstance instanceof ResponseTransformer) {
-                result.add((ResponseTransformer)transformerInstance);
-            }
-        }
-        return result;
+        return FluentIterable.from(transformerInstances)
+                .filter(ResponseTransformer.class)
+                .toList();
     }
 
     @JsonIgnore
     public List<ResponseDefinitionTransformer> getResponseDefinitionTransformers() {
-        List<ResponseDefinitionTransformer> result = new ArrayList<>();
-        for (AbstractTransformer transformerInstance : transformerInstances) {
-            if (transformerInstance instanceof ResponseDefinitionTransformer) {
-                result.add((ResponseDefinitionTransformer)transformerInstance);
-            }
-        }
-        return result;
+        return FluentIterable.from(transformerInstances)
+                .filter(ResponseDefinitionTransformer.class)
+                .toList();
     }
 
     @JsonIgnore
