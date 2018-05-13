@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class ResponseDefinitionBuilder {
 	protected String proxyBaseUrl;
 	protected Fault fault;
 	protected List<String> responseTransformerNames;
-	protected List<AbstractTransformer> responseTransformers = new ArrayList<>();
+	protected List<AbstractTransformer> responseTransformers = Collections.emptyList();
 	protected Map<String, Object> transformerParameters = newHashMap();
 	protected Boolean wasConfigured = true;
 
