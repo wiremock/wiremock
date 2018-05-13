@@ -391,6 +391,12 @@ public class ResponseDefinition {
         return result;
     }
 
+    @JsonIgnore
+    public boolean hasTransformerInstances() {
+        return !this.transformerInstances.isEmpty();
+    }
+
+
     public boolean hasTransformer(AbstractTransformer transformer) {
         return (transformers != null && transformers.contains(transformer.getName()))
                 || transformerInstances.contains(transformer);
