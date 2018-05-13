@@ -27,9 +27,9 @@ import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -370,18 +370,19 @@ public class ResponseDefinition {
         return transformerInstances;
     }
 
-    @JsonIgnore
-    public List<ResponseTransformer> getResponseTransformers() {
-        return FluentIterable.from(transformerInstances)
-                .filter(ResponseTransformer.class)
-                .toList();
+    public Iterable<ResponseTransformer> selectApplicableResponseTransformers(Iterable<ResponseTransformer> globallyConfigured) {
+        return selectApplicableTransformers(globallyConfigured, ResponseTransformer.class);
     }
 
-    @JsonIgnore
-    public List<ResponseDefinitionTransformer> getResponseDefinitionTransformers() {
-        return FluentIterable.from(transformerInstances)
-                .filter(ResponseDefinitionTransformer.class)
-                .toList();
+    public Iterable<ResponseDefinitionTransformer> selectApplicableResponseDefinitionTransformers(Iterable<ResponseDefinitionTransformer> globallyConfigured) {
+        return selectApplicableTransformers(globallyConfigured, ResponseDefinitionTransformer.class);
+    }
+
+    private <T extends AbstractTransformer> Iterable<T> selectApplicableTransformers(Iterable<T> globallyConfigured, Class<T> transformerClass) {
+        return FluentIterable.from(globallyConfigured)
+                .filter(TRANSFORMER_APPLICABLE)
+                .append(FluentIterable.from(transformerInstances)
+                        .filter(transformerClass));
     }
 
     @JsonIgnore
@@ -389,12 +390,7 @@ public class ResponseDefinition {
         return !this.transformerInstances.isEmpty();
     }
 
-
-    public boolean hasTransformer(AbstractTransformer transformer) {
-        return (transformers != null && transformers.contains(transformer.getName()))
-                || transformerInstances.contains(transformer);
-    }
-
+    //TODO: consider equals, hashCode, toString()
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -426,4 +422,11 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
+
+    private Predicate<AbstractTransformer> TRANSFORMER_APPLICABLE = new Predicate<AbstractTransformer>() {
+        @Override
+        public boolean apply(AbstractTransformer input) {
+            return input.applyGlobally() || (transformers != null && transformers.contains(input.getName()));
+        }
+    };
 }
