@@ -1,5 +1,7 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
@@ -60,7 +62,7 @@ public class HandlebarsCurrentDateHelperTest {
 
     @Test
     public void rendersPassedDateTimeWithDayOffset() throws Exception {
-        String format = "yyyy-mm-dd";
+        String format = "yyyy-MM-dd";
         SimpleDateFormat df = new SimpleDateFormat(format);
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
             "format", format,
@@ -93,6 +95,33 @@ public class HandlebarsCurrentDateHelperTest {
         Object output = render(date, optionsHash);
 
         assertThat(output.toString(), is(String.valueOf(date.getTime())));
+    }
+
+    @Test
+    public void adjustsISO8601ToSpecfiedTimezone() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+            "offset", "3 days",
+            "timezone", "Australia/Sydney"
+        );
+
+        Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+        Object output = render(inputDate, optionsHash);
+
+        assertThat(output.toString(), is("2014-10-12T17:06:01+11:00"));
+    }
+
+    @Test
+    public void adjustsCustomFormatToSpecfiedTimezone() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+            "offset", "3 days",
+            "timezone", "Australia/Sydney",
+            "format", "yyyy-MM-dd HH:mm:ssZ"
+        );
+
+        Date inputDate = new ISO8601DateFormat().parse("2014-10-09T06:06:01Z");
+        Object output = render(inputDate, optionsHash);
+
+        assertThat(output.toString(), is("2014-10-12 17:06:01+1100"));
     }
 
     @Test
