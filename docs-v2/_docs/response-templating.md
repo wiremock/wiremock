@@ -90,13 +90,23 @@ The model of the request is supplied to the header and body templates. The follo
  
 `request.url` - URL path and query
 
-`request.path` - URL path
+`request.requestLine.path` - URL path
 
-`request.path.[<n>]`- URL path segment (zero indexed) e.g. `request.path.[2]`
+`request.requestLine.path.[<n>]`- URL path segment (zero indexed) e.g. `request.path.[2]`
 
-`request.query.<key>`- First value of a query parameter e.g. `request.query.search`
+`request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
-`request.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
+`request.requestLine.query.<key>.[<n>]`- nth value of a query parameter (zero indexed) e.g. `request.query.search.[5]`
+
+`request.requestLine.method`- request method e.g. `POST`
+
+`request.requestLine.host`- hostname part of the URL e.g. `my.example.com`
+
+`request.requestLine.port`- port number e.g. `8080`
+
+`request.requestLine.scheme`- protocol part of the URL e.g. `https`
+
+`request.requestLine.baseUrl`- URL up to the start of the path e.g. `https://my.example.com:8080`
  
 `request.headers.<key>`- First value of a request header e.g. `request.headers.X-Request-Id`
  
@@ -223,11 +233,19 @@ A helper is present to render the current date/time, with the ability to specify
  
 {% raw %}
 ```
-{{now}}
-{{now offset='3 days'}}
-{{now offset='-24 seconds'}}
-{{now offset='1 years'}}
-{{now offset='10 years' format='yyyy-MM-dd'}}
+{{date}}
+{{date offset='3 days'}}
+{{date offset='-24 seconds'}}
+{{date offset='1 years'}}
+{{date offset='10 years' format='yyyy-MM-dd'}}
+```
+{% endraw %}
+
+Dates can be rendered in a specific timezone (the default is UTC):
+
+{% raw %}
+```
+{{date timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
 ```
 {% endraw %}
 
@@ -236,6 +254,15 @@ Pass `epoch` as the format to render the date as unix epoch time.
 {% raw %}
 ```
 {{now offset='2 years' format='epoch'}}
+```
+{% endraw %}
+
+
+Dates can be parsed from other model elements:
+
+{% raw %}
+```
+{{date (parseDate request.headers.MyDate) offset='-1 days'}}
 ```
 {% endraw %}
 
