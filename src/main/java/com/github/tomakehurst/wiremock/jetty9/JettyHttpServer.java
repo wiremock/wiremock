@@ -35,12 +35,12 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.servlets.gzip.GzipHandler;
 
 import javax.servlet.DispatcherType;
 import java.net.Socket;
@@ -107,11 +107,31 @@ public class JettyHttpServer implements HttpServer {
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
 
-        GzipHandler gzipWrapper = new GzipHandler();
-        gzipWrapper.setHandler(mockServiceContext);
-        handlers.addHandler(gzipWrapper);
+        addGZipHandler(mockServiceContext, handlers);
 
         return handlers;
+    }
+
+    private void addGZipHandler(ServletContextHandler mockServiceContext, HandlerCollection handlers) {
+        Class<?> gzipHandlerClass = null;
+
+        try {
+            gzipHandlerClass = Class.forName("org.eclipse.jetty.servlets.gzip.GzipHandler");
+        } catch (ClassNotFoundException e) {
+            try {
+                gzipHandlerClass = Class.forName("org.eclipse.jetty.server.handler.gzip.GzipHandler");
+            } catch (ClassNotFoundException e1) {
+                throwUnchecked(e1);
+            }
+        }
+
+        try {
+            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            gzipWrapper.setHandler(mockServiceContext);
+            handlers.addHandler(gzipWrapper);
+        } catch (Exception e) {
+            throwUnchecked(e);
+        }
     }
 
     protected void finalizeSetup(Options options) {
