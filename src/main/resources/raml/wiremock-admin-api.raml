@@ -16,6 +16,7 @@ schemas:
   - stubMappings: !include schemas/stub-mappings.schema.json
   - loggedRequest: !include schemas/logged-request.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
+  - contentPattern: !include schemas/content-pattern.schema.json
   - snapshot: !include schemas/snapshot.schema.json
   - startRecording: !include schemas/start-recording.schema.json
   - scenarios: !include schemas/scenarios.schema.json
@@ -132,6 +133,31 @@ schemas:
         200:
           description: Successfully removed
 
+  /find-by-metadata:
+    post:
+      description: Find stubs by matching on their metadata
+      body:
+        application/json:
+          example: !include examples/by-metadata-request.example.json
+          schema: contentPattern
+
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include examples/stub-mappings.example.json
+
+  /remove-by-metadata:
+      post:
+        description: Remove stubs by matching on their metadata
+        body:
+          application/json:
+            example: !include examples/by-metadata-request.example.json
+            schema: contentPattern
+
+        responses:
+          200:
+            description: The stub mappings were successfully removed 
 
 /requests:
   description: Logged requests and responses received by the mock service
