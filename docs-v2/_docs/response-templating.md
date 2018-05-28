@@ -233,11 +233,11 @@ A helper is present to render the current date/time, with the ability to specify
  
 {% raw %}
 ```
-{{date}}
-{{date offset='3 days'}}
-{{date offset='-24 seconds'}}
-{{date offset='1 years'}}
-{{date offset='10 years' format='yyyy-MM-dd'}}
+{{now}}
+{{now offset='3 days'}}
+{{now offset='-24 seconds'}}
+{{now offset='1 years'}}
+{{now offset='10 years' format='yyyy-MM-dd'}}
 ```
 {% endraw %}
 
@@ -245,7 +245,7 @@ Dates can be rendered in a specific timezone (the default is UTC):
 
 {% raw %}
 ```
-{{date timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
+{{now timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
 ```
 {% endraw %}
 

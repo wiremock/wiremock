@@ -125,7 +125,22 @@ public class HandlebarsCurrentDateHelperTest {
     }
 
     @Test
-    public void helperIsIncludedInTemplateTransformer() {
+    public void helperIsIncludedInTemplateTransformerWithNowTagName() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest().url("/random-value"),
+            aResponse()
+                .withBody(
+                    "{{now offset='6 days'}}"
+                ).build(),
+            noFileSource(),
+            Parameters.empty());
+
+        String body = responseDefinition.getBody().trim();
+        assertThat(body, WireMatchers.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z$"));
+    }
+
+    @Test
+    public void helperIsIncludedInTemplateTransformerWithDateTagName() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
             mockRequest().url("/random-value"),
             aResponse()
@@ -140,7 +155,7 @@ public class HandlebarsCurrentDateHelperTest {
     }
 
     @Test
-    public void acceptsDateParameter() {
+    public void acceptsDateParameterwithDateTagName() {
         final ResponseDefinition responseDefinition = this.transformer.transform(
             mockRequest().url("/parsed-date"),
             aResponse()
