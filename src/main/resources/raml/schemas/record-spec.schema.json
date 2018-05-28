@@ -1,6 +1,31 @@
 {
     "type": "object",
     "properties": {
+        "targetBaseUrl": {
+            "type": "string",
+            "description": "The base URL of the target API to be recorded."
+        },
+        "filters": {
+            "type": "object",
+            "properties": {
+                "filters": {
+                    "$ref": "request-pattern.schema.json",
+                    "description": "If set, only record requests matching this pattern"
+                },
+                "ids": {
+                    "type": "array",
+                    "description": "The UUIDs of the exact requests to be recorded (only of practical use when snapshot recording).",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "allowNonProxied": {
+                    "type": "boolean",
+                    "description": "If true, also record requests that were *not* proxied to another URL."
+                }
+            }
+        },
+
         "captureHeaders": {
             "description": "Headers from the request to include in the generated stub mappings, mapped to parameter objects. The only parameter available is \"caseInsensitive\", which defaults to false",
             "type": "object",
@@ -59,83 +84,7 @@
         },
         "requestBodyPattern": {
             "description": "Control the request body matcher used in generated stub mappings",
-            "type": "object",
-            "oneOf": [
-                {
-                    "description": "Automatically determine matcher based on content type (the default)",
-                    "properties": {
-                        "matcher": {
-                            "type": "string",
-                            "enum": [
-                                "auto"
-                            ]
-                        },
-                        "ignoreArrayOrder": {
-                            "description": "If equalToJson is used, ignore order of array elements",
-                            "type": "boolean",
-                            "default": true
-                        },
-                        "ignoreExtraElements": {
-                            "description": "If equalToJson is used, matcher ignores extra elements in objects",
-                            "type": "boolean",
-                            "default": true
-                        },
-                        "caseInsensitive": {
-                            "description": "If equalTo is used, match body use case-insensitive string comparison",
-                            "type": "boolean",
-                            "default": false
-                        }
-                    }
-                },
-                {
-                    "description": "Always match request bodies using equalTo",
-                    "properties": {
-                        "matcher": {
-                            "type": "string",
-                            "enum": [
-                                "equalTo"
-                            ]
-                        },
-                        "caseInsensitive": {
-                            "description": "Match body using case-insensitive string comparison",
-                            "type": "boolean",
-                            "default": false
-                        }
-                    }
-                },
-                {
-                    "description": "Always match request bodies using equalToJson",
-                    "properties": {
-                        "matcher": {
-                            "type": "string",
-                            "enum": [
-                                "equalToJson"
-                            ]
-                        },
-                        "ignoreArrayOrder": {
-                            "description": "Ignore order of array elements",
-                            "type": "boolean",
-                            "default": true
-                        },
-                        "ignoreExtraElements": {
-                            "description": "Ignore extra elements in objects",
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                },
-                {
-                    "description": "Always match request bodies using equalToXml",
-                    "properties": {
-                        "matcher": {
-                            "type": "string",
-                            "enum": [
-                                "equalToXml"
-                            ]
-                        }
-                    }
-                }
-            ]
+            "$ref": "content-pattern.schema.json"
         },
         "persist": {
             "description": "Whether to save stub mappings to the file system or just return them",
