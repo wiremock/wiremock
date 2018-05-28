@@ -67,6 +67,14 @@ public enum WireMockHelpers implements Helper<Object> {
             return this.helper.apply(dateContext, options);
         }
     },
+    now {
+        private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
+
+        @Override
+        public Object apply(final Object context, final Options options) throws IOException {
+            return this.helper.apply(null, options);
+        }
+    },
     parseDate {
         private ParseDateHelper helper = new ParseDateHelper();
 

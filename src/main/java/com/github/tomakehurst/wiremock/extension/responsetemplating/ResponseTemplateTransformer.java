@@ -69,7 +69,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         this.handlebars = handlebars;
 
         for (StringHelpers helper: StringHelpers.values()) {
-            this.handlebars.registerHelper(helper.name(), helper);
+            if (!helper.name().equals("now")) {
+                this.handlebars.registerHelper(helper.name(), helper);
+            }
         }
 
         for (NumberHelper helper: NumberHelper.values()) {
