@@ -30,6 +30,10 @@
             "description": "A map of the names of post serve action extensions to trigger and their parameters.",
             "type": "object"
         },
+        "metadata": {
+            "type": "object",
+            "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
+        },
 
         "request": {
             "$ref": "request-pattern.schema.json"
