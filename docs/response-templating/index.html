@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-04-16T19:02:21+01:00">
+  <meta property="article:published_time" content="2018-05-28T20:26:19+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -331,6 +331,12 @@
       </a>
       
       <li>
+        <a href="/docs/stub-metadata/">
+
+        Stub Metadata
+      </a>
+      
+      <li>
         <a href="/docs/api/">
 
         Admin API Reference
@@ -344,7 +350,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="April 16, 2018">
+    <meta itemprop="datePublished" content="May 28, 2018">
     
 
     <div class="page__inner-wrap">
@@ -428,13 +434,23 @@ to being served.</p>
 
 <p><code class="highlighter-rouge">request.url</code> - URL path and query</p>
 
-<p><code class="highlighter-rouge">request.path</code> - URL path</p>
+<p><code class="highlighter-rouge">request.requestLine.path</code> - URL path</p>
 
-<p><code class="highlighter-rouge">request.path.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.path.[2]</code></p>
+<p><code class="highlighter-rouge">request.requestLine.path.[&lt;n&gt;]</code>- URL path segment (zero indexed) e.g. <code class="highlighter-rouge">request.path.[2]</code></p>
 
-<p><code class="highlighter-rouge">request.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
+<p><code class="highlighter-rouge">request.requestLine.query.&lt;key&gt;</code>- First value of a query parameter e.g. <code class="highlighter-rouge">request.query.search</code></p>
 
-<p><code class="highlighter-rouge">request.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
+<p><code class="highlighter-rouge">request.requestLine.query.&lt;key&gt;.[&lt;n&gt;]</code>- nth value of a query parameter (zero indexed) e.g. <code class="highlighter-rouge">request.query.search.[5]</code></p>
+
+<p><code class="highlighter-rouge">request.requestLine.method</code>- request method e.g. <code class="highlighter-rouge">POST</code></p>
+
+<p><code class="highlighter-rouge">request.requestLine.host</code>- hostname part of the URL e.g. <code class="highlighter-rouge">my.example.com</code></p>
+
+<p><code class="highlighter-rouge">request.requestLine.port</code>- port number e.g. <code class="highlighter-rouge">8080</code></p>
+
+<p><code class="highlighter-rouge">request.requestLine.scheme</code>- protocol part of the URL e.g. <code class="highlighter-rouge">https</code></p>
+
+<p><code class="highlighter-rouge">request.requestLine.baseUrl</code>- URL up to the start of the path e.g. <code class="highlighter-rouge">https://my.example.com:8080</code></p>
 
 <p><code class="highlighter-rouge">request.headers.&lt;key&gt;</code>- First value of a request header e.g. <code class="highlighter-rouge">request.headers.X-Request-Id</code></p>
 
@@ -544,6 +560,24 @@ are available e.g.</p>
 </span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='-24</span><span class="w"> </span><span class="err">seconds'</span><span class="p">}</span><span class="err">}</span><span class="w">
 </span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='1</span><span class="w"> </span><span class="err">years'</span><span class="p">}</span><span class="err">}</span><span class="w">
 </span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='10</span><span class="w"> </span><span class="err">years'</span><span class="w"> </span><span class="err">format='yyyy-MM-dd'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Dates can be rendered in a specific timezone (the default is UTC):</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">timezone='Australia/Sydney'</span><span class="w"> </span><span class="err">format='yyyy-MM-dd</span><span class="w"> </span><span class="err">HH:mm:ssZ'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Pass <code class="highlighter-rouge">epoch</code> as the format to render the date as unix epoch time.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='2</span><span class="w"> </span><span class="err">years'</span><span class="w"> </span><span class="err">format='epoch'</span><span class="p">}</span><span class="err">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Dates can be parsed from other model elements:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{date</span><span class="w"> </span><span class="err">(parseDate</span><span class="w"> </span><span class="err">request.headers.MyDate)</span><span class="w"> </span><span class="err">offset='-1</span><span class="w"> </span><span class="err">days'</span><span class="p">}</span><span class="err">}</span><span class="w">
 </span></code></pre>
 </div>
 

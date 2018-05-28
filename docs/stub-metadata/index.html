@@ -19,7 +19,7 @@
 
 
 
-<title>Home - WireMock User Documentation - WireMock</title>
+<title>Stub Metadata - WireMock</title>
 
 
 
@@ -27,16 +27,16 @@
 
 
 
-<meta name="description" content="WireMock’s user documentation.">
+<meta name="description" content="Associating and using metadata with stubs">
 
 <meta property="og:locale" content="en-US">
 <meta property="og:site_name" content="WireMock">
-<meta property="og:title" content="Home - WireMock User Documentation">
+<meta property="og:title" content="Stub Metadata">
 
 
 
 
-  <meta property="og:description" content="WireMock’s user documentation.">
+  <meta property="og:description" content="Associating and using metadata with stubs">
 
 
 
@@ -53,10 +53,10 @@
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="2018-05-28T20:26:19+01:00">
   
-    <link rel="next" href="/docs/java-usage/" title="Java (Non-JUnit) Usage">
+    <link rel="next" href="/docs/stubbing/" title="Stubbing">
   
   
-    <link rel="prev" href="/docs/https/" title="HTTPS">
+    <link rel="prev" href="/docs/stateful-behaviour/" title="Stateful Behaviour">
   
 
 
@@ -330,7 +330,8 @@
       </a>
       
       <li>
-        <a href="/docs/stub-metadata/">
+        <a href="/docs/stub-metadata/" class="nav__list-item--selected">
+        
 
         Stub Metadata
       </a>
@@ -347,31 +348,106 @@
 
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Home - WireMock User Documentation">
-    <meta itemprop="description" content="WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) andthat captures incoming requests so that they can be checked later (verification).">
+    <meta itemprop="headline" content="Stub Metadata">
+    <meta itemprop="description" content="It is possible to attach arbitrary metadata to stub mappings, which can be later used to search or deletion, or simply retrieval.Adding metadata to stubs">
     <meta itemprop="datePublished" content="May 28, 2018">
     
 
     <div class="page__inner-wrap">
       <header>
-        <h1 class="page__title" itemprop="headline">Home - WireMock User Documentation
+        <h1 class="page__title" itemprop="headline">Stub Metadata
 </h1>
       </header>
 
       <section class="page__content" itemprop="text">
-        <p>WireMock is an HTTP mock server. At its core it is web server that can be primed to serve canned responses to particular requests (stubbing) and
-that captures incoming requests so that they can be checked later (verification).</p>
+        <p>It is possible to attach arbitrary metadata to stub mappings, which can be later used to search or deletion, or simply retrieval.</p>
 
-<p>It also has an assortment of other useful features including record/playback of interactions with other APIs, injection of faults and delays,
-simulation of stateful behaviour.</p>
+<h2 id="adding-metadata-to-stubs">Adding metadata to stubs</h2>
 
-<p>It can be used as a library by any JVM application, or run as a standalone process either on the same host as the system under test or a remote server.</p>
+<p>Data under the <code class="highlighter-rouge">metadata</code> key is a JSON object (represented in Java by a <code class="highlighter-rouge">Map&lt;String, ?&gt;</code>). It can be added to a stub mapping on creation.</p>
 
-<p>All of WireMock’s features are accessible via its REST (JSON) interface and its Java API. Additionally, stubs can be configured via JSON files.</p>
+<p>Java:</p>
 
-<p>If you have any questions that aren’t answered here please post them on the <a href="https://groups.google.com/forum/#!forum/wiremock-user">mailing list</a>.</p>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/with-metadata"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">withMetadata</span><span class="o">(</span><span class="n">metadata</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"singleItem"</span><span class="o">,</span> <span class="mi">1234</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="s">"listItem"</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"nestedObject"</span><span class="o">,</span> <span class="n">metadata</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"innerItem"</span><span class="o">,</span> <span class="s">"Hello"</span><span class="o">)</span>
+        <span class="o">)</span>
+<span class="o">));</span>
+</code></pre>
+</div>
 
-<p>Ready to try it? Head to the <a href="/docs/getting-started/">Getting Started</a> page.</p>
+<p>JSON:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/with-metadata"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    
+    </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"singleItem"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"listItem"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">],</span><span class="w">
+        </span><span class="nt">"nestedObject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"innerItem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="search-for-stubs-by-metadata">Search for stubs by metadata</h2>
+
+<p>Stubs can be found by matching against their metadata using the same matching strategies as when <a href="/docs/request-matching/">matching HTTP requests</a>.
+ The most useful matcher for this is <code class="highlighter-rouge">matchesJsonPath</code>:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">stubs</span> <span class="o">=</span>
+    <span class="n">findStubsByMetadata</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.singleItem"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"123"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/mappings/find-by-metadata</span><span class="w">
+
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"expression"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.singleItem"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"contains"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="delete-stubs-by-metadata">Delete stubs by metadata</h2>
+
+<p>Similarly, stubs with matching metadata can be removed:</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">removeStubsByMetadata</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.singleItem"</span><span class="o">,</span> <span class="n">containing</span><span class="o">(</span><span class="s">"123"</span><span class="o">)));</span>
+</code></pre>
+</div>
+
+<p>API:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/mappings/remove-by-metadata</span><span class="w">
+
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"matchesJsonPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"expression"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"$.singleItem"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"contains"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
 
         
       </section>
