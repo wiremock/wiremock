@@ -25,6 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.closeTo;
@@ -42,6 +44,10 @@ public class EqualToXmlPatternTest {
     public void init() {
         context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
+
+        // We assert English XML parser error messages in this test. So we set our default locale to English to make
+        // this test succeed even for users with non-English default locales.
+        Locale.setDefault(Locale.ENGLISH);
     }
 
     @After
