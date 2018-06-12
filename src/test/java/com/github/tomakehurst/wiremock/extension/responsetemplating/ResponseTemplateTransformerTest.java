@@ -20,6 +20,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -170,6 +171,18 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getBody(), is(
             "URL: /the/entire/path?query1=one&query2=two"
         ));
+    }
+
+    @Test
+    public void templatizeBodyFile() {
+        ResponseDefinition transformedResponseDef = transformFromResponseFile(mockRequest()
+                .url("/the/entire/path?name=Ram"),
+            aResponse().withBodyFile(
+                "/greet-{{request.query.name}}.txt"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("Hello Ram"));
     }
 
     @Test
@@ -505,6 +518,15 @@ public class ResponseTemplateTransformerTest {
             request,
             responseDefinitionBuilder.build(),
             noFileSource(),
+            Parameters.empty()
+        );
+    }
+
+    private ResponseDefinition transformFromResponseFile(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
+        return transformer.transform(
+            request,
+            responseDefinitionBuilder.build(),
+            new ClasspathFileSource(this.getClass().getClassLoader().getResource("templates").getPath()),
             Parameters.empty()
         );
     }

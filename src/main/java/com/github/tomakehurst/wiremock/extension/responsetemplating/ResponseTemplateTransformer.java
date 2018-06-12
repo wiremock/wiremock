@@ -111,7 +111,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
-            TextFile file = files.getTextFileNamed(responseDefinition.getBodyFileName());
+            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+            String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
+            TextFile file = files.getTextFileNamed(compiledFilePath);
             Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }
