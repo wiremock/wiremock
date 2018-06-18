@@ -6,6 +6,15 @@
   width: 30%;
 }
 
-#wmContent {
+#wmContainer {
   width: 70%;
+}
+
+#wmContainer, #wmControlContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+#wmCaseSensitiveSearchText {
+  user-select: none;
 }

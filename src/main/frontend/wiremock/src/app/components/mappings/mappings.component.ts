@@ -1,26 +1,50 @@
 import {Component, OnInit} from '@angular/core';
-import {ListItem} from '../../model/list-item';
+import {Item} from '../../model/wiremock/item';
+import {WiremockService} from '../../services/wiremock.service';
+import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-result';
 
 @Component({
-  selector: 'app-mappings',
+  selector: 'wm-mappings',
   templateUrl: './mappings.component.html',
   styleUrls: ['./mappings.component.scss']
 })
 export class MappingsComponent implements OnInit {
 
-  items: ListItem[];
-  activeItem: ListItem;
+  result: ListStubMappingsResult;
+  activeItem: Item;
 
-  constructor() {
-    this.items = [];
-    this.items.push(new ListItem('/test/url', 'POST 200', false));
-    this.items.push(new ListItem('/test/url2', 'POST 400', false));
-    this.items.push(new ListItem('/test/url3', 'GET 500', true));
+  editMode: State;
 
-    this.activeItem = this.items[1];
+  State = State;
+
+
+  constructor(private wiremockService: WiremockService) {
   }
 
   ngOnInit() {
+    this.editMode = State.NORMAL;
+    this.loadMappings();
   }
 
+  private loadMappings() {
+    this.wiremockService.getMappings().subscribe(data => {
+        this.result = new ListStubMappingsResult().deserialize(data);
+        if (this.result != null && this.result.mappings != null && this.result.mappings.length > 0) {
+          this.activeItem = this.result.mappings[0];
+        }
+      },
+      err => {
+        // UtilService.showErrorMessage(this.messageService, err);
+      });
+  }
+
+  newMapping() {
+
+  }
+}
+
+export enum State {
+  NORMAL,
+  EDIT,
+  NEW,
 }

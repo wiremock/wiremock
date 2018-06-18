@@ -1,21 +1,47 @@
 <div id="wmWrapper">
   <div id="wmListView">
-    <app-list-view [items]="items" [activeItem]="activeItem"></app-list-view>
+    <wm-list-view [items]="filteredItems" [activeItem]="activeItem" (activeItemChange)="onActiveItemChange($event)"></wm-list-view>
   </div>
 
-  <div id="wmContent">
-    <ngb-tabset class="wmTabs">
-      <ngb-tab title="Raw">
-        <ng-template ngbTabContent>
-          {{activeItem}}
-        </ng-template>
-      </ngb-tab>
-      <ngb-tab title="Separated">
-        <ng-template ngbTabContent>
-          buhu
-        </ng-template>
-      </ngb-tab>
-    </ngb-tabset>
+  <div id="wmContainer">
+
+    <div id="wmControlContainer">
+      <nav class="navbar navbar-light bg-light">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <fa-icon class="input-group-text" icon="search" ngbTooltip="Search in TODO..."></fa-icon>
+          </div>
+          <!--<div class="wmFormGroup">-->
+          <div class="wmFormGroupMid">
+            <input #wmSearchInput type="text" class="form-control" [formControl]="search" placeholder="Enter expression or text here.">
+            <fa-icon id="wmSearchClear" icon="times" class="form-control-clear form-control-feedback"
+                     [class.hidden]="!searchClearVisible" (click)="clearSearch()"></fa-icon>
+          </div>
+          <!--</div>-->
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <div class="custom-control custom-checkbox" ngbTooltip="case sensitive">
+                <input #wmCaseSensitiveSearch type="checkbox" class="custom-control-input" id="wmCaseSensitiveSearch"
+                       [checked]="caseSensitiveSearchEnabled"
+                       (change)="onCaseSensitiveChanged()">
+                <label class="custom-control-label" for="wmCaseSensitiveSearch" id="wmCaseSensitiveSearchText">{{caseSensitiveSearchEnabled
+                  ? 'Ab' : 'ab'}}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <nav class="navbar navbar-light bg-light">
+        <ng-content select="wm-layout-action-buttons"></ng-content>
+      </nav>
+    </div>
+
+    <div id="wmContent">
+      <ng-content select="wm-layout-content"></ng-content>
+    </div>
   </div>
+
 </div>
 

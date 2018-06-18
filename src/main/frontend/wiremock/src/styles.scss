@@ -1,12 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
-$primary: #FF9800 !default;
+//$primary: #FF9800 !default;
+$primary: #f58e00 !default;
+$secondary: #ced4da !default;
+//$secondary: #e9ecef !default;
 $component-active-color: white !default;
 
 @import "~bootstrap/scss/bootstrap.scss";
+@import "~highlightjs/styles/railscasts.css";
+
 //@import "assets/themes/business-casual/scss/business-casual";
 //@import "assets/themes/paper-dashboard/sass/paper-dashboard";
 
 .wmTabs > .nav {
   margin: 0;
   padding: .5rem 1.25rem 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.wmFormGroupLeft, .wmFormGroupMid, .wmFormGroupRight {
+  position: relative;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  width: 1%;
+  margin-bottom: 0;
+
+  > .form-control {
+    padding-right: 15px;
+  }
+}
+
+.wmFormGroupRight, .wmFormGroupMid {
+  > .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.wmFormGroupLeft, .wmFormGroupMid {
+  > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+#wmSearchClear {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  right: 5px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ccc;
+  z-index: 10;
 }

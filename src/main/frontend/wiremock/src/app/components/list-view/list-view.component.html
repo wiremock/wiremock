@@ -1,6 +1,6 @@
 <ul class="list-group">
-  <li class="list-group-item wmListItem" *ngFor="let item of items" [class.active]="item === activeItem" (click)="activeItem = item">
-    <div class="wmListItemTitle">{{item.title}}</div>
-    <div class="wmListItemSubtitle">{{item.subtitle}}</div>
+  <li class="list-group-item wmListItem" *ngFor="let item of items" [class.active]="item === activeItem" (click)="selectActiveItem(item)">
+    <div class="wmListItemTitle">{{item.getTitle()}}</div>
+    <div class="wmListItemSubtitle">{{item.getSubtitle()}}</div>
   </li>
 </ul>

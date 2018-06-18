@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-unmatched',
+  selector: 'wm-unmatched',
   templateUrl: './unmatched.component.html',
   styleUrls: ['./unmatched.component.scss']
 })
 export class UnmatchedComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit() {
   }

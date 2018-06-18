@@ -1,2 +1,70 @@
-<app-layout [items]="items" [activeItem]="activeItem"></app-layout>
+<wm-layout [items]="result?.mappings" [activeItem]="activeItem">
+  <wm-layout-action-buttons>
+    <div class="btn-group" role="group" aria-label="Basic example">
+      <ng-container *ngIf="editMode === State.EDIT">
+        <button type="button" class="btn btn-secondary">
+          <fa-icon icon="save"></fa-icon>
+          Save
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="editMode = State.NORMAL">
+          <fa-icon icon="times"></fa-icon>
+          Cancel
+        </button>
+      </ng-container>
+      <ng-container *ngIf="editMode === State.NORMAL">
+        <button type="button" class="btn btn-secondary" (click)="newMapping()">
+          <fa-icon icon="plus"></fa-icon>
+          New
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="editMode = State.EDIT">
+          <fa-icon icon="pencil-alt"></fa-icon>
+          Edit
+        </button>
+        <button type="button" class="btn btn-secondary">
+          <fa-icon icon="trash"></fa-icon>
+          Remove
+        </button>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmMappingsDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Mappings
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <a class="dropdown-item" href="#">Dropdown link</a>
+            <a class="dropdown-item" href="#">Dropdown link</a>
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmScenarioDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Scenarios
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <a class="dropdown-item" href="#">Dropdown link</a>
+            <a class="dropdown-item" href="#">Dropdown link</a>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </wm-layout-action-buttons>
+
+  <wm-layout-content>
+    <ngb-tabset class="wmTabs">
+      <ngb-tab title="Raw">
+        <ng-template ngbTabContent>
+          <ng-container *ngIf="editMode === State.EDIT">
+            <input type="text">
+          </ng-container>
+          <ng-container *ngIf="editMode === State.NORMAL">
+            <wm-code-entry [code]="activeItem?.getCode()"></wm-code-entry>
+          </ng-container>
+        </ng-template>
+      </ngb-tab>
+      <ngb-tab title="Separated">
+        <ng-template ngbTabContent>
+          buhu
+        </ng-template>
+      </ngb-tab>
+    </ngb-tabset>
+  </wm-layout-content>
+
+</wm-layout>
 

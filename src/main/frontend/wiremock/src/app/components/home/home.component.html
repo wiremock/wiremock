@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light">
-  <a class="navbar-brand" href="#">Wiremock</a>
+  <a class="navbar-brand" href="#"><img id="wmLogo" [src]="'assets/img/wiremock-concept-icon-01.png'">Wiremock</a>
   <button class="navbar-toggler" type="button" (click)="isCollapsed = !isCollapsed" aria-controls="navbarSupportedContent"
           [attr.aria-expanded]="!isCollapsed" aria-label="Toggle navigation">
     <fa-icon icon="bars"></fa-icon>
@@ -11,11 +11,11 @@
       <li class="nav-item" routerLinkActive="active">
         <a class="nav-link" routerLink="/mappings">Mappings</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/matched" routerLinkActive="active">Matched</a>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/matched">Matched</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/unmatched" routerLinkActive="active">Unmatched</a>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/unmatched">Unmatched</a>
       </li>
     </ul>
   </div>

@@ -2764,6 +2764,10 @@ he@1.1.x:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/he/-/he-1.1.1.tgz#93410fd21b009735151f8868c2f271f3427e23fd"
 
+highlightjs@^9.10.0:
+  version "9.10.0"
+  resolved "https://registry.yarnpkg.com/highlightjs/-/highlightjs-9.10.0.tgz#fca9b78ddaa3b1abca89d6c3ee105ad270a80190"
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -6241,6 +6245,10 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+vkbeautify@^0.99.3:
+  version "0.99.3"
+  resolved "https://registry.yarnpkg.com/vkbeautify/-/vkbeautify-0.99.3.tgz#4769b3238c5d772c6ea967545dd1df5582f23297"
 
 vm-browserify@0.0.4:
   version "0.0.4"
