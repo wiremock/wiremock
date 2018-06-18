@@ -14,6 +14,7 @@ buildscript {
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'com.moowork.node' version '1.2.0'
 }
 
 apply plugin: 'java'
@@ -34,9 +35,9 @@ version = '2.10.0'
 def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
-    jackson: '2.8.9',
-    jetty  : '9.2.22.v20170606',
-    xmlUnit: '2.3.0'
+        jackson: '2.8.9',
+        jetty  : '9.2.22.v20170606',
+        xmlUnit: '2.3.0'
 ]
 
 repositories {
@@ -48,10 +49,11 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-rewrite:$versions.jetty"
     compile "com.google.guava:guava:20.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+            "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     compile "org.apache.httpcomponents:httpclient:4.5.3"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
@@ -93,6 +95,17 @@ dependencies {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+node {
+    version = '8.11.3'
+    yarnVersion = '1.7.0'
+    download = true
+    workDir = file('build/node')
+    //    nodeModulesDir = file('${project.projectDir}/src/main/frontend/wiremock')
+    //    nodeModulesDir = file('.')
+    //    npmWorkDir = file('docs-v2')
+    //    yarnWorkDir = file('src/main/frontend/wiremock')
 }
 
 test {
@@ -193,7 +206,9 @@ artifacts {
 }
 
 signing {
-    required { !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish")) }
+    required {
+        !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+    }
     sign configurations.archives
 }
 
@@ -347,15 +362,70 @@ task signAll {
     dependsOn signJars, signThinJar, signShadowJar, signThinJarPom, signStandaloneJarPom
 }
 
-task npmInstall(type: Exec) {
-    workingDir 'docs-v2'
-    commandLine 'npm', 'i'
+task generateFrontend(type: GradleBuild) {
+    tasks = ['frontendNpmInstall', 'frontendBuild']
 }
 
-task generateApiDocs(type: Exec) {
-    dependsOn npmInstall
-    workingDir 'docs-v2'
-    commandLine 'npm', 'run', 'apidocs'
+task frontendNpmInstall(type: YarnTask) {
+    workingDir = file('src/main/frontend/wiremock')
+    args = ['install']
+}
+
+task frontendBuild(type: YarnTask) {
+    workingDir = file('src/main/frontend/wiremock')
+    args = ['run', 'buildOld']
+}
+
+jar.dependsOn generateFrontend
+
+task generateApiDocs(type: GradleBuild) {
+    tasks = ['docsNpmInstall', 'apiDocsClean', 'apiDocsPrepare', 'apiDocsCleanSchemas', 'apiDocsExecuteSchemasScript', 'apiDocsExecuteRamlScript', 'apiDocsExecuteApiSpecConverterScript']
+}
+
+task docsNpmInstall(type: NpmTask) {
+    workingDir = file('docs-v2')
+    args = ['install']
+}
+
+task apiDocsClean(type: Delete) {
+    delete 'docs-v2/tmp/raml'
+}
+
+task apiDocsPrepare(type: Copy) {
+    from 'src/main/resources/raml'
+    into {
+        'docs-v2/tmp/raml'
+    }
+}
+
+task apiDocsCleanSchemas(type: Delete) {
+    def dirName = 'docs-v2/tmp/raml/schemas'
+    delete dirName
+
+    doLast {
+        file(dirName).mkdirs()
+    }
+}
+
+task apiDocsExecuteSchemasScript(type: NodeTask) {
+    workingDir = file('docs-v2')
+    script = file('docs-v2/bin/bundle-schemas')
+    args = ['-i', '../src/main/resources/raml/schemas', '-o', 'tmp/raml/schemas']
+}
+
+task apiDocsExecuteRamlScript(type: NodeTask) {
+    workingDir = file('docs-v2')
+    script = file('docs-v2/node_modules/raml2html/bin/raml2html')
+    args = ['-t', 'lib/raml2html-template.nunjucks', '-i', 'tmp/raml/wiremock-admin-api.raml', '-o', '_docs/wiremock-admin-api.html']
+}
+
+task apiDocsExecuteApiSpecConverterScript(type: NpmTask) {
+    workingDir = file('docs-v2')
+    args = ['run', 'apidocs']
+
+    doFirst {
+        file('src/main/resources/swagger').mkdirs()
+    }
 }
 jar.dependsOn generateApiDocs
 processResources.dependsOn generateApiDocs
@@ -389,9 +459,9 @@ task 'set-release-dir' << {
 
 task 'bump-patch-version' << {
     def filesWithVersion = [
-        'build.gradle'                                   : { "version = '${it}" },
-        'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
-        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
+            'build.gradle'                                   : { "version = '${it}" },
+            'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+            'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
     ]
 
     def currentVersion = project.version
@@ -400,8 +470,8 @@ task 'bump-patch-version' << {
     filesWithVersion.each { fileName, lineWithVersionTemplates ->
         def file = new File(fileName)
         def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-            lineWithVersionTemplates :
-            [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
         lineWithVersionTemplateList.each { lineWithVersionTemplate ->
             def oldLine = lineWithVersionTemplate.call(currentVersion)
@@ -414,9 +484,9 @@ task 'bump-patch-version' << {
 
 task 'bump-minor-version' << {
     def filesWithVersion = [
-        'build.gradle'                                   : { "version = '${it}" },
-        'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
-        'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
+            'build.gradle'                                   : { "version = '${it}" },
+            'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+            'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
     ]
 
     def currentVersion = project.version
@@ -425,8 +495,8 @@ task 'bump-minor-version' << {
     filesWithVersion.each { fileName, lineWithVersionTemplates ->
         def file = new File(fileName)
         def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-            lineWithVersionTemplates :
-            [lineWithVersionTemplates]
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
         lineWithVersionTemplateList.each { lineWithVersionTemplate ->
             def oldLine = lineWithVersionTemplate.call(currentVersion)

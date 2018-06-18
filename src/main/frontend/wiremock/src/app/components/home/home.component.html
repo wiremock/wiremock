@@ -1,0 +1,24 @@
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <a class="navbar-brand" href="#">Wiremock</a>
+  <button class="navbar-toggler" type="button" (click)="isCollapsed = !isCollapsed" aria-controls="navbarSupportedContent"
+          [attr.aria-expanded]="!isCollapsed" aria-label="Toggle navigation">
+    <fa-icon icon="bars"></fa-icon>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent" [ngbCollapse]="isCollapsed">
+    <ul class="navbar-nav mr-auto">
+      <!--<li class="nav-item active">-->
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" routerLink="/mappings">Mappings</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/matched" routerLinkActive="active">Matched</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/unmatched" routerLinkActive="active">Unmatched</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>

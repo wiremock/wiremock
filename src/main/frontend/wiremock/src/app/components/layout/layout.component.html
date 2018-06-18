@@ -1,0 +1,21 @@
+<div id="wmWrapper">
+  <div id="wmListView">
+    <app-list-view [items]="items" [activeItem]="activeItem"></app-list-view>
+  </div>
+
+  <div id="wmContent">
+    <ngb-tabset class="wmTabs">
+      <ngb-tab title="Raw">
+        <ng-template ngbTabContent>
+          {{activeItem}}
+        </ng-template>
+      </ngb-tab>
+      <ngb-tab title="Separated">
+        <ng-template ngbTabContent>
+          buhu
+        </ng-template>
+      </ngb-tab>
+    </ngb-tabset>
+  </div>
+</div>
+

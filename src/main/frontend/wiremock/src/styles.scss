@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+$primary: #FF9800 !default;
+$component-active-color: white !default;
+
+@import "~bootstrap/scss/bootstrap.scss";
+//@import "assets/themes/business-casual/scss/business-casual";
+//@import "assets/themes/paper-dashboard/sass/paper-dashboard";
+
+.wmTabs > .nav {
+  margin: 0;
+  padding: .5rem 1.25rem 0;
+}

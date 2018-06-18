@@ -1,0 +1,14 @@
+
+.wmListItem {
+  border-radius: 0;
+  border-left: 0;
+}
+
+.wmListItem:not(.active):hover {
+  background-color: rgba(255, 135, 0, 0.21);
+  cursor: pointer;
+}
+
+.wmListItemTitle {
+  font-weight: bold;
+}
