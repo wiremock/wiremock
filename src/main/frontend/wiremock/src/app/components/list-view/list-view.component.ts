@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, HostBinding, Input, OnInit, Output} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
 
 @Component({
@@ -7,6 +7,8 @@ import {Item} from '../../model/wiremock/item';
   styleUrls: ['./list-view.component.scss']
 })
 export class ListViewComponent implements OnInit {
+
+  @HostBinding('class') classes = 'wmHolyGrailScroll';
 
   @Input()
   items: Item[];

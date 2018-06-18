@@ -19,7 +19,17 @@ import {CodeEntryComponent} from './components/code-entry/code-entry.component';
 import {HighlightJsDirective} from './directives/highlight-js.directive';
 import {LayoutContentDirective} from './components/layout/layout-content.directive';
 import {LayoutActionButtonsDirective} from './components/layout/layout-action-buttons.directive';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {RawSeparatedComponent} from './components/raw-separated/raw-separated.component';
+import {RawDirective} from './components/raw-separated/raw.directive';
+import {SeparatedComponent} from './components/separated/separated.component';
+import {SeparatedDirective} from './components/raw-separated/separated.directive';
+import {KeysPipe} from './pipes/keys.pipe';
+import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
+import { IsObjectPipe } from './pipes/is-object.pipe';
+import { IsNoObjectPipe } from './pipes/is-no-object.pipe';
+import { PrettifyPipe } from './pipes/prettify.pipe';
+import { SplitCamelCasePipe } from './pipes/split-camel-case.pipe';
 
 // add icons. Only remove if not used anymore otherwise app will crash!
 library.add(faBars);
@@ -43,7 +53,17 @@ library.add(faTimes);
     CodeEntryComponent,
     HighlightJsDirective,
     LayoutContentDirective,
-    LayoutActionButtonsDirective
+    LayoutActionButtonsDirective,
+    RawSeparatedComponent,
+    RawDirective,
+    SeparatedDirective,
+    SeparatedComponent,
+    KeysPipe,
+    CapitalizeFirstPipe,
+    IsObjectPipe,
+    IsNoObjectPipe,
+    PrettifyPipe,
+    SplitCamelCasePipe
   ],
   imports: [
     BrowserModule,
@@ -51,7 +71,8 @@ library.add(faTimes);
     NgbModule.forRoot(),
     FontAwesomeModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [WiremockService],
   bootstrap: [AppComponent]

@@ -59,3 +59,48 @@ $component-active-color: white !default;
   color: #ccc;
   z-index: 10;
 }
+
+.wmTextArea {
+  width: 100%;
+  height: auto;
+  padding: 0.5em;
+  font-size: 14px;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  border: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  resize: none;
+}
+
+/* TEST */
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.wmHolyGrailBody, .wmTabs > .tab-content, .wmTabs > .tab-content > .tab-pane {
+  display: flex;
+  flex: 1;
+  &.column {
+    flex-direction: column;
+  }
+}
+
+.wmHolyGrailScroll {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  position: relative;
+  > * {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.card-body {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+

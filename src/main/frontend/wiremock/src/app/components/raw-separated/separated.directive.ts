@@ -1,9 +1,9 @@
 import {Directive, HostBinding} from '@angular/core';
 
 @Directive({
-  selector: 'wm-layout-content'
+  selector: 'wm-raw-separated-separated'
 })
-export class LayoutContentDirective {
+export class SeparatedDirective {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 

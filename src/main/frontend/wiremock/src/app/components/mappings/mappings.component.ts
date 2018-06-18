@@ -1,7 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostBinding, OnInit} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
 import {WiremockService} from '../../services/wiremock.service';
 import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-result';
+import {UtilService} from '../../services/util.service';
 
 @Component({
   selector: 'wm-mappings',
@@ -10,11 +11,14 @@ import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-re
 })
 export class MappingsComponent implements OnInit {
 
+  @HostBinding('class') classes = 'wmHolyGrailBody';
+
   result: ListStubMappingsResult;
   activeItem: Item;
 
-  editMode: State;
+  editMappingText: string;
 
+  editMode: State;
   State = State;
 
 
@@ -40,6 +44,16 @@ export class MappingsComponent implements OnInit {
 
   newMapping() {
 
+  }
+
+  enableEditMode() {
+    this.editMappingText = UtilService.prettify(this.activeItem.getCode());
+    this.editMode = State.EDIT;
+  }
+
+  onActiveItemChange(item: Item) {
+    this.activeItem = item;
+    this.editMode = State.NORMAL;
   }
 }
 

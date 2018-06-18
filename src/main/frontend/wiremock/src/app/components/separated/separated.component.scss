@@ -1,0 +1,20 @@
+.wmSeparatedWrapper {
+  padding: 0.25em;
+}
+
+.card-body {
+  padding: 0;
+}
+
+.table tr > td:not(:first-child) {
+  padding: 0;
+  background-color: #232323;
+}
+
+.table tr > td:first-child {
+  word-break: break-word;
+}
+
+.wmTableColumn {
+  width: 150px;
+}

@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, HostBinding, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
 import {UtilService} from '../../services/util.service';
 import {SearchEvent} from '../../model/wiremock/search-event';
@@ -12,6 +12,8 @@ import {debounceTime} from 'rxjs/operators';
 })
 export class LayoutComponent implements OnInit, OnChanges {
 
+  @HostBinding('class') classes = 'wmHolyGrailBody';
+
   @Input()
   items: Item[];
 
@@ -19,6 +21,9 @@ export class LayoutComponent implements OnInit, OnChanges {
 
   @Input()
   activeItem: Item;
+
+  @Output()
+  activeItemChange: EventEmitter<Item> = new EventEmitter();
 
   search = new FormControl();
 
@@ -61,6 +66,7 @@ export class LayoutComponent implements OnInit, OnChanges {
 
   onActiveItemChange(item: Item) {
     this.activeItem = item;
+    this.activeItemChange.emit(this.activeItem);
   }
 
   onCaseSensitiveChanged() {
