@@ -41,6 +41,7 @@ public interface Stubbing {
     void verify(int count, RequestPatternBuilder requestPatternBuilder);
     List<LoggedRequest> findAll(RequestPatternBuilder requestPatternBuilder);
     List<ServeEvent> getAllServeEvents();
+    List<ServeEvent> getAllServeEvents(UUID stubMappingUUID);
 
     void setGlobalFixedDelay(int milliseconds);
 

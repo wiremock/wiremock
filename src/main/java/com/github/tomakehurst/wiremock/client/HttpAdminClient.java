@@ -207,6 +207,14 @@ public class HttpAdminClient implements Admin {
                 GetServeEventsResult.class
         );
     }
+    
+    @Override
+    public GetServeEventsResult getServeEvents(UUID stubMappingUUID) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(FindRequestsByStubMappingUUIDTask.class),
+            GetServeEventsResult.class
+        );
+    }
 
     @Override
     public SingleServedStubResult getServedStub(UUID id) {

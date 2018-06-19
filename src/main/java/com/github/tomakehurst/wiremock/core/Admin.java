@@ -46,6 +46,7 @@ public interface Admin {
     void resetToDefaultMappings();
 
     GetServeEventsResult getServeEvents();
+    GetServeEventsResult getServeEvents(UUID stubMappingUUID);
     SingleServedStubResult getServedStub(UUID id);
     VerificationResult countRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
