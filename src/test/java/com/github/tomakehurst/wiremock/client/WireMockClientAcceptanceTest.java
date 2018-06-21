@@ -81,13 +81,13 @@ public class WireMockClientAcceptanceTest {
 		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
 	}
 	
-	@Test
-	public void notHealthy() {
-	    assertFalse(WireMock.create().port(9999).build().isHealthy());
-	}
-	
-	@Test
+  @Test
+  public void notHealthy() {
+      assertFalse(WireMock.create().port(9999).build().isHealthy());
+  }
+
+  @Test
   public void healthy() {
-	    assertTrue(WireMock.isInstanceHealthy());
+      assertTrue(WireMock.isInstanceHealthy());
   }
 }
