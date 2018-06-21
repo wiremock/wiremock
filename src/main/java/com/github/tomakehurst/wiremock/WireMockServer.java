@@ -263,11 +263,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public List<ServeEvent> getAllServeEvents() {
         return client.getServeEvents();
     }
-    
-    @Override
-    public List<ServeEvent> getAllServeEvents(UUID stubMappingUUID) {
-        return client.getServeEvents(stubMappingUUID);
-    }
 
     @Override
     public void setGlobalFixedDelay(int milliseconds) {
@@ -337,11 +332,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public GetServeEventsResult getServeEvents() {
         return wireMockApp.getServeEvents();
-    }
-    
-    @Override
-    public GetServeEventsResult getServeEvents(UUID stubMappingUUID) {
-        return wireMockApp.getServeEvents(stubMappingUUID);
     }
 
     @Override

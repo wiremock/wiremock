@@ -79,7 +79,6 @@ public class AdminRoutes {
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
         router.add(GET,  "/requests", GetAllRequestsTask.class);
-        router.add(GET,  "/requests/find/{id}", FindRequestsByStubMappingUUIDTask.class);
         router.add(DELETE,  "/requests", ResetRequestsTask.class);
         router.add(POST, "/requests/reset", OldResetRequestsTask.class);  // Deprecated
         router.add(POST, "/requests/count", GetRequestCountTask.class);
