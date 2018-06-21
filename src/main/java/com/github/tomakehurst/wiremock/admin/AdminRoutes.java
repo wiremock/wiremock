@@ -103,6 +103,8 @@ public class AdminRoutes {
         router.add(GET, "/docs/raml", GetRamlSpecTask.class);
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
+        router.add(HEAD, "/health", HealthCheckTask.class);
+        router.add(GET, "/health", HealthCheckTask.class);
     }
 
     protected void initAdditionalRoutes(Router routeBuilder) {

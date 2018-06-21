@@ -448,4 +448,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public void shutdownServer() {
         shutdown();
     }
+
+    @Override
+    public boolean isHealthy() {
+      return wireMockApp.isHealthy();
+    }
 }

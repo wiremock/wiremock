@@ -24,7 +24,9 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 
 public class WireMockClientAcceptanceTest {
@@ -78,4 +80,14 @@ public class WireMockClientAcceptanceTest {
 
 		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
 	}
+	
+	@Test
+	public void notHealthy() {
+	    assertFalse(WireMock.create().port(9999).build().isHealthy());
+	}
+	
+	@Test
+  public void healthy() {
+	    assertTrue(WireMock.isInstanceHealthy());
+  }
 }

@@ -32,7 +32,6 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
-import com.github.tomakehurst.wiremock.security.NoClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
@@ -351,6 +350,16 @@ public class HttpAdminClient implements Admin {
     @Override
     public void shutdownServer() {
         postJsonAssertOkAndReturnBody(urlFor(ShutdownServerTask.class), null);
+    }
+    
+    @Override
+    public boolean isHealthy() {
+        try {
+            executeRequest(adminRoutes.requestSpecForTask(HealthCheckTask.class), Void.class);
+            return true;
+        }
+        catch (Exception e) {}
+          return false;
     }
 
     public int port() {

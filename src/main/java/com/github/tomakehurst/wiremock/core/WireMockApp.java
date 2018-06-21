@@ -407,4 +407,9 @@ public class WireMockApp implements StubServer, Admin {
     public RecordingStatusResult getRecordingStatus() {
         return new RecordingStatusResult(recorder.getStatus().name());
     }
+
+    @Override
+    public boolean isHealthy() {
+      return true;
+    }
 }

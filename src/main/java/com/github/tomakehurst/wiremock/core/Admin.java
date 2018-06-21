@@ -73,4 +73,6 @@ public interface Admin {
     Options getOptions();
 
     void shutdownServer();
+    
+    boolean isHealthy();
 }

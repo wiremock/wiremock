@@ -764,4 +764,12 @@ public class WireMock {
     public static RecordSpecBuilder recordSpec() {
         return new RecordSpecBuilder();
     }
+    
+    public boolean isHealthy() {
+        return admin.isHealthy();
+    }
+    
+    public static boolean isInstanceHealthy() {
+        return defaultInstance.get().isHealthy();
+    }
 }
