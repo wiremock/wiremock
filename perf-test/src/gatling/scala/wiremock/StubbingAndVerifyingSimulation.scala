@@ -7,12 +7,13 @@ import scala.concurrent.duration._
 
 class StubbingAndVerifyingSimulation extends Simulation {
 
-  val loadTestConfiguration = new LoadTestConfiguration()
+  val loadTestConfiguration = LoadTestConfiguration.fromEnvironment()
 
   val random = scala.util.Random
 
   before {
     loadTestConfiguration.before()
+    loadTestConfiguration.mixed100StubScenario()
   }
 
   after {
@@ -22,7 +23,7 @@ class StubbingAndVerifyingSimulation extends Simulation {
   val httpConf = http
     .baseURL(s"http://localhost:${loadTestConfiguration.getWireMockPort}/")
 
-  val scenario1 = {
+  val mixed100StubScenario = {
 
     scenario("Load Test 1")
           .repeat(5) {
@@ -65,7 +66,7 @@ class StubbingAndVerifyingSimulation extends Simulation {
   }
 
   setUp(
-    scenario1.inject(constantUsersPerSec(200) during(10 seconds))
+    mixed100StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
   ).protocols(httpConf)
 
 }
