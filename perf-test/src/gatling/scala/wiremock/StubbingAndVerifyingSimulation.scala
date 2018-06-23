@@ -21,7 +21,7 @@ class StubbingAndVerifyingSimulation extends Simulation {
   }
 
   val httpConf = http
-    .baseURL(s"http://localhost:${loadTestConfiguration.getWireMockPort}/")
+    .baseURL(loadTestConfiguration.getBaseUrl)
 
   val mixed100StubScenario = {
 
