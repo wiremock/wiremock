@@ -1,6 +1,16 @@
 <wm-layout [items]="result?.mappings" [activeItem]="activeItem" (activeItemChange)="onActiveItemChange($event)">
   <wm-layout-action-buttons>
     <div class="btn-group" role="group" aria-label="Basic example">
+      <ng-container *ngIf="editMode === State.NEW">
+        <button type="button" class="btn btn-secondary" (click)="saveNewMapping()">
+          <fa-icon icon="save"></fa-icon>
+          Save
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="editMode = State.NORMAL">
+          <fa-icon icon="times"></fa-icon>
+          Cancel
+        </button>
+      </ng-container>
       <ng-container *ngIf="editMode === State.EDIT">
         <button type="button" class="btn btn-secondary">
           <fa-icon icon="save"></fa-icon>
@@ -16,11 +26,11 @@
           <fa-icon icon="plus"></fa-icon>
           New
         </button>
-        <button type="button" class="btn btn-secondary" (click)="enableEditMode()">
+        <button type="button" class="btn btn-secondary" (click)="editMapping()" [disabled]="!activeItem">
           <fa-icon icon="pencil-alt"></fa-icon>
           Edit
         </button>
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" (click)="removeMapping()" [disabled]="!activeItem">
           <fa-icon icon="trash"></fa-icon>
           Remove
         </button>
@@ -29,8 +39,19 @@
             Mappings
           </button>
           <div ngbDropdownMenu class="dropdown-menu">
-            <a class="dropdown-item" href="#">Dropdown link</a>
-            <a class="dropdown-item" href="#">Dropdown link</a>
+            <button type="button" class="dropdown-item" (click)="saveMappings()">
+              <fa-icon icon="save"></fa-icon>
+              Save Mappings
+            </button>
+            <button type="button" class="dropdown-item" (click)="resetMappings()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Reset Mappings
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" (click)="removeAllMappings()">
+              <fa-icon icon="trash"></fa-icon>
+              Remove all Mappings
+            </button>
           </div>
         </div>
         <div ngbDropdown class="btn-group" role="group">
@@ -47,13 +68,16 @@
   </wm-layout-action-buttons>
 
   <wm-layout-content>
-    <wm-raw-separated>
+    <wm-raw-separated [separatedDisabled]="!activeItem">
       <wm-raw-separated-raw>
-        <ng-container *ngIf="editMode === State.EDIT">
-          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.EDIT" [(ngModel)]="editMappingText"></textarea>
-        </ng-container>
         <ng-container *ngIf="editMode === State.NORMAL">
           <wm-code-entry [code]="activeItem?.getCode()" [language]="'json'"></wm-code-entry>
+        </ng-container>
+        <ng-container *ngIf="editMode === State.NEW">
+          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.NEW" [(ngModel)]="newMappingText"></textarea>
+        </ng-container>
+        <ng-container *ngIf="editMode === State.EDIT">
+          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.EDIT" [(ngModel)]="editMappingText"></textarea>
         </ng-container>
       </wm-raw-separated-raw>
       <wm-raw-separated-separated>

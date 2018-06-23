@@ -15,6 +15,23 @@ export class StubMapping implements Item {
   requiredScenarioState: string;
   newScenarioState: string;
 
+  static createEmpty(): StubMapping {
+    const mapping: StubMapping = new StubMapping();
+
+    mapping.request = new RequestPattern();
+    mapping.request.method = 'POST';
+    mapping.request.url = '';
+
+    mapping.response = new ResponseDefinition();
+    mapping.response.status = 200;
+    mapping.response.body = '';
+    mapping.response.headers = {
+      'Content-Type': 'text/plain'
+    };
+
+    return mapping;
+  }
+
   deserialize(unchecked: StubMapping): StubMapping {
     this.uuid = unchecked.uuid;
     this.name = unchecked.name;

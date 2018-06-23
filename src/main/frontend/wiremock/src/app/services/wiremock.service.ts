@@ -3,10 +3,12 @@ import {environment} from '../../environments/environment';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {RecordSpec} from '../model/wiremock/record-spec';
 import {Observable} from 'rxjs/internal/Observable';
-import {catchError, retry} from 'rxjs/operators';
+import {catchError, map, retry} from 'rxjs/operators';
 import {throwError} from 'rxjs/internal/observable/throwError';
 import {ResponseDefinition} from '../model/wiremock/response-definition';
 import {ListStubMappingsResult} from '../model/wiremock/list-stub-mappings-result';
+import {UtilService} from './util.service';
+import {StubMapping} from '../model/wiremock/stub-mapping';
 
 @Injectable()
 export class WiremockService {
@@ -19,7 +21,7 @@ export class WiremockService {
     if (body === null || typeof body === 'undefined') {
       return null;
     }
-    return typeof body === 'string' ? body : JSON.stringify(body);
+    return typeof body === 'string' ? body : UtilService.toJson(body);
   }
 
   constructor(private http: HttpClient) {
@@ -50,9 +52,9 @@ export class WiremockService {
       WiremockService.mapBody(mapping)));
   }
 
-  saveNewMapping(mapping: string): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('mappings'),
-      WiremockService.mapBody(mapping)));
+  saveNewMapping(mapping: string): Observable<StubMapping> {
+    return this.defaultPipe(this.http.post<StubMapping>(WiremockService.getUrl('mappings'),
+      WiremockService.mapBody(mapping))).pipe(map(newMapping => new StubMapping().deserialize(newMapping)));
   }
 
   deleteMapping(id: string): Observable<ResponseDefinition> {

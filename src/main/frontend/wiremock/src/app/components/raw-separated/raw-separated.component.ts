@@ -1,4 +1,4 @@
-import {Component, HostBinding, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, HostBinding, Input, OnInit, ViewEncapsulation} from '@angular/core';
 
 @Component({
   selector: 'wm-raw-separated',
@@ -9,6 +9,12 @@ import {Component, HostBinding, OnInit, ViewEncapsulation} from '@angular/core';
 export class RawSeparatedComponent implements OnInit {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
+
+  @Input()
+  separatedDisabled = false;
+
+  @Input()
+  rawDisabled = false;
 
   constructor() {
   }

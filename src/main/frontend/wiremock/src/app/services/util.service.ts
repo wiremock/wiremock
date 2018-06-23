@@ -277,6 +277,21 @@ export class UtilService {
 
   constructor() {
   }
+
+  static getActiveItem(items: Item[], activeItemId: string): Item {
+    if (this.isDefined(items) || items.length > 0) {
+      if (this.isDefined(activeItemId)) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].getId() === activeItemId) {
+            return items[i];
+          }
+        }
+      }
+      return items[0];
+    } else {
+      return null;
+    }
+  }
 }
 
 /* tslint:disable */

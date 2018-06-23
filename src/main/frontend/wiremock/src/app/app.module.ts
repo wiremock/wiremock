@@ -8,7 +8,7 @@ import {HomeComponent} from './components/home/home.component';
 import {MappingsComponent} from './components/mappings/mappings.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faBars, faPencilAlt, faPlus, faSave, faSearch, faTimes, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faBars, faPencilAlt, faPlus, faSave, faSearch, faSyncAlt, faTimes, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
 import {UnmatchedComponent} from './components/unmatched/unmatched.component';
@@ -25,11 +25,11 @@ import {RawDirective} from './components/raw-separated/raw.directive';
 import {SeparatedComponent} from './components/separated/separated.component';
 import {SeparatedDirective} from './components/raw-separated/separated.directive';
 import {KeysPipe} from './pipes/keys.pipe';
-import { CapitalizeFirstPipe } from './pipes/capitalize-first.pipe';
-import { IsObjectPipe } from './pipes/is-object.pipe';
-import { IsNoObjectPipe } from './pipes/is-no-object.pipe';
-import { PrettifyPipe } from './pipes/prettify.pipe';
-import { SplitCamelCasePipe } from './pipes/split-camel-case.pipe';
+import {CapitalizeFirstPipe} from './pipes/capitalize-first.pipe';
+import {IsObjectPipe} from './pipes/is-object.pipe';
+import {IsNoObjectPipe} from './pipes/is-no-object.pipe';
+import {PrettifyPipe} from './pipes/prettify.pipe';
+import {SplitCamelCasePipe} from './pipes/split-camel-case.pipe';
 
 // add icons. Only remove if not used anymore otherwise app will crash!
 library.add(faBars);
@@ -39,6 +39,7 @@ library.add(faPencilAlt);
 library.add(faTrash);
 library.add(faSave);
 library.add(faTimes);
+library.add(faSyncAlt);
 
 
 @NgModule({

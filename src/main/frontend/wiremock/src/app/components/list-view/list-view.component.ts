@@ -21,7 +21,7 @@ export class ListViewComponent implements OnInit, OnChanges {
 
   pageSize = 20;
 
-  page: number;
+  page = 1;
 
   @Output()
   activeItemChange: EventEmitter<Item> = new EventEmitter();
@@ -32,7 +32,6 @@ export class ListViewComponent implements OnInit, OnChanges {
 
 
   ngOnInit() {
-    this.page = 1;
   }
 
   selectActiveItem(item: Item) {
@@ -45,11 +44,30 @@ export class ListViewComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
 
+    let changed = false;
+
     if (UtilService.isDefined(changes.items) && UtilService.isDefined(this.items)) {
-      const maxPages = this.items.length / this.pageSize;
-      if (maxPages < this.page) {
-        this.page = maxPages;
+      if (this.items.length > this.pageSize) {
+        const maxPages = Math.ceil(this.items.length / this.pageSize);
+        if (maxPages < this.page) {
+          this.page = maxPages;
+        }
+      } else {
+        this.page = 1;
       }
+      // this.setFilteredItems();
+      changed = true;
+    }
+    // http://localhost:4200/mappings?active=e7bc601e-a16b-431f-b69e-d405cbf0f353
+
+    if (UtilService.isDefined(changes.activeItem) && UtilService.isDefined(this.activeItem)) {
+      const index = this.items.indexOf(this.activeItem) + 1;
+      this.page = Math.ceil(index / this.pageSize);
+
+      changed = true;
+    }
+
+    if (changed) {
       this.setFilteredItems();
     }
   }
