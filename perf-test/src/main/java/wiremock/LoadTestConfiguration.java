@@ -43,6 +43,8 @@ public class LoadTestConfiguration {
     }
 
     public LoadTestConfiguration(String host, Integer port, int durationSeconds, int rate) {
+        System.out.println("Running test against host " + host + ", for " + durationSeconds + " seconds at rate " + rate);
+
         if (host == null || port == null) {
             wireMockServer = new WireMockServer(WireMockConfiguration.options()
                     .dynamicPort()
@@ -66,6 +68,7 @@ public class LoadTestConfiguration {
     }
 
     public void before() {
+        wm.resetToDefaultMappings();
     }
 
     public void mixed100StubScenario() {
@@ -133,8 +136,16 @@ public class LoadTestConfiguration {
         }
     }
 
-    public int getWireMockPort() {
+    public String getHost() {
+        return host != null ? host : "localhost";
+    }
+
+    public int getPort() {
         return port != null ? port : wireMockServer.port();
+    }
+
+    public String getBaseUrl() {
+        return String.format("http://%s:%d/", host, port);
     }
 
     public int getDurationSeconds() {
