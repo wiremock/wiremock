@@ -104,3 +104,46 @@ body {
   border-bottom-right-radius: 0.25rem;
 }
 
+/* pagination responsive */
+
+.pagination {
+  flex-wrap: wrap;
+  border-top: 1px solid $border-color;
+  margin: 0 0 -1px;
+}
+
+.pagination a {
+  border-top: 0 !important;
+  text-align: center !important;
+  border-radius: 0 !important;
+}
+
+.page-link {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media screen and (max-width: 600px) {
+  .pagination li {
+    min-width: 20%;
+  }
+}
+
+@media screen and (min-width: 601px) and (max-width: 1000px) {
+  .pagination li {
+    width: 20%;
+  }
+}
+
+@media screen and (min-width: 1001px) and (max-width: 1600px) {
+  .pagination li {
+    width: 10%;
+  }
+}
+
+@media screen and (min-width: 1601px) {
+  .pagination li {
+    width: 5%;
+  }
+}
+

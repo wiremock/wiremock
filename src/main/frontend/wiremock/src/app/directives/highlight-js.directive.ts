@@ -1,4 +1,4 @@
-import {AfterViewChecked, Directive, ElementRef, Input} from '@angular/core';
+import {AfterViewChecked, Directive, ElementRef, Input, NgZone} from '@angular/core';
 import {UtilService} from '../services/util.service';
 
 declare const hljs: any;
@@ -14,10 +14,19 @@ export class HighlightJsDirective implements AfterViewChecked {
   @Input()
   language: string;
 
-  constructor(private elementRef: ElementRef) {
+  constructor(private elementRef: ElementRef, private zone: NgZone) {
   }
 
   ngAfterViewChecked(): void {
+
+    this.zone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.updateText();
+      });
+    });
+  }
+
+  private updateText() {
     const code = this.elementRef.nativeElement;
     code.classList.add('hljs');
 

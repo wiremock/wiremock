@@ -53,7 +53,7 @@
           <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.EDIT" [(ngModel)]="editMappingText"></textarea>
         </ng-container>
         <ng-container *ngIf="editMode === State.NORMAL">
-          <wm-code-entry [code]="activeItem?.getCode()"></wm-code-entry>
+          <wm-code-entry [code]="activeItem?.getCode()" [language]="'json'"></wm-code-entry>
         </ng-container>
       </wm-raw-separated-raw>
       <wm-raw-separated-separated>
