@@ -3,7 +3,7 @@ import {environment} from '../../environments/environment';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {RecordSpec} from '../model/wiremock/record-spec';
 import {Observable} from 'rxjs/internal/Observable';
-import {catchError, map, retry} from 'rxjs/operators';
+import {catchError, debounceTime, map, retry} from 'rxjs/operators';
 import {throwError} from 'rxjs/internal/observable/throwError';
 import {ResponseDefinition} from '../model/wiremock/response-definition';
 import {ListStubMappingsResult} from '../model/wiremock/list-stub-mappings-result';
@@ -47,8 +47,8 @@ export class WiremockService {
     return this.defaultPipe(this.http.delete<ResponseDefinition>(WiremockService.getUrl('mappings')));
   }
 
-  saveMapping(id: string, mapping: string): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.put<ResponseDefinition>(WiremockService.getUrl('mappings/' + id),
+  saveMapping(id: string, mapping: string): Observable<StubMapping> {
+    return this.defaultPipe(this.http.put<StubMapping>(WiremockService.getUrl('mappings/' + id),
       WiremockService.mapBody(mapping)));
   }
 
@@ -115,6 +115,6 @@ export class WiremockService {
   }
 
   private defaultPipe<T>(observable: Observable<T>) {
-    return observable.pipe(retry(3), catchError(this.handleError));
+    return observable.pipe(retry(3), debounceTime(100), catchError(this.handleError));
   }
 }

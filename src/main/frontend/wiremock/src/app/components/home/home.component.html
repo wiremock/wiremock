@@ -10,12 +10,16 @@
       <!--<li class="nav-item active">-->
       <li class="nav-item" routerLinkActive="active">
         <a class="nav-link" routerLink="/mappings">Mappings</a>
+        <!--<a class="nav-link" *ngIf="!isActive('/mappings')" routerLink="/mappings">Mappings</a>-->
+        <!--<a class="nav-link active" *ngIf="isActive('/mappings')">Mappings</a>-->
       </li>
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/matched">Matched</a>
+        <a class="nav-link" *ngIf="!isActive('/matched')" routerLink="/matched">Matched</a>
+        <a class="nav-link active" *ngIf="isActive('/matched')">Matched</a>
       </li>
       <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" routerLink="/unmatched">Unmatched</a>
+        <a class="nav-link active" *ngIf="!isActive('/unmatched')" routerLink="/unmatched">Unmatched</a>
+        <a class="nav-link active" *ngIf="isActive('/unmatched')">Unmatched</a>
       </li>
     </ul>
   </div>

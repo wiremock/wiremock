@@ -50,6 +50,8 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
     compile "org.eclipse.jetty:jetty-rewrite:$versions.jetty"
+    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: "${versions.jetty}"
+    compile "javax.websocket:javax.websocket-api:1.1"
     compile "com.google.guava:guava:20.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",

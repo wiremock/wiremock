@@ -4,6 +4,9 @@
 
 export const environment = {
   production: false,
+  getWebSocket: function (): WebSocket {
+    return new WebSocket('ws://localhost:8080/__admin/events');
+  },
   url: 'http://localhost:8080/__admin/',
   resourcesUrl: '/'
 };

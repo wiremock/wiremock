@@ -5,13 +5,18 @@ import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-re
 import {UtilService} from '../../services/util.service';
 import {StubMapping} from '../../model/wiremock/stub-mapping';
 import {ActivatedRoute, Params, Router} from '@angular/router';
+import {WebSocketService} from '../../services/web-socket.service';
+import {WebSocketListener} from '../../interfaces/web-socket-listener';
+import {debounceTime} from 'rxjs/operators';
+import {isDefined} from '@ng-bootstrap/ng-bootstrap/util/util';
+import {MappingHelperService} from './mapping-helper.service';
 
 @Component({
   selector: 'wm-mappings',
   templateUrl: './mappings.component.html',
   styleUrls: ['./mappings.component.scss']
 })
-export class MappingsComponent implements OnInit {
+export class MappingsComponent implements OnInit, WebSocketListener {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
@@ -26,27 +31,42 @@ export class MappingsComponent implements OnInit {
   State = State;
 
 
-  constructor(private wiremockService: WiremockService, private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
+              private activatedRoute: ActivatedRoute, private router: Router) {
   }
 
   ngOnInit() {
+
+    this.webSocketService.observe('mappings').pipe(debounceTime(100)).subscribe(() => {
+      this.loadMappings();
+    });
+
     this.editMode = State.NORMAL;
 
     this.loadMappings();
 
     this.activatedRoute.queryParams.subscribe((params: Params) => {
       this.activeItemId = params['active'];
+      this.setActiveItemById(this.activeItemId);
     });
+  }
+
+  private setActiveItemById(itemId: string) {
+    if (isDefined(this.result)) {
+      this.setActiveItem(UtilService.getActiveItem(this.result.mappings, itemId));
+    } else {
+      this.setActiveItem(null);
+    }
   }
 
   private setActiveItem(item: Item) {
     this.activeItem = item;
     if (UtilService.isDefined(this.activeItem)) {
       this.activeItemId = this.activeItem.getId();
-      this.router.navigate(['mappings'], {queryParams: {active: this.activeItemId}});
+      this.router.navigate(['.'], {queryParams: {active: this.activeItemId}});
     } else {
       this.activeItemId = null;
-      this.router.navigate(['mappings']);
+      this.router.navigate(['.']);
     }
 
     this.editMode = State.NORMAL;
@@ -55,7 +75,7 @@ export class MappingsComponent implements OnInit {
   private loadMappings() {
     this.wiremockService.getMappings().subscribe(data => {
         this.result = new ListStubMappingsResult().deserialize(data);
-        this.setActiveItem(UtilService.getActiveItem(this.result.mappings, this.activeItemId));
+        this.setActiveItemById(this.activeItemId);
       },
       err => {
         // UtilService.showErrorMessage(this.messageService, err);
@@ -80,6 +100,16 @@ export class MappingsComponent implements OnInit {
   editMapping() {
     this.editMappingText = UtilService.prettify(this.activeItem.getCode());
     this.editMode = State.EDIT;
+  }
+
+  saveEditMapping() {
+    this.wiremockService.saveMapping(this.activeItem.getId(), this.editMappingText).subscribe(data => {
+      // console.log(data.getId());
+      // this.activeItemId = data.getId();
+    }, err => {
+      // UtilService.showErrorMessage(this.messageService, err);
+    });
+    this.editMode = State.NORMAL;
   }
 
   onActiveItemChange(item: Item) {
@@ -116,6 +146,84 @@ export class MappingsComponent implements OnInit {
     }, err => {
       // UtilService.showErrorMessage(this.messageService, err);
     });
+  }
+
+  resetAllScenarios() {
+    this.wiremockService.resetScenarios().subscribe(() => {
+      // do nothing
+    }, err => {
+      // UtilService.showErrorMessage(this.messageService, err);
+    });
+  }
+
+  onMessage(): void {
+    this.loadMappings();
+  }
+
+  // ##### HELPER #####
+  getMappingForHelper(): StubMapping {
+    try {
+      switch (this.editMode) {
+        case State.NEW:
+          return JSON.parse(this.newMappingText);
+        case State.EDIT:
+          return JSON.parse(this.editMappingText);
+      }
+    } catch (err) {
+      // TODO: feedback
+      // this.showHelperErrorMessage(err);
+    }
+  }
+
+  private setMappingForHelper(mapping: StubMapping): void {
+    if (UtilService.isUndefined(mapping)) {
+      return;
+    }
+    try {
+      switch (this.editMode) {
+        case State.NEW:
+          this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
+          break;
+        case State.EDIT:
+          this.editMappingText = UtilService.prettify(JSON.stringify(mapping));
+          break;
+      }
+    } catch (err) {
+      // TODO: feedback
+      // this.showHelperErrorMessage(err);
+    }
+  }
+
+  helpersAddDelay(): void {
+    this.setMappingForHelper(MappingHelperService.helperAddDelay(this.getMappingForHelper()));
+  }
+
+  helpersAddPriority(): void {
+    this.setMappingForHelper(MappingHelperService.helperAddPriority(this.getMappingForHelper()));
+  }
+
+  helpersAddHeaderRequest(): void {
+    this.setMappingForHelper(MappingHelperService.helperAddHeaderRequest(this.getMappingForHelper()));
+  }
+
+  helpersAddHeaderResponse(): void {
+    this.setMappingForHelper(MappingHelperService.helperAddHeaderResponse(this.getMappingForHelper()));
+  }
+
+  helpersAddScenario() {
+    this.setMappingForHelper(MappingHelperService.helperAddScenario(this.getMappingForHelper()));
+  }
+
+  helpersAddProxyUrl() {
+    this.setMappingForHelper(MappingHelperService.helperAddProxyBaseUrl(this.getMappingForHelper()));
+  }
+
+  helpersAddProxyHeader() {
+    this.setMappingForHelper(MappingHelperService.helperAddAdditionalProxyRequestHeaders(this.getMappingForHelper()));
+  }
+
+  helpersAddTransformer() {
+    this.setMappingForHelper(MappingHelperService.helperAddResponseTemplatingTransformer(this.getMappingForHelper()));
   }
 }
 

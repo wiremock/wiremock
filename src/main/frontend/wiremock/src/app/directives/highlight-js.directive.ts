@@ -31,6 +31,7 @@ export class HighlightJsDirective implements AfterViewChecked {
     code.classList.add('hljs');
 
     if (UtilService.isUndefined(this.wmHighlightJs) || this.wmHighlightJs.length === 0) {
+      code.innerHTML = '';
       return;
     }
 

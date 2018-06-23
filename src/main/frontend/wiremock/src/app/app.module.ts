@@ -30,6 +30,7 @@ import {IsObjectPipe} from './pipes/is-object.pipe';
 import {IsNoObjectPipe} from './pipes/is-no-object.pipe';
 import {PrettifyPipe} from './pipes/prettify.pipe';
 import {SplitCamelCasePipe} from './pipes/split-camel-case.pipe';
+import {WebSocketService} from './services/web-socket.service';
 
 // add icons. Only remove if not used anymore otherwise app will crash!
 library.add(faBars);
@@ -75,7 +76,7 @@ library.add(faSyncAlt);
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [WiremockService],
+  providers: [WiremockService, WebSocketService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

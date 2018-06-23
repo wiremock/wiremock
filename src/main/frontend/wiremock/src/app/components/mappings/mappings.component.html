@@ -6,21 +6,69 @@
           <fa-icon icon="save"></fa-icon>
           Save
         </button>
-        <button type="button" class="btn btn-secondary" (click)="editMode = State.NORMAL">
-          <fa-icon icon="times"></fa-icon>
-          Cancel
-        </button>
       </ng-container>
       <ng-container *ngIf="editMode === State.EDIT">
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" (click)="saveEditMapping()">
           <fa-icon icon="save"></fa-icon>
           Save
         </button>
+      </ng-container>
+      <ng-container *ngIf="editMode === State.EDIT || editMode === State.NEW">
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmHelperDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Helpers
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="helpersAddDelay()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Delay
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddPriority()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Priority
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddHeaderRequest()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Request Header
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddHeaderResponse()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Response Header
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddScenario()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Scenario
+            </button>
+
+            <div class="dropdown-divider"></div>
+
+            <button type="button" class="dropdown-item" (click)="helpersAddProxyUrl()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Proxy URL
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddProxyHeader()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Proxy Header
+            </button>
+
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" (click)="helpersAddTransformer()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Add Transformer
+            </button>
+
+
+          </div>
+        </div>
+
+
         <button type="button" class="btn btn-secondary" (click)="editMode = State.NORMAL">
           <fa-icon icon="times"></fa-icon>
           Cancel
         </button>
       </ng-container>
+
+
       <ng-container *ngIf="editMode === State.NORMAL">
         <button type="button" class="btn btn-secondary" (click)="newMapping()">
           <fa-icon icon="plus"></fa-icon>
@@ -59,8 +107,10 @@
             Scenarios
           </button>
           <div ngbDropdownMenu class="dropdown-menu">
-            <a class="dropdown-item" href="#">Dropdown link</a>
-            <a class="dropdown-item" href="#">Dropdown link</a>
+            <button type="button" class="dropdown-item" (click)="resetAllScenarios()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Reset all Scenarios
+            </button>
           </div>
         </div>
       </ng-container>
