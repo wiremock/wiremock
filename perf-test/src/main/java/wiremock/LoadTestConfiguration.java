@@ -11,7 +11,15 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAscii;
 
 public class LoadTestConfiguration {
@@ -69,6 +77,40 @@ public class LoadTestConfiguration {
 
     public void before() {
         wm.resetToDefaultMappings();
+    }
+
+    public void onlyGet6000StubScenario() {
+        System.out.println("Regsitering stubs");
+
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+
+        List<Future<?>> futures = new ArrayList<>();
+        for (int i = 1; i <= 6000; i++) {
+            final int count = i;
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    wm.register(get("/load-test/" + count)
+                            .willReturn(ok(randomAscii(2000, 5000))));
+
+                    if (count % 100 == 0) {
+                        System.out.print(count + " ");
+                    }
+
+                }
+            }));
+
+        }
+
+        for (Future<?> future: futures) {
+            try {
+                future.get(30, SECONDS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        executorService.shutdown();
     }
 
     public void mixed100StubScenario() {
