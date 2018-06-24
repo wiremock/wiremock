@@ -1,7 +1,7 @@
 <wm-layout [items]="requestResult?.requests">
   <ng-template #actions let-activeItem>
     <div class="btn-group" role="group">
-      <button type="button" class="btn btn-secondary" (click)="copyRequest(activeItem)">
+      <button type="button" class="btn btn-secondary" [disabled]="!activeItem" (click)="copyRequest(activeItem)">
         <fa-icon icon="copy"></fa-icon>
         Copy Request
       </button>
@@ -9,7 +9,7 @@
         <fa-icon icon="copy"></fa-icon>
         Copy SOAP
       </button>
-      <button type="button" class="btn btn-secondary" (click)="copyCurl(activeItem)">
+      <button type="button" class="btn btn-secondary" [disabled]="!activeItem" (click)="copyCurl(activeItem)">
         <fa-icon icon="copy"></fa-icon>
         Copy Curl
       </button>

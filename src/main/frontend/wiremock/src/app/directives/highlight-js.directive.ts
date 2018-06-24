@@ -1,4 +1,4 @@
-import {AfterViewChecked, Directive, ElementRef, Input, NgZone} from '@angular/core';
+import {Directive, ElementRef, Input, NgZone, OnChanges, SimpleChanges} from '@angular/core';
 import {UtilService} from '../services/util.service';
 
 declare const hljs: any;
@@ -6,7 +6,7 @@ declare const hljs: any;
 @Directive({
   selector: '[wmHighlightJs]'
 })
-export class HighlightJsDirective implements AfterViewChecked {
+export class HighlightJsDirective implements OnChanges {
 
   @Input()
   wmHighlightJs: string;
@@ -17,8 +17,7 @@ export class HighlightJsDirective implements AfterViewChecked {
   constructor(private elementRef: ElementRef, private zone: NgZone) {
   }
 
-  ngAfterViewChecked(): void {
-
+  ngOnChanges(changes: SimpleChanges): void {
     this.zone.runOutsideAngular(() => {
       setTimeout(() => {
         this.updateText();
@@ -50,5 +49,6 @@ export class HighlightJsDirective implements AfterViewChecked {
   private isLangAvailable() {
     return typeof this.language !== 'undefined' && this.language != null && this.language.length > 0;
   }
+
 
 }

@@ -18,6 +18,36 @@
         <a class="nav-link" routerLink="/unmatched">Unmatched</a>
       </li>
     </ul>
+    <div ngbDropdown placement="bottom-right" class="nav-item dropdown">
+      <a id="wmSettings" class="nav-link dropdown-toggle" ngbDropdownToggle>
+        <fa-icon icon="cog"></fa-icon>
+        Settings
+      </a>
+      <div ngbDropdownMenu class="dropdown-menu">
+        <button type="button" class="dropdown-item" (click)="resetAll()">
+          <fa-icon icon="trash"></fa-icon>
+          Reset all
+        </button>
+        <div class="dropdown-divider"></div>
+        <button type="button" class="dropdown-item" (click)="startRecording()">
+          <fa-icon icon="dot-circle"></fa-icon>
+          Start recording
+        </button>
+        <button type="button" class="dropdown-item" (click)="stopRecording()">
+          <fa-icon icon="stop"></fa-icon>
+          Stop recording
+        </button>
+        <button type="button" class="dropdown-item" (click)="snapshot()">
+          <fa-icon icon="camera"></fa-icon>
+          Snapshot
+        </button>
+        <div class="dropdown-divider"></div>
+        <button type="button" class="dropdown-item" (click)="shutdown()">
+          <fa-icon icon="power-off"></fa-icon>
+          Shutdown
+        </button>
+      </div>
+    </div>
   </div>
 </nav>
 <wm-message></wm-message>

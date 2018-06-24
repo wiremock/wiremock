@@ -237,6 +237,9 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void resetRequests() {
         this.requestJournal.reset();
+
+        WebSocketEndpoint.broadcast(Message.UNMATCHED);
+        WebSocketEndpoint.broadcast(Message.MATCHED);
     }
 
     @Override

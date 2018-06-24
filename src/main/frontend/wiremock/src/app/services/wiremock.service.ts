@@ -12,6 +12,7 @@ import {StubMapping} from '../model/wiremock/stub-mapping';
 import {timer} from 'rxjs/internal/observable/timer';
 import {FindRequestResult} from '../model/wiremock/find-request-result';
 import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
+import {SnapshotRecordResult} from '../model/wiremock/snapshot-record-result';
 
 @Injectable()
 export class WiremockService {
@@ -85,8 +86,8 @@ export class WiremockService {
       WiremockService.mapBody(recordSpec)));
   }
 
-  stopRecording(): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('recordings/stop'), null));
+  stopRecording(): Observable<SnapshotRecordResult> {
+    return this.defaultPipe(this.http.post<SnapshotRecordResult>(WiremockService.getUrl('recordings/stop'), null));
   }
 
   snapshot(): Observable<ResponseDefinition> {

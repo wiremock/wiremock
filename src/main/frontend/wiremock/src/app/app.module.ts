@@ -6,21 +6,26 @@ import {AppComponent} from './app.component';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {HomeComponent} from './components/home/home.component';
 import {MappingsComponent} from './components/mappings/mappings.component';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
   faAlignJustify,
   faAngleDoubleUp,
   faBars,
+  faCamera,
   faClock,
+  faCog,
   faCopy,
+  faDotCircle,
   faExchangeAlt,
   faFileAlt,
   faLink,
   faPencilAlt,
   faPlus,
+  faPowerOff,
   faSave,
   faSearch,
+  faStop,
   faSyncAlt,
   faTimes,
   faTrash
@@ -47,6 +52,9 @@ import {SplitCamelCasePipe} from './pipes/split-camel-case.pipe';
 import {WebSocketService} from './services/web-socket.service';
 import {MessageComponent} from './components/message/message.component';
 import {MessageService} from './components/message/message.service';
+import {DialogRecordingComponent} from './dialogs/dialog-recording/dialog-recording.component';
+import {SearchService} from './services/search.service';
+
 
 // add icons. Only remove if not used anymore otherwise app will crash!
 library.add(faBars);
@@ -64,6 +72,11 @@ library.add(faFileAlt);
 library.add(faLink);
 library.add(faExchangeAlt);
 library.add(faCopy);
+library.add(faCog);
+library.add(faPowerOff);
+library.add(faDotCircle);
+library.add(faStop);
+library.add(faCamera);
 
 @NgModule({
   declarations: [
@@ -86,7 +99,8 @@ library.add(faCopy);
     IsNoObjectPipe,
     PrettifyPipe,
     SplitCamelCasePipe,
-    MessageComponent
+    MessageComponent,
+    DialogRecordingComponent
   ],
   imports: [
     BrowserModule,
@@ -97,8 +111,9 @@ library.add(faCopy);
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [WiremockService, WebSocketService, MessageService],
-  bootstrap: [AppComponent]
+  providers: [WiremockService, WebSocketService, MessageService, SearchService, NgbModal],
+  bootstrap: [AppComponent],
+  entryComponents: [DialogRecordingComponent]
 })
 export class AppModule {
 }

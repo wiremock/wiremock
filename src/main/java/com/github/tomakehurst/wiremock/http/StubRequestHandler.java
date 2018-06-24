@@ -19,6 +19,8 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.jetty9.websockets.Message;
+import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
@@ -27,51 +29,57 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubRequestHandler extends AbstractRequestHandler {
-	
-	private final StubServer stubServer;
+
+    private final StubServer stubServer;
     private final Admin admin;
     private final Map<String, PostServeAction> postServeActions;
     private final RequestJournal requestJournal;
 
-	public StubRequestHandler(StubServer stubServer,
-                              ResponseRenderer responseRenderer,
-                              Admin admin,
-                              Map<String, PostServeAction> postServeActions,
-                              RequestJournal requestJournal) {
-		super(responseRenderer);
-		this.stubServer = stubServer;
+    public StubRequestHandler(final StubServer stubServer,
+                              final ResponseRenderer responseRenderer,
+                              final Admin admin,
+                              final Map<String, PostServeAction> postServeActions,
+                              final RequestJournal requestJournal) {
+        super(responseRenderer);
+        this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
         this.requestJournal = requestJournal;
     }
 
-	@Override
-	public ServeEvent handleRequest(Request request) {
-		return stubServer.serveStubFor(request);
-	}
-
-	@Override
-	protected boolean logRequests() {
-		return true;
-	}
-
     @Override
-    protected void beforeResponseSent(ServeEvent serveEvent, Response response) {
-        requestJournal.requestReceived(serveEvent);
+    public ServeEvent handleRequest(final Request request) {
+        return this.stubServer.serveStubFor(request);
     }
 
     @Override
-    protected void afterResponseSent(ServeEvent serveEvent, Response response) {
-        for (PostServeAction postServeAction: postServeActions.values()) {
-            postServeAction.doGlobalAction(serveEvent, admin);
+    protected boolean logRequests() {
+        return true;
+    }
+
+    @Override
+    protected void beforeResponseSent(final ServeEvent serveEvent, final Response response) {
+        this.requestJournal.requestReceived(serveEvent);
+
+        if (serveEvent.getWasMatched()) {
+            WebSocketEndpoint.broadcast(Message.MATCHED);
+        } else {
+            WebSocketEndpoint.broadcast(Message.UNMATCHED);
+        }
+    }
+
+    @Override
+    protected void afterResponseSent(final ServeEvent serveEvent, final Response response) {
+        for (final PostServeAction postServeAction : this.postServeActions.values()) {
+            postServeAction.doGlobalAction(serveEvent, this.admin);
         }
 
-        Map<String, Parameters> postServeActionRefs = serveEvent.getPostServeActions();
-        for (Map.Entry<String, Parameters> postServeActionEntry: postServeActionRefs.entrySet()) {
-            PostServeAction action = postServeActions.get(postServeActionEntry.getKey());
+        final Map<String, Parameters> postServeActionRefs = serveEvent.getPostServeActions();
+        for (final Map.Entry<String, Parameters> postServeActionEntry : postServeActionRefs.entrySet()) {
+            final PostServeAction action = this.postServeActions.get(postServeActionEntry.getKey());
             if (action != null) {
-                Parameters parameters = postServeActionEntry.getValue();
-                action.doAction(serveEvent, admin, parameters);
+                final Parameters parameters = postServeActionEntry.getValue();
+                action.doAction(serveEvent, this.admin, parameters);
             } else {
                 notifier().error("No extension was found named \"" + postServeActionEntry.getKey() + "\"");
             }

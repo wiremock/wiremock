@@ -6,6 +6,7 @@ import {
   HostBinding,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -15,17 +16,21 @@ import {Item} from '../../model/wiremock/item';
 import {UtilService} from '../../services/util.service';
 import {SearchEvent} from '../../model/wiremock/search-event';
 import {FormControl} from '@angular/forms';
-import {debounceTime} from 'rxjs/operators';
+import {debounceTime, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, Params, Router} from '@angular/router';
+import {SearchService} from '../../services/search.service';
+import {Subject} from 'rxjs/internal/Subject';
 
 @Component({
   selector: 'wm-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })
-export class LayoutComponent implements OnInit, OnChanges {
+export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
+
+  private ngUnsubscribe: Subject<any> = new Subject();
 
   @ContentChild('content') content: TemplateRef<ElementRef>;
   @ContentChild('actions') actions: TemplateRef<ElementRef>;
@@ -50,22 +55,28 @@ export class LayoutComponent implements OnInit, OnChanges {
 
   lastSearch: string;
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private searchService: SearchService,
+              private activatedRoute: ActivatedRoute, private router: Router) {
   }
 
   ngOnInit() {
-    this.search.valueChanges.pipe(debounceTime(100)).subscribe(next => {
+    this.search.valueChanges.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200)).subscribe(next => {
       this.lastSearch = next;
       this.onSearchChanged(new SearchEvent(next, this.caseSensitiveSearchEnabled));
     });
 
-    this.search.valueChanges.pipe().subscribe(next => {
+    this.search.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe(next => {
       this.searchClearVisible = Boolean(next);
     });
 
-    this.activatedRoute.queryParams.subscribe((params: Params) => {
+    this.activatedRoute.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe((params: Params) => {
       this.activeItemId = params['active'];
       this.setActiveItemById(this.activeItemId);
+    });
+
+    this.searchService.search$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(newSearch => {
+      this.lastSearch = newSearch;
+      this.search.setValue(newSearch);
     });
   }
 
@@ -81,12 +92,21 @@ export class LayoutComponent implements OnInit, OnChanges {
     this.activeItem = item;
     if (UtilService.isDefined(this.activeItem)) {
       this.activeItemId = this.activeItem.getId();
-      console.log(this.router.url.split('?')[0]);
-      this.router.navigate([this.router.url.split('?')[0]], {queryParams: {active: this.activeItemId}});
+      const currentUrl = this.router.url;
+      const newPath = this.router.url.split('?')[0];
+
+      if (currentUrl.indexOf(newPath) === -1 || (currentUrl.indexOf(newPath) > -1 && currentUrl.indexOf(this.activeItemId) === -1)) {
+        console.log(newPath + '?active=' + this.activeItemId);
+        this.router.navigate([this.router.url.split('?')[0]], {queryParams: {active: this.activeItemId}});
+      }
     } else {
       this.activeItemId = null;
-      console.log(this.router.url.split('?')[0]);
-      this.router.navigate([this.router.url.split('?')[0]]);
+      const currentUrl = this.router.url;
+      const newUrl = this.router.url.split('?')[0];
+      if (currentUrl !== newUrl) {
+        console.log(newUrl);
+        this.router.navigate([newUrl]);
+      }
     }
   }
 
@@ -138,5 +158,10 @@ export class LayoutComponent implements OnInit, OnChanges {
 
   clearSearch() {
     this.search.setValue('');
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }

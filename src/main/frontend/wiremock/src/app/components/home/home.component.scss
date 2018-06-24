@@ -1,4 +1,15 @@
+@import "../../../styles";
+
 #wmLogo {
   height: 20px;
   margin-right: 10px;
+}
+
+#wmSettings {
+  cursor: pointer;
+}
+
+nav {
+  padding: 0 1rem !important;
+  border-bottom: 1px solid $gray-300;
 }

@@ -1,23 +1,26 @@
-import {Component, HostBinding, OnInit} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {WiremockService} from '../../services/wiremock.service';
 import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-result';
 import {UtilService} from '../../services/util.service';
 import {StubMapping} from '../../model/wiremock/stub-mapping';
 import {WebSocketService} from '../../services/web-socket.service';
 import {WebSocketListener} from '../../interfaces/web-socket-listener';
-import {debounceTime} from 'rxjs/operators';
+import {debounceTime, takeUntil} from 'rxjs/operators';
 import {MappingHelperService} from './mapping-helper.service';
 import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../../model/wiremock/item';
+import {Subject} from 'rxjs/internal/Subject';
 
 @Component({
   selector: 'wm-mappings',
   templateUrl: './mappings.component.html',
   styleUrls: ['./mappings.component.scss']
 })
-export class MappingsComponent implements OnInit, WebSocketListener {
+export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
+
+  private ngUnsubscribe: Subject<any> = new Subject();
 
   result: ListStubMappingsResult;
 
@@ -36,7 +39,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
 
   ngOnInit() {
 
-    this.webSocketService.observe('mappings').pipe(debounceTime(100)).subscribe(() => {
+    this.webSocketService.observe('mappings').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100)).subscribe(() => {
       this.loadMappings();
     });
 
@@ -200,6 +203,11 @@ export class MappingsComponent implements OnInit, WebSocketListener {
 
   helpersAddTransformer() {
     this.setMappingForHelper(MappingHelperService.helperAddResponseTemplatingTransformer(this.getMappingForHelper()));
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }
 
