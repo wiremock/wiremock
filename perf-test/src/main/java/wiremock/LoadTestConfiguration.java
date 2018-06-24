@@ -84,6 +84,10 @@ public class LoadTestConfiguration {
 
         ExecutorService executorService = Executors.newFixedThreadPool(100);
 
+        wm.register(any(anyUrl()).atPriority(10)
+            .willReturn(notFound())
+        );
+
         List<Future<?>> futures = new ArrayList<>();
         for (int i = 1; i <= 6000; i++) {
             final int count = i;
