@@ -16,7 +16,7 @@ export class SeparatedComponent implements OnInit, OnChanges {
   @Input()
   specialTypes: SeparatedType[];
 
-  color: string[] = ['bg-warning', 'bg-info', 'bg-danger'];
+  color: string[] = ['bg-warning', 'bg-info', 'bg-danger', 'bg-primary', 'bg-secondary', 'bg-dark'];
   colorIndex = 0;
 
   constructor() {

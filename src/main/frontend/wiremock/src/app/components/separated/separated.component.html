@@ -1,9 +1,9 @@
 <div class="wmSeparatedWrapper" *ngIf="activeItem">
-  <div class="card bg-success mb-3">
+  <div class="card text-white bg-success mb-3">
     <div class="card-header">
       General
     </div>
-    <div class="card-body bg-light">
+    <div class="card-body bg-light text-dark">
       <table class="table table-sm mb-0">
         <tbody>
           <ng-container *ngFor="let property of activeItem | keys | isNoObject">
@@ -22,11 +22,11 @@
 
   <ng-container *ngFor="let property of activeItem | keys | isObject; let i = index">
 
-    <div *ngIf="isObject(property.value)" class="card {{color[i]}} mb-3">
+    <div *ngIf="isObject(property.value)" class="card {{color[i]}} text-white mb-3">
       <div class="card-header">
         {{property.key | capitalizeFirst}}
       </div>
-      <div class="card-body bg-light">
+      <div class="card-body bg-light text-dark">
         <table class="table table-sm mb-0">
           <tbody>
             <ng-container *ngFor="let subProperty of property.value | keys">

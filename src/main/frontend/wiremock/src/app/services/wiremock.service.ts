@@ -11,6 +11,7 @@ import {UtilService} from './util.service';
 import {StubMapping} from '../model/wiremock/stub-mapping';
 import {timer} from 'rxjs/internal/observable/timer';
 import {FindRequestResult} from '../model/wiremock/find-request-result';
+import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
 
 @Injectable()
 export class WiremockService {
@@ -71,8 +72,8 @@ export class WiremockService {
     return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('scenarios/reset'), null));
   }
 
-  getMatched(): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.get<ResponseDefinition>(WiremockService.getUrl('requests')));
+  getRequests(): Observable<GetServeEventsResult> {
+    return this.defaultPipe(this.http.get<GetServeEventsResult>(WiremockService.getUrl('requests')));
   }
 
   getUnmatched(): Observable<FindRequestResult> {

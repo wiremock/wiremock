@@ -4,6 +4,7 @@ import * as vkbeautify from 'vkbeautify';
 import {Item} from '../model/wiremock/item';
 import {Message, MessageService, MessageType} from '../components/message/message.service';
 import {LoggedRequest} from '../model/wiremock/logged-request';
+import {ServeEvent} from '../model/wiremock/serve-event';
 
 @Injectable()
 export class UtilService {
@@ -50,8 +51,9 @@ export class UtilService {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      document.body.removeChild(textArea);
     }
-    document.body.removeChild(textArea);
 
     return false;
   }
@@ -298,8 +300,12 @@ export class UtilService {
     }
   }
 
-  static copyCurl(request: LoggedRequest): string {
-    return CurlExtractor.extractCurl(request);
+  static copyCurl(request: LoggedRequest | ServeEvent): string {
+    if (request instanceof LoggedRequest) {
+      return CurlExtractor.extractCurl(request);
+    } else {
+      return CurlExtractor.extractCurl(request.request);
+    }
   }
 }
 
@@ -352,6 +358,8 @@ class CurlExtractor {
       case 'Referer':
       case 'Accept-Encoding':
       case 'Accept-Language':
+      case 'Cache-Control':
+      case 'Host':
         return false;
     }
     return true;
