@@ -10,6 +10,7 @@ import {ListStubMappingsResult} from '../model/wiremock/list-stub-mappings-resul
 import {UtilService} from './util.service';
 import {StubMapping} from '../model/wiremock/stub-mapping';
 import {timer} from 'rxjs/internal/observable/timer';
+import {FindRequestResult} from '../model/wiremock/find-request-result';
 
 @Injectable()
 export class WiremockService {
@@ -74,8 +75,8 @@ export class WiremockService {
     return this.defaultPipe(this.http.get<ResponseDefinition>(WiremockService.getUrl('requests')));
   }
 
-  getUnmatched(): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.get<ResponseDefinition>(WiremockService.getUrl('requests/unmatched')));
+  getUnmatched(): Observable<FindRequestResult> {
+    return this.defaultPipe(this.http.get<FindRequestResult>(WiremockService.getUrl('requests/unmatched')));
   }
 
   startRecording(recordSpec: RecordSpec): Observable<ResponseDefinition> {

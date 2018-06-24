@@ -16,7 +16,7 @@ import {UtilService} from '../../services/util.service';
 import {SearchEvent} from '../../model/wiremock/search-event';
 import {FormControl} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Params, Router} from '@angular/router';
 
 @Component({
   selector: 'wm-layout',
@@ -62,24 +62,31 @@ export class LayoutComponent implements OnInit, OnChanges {
     this.search.valueChanges.pipe().subscribe(next => {
       this.searchClearVisible = Boolean(next);
     });
+
+    this.activatedRoute.queryParams.subscribe((params: Params) => {
+      this.activeItemId = params['active'];
+      this.setActiveItemById(this.activeItemId);
+    });
   }
 
-  // private setActiveItemById(itemId: string) {
-  //   if (isDefined(this.filteredItems)) {
-  //     this.setActiveItem(UtilService.getActiveItem(this.filteredItems, itemId));
-  //   } else {
-  //     this.setActiveItem(null);
-  //   }
-  // }
+  private setActiveItemById(itemId: string) {
+    if (UtilService.isDefined(this.filteredItems)) {
+      this.setActiveItem(UtilService.getActiveItem(this.filteredItems, itemId));
+    } else {
+      this.setActiveItem(null);
+    }
+  }
 
   private setActiveItem(item: Item) {
     this.activeItem = item;
     if (UtilService.isDefined(this.activeItem)) {
       this.activeItemId = this.activeItem.getId();
-      this.router.navigate(['.'], {queryParams: {active: this.activeItemId}});
+      console.log(this.router.url.split('?')[0]);
+      this.router.navigate([this.router.url.split('?')[0]], {queryParams: {active: this.activeItemId}});
     } else {
       this.activeItemId = null;
-      this.router.navigate(['.']);
+      console.log(this.router.url.split('?')[0]);
+      this.router.navigate([this.router.url.split('?')[0]]);
     }
   }
 

@@ -27,7 +27,6 @@ export class ListViewComponent implements OnInit, OnChanges {
   activeItemChange: EventEmitter<Item> = new EventEmitter();
 
   constructor() {
-
   }
 
 
@@ -57,14 +56,12 @@ export class ListViewComponent implements OnInit, OnChanges {
       }
       changed = true;
     }
-    // http://localhost:4200/mappings?active=e7bc601e-a16b-431f-b69e-d405cbf0f353
 
     if (UtilService.isDefined(this.activeItem) && UtilService.isDefined(this.items)) {
       const index = this.items.findIndex((item: Item) => {
         return item.getId() === this.activeItem.getId();
       }) + 1;
 
-      // const index = this.items.indexOf(this.activeItem) + 1;
       this.page = Math.ceil(index / this.pageSize);
 
       changed = true;

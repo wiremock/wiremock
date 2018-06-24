@@ -10,7 +10,8 @@ export class SplitCamelCasePipe implements PipeTransform {
     if (UtilService.isUndefined(value)) {
       return '';
     }
-    return value.split(/(?=[A-Z])/).join(' ');
+    // return value.split(/(?=[A-Z])/).join(' ');
+    return value.replace(/([a-z](?=[A-Z]))/g, '$1 ');
   }
 
 }

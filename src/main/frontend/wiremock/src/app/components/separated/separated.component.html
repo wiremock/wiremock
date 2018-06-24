@@ -8,7 +8,7 @@
         <tbody>
           <ng-container *ngFor="let property of activeItem | keys | isNoObject">
             <tr *ngIf="!isObject(property.value)">
-              <td class="wmTableColumn">{{property.key | splitCamelCase | lowercase}}</td>
+              <td class="wmTableColumn">{{property.key}}</td>
               <td>
                 <wm-code-entry [code]="property.value"></wm-code-entry>
               </td>
@@ -31,14 +31,14 @@
           <tbody>
             <ng-container *ngFor="let subProperty of property.value | keys">
               <tr *ngIf="!isObject(subProperty.value)">
-                <td class="wmTableColumn">{{subProperty.key | splitCamelCase | lowercase}}</td>
+                <td class="wmTableColumn">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value}}</td>-->
                 <td>
                   <wm-code-entry [code]="subProperty.value"></wm-code-entry>
                 </td>
               </tr>
               <tr *ngIf="isObject(subProperty.value)">
-                <td class="wmTableColumn">{{subProperty.key | splitCamelCase | lowercase}}</td>
+                <td class="wmTableColumn">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value | prettify}}</td>-->
                 <td>
                   <wm-code-entry [code]="subProperty.value | json"></wm-code-entry>

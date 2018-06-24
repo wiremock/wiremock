@@ -1,3 +1,37 @@
-<p>
-  unmatched works!
-</p>
+<wm-layout [items]="requestResult?.requests">
+  <ng-template #actions let-activeItem>
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-secondary" (click)="copyRequest(activeItem)">
+        <fa-icon icon="copy"></fa-icon>
+        Copy Request
+      </button>
+      <button type="button" class="btn btn-secondary" [disabled]="!isSoapRequest(activeItem)" (click)="copySoap(activeItem)">
+        <fa-icon icon="copy"></fa-icon>
+        Copy SOAP
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="copyCurl(activeItem)">
+        <fa-icon icon="copy"></fa-icon>
+        Copy Curl
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="resetJournal()">
+        <fa-icon icon="trash"></fa-icon>
+        Reset Journal
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-template #content let-activeItem>
+    <wm-raw-separated [separatedDisabled]="!activeItem">
+      <wm-raw-separated-raw>
+        <ng-container>
+          <wm-code-entry [code]="activeItem?.getCode()" [language]="'json'"></wm-code-entry>
+        </ng-container>
+      </wm-raw-separated-raw>
+      <wm-raw-separated-separated>
+        <wm-separated *ngIf="activeItem" [activeItem]="activeItem"></wm-separated>
+      </wm-raw-separated-separated>
+    </wm-raw-separated>
+  </ng-template>
+
+</wm-layout>
+

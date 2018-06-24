@@ -13,6 +13,7 @@ import {
   faAngleDoubleUp,
   faBars,
   faClock,
+  faCopy,
   faExchangeAlt,
   faFileAlt,
   faLink,
@@ -62,6 +63,7 @@ library.add(faAlignJustify);
 library.add(faFileAlt);
 library.add(faLink);
 library.add(faExchangeAlt);
+library.add(faCopy);
 
 @NgModule({
   declarations: [

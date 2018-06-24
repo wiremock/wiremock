@@ -1,6 +1,6 @@
 <wm-layout [items]="result?.mappings" [activeItemId]="activeItemId" (activeItemChange)="onActiveItemChange($event)">
   <ng-template #actions let-activeItem>
-    <div class="btn-group" role="group" aria-label="Basic example">
+    <div class="btn-group" role="group">
       <ng-container *ngIf="editMode === State.NEW">
         <button type="button" class="btn btn-secondary" (click)="saveNewMapping()">
           <fa-icon icon="save"></fa-icon>
