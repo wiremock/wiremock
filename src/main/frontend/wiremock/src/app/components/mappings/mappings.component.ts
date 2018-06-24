@@ -10,6 +10,7 @@ import {WebSocketListener} from '../../interfaces/web-socket-listener';
 import {debounceTime} from 'rxjs/operators';
 import {isDefined} from '@ng-bootstrap/ng-bootstrap/util/util';
 import {MappingHelperService} from './mapping-helper.service';
+import {Message, MessageService, MessageType} from '../message/message.service';
 
 @Component({
   selector: 'wm-mappings',
@@ -32,6 +33,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
 
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
+              private messageService: MessageService,
               private activatedRoute: ActivatedRoute, private router: Router) {
   }
 
@@ -78,7 +80,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
         this.setActiveItemById(this.activeItemId);
       },
       err => {
-        // UtilService.showErrorMessage(this.messageService, err);
+        UtilService.showErrorMessage(this.messageService, err);
       });
   }
 
@@ -92,7 +94,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
       console.log(data.getId());
       this.activeItemId = data.getId();
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
     this.editMode = State.NORMAL;
   }
@@ -107,7 +109,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
       // console.log(data.getId());
       // this.activeItemId = data.getId();
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
     this.editMode = State.NORMAL;
   }
@@ -120,7 +122,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
     this.wiremockService.deleteMapping(this.activeItem.getId()).subscribe(() => {
       // do nothing
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -128,7 +130,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
     this.wiremockService.saveMappings().subscribe(() => {
       // do nothing
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -136,7 +138,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
     this.wiremockService.resetMappings().subscribe(() => {
       // do nothing
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -144,7 +146,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
     this.wiremockService.deleteAllMappings().subscribe(() => {
       // do nothing
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -152,7 +154,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
     this.wiremockService.resetScenarios().subscribe(() => {
       // do nothing
     }, err => {
-      // UtilService.showErrorMessage(this.messageService, err);
+      UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
@@ -161,6 +163,12 @@ export class MappingsComponent implements OnInit, WebSocketListener {
   }
 
   // ##### HELPER #####
+  private showHelperErrorMessage(err: any) {
+    this.messageService.setMessage(new Message(err.name + ': message=' + err.message +
+      ', lineNumber=' + err.lineNumber + ', columnNumber=' + err.columnNumber,
+      MessageType.ERROR, 10000));
+  }
+
   getMappingForHelper(): StubMapping {
     try {
       switch (this.editMode) {
@@ -170,8 +178,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
           return JSON.parse(this.editMappingText);
       }
     } catch (err) {
-      // TODO: feedback
-      // this.showHelperErrorMessage(err);
+      this.showHelperErrorMessage(err);
     }
   }
 
@@ -189,8 +196,7 @@ export class MappingsComponent implements OnInit, WebSocketListener {
           break;
       }
     } catch (err) {
-      // TODO: feedback
-      // this.showHelperErrorMessage(err);
+      this.showHelperErrorMessage(err);
     }
   }
 

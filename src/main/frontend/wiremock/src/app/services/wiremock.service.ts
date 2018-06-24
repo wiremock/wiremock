@@ -3,12 +3,13 @@ import {environment} from '../../environments/environment';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {RecordSpec} from '../model/wiremock/record-spec';
 import {Observable} from 'rxjs/internal/Observable';
-import {catchError, debounceTime, map, retry} from 'rxjs/operators';
+import {finalize, map, mergeMap, retryWhen} from 'rxjs/operators';
 import {throwError} from 'rxjs/internal/observable/throwError';
 import {ResponseDefinition} from '../model/wiremock/response-definition';
 import {ListStubMappingsResult} from '../model/wiremock/list-stub-mappings-result';
 import {UtilService} from './util.service';
 import {StubMapping} from '../model/wiremock/stub-mapping';
+import {timer} from 'rxjs/internal/observable/timer';
 
 @Injectable()
 export class WiremockService {
@@ -105,9 +106,9 @@ export class WiremockService {
     } else {
       // The backend returned an unsuccessful response code.
       // The response body may contain clues as to what went wrong,
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
+      // console.error(
+      //   `Backend returned code ${error.status}, ` +
+      //   `body was: ${error.error}`);
     }
     // return an observable with a user-facing error message
     return throwError(
@@ -115,6 +116,44 @@ export class WiremockService {
   }
 
   private defaultPipe<T>(observable: Observable<T>) {
-    return observable.pipe(retry(3), debounceTime(100), catchError(this.handleError));
+    // return observable.pipe(retry(3), debounceTime(100), catchError(this.handleError));
+    // return observable.pipe(retryWhen(errors => errors.pipe(delay(1000))));
+    return observable.pipe(retryWhen(this.genericRetryStrategy({
+      scalingDuration: 1000,
+      maxRetryAttempts: 3,
+      excludedStatusCodes: [400]
+    })));
+  }
+
+
+  private genericRetryStrategy = ({
+                                    maxRetryAttempts = 3,
+                                    scalingDuration = 1000,
+                                    excludedStatusCodes = []
+                                  }: {
+    maxRetryAttempts?: number,
+    scalingDuration?: number,
+    excludedStatusCodes?: number[]
+  } = {}) => (attempts: Observable<any>) => {
+    return attempts.pipe(
+      mergeMap((error, i) => {
+        const retryAttempt = i + 1;
+        // if maximum number of retries have been met
+        // or response is a status code we don't wish to retry, throw error
+        if (
+          retryAttempt > maxRetryAttempts ||
+          excludedStatusCodes.find(e => e === error.status)
+        ) {
+          throw(error);
+        }
+        console.log(
+          `Attempt ${retryAttempt}: retrying in ${retryAttempt *
+          scalingDuration}ms`
+        );
+        // retry after 1s, 2s, etc...
+        return timer(retryAttempt * scalingDuration);
+      }),
+      finalize(() => console.log('We are done!'))
+    );
   }
 }

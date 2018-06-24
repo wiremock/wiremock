@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import * as vkbeautify from 'vkbeautify';
 // import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../model/wiremock/item';
+import {Message, MessageService, MessageType} from '../components/message/message.service';
 
 @Injectable()
 export class UtilService {
@@ -54,19 +55,22 @@ export class UtilService {
     return false;
   }
 
-  // public static showErrorMessage(messageService: MessageService, err: any): void {
-  //
-  //   if (UtilService.isDefined(err._body) && err._body instanceof ProgressEvent) {
-  //     if (err.status === 0) {
-  //       messageService.setMessage(new Message('status=' + err.status + ': Is Wiremock started?', MessageType.ERROR, 10000));
-  //     } else {
-  //       messageService.setMessage(new Message(err.statusText + ': status=' + err.status, MessageType.ERROR, 10000));
-  //     }
-  //   } else {
-  //     messageService.setMessage(new Message(err.statusText + ': status=' + err.status + ', message=',
-  // MessageType.ERROR, 10000, err._body));
-  //   }
-  // }
+  public static showErrorMessage(messageService: MessageService, err: any): void {
+    if (UtilService.isDefined(err)) {
+      let message = err.statusText + '\nstatus=' + err.status + '\nmessage:\n' + err.message;
+      if (UtilService.isDefined(err.error) && err.error instanceof ProgressEvent) {
+        if (err.status === 0) {
+          message = 'Wiremock not started?\n------------------------------\n' + message;
+        }
+        messageService.setMessage(new Message(message, MessageType.ERROR, 10000));
+      } else {
+        messageService.setMessage(new Message(err.statusText + ': status=' + err.status + ', message=',
+          MessageType.ERROR, 10000, err.message));
+      }
+    } else {
+      messageService.setMessage(new Message('Ups! Unknown error :(', MessageType.ERROR, 10000));
+    }
+  }
 
   public static getSoapRecognizeRegex(): RegExp {
     return /<([^/][^<> ]*?):Envelope[^<>]*?>\s*?<([^/][^<> ]*?):Body[^<>]*?>/;

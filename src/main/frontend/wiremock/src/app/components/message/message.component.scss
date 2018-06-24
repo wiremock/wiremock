@@ -1,0 +1,24 @@
+#wmAlertContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10%;
+  bottom: 0;
+
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 50%;
+  height: 80%;
+  z-index: 1000;
+}
+
+#wmAlertContainer ::ng-deep .alert {
+  max-height: 100%;
+  overflow: auto;
+  position: absolute;
+  margin: 0;
+}
+
+.wmAlertText {
+  white-space: pre-wrap;
+}

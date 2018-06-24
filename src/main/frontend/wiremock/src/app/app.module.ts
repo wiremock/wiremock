@@ -8,7 +8,22 @@ import {HomeComponent} from './components/home/home.component';
 import {MappingsComponent} from './components/mappings/mappings.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faBars, faPencilAlt, faPlus, faSave, faSearch, faSyncAlt, faTimes, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {
+  faAlignJustify,
+  faAngleDoubleUp,
+  faBars,
+  faClock,
+  faExchangeAlt,
+  faFileAlt,
+  faLink,
+  faPencilAlt,
+  faPlus,
+  faSave,
+  faSearch,
+  faSyncAlt,
+  faTimes,
+  faTrash
+} from '@fortawesome/free-solid-svg-icons';
 import {ListViewComponent} from './components/list-view/list-view.component';
 import {MatchedComponent} from './components/matched/matched.component';
 import {UnmatchedComponent} from './components/unmatched/unmatched.component';
@@ -31,6 +46,8 @@ import {IsNoObjectPipe} from './pipes/is-no-object.pipe';
 import {PrettifyPipe} from './pipes/prettify.pipe';
 import {SplitCamelCasePipe} from './pipes/split-camel-case.pipe';
 import {WebSocketService} from './services/web-socket.service';
+import {MessageComponent} from './components/message/message.component';
+import {MessageService} from './components/message/message.service';
 
 // add icons. Only remove if not used anymore otherwise app will crash!
 library.add(faBars);
@@ -41,7 +58,12 @@ library.add(faTrash);
 library.add(faSave);
 library.add(faTimes);
 library.add(faSyncAlt);
-
+library.add(faClock);
+library.add(faAngleDoubleUp);
+library.add(faAlignJustify);
+library.add(faFileAlt);
+library.add(faLink);
+library.add(faExchangeAlt);
 
 @NgModule({
   declarations: [
@@ -65,7 +87,8 @@ library.add(faSyncAlt);
     IsObjectPipe,
     IsNoObjectPipe,
     PrettifyPipe,
-    SplitCamelCasePipe
+    SplitCamelCasePipe,
+    MessageComponent
   ],
   imports: [
     BrowserModule,
@@ -76,7 +99,7 @@ library.add(faSyncAlt);
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [WiremockService, WebSocketService],
+  providers: [WiremockService, WebSocketService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
