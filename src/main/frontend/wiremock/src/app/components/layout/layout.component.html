@@ -33,12 +33,12 @@
     </nav>
 
     <nav class="navbar navbar-light bg-light">
-      <ng-content select="wm-layout-action-buttons"></ng-content>
+      <ng-container [ngTemplateOutlet]="actions" [ngTemplateOutletContext]="{$implicit: activeItem}"></ng-container>
     </nav>
   </div>
 
   <div id="wmContent" class="wmHolyGrailBody">
-    <ng-content select="wm-layout-content"></ng-content>
+    <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{$implicit: activeItem}"></ng-container>
   </div>
 </div>
 

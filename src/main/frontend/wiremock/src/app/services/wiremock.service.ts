@@ -50,7 +50,7 @@ export class WiremockService {
 
   saveMapping(id: string, mapping: string): Observable<StubMapping> {
     return this.defaultPipe(this.http.put<StubMapping>(WiremockService.getUrl('mappings/' + id),
-      WiremockService.mapBody(mapping)));
+      WiremockService.mapBody(mapping))).pipe(map(editedMapping => new StubMapping().deserialize(editedMapping)));
   }
 
   saveNewMapping(mapping: string): Observable<StubMapping> {

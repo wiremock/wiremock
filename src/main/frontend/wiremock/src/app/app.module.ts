@@ -32,8 +32,6 @@ import {HttpClientModule} from '@angular/common/http';
 import {WiremockService} from './services/wiremock.service';
 import {CodeEntryComponent} from './components/code-entry/code-entry.component';
 import {HighlightJsDirective} from './directives/highlight-js.directive';
-import {LayoutContentDirective} from './components/layout/layout-content.directive';
-import {LayoutActionButtonsDirective} from './components/layout/layout-action-buttons.directive';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RawSeparatedComponent} from './components/raw-separated/raw-separated.component';
 import {RawDirective} from './components/raw-separated/raw.directive';
@@ -76,8 +74,6 @@ library.add(faExchangeAlt);
     LayoutComponent,
     CodeEntryComponent,
     HighlightJsDirective,
-    LayoutContentDirective,
-    LayoutActionButtonsDirective,
     RawSeparatedComponent,
     RawDirective,
     SeparatedDirective,

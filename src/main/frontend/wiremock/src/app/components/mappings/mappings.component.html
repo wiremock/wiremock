@@ -1,5 +1,5 @@
-<wm-layout [items]="result?.mappings" [activeItem]="activeItem" (activeItemChange)="onActiveItemChange($event)">
-  <wm-layout-action-buttons>
+<wm-layout [items]="result?.mappings" [activeItemId]="activeItemId" (activeItemChange)="onActiveItemChange($event)">
+  <ng-template #actions let-activeItem>
     <div class="btn-group" role="group" aria-label="Basic example">
       <ng-container *ngIf="editMode === State.NEW">
         <button type="button" class="btn btn-secondary" (click)="saveNewMapping()">
@@ -8,7 +8,7 @@
         </button>
       </ng-container>
       <ng-container *ngIf="editMode === State.EDIT">
-        <button type="button" class="btn btn-secondary" (click)="saveEditMapping()">
+        <button type="button" class="btn btn-secondary" (click)="saveEditMapping(activeItem)">
           <fa-icon icon="save"></fa-icon>
           Save
         </button>
@@ -56,8 +56,6 @@
               <fa-icon icon="exchange-alt"></fa-icon>
               Add Transformer
             </button>
-
-
           </div>
         </div>
 
@@ -74,11 +72,11 @@
           <fa-icon icon="plus"></fa-icon>
           New
         </button>
-        <button type="button" class="btn btn-secondary" (click)="editMapping()" [disabled]="!activeItem">
+        <button type="button" class="btn btn-secondary" (click)="editMapping(activeItem)" [disabled]="!activeItem">
           <fa-icon icon="pencil-alt"></fa-icon>
           Edit
         </button>
-        <button type="button" class="btn btn-secondary" (click)="removeMapping()" [disabled]="!activeItem">
+        <button type="button" class="btn btn-secondary" (click)="removeMapping(activeItem)" [disabled]="!activeItem">
           <fa-icon icon="trash"></fa-icon>
           Remove
         </button>
@@ -115,9 +113,12 @@
         </div>
       </ng-container>
     </div>
-  </wm-layout-action-buttons>
 
-  <wm-layout-content>
+
+  </ng-template>
+
+
+  <ng-template #content let-activeItem>
     <wm-raw-separated [separatedDisabled]="!activeItem">
       <wm-raw-separated-raw>
         <ng-container *ngIf="editMode === State.NORMAL">
@@ -134,8 +135,7 @@
         <wm-separated *ngIf="activeItem" [activeItem]="activeItem"></wm-separated>
       </wm-raw-separated-separated>
     </wm-raw-separated>
-
-  </wm-layout-content>
+  </ng-template>
 
 </wm-layout>
 
