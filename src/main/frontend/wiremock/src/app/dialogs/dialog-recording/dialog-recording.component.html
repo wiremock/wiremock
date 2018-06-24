@@ -1,0 +1,13 @@
+<div class="modal-header">
+  <h4 class="modal-title">Profile update</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('cancel')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <input #url class="form-control" type="text" placeholder="Target url">
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.close(url.value)">Start</button>
+  <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss('cancel')">Cancel</button>
+</div>
