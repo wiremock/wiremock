@@ -55,13 +55,16 @@ export class ListViewComponent implements OnInit, OnChanges {
       } else {
         this.page = 1;
       }
-      // this.setFilteredItems();
       changed = true;
     }
     // http://localhost:4200/mappings?active=e7bc601e-a16b-431f-b69e-d405cbf0f353
 
-    if (UtilService.isDefined(changes.activeItem) && UtilService.isDefined(this.activeItem)) {
-      const index = this.items.indexOf(this.activeItem) + 1;
+    if (UtilService.isDefined(this.activeItem) && UtilService.isDefined(this.items)) {
+      const index = this.items.findIndex((item: Item) => {
+        return item.getId() === this.activeItem.getId();
+      }) + 1;
+
+      // const index = this.items.indexOf(this.activeItem) + 1;
       this.page = Math.ceil(index / this.pageSize);
 
       changed = true;
