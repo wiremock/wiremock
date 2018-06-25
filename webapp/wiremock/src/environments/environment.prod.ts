@@ -9,7 +9,7 @@ export const environment = {
       new_uri = 'ws:';
     }
     new_uri += '//' + loc.host;
-    new_uri += loc.pathname + '/events';
+    new_uri += '/__admin/events';
 
     return new WebSocket(new_uri);
   },

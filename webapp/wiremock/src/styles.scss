@@ -153,6 +153,24 @@ body {
   cursor: pointer;
 }
 
+@keyframes delayedFadeIn {
+  0% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
 .tooltip > div {
   animation-name: delayedFadeIn;
   animation-duration: 1s; /* Adjust this duration */
@@ -163,25 +181,8 @@ body {
   animation-duration: 2s; /* Adjust this duration */
 }
 
-@Keyframes delayedFadeIn {
-  0% {
-    opacity: 0;
-  }
-  75% {
-    opacity: 0;
-  }
-  /* Set this to 99% for no fade-in. */
-  100% {
-    opacity: 1;
-  }
-}
-
-.blink_me {
+.blinkMe {
   animation: blinker 2s linear infinite;
 }
 
-@keyframes blinker {
-  50% {
-    opacity: 0;
-  }
-}
+

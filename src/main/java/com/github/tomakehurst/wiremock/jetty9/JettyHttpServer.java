@@ -397,7 +397,7 @@ public class JettyHttpServer implements HttpServer {
         final RewriteHandler rewrite = new RewriteHandler();
 
         final RedirectRegexRule redirect = new RedirectRegexRule();
-        redirect.setRegex("/webapp.*");
+        redirect.setRegex("/webapp/(mappings|matched|unmatched).*");
         redirect.setReplacement("/__admin/webapp/index.html");
         rewrite.addRule(redirect);
 
