@@ -1,4 +1,4 @@
-import {Component, HostBinding, OnInit} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {WiremockService} from '../../services/wiremock.service';
 import {UtilService} from '../../services/util.service';
@@ -8,24 +8,50 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DialogRecordingComponent} from '../../dialogs/dialog-recording/dialog-recording.component';
 import {SnapshotRecordResult} from '../../model/wiremock/snapshot-record-result';
 import {SearchService} from '../../services/search.service';
+import {RecordingStatus} from '../../model/wiremock/recording-status';
+import {Subject} from 'rxjs/internal/Subject';
+import {WebSocketService} from '../../services/web-socket.service';
+import {debounceTime, takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'wm-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   @HostBinding('class') classes = 'wmHolyGrailBody column';
 
+  private ngUnsubscribe: Subject<any> = new Subject();
+
   isCollapsed = false;
 
+  currentRecordingStatus: RecordingStatus;
+
+  RecordingStatus = RecordingStatus;
+
+
   constructor(private wiremockService: WiremockService, private messageService: MessageService,
+              private webSocketService: WebSocketService,
               private searchService: SearchService, private modalService: NgbModal,
               private router: Router) {
   }
 
   ngOnInit() {
+    this.webSocketService.observe('recording').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+      .subscribe(() => {
+        this.loadRecordingStatus();
+      });
+
+    this.loadRecordingStatus();
+  }
+
+  private loadRecordingStatus() {
+    this.wiremockService.getRecordingStatus().subscribe((data) => {
+      this.currentRecordingStatus = data;
+    }, err => {
+      UtilService.showErrorMessage(this.messageService, err);
+    });
   }
 
   isActive(url: string): boolean {
@@ -96,6 +122,11 @@ export class HomeComponent implements OnInit {
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
 }

@@ -10,10 +10,14 @@
       </div>
       <div *ngIf="item.isProxy()">
         <div class="btn-group btn-group-toggle wmProxyButtons" ngbRadioGroup name="proxyToggle" [ngModel]="item.isProxyEnabled()">
-          <label ngbButtonLabel class="" [class.btn-info]="item.isProxyEnabled()" [class.btn-secondary]="!item.isProxyEnabled()">
+          <label ngbButtonLabel class="" [class.btn-info]="item.isProxyEnabled()" [class.btn-secondary]="!item.isProxyEnabled()"
+                 ngbPopover="Restore proxying and forward requests to specified url" triggers="mouseenter:mouseleave" container="body"
+                 popoverTitle="Proxying">
             <input ngbButton type="radio" [value]="true" [disabled]="item.isProxyEnabled()" (click)="enableProxy(item)"> I
           </label>
-          <label ngbButtonLabel class="" [class.btn-info]="!item.isProxyEnabled()" [class.btn-secondary]="item.isProxyEnabled()">
+          <label ngbButtonLabel class="" [class.btn-info]="!item.isProxyEnabled()" [class.btn-secondary]="item.isProxyEnabled()"
+                 ngbPopover="Disable proxying and use mapping response" triggers="mouseenter:mouseleave" container="body"
+                 popoverTitle="Proxying">
             <input ngbButton type="radio" [value]="false" [disabled]="!item.isProxyEnabled()" (click)="disableProxy(item)"> 0
           </label>
         </div>

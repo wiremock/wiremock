@@ -40,9 +40,10 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   ngOnInit() {
 
-    this.webSocketService.observe('mappings').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100)).subscribe(() => {
-      this.loadMappings();
-    });
+    this.webSocketService.observe('mappings').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+      .subscribe(() => {
+        this.loadMappings();
+      });
 
     this.editMode = State.NORMAL;
     this.loadMappings();

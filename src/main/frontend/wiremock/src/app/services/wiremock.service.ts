@@ -14,6 +14,7 @@ import {FindRequestResult} from '../model/wiremock/find-request-result';
 import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
 import {SnapshotRecordResult} from '../model/wiremock/snapshot-record-result';
 import {ProxyConfig} from '../model/wiremock/proxy-config';
+import {RecordingStatus} from '../model/wiremock/recording-status';
 
 @Injectable()
 export class WiremockService {
@@ -95,8 +96,9 @@ export class WiremockService {
     return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('recordings/snapshot'), null));
   }
 
-  getRecordingStatus(): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.get<ResponseDefinition>(WiremockService.getUrl('recordings/status')));
+  getRecordingStatus(): Observable<RecordingStatus> {
+    return this.defaultPipe(this.http.get<RecordingStatus>(WiremockService.getUrl('recordings/status')))
+      .pipe(map((status: any) => (<any>RecordingStatus)[status.status]));
   }
 
   shutdown(): Observable<ResponseDefinition> {

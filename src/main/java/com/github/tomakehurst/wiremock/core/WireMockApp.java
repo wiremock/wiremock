@@ -416,21 +416,31 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void startRecording(final String targetBaseUrl) {
         this.recorder.startRecording(RecordSpec.forBaseUrl(targetBaseUrl));
+
+        WebSocketEndpoint.broadcast(Message.RECORDING);
     }
 
     @Override
     public void startRecording(final RecordSpec recordSpec) {
         this.recorder.startRecording(recordSpec);
+
+        WebSocketEndpoint.broadcast(Message.RECORDING);
     }
 
     @Override
     public void startRecording(final RecordSpecBuilder recordSpec) {
         this.recorder.startRecording(recordSpec.build());
+
+        WebSocketEndpoint.broadcast(Message.RECORDING);
     }
 
     @Override
     public SnapshotRecordResult stopRecording() {
-        return this.recorder.stopRecording();
+        final SnapshotRecordResult result = this.recorder.stopRecording();
+
+        WebSocketEndpoint.broadcast(Message.RECORDING);
+
+        return result;
     }
 
     @Override

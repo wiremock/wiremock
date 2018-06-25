@@ -29,11 +29,13 @@
           Reset all
         </button>
         <div class="dropdown-divider"></div>
-        <button type="button" class="dropdown-item" (click)="startRecording()">
+        <button type="button" class="dropdown-item" (click)="startRecording()"
+                [disabled]="currentRecordingStatus === RecordingStatus.Recording">
           <fa-icon icon="dot-circle"></fa-icon>
           Start recording
         </button>
-        <button type="button" class="dropdown-item" (click)="stopRecording()">
+        <button type="button" class="dropdown-item" (click)="stopRecording()"
+                [disabled]="currentRecordingStatus !== RecordingStatus.Recording">
           <fa-icon icon="stop"></fa-icon>
           Stop recording
         </button>

@@ -27,9 +27,10 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.webSocketService.observe('unmatched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100)).subscribe(() => {
-      this.loadMappings();
-    });
+    this.webSocketService.observe('unmatched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+      .subscribe(() => {
+        this.loadMappings();
+      });
 
     this.loadMappings();
   }
