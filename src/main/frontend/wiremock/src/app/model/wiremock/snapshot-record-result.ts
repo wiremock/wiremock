@@ -9,7 +9,7 @@ export class SnapshotRecordResult {
     if (UtilService.isDefined(unchecked.mappings)) {
       this.mappings = [];
       for (const mapping of unchecked.mappings) {
-        this.mappings.push(new StubMapping().deserialize(mapping));
+        this.mappings.push(new StubMapping().deserialize(mapping, null));
       }
     }
 

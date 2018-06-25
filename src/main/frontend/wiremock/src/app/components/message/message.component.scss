@@ -10,6 +10,11 @@
   max-width: 50%;
   height: 80%;
   z-index: 1000;
+  pointer-events: none;
+}
+
+#wmAlertContainer > * {
+  pointer-events: auto;
 }
 
 #wmAlertContainer ::ng-deep .alert {

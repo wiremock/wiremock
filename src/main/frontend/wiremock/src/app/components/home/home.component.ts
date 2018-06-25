@@ -6,7 +6,6 @@ import {Message, MessageService, MessageType} from '../message/message.service';
 import {RecordSpec} from '../../model/wiremock/record-spec';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DialogRecordingComponent} from '../../dialogs/dialog-recording/dialog-recording.component';
-import {SnapshotRecordResult} from '../../model/wiremock/snapshot-record-result';
 import {SearchService} from '../../services/search.service';
 import {RecordingStatus} from '../../model/wiremock/recording-status';
 import {Subject} from 'rxjs/internal/Subject';
@@ -60,7 +59,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   resetAll() {
     this.wiremockService.resetAll().subscribe(() => {
-      // do nothing
+      this.messageService.setMessage(new Message('Reset all successful', MessageType.INFO, 3000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -80,28 +79,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     recordSpec.targetBaseUrl = url;
 
     this.wiremockService.startRecording(recordSpec).subscribe(() => {
-      // do nothing
+      this.messageService.setMessage(new Message('Recording started', MessageType.INFO, 3000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
   }
 
   stopRecording() {
-    this.wiremockService.stopRecording().subscribe(data => {
-      // do nothing
-      const results = new SnapshotRecordResult().deserialize(data);
-
-
+    this.wiremockService.stopRecording().subscribe(results => {
       if (UtilService.isDefined(results) && UtilService.isDefined(results.getIds()) && results.getIds().length > 0) {
         const result = results.getIds().join('|');
 
         this.router.navigate(['/mappings']).then(() => {
           this.searchService.setValue(result);
+          this.messageService.setMessage(new Message('Recording stopped', MessageType.INFO, 3000));
         }, () => {
           // do nothing
         });
       } else {
-        this.messageService.setMessage(new Message('No mappings recorded', MessageType.INFO, 2000));
+        this.messageService.setMessage(new Message('Recording stopped but no new mappings created', MessageType.INFO, 2000));
       }
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
@@ -109,8 +105,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   snapshot() {
-    this.wiremockService.snapshot().subscribe(() => {
-      // do nothing
+    this.wiremockService.snapshot().subscribe((results) => {
+      if (UtilService.isDefined(results) && UtilService.isDefined(results.mappings) && results.getIds().length > 0) {
+        const result = results.getIds().join('|');
+
+        this.router.navigate(['/mappings']).then(() => {
+          this.searchService.setValue(result);
+          this.messageService.setMessage(new Message('Snapshot stopped', MessageType.INFO, 3000));
+        }, () => {
+          // do nothing
+        });
+      } else {
+        this.messageService.setMessage(new Message('Snapshot taken but no new mappings created', MessageType.INFO, 3000));
+      }
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -118,7 +125,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   shutdown() {
     this.wiremockService.shutdown().subscribe(() => {
-      // do nothing
+      this.messageService.setMessage(new Message('Shutdown successful', MessageType.INFO, 3000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });

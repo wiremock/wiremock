@@ -15,8 +15,8 @@
       </ng-container>
       <ng-container *ngIf="editMode === State.EDIT || editMode === State.NEW">
         <div ngbDropdown class="btn-group" role="group">
-          <button id="wmHelperDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
-            Helpers
+          <button id="wmGeneralDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            General functions
           </button>
           <div ngbDropdownMenu class="dropdown-menu">
             <button type="button" class="dropdown-item" (click)="helpersAddDelay()">
@@ -39,9 +39,13 @@
               <fa-icon icon="file-alt"></fa-icon>
               Add Scenario
             </button>
-
-            <div class="dropdown-divider"></div>
-
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmProxyingDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Proxying
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
             <button type="button" class="dropdown-item" (click)="helpersAddProxyUrl()">
               <fa-icon icon="link"></fa-icon>
               Add Proxy URL
@@ -50,11 +54,29 @@
               <fa-icon icon="align-justify"></fa-icon>
               Add Proxy Header
             </button>
-
-            <div class="dropdown-divider"></div>
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmResponseTemplatingDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Response Templating
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
             <button type="button" class="dropdown-item" (click)="helpersAddTransformer()">
               <fa-icon icon="exchange-alt"></fa-icon>
               Add Transformer
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" (click)="helpersCopyJsonPath()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy jsonPath Helper
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersCopyXpath()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy xPath Helper
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersCopySoap()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy soapXPath Helper
             </button>
           </div>
         </div>

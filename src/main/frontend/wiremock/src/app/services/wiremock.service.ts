@@ -89,11 +89,13 @@ export class WiremockService {
   }
 
   stopRecording(): Observable<SnapshotRecordResult> {
-    return this.defaultPipe(this.http.post<SnapshotRecordResult>(WiremockService.getUrl('recordings/stop'), null));
+    return this.defaultPipe(this.http.post<SnapshotRecordResult>(WiremockService.getUrl('recordings/stop'), null))
+      .pipe(map(data => new SnapshotRecordResult().deserialize(data)));
   }
 
-  snapshot(): Observable<ResponseDefinition> {
-    return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('recordings/snapshot'), null));
+  snapshot(): Observable<SnapshotRecordResult> {
+    return this.defaultPipe(this.http.post<SnapshotRecordResult>(WiremockService.getUrl('recordings/snapshot'), null))
+      .pipe(map(snapshot => new SnapshotRecordResult().deserialize(snapshot)));
   }
 
   getRecordingStatus(): Observable<RecordingStatus> {

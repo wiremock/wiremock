@@ -19,6 +19,8 @@ import {ProxyConfig} from '../../model/wiremock/proxy-config';
 })
 export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
+  private static COPY_FAILURE = 'Was not able to copy. Details in log';
+
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
   private ngUnsubscribe: Subject<any> = new Subject();
@@ -128,7 +130,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   removeAllMappings() {
     this.wiremockService.deleteAllMappings().subscribe(() => {
-      // do nothing
+      this.messageService.setMessage(new Message('All mappings removed', MessageType.INFO, 3000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -136,7 +138,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   resetAllScenarios() {
     this.wiremockService.resetScenarios().subscribe(() => {
-      // do nothing
+      this.messageService.setMessage(new Message('Reset of all scenarios successful', MessageType.INFO, 3000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -219,6 +221,30 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  helpersCopyJsonPath() {
+    if (UtilService.copyToClipboard('{{jsonPath request.body \'$.\'}}')) {
+      this.messageService.setMessage(new Message('jsonPath copied to clipboard', MessageType.INFO, 3000));
+    } else {
+      this.messageService.setMessage(new Message(MappingsComponent.COPY_FAILURE, MessageType.ERROR, 10000));
+    }
+  }
+
+  helpersCopyXpath() {
+    if (UtilService.copyToClipboard('{{xPath request.body \'/\'}}')) {
+      this.messageService.setMessage(new Message('xPath copied to clipboard', MessageType.INFO, 3000));
+    } else {
+      this.messageService.setMessage(new Message(MappingsComponent.COPY_FAILURE, MessageType.ERROR, 10000));
+    }
+  }
+
+  helpersCopySoap() {
+    if (UtilService.copyToClipboard('{{soapXPath request.body \'/\'}}')) {
+      this.messageService.setMessage(new Message('soapXPath copied to clipboard', MessageType.INFO, 3000));
+    } else {
+      this.messageService.setMessage(new Message(MappingsComponent.COPY_FAILURE, MessageType.ERROR, 10000));
+    }
   }
 }
 
