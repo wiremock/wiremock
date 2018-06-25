@@ -72,7 +72,8 @@
           <fa-icon icon="plus"></fa-icon>
           New
         </button>
-        <button type="button" class="btn btn-secondary" (click)="editMapping(activeItem)" [disabled]="!activeItem">
+        <button type="button" class="btn btn-secondary" (click)="editMapping(activeItem)"
+                [disabled]="!activeItem || (activeItem.isProxy() && !activeItem.isProxyEnabled())">
           <fa-icon icon="pencil-alt"></fa-icon>
           Edit
         </button>

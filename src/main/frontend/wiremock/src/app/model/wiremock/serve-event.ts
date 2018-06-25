@@ -4,14 +4,19 @@ import {Item} from './item';
 import {LoggedRequest} from './logged-request';
 import {LoggedResponse} from './logged-response';
 import {UtilService} from '../../services/util.service';
+import {Proxy} from './proxy';
 
-export class ServeEvent implements Item {
+export class ServeEvent extends Proxy implements Item {
   id: string;
   request: LoggedRequest;
   stubMapping: StubMapping;
   responseDefinition: ResponseDefinition;
   response: LoggedResponse;
   wasMatched: boolean;
+
+  constructor() {
+    super();
+  }
 
   getTitle(): string {
     return this.request.url;
@@ -36,6 +41,11 @@ export class ServeEvent implements Item {
     this.responseDefinition = unchecked.responseDefinition;
     this.response = unchecked.response;
     this.wasMatched = unchecked.wasMatched;
+
+    // We do not want proxy feature for served events
+    // if (UtilService.isDefined(this.responseDefinition.proxyBaseUrl)) {
+    //   this.setProxy(true);
+    // }
 
     return this;
   }

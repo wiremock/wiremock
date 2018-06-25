@@ -1,7 +1,8 @@
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
+import {Proxy} from './proxy';
 
-export class LoggedRequest implements Item {
+export class LoggedRequest extends Proxy implements Item {
 
   url: string;
   absoluteUrl: string;
@@ -16,6 +17,7 @@ export class LoggedRequest implements Item {
   loggedDate: any;
 
   constructor() {
+    super();
   }
 
   getTitle(): string {
@@ -54,6 +56,7 @@ export class LoggedRequest implements Item {
     this.bodyAsBase64 = unchecked.bodyAsBase64;
     this.isBrowserProxyRequest = unchecked.isBrowserProxyRequest;
     this.loggedDate = unchecked.loggedDate;
+
     return this;
   }
 }

@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostBinding, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
 import {UtilService} from '../../services/util.service';
+import {WiremockService} from '../../services/wiremock.service';
 
 @Component({
   selector: 'wm-list-view',
@@ -26,7 +27,7 @@ export class ListViewComponent implements OnInit, OnChanges {
   @Output()
   activeItemChange: EventEmitter<Item> = new EventEmitter();
 
-  constructor() {
+  constructor(private wiremockService: WiremockService) {
   }
 
 
@@ -80,5 +81,23 @@ export class ListViewComponent implements OnInit, OnChanges {
     this.page = page;
     this.setFilteredItems();
     this.selectActiveItem(this.filteredItems[0]);
+  }
+
+  enableProxy(item: Item) {
+    this.wiremockService.enableProxy(item.getId()).subscribe(data => {
+        // do nothing
+      },
+      err => {
+        // UtilService.showErrorMessage(this.messageService, err);
+      });
+  }
+
+  disableProxy(item: Item) {
+    this.wiremockService.disableProxy(item.getId()).subscribe(data => {
+        // do nothing
+      },
+      err => {
+        // UtilService.showErrorMessage(this.messageService, err);
+      });
   }
 }

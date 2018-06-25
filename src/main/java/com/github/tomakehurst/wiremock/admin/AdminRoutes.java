@@ -40,25 +40,25 @@ public class AdminRoutes {
         return new AdminRoutes(Collections.<AdminApiExtension>emptyList(), new PlainTextStubNotMatchedRenderer());
     }
 
-    public static AdminRoutes defaultsPlus(Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
+    public static AdminRoutes defaultsPlus(final Iterable<AdminApiExtension> apiExtensions, final AdminTask notMatchedTask) {
         return new AdminRoutes(apiExtensions, notMatchedTask);
     }
 
-    protected AdminRoutes(Iterable<AdminApiExtension> apiExtensions, AdminTask notMatchedTask) {
+    protected AdminRoutes(final Iterable<AdminApiExtension> apiExtensions, final AdminTask notMatchedTask) {
         this.apiExtensions = apiExtensions;
-        RouteBuilder routeBuilder = new RouteBuilder();
-        initDefaultRoutes(routeBuilder);
-        initAdditionalRoutes(routeBuilder);
+        final RouteBuilder routeBuilder = new RouteBuilder();
+        this.initDefaultRoutes(routeBuilder);
+        this.initAdditionalRoutes(routeBuilder);
         routeBuilder.add(ANY, "/not-matched", notMatchedTask);
-        routes = routeBuilder.build();
+        this.routes = routeBuilder.build();
     }
 
-    private void initDefaultRoutes(Router router) {
-        router.add(GET,  "/", RootTask.class);
-        router.add(GET,  "", RootRedirectTask.class);
+    private void initDefaultRoutes(final Router router) {
+        router.add(GET, "/", RootTask.class);
+        router.add(GET, "", RootRedirectTask.class);
         router.add(POST, "/reset", ResetTask.class);
 
-        router.add(GET,  "/mappings", GetAllStubMappingsTask.class);
+        router.add(GET, "/mappings", GetAllStubMappingsTask.class);
         router.add(POST, "/mappings", CreateStubMappingTask.class);
         router.add(DELETE, "/mappings", ResetStubMappingsTask.class);
 
@@ -67,27 +67,27 @@ public class AdminRoutes {
         router.add(POST, "/mappings/edit", OldEditStubMappingTask.class);  // Deprecated
         router.add(POST, "/mappings/save", SaveMappingsTask.class);
         router.add(POST, "/mappings/reset", ResetToDefaultMappingsTask.class);
-        router.add(GET,  "/mappings/{id}", GetStubMappingTask.class);
-        router.add(PUT,  "/mappings/{id}", EditStubMappingTask.class);
+        router.add(GET, "/mappings/{id}", GetStubMappingTask.class);
+        router.add(PUT, "/mappings/{id}", EditStubMappingTask.class);
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
 
         router.add(GET, "/scenarios", GetAllScenariosTask.class);
         router.add(POST, "/scenarios/reset", ResetScenariosTask.class);
 
-        router.add(GET,  "/requests", GetAllRequestsTask.class);
-        router.add(DELETE,  "/requests", ResetRequestsTask.class);
+        router.add(GET, "/requests", GetAllRequestsTask.class);
+        router.add(DELETE, "/requests", ResetRequestsTask.class);
         router.add(POST, "/requests/reset", OldResetRequestsTask.class);  // Deprecated
         router.add(POST, "/requests/count", GetRequestCountTask.class);
         router.add(POST, "/requests/find", FindRequestsTask.class);
-        router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
-        router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
-        router.add(GET,  "/requests/{id}", GetServedStubTask.class);
+        router.add(GET, "/requests/unmatched", FindUnmatchedRequestsTask.class);
+        router.add(GET, "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
+        router.add(GET, "/requests/{id}", GetServedStubTask.class);
 
         router.add(POST, "/recordings/snapshot", SnapshotTask.class);
         router.add(POST, "/recordings/start", StartRecordingTask.class);
         router.add(POST, "/recordings/stop", StopRecordingTask.class);
-        router.add(GET,  "/recordings/status", GetRecordingStatusTask.class);
-        router.add(GET,  "/recorder", GetRecordingsIndexTask.class);
+        router.add(GET, "/recordings/status", GetRecordingStatusTask.class);
+        router.add(GET, "/recorder", GetRecordingsIndexTask.class);
 
         router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
         router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
@@ -98,37 +98,41 @@ public class AdminRoutes {
         router.add(GET, "/docs/raml", GetRamlSpecTask.class);
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
+
+        router.add(GET, "/proxy", GetProxyConfigTask.class);
+        router.add(PUT, "/proxy/{id}", EnableProxyTask.class);
+        router.add(DELETE, "/proxy/{id}", DisableProxyTask.class);
     }
 
-    protected void initAdditionalRoutes(Router routeBuilder) {
-        for (AdminApiExtension apiExtension: apiExtensions) {
+    protected void initAdditionalRoutes(final Router routeBuilder) {
+        for (final AdminApiExtension apiExtension : this.apiExtensions) {
             apiExtension.contributeAdminApiRoutes(routeBuilder);
         }
     }
 
     public AdminTask taskFor(final RequestMethod method, final String path) {
-        return tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+        return tryFind(this.routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
             @Override
-            public boolean apply(Map.Entry<RequestSpec, AdminTask> entry) {
+            public boolean apply(final Map.Entry<RequestSpec, AdminTask> entry) {
                 return entry.getKey().matches(method, path);
             }
         }).transform(new Function<Map.Entry<RequestSpec, AdminTask>, AdminTask>() {
             @Override
-            public AdminTask apply(Map.Entry<RequestSpec, AdminTask> input) {
+            public AdminTask apply(final Map.Entry<RequestSpec, AdminTask> input) {
                 return input.getValue();
             }
         }).or(new NotFoundAdminTask());
     }
 
     public RequestSpec requestSpecForTask(final Class<? extends AdminTask> taskClass) {
-        RequestSpec requestSpec = tryFind(routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
+        final RequestSpec requestSpec = tryFind(this.routes.entrySet(), new Predicate<Map.Entry<RequestSpec, AdminTask>>() {
             @Override
-            public boolean apply(Map.Entry<RequestSpec, AdminTask> input) {
+            public boolean apply(final Map.Entry<RequestSpec, AdminTask> input) {
                 return input.getValue().getClass().equals(taskClass);
             }
-        }).transform(new Function<Map.Entry<RequestSpec,AdminTask>, RequestSpec>() {
+        }).transform(new Function<Map.Entry<RequestSpec, AdminTask>, RequestSpec>() {
             @Override
-            public RequestSpec apply(Map.Entry<RequestSpec, AdminTask> input) {
+            public RequestSpec apply(final Map.Entry<RequestSpec, AdminTask> input) {
                 return input.getKey();
             }
         }).orNull();
@@ -144,30 +148,30 @@ public class AdminRoutes {
         private final ImmutableBiMap.Builder<RequestSpec, AdminTask> builder;
 
         public RouteBuilder() {
-            builder = ImmutableBiMap.builder();
+            this.builder = ImmutableBiMap.builder();
         }
 
         @Override
-        public void add(RequestMethod method, String urlTemplate, Class<? extends AdminTask> taskClass) {
+        public void add(final RequestMethod method, final String urlTemplate, final Class<? extends AdminTask> taskClass) {
             try {
-                AdminTask task = taskClass.newInstance();
-                add(requestSpec(method, urlTemplate), task);
-            } catch (Exception e) {
+                final AdminTask task = taskClass.newInstance();
+                this.add(requestSpec(method, urlTemplate), task);
+            } catch (final Exception e) {
                 throwUnchecked(e);
             }
         }
 
         @Override
-        public void add(RequestMethod method, String urlTemplate, AdminTask task) {
-            add(requestSpec(method, urlTemplate), task);
+        public void add(final RequestMethod method, final String urlTemplate, final AdminTask task) {
+            this.add(requestSpec(method, urlTemplate), task);
         }
 
-        public void add(RequestSpec requestSpec, AdminTask task) {
-            builder.put(requestSpec, task);
+        public void add(final RequestSpec requestSpec, final AdminTask task) {
+            this.builder.put(requestSpec, task);
         }
 
         ImmutableBiMap<RequestSpec, AdminTask> build() {
-            return builder.build();
+            return this.builder.build();
         }
     }
 }

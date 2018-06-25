@@ -32,27 +32,42 @@ import java.util.UUID;
 
 public interface Admin {
 
-	void addStubMapping(StubMapping stubMapping);
-	void editStubMapping(StubMapping stubMapping);
-	void removeStubMapping(StubMapping stubbMapping);
+    void addStubMapping(StubMapping stubMapping);
+
+    void editStubMapping(StubMapping stubMapping);
+
+    void removeStubMapping(StubMapping stubbMapping);
+
     ListStubMappingsResult listAllStubMappings();
+
     SingleStubMappingResult getStubMapping(UUID id);
+
     void saveMappings();
 
-	void resetRequests();
+    void resetRequests();
+
     void resetScenarios();
+
     void resetMappings();
+
     void resetAll();
+
     void resetToDefaultMappings();
 
     GetServeEventsResult getServeEvents();
+
     SingleServedStubResult getServedStub(UUID id);
+
     VerificationResult countRequestsMatching(RequestPattern requestPattern);
+
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
+
     FindRequestsResult findUnmatchedRequests();
 
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
+
     FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
+
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 
     GetScenariosResult getAllScenarios();
@@ -60,16 +75,28 @@ public interface Admin {
     void updateGlobalSettings(GlobalSettings settings);
 
     SnapshotRecordResult snapshotRecord();
+
     SnapshotRecordResult snapshotRecord(RecordSpec spec);
+
     SnapshotRecordResult snapshotRecord(RecordSpecBuilder spec);
 
     void startRecording(String targetBaseUrl);
+
     void startRecording(RecordSpec spec);
+
     void startRecording(RecordSpecBuilder recordSpec);
+
     SnapshotRecordResult stopRecording();
+
     RecordingStatusResult getRecordingStatus();
 
     Options getOptions();
 
     void shutdownServer();
+
+    ProxyConfig getProxyConfig();
+
+    void enableProxy(UUID id);
+
+    void disableProxy(UUID id);
 }

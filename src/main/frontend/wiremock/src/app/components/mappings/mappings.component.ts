@@ -10,6 +10,7 @@ import {MappingHelperService} from './mapping-helper.service';
 import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../../model/wiremock/item';
 import {Subject} from 'rxjs/internal/Subject';
+import {ProxyConfig} from '../../model/wiremock/proxy-config';
 
 @Component({
   selector: 'wm-mappings',
@@ -49,8 +50,17 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
 
   private loadMappings() {
+    this.wiremockService.getProxyConfig().subscribe(proxyData => {
+      this.loadActualMappings(new ProxyConfig().deserialze(proxyData));
+    }, err => {
+      console.log('Could not load proxy config. Proxy feature deactivated');
+      this.loadActualMappings(null);
+    });
+  }
+
+  private loadActualMappings(proxyConfig: ProxyConfig) {
     this.wiremockService.getMappings().subscribe(data => {
-        this.result = new ListStubMappingsResult().deserialize(data);
+        this.result = new ListStubMappingsResult().deserialize(data, proxyConfig);
       },
       err => {
         UtilService.showErrorMessage(this.messageService, err);
@@ -58,7 +68,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   }
 
   newMapping() {
-    this.newMappingText = UtilService.prettify(UtilService.toJson(StubMapping.createEmpty()));
+    this.newMappingText = UtilService.prettify(UtilService.itemModelStringify(StubMapping.createEmpty()));
     this.editMode = State.NEW;
   }
 
@@ -162,10 +172,10 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     try {
       switch (this.editMode) {
         case State.NEW:
-          this.newMappingText = UtilService.prettify(JSON.stringify(mapping));
+          this.newMappingText = UtilService.prettify(UtilService.itemModelStringify(mapping));
           break;
         case State.EDIT:
-          this.editMappingText = UtilService.prettify(JSON.stringify(mapping));
+          this.editMappingText = UtilService.prettify(UtilService.itemModelStringify(mapping));
           break;
       }
     } catch (err) {

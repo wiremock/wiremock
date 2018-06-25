@@ -13,6 +13,7 @@ import {timer} from 'rxjs/internal/observable/timer';
 import {FindRequestResult} from '../model/wiremock/find-request-result';
 import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
 import {SnapshotRecordResult} from '../model/wiremock/snapshot-record-result';
+import {ProxyConfig} from '../model/wiremock/proxy-config';
 
 @Injectable()
 export class WiremockService {
@@ -53,12 +54,12 @@ export class WiremockService {
 
   saveMapping(id: string, mapping: string): Observable<StubMapping> {
     return this.defaultPipe(this.http.put<StubMapping>(WiremockService.getUrl('mappings/' + id),
-      WiremockService.mapBody(mapping))).pipe(map(editedMapping => new StubMapping().deserialize(editedMapping)));
+      WiremockService.mapBody(mapping))).pipe(map(editedMapping => new StubMapping().deserialize(editedMapping, null)));
   }
 
   saveNewMapping(mapping: string): Observable<StubMapping> {
     return this.defaultPipe(this.http.post<StubMapping>(WiremockService.getUrl('mappings'),
-      WiremockService.mapBody(mapping))).pipe(map(newMapping => new StubMapping().deserialize(newMapping)));
+      WiremockService.mapBody(mapping))).pipe(map(newMapping => new StubMapping().deserialize(newMapping, null)));
   }
 
   deleteMapping(id: string): Observable<ResponseDefinition> {
@@ -100,6 +101,18 @@ export class WiremockService {
 
   shutdown(): Observable<ResponseDefinition> {
     return this.defaultPipe(this.http.post<ResponseDefinition>(WiremockService.getUrl('shutdown'), null));
+  }
+
+  getProxyConfig(): Observable<ProxyConfig> {
+    return this.defaultPipe(this.http.get<ProxyConfig>(WiremockService.getUrl('proxy')));
+  }
+
+  enableProxy(uuid: string): Observable<any> {
+    return this.defaultPipe(this.http.put<any>(WiremockService.getUrl('proxy/' + uuid), null));
+  }
+
+  disableProxy(uuid: string): Observable<any> {
+    return this.defaultPipe(this.http.delete<any>(WiremockService.getUrl('proxy/' + uuid)));
   }
 
   private handleError(error: HttpErrorResponse) {

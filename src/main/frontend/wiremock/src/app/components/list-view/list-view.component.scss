@@ -1,8 +1,12 @@
-
 .wmListItem {
   border-radius: 0;
   border-left: 0;
   font-size: 12px;
+  display: flex;
+}
+
+.wmListItemTextContainer {
+  flex: 1 auto;
 }
 
 .wmListItem:not(.active):hover {
@@ -17,4 +21,8 @@
 
 .wmListItemSubtitle {
   word-break: break-word;
+}
+
+.wmProxyButtons ::ng-deep label.active {
+  opacity: 1;
 }

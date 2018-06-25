@@ -2,8 +2,10 @@ import {RequestPattern} from './request-pattern';
 import {ResponseDefinition} from './response-definition';
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
+import {Proxy} from './proxy';
+import {ProxyConfig} from './proxy-config';
 
-export class StubMapping implements Item {
+export class StubMapping extends Proxy implements Item {
 
   uuid: string;
   name: string;
@@ -14,6 +16,10 @@ export class StubMapping implements Item {
   scenarioName: string;
   requiredScenarioState: string;
   newScenarioState: string;
+
+  constructor() {
+    super();
+  }
 
   static createEmpty(): StubMapping {
     const mapping: StubMapping = new StubMapping();
@@ -32,7 +38,7 @@ export class StubMapping implements Item {
     return mapping;
   }
 
-  deserialize(unchecked: StubMapping): StubMapping {
+  deserialize(unchecked: StubMapping, proxyConfig: ProxyConfig): StubMapping {
     this.uuid = unchecked.uuid;
     this.name = unchecked.name;
     this.persistent = unchecked.persistent;
@@ -42,6 +48,11 @@ export class StubMapping implements Item {
     this.scenarioName = unchecked.scenarioName;
     this.requiredScenarioState = unchecked.requiredScenarioState;
     this.newScenarioState = unchecked.newScenarioState;
+
+    if (UtilService.isDefined(proxyConfig) && (UtilService.isDefined(this.response.proxyBaseUrl) || proxyConfig.proxyConfig.has(this.uuid))) {
+      this.setProxy(true);
+      this.setProxyEnabled(!proxyConfig.proxyConfig.has(this.uuid));
+    }
 
     return this;
   }

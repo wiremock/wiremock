@@ -68,7 +68,12 @@ public class WireMockApp implements StubServer, Admin {
 
     private Options options;
 
+    private final ProxyHandler proxyHandler;
+
     public WireMockApp(final Options options, final Container container) {
+        this.proxyHandler = new ProxyHandler(this);
+
+
         this.options = options;
 
         final FileSource fileSource = options.filesRoot();
@@ -99,6 +104,7 @@ public class WireMockApp implements StubServer, Admin {
             final Map<String, RequestMatcherExtension> requestMatchers,
             final FileSource rootFileSource,
             final Container container) {
+        this.proxyHandler = new ProxyHandler(this);
 
         this.browserProxyingEnabled = browserProxyingEnabled;
         this.defaultMappingsLoader = defaultMappingsLoader;
@@ -201,6 +207,7 @@ public class WireMockApp implements StubServer, Admin {
             this.mappingsSaver.remove(stubMapping);
         }
 
+        this.proxyHandler.removeProxyConfig(stubMapping.getUuid());
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
@@ -211,6 +218,7 @@ public class WireMockApp implements StubServer, Admin {
             this.mappingsSaver.save(stubMapping);
         }
 
+        this.proxyHandler.removeProxyConfig(stubMapping.getUuid());
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
@@ -248,6 +256,8 @@ public class WireMockApp implements StubServer, Admin {
         this.resetRequests();
         this.loadDefaultMappings();
 
+        this.proxyHandler.clear();
+
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
@@ -261,6 +271,7 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver.removeAll();
         this.stubMappings.reset();
 
+        this.proxyHandler.clear();
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
@@ -368,6 +379,23 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void shutdownServer() {
         this.container.shutdown();
+    }
+
+    @Override
+    public ProxyConfig getProxyConfig() {
+        final ProxyConfig proxyConfig = new ProxyConfig();
+        proxyConfig.setProxyConfig(this.proxyHandler.getConfig());
+        return proxyConfig;
+    }
+
+    @Override
+    public void enableProxy(final UUID id) {
+        this.proxyHandler.enableProxyUrl(id);
+    }
+
+    @Override
+    public void disableProxy(final UUID id) {
+        this.proxyHandler.disableProxyUrl(id);
     }
 
     @Override

@@ -109,7 +109,7 @@ export class UtilService {
     if (item._code === null || typeof item._code === 'undefined') {
       // we store the code string in the model without stringify it into JSON
       item._code = JSON.stringify(item, function (key, value) {
-        if (key === '_code') {
+        if (key.startsWith('_')) {
           return undefined;
         } else {
           return value;

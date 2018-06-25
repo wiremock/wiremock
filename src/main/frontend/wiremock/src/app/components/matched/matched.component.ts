@@ -27,7 +27,7 @@ export class MatchedComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.webSocketService.observe('unmatched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100)).subscribe(() => {
+    this.webSocketService.observe('matched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100)).subscribe(() => {
       this.loadMappings();
     });
 

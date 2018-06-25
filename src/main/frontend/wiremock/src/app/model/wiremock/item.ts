@@ -6,4 +6,8 @@ export interface Item {
   getId(): string;
 
   getCode(): string;
+
+  isProxy(): boolean;
+
+  isProxyEnabled(): boolean;
 }
