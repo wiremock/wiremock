@@ -8,13 +8,11 @@ buildscript {
 
     dependencies {
         classpath group: 'org.ajoberstar', name: 'gradle-plugins', version: '0.1.1'
-
     }
 }
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.3'
-    id 'com.moowork.node' version '1.2.0'
 }
 
 apply plugin: 'java'
@@ -98,17 +96,6 @@ dependencies {
 
 compileTestJava {
     options.encoding = 'UTF-8'
-}
-
-node {
-    version = '8.11.3'
-    yarnVersion = '1.7.0'
-    download = true
-    workDir = file('build/node')
-    //    nodeModulesDir = file('${project.projectDir}/src/main/frontend/wiremock')
-    //    nodeModulesDir = file('.')
-    //    npmWorkDir = file('docs-v2')
-    //    yarnWorkDir = file('src/main/frontend/wiremock')
 }
 
 test {
@@ -392,6 +379,33 @@ task deleteGeneratedApiDocs(type: Delete) {
 }
 
 clean.dependsOn deleteGeneratedApiDocs
+
+task npmInstallWebapp(type: Exec) {
+    workingDir 'webapp/wiremock'
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npm', 'i'
+    } else {
+        commandLine 'npm', 'i'
+    }
+}
+
+task generateWebapp(type: Exec) {
+    workingDir 'webapp/wiremock'
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npm', 'run', 'prod'
+    } else {
+        commandLine 'npm', 'run', 'prod'
+    }
+}
+
+jar.dependsOn generateWebapp
+processResources.dependsOn generateWebapp
+
+task deleteGeneratedWebapp(type: Delete) {
+    delete "src/main/resources/assets/webapp"
+}
+
+clean.dependsOn deleteGeneratedWebapp
 
 task release {
     dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'

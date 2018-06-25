@@ -91,6 +91,7 @@ public class ProxyHandler {
                                           response.getByteBody(), null, null, response.getBodyFileName(), response.getHeaders(),
                                           response.getAdditionalProxyRequestHeaders(), response.getFixedDelayMilliseconds(),
                                           response.getDelayDistribution(),
+                                          response.getChunkedDribbleDelay(),
                                           //proxy url
                                           proxyUrl,
                                           //end
@@ -102,6 +103,7 @@ public class ProxyHandler {
                                           response.getBody(), null, null, response.getBodyFileName(), response.getHeaders(),
                                           response.getAdditionalProxyRequestHeaders(), response.getFixedDelayMilliseconds(),
                                           response.getDelayDistribution(),
+                                          response.getChunkedDribbleDelay(),
                                           //proxy url
                                           proxyUrl,
                                           //end
