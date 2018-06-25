@@ -44,8 +44,6 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.servlets.GzipFilter;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
 import javax.servlet.DispatcherType;
@@ -115,43 +113,43 @@ public class JettyHttpServer implements HttpServer {
                 notifier
         );
 
-        HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
+        final HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(ArrayUtils.addAll(this.extensionHandlers(), adminContext));
 
-        addGZipHandler(mockServiceContext, handlers);
+        this.addGZipHandler(mockServiceContext, handlers);
 
         return handlers;
     }
 
-    private void addGZipHandler(ServletContextHandler mockServiceContext, HandlerCollection handlers) {
+    private void addGZipHandler(final ServletContextHandler mockServiceContext, final HandlerCollection handlers) {
         Class<?> gzipHandlerClass = null;
 
         try {
             gzipHandlerClass = Class.forName("org.eclipse.jetty.servlets.gzip.GzipHandler");
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             try {
                 gzipHandlerClass = Class.forName("org.eclipse.jetty.server.handler.gzip.GzipHandler");
-            } catch (ClassNotFoundException e1) {
+            } catch (final ClassNotFoundException e1) {
                 throwUnchecked(e1);
             }
         }
 
         try {
-            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            final HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
             gzipWrapper.setHandler(mockServiceContext);
             handlers.addHandler(gzipWrapper);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throwUnchecked(e);
         }
     }
 
-    protected void finalizeSetup(Options options) {
-        if(!options.jettySettings().getStopTimeout().isPresent()) {
-            jettyServer.setStopTimeout(0);
+    protected void finalizeSetup(final Options options) {
+        if (!options.jettySettings().getStopTimeout().isPresent()) {
+            this.jettyServer.setStopTimeout(0);
         }
     }
 
-    protected Server createServer(Options options) {
+    protected Server createServer(final Options options) {
         final Server server = new Server(options.threadPoolFactory().buildThreadPool(options));
         final JettySettings jettySettings = options.jettySettings();
         final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
@@ -318,10 +316,10 @@ public class JettyHttpServer implements HttpServer {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private ServletContextHandler addMockServiceContext(
-            StubRequestHandler stubRequestHandler,
-            FileSource fileSource,
-            AsynchronousResponseSettings asynchronousResponseSettings,
-            Notifier notifier
+            final StubRequestHandler stubRequestHandler,
+            final FileSource fileSource,
+            final AsynchronousResponseSettings asynchronousResponseSettings,
+            final Notifier notifier
     ) {
         final ServletContextHandler mockServiceContext = new ServletContextHandler(this.jettyServer, "/");
 
@@ -340,11 +338,11 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
         if (asynchronousResponseSettings.isEnabled()) {
-            ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            final ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
-        MimeTypes mimeTypes = new MimeTypes();
+        final MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
         mimeTypes.addMimeMapping("html", "text/html");
         mimeTypes.addMimeMapping("xml", "application/xml");
@@ -354,8 +352,8 @@ public class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setErrorHandler(new NotFoundHandler());
 
-        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
-        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
+        mockServiceContext.addFilter(ContentTypeSettingFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
+        mockServiceContext.addFilter(TrailingSlashFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
         return mockServiceContext;
     }

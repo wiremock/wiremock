@@ -140,21 +140,21 @@ public class WireMockApp implements StubServer, Admin {
     public StubRequestHandler buildStubRequestHandler() {
         final Map<String, PostServeAction> postServeActions = this.options.extensionsOfType(PostServeAction.class);
         return new StubRequestHandler(
-            this,
-            new StubResponseRenderer(
-                options.filesRoot().child(FILES_ROOT),
-                getGlobalSettingsHolder(),
-                new ProxyResponseRenderer(
-                    options.proxyVia(),
-                    options.httpsSettings().trustStore(),
-                    options.shouldPreserveHostHeader(),
-                    options.proxyHostHeader(),
-                    globalSettingsHolder),
-                ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
-            ),
-            this,
-            postServeActions,
-            requestJournal
+                this,
+                new StubResponseRenderer(
+                        this.options.filesRoot().child(WireMockApp.FILES_ROOT),
+                        this.getGlobalSettingsHolder(),
+                        new ProxyResponseRenderer(
+                                this.options.proxyVia(),
+                                this.options.httpsSettings().trustStore(),
+                                this.options.shouldPreserveHostHeader(),
+                                this.options.proxyHostHeader(),
+                                this.globalSettingsHolder),
+                        ImmutableList.copyOf(this.options.extensionsOfType(ResponseTransformer.class).values())
+                ),
+                this,
+                postServeActions,
+                this.requestJournal
         );
     }
 
@@ -186,11 +186,11 @@ public class WireMockApp implements StubServer, Admin {
         return serveEvent;
     }
 
-    private void logUnmatchedRequest(LoggedRequest request) {
-        List<NearMiss> nearest = nearMissCalculator.findNearestTo(request);
-        String message;
+    private void logUnmatchedRequest(final LoggedRequest request) {
+        final List<NearMiss> nearest = this.nearMissCalculator.findNearestTo(request);
+        final String message;
         if (!nearest.isEmpty()) {
-            message = diffRenderer.render(nearest.get(0).getDiff());
+            message = WireMockApp.diffRenderer.render(nearest.get(0).getDiff());
         } else {
             message = "Request was not matched as there were no stubs registered:\n" + request;
         }
@@ -456,15 +456,15 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
-        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(stubMappings.findByMetadata(pattern)));
+    public ListStubMappingsResult findAllStubsByMetadata(final StringValuePattern pattern) {
+        return new ListStubMappingsResult(LimitAndOffsetPaginator.none(this.stubMappings.findByMetadata(pattern)));
     }
 
     @Override
-    public void removeStubsByMetadata(StringValuePattern pattern) {
-        List<StubMapping> foundMappings = stubMappings.findByMetadata(pattern);
-        for (StubMapping mapping: foundMappings) {
-            removeStubMapping(mapping);
+    public void removeStubsByMetadata(final StringValuePattern pattern) {
+        final List<StubMapping> foundMappings = this.stubMappings.findByMetadata(pattern);
+        for (final StubMapping mapping : foundMappings) {
+            this.removeStubMapping(mapping);
         }
     }
 

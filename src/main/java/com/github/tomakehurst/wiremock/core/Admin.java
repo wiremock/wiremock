@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.core;
 
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
-import com.github.tomakehurst.wiremock.matching.MatchesJsonPathPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
@@ -103,5 +102,6 @@ public interface Admin {
     void disableProxy(UUID id);
 
     ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern);
+
     void removeStubsByMetadata(StringValuePattern pattern);
 }

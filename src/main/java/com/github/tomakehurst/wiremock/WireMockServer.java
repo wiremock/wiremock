@@ -36,8 +36,6 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -246,13 +244,13 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public List<StubMapping> findStubMappingsByMetadata(StringValuePattern pattern) {
-        return client.findAllStubsByMetadata(pattern);
+    public List<StubMapping> findStubMappingsByMetadata(final StringValuePattern pattern) {
+        return this.client.findAllStubsByMetadata(pattern);
     }
 
     @Override
-    public void removeStubMappingsByMetadata(StringValuePattern pattern) {
-        client.removeStubsByMetadataPattern(pattern);
+    public void removeStubMappingsByMetadata(final StringValuePattern pattern) {
+        this.client.removeStubsByMetadataPattern(pattern);
     }
 
     @Override
@@ -471,12 +469,12 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
-    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
-        return wireMockApp.findAllStubsByMetadata(pattern);
+    public ListStubMappingsResult findAllStubsByMetadata(final StringValuePattern pattern) {
+        return this.wireMockApp.findAllStubsByMetadata(pattern);
     }
 
     @Override
-    public void removeStubsByMetadata(StringValuePattern pattern) {
-        wireMockApp.removeStubsByMetadata(pattern);
+    public void removeStubsByMetadata(final StringValuePattern pattern) {
+        this.wireMockApp.removeStubsByMetadata(pattern);
     }
 }
