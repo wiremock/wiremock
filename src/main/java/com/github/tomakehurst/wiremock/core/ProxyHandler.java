@@ -1,11 +1,15 @@
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.jetty9.websockets.Message;
 import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -14,10 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ProxyHandler {
     private final Map<UUID, String> proxyUrl = new ConcurrentHashMap<>();
 
-    private final WireMockApp app;
+    private final Admin admin;
 
-    public ProxyHandler(final WireMockApp app) {
-        this.app = app;
+    public ProxyHandler(final Admin admin) {
+        this.admin = admin;
     }
 
     public void clear() {
@@ -29,28 +33,33 @@ public class ProxyHandler {
     }
 
     public void disableProxyUrl(final UUID uuid) {
-        final List<StubMapping> mappings = this.app.listAllStubMappings().getMappings();
+        final SingleStubMappingResult result = this.admin.getStubMapping(uuid);
 
-        for (final StubMapping mapping : mappings) {
-            if (mapping.getUuid().equals(uuid) && mapping.getResponse().isProxyResponse()
-                    && !this.proxyUrl.containsKey(uuid)) {
-                this.storeProxyUrl(mapping);
-                this.disableProxyUrlInMapping(mapping);
-                break;
-            }
+        if (!result.isPresent()) {
+            return;
+        }
+
+        final StubMapping mapping = result.getItem();
+
+        if (mapping.getResponse().isProxyResponse() && !this.proxyUrl.containsKey(uuid)) {
+            this.storeProxyUrl(mapping);
+            this.disableProxyUrlInMapping(mapping);
         }
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
 
     public void enableProxyUrl(final UUID uuid) {
-        final List<StubMapping> mappings = this.app.listAllStubMappings().getMappings();
+        final SingleStubMappingResult result = this.admin.getStubMapping(uuid);
 
-        for (final StubMapping mapping : mappings) {
-            if (mapping.getUuid().equals(uuid) && this.proxyUrl.containsKey(uuid)) {
-                this.enableProxyUrlInMapping(mapping);
-                this.removeProxyUrl(mapping);
-                break;
-            }
+        if (!result.isPresent()) {
+            return;
+        }
+
+        final StubMapping mapping = result.getItem();
+
+        if (this.proxyUrl.containsKey(uuid)) {
+            this.enableProxyUrlInMapping(mapping);
+            this.removeProxyUrl(mapping);
         }
         WebSocketEndpoint.broadcast(Message.MAPPINGS);
     }
