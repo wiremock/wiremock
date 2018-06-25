@@ -16,24 +16,26 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Iterables.tryFind;
 
@@ -160,7 +162,18 @@ public class InMemoryStubMappings implements StubMappings {
 		return scenarios.getAll();
 	}
 
-	private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
+	@Override
+	public List<StubMapping> findByMetadata(final StringValuePattern pattern) {
+        return from(mappings).filter(new Predicate<StubMapping>() {
+            @Override
+            public boolean apply(StubMapping stub) {
+                String metadataJson = Json.write(stub.getMetadata());
+                return pattern.match(metadataJson).isExactMatch();
+            }
+        }).toList();
+	}
+
+    private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
 		return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
 

@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.github.jknack.handlebars.EscapingStrategy;
+import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -25,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -267,6 +270,233 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getProxyBaseUrl(), is(
             "http://localhost:8000"
+        ));
+    }
+
+    @Test
+    public void escapingIsTheDefault() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my &#x27;single quotes&#x27;\"}"));
+    }
+
+    @Test
+    public void escapingCanBeDisabled() {
+        Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
+        ResponseTemplateTransformer transformerWithEscapingDisabled = new ResponseTemplateTransformer(true, handlebars, Collections.<String, Helper>emptyMap());
+        final ResponseDefinition responseDefinition = transformerWithEscapingDisabled.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{jsonPath request.body '$.a.test'}}\"}").build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"look at my 'single quotes'\"}"));
+    }
+
+    @Test
+    public void transformerParametersAreAppliedToTemplate() throws Exception {
+        ResponseDefinition responseDefinition = transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test\": \"{{parameters.variable}}\"}").build(),
+                noFileSource(),
+                Parameters.one("variable", "some.value")
+        );
+
+        assertThat(responseDefinition.getBody(), is("{\"test\": \"some.value\"}"));
+    }
+
+    @Test
+    public void unknownTransformerParametersAreNotCausingIssues() throws Exception {
+        ResponseDefinition responseDefinition = transformer.transform(
+                mockRequest()
+                        .url("/json").
+                        body("{\"a\": {\"test\": \"look at my 'single quotes'\"}}"),
+                aResponse()
+                        .withBody("{\"test1\": \"{{parameters.variable}}\", \"test2\": \"{{parameters.unknown}}\"}").build(),
+                noFileSource(),
+                Parameters.one("variable", "some.value")
+        );
+
+        assertThat(responseDefinition.getBody(), is("{\"test1\": \"some.value\", \"test2\": \"\"}"));
+    }
+
+    @Test
+    public void requestLineScheme() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "scheme: {{{request.requestLine.scheme}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "scheme: https"
+        ));
+    }
+
+    @Test
+    public void requestLineHost() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "host: {{{request.requestLine.host}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "host: my.domain.io"
+        ));
+    }
+
+    @Test
+    public void requestLinePort() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "port: {{{request.requestLine.port}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "port: 8080"
+        ));
+    }
+
+    @Test
+    public void requestLinePath() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path: {{{request.requestLine.path}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path: /the/entire/path?query1=one&query2=two"
+        ));
+    }
+
+    @Test
+    public void requestLineBaseUrlNonStandardPort() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: https://my.domain.io:8080"
+        ));
+    }
+
+    @Test
+    public void requestLineBaseUrlHttp() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("http")
+                .host("my.domain.io")
+                .port(80)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: http://my.domain.io"
+        ));
+    }
+
+    @Test
+    public void requestLineBaseUrlHttps() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(443)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "baseUrl: {{{request.requestLine.baseUrl}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "baseUrl: https://my.domain.io"
+        ));
+    }
+
+    @Test
+    public void requestLinePathSegment() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path segments: {{{request.requestLine.pathSegments}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path segments: /the/entire/path"
+        ));
+    }
+
+    @Test
+    public void requestLinePathSegment0() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .scheme("https")
+                .host("my.domain.io")
+                .port(8080)
+                .url("/the/entire/path?query1=one&query2=two"),
+            aResponse().withBody(
+                "path segments 0: {{{request.requestLine.pathSegments.[0]}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "path segments 0: the"
+        ));
+    }
+
+    @Test
+    public void requestLinequeryParameters() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things?multi_param=one&multi_param=two&single-param=1234"),
+            aResponse().withBody(
+                "Multi 1: {{request.requestLine.query.multi_param.[0]}}, Multi 2: {{request.requestLine.query.multi_param.[1]}}, Single 1: {{request.requestLine.query.single-param}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            "Multi 1: one, Multi 2: two, Single 1: 1234"
         ));
     }
 

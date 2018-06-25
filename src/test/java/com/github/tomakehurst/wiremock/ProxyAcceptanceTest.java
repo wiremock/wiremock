@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.client.WireMockBuilder;
@@ -29,6 +30,7 @@ import com.github.tomakehurst.wiremock.testsupport.TestHttpHeader;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.Stopwatch;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -46,7 +48,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.net.HttpHeaders.CONTENT_ENCODING;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -390,16 +394,89 @@ public class ProxyAcceptanceTest {
     }
 
     @Test
-    public void removesTrailingSlashFromUrlBeforeForwarding() {
+    public void contextPathsWithoutTrailingSlashesArePreserved() {
         initWithDefaultConfig();
 
-        targetServiceAdmin.register(get("/slashes").willReturn(ok()));
+        targetServiceAdmin.register(get("/example").willReturn(ok()));
         proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
 
-        WireMockResponse response = testClient.get("/slashes/");
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example");
         assertThat(response.statusCode(), is(200));
 
-        targetServiceAdmin.verifyThat(getRequestedFor(urlEqualTo("/slashes")));
+        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example/")));
+
+    }
+
+    @Test
+    public void contextPathsWithTrailingSlashesArePreserved() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/example/").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/example/");
+        assertThat(response.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(1, getRequestedFor(urlEqualTo("/example/")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("/example")));
+    }
+
+    /**
+     * NOTE: {@link org.apache.http.client.HttpClient} always has a / when the context path is empty.
+     * This is also the behaviour of curl (see e.g. <a href="https://curl.haxx.se/mail/archive-2016-08/0027.html">here</a>)
+     */
+    @Test
+    public void clientLibrariesTendToAddTheTrailingSlashWhenTheContextPathIsEmpty() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl()).willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        WireMockResponse responseToRequestWithoutSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port());
+        assertThat(responseToRequestWithoutSlash.statusCode(), is(200));
+
+        WireMockResponse responseToRequestWithSlash = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/");
+        assertThat(responseToRequestWithSlash.statusCode(), is(200));
+
+        targetServiceAdmin.verifyThat(2, getRequestedFor(urlEqualTo("/")));
+        targetServiceAdmin.verifyThat(0, getRequestedFor(urlEqualTo("")));
+    }
+
+    @Test
+    public void fixedDelaysAreAddedToProxiedResponses() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/delayed").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl())
+            .willReturn(aResponse()
+                .proxiedFrom(targetServiceBaseUrl)
+                .withFixedDelay(300)));
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/delayed");
+        stopwatch.stop();
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(300L));
+    }
+
+    @Test
+    public void chunkedDribbleDelayIsAddedToProxiedResponse() {
+        initWithDefaultConfig();
+
+        targetServiceAdmin.register(get("/chunk-delayed").willReturn(ok()));
+        proxyingServiceAdmin.register(any(anyUrl())
+            .willReturn(aResponse()
+                .proxiedFrom(targetServiceBaseUrl)
+                .withChunkedDribbleDelay(10, 300)));
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        WireMockResponse response = testClient.getViaProxy("http://localhost:" + proxyingService.port() + "/chunk-delayed");
+        stopwatch.stop();
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(300L));
     }
 
     private void register200StubOnProxyAndTarget(String url) {

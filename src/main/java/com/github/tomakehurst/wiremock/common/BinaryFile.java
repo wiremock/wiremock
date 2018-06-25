@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-public class BinaryFile {
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
+public class BinaryFile implements InputStreamSource {
 
 	private URI uri;
 
@@ -30,31 +32,14 @@ public class BinaryFile {
 	}
 
 	public byte[] readContents() {
-		InputStream stream = null;
-		try {
-			stream = uri.toURL().openStream();
+		try(InputStream stream = getStream()) {
 			return ByteStreams.toByteArray(stream);
 		} catch (final IOException ioe) {
-			throw new RuntimeException(ioe);
-		} finally {
-			closeStream(stream);
+			return throwUnchecked(ioe, byte[].class);
 		}
 	}
 
-	/**
-	 * @param stream Stream to close, may be null
-	 */
-	private void closeStream(InputStream stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException ioe) {
-				throw new RuntimeException(ioe);
-			}
-		}
-	}
-
-	public URI getUri() {
+	protected URI getUri() {
 		return uri;
 	}
 
@@ -65,5 +50,14 @@ public class BinaryFile {
 	@Override
 	public String toString() {
 		return name();
+	}
+
+	@Override
+	public InputStream getStream() {
+		try {
+			return uri.toURL().openStream();
+		} catch (IOException e) {
+			return throwUnchecked(e, InputStream.class);
+		}
 	}
 }

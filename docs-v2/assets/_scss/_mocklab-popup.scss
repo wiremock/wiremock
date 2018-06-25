@@ -68,3 +68,39 @@
     }
   }
 }
+
+.mocklab-cta {
+  border: 3px solid $mocklab-dark-green !important;
+  border-radius: 5px;
+  color: white;
+  text-align: center;
+  padding: 0.2rem;
+  outline: none;
+  min-width: 6rem;
+  max-height: 2.5rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 15px;
+
+  &:active,
+  &:visited,
+  &:hover {
+    color: white;
+    text-decoration: none;
+  }
+
+  &--primary {
+    background-color: $mocklab-dark-green;
+  }
+
+  &--secondary {
+    color: $mocklab-dark-green;
+    background-color: transparent;
+
+    &:active,
+    &:visited,
+    &:hover {
+      color: $mocklab-dark-green;
+    }
+  }
+}

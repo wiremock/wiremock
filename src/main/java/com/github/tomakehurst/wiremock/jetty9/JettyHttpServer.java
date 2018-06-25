@@ -15,10 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.HttpsSettings;
-import com.github.tomakehurst.wiremock.common.JettySettings;
-import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
@@ -41,6 +38,7 @@ import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -57,9 +55,11 @@ import javax.websocket.server.ServerContainer;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
@@ -111,22 +111,48 @@ public class JettyHttpServer implements HttpServer {
         final ServletContextHandler mockServiceContext = this.addMockServiceContext(
                 stubRequestHandler,
                 options.filesRoot(),
+                options.getAsynchronousResponseSettings(),
                 notifier
         );
 
-        final HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(ArrayUtils.addAll(this.extensionHandlers(), adminContext, mockServiceContext));
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
+
+        addGZipHandler(mockServiceContext, handlers);
+
         return handlers;
     }
 
-    protected void finalizeSetup(final Options options) {
-        if (!options.jettySettings().getStopTimeout().isPresent()) {
-            this.jettyServer.setStopTimeout(0);
+    private void addGZipHandler(ServletContextHandler mockServiceContext, HandlerCollection handlers) {
+        Class<?> gzipHandlerClass = null;
+
+        try {
+            gzipHandlerClass = Class.forName("org.eclipse.jetty.servlets.gzip.GzipHandler");
+        } catch (ClassNotFoundException e) {
+            try {
+                gzipHandlerClass = Class.forName("org.eclipse.jetty.server.handler.gzip.GzipHandler");
+            } catch (ClassNotFoundException e1) {
+                throwUnchecked(e1);
+            }
+        }
+
+        try {
+            HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            gzipWrapper.setHandler(mockServiceContext);
+            handlers.addHandler(gzipWrapper);
+        } catch (Exception e) {
+            throwUnchecked(e);
         }
     }
 
-    protected Server createServer(final Options options) {
-        final Server server = new Server(new QueuedThreadPool(options.containerThreads()));
+    protected void finalizeSetup(Options options) {
+        if(!options.jettySettings().getStopTimeout().isPresent()) {
+            jettyServer.setStopTimeout(0);
+        }
+    }
+
+    protected Server createServer(Options options) {
+        final Server server = new Server(options.threadPoolFactory().buildThreadPool(options));
         final JettySettings jettySettings = options.jettySettings();
         final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
         if (stopTimeout.isPresent()) {
@@ -292,9 +318,10 @@ public class JettyHttpServer implements HttpServer {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private ServletContextHandler addMockServiceContext(
-            final StubRequestHandler stubRequestHandler,
-            final FileSource fileSource,
-            final Notifier notifier
+            StubRequestHandler stubRequestHandler,
+            FileSource fileSource,
+            AsynchronousResponseSettings asynchronousResponseSettings,
+            Notifier notifier
     ) {
         final ServletContextHandler mockServiceContext = new ServletContextHandler(this.jettyServer, "/");
 
@@ -312,7 +339,12 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
-        final MimeTypes mimeTypes = new MimeTypes();
+        if (asynchronousResponseSettings.isEnabled()) {
+            ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
+        }
+
+        MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
         mimeTypes.addMimeMapping("html", "text/html");
         mimeTypes.addMimeMapping("xml", "application/xml");
@@ -322,9 +354,8 @@ public class JettyHttpServer implements HttpServer {
 
         mockServiceContext.setErrorHandler(new NotFoundHandler());
 
-        mockServiceContext.addFilter(GzipFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-        mockServiceContext.addFilter(ContentTypeSettingFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
-        mockServiceContext.addFilter(TrailingSlashFilter.class, JettyHttpServer.FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
+        mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
+        mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
         return mockServiceContext;
     }

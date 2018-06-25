@@ -74,8 +74,14 @@ public class WireMockServerRunner {
 
         try {
             wireMockServer.start();
-            out.println(BANNER);
-            out.println();
+            options.setResultingPort(wireMockServer.port());
+            if (!options.bannerDisabled()){
+                out.println(BANNER);
+                out.println();
+            } else  {
+               out.println();
+               out.println("The WireMock server is started .....");
+            }
             out.println(options);
         } catch (FatalStartupException e) {
             System.err.println(e.getMessage());
@@ -100,7 +106,9 @@ public class WireMockServerRunner {
 	}
 	
 	public void stop() {
-		wireMockServer.stop();
+		if (wireMockServer != null) {
+			wireMockServer.stop();
+		}
 	}
 
     public boolean isRunning() {

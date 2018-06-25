@@ -15,20 +15,24 @@
             "type": "boolean"
         },
         "scenarioName": {
-            "descrption": "The name of the scenario that this stub mapping is part of",
+            "description": "The name of the scenario that this stub mapping is part of",
             "type": "string"
         },
         "requiredScenarioState": {
-            "descrption": "The required state of the scenario in order for this stub to be matched.",
+            "description": "The required state of the scenario in order for this stub to be matched.",
             "type": "string"
         },
         "newScenarioState": {
-            "descrption": "The new state for the scenario to be updated to after this stub is served.",
+            "description": "The new state for the scenario to be updated to after this stub is served.",
             "type": "string"
         },
         "postServeActions": {
-            "descrption": "A map of the names of post serve action extensions to trigger and their parameters.",
+            "description": "A map of the names of post serve action extensions to trigger and their parameters.",
             "type": "object"
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Arbitrary metadata to be used for e.g. tagging, documentation. Can also be used to find and remove stubs."
         },
 
         "request": {

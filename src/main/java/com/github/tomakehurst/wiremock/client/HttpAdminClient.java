@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpStatus;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
@@ -357,6 +358,24 @@ public class HttpAdminClient implements Admin {
     @Override
     public void disableProxy(final UUID id) {
         this.postJsonAssertOkAndReturnBody(this.urlFor(DisableProxyTask.class), null);
+    }
+
+    @Override
+    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
+        return executeRequest(
+            adminRoutes.requestSpecForTask(FindStubMappingsByMetadataTask.class),
+            pattern,
+            ListStubMappingsResult.class
+        );
+    }
+
+    @Override
+    public void removeStubsByMetadata(StringValuePattern pattern) {
+        executeRequest(
+            adminRoutes.requestSpecForTask(RemoveStubMappingsByMetadataTask.class),
+            pattern,
+            Void.class
+        );
     }
 
     public int port() {

@@ -1,40 +1,43 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
+def windows?
+    (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+end
 
-Vagrant.configure(2) do |config|
-  config.vm.box = "https://cloud-images.ubuntu.com/vagrant/utopic/current/utopic-server-cloudimg-i386-vagrant-disk1.box"
+Vagrant.configure("2") do |config|
+  config.vm.box = "tcthien/java-dev-server"
+  config.vm.box_version = "0.0.7"
   config.vm.box_check_update = false
 
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  # config.vm.synced_folder "#{Dir.home}/.m2/repository", "/share/mavenRepo"
+  # config.vm.synced_folder "", "/share/source"
 
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
-
-  config.vm.synced_folder ".", "/wiremock"
+  # MySQL Port
+  # config.vm.network "forwarded_port", guest: 3306, host: 3306
+  # Cassandra Port
+  # config.vm.network "forwarded_port", guest: 9042, host: 9042
+  # config.vm.network "forwarded_port", guest: 7000, host: 7000
+  # config.vm.network "forwarded_port", guest: 7001, host: 7001
+  # config.vm.network "forwarded_port", guest: 9160, host: 9160
 
   config.vm.provider "virtualbox" do |vb|
      vb.memory = "2048"
+     vb.name = "codelab-server"
   end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
 
-  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-  # such as FTP and Heroku are also available. See the documentation at
-  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-  # config.push.define "atlas" do |push|
-  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-  # end
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update
-    sudo apt-get install -y openjdk-7-jdk
+  # update node+npm
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
+    export NVM_DIR="\$HOME/.nvm"
+    [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
+    [ -s "\$NVM_DIR/bash_completion" ] && \. "\$NVM_DIR/bash_completion"
+    nvm install --lts
   SHELL
+
+  # node/npm has symlink errors on windows hosts, this config disables them
+  if windows?
+    config.vm.provision "shell", privileged: false, inline: <<-SHELL
+      export NVM_DIR="\$HOME/.nvm"
+      [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
+      npm config set bin-links false
+    SHELL
+  end
 end

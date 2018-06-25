@@ -18,8 +18,7 @@ package com.github.tomakehurst.wiremock.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,6 +26,9 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public final class Json {
+
+    public static class PrivateView {}
+    public static class PublicView {}
 
     private static final ThreadLocal<ObjectMapper> objectMapperHolder = new ThreadLocal<ObjectMapper>() {
         @Override
@@ -46,15 +48,29 @@ public final class Json {
 		try {
 			ObjectMapper mapper = getObjectMapper();
 			return mapper.readValue(json, clazz);
-		} catch (IOException ioe) {
+		} catch (JsonMappingException mappingException) {
+            throw JsonException.fromJackson(mappingException);
+        } catch (IOException ioe) {
 			return throwUnchecked(ioe, clazz);
 		}
 	}
 
-	public static <T> String write(T object) {
+    public static <T> String write(T object) {
+	    return write(object, PublicView.class);
+    }
+
+    public static <T> String writePrivate(T object) {
+        return write(object, PrivateView.class);
+    }
+
+    public static <T> String write(T object, Class<?> view) {
 		try {
 			ObjectMapper mapper = getObjectMapper();
-			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
+            if (view != null) {
+                objectWriter = objectWriter.withView(view);
+            }
+            return objectWriter.writeValueAsString(object);
 		} catch (IOException ioe) {
             return throwUnchecked(ioe, String.class);
 		}

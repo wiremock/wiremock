@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.SortedSet;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Sets.newTreeSet;
@@ -118,7 +119,7 @@ public class MatchesXPathPattern extends PathPattern {
 
     private NodeList findXmlNodesMatching(String value) {
         try {
-            DocumentBuilder documentBuilder = XMLUnit.newControlParser();
+            DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
             documentBuilder.setErrorHandler(new SilentErrorHandler());
             Document inDocument = XMLUnit.buildDocument(documentBuilder, new StringReader(value));
             XpathEngine simpleXpathEngine = XMLUnit.newXpathEngine();
@@ -137,6 +138,8 @@ public class MatchesXPathPattern extends PathPattern {
         } catch (XpathException e) {
             notifier().info("Warning: failed to evaluate the XPath expression " + expectedValue);
             return null;
+        } catch (Exception e) {
+            return throwUnchecked(e, NodeList.class);
         }
     }
 }

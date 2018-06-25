@@ -15,8 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.google.common.io.Resources;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -42,10 +46,10 @@ public class KeyStoreSettings {
     }
 
     public KeyStore loadStore() {
-        FileInputStream instream = null;
+        InputStream instream = null;
         try {
             KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
-            instream = new FileInputStream(path);
+            instream = createInputStream();
             trustStore.load(instream, password.toCharArray());
             return trustStore;
         } catch (Exception e) {
@@ -58,6 +62,14 @@ public class KeyStoreSettings {
                     throwUnchecked(ioe);
                 }
             }
+        }
+    }
+
+    private InputStream createInputStream() throws IOException {
+        if (new File(path).isFile()) {
+            return new FileInputStream(path);
+        } else {
+            return Resources.getResource(path).openStream();
         }
     }
 }

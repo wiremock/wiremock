@@ -19,17 +19,14 @@ import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.google.common.base.Optional;
 
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-
 import static com.github.tomakehurst.wiremock.http.Response.response;
 
 public class StubResponseRenderer implements ResponseRenderer {
-	
+
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
@@ -56,13 +53,11 @@ public class StubResponseRenderer implements ResponseRenderer {
 	}
 
 	private Response buildResponse(ResponseDefinition responseDefinition) {
-		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
-		addRandomDelayIfSpecifiedGloballyOrIn(responseDefinition);
-
 		if (responseDefinition.isProxyResponse()) {
 			return proxyResponseRenderer.render(responseDefinition);
 		} else {
-			return renderDirectly(responseDefinition);
+			Response.Builder responseBuilder = renderDirectly(responseDefinition);
+			return responseBuilder.build();
 		}
 	}
 
@@ -83,16 +78,23 @@ public class StubResponseRenderer implements ResponseRenderer {
 		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
 	}
 
-	private Response renderDirectly(ResponseDefinition responseDefinition) {
+	private Response.Builder renderDirectly(ResponseDefinition responseDefinition) {
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
 				.statusMessage(responseDefinition.getStatusMessage())
                 .headers(responseDefinition.getHeaders())
-                .fault(responseDefinition.getFault());
+                .fault(responseDefinition.getFault())
+				.configureDelay(
+					globalSettingsHolder.get().getFixedDelay(),
+					globalSettingsHolder.get().getDelayDistribution(),
+					responseDefinition.getFixedDelayMilliseconds(),
+					responseDefinition.getDelayDistribution()
+				)
+				.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            responseBuilder.body(bodyFile.readContents());
+            responseBuilder.body(bodyFile);
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
@@ -101,44 +103,6 @@ public class StubResponseRenderer implements ResponseRenderer {
             }
 		}
 
-        return responseBuilder.build();
-	}
-	
-    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
-    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(response);
-        if (optionalDelay.isPresent()) {
-	        try {
-	            Thread.sleep(optionalDelay.get());
-	        } catch (InterruptedException e) {
-	            Thread.currentThread().interrupt();
-	        }
-	    }
-    }
-    
-    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition response) {
-    	Integer delay = response.getFixedDelayMilliseconds() != null ?
-    			response.getFixedDelayMilliseconds() :
-    			globalSettingsHolder.get().getFixedDelay();
-    	
-    	return Optional.fromNullable(delay);
-    }
-
-    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
-		if (response.getDelayDistribution() != null) {
-			addRandomDelayIn(response.getDelayDistribution());
-		} else {
-			addRandomDelayIn(globalSettingsHolder.get().getDelayDistribution());
-		}
-    }
-
-	private void addRandomDelayIn(DelayDistribution delayDistribution) {
-		if (delayDistribution == null) return;
-
-		long delay = delayDistribution.sampleMillis();
-		try {
-           TimeUnit.MILLISECONDS.sleep(delay);
-        } catch (InterruptedException e) {
-           Thread.currentThread().interrupt();
-        }
+        return responseBuilder;
 	}
 }

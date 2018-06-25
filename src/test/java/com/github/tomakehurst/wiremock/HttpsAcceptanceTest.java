@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
@@ -60,6 +61,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 public class HttpsAcceptanceTest {
 
@@ -73,7 +76,10 @@ public class HttpsAcceptanceTest {
 
     @After
     public void serverShutdown() {
-        wireMockServer.stop();
+        if (wireMockServer != null) {
+            wireMockServer.stop();
+        }
+
         if (proxy != null) {
             proxy.shutdown();
         }
@@ -92,6 +98,9 @@ public class HttpsAcceptanceTest {
 
     @Test
     public void connectionResetByPeerFault() throws IOException {
+        assumeFalse("This feature does not work on Windows " +
+            "because of differing native socket behaviour", SystemUtils.IS_OS_WINDOWS);
+
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()

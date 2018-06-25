@@ -50,6 +50,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
     private WireMockServer proxyingService;
     private WireMockTestClient client;
     private WireMock adminClient;
+    private StubMapping proxyStub;
 
     public void init() {
         proxyingService = new WireMockServer(wireMockConfig()
@@ -60,7 +61,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         proxyingService.stubFor(proxyAllTo("http://localhost:" + wireMockServer.port()));
 
         targetService = wireMockServer;
-        targetService.stubFor(any(anyUrl()).willReturn(ok()));
+        proxyStub = targetService.stubFor(any(anyUrl()).willReturn(ok()));
 
         client = new WireMockTestClient(proxyingService.port());
         WireMock.configureFor(proxyingService.port());
@@ -142,6 +143,21 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(mappings.size(), is(1));
         assertThat(mappings.get(0).getRequest().getUrl(), is("/2"));
+    }
+
+    @Test
+    public void willAllowNonProxiedEventsIfSpecified() throws Exception {
+        proxyingService.removeStub(proxyStub);
+
+        client.postJson("/record-this-anyway", "{ \"things\": 123 }");
+
+        List<StubMapping> mappings = adminClient.takeSnapshotRecording(
+            recordSpec().allowNonProxied(true)
+        );
+
+        assertThat(mappings.size(), is(1));
+        assertThat(mappings.get(0).getRequest().getUrl(), is("/record-this-anyway"));
+        assertThat(mappings.get(0).getRequest().getBodyPatterns().get(0).getExpected(), WireMatchers.equalToJson("{ \"things\": 123 }"));
     }
 
     @Test

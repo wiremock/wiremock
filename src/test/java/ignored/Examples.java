@@ -17,7 +17,6 @@ package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
 import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -94,6 +93,14 @@ public class Examples extends AcceptanceTestBase {
         stubFor(post(urlEqualTo("/with/body"))
             .withRequestBody(binaryEqualTo("AQID"))
             .willReturn(ok()));
+    }
+
+    @Test
+    public void multipartBodyMatchingBase64() {
+        stubFor(post(urlEqualTo("/with/multipart"))
+                .withMultipartRequestBody(aMultipart()
+                        .withBody(binaryEqualTo("Content")))
+                .willReturn(ok()));
     }
 
     @Test
@@ -316,6 +323,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()).build()));
 
         stubFor(any(urlPathEqualTo("/everything"))
@@ -325,6 +338,12 @@ public class Examples extends AcceptanceTestBase {
             .withBasicAuth("jeff@example.com", "jeffteenjefftyjeff")
             .withRequestBody(equalToXml("<search-results />"))
             .withRequestBody(matchingXPath("//search-results"))
+            .withMultipartRequestBody(
+                aMultipart()
+                    .withName("info")
+                    .withHeader("Content-Type", containing("charset"))
+                    .withBody(equalToJson("{}"))
+            )
             .willReturn(aResponse()));
     }
 

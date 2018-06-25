@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.extension;
 
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -23,27 +24,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class Parameters extends HashMap<String, Object> {
-
-    public Integer getInt(String key) {
-        return checkValidityAndCast(key, Integer.class);
-    }
-
-    public Boolean getBoolean(String key) {
-        return checkValidityAndCast(key, Boolean.class);
-    }
-
-    public String getString(String key) {
-        return checkValidityAndCast(key, String.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T checkValidityAndCast(String key, Class<T> type) {
-        checkArgument(containsKey(key), "Parameter '" + key + "' not present");
-        checkArgument(type.isAssignableFrom(get(key).getClass()), "Parameter " + key + " is not of type " + type.getSimpleName());
-        return (T) get(key);
-    }
-
+public class Parameters extends Metadata {
 
     public static Parameters empty() {
         return new Parameters();
@@ -59,11 +40,11 @@ public class Parameters extends HashMap<String, Object> {
         return from(ImmutableMap.of(name, value));
     }
 
-    public <T> T as(Class<T> myDataClass) {
-        return Json.mapToObject(this, myDataClass);
-    }
-
     public static <T> Parameters of(T myData) {
         return from(Json.objectToMap(myData));
+    }
+
+    public <T> T as(Class<T> myDataClass) {
+        return Json.mapToObject(this, myDataClass);
     }
 }

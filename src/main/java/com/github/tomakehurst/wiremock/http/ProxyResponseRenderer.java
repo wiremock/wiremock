@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -50,17 +51,15 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final HttpClient client;
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
+    private final GlobalSettingsHolder globalSettingsHolder;
 	
-	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue) {
-		client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
+	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue, GlobalSettingsHolder globalSettingsHolder) {
+        this.globalSettingsHolder = globalSettingsHolder;
+        client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
 	}
-
-    public ProxyResponseRenderer() {
-        this(ProxySettings.NO_PROXY, KeyStoreSettings.NO_STORE, false, null);
-    }
 
 	@Override
 	public Response render(ResponseDefinition responseDefinition) {
@@ -76,6 +75,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                     .headers(headersFrom(httpResponse, responseDefinition))
                     .body(getEntityAsByteArrayAndCloseStream(httpResponse))
                     .fromProxy(true)
+                    .configureDelay(
+                        globalSettingsHolder.get().getFixedDelay(),
+                        globalSettingsHolder.get().getDelayDistribution(),
+                        responseDefinition.getFixedDelayMilliseconds(),
+                        responseDefinition.getDelayDistribution()
+                    )
+                    .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                     .build();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -97,10 +103,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 
     public static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
 		final RequestMethod method = response.getOriginalRequest().getMethod();
-		String url = response.getProxyUrl();
-		if (url.endsWith("/")) {
-		   url = url.substring(0, url.length() - 1);
-		}
+		final String url = response.getProxyUrl();
 		return HttpClientFactory.getHttpRequestFor(method, url);
 	}
 	

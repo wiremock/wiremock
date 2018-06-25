@@ -28,10 +28,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.github.tomakehurst.wiremock.admin.AdminTask;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.DoNothingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
+import com.github.tomakehurst.wiremock.jetty9.QueuedThreadPoolFactory;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
@@ -77,6 +78,7 @@ public class CommandLineOptions implements Options {
     private static final String REQUIRE_CLIENT_CERT = "https-require-client-cert";
     private static final String VERBOSE = "verbose";
     private static final String ENABLE_BROWSER_PROXYING = "enable-browser-proxying";
+    private static final String DISABLE_BANNER = "disable-banner";
     private static final String DISABLE_REQUEST_JOURNAL = "no-request-journal";
     private static final String EXTENSIONS = "extensions";
     private static final String MAX_ENTRIES_REQUEST_JOURNAL = "max-request-journal-entries";
@@ -91,16 +93,19 @@ public class CommandLineOptions implements Options {
     private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
     private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
     private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
+    private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
+    private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
 
     private String helpText;
+    private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
 		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on").withRequiredArg();
+		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -118,6 +123,7 @@ public class CommandLineOptions implements Options {
 		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
 		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
+        optionParser.accepts(DISABLE_BANNER, "Disable print banner logo");
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
         optionParser.accepts(MAX_ENTRIES_REQUEST_JOURNAL, "Set maximum number of entries in request journal (if enabled) to discard old entries if the log becomes too large. Default: no discard").withRequiredArg();
         optionParser.accepts(JETTY_ACCEPTOR_THREAD_COUNT, "Number of Jetty acceptor threads").withRequiredArg();
@@ -129,6 +135,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
         optionParser.accepts(ADMIN_API_BASIC_AUTH, "Require HTTP Basic authentication for admin API calls with the supplied credentials in username:password format").withRequiredArg();
         optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
+        optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
+        optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -138,6 +146,8 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
+
+        resultingPort = Optional.absent();
 	}
 
     private void validate() {
@@ -195,6 +205,11 @@ public class CommandLineOptions implements Options {
         }
     }
 
+    @Override
+    public ThreadPoolFactory threadPoolFactory() {
+        return new QueuedThreadPoolFactory();
+    }
+
     private boolean specifiesPortNumber() {
 		return optionSet.has(PORT);
 	}
@@ -206,6 +221,10 @@ public class CommandLineOptions implements Options {
         }
 
         return DEFAULT_PORT;
+	}
+
+	public void setResultingPort(int port) {
+		resultingPort = Optional.of(port);
 	}
 
     @Override
@@ -261,7 +280,7 @@ public class CommandLineOptions implements Options {
     public boolean help() {
 		return optionSet.has(HELP);
 	}
-	
+
 	public String helpText() {
 		return helpText;
 	}
@@ -379,6 +398,10 @@ public class CommandLineOptions implements Options {
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
+    
+    public boolean bannerDisabled() {
+        return optionSet.has(DISABLE_BANNER);
+    }
 
     private boolean specifiesMaxRequestJournalEntries() {
         return optionSet.has(MAX_ENTRIES_REQUEST_JOURNAL);
@@ -404,7 +427,8 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        builder.put(PORT, portNumber());
+        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
+        builder.put(PORT, port);
 
         if (httpsSettings().enabled()) {
             builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
@@ -420,6 +444,8 @@ public class CommandLineOptions implements Options {
         }
 
         builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
+        
+        builder.put(DISABLE_BANNER, bannerDisabled());
 
         if (recordMappingsEnabled()) {
             builder.put(RECORD_MAPPINGS, recordMappingsEnabled())
@@ -469,4 +495,20 @@ public class CommandLineOptions implements Options {
 
         return value.toString();
     }
+
+    @Override
+    public AsynchronousResponseSettings getAsynchronousResponseSettings() {
+        return new AsynchronousResponseSettings(isAsynchronousResponseEnabled(), getAsynchronousResponseThreads());
+    }
+
+    private boolean isAsynchronousResponseEnabled() {
+        return optionSet.has(ASYNCHRONOUS_RESPONSE_ENABLED) ?
+                Boolean.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_ENABLED)) :
+                false;
+    }
+
+    private int getAsynchronousResponseThreads() {
+        return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+    }
+
 }

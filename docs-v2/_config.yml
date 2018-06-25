@@ -58,6 +58,7 @@ analytics:
   provider               : google
   google:
     tracking_id          : 'UA-36386229-2'
+    optimize_id          : 'GTM-WQTGSSM'
 
 # Google AdSense
 google_ad_client         :
@@ -215,4 +216,4 @@ compress_html:
   ignore:
     envs: development
 
-wiremock_version: 2.10.0
+wiremock_version: 2.18.0

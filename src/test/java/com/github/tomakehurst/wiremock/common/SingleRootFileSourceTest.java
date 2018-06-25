@@ -15,20 +15,30 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SingleRootFileSourceTest {
 
-	@SuppressWarnings("unchecked")
+    public static final String ROOT_PATH = "src/test/resources/filesource";
+
+    @SuppressWarnings("unchecked")
 	@Test
 	public void listsTextFilesRecursively() {
-		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource");
+		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
 		
 		List<TextFile> files = fileSource.listFilesRecursively();
 		
@@ -37,16 +47,88 @@ public class SingleRootFileSourceTest {
 				fileNamed("four"), fileNamed("five"), fileNamed("six"), 
 				fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
 	}
-	
-	@Test(expected=RuntimeException.class)
+
+    @Test
+    public void writesTextFileEvenWhenRootIsARelativePath() throws IOException {
+        String relativeRootPath = "./target/tmp/";
+        FileUtils.forceMkdir(new File(relativeRootPath));
+        SingleRootFileSource fileSource = new SingleRootFileSource(relativeRootPath);
+        Path fileAbsolutePath = Paths.get(relativeRootPath).toAbsolutePath().resolve("myFile");
+        fileSource.writeTextFile(fileAbsolutePath.toString(), "stuff");
+
+        assertThat(Files.exists(fileAbsolutePath), is(true));
+    }
+
+	@Test(expected = RuntimeException.class)
 	public void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
 		fileSource.listFilesRecursively();
 	}
-	
-	@Test(expected=RuntimeException.class)
-	public void writehrowsExceptionWhenRootIsNotDir() {
+
+	@Test(expected = RuntimeException.class)
+	public void writeThrowsExceptionWhenRootIsNotDir() {
 		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
 		fileSource.writeTextFile("thing", "stuff");
 	}
+
+	@Test(expected = NotAuthorisedException.class)
+	public void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
+		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+		fileSource.writeTextFile("..", "stuff");
+	}
+
+    @Test(expected = NotAuthorisedException.class)
+    public void writeTextFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
+        fileSource.writeTextFile(badPath, "stuff");
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void writeBinaryFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        fileSource.writeBinaryFile("..", "stuff".getBytes());
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void writeBinaryFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
+        fileSource.writeBinaryFile(badPath, "stuff".getBytes());
+    }
+
+	@Test(expected = NotAuthorisedException.class)
+	public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
+		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
+		fileSource.deleteFile(badPath);
+	}
+
+	@Test(expected = NotAuthorisedException.class)
+	public void readBinaryFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        fileSource.getBinaryFileNamed("../illegal.file");
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void readTextFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        fileSource.getTextFileNamed("../illegal.file");
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void readBinaryFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        String badPath = new File(ROOT_PATH,"../illegal.file").getCanonicalPath();
+        fileSource.getBinaryFileNamed(badPath);
+    }
+
+    @Test(expected = NotAuthorisedException.class)
+    public void readTextFileThrowsExceptionWhenAbsolutePathIsOutsideRoot() throws Exception {
+        SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+        String badPath = new File(ROOT_PATH,"../illegal.file").getCanonicalPath();
+        fileSource.getTextFileNamed(badPath);
+    }
+
+
 }
