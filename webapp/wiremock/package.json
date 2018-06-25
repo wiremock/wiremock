@@ -1,6 +1,13 @@
 {
   "name": "wiremock",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Wiremock Graphical User Interface",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holomekc/wiremock.git"
+  },
+  "author": "Christopher Holomek",
+  "license": "Apache 2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --base-href=/",
