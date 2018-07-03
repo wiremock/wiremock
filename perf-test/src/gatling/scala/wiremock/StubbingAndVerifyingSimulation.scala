@@ -74,7 +74,7 @@ class StubbingAndVerifyingSimulation extends Simulation {
           .header("Accept", "text/plain+stuff")
           .check(status.is(200)))
         .exec(http("Not founds")
-          .get(session => s"load-test/${random.nextInt(5999) + 6000}")
+          .get(session => s"load-test/${random.nextInt(5999) + 7000}")
           .header("Accept", "text/plain+stuff")
           .check(status.is(404)))
       }
