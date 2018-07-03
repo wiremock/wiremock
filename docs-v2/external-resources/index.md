@@ -37,6 +37,9 @@ Mason Malone has built an extension for matching requests based on the contents 
 Also from Mason, an extension for finding and removing unused stub mappings:<br>
 [https://github.com/MasonM/wiremock-unused-stubs-extension](https://github.com/MasonM/wiremock-unused-stubs-extension)
 
+Felipe Fernández has built a Spock extension to enhance automation around record and replay functionality:<br>
+[https://github.com/felipefzdz/spock-wiremock-extension](https://github.com/felipefzdz/spock-wiremock-extension)
+
 
 ## Other languages
 
