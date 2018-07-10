@@ -82,7 +82,7 @@ export class UtilService {
   }
 
   public static getSoapMethodRegex(): RegExp {
-    return /<[^/][^<> ]*?:Body[^<> ]*?>\s*?<([^/][^<> ]*?):([^<> ]+)[^<>]*?>/;
+    return /<[^/][^<> ]*?:Body[^<>]*?>\s*?<([^/][^<> ]*?):([^<> ]+)[^<>]*?>/;
   }
 
   public static getSoapXPathRegex(): RegExp {
