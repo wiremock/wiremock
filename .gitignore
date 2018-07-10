@@ -56,5 +56,5 @@ docs-v2/_docs/wiremock-admin-api.html
 
 # WIREMOCK #
 #################
-mappings
+/mappings/
 src/main/resources/assets/webapp/

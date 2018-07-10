@@ -1,0 +1,164 @@
+<wm-layout [items]="result?.mappings" [activeItemId]="activeItemId" (activeItemChange)="onActiveItemChange()">
+  <ng-template #actions let-activeItem>
+    <div class="btn-group" role="group">
+      <ng-container *ngIf="editMode === State.NEW">
+        <button type="button" class="btn btn-secondary" (click)="saveNewMapping()">
+          <fa-icon icon="save"></fa-icon>
+          Save
+        </button>
+      </ng-container>
+      <ng-container *ngIf="editMode === State.EDIT">
+        <button type="button" class="btn btn-secondary" (click)="saveEditMapping(activeItem)">
+          <fa-icon icon="save"></fa-icon>
+          Save
+        </button>
+      </ng-container>
+      <ng-container *ngIf="editMode === State.EDIT || editMode === State.NEW">
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmGeneralDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            General functions
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="helpersAddDelay()">
+              <fa-icon icon="clock"></fa-icon>
+              Add Delay
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddPriority()">
+              <fa-icon icon="angle-double-up"></fa-icon>
+              Add Priority
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddHeaderRequest()">
+              <fa-icon icon="align-justify"></fa-icon>
+              Add Request Header
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddHeaderResponse()">
+              <fa-icon icon="align-justify"></fa-icon>
+              Add Response Header
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddScenario()">
+              <fa-icon icon="file-alt"></fa-icon>
+              Add Scenario
+            </button>
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmProxyingDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Proxying
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="helpersAddProxyUrl()">
+              <fa-icon icon="link"></fa-icon>
+              Add Proxy URL
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersAddProxyHeader()">
+              <fa-icon icon="align-justify"></fa-icon>
+              Add Proxy Header
+            </button>
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmResponseTemplatingDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Response Templating
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="helpersAddTransformer()">
+              <fa-icon icon="exchange-alt"></fa-icon>
+              Add Transformer
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" (click)="helpersCopyJsonPath()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy jsonPath Helper
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersCopyXpath()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy xPath Helper
+            </button>
+            <button type="button" class="dropdown-item" (click)="helpersCopySoap()">
+              <fa-icon icon="copy"></fa-icon>
+              Copy soapXPath Helper
+            </button>
+          </div>
+        </div>
+
+
+        <button type="button" class="btn btn-secondary" (click)="editMode = State.NORMAL">
+          <fa-icon icon="times"></fa-icon>
+          Cancel
+        </button>
+      </ng-container>
+
+
+      <ng-container *ngIf="editMode === State.NORMAL">
+        <button type="button" class="btn btn-secondary" (click)="newMapping()">
+          <fa-icon icon="plus"></fa-icon>
+          New
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="editMapping(activeItem)"
+                [disabled]="!activeItem || (activeItem.isProxy() && !activeItem.isProxyEnabled())">
+          <fa-icon icon="pencil-alt"></fa-icon>
+          Edit
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="removeMapping(activeItem)" [disabled]="!activeItem">
+          <fa-icon icon="trash"></fa-icon>
+          Remove
+        </button>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmMappingsDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Mappings
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="saveMappings()">
+              <fa-icon icon="save"></fa-icon>
+              Save Mappings
+            </button>
+            <button type="button" class="dropdown-item" (click)="resetMappings()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Reset Mappings
+            </button>
+            <div class="dropdown-divider"></div>
+            <button type="button" class="dropdown-item" (click)="removeAllMappings()">
+              <fa-icon icon="trash"></fa-icon>
+              Remove all Mappings
+            </button>
+          </div>
+        </div>
+        <div ngbDropdown class="btn-group" role="group">
+          <button id="wmScenarioDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+            Scenarios
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="resetAllScenarios()">
+              <fa-icon icon="sync-alt"></fa-icon>
+              Reset all Scenarios
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+
+  </ng-template>
+
+
+  <ng-template #content let-activeItem>
+    <wm-raw-separated [separatedDisabled]="!activeItem">
+      <wm-raw-separated-raw>
+        <ng-container *ngIf="editMode === State.NORMAL">
+          <wm-code-entry [code]="activeItem?.getCode()" [language]="'json'"></wm-code-entry>
+        </ng-container>
+        <ng-container *ngIf="editMode === State.NEW">
+          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.NEW" [(ngModel)]="newMappingText"></textarea>
+        </ng-container>
+        <ng-container *ngIf="editMode === State.EDIT">
+          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.EDIT" [(ngModel)]="editMappingText"></textarea>
+        </ng-container>
+      </wm-raw-separated-raw>
+      <wm-raw-separated-separated>
+        <wm-separated *ngIf="activeItem" [activeItem]="activeItem"></wm-separated>
+      </wm-raw-separated-separated>
+    </wm-raw-separated>
+  </ng-template>
+
+</wm-layout>
+
