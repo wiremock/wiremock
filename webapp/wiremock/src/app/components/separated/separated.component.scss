@@ -15,8 +15,12 @@
   word-break: break-word;
 }
 
-.wmTableColumn {
+.wmTableColumnKey {
   width: 150px;
+}
+
+.wmTableColumnValue ::ng-deep code {
+  max-height: 500px;
 }
 
 .wmStubMappingLink {

@@ -7,15 +7,15 @@
       <table class="table table-sm mb-0">
         <tbody>
           <tr *ngIf="isServeEvent(activeItem)">
-            <td class="wmTableColumn">stubMapping</td>
+            <td class="wmTableColumnKey">stubMapping</td>
             <td>
               <a [routerLink]="['/mappings']" [queryParams]="{active: asServeEvent(activeItem).stubMapping.uuid}" class="wmStubMappingLink">{{asServeEvent(activeItem).stubMapping.uuid}}</a>
             </td>
           </tr>
           <ng-container *ngFor="let property of activeItem | keys | isNoObject">
             <tr *ngIf="!isObject(property.value)">
-              <td class="wmTableColumn">{{property.key}}</td>
-              <td>
+              <td class="wmTableColumnKey">{{property.key}}</td>
+              <td class="wmTableColumnValue">
                 <wm-code-entry [code]="property.value"></wm-code-entry>
               </td>
             </tr>
@@ -37,16 +37,16 @@
           <tbody>
             <ng-container *ngFor="let subProperty of property.value | keys">
               <tr *ngIf="!isObject(subProperty.value)">
-                <td class="wmTableColumn">{{subProperty.key}}</td>
+                <td class="wmTableColumnKey">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value}}</td>-->
-                <td>
+                <td class="wmTableColumnValue">
                   <wm-code-entry [code]="subProperty.value"></wm-code-entry>
                 </td>
               </tr>
               <tr *ngIf="isObject(subProperty.value)">
-                <td class="wmTableColumn">{{subProperty.key}}</td>
+                <td class="wmTableColumnKey">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value | prettify}}</td>-->
-                <td>
+                <td class="wmTableColumnValue">
                   <wm-code-entry [code]="subProperty.value | json"></wm-code-entry>
                 </td>
               </tr>
