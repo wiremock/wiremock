@@ -206,6 +206,10 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     this.setMappingForHelper(MappingHelperService.helperAddScenario(this.getMappingForHelper()));
   }
 
+  helpersToJsonBody() {
+    this.setMappingForHelper(MappingHelperService.helperToJsonBody(this.getMappingForHelper()));
+  }
+
   helpersAddProxyUrl() {
     this.setMappingForHelper(MappingHelperService.helperAddProxyBaseUrl(this.getMappingForHelper()));
   }

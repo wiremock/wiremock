@@ -59,6 +59,18 @@ export class MappingHelperService {
     return mapping;
   }
 
+  static helperToJsonBody(mapping: StubMapping) {
+    if (UtilService.isUndefined(mapping) || UtilService.isUndefined(mapping.response) || UtilService.isDefined(mapping.response.jsonBody)
+      || UtilService.isUndefined(mapping.response.body)) {
+      return;
+    }
+
+    mapping.response.jsonBody = JSON.parse(mapping.response.body);
+    mapping.response.body = null;
+
+    return mapping;
+  }
+
   static helperAddProxyBaseUrl(mapping: StubMapping): StubMapping {
     if (UtilService.isDefined(mapping) && UtilService.isDefined(mapping.response) &&
       UtilService.isUndefined(mapping.response.proxyBaseUrl)) {
@@ -113,4 +125,5 @@ export class MappingHelperService {
   //     messageService.setMessage(new Message(MappingViewHelperService.COPY_FAILURE, MessageType.ERROR, 10000));
   //   }
   // }
+
 }
