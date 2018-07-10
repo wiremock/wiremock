@@ -71,19 +71,21 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
     this.activatedRoute.queryParams.pipe(takeUntil(this.ngUnsubscribe)).subscribe((params: Params) => {
       this.activeItemId = params['active'];
-      this.setActiveItemById(this.activeItemId);
+      this.setActiveItemById(this.activeItemId, UtilService.isDefined(this.activeItemId));
     });
 
     this.searchService.search$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(newSearch => {
-      this.lastSearch = newSearch;
-      this.search.setValue(newSearch);
+      if (UtilService.isDefined(newSearch)) {
+        this.lastSearch = newSearch;
+        this.search.setValue(newSearch);
+      }
     });
   }
 
-  private setActiveItemById(itemId: string) {
+  private setActiveItemById(itemId: string, noClear = false) {
     if (UtilService.isDefined(this.filteredItems)) {
       this.setActiveItem(UtilService.getActiveItem(this.filteredItems, itemId));
-    } else {
+    } else if (!noClear) {
       this.setActiveItem(null);
     }
   }
@@ -114,7 +116,7 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
     if (UtilService.isUndefined(changes)) {
       return;
     }
-    if (UtilService.isDefined(changes.items)) {
+    if (UtilService.isDefined(changes.items) && (UtilService.isDefined(changes.items.currentValue) || UtilService.isDefined(changes.items.previousValue))) {
       // We only update filteredItems when actual items changed. activeItemId can be set but it is only a suggestion. This component
       // is responsible for selecting items
       this.onSearchChanged(new SearchEvent(this.lastSearch, this.caseSensitiveSearchEnabled));
@@ -123,7 +125,7 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
 
   onSearchChanged(search: SearchEvent) {
     // this.lastSearch = search;
-    if (UtilService.isDefined(search)) {
+    if (UtilService.isDefined(search) && UtilService.isDefined(search.text)) {
       this.filteredItems = UtilService.deepSearch(this.items, search.text, search.caseSensitive);
     } else {
       this.filteredItems = UtilService.deepSearch(this.items, '', false);

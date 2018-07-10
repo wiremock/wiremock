@@ -1,5 +1,6 @@
 import {Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
+import {ServeEvent} from '../../model/wiremock/serve-event';
 
 @Component({
   selector: 'wm-separated',
@@ -36,6 +37,14 @@ export class SeparatedComponent implements OnInit, OnChanges {
   getNextColor(): string {
     this.colorIndex++;
     return this.color[this.colorIndex - 1];
+  }
+
+  isServeEvent(item: Item) {
+    return item instanceof ServeEvent;
+  }
+
+  asServeEvent(item: Item): ServeEvent {
+    return <ServeEvent>item;
   }
 }
 

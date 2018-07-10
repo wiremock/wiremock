@@ -6,6 +6,12 @@
     <div class="card-body bg-light text-dark">
       <table class="table table-sm mb-0">
         <tbody>
+          <tr *ngIf="isServeEvent(activeItem)">
+            <td class="wmTableColumn">stubMapping</td>
+            <td>
+              <a [routerLink]="['/mappings']" [queryParams]="{active: asServeEvent(activeItem).stubMapping.uuid}" class="wmStubMappingLink">{{asServeEvent(activeItem).stubMapping.uuid}}</a>
+            </td>
+          </tr>
           <ng-container *ngFor="let property of activeItem | keys | isNoObject">
             <tr *ngIf="!isObject(property.value)">
               <td class="wmTableColumn">{{property.key}}</td>
