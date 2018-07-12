@@ -51,6 +51,13 @@
                 </td>
               </tr>
             </ng-container>
+            <tr *ngIf="bodyGroupKey === property.key">
+              <td class="wmTableColumnKey">bodyFileContent</td>
+              <!--<td>{{subProperty.value}}</td>-->
+              <td class="wmTableColumnValue">
+                <wm-code-entry [code]="bodyFileData"></wm-code-entry>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
