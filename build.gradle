@@ -390,6 +390,7 @@ task npmInstallWebapp(type: Exec) {
 }
 
 task generateWebapp(type: Exec) {
+    dependsOn npmInstallWebapp
     workingDir 'webapp/wiremock'
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine 'cmd', '/c', 'npm', 'run', 'prod'

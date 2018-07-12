@@ -5,9 +5,9 @@
 export const environment = {
   production: false,
   getWebSocket: function (): WebSocket {
-    return new WebSocket('ws://localhost:8080/__admin/events');
+    return new WebSocket('ws://localhost:8089/__admin/events');
   },
-  url: 'http://localhost:8080/__admin/',
+  url: 'http://localhost:8089/__admin/',
   resourcesUrl: '/'
 };
 

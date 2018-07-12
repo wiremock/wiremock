@@ -119,6 +119,10 @@ export class WiremockService {
     return this.defaultPipe(this.http.delete<any>(WiremockService.getUrl('proxy/' + uuid)));
   }
 
+  getFileBody(fileName: string): Observable<string>{
+    return this.defaultPipe(this.http.get<string>(WiremockService.getUrl('files/' + fileName)));
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -141,7 +145,7 @@ export class WiremockService {
     return observable.pipe(retryWhen(this.genericRetryStrategy({
       scalingDuration: 1000,
       maxRetryAttempts: 3,
-      excludedStatusCodes: [400]
+      excludedStatusCodes: [400, 422]
     })));
   }
 

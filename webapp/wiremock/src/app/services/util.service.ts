@@ -245,10 +245,17 @@ export class UtilService {
     try {
       return vkbeautify.json(code);
     } catch (err) {
-      try {
-        return vkbeautify.xml(code);
-      } catch (err2) {
-        return code;
+      // Try to escape single quote
+      try{
+        const replaced = code.replace(new RegExp(/\\'/, 'g'), '%replaceMyQuote%');
+        const pretty = vkbeautify.json(replaced);
+        return pretty.replace(new RegExp(/%replaceMyQuote%/, 'g'), '\'');
+      }catch (err2) {
+        try {
+          return vkbeautify.xml(code);
+        } catch (err3) {
+          return code;
+        }
       }
     }
   }
