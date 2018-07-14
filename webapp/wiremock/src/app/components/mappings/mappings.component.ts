@@ -20,6 +20,8 @@ import {ProxyConfig} from '../../model/wiremock/proxy-config';
 export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   private static COPY_FAILURE = 'Was not able to copy. Details in log';
+  private static ACTION_GENERAL_FAILURE = 'Was not able to execute the selected action';
+  private static ACTION_FAILURE_PREFIX = 'Action not possible: ';
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
@@ -207,7 +209,11 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   }
 
   helpersToJsonBody() {
-    this.setMappingForHelper(MappingHelperService.helperToJsonBody(this.getMappingForHelper()));
+    try {
+      this.setMappingForHelper(MappingHelperService.helperToJsonBody(this.getMappingForHelper()));
+    } catch (err) {
+      this.messageService.setMessage(new Message(MappingsComponent.ACTION_FAILURE_PREFIX + 'Probably no json', MessageType.ERROR, 10000));
+    }
   }
 
   helpersAddProxyUrl() {

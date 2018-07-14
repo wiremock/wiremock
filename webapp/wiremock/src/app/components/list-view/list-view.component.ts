@@ -2,6 +2,7 @@ import {Component, EventEmitter, HostBinding, Input, OnChanges, OnInit, Output, 
 import {Item} from '../../model/wiremock/item';
 import {UtilService} from '../../services/util.service';
 import {WiremockService} from '../../services/wiremock.service';
+import {MessageService} from '../message/message.service';
 
 @Component({
   selector: 'wm-list-view',
@@ -27,7 +28,8 @@ export class ListViewComponent implements OnInit, OnChanges {
   @Output()
   activeItemChange: EventEmitter<Item> = new EventEmitter();
 
-  constructor(private wiremockService: WiremockService) {
+  constructor(private wiremockService: WiremockService,
+              private messageService: MessageService) {
   }
 
 
@@ -88,7 +90,7 @@ export class ListViewComponent implements OnInit, OnChanges {
         // do nothing
       },
       err => {
-        // UtilService.showErrorMessage(this.messageService, err);
+        UtilService.showErrorMessage(this.messageService, err);
       });
   }
 
@@ -97,7 +99,7 @@ export class ListViewComponent implements OnInit, OnChanges {
         // do nothing
       },
       err => {
-        // UtilService.showErrorMessage(this.messageService, err);
+        UtilService.showErrorMessage(this.messageService, err);
       });
   }
 }
