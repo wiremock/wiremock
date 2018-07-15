@@ -7,7 +7,7 @@ import {UtilService} from '../services/util.service';
 export class PrettifyPipe implements PipeTransform {
 
   transform(value: string, args?: any): any {
-    return UtilService.prettify(value);
+    return UtilService.prettify(value) + '';
   }
 
 }

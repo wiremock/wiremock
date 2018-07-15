@@ -148,15 +148,9 @@
   <ng-template #content let-activeItem>
     <wm-raw-separated [separatedDisabled]="!activeItem">
       <wm-raw-separated-raw>
-        <ng-container *ngIf="editMode === State.NORMAL">
-          <wm-code-entry [code]="activeItem?.getCode()" [language]="'json'"></wm-code-entry>
-        </ng-container>
-        <ng-container *ngIf="editMode === State.NEW">
-          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.NEW" [(ngModel)]="newMappingText"></textarea>
-        </ng-container>
-        <ng-container *ngIf="editMode === State.EDIT">
-          <textarea spellcheck="false" class="wmTextArea" *ngIf="editMode === State.EDIT" [(ngModel)]="editMappingText"></textarea>
-        </ng-container>
+        <wm-code-editor #editor
+                        [code]="editMode === State.NORMAL ? activeItem?.getCode() : editMode === State.NEW ? newMappingText : editMappingText"
+                        [language]="'json'" [options]="editMode === State.NORMAL ? codeReadonOnlyOptions : codeOptions"></wm-code-editor>
       </wm-raw-separated-raw>
       <wm-raw-separated-separated>
         <wm-separated *ngIf="activeItem" [activeItem]="activeItem"></wm-separated>

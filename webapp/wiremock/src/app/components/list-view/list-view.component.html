@@ -1,6 +1,6 @@
 <ngb-pagination *ngIf="filteredItems?.length > 0" [collectionSize]="items?.length" [pageSize]="pageSize" [size]="'sm'" [page]="page"
                 (pageChange)="onPageChange($event)"></ngb-pagination>
-<div *ngIf="filteredItems?.length > 0" class="wmHolyGrailScroll">
+<div *ngIf="filteredItems?.length > 0" class="wmHolyGrailScroll wmListView">
   <div class="wmListScrollWrapper">
     <ul class="list-group wmListGroup">
       <li class="list-group-item wmListItem" *ngFor="let item of filteredItems" [class.active]="item === activeItem"

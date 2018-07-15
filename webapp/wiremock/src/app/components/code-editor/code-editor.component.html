@@ -1,0 +1,5 @@
+<!--<ace-editor #editor class="wmTextArea" [text]="code | prettify" (textChange)="textChanged($event)" [mode]="language ? language : 'json'"-->
+<!--[theme]="'monokai'"></ace-editor>-->
+
+<ace-editor #editor class="wmTextArea" [text]="code" (textChange)="textChanged($event)" [mode]="language ? language : 'json'"
+            [theme]="'monokai'"></ace-editor>

@@ -37,6 +37,7 @@
     "bootstrap": "^4.1.1",
     "core-js": "^2.5.4",
     "highlightjs": "^9.10.0",
+    "ng2-ace-editor": "^0.3.8",
     "rxjs": "^6.0.0",
     "vkbeautify": "^0.99.3",
     "zone.js": "^0.8.26"
