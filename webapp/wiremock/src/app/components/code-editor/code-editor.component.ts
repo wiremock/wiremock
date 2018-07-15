@@ -1,4 +1,4 @@
-import {Component, Input, NgZone, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {UtilService} from '../../services/util.service';
 
 @Component({
@@ -6,7 +6,7 @@ import {UtilService} from '../../services/util.service';
   templateUrl: './code-editor.component.html',
   styleUrls: ['./code-editor.component.scss']
 })
-export class CodeEditorComponent implements OnInit, OnChanges {
+export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit {
 
   public static DEFAULT_OPTIONS = {
     selectionStyle: 'text',
@@ -48,7 +48,7 @@ export class CodeEditorComponent implements OnInit, OnChanges {
   @Input()
   options = CodeEditorComponent.DEFAULT_OPTIONS;
 
-  constructor(private zone: NgZone) {
+  constructor() {
   }
 
   ngOnInit() {
@@ -68,38 +68,16 @@ export class CodeEditorComponent implements OnInit, OnChanges {
     return this.code;
   }
 
-  private detectLanguage(language) {
-    if (this.code.startsWith('{') || this.code.startsWith('[')) {
-      language = 'json';
-    } else if (this.code.startsWith('<')) {
-      language = 'xml';
+  private startLanguageDetection() {
+    this.editor.getEditor().setOptions(this.options);
+    if (this.options.readOnly === true) {
+      this.editor.getEditor().renderer.$cursorLayer.element.style.display = 'none';
     } else {
-      language = 'text';
+      this.editor.getEditor().renderer.$cursorLayer.element.style.display = 'block';
     }
-    return language;
   }
 
-  private startLanguageDetection() {
-    if (UtilService.isDefined(this.code) && this.code.length > 0) {
-      let language = this.language;
-      if (UtilService.isUndefined(language)) {
-        language = this.detectLanguage(language);
-      }
-
-      this.zone.runOutsideAngular(() => {
-        setTimeout(() => {
-          // this.options['mode'] = language;
-          this.editor.getEditor().setOptions(this.options);
-          this.editor.getEditor().container.style.lineHeight = 1.5;
-          this.editor.getEditor().getSession().setMode(language);
-
-          if (this.options.readOnly === true) {
-            this.editor.getEditor().renderer.$cursorLayer.element.style.display = 'none';
-          } else {
-            this.editor.getEditor().renderer.$cursorLayer.element.style.display = 'block';
-          }
-        });
-      });
-    }
+  ngAfterViewInit(): void {
+    this.editor.getEditor().container.style.lineHeight = 1.5;
   }
 }
