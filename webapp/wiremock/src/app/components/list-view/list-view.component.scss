@@ -1,3 +1,5 @@
+@import "../../../bootstrapCustom";
+
 .wmListItem {
   border-radius: 0;
   border-left: 0;
@@ -25,4 +27,12 @@
 
 .wmProxyButtons ::ng-deep label.active {
   opacity: 1;
+}
+
+.wmListGroup {
+  margin-top: -1px;
+}
+
+ngb-pagination {
+  border-bottom: 1px solid $gray-300;
 }

@@ -47,7 +47,7 @@
                 <td class="wmTableColumnKey">{{subProperty.key}}</td>
                 <!--<td>{{subProperty.value | prettify}}</td>-->
                 <td class="wmTableColumnValue">
-                  <wm-code-entry [code]="subProperty.value | json"></wm-code-entry>
+                  <wm-code-entry [code]="subProperty.value | json" [language]="'json'"></wm-code-entry>
                 </td>
               </tr>
             </ng-container>

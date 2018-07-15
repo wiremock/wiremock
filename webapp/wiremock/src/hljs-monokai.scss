@@ -1,0 +1,118 @@
+/*
+
+Monokai-like style for hljs (Christopher Holomek)
+
+*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #272822;
+  color: #F8F8F2;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #75715E;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #F92672;
+}
+
+.hljs-string {
+  color: #E6DB74;
+}
+
+.hljs-literal {
+  color: #AE81FF;
+}
+
+.hljs-number {
+  color: #AE81FF;
+}
+
+.hljs-regexp,
+.hljs-variable,
+.hljs-template-variable {
+  color: #A6E22E;
+}
+
+.hljs-subst {
+  color: #A6E22E;
+}
+
+.hljs-tag {
+  color: #fff;
+}
+
+.hljs-name {
+  color: #F92672;
+}
+
+.hljs-type {
+  color: #66D9EF;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-attr,
+.hljs-link {
+  color: #A6E22E;
+}
+
+.hljs-params {
+  color: #FD971F;
+}
+
+.hljs-attribute {
+  color: #cda869;
+}
+
+.hljs-meta {
+  color: #9b859d;
+}
+
+.hljs-title,
+.hljs-section {
+  color: #ffc66d;
+}
+
+.hljs-addition {
+  background-color: #144212;
+  color: #e6e1dc;
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-deletion {
+  background-color: #600;
+  color: #e6e1dc;
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-selector-class {
+  color: #9b703f;
+}
+
+.hljs-selector-id {
+  color: #8b98ab;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}

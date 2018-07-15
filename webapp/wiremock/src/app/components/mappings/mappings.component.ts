@@ -1,4 +1,4 @@
-import {Component, HostBinding, OnDestroy, OnInit} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {WiremockService} from '../../services/wiremock.service';
 import {ListStubMappingsResult} from '../../model/wiremock/list-stub-mappings-result';
 import {UtilService} from '../../services/util.service';
@@ -11,6 +11,7 @@ import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../../model/wiremock/item';
 import {Subject} from 'rxjs/internal/Subject';
 import {ProxyConfig} from '../../model/wiremock/proxy-config';
+import {Tab, TabSelectionService} from '../../services/tab-selection.service';
 
 @Component({
   selector: 'wm-mappings',
@@ -25,6 +26,8 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   @HostBinding('class') classes = 'wmHolyGrailBody';
 
+  @ViewChild('editor') editor;
+
   private ngUnsubscribe: Subject<any> = new Subject();
 
   result: ListStubMappingsResult;
@@ -37,9 +40,60 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   editMode: State;
   State = State;
 
+  codeOptions = {
+    selectionStyle: 'text',
+    highlightActiveLine: true,
+    highlightSelectedWord: true,
+    readOnly: false,
+    cursorStyle: 'ace',
+    mergeUndoDeltas: 'true',
+    behavioursEnabled: true,
+    wrapBehavioursEnabled: true,
+    autoScrollEditorIntoView: true, // we need that
+    useSoftTabs: true,
+    // ...
+    highlightGutterLine: false,
+    showPrintMargin: false,
+    printMarginColumn: false,
+    printMargin: false,
+    showGutter: true,
+    displayIndentGuides: true,
+    fontSize: 14,
+    fontFamily: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    showLineNumbers: true,
+    // ..
+    wrap: true,
+    enableMultiselect: true
+  };
+
+  codeReadonOnlyOptions = {
+    selectionStyle: 'text',
+    highlightActiveLine: false, // readOnly
+    highlightSelectedWord: true,
+    readOnly: true, // readOnly
+    cursorStyle: 'ace',
+    mergeUndoDeltas: 'true',
+    behavioursEnabled: true,
+    wrapBehavioursEnabled: true,
+    autoScrollEditorIntoView: true, // we need that
+    useSoftTabs: true,
+    // ...
+    highlightGutterLine: false,
+    showPrintMargin: false,
+    printMarginColumn: false,
+    printMargin: false,
+    showGutter: true,
+    displayIndentGuides: true,
+    fontSize: 14,
+    fontFamily: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    showLineNumbers: true,
+    // ..
+    wrap: true,
+    enableMultiselect: true
+  };
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService) {
+              private messageService: MessageService, private tabSelectionService: TabSelectionService) {
   }
 
   ngOnInit() {
@@ -75,10 +129,11 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   newMapping() {
     this.newMappingText = UtilService.prettify(UtilService.itemModelStringify(StubMapping.createEmpty()));
     this.editMode = State.NEW;
+    this.tabSelectionService.selectTab(Tab.RAW);
   }
 
   saveNewMapping() {
-    this.wiremockService.saveNewMapping(this.newMappingText).subscribe(data => {
+    this.wiremockService.saveNewMapping(this.editor.getCode()).subscribe(data => {
       console.log(data.getId());
       this.activeItemId = data.getId();
     }, err => {
@@ -90,10 +145,11 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   editMapping(item: Item) {
     this.editMappingText = UtilService.prettify(item.getCode());
     this.editMode = State.EDIT;
+    this.tabSelectionService.selectTab(Tab.RAW);
   }
 
   saveEditMapping(item: Item) {
-    this.wiremockService.saveMapping(item.getId(), this.editMappingText).subscribe(data => {
+    this.wiremockService.saveMapping(item.getId(), this.editor.getCode()).subscribe(data => {
       // console.log(data.getId());
       this.activeItemId = data.getId();
     }, err => {

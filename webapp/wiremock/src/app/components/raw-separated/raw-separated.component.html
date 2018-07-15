@@ -1,10 +1,10 @@
-<ngb-tabset class="wmTabs wmHolyGrailBody column">
-  <ngb-tab title="Raw" [disabled]="rawDisabled">
+<ngb-tabset #tabSet="ngbTabset" class="wmTabs wmHolyGrailBody column">
+  <ngb-tab id="tab-raw" title="Raw" [disabled]="rawDisabled">
     <ng-template ngbTabContent>
       <ng-content select="wm-raw-separated-raw"></ng-content>
     </ng-template>
   </ngb-tab>
-  <ngb-tab title="Separated" [disabled]="separatedDisabled">
+  <ngb-tab id="tab-separated" title="Separated" [disabled]="separatedDisabled">
     <ng-template ngbTabContent>
       <ng-content select="wm-raw-separated-separated"></ng-content>
     </ng-template>

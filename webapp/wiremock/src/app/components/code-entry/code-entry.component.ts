@@ -20,5 +20,4 @@ export class CodeEntryComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }
