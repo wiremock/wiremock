@@ -33,6 +33,11 @@
   margin-top: -1px;
 }
 
+.wmListGroup > .wmListItem:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 ngb-pagination {
   border-bottom: 1px solid $gray-300;
 }
