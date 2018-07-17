@@ -1,6 +1,7 @@
 FROM openjdk:8
 
 
+USER root
 
 RUN set -o errexit -o nounset \
     && mkdir /home/wiremock \
@@ -8,8 +9,6 @@ RUN set -o errexit -o nounset \
     && echo "Clone repo and switch branch"\
     && git clone https://github.com/holomekc/wiremock.git .\
     && git checkout new-gui
-
-
 
 
 CMD ["gradle"]
@@ -40,14 +39,15 @@ RUN set -o errexit -o nounset \
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
 	&& ln -s /home/wiremock/.gradle /root/.gradle
 
+RUN set -o errexit -o nounset \
+    && echo "install nodejs" \
+    && apt-get update -qqy && apt-get -qqyy install nodejs \
+
 # Create Gradle volume
 USER gradle
 VOLUME "/home/wiremock/.gradle"
 VOLUME "/home/wiremock"
 
-RUN set -o errexit -o nounset \
-    && echo "install nodejs" \
-    && apt-get update -qqy && apt-get -qqyy install nodejs \
 
 WORKDIR /home/wiremock
 
