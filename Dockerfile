@@ -2,6 +2,13 @@ FROM openjdk:8
 
 
 
+RUN set -o errexit -o nounset \
+    && mkdir /home/wiremock \
+    && cd /home/wiremock \
+    && echo "Clone repo and switch branch"\
+    && git clone https://github.com/holomekc/wiremock.git .\
+    && git checkout new-gui
+
 
 
 
@@ -27,7 +34,6 @@ RUN set -o errexit -o nounset \
 	&& echo "Adding gradle user and group" \
 	&& groupadd --system --gid 1000 gradle \
 	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
-	&& mkdir /home/wiremock \
 	&& mkdir /home/wiremock/.gradle \
 	&& chown --recursive gradle:gradle /home/wiremock \
 	\
@@ -40,14 +46,6 @@ VOLUME "/home/wiremock/.gradle"
 VOLUME "/home/wiremock"
 
 WORKDIR /home/wiremock
-
-RUN set -o errexit -o nounset \
-    && cd /home/wiremock \
-    && echo "Clone repo and switch branch"\
-    && git clone https://github.com/holomekc/wiremock.git .\
-    && git checkout new-gui
-
-
 
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
