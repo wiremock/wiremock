@@ -53,7 +53,7 @@ RUN set -o errexit -o nounset \
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& cd /home/wiremock \
-	&& gradle clean jar shadowJar
+	&& gradle jar shadowJar
 
 WORKDIR /home/wiremock/build/
 
