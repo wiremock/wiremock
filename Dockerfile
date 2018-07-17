@@ -41,7 +41,7 @@ RUN set -o errexit -o nounset \
 
 RUN set -o errexit -o nounset \
     && echo "install nodejs" \
-    && apt-get update -qqy && apt-get -qqyy install nodejs \
+    && apt-get update -qqy && apt-get -qqyy install nodejs
 
 # Create Gradle volume
 USER gradle
