@@ -39,13 +39,15 @@ RUN set -o errexit -o nounset \
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
 	&& ln -s /home/wiremock/.gradle /root/.gradle
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN set -o errexit -o nounset \
     && echo "install nodejs" \
-    && apt-get update -qqy && apt-get -qqyy install nodejs \
-    && ln -s /usr/local/bin/nodejs /usr/bin/nodejs \
-    && ln -s /usr/local/lib/nodejs /usr/lib/nodejs \
-    && ln -s /usr/local/bin/npm /usr/bin/npm \
-    && ln -s /usr/local/bin/node-waf /usr/bin/node-waf \
+    && apt-get update -y \
+    && apt-get install curl \
+    && curl -sL https://deb.nodesource.com/setup_8.x | bash \
+    && apt-get install nodejs \
+    && apt-get install build-essential -y\
     && npm -v
 
 # Create Gradle volume
@@ -63,15 +65,17 @@ RUN set -o errexit -o nounset \
 	&& gradle --stop \
 	&& gradle clean jar shadowJar
 
-WORKDIR /home/wiremock/build/
-
-ENV FILE *-standalone-*.jar
+#ENV FILE wiremock-standalone-2.18.0.jar
 
 # Copy the current directory contents into the container at /wiremock
-ADD ${FILE} /wiremock
+
+WORKDIR /home/wiremock/build/libs
+
+ADD /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar wiremock-standalone-2.18.0.jar
 
 # Make port 443 available to the world outside this container
 EXPOSE 443
+EXPOSE 80
 
 # Deploy the app
-CMD java -jar ${FILE}
+CMD java -jar wiremock-standalone-2.18.0.jar
