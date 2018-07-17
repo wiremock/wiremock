@@ -24,7 +24,6 @@ RUN set -o errexit -o nounset \
 	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
 	&& mkdir /home/gradle/.gradle \
 	&& chown --recursive gradle:gradle /home/gradle \
-	&& chown --recursive gradle:gradle / \
 	\
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
 	&& ln -s /home/gradle/.gradle /root/.gradle
@@ -36,7 +35,7 @@ WORKDIR /home/gradle
 
 WORKDIR /
 
-RUN set -o errexit -o nounset \
+RUN root set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& gradle clean jar shadowJar
 
