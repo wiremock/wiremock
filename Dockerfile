@@ -39,5 +39,16 @@ RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& /home/gradle/gradle clean jar shadowJar
 
+WORKDIR /home/wiremock/build/
 
+# Use an official openjdk runtime as a parent image
+FROM openjdk:8
 
+# Copy the current directory contents into the container at /wiremock
+ADD *-standalone-*.jar /wiremock
+
+# Make port 443 available to the world outside this container
+EXPOSE 443
+
+# Deploy the app
+CMD java -jar wiremock-standalone-2.18.0.jar
