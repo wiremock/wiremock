@@ -27,6 +27,9 @@ import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -87,7 +90,7 @@ public class MatchesXPathPattern extends PathPattern {
 
     @Override
     protected MatchResult isSimpleJsonPathMatch(String value) {
-        if (value == null) {
+        if (value == null || isJson(value)) {
             return MatchResult.noMatch();
         }
 
@@ -98,7 +101,7 @@ public class MatchesXPathPattern extends PathPattern {
 
     @Override
     protected MatchResult isAdvancedJsonPathMatch(String value) {
-        if (value == null) {
+        if (value == null || isJson(value)) {
             return MatchResult.noMatch();
         }
 
@@ -115,6 +118,20 @@ public class MatchesXPathPattern extends PathPattern {
         }
 
         return results.last();
+    }
+
+    private boolean isJson(String value) {
+        try {
+            new JSONObject(value);
+        } catch (JSONException ex) {
+            // e.g. in case JSONArray is valid as well...
+            try {
+                new JSONArray(value);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private NodeList findXmlNodesMatching(String value) {
