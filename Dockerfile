@@ -33,6 +33,11 @@ USER gradle
 VOLUME "/home/gradle/.gradle"
 WORKDIR /home/gradle
 
+WORKDIR /home/wiremock
+
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
-	&& gradle clean jar shadowJar
+	&& /home/gradle/gradle clean jar shadowJar
+
+
+
