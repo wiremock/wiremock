@@ -120,6 +120,7 @@ public class MatchesXPathPattern extends PathPattern {
         return results.last();
     }
 
+    // Adapted from https://stackoverflow.com/a/10174938
     private boolean isJson(String value) {
         try {
             new JSONObject(value);
