@@ -42,10 +42,10 @@ RUN set -o errexit -o nounset \
 RUN set -o errexit -o nounset \
     && echo "install nodejs" \
     && apt-get update -qqy && apt-get -qqyy install nodejs \
-    && sudo ln -s /usr/local/bin/node /usr/bin/node \
-    && sudo ln -s /usr/local/lib/node /usr/lib/node \
-    && sudo ln -s /usr/local/bin/npm /usr/bin/npm \
-    && sudo ln -s /usr/local/bin/node-waf /usr/bin/node-waf \
+    && ln -s /usr/local/bin/node /usr/bin/node \
+    && ln -s /usr/local/lib/node /usr/lib/node \
+    && ln -s /usr/local/bin/npm /usr/bin/npm \
+    && ln -s /usr/local/bin/node-waf /usr/bin/node-waf \
     && npm -v
 
 # Create Gradle volume
