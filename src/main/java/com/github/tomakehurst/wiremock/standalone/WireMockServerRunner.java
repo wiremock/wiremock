@@ -49,7 +49,14 @@ public class WireMockServerRunner {
 	private WireMockServer wireMockServer;
 	
 	public void run(String... args) {
-		CommandLineOptions options = new CommandLineOptions(args);
+
+		String[] rawOptions = args;
+		final String wiremock_options = System.getenv("WIREMOCK_OPTIONS");
+		if (wiremock_options != null) {
+			rawOptions = wiremock_options.split(",");
+		}
+
+		CommandLineOptions options = new CommandLineOptions(rawOptions);
 		if (options.help()) {
 			out.println(options.helpText());
 			return;
