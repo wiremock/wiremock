@@ -1,4 +1,9 @@
-FROM openjdk:8-jre
+FROM openjdk:8
+
+
+
+
+
 
 CMD ["gradle"]
 
@@ -31,20 +36,24 @@ RUN set -o errexit -o nounset \
 # Create Gradle volume
 USER gradle
 VOLUME "/home/gradle/.gradle"
-WORKDIR /home/gradle
+VOLUME "/home/wiremock"
 
-WORKDIR /
+WORKDIR /home/wiremock
+
+RUN set -o errexit -o nounset \
+    && echo "Clone repo and switch branch"\
+    && git clone https://github.com/holomekc/wiremock.git .\
+    && git checkout new-gui
+
+
 
 RUN su set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& gradle clean jar shadowJar
 
-WORKDIR /build/
+WORKDIR /home/wiremock/build/
 
 ENV FILE *-standalone-*.jar
-
-# Use an official openjdk runtime as a parent image
-FROM openjdk:8
 
 # Copy the current directory contents into the container at /wiremock
 ADD ${FILE} /wiremock
