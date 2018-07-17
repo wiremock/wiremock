@@ -54,7 +54,8 @@ WORKDIR /home/wiremock
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& cd /home/wiremock \
-	&& echo gradle tasks \
+	&& gradle tasks \
+	&& gradle --stop \
 	&& gradle clean jar shadowJar
 
 WORKDIR /home/wiremock/build/
