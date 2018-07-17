@@ -45,6 +45,10 @@ USER gradle
 VOLUME "/home/wiremock/.gradle"
 VOLUME "/home/wiremock"
 
+RUN set -o errexit -o nounset \
+    && echo "install nodejs"
+    && apt-get update -qqy && apt-get -qqyy install nodejs \
+
 WORKDIR /home/wiremock
 
 RUN set -o errexit -o nounset \
