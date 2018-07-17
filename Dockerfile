@@ -40,8 +40,8 @@ RUN set -o errexit -o nounset \
 	&& ln -s /home/wiremock/.gradle /root/.gradle
 
 RUN set -o errexit -o nounset \
-    && echo "install nodejs" \
-    && apt-get update -qqy && apt-get -qqyy install nodejs
+    && echo "install npm" \
+    && apt-get update -qqy && apt-get -qqyy install npm
 
 # Create Gradle volume
 USER gradle
