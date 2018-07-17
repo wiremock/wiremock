@@ -27,17 +27,16 @@ RUN set -o errexit -o nounset \
 	&& echo "Adding gradle user and group" \
 	&& groupadd --system --gid 1000 gradle \
 	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
-	&& mkdir /home/gradle/.gradle \
-	&& chown --recursive gradle:gradle /home/gradle \
 	&& mkdir /home/wiremock \
+	&& mkdir /home/wiremock/.gradle \
 	&& chown --recursive gradle:gradle /home/wiremock \
 	\
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
-	&& ln -s /home/gradle/.gradle /root/.gradle
+	&& ln -s /home/wiremock/.gradle /root/.gradle
 
 # Create Gradle volume
 USER gradle
-VOLUME "/home/gradle/.gradle"
+VOLUME "/home/wiremock/.gradle"
 VOLUME "/home/wiremock"
 
 WORKDIR /home/wiremock
@@ -53,7 +52,8 @@ RUN set -o errexit -o nounset \
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& cd /home/wiremock \
-	&& gradle jar shadowJar
+	&& echo gradle tasks \
+	&& gradle clean jar shadowJar
 
 WORKDIR /home/wiremock/build/
 
