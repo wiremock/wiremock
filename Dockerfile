@@ -35,7 +35,7 @@ WORKDIR /home/gradle
 
 WORKDIR /
 
-RUN root set -o errexit -o nounset \
+RUN su set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
 	&& gradle clean jar shadowJar
 
