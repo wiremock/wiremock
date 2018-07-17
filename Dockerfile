@@ -43,7 +43,7 @@ VOLUME "/home/wiremock"
 WORKDIR /home/wiremock
 
 RUN set -o errexit -o nounset \
-    && cd /home/wiremock
+    && cd /home/wiremock \
     && echo "Clone repo and switch branch"\
     && git clone https://github.com/holomekc/wiremock.git .\
     && git checkout new-gui
@@ -52,7 +52,7 @@ RUN set -o errexit -o nounset \
 
 RUN set -o errexit -o nounset \
 	&& echo "Build wiremock with ui" \
-	&& cd /home/wiremock
+	&& cd /home/wiremock \
 	&& gradle clean jar shadowJar
 
 WORKDIR /home/wiremock/build/
