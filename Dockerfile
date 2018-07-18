@@ -2,15 +2,6 @@ FROM openjdk:8
 
 USER root
 
-RUN set -o errexit -o nounset \
-    && mkdir /home/wiremock \
-    && cd /home/wiremock \
-    && echo "git: Clone repo"\
-    && git clone https://github.com/holomekc/wiremock.git .\
-    && echo "git: Switch branch"\
-    && git checkout new-gui
-
-
 ENV GRADLE_HOME /opt/gradle
 ENV GRADLE_VERSION 4.8.1
 
