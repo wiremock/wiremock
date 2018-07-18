@@ -71,9 +71,10 @@ RUN set -o errexit -o nounset \
     && mkdir /wiremock \
     && cp /home/wiremock/build/libs/wiremock-standalone-*.jar /wiremock/wiremock.jar
 
+COPY wiremock/wiremock.jar /wiremock/
 
 # Copy the current directory contents into the container at /wiremock
-ADD /wiremock/wiremock.jar /wiremock
+ADD wiremock/wiremock.jar /wiremock
 
 # Make port 443 available to the world outside this container
 EXPOSE 443
