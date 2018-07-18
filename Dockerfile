@@ -37,7 +37,6 @@ RUN set -o errexit -o nounset \
     && apt-get install nodejs \
     && echo "node: install build-essentials"\
     && apt-get install build-essential -y\
-    && apt-get install libstdc++ -y\
     && echo "node: update npm"\
     && npm install -g npm@latest
 
@@ -48,8 +47,9 @@ VOLUME ".gradle"
 
 RUN set -o errexit -o nounset \
 	&& echo "build: Build wiremock with ui" \
-	&& gradle --stop \
-	&& gradle clean jar shadowJar \
+	&& gradle -g gradle
+	&& gradle --stop  --debug\
+	&& gradle clean jar shadowJar --debug \
 	&& echo "build: copy file to docker dir"\
 	&& cp wiremock/build/libs/wiremock-standalone-*.jar wiremock/build/libs/wiremock.jar
 #	&& cd build/libs/ \
