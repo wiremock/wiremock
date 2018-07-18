@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/internal/BehaviorSubject';
+import {Subject} from "rxjs/internal/Subject";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TabSelectionService {
 
-  private tab: BehaviorSubject<Tab> = new BehaviorSubject(null);
+  private tab: Subject<Tab> = new Subject();
   tab$ = this.tab.asObservable();
 
   constructor() {
