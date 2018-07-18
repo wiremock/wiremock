@@ -46,6 +46,11 @@
           Snapshot
         </button>
         <div class="dropdown-divider"></div>
+        <button type="button" class="dropdown-item" (click)="setAutoRefresh(!autoRefreshEnabled)" ngbTooltip="En/disable reload of mappings/requests which allows to read content more easily when e.g. a test is running">
+          <fa-icon icon="sync-alt"></fa-icon>
+          {{autoRefreshEnabled ? 'Disable auto refresh' : 'Enable auto refresh'}}
+        </button>
+        <div class="dropdown-divider"></div>
         <button type="button" class="dropdown-item" (click)="shutdown()">
           <fa-icon icon="power-off"></fa-icon>
           Shutdown

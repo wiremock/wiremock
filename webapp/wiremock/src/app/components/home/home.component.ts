@@ -11,6 +11,7 @@ import {RecordingStatus} from '../../model/wiremock/recording-status';
 import {Subject} from 'rxjs/internal/Subject';
 import {WebSocketService} from '../../services/web-socket.service';
 import {debounceTime, takeUntil} from 'rxjs/operators';
+import {AutoRefreshService} from "../../services/auto-refresh.service";
 
 @Component({
   selector: 'wm-home',
@@ -29,14 +30,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   RecordingStatus = RecordingStatus;
 
+  autoRefreshEnabled: boolean = true;
+
 
   constructor(private wiremockService: WiremockService, private messageService: MessageService,
               private webSocketService: WebSocketService,
-              private searchService: SearchService, private modalService: NgbModal,
+              private searchService: SearchService,
+              private autoRefreshService: AutoRefreshService, private modalService: NgbModal,
               private router: Router) {
   }
 
   ngOnInit() {
+    this.autoRefreshService.autoRefresh$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(enabled => {
+      this.autoRefreshEnabled = enabled;
+    });
+
+
     this.webSocketService.observe('recording').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadRecordingStatus();
@@ -123,6 +132,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  setAutoRefresh(enabled: boolean) {
+    this.autoRefreshService.setAutoRefresh(enabled);
+  }
+
+
   shutdown() {
     this.wiremockService.shutdown().subscribe(() => {
       this.messageService.setMessage(new Message('Shutdown successful', MessageType.INFO, 3000));
@@ -135,5 +149,4 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-
 }
