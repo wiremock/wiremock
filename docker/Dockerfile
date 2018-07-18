@@ -70,12 +70,12 @@ RUN set -o errexit -o nounset \
 	&& echo "build: copy file to root dir"\
 	&& cd build/libs/ \
     && ls \
-    && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /wiremock.jar
+    && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /docker/wiremock.jar
 
 WORKDIR /
 
 # Copy the current directory contents into the container at /wiremock
-ADD /wiremock.jar wiremock.jar
+ADD wiremock.jar wiremock.jar
 
 # Make port 443 available to the world outside this container
 EXPOSE 443
