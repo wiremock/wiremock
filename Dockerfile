@@ -28,9 +28,9 @@ RUN set -o errexit -o nounset \
 	&& mv "gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" \
 	&& ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle \
 	\
-#	&& echo "Adding gradle user and group" \
-#	&& groupadd --system --gid 1000 gradle \
-#	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
+	&& echo "Adding gradle user and group" \
+	&& groupadd --system --gid 1000 gradle \
+	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
 	&& mkdir .gradle \
 #	&& chown --recursive gradle:gradle /home/wiremock \
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
