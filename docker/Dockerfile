@@ -67,10 +67,10 @@ RUN set -o errexit -o nounset \
 	&& cd /home/wiremock \
 	&& gradle --stop \
 	&& gradle clean jar shadowJar \
-	&& echo "build: copy file to root dir"\
+	&& echo "build: copy file to docker dir"\
 	&& cd build/libs/ \
     && ls \
-    && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /docker/wiremock.jar
+    && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /wiremock.jar
 
 WORKDIR /
 
