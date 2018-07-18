@@ -28,16 +28,13 @@ RUN set -o errexit -o nounset \
 	&& mv "gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" \
 	&& ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle \
 	\
-	&& echo "Adding gradle user and group" \
-	&& groupadd --system --gid 1000 gradle \
-	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
-	&& mkdir /home/wiremock/.gradle \
-	&& chown --recursive gradle:gradle /home/wiremock \
-	\
+#	&& echo "Adding gradle user and group" \
+#	&& groupadd --system --gid 1000 gradle \
+#	&& useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
+	&& mkdir .gradle \
+#	&& chown --recursive gradle:gradle /home/wiremock \
 	&& echo "Symlinking root Gradle cache to gradle Gradle cache" \
-	&& ln -s /home/wiremock/.gradle /root/.gradle
-
-ENV DEBIAN_FRONTEND noninteractive
+	&& ln -s .gradle /root/.gradle
 
 RUN set -o errexit -o nounset \
     && echo "node: update" \
@@ -57,24 +54,21 @@ RUN set -o errexit -o nounset \
 #VOLUME "/home/wiremock/.gradle"
 
 
-WORKDIR /home/wiremock
-
 RUN set -o errexit -o nounset \
 	&& echo "build: Build wiremock with ui" \
-	&& cd /home/wiremock \
 	&& gradle --stop \
 	&& gradle clean jar shadowJar \
 	&& echo "build: copy file to docker dir"\
-	&& cd build/libs/ \
-    && ls \
-    && pwd \
-    && mkdir /wiremock \
-    && cp /home/wiremock/build/libs/wiremock-standalone-*.jar /wiremock/wiremock.jar
+	&& cp wiremock/build/libs/wiremock-standalone-*.jar wiremock/build/libs/wiremock.jar
+#	&& cd build/libs/ \
+#    && ls \
+#    && pwd \
+#    && mkdir /wiremock \
+#    && cp /home/wiremock/build/libs/wiremock-standalone-*.jar /wiremock/wiremock.jar
 
-COPY wiremock/wiremock.jar /wiremock/
 
 # Copy the current directory contents into the container at /wiremock
-ADD wiremock/wiremock.jar /wiremock
+ADD wiremock/build/libs/wiremock.jar /wiremock
 
 # Make port 443 available to the world outside this container
 EXPOSE 443
