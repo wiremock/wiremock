@@ -5,8 +5,6 @@ USER root
 ENV GRADLE_HOME /opt/gradle
 ENV GRADLE_VERSION 4.8.1
 
-RUN apk add --update libstdc++
-
 ARG GRADLE_DOWNLOAD_SHA256=af334d994b5e69e439ab55b5d2b7d086da5ea6763d78054f49f147b06370ed71
 RUN set -o errexit -o nounset \
 	&& echo "Downloading Gradle" \
@@ -39,6 +37,7 @@ RUN set -o errexit -o nounset \
     && apt-get install nodejs \
     && echo "node: install build-essentials"\
     && apt-get install build-essential -y\
+    && apt-get install libstdc++ -y\
     && echo "node: update npm"\
     && npm install -g npm@latest
 
