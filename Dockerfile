@@ -1,6 +1,5 @@
 FROM openjdk:8
 
-
 USER root
 
 RUN set -o errexit -o nounset \
@@ -11,8 +10,6 @@ RUN set -o errexit -o nounset \
     && echo "git: Switch branch"\
     && git checkout new-gui
 
-
-CMD ["gradle"]
 
 ENV GRADLE_HOME /opt/gradle
 ENV GRADLE_VERSION 4.8.1
@@ -70,12 +67,13 @@ RUN set -o errexit -o nounset \
 	&& echo "build: copy file to docker dir"\
 	&& cd build/libs/ \
     && ls \
-    && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /wiremock.jar
+    && pwd \
+    && mkdir /wiremock \
+    && cp /home/wiremock/build/libs/wiremock-standalone-*.jar /wiremock/wiremock.jar
 
-WORKDIR /
 
 # Copy the current directory contents into the container at /wiremock
-ADD wiremock.jar wiremock.jar
+ADD /wiremock/wiremock.jar /wiremock
 
 # Make port 443 available to the world outside this container
 EXPOSE 443
