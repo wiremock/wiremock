@@ -6,8 +6,9 @@ USER root
 RUN set -o errexit -o nounset \
     && mkdir /home/wiremock \
     && cd /home/wiremock \
-    && echo "Clone repo and switch branch"\
+    && echo "git: Clone repo"\
     && git clone https://github.com/holomekc/wiremock.git .\
+    && echo "git: Switch branch"\
     && git checkout new-gui
 
 
@@ -42,32 +43,36 @@ RUN set -o errexit -o nounset \
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN set -o errexit -o nounset \
-    && echo "install nodejs" \
+    && echo "node: update" \
     && apt-get update -y \
+    && echo "node: get install file"\
     && apt-get install curl \
     && curl -sL https://deb.nodesource.com/setup_8.x | bash \
+    && echo "node: install nodejs"\
     && apt-get install nodejs \
+    && echo "node: install build-essentials"\
     && apt-get install build-essential -y\
-    && npm -v \
+    && echo "node: update npm"\
     && npm install -g npm@latest
 
 # Create Gradle volume
 #USER gradle
-VOLUME "/home/wiremock/.gradle"
-VOLUME "/home/wiremock"
+#VOLUME "/home/wiremock/.gradle"
 
 
 WORKDIR /home/wiremock
 
 RUN set -o errexit -o nounset \
-	&& echo "Build wiremock with ui" \
+	&& echo "build: Build wiremock with ui" \
 	&& cd /home/wiremock \
-	&& gradle tasks \
 	&& gradle --stop \
 	&& gradle clean jar shadowJar \
+	&& echo "build: copy file to root dir"\
 	&& cd build/libs/ \
     && ls \
     && cp /home/wiremock/build/libs/wiremock-standalone-2.18.0.jar /wiremock.jar
+
+WORKDIR /
 
 # Copy the current directory contents into the container at /wiremock
 ADD /wiremock.jar wiremock.jar
