@@ -5,9 +5,10 @@ import {Message, MessageService, MessageType} from '../message/message.service';
 import {UtilService} from '../../services/util.service';
 import {GetServeEventsResult} from '../../model/wiremock/get-serve-events-result';
 import {ServeEvent} from '../../model/wiremock/serve-event';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
+import {AutoRefreshService} from "../../services/auto-refresh.service";
 
 @Component({
   selector: 'wm-matched',
@@ -23,11 +24,13 @@ export class MatchedComponent implements OnInit, OnDestroy {
   serveEventResult: GetServeEventsResult;
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService) {
+              private messageService: MessageService, private autoRefreshService: AutoRefreshService) {
   }
 
   ngOnInit() {
-    this.webSocketService.observe('matched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+    this.webSocketService.observe('matched').pipe(
+        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+        takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });

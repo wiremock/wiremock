@@ -5,9 +5,10 @@ import {WebSocketService} from '../../services/web-socket.service';
 import {Message, MessageService, MessageType} from '../message/message.service';
 import {FindRequestResult} from '../../model/wiremock/find-request-result';
 import {LoggedRequest} from '../../model/wiremock/logged-request';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
+import {AutoRefreshService} from "../../services/auto-refresh.service";
 
 @Component({
   selector: 'wm-unmatched',
@@ -23,11 +24,13 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
   requestResult: FindRequestResult;
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService) {
+              private messageService: MessageService, private autoRefreshService: AutoRefreshService) {
   }
 
   ngOnInit() {
-    this.webSocketService.observe('unmatched').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+    this.webSocketService.observe('unmatched').pipe(
+        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+        takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });

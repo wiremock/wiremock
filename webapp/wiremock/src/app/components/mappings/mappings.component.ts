@@ -5,13 +5,14 @@ import {UtilService} from '../../services/util.service';
 import {StubMapping} from '../../model/wiremock/stub-mapping';
 import {WebSocketService} from '../../services/web-socket.service';
 import {WebSocketListener} from '../../interfaces/web-socket-listener';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {MappingHelperService} from './mapping-helper.service';
 import {Message, MessageService, MessageType} from '../message/message.service';
 import {Item} from '../../model/wiremock/item';
 import {Subject} from 'rxjs/internal/Subject';
 import {ProxyConfig} from '../../model/wiremock/proxy-config';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
+import {AutoRefreshService} from "../../services/auto-refresh.service";
 
 @Component({
   selector: 'wm-mappings',
@@ -93,12 +94,15 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   };
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService, private tabSelectionService: TabSelectionService) {
+              private messageService: MessageService, private tabSelectionService: TabSelectionService,
+              private autoRefreshService: AutoRefreshService) {
   }
 
   ngOnInit() {
 
-    this.webSocketService.observe('mappings').pipe(takeUntil(this.ngUnsubscribe), debounceTime(100))
+    this.webSocketService.observe('mappings').pipe(
+        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+        takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });
