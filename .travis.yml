@@ -19,5 +19,6 @@ deploy:
   skip_cleanup: true
   on:
     jdk: openjdk8
+    branch: new-gui
 #    tags: true
 
