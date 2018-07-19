@@ -17,6 +17,7 @@ deploy:
   file_glob: true
   file: /build/libs/wiremock-standalone-*.jar
   skip_cleanup: true
-#  on:
+  on:
+    jdk: openjdk8
 #    tags: true
 
