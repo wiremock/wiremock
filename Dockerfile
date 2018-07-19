@@ -40,7 +40,8 @@ RUN set -o errexit -o nounset \
     && echo "git: Switch branch"\
     && git checkout new-gui
 
-RUN echo "dir:" + $(ls -1)
+RUN useradd -ms /bin/bash wiremock
+
 
 # Export some environment variables
 ENV GRADLE_HOME=/usr/local/gradle-2.6
@@ -50,13 +51,16 @@ RUN set -o errexit -o nounset \
 	&& echo "build: Build wiremock with ui" \
 	&& gradle clean jar shadowJar \
 	&& echo "build: copy file to docker dir"\
-	&& cp build/libs/wiremock-standalone-*.jar build/libs/wiremock.jar
+	&& cp build/libs/wiremock-standalone-*.jar /home/wiremock/wiremock.jar
 
 #ADD data/app/build/libs/wiremock.jar wiremock.jar
 EXPOSE 443
 EXPOSE 80
 
+USER wiremock
+
+
 # Deploy the app
-CMD java -jar /data/app/build/libs/wiremock.jar
+CMD java -jar /home/wiremock/wiremock.jar
 
 
