@@ -7,6 +7,7 @@ jdk:
 
 install:
   - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 8.11.3
+  - npm i npm@latest -g
   - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses
 
 script: ./gradlew clean test jar shadowJar --stacktrace --no-daemon
