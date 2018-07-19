@@ -1,14 +1,22 @@
 language: java
-
 jdk:
-  - oraclejdk8
-  - openjdk7
-  - openjdk8
-
+- oraclejdk8
+- openjdk7
+- openjdk8
 install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 8.11.3
-  - npm i npm@latest -g
-  - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses
-
-script: ./gradlew clean test jar shadowJar --stacktrace --no-daemon
+- rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm
+  && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm
+  install 8.11.3
+- npm i npm@latest -g
+- JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses
+script: "./gradlew clean test jar shadowJar --stacktrace --no-daemon"
+deploy:
+  provider: releases
+  api_key:
+    secure: SFk8Z4IYvhoFjEwJ2hzpg9D4xkTrjd21bSKLLmJEPsm5RvGEVFgWNdEqrkoUsEDrJNpBUSJ/p1slYTGxj1PjMsPYwY1LcKlcvrTUiVzDtFmAlWE5kNbzyVOsQCidYZaBU/9lOjgWQdUdZZc4XEMfUSzra1XqQetr1sQtN2brNbfMbBj0dK4UW9T24mG2MjZM8QjiwSH7kl+5QJiqM8WrnxIucenFyKy8GgusH8k7O1BkL/1mpAX0u9lekfQrJSmruJFUc2sV/v7BqTqLgA9jx0QwMk+ZTvWWh/0YMzv66tZqEuoCshuOvbvAe3BfDixhoFXPtri3MyV1ZxVKt+I5V68DBnqWpJj7V7KWndx3kYiliuWp1E2BCc3Q/w/oxINBVnO5pw/qIMvNbC1BePYw+mkojpCM9pvGbCgqeXiCc0JhcdMfubad7vpj+PIWKo3I/0kuWLIs+QPqlIp+HZ1DR4FohIbXICJ4VnciEIA1hmzVqr7rnN5rM/9v/hpBok48ntTjUcfxkasoWx6hzLlSTA0pCQEQcao9YFbcYhdpc8xwnGSxZw+WMqUTeb/ayITU3F/PIbLEoeNt3JE9LN8g5rNdgWV2+URzjNXvP94zhS8m8uf9ChpQ1m6uf3WZI+EcBK1cN8oFzRo4REprgP9mpd0v4d0273yQinAMVKdmToo=
+  file_glob: true
+  file: /build/libs/wiremock-standalone-*.jar
+  skip_cleanup: true
+#  on:
+#    tags: true
 
