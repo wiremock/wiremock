@@ -2,6 +2,7 @@ FROM openjdk:8
 
 USER root
 
+# Travis test
 # Define working directory.
 RUN mkdir -p /data/app
 WORKDIR /data/app
