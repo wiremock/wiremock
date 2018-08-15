@@ -21,32 +21,62 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.MultiValue;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 import java.util.Comparator;
 import java.util.List;
 
+import static com.google.common.collect.Iterables.all;
+import static com.google.common.collect.Iterables.any;
+import static java.util.Arrays.asList;
 import static java.util.Collections.min;
+import static java.util.Collections.singletonList;
 
 public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
 
-    private final StringValuePattern valuePattern;
+    private enum MatchPredicate { anyValueMatches, allValuesMatch }
 
-    public MultiValuePattern(StringValuePattern valuePattern) {
-        this.valuePattern = valuePattern;
+    private final List<StringValuePattern> valuePatterns;
+    private final MatchPredicate predicate;
+
+    private MultiValuePattern(List<StringValuePattern> valuePatterns, MatchPredicate predicate) {
+        this.valuePatterns = valuePatterns;
+        this.predicate = predicate;
     }
 
     @JsonCreator
-    public static MultiValuePattern of(StringValuePattern valuePattern) {
-        return new MultiValuePattern(valuePattern);
+    public static MultiValuePattern of(StringValuePattern... valuePatterns) {
+        return new MultiValuePattern(asList(valuePatterns), MatchPredicate.allValuesMatch);
     }
 
     public static MultiValuePattern absent() {
-        return new MultiValuePattern(WireMock.absent());
+        return new MultiValuePattern(singletonList(WireMock.absent()), MatchPredicate.allValuesMatch);
     }
 
     @Override
-    public MatchResult match(MultiValue multiValue) {
+    public MatchResult match(final MultiValue multiValue) {
+        boolean match = all(multiValue.values(), new Predicate<String>() {
+            @Override
+            public boolean apply(String value) {
+                return any(valuePatterns, new Predicate<StringValuePattern>() {
+                    @Override
+                    public boolean apply(StringValuePattern valuePattern) {
+                        if (valuePattern.nullSafeIsAbsent()) {
+                            return MatchResult.of(!multiValue.isPresent());
+                        }
+
+                        if (valuePattern.isPresent() && multiValue.isPresent()) {
+                            return getBestMatch(valuePattern, multiValue.values());
+                        }
+
+                        return valuePattern.isPresent() == multiValue.isPresent();
+                    }
+                });
+            }
+        });
+
+
         if (valuePattern.nullSafeIsAbsent()) {
             return MatchResult.of(!multiValue.isPresent());
         }
@@ -59,18 +89,18 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
     }
 
     @JsonValue
-    public StringValuePattern getValuePattern() {
-        return valuePattern;
+    public List<StringValuePattern> getValuePatterns() {
+        return valuePatterns;
     }
 
     @Override
     public String getName() {
-        return valuePattern.getName();
+        return valuePatterns.getName();
     }
 
     @Override
     public String getExpected() {
-        return valuePattern.expectedValue;
+        return valuePatterns.expectedValue;
     }
 
     private static MatchResult getBestMatch(final StringValuePattern valuePattern, List<String> values) {
@@ -92,11 +122,11 @@ public class MultiValuePattern implements NamedValueMatcher<MultiValue> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MultiValuePattern that = (MultiValuePattern) o;
-        return Objects.equal(valuePattern, that.valuePattern);
+        return Objects.equal(valuePatterns, that.valuePatterns);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(valuePattern);
+        return Objects.hashCode(valuePatterns);
     }
 }

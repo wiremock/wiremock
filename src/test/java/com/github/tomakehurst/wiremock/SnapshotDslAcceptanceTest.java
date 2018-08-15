@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -171,12 +170,12 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .captureHeader("Also-Yes", true)
         );
 
-        StringValuePattern yesValuePattern = mappings.get(0).getRequest().getHeaders().get("Yes").getValuePattern();
+        StringValuePattern yesValuePattern = mappings.get(0).getRequest().getHeaders().get("Yes").getValuePatterns();
         assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
         assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), nullValue());
         assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
 
-        StringValuePattern alsoYesValuePattern = mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePattern();
+        StringValuePattern alsoYesValuePattern = mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePatterns();
         assertThat(alsoYesValuePattern, instanceOf(EqualToPattern.class));
         assertThat(((EqualToPattern) alsoYesValuePattern).getCaseInsensitive(), is(true));
     }

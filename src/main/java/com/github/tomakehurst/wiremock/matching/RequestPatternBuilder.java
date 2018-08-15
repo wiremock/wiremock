@@ -121,6 +121,11 @@ public class RequestPatternBuilder {
         return this;
     }
 
+    public RequestPatternBuilder withHeader(String key, MultiValuePattern valuePattern) {
+        headers.put(key, valuePattern);
+        return this;
+    }
+
     public RequestPatternBuilder withHeader(String key, StringValuePattern valuePattern) {
         headers.put(key, MultiValuePattern.of(valuePattern));
         return this;

@@ -352,6 +352,10 @@ public class WireMock {
 		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, expected);
 	}
 
+    public static MultiValuePattern matchingAll(StringValuePattern... patterns) {
+        return null;
+    }
+
 	public static MappingBuilder get(UrlPattern urlPattern) {
 		return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
 	}

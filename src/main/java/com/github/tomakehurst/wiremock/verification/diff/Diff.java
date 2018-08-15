@@ -22,10 +22,8 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.BaseEncoding;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +80,12 @@ public class Diff {
                 MultiValuePattern pattern = entry.getValue();
                 QueryParameter queryParameter = firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
-                String operator = generateOperatorString(pattern.getValuePattern(), " = ");
+                String operator = generateOperatorString(pattern.getValuePatterns(), " = ");
                 DiffLine<MultiValue> section = new DiffLine<>(
                     "Query",
                     pattern,
                     queryParameter,
-                    "Query: " + key + operator + pattern.getValuePattern().getValue()
+                    "Query: " + key + operator + pattern.getValuePatterns().getValue()
                 );
                 builder.add(section);
                 anyQueryParams = true;
@@ -163,7 +161,7 @@ public class Diff {
                 HttpHeader header = headers.getHeader(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
 
-                String operator = generateOperatorString(headerPattern.getValuePattern(), "");
+                String operator = generateOperatorString(headerPattern.getValuePatterns(), "");
                 String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
 
                 DiffLine<MultiValue> section = new DiffLine<>("Header", headerPattern, header, printedPatternValue);

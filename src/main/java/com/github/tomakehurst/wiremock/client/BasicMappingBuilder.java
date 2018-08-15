@@ -75,7 +75,12 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
 		return this;
 	}
 
-    @Override
+	@Override
+	public MappingBuilder withHeader(String key, MultiValuePattern headerPattern) {
+		return null;
+	}
+
+	@Override
     public BasicMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
 		requestPatternBuilder.withCookie(name, cookieValuePattern);
         return this;
