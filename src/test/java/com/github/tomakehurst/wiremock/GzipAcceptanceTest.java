@@ -31,10 +31,26 @@ import static org.junit.Assert.assertThat;
 public class GzipAcceptanceTest extends AcceptanceTestBase {
 
     @Test
-    public void servesGzippedResponseWhenRequested() throws Exception {
+    public void servesGzippedResponseForGet() throws Exception {
         wireMockServer.stubFor(get(urlEqualTo("/gzip-response")).willReturn(aResponse().withBody("body text")));
 
         WireMockResponse response = testClient.get("/gzip-response", withHeader("Accept-Encoding", "gzip,deflate"));
+        assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
+
+        byte[] gzippedContent = response.binaryContent();
+
+        String plainText = unGzipToString(gzippedContent);
+        assertThat(plainText, is("body text"));
+    }
+
+    @Test
+    public void servesGzippedResponseForPost() throws Exception {
+        wireMockServer.stubFor(post("/gzip-response").willReturn(ok("body text")));
+
+        WireMockResponse response = testClient.post("/gzip-response",
+            new StringEntity(""),
+            withHeader("Accept-Encoding", "gzip,deflate")
+        );
         assertThat(response.firstHeader("Content-Encoding"), is("gzip"));
 
         byte[] gzippedContent = response.binaryContent();
