@@ -43,6 +43,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -54,6 +56,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
+    private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
@@ -127,11 +130,19 @@ public class JettyHttpServer implements HttpServer {
 
         try {
             HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            setGZippableMethods(gzipWrapper, gzipHandlerClass);
             gzipWrapper.setHandler(mockServiceContext);
             handlers.addHandler(gzipWrapper);
         } catch (Exception e) {
             throwUnchecked(e);
         }
+    }
+
+    private static void setGZippableMethods(HandlerWrapper gzipHandler, Class<?> gzipHandlerClass) {
+        try {
+            Method addIncludedMethods = gzipHandlerClass.getDeclaredMethod("addIncludedMethods", String[].class);
+            addIncludedMethods.invoke(gzipHandler, new Object[] { GZIPPABLE_METHODS });
+        } catch (Exception ignored) {}
     }
 
     protected void finalizeSetup(Options options) {

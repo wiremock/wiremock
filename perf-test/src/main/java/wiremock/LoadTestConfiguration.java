@@ -80,7 +80,7 @@ public class LoadTestConfiguration {
     }
 
     public void onlyGet6000StubScenario() {
-        System.out.println("Regsitering stubs");
+        System.out.println("Registering stubs");
 
         ExecutorService executorService = Executors.newFixedThreadPool(100);
 
@@ -96,6 +96,44 @@ public class LoadTestConfiguration {
                 public void run() {
                     wm.register(get("/load-test/" + count)
                             .willReturn(ok(randomAscii(2000, 5000))));
+
+                    if (count % 100 == 0) {
+                        System.out.print(count + " ");
+                    }
+
+                }
+            }));
+
+        }
+
+        for (Future<?> future: futures) {
+            try {
+                future.get(30, SECONDS);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        executorService.shutdown();
+    }
+
+    public void getLargeStubScenario() {
+        System.out.println("Registering stubs");
+
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        wm.register(any(anyUrl()).atPriority(10)
+                .willReturn(notFound())
+        );
+
+        List<Future<?>> futures = new ArrayList<>();
+        for (int i = 1; i <= 100; i++) {
+            final int count = i;
+            futures.add(executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    wm.register(get("/load-test/" + count)
+                            .willReturn(ok(randomAscii(50000, 90000))));
 
                     if (count % 100 == 0) {
                         System.out.print(count + " ");
