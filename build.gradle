@@ -35,6 +35,7 @@ def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
 def versions = [
     jackson: '2.8.11',
+    jacksonDatabind: '2.8.11.2',
     jetty  : '9.2.24.v20180105', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
     xmlUnit: '2.5.1'
 ]
@@ -51,7 +52,7 @@ dependencies {
     compile "com.google.guava:guava:20.0"
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+        "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
     compile "org.apache.httpcomponents:httpclient:4.5.5"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
