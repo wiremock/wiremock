@@ -14,7 +14,8 @@ class StubbingAndVerifyingSimulation extends Simulation {
   before {
     loadTestConfiguration.before()
 //    loadTestConfiguration.mixed100StubScenario()
-    loadTestConfiguration.onlyGet6000StubScenario()
+//    loadTestConfiguration.onlyGet6000StubScenario()
+    loadTestConfiguration.getLargeStubScenario()
   }
 
   after {
@@ -80,9 +81,20 @@ class StubbingAndVerifyingSimulation extends Simulation {
       }
   }
 
+  val getLargeStubsScenario = {
+    scenario("100 large GETs")
+      .repeat(1) {
+        exec(http("GETs")
+          .get(session => s"load-test/${random.nextInt(99) + 1}")
+          .header("Accept", "text/plain+stuff")
+          .check(status.is(200)))
+      }
+  }
+
   setUp(
 //    mixed100StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
-    onlyGet6000StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+//    onlyGet6000StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+    getLargeStubsScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
   ).protocols(httpConf)
 
 }

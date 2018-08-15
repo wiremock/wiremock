@@ -92,7 +92,7 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.requestLine.path` - URL path
 
-`request.requestLine.path.[<n>]`- URL path segment (zero indexed) e.g. `request.path.[2]`
+`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
 
 `request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
