@@ -150,6 +150,22 @@ public class ClientAuthenticationAcceptanceTest {
         assertThat(response.content(), containsString("HTTPS is required for accessing the admin API"));
     }
 
+    @Test
+    public void supportsTokenAuthenticatorViaStaticDsl() {
+        final String TOKEN = "my_token_123";
+
+        initialise(new TokenAuthenticator(TOKEN),
+            new ClientTokenAuthenticator(TOKEN)
+        );
+        WireMockTestClient client = new WireMockTestClient(server.port());
+
+        WireMock.configureFor(goodClient);
+
+        WireMock.getAllServeEvents(); // Expect no exception thrown
+        assertThat(client.get("/__admin/requests").statusCode(), is(401));
+    }
+
+
     private void initialise(Authenticator adminAuthenticator, ClientAuthenticator clientAuthenticator) {
         server = new WireMockServer(wireMockConfig()
             .dynamicPort()
