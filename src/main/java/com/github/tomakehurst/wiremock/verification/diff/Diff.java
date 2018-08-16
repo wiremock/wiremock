@@ -21,9 +21,11 @@ import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -80,12 +82,12 @@ public class Diff {
                 MultiValuePattern pattern = entry.getValue();
                 QueryParameter queryParameter = firstNonNull(requestQueryParams.get(key), QueryParameter.absent(key));
 
-                String operator = generateOperatorString(pattern.getValuePatterns(), " = ");
+                String operator = generateOperatorString(pattern.getName(), " = ");
                 DiffLine<MultiValue> section = new DiffLine<>(
                     "Query",
                     pattern,
                     queryParameter,
-                    "Query: " + key + operator + pattern.getValuePatterns().getValue()
+                    "Query: " + key + operator + pattern.getExpected()
                 );
                 builder.add(section);
                 anyQueryParams = true;
@@ -104,7 +106,7 @@ public class Diff {
                 StringValuePattern pattern = entry.getValue();
                 Cookie cookie = firstNonNull(cookies.get(key), Cookie.absent());
 
-                String operator = generateOperatorString(pattern, "=");
+                String operator = generateOperatorString(pattern.getName(), "=");
                 DiffLine<String> section = new DiffLine<>(
                     "Cookie",
                     pattern,
@@ -161,7 +163,7 @@ public class Diff {
                 HttpHeader header = headers.getHeader(key);
                 MultiValuePattern headerPattern = headerPatterns.get(header.key());
 
-                String operator = generateOperatorString(headerPattern.getValuePatterns(), "");
+                String operator = generateOperatorString(headerPattern.getName(), "");
                 String printedPatternValue = header.key() + operator + ": " + headerPattern.getExpected();
 
                 DiffLine<MultiValue> section = new DiffLine<>("Header", headerPattern, header, printedPatternValue);
@@ -189,8 +191,13 @@ public class Diff {
         }
     }
 
-    private String generateOperatorString(ContentPattern<?> pattern, String defaultValue) {
-        return isAnEqualToPattern(pattern) ? defaultValue : " [" + pattern.getName() + "] ";
+    private String generateOperatorString(String name, String defaultValue) {
+        return isAnEqualToPattern(name) ? defaultValue : " [" + name + "] ";
+    }
+
+    private static final List<String> EQUALITY_OPERATORS = Arrays.asList("equalTo", "equalToJson", "equalToXml", "binaryEqualTo");
+    private static boolean isAnEqualToPattern(String name) {
+        return EQUALITY_OPERATORS.contains(name);
     }
 
     public String getStubMappingName() {

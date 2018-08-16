@@ -69,15 +69,16 @@ public class MultipartValuePatternTest {
                 "    }" +
                 "}";
 
-        MultipartValuePattern pattern = Json.read(serializedPattern, MultipartValuePattern.class);
+        MultipartValuePattern multipartPattern = Json.read(serializedPattern, MultipartValuePattern.class);
 
-        StringValuePattern headerPattern = pattern.getHeaders().get("Content-Disposition").getValuePatterns();
+        MultiValuePattern multiPattern = multipartPattern.getHeaders().get("Content-Disposition");
+        StringValuePattern headerPattern = ((SingleMatchMultiValuePattern) multiPattern).getValuePattern();
         assertThat(headerPattern, instanceOf(ContainsPattern.class));
         assertThat(headerPattern.getValue(), is("name=\"part1\""));
 
-        assertNull(pattern.getBodyPatterns());
-        assertTrue(pattern.isMatchAll());
-        assertFalse(pattern.isMatchAny());
+        assertNull(multipartPattern.getBodyPatterns());
+        assertTrue(multipartPattern.isMatchAll());
+        assertFalse(multipartPattern.isMatchAny());
     }
 
     @Test
@@ -129,9 +130,9 @@ public class MultipartValuePatternTest {
 
         assertThat(pattern.getBodyPatterns().get(0).getExpected(), WireMatchers.equalToJson(expectedJson));
 
-        MultiValuePattern contentTypeHeaderPattern = pattern.getHeaders().get("Content-Type");
-        assertThat(contentTypeHeaderPattern.getValuePatterns(), instanceOf(ContainsPattern.class));
-        assertThat(contentTypeHeaderPattern.getValuePatterns().getExpected(), is("application/json"));
+        SingleMatchMultiValuePattern contentTypeHeaderPattern = (SingleMatchMultiValuePattern) pattern.getHeaders().get("Content-Type");
+        assertThat(contentTypeHeaderPattern.getValuePattern(), instanceOf(ContainsPattern.class));
+        assertThat(contentTypeHeaderPattern.getValuePattern().getExpected(), is("application/json"));
         assertTrue(pattern.isMatchAny());
         assertFalse(pattern.isMatchAll());
     }
@@ -166,7 +167,7 @@ public class MultipartValuePatternTest {
 
         assertThat(pattern.getName(), is("my_part_name"));
         assertEquals(pattern.getBodyPatterns().get(0).getExpected(), expectedBinary);
-        assertThat(pattern.getHeaders().get("Content-Type").getValuePatterns().getExpected(), is("application/octet-stream"));
+        assertThat(pattern.getHeaders().get("Content-Type").getExpected(), is("application/octet-stream"));
         assertTrue(pattern.isMatchAll());
         assertFalse(pattern.isMatchAny());
     }

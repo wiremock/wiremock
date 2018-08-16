@@ -17,13 +17,19 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.MultiValue;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+
+import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.absent;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
 import static com.github.tomakehurst.wiremock.http.QueryParameter.queryParam;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -122,5 +128,52 @@ public class MultiValuePatternTest {
             actual,
             true
         );
+    }
+
+    @Test
+    public void correctlyDeserialisesToSingleMatcher() {
+        String json =
+            "{                              \n" +
+            "  \"equalTo\": \"something\"   \n" +
+            "}";
+
+        MultiValuePattern deserialisedPattern = Json.read(json, MultiValuePattern.class);
+        assertThat(deserialisedPattern, instanceOf(SingleMatchMultiValuePattern.class));
+        SingleMatchMultiValuePattern pattern = (SingleMatchMultiValuePattern) deserialisedPattern;
+
+        assertThat(pattern.getValuePattern(), instanceOf(StringValuePattern.class));
+        assertThat(pattern.getValuePattern().getExpected(), is("something"));
+        assertThat(pattern.getValuePattern().getName(), is("equalTo"));
+        assertThat(pattern.match(new MultiValue("whatever", singletonList("something"))).isExactMatch(), is(true));
+    }
+
+    @Test
+    @Ignore
+    public void correctlyDeserialisesToAllMatcher() {
+        String json =
+            "{                                  \n" +
+            "    \"type\": \"ALL\",             \n" +
+            "    \"patterns\": [                \n" +
+            "        {                          \n" +
+            "            \"equalTo\": \"1\"     \n" +
+            "        },                         \n" +
+            "        {                          \n" +
+            "            \"contains\": \"2\"    \n" +
+            "        },                         \n" +
+            "        {                          \n" +
+            "            \"matches\": \"th.*\"  \n" +
+            "        }                          \n" +
+            "    ]                              \n" +
+            "}";
+
+        MultiValuePattern deserialisedPattern = Json.read(json, MultiValuePattern.class);
+        assertThat(deserialisedPattern, instanceOf(SingleMatchMultiValuePattern.class));
+        SingleMatchMultiValuePattern pattern = (SingleMatchMultiValuePattern) deserialisedPattern;
+
+        assertThat(pattern, instanceOf(AllMatchMultiValuePattern.class));
+        assertThat(pattern.getValuePattern(), instanceOf(StringValuePattern.class));
+        assertThat(pattern.getValuePattern().getExpected(), is("something"));
+        assertThat(pattern.getValuePattern().getName(), is("equalTo"));
+        assertThat(pattern.match(new MultiValue("whatever", singletonList("something"))).isExactMatch(), is(true));
     }
 }

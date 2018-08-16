@@ -170,12 +170,14 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
                 .captureHeader("Also-Yes", true)
         );
 
-        StringValuePattern yesValuePattern = mappings.get(0).getRequest().getHeaders().get("Yes").getValuePatterns();
+        MultiValuePattern pattern = mappings.get(0).getRequest().getHeaders().get("Yes");
+        StringValuePattern yesValuePattern = ((SingleMatchMultiValuePattern) pattern).getValuePattern();
         assertThat(yesValuePattern, instanceOf(EqualToPattern.class));
         assertThat(((EqualToPattern) yesValuePattern).getCaseInsensitive(), nullValue());
         assertFalse(mappings.get(0).getRequest().getHeaders().containsKey("No"));
 
-        StringValuePattern alsoYesValuePattern = mappings.get(1).getRequest().getHeaders().get("Also-Yes").getValuePatterns();
+        MultiValuePattern pattern2 = mappings.get(1).getRequest().getHeaders().get("Also-Yes");
+        StringValuePattern alsoYesValuePattern = ((SingleMatchMultiValuePattern) pattern2).getValuePattern();
         assertThat(alsoYesValuePattern, instanceOf(EqualToPattern.class));
         assertThat(((EqualToPattern) alsoYesValuePattern).getCaseInsensitive(), is(true));
     }
