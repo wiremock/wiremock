@@ -5,6 +5,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 
@@ -35,5 +36,22 @@ public class MultipartBodyMatchingAcceptanceTest extends AcceptanceTestBase {
         HttpResponse response = httpClient.execute(request);
 
         assertThat(response.getStatusLine().getStatusCode(), is(404));
+    }
+
+    @Test
+    public void doesNotFailWithMultipartMixedRequest() throws Exception {
+        stubFor(post("/multipart-mixed")
+                .willReturn(ok())
+        );
+
+        HttpUriRequest request = RequestBuilder
+                .post("http://localhost:" + wireMockServer.port() + "/multipart-mixed")
+                .setHeader("Content-Type", "multipart/mixed; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW")
+                .setEntity(new StringEntity("", ContentType.create("multipart/mixed")))
+                .build();
+
+        HttpResponse response = httpClient.execute(request);
+
+        assertThat(response.getStatusLine().getStatusCode(), is(200));
     }
 }
