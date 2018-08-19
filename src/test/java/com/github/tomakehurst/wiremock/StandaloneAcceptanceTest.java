@@ -402,10 +402,10 @@ public class StandaloneAcceptanceTest {
     }
 
     @Test
-	public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
-		runner = new WireMockServerRunner();
-		assertThat(runner.isRunning(), is(false));
-	}
+    public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
+        runner = new WireMockServerRunner();
+        assertThat(runner.isRunning(), is(false));
+    }
 
     private static final String BAD_MAPPING =
         "{ 													\n" +
