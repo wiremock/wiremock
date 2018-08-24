@@ -189,16 +189,21 @@ public class WireMockServer implements Container, Stubbing, Admin {
         return httpServer.httpsPort();
     }
 
-    public String url(String path) {
-        boolean https = options.httpsSettings().enabled();
-        String protocol = https ? "https" : "http";
-        int port = https ? httpsPort() : port();
 
+    public String url(String path) {
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
 
-        return String.format("%s://localhost:%d%s", protocol, port, path);
+        return String.format("%s%s", baseUrl(), path);
+    }
+
+    public String baseUrl() {
+        boolean https = options.httpsSettings().enabled();
+        String protocol = https ? "https" : "http";
+        int port = https ? httpsPort() : port();
+
+        return String.format("%s://localhost:%d", protocol, port);
     }
 
     public boolean isRunning() {
