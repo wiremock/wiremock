@@ -189,7 +189,6 @@ public class WireMockServer implements Container, Stubbing, Admin {
         return httpServer.httpsPort();
     }
 
-
     public String url(String path) {
         if (!path.startsWith("/")) {
             path = "/" + path;
