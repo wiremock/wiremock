@@ -13,6 +13,7 @@ import com.github.tomakehurst.wiremock.junit.Stubbing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -27,18 +28,20 @@ public class LoadTestConfiguration {
     private WireMockServer wireMockServer;
     private WireMock wm;
 
+    private String scheme;
     private String host;
     private Integer port;
     private int durationSeconds;
     private int rate;
 
     public static LoadTestConfiguration fromEnvironment() {
+        String scheme = Optional.ofNullable(System.getenv("SCHEME")).orElse("http");
         String host = System.getenv("HOST");
         Integer port = envInt("PORT", null);
         int durationSeconds = envInt("DURATION_SECONDS", 10);
         int rate = envInt("RATE", 200);
 
-        return new LoadTestConfiguration(host, port, durationSeconds, rate);
+        return new LoadTestConfiguration(scheme, host, port, durationSeconds, rate);
     }
 
     private static Integer envInt(String key, Integer defaultValue) {
@@ -47,11 +50,13 @@ public class LoadTestConfiguration {
     }
 
     public LoadTestConfiguration() {
-        this(null, null, 10, 200);
+        this("http", null, null, 10, 200);
     }
 
-    public LoadTestConfiguration(String host, Integer port, int durationSeconds, int rate) {
-        System.out.println("Running test against host " + host + ", for " + durationSeconds + " seconds at rate " + rate);
+    public LoadTestConfiguration(String scheme, String host, Integer port, int durationSeconds, int rate) {
+        System.out.println("Running test against  " + scheme + "://" + host + ":" + port + ", for " + durationSeconds + " seconds at rate " + rate);
+
+        this.scheme = scheme;
 
         if (host == null || port == null) {
             wireMockServer = new WireMockServer(WireMockConfiguration.options()
@@ -229,7 +234,7 @@ public class LoadTestConfiguration {
     }
 
     public String getBaseUrl() {
-        return String.format("http://%s:%d/", host, port);
+        return String.format(scheme + "://%s:%d/", host, port);
     }
 
     public int getDurationSeconds() {

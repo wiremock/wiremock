@@ -14,8 +14,8 @@ class StubbingAndVerifyingSimulation extends Simulation {
   before {
     loadTestConfiguration.before()
 //    loadTestConfiguration.mixed100StubScenario()
-//    loadTestConfiguration.onlyGet6000StubScenario()
-    loadTestConfiguration.getLargeStubScenario()
+    loadTestConfiguration.onlyGet6000StubScenario()
+//    loadTestConfiguration.getLargeStubScenario()
   }
 
   after {
@@ -93,8 +93,8 @@ class StubbingAndVerifyingSimulation extends Simulation {
 
   setUp(
 //    mixed100StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
-//    onlyGet6000StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
-    getLargeStubsScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+    onlyGet6000StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+//    getLargeStubsScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
   ).protocols(httpConf)
 
 }
