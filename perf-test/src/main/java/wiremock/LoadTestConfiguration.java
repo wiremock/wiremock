@@ -75,7 +75,7 @@ public class LoadTestConfiguration {
         } else {
             this.host = host;
             this.port = port;
-            wm = new WireMock(host, port);
+            wm = new WireMock(scheme, host, port);
 
             System.out.println("Running test against  " + getBaseUrl() + ", for " + durationSeconds + " seconds at rate " + rate);
         }
