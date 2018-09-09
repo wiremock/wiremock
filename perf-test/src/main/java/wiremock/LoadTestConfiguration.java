@@ -54,7 +54,7 @@ public class LoadTestConfiguration {
     }
 
     public LoadTestConfiguration(String scheme, String host, Integer port, int durationSeconds, int rate) {
-        System.out.println("Running test against  " + scheme + "://" + host + ":" + port + ", for " + durationSeconds + " seconds at rate " + rate);
+
 
         this.scheme = scheme;
 
@@ -70,10 +70,14 @@ public class LoadTestConfiguration {
                     .extensions(new ResponseTemplateTransformer(false)));
             wireMockServer.start();
             wm = new WireMock(wireMockServer);
+
+            System.out.println("Running test against a local WireMock instance for " + durationSeconds + " seconds at rate " + rate);
         } else {
             this.host = host;
             this.port = port;
             wm = new WireMock(host, port);
+
+            System.out.println("Running test against  " + getBaseUrl() + ", for " + durationSeconds + " seconds at rate " + rate);
         }
 
         this.durationSeconds = durationSeconds;
