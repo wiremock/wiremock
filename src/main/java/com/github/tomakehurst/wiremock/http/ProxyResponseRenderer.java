@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
@@ -62,8 +63,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	}
 
 	@Override
-	public Response render(ResponseDefinition responseDefinition) {
-		HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
+	public Response render(ServeEvent serveEvent) {
+        ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+        HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
         addRequestHeaders(httpRequest, responseDefinition);
 
 		try {
