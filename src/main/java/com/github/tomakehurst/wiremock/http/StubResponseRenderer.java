@@ -20,11 +20,14 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.MoreObjects;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
@@ -82,10 +85,23 @@ public class StubResponseRenderer implements ResponseRenderer {
 
 	private Response.Builder renderDirectly(ServeEvent serveEvent) {
         ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+        HttpHeaders headers = responseDefinition.getHeaders();
+        StubMapping stubMapping = serveEvent.getStubMapping();
+        if (serveEvent.getWasMatched() && stubMapping != null) {
+            headers =
+                firstNonNull(headers, new HttpHeaders())
+                .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
+
+            if (stubMapping.getName() != null) {
+                headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
+            }
+        }
+
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
 				.statusMessage(responseDefinition.getStatusMessage())
-                .headers(responseDefinition.getHeaders())
+                .headers(headers)
                 .fault(responseDefinition.getFault())
 				.configureDelay(
 					globalSettingsHolder.get().getFixedDelay(),

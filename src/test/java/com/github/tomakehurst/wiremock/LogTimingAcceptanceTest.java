@@ -57,7 +57,7 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
         Timing timing = serveEvent.getTiming();
         assertThat(timing.getAddedDelay(), is(DELAY));
         assertThat(timing.getProcessTime(), greaterThan(0));
-        assertThat(timing.getResponseSendTime(), greaterThan(0));
+//        assertThat(timing.getResponseSendTime(), greaterThan(0)); // Hard for this not to be flakey without some kind of throttling on the loopback adapter
         assertThat(timing.getServeTime(), is(timing.getProcessTime() + timing.getResponseSendTime()));
         assertThat(timing.getTotalTime(), is(timing.getProcessTime() + timing.getResponseSendTime() + DELAY));
     }
