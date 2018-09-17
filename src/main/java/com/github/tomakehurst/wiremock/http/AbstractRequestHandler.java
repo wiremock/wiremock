@@ -47,7 +47,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		ServeEvent serveEvent = handleRequest(request);
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
-		Response response = responseRenderer.render(serveEvent); // Change the signature of render() to take a ServeEvent? Then add the headers during rendering
+		Response response = responseRenderer.render(serveEvent);
 		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
 		if (logRequests()) {
