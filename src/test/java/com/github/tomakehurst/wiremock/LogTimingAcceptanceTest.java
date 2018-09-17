@@ -23,7 +23,7 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
         stubFor(get("/time-me").willReturn(ok()));
 
         // Create some work
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 500; i++) {
             stubFor(get("/time-me/" + i)
                 .willReturn(ok()));
         }
@@ -45,7 +45,7 @@ public class LogTimingAcceptanceTest extends AcceptanceTestBase {
             .willReturn(ok().withFixedDelay(DELAY)));
 
         // Create some work
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 500; i++) {
             stubFor(post("/time-me/async")
                 .withRequestBody(equalToXml("<value>123456" + i + " </value>"))
                 .willReturn(ok()));

@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 import java.util.List;
 
@@ -43,20 +44,21 @@ public class StubResponseRenderer implements ResponseRenderer {
 	}
 
 	@Override
-	public Response render(ResponseDefinition responseDefinition) {
-		if (!responseDefinition.wasConfigured()) {
+	public Response render(ServeEvent serveEvent) {
+        ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+        if (!responseDefinition.wasConfigured()) {
 			return Response.notConfigured();
 		}
 
-		Response response = buildResponse(responseDefinition);
+		Response response = buildResponse(serveEvent);
 		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
 	}
 
-	private Response buildResponse(ResponseDefinition responseDefinition) {
-		if (responseDefinition.isProxyResponse()) {
-			return proxyResponseRenderer.render(responseDefinition);
+	private Response buildResponse(ServeEvent serveEvent) {
+		if (serveEvent.getResponseDefinition().isProxyResponse()) {
+			return proxyResponseRenderer.render(serveEvent);
 		} else {
-			Response.Builder responseBuilder = renderDirectly(responseDefinition);
+			Response.Builder responseBuilder = renderDirectly(serveEvent);
 			return responseBuilder.build();
 		}
 	}
@@ -78,7 +80,8 @@ public class StubResponseRenderer implements ResponseRenderer {
 		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
 	}
 
-	private Response.Builder renderDirectly(ResponseDefinition responseDefinition) {
+	private Response.Builder renderDirectly(ServeEvent serveEvent) {
+        ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
 				.statusMessage(responseDefinition.getStatusMessage())
