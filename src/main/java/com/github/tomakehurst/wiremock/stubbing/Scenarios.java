@@ -43,7 +43,6 @@ public class Scenarios {
             String scenarioName = mapping.getScenarioName();
             Scenario scenario =
                 firstNonNull(scenarioMap.get(scenarioName), Scenario.inStartedState(scenarioName))
-                .withPossibleState(mapping.getNewScenarioState())
                 .withStubMapping(mapping);
             scenarioMap.put(scenarioName, scenario);
         }
@@ -55,7 +54,7 @@ public class Scenarios {
                 scenarioMap.get(oldMapping.getScenarioName())
                     .withoutStubMapping(oldMapping);
 
-            if (scenarioForOldMapping.getMappingIds().isEmpty()) {
+            if (scenarioForOldMapping.getStubMappings().isEmpty()) {
                 scenarioMap.remove(scenarioForOldMapping.getName());
             } else {
                 scenarioMap.put(oldMapping.getScenarioName(), scenarioForOldMapping);
@@ -66,7 +65,6 @@ public class Scenarios {
             String scenarioName = newMapping.getScenarioName();
             Scenario scenario =
                 firstNonNull(scenarioMap.get(scenarioName), Scenario.inStartedState(scenarioName))
-                .withPossibleState(newMapping.getNewScenarioState())
                 .withStubMapping(newMapping);
             scenarioMap.put(scenarioName, scenario);
         }
@@ -79,10 +77,9 @@ public class Scenarios {
                 scenarioMap.get(scenarioName)
                 .withoutStubMapping(mapping);
 
-            if (scenario.getMappingIds().isEmpty()) {
+            if (scenario.getStubMappings().isEmpty()) {
                 scenarioMap.remove(scenarioName);
             } else {
-                scenario = scenario.withoutPossibleState(mapping.getNewScenarioState());
                 scenarioMap.put(scenarioName, scenario);
             }
         }

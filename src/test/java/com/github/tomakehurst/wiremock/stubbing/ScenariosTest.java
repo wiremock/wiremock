@@ -336,4 +336,62 @@ public class ScenariosTest {
 
         assertThat(scenarios.getByName("one").getState(), is("step two"));
     }
+
+    @Test
+    public void doesNotRemovePossibleStateWhenStubIsRemovedButOtherStubsHaveThatState() {
+        StubMapping mapping1 = get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("step two")
+            .willReturn(ok())
+            .build();
+        StubMapping mapping2 = get("/scenarios/2")
+            .inScenario("one")
+            .whenScenarioStateIs("step two")
+            .willSetStateTo("step two")
+            .willReturn(ok())
+            .build();
+        StubMapping mapping3 = get("/scenarios/3")
+            .inScenario("one")
+            .whenScenarioStateIs("step two")
+            .willReturn(ok())
+            .build();
+        scenarios.onStubMappingAdded(mapping1);
+        scenarios.onStubMappingAdded(mapping2);
+        scenarios.onStubMappingAdded(mapping3);
+
+        scenarios.onStubMappingRemoved(mapping2);
+
+        Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
+        assertThat(possibleStates, hasItems("Started", "step two"));
+        assertThat(possibleStates.size(), is(2));
+    }
+
+    @Test
+    public void returnsAllPossibleScenarioStates() {
+        StubMapping mapping1 = get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs("A")
+            .willSetStateTo("B")
+            .willReturn(ok())
+            .build();
+        StubMapping mapping2 = get("/scenarios/1")
+            .inScenario("one")
+            .willSetStateTo("C")
+            .willReturn(ok())
+            .build();
+        StubMapping mapping3 = get("/scenarios/1")
+            .inScenario("one")
+            .whenScenarioStateIs("D")
+            .willReturn(ok())
+            .build();
+
+        scenarios.onStubMappingAdded(mapping1);
+        scenarios.onStubMappingAdded(mapping2);
+        scenarios.onStubMappingAdded(mapping3);
+
+        Set<String> possibleStates = scenarios.getByName("one").getPossibleStates();
+        assertThat(possibleStates, hasItems("A", "B", "C", "D"));
+        assertThat(possibleStates.size(), is(4));
+    }
 }
