@@ -16,7 +16,6 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
@@ -54,7 +53,7 @@ public class Scenarios {
                 scenarioMap.get(oldMapping.getScenarioName())
                     .withoutStubMapping(oldMapping);
 
-            if (scenarioForOldMapping.getStubMappings().isEmpty()) {
+            if (scenarioForOldMapping.getMappings().isEmpty()) {
                 scenarioMap.remove(scenarioForOldMapping.getName());
             } else {
                 scenarioMap.put(oldMapping.getScenarioName(), scenarioForOldMapping);
@@ -77,7 +76,7 @@ public class Scenarios {
                 scenarioMap.get(scenarioName)
                 .withoutStubMapping(mapping);
 
-            if (scenario.getStubMappings().isEmpty()) {
+            if (scenario.getMappings().isEmpty()) {
                 scenarioMap.remove(scenarioName);
             } else {
                 scenarioMap.put(scenarioName, scenario);
