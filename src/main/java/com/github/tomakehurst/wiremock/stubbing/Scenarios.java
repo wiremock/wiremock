@@ -115,12 +115,4 @@ public class Scenarios {
         return mapping.getRequiredScenarioState().equals(currentScenarioState);
     }
 
-    private static int countOtherStubsInScenario(Iterable<StubMapping> remainingStubMappings, final String scenarioName) {
-        return from(remainingStubMappings).filter(new Predicate<StubMapping>() {
-            @Override
-            public boolean apply(StubMapping input) {
-                return scenarioName.equals(input.getScenarioName());
-            }
-        }).size();
-    }
 }
