@@ -20,7 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -37,20 +39,23 @@ public class Scenario {
 	private final String name;
 	private final String state;
 	private final Set<String> possibleStates;
+	private final Set<UUID> mappingIds;
 
 	@JsonCreator
 	public Scenario(@JsonProperty("id") UUID id,
                     @JsonProperty("name") String name,
                     @JsonProperty("state") String currentState,
-                    @JsonProperty("possibleStates") Set<String> possibleStates) {
+                    @JsonProperty("possibleStates") Set<String> possibleStates,
+                    @JsonProperty("mappingIds") Set<UUID> mappingIds) {
         this.id = id;
         this.name = name;
         this.state = currentState;
 		this.possibleStates = possibleStates;
-	}
+        this.mappingIds = mappingIds;
+    }
 	
 	public static Scenario inStartedState(String name) {
-		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED));
+		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED), Collections.<UUID>emptySet());
 	}
 
     public UUID getId() {
@@ -69,12 +74,16 @@ public class Scenario {
         return possibleStates;
     }
 
-	Scenario setState(String newState) {
-		return new Scenario(id, name, newState, possibleStates);
+    public Set<UUID> getMappingIds() {
+        return mappingIds;
+    }
+
+    Scenario setState(String newState) {
+		return new Scenario(id, name, newState, possibleStates, mappingIds);
 	}
 
 	Scenario reset() {
-        return new Scenario(id, name, STARTED, possibleStates);
+        return new Scenario(id, name, STARTED, possibleStates, mappingIds);
 	}
 
     Scenario withPossibleState(String newScenarioState) {
@@ -86,18 +95,31 @@ public class Scenario {
             .addAll(possibleStates)
             .add(newScenarioState)
             .build();
-        return new Scenario(id, name, state, newStates);
+        return new Scenario(id, name, state, newStates, mappingIds);
     }
 
-    public Scenario withoutPossibleState(String scenarioState) {
+    Scenario withoutPossibleState(String scenarioState) {
         return new Scenario(
             id,
             name,
             state,
             from(possibleStates)
                 .filter(not(equalTo(scenarioState)))
-                .toSet()
-        );
+                .toSet(),
+            mappingIds);
+    }
+
+    Scenario withStubMapping(StubMapping stubMapping) {
+        Set<UUID> newMappingIds = ImmutableSet.<UUID>builder()
+            .addAll(mappingIds)
+            .add(stubMapping.getId())
+            .build();
+        return new Scenario(id, name, state, possibleStates, newMappingIds);
+    }
+
+    Scenario withoutStubMapping(StubMapping stubMapping) {
+	    Set<UUID> newMappingIds = Sets.difference(mappingIds, ImmutableSet.of(stubMapping.getId()));
+        return new Scenario(id, name, state, possibleStates, newMappingIds);
     }
 
 	@Override

@@ -99,13 +99,13 @@ public class InMemoryStubMappings implements StubMappings {
 	@Override
 	public void addMapping(StubMapping mapping) {
 		mappings.add(mapping);
-		scenarios.onStubMappingAddedOrUpdated(mapping, mappings);
+		scenarios.onStubMappingAdded(mapping);
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
 		mappings.remove(mapping);
-		scenarios.onStubMappingRemoved(mapping, mappings);
+		scenarios.onStubMappingRemoved(mapping);
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class InMemoryStubMappings implements StubMappings {
 		stubMapping.setDirty(true);
 
 		mappings.replace(existingMapping, stubMapping);
-		scenarios.onStubMappingAddedOrUpdated(stubMapping, mappings);
+		scenarios.onStubMappingUpdated(existingMapping, stubMapping);
 	}
 
 
