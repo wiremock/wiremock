@@ -27,8 +27,6 @@ import com.google.common.collect.Sets;
 
 import java.util.*;
 
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 
 public class Scenario {
@@ -45,7 +43,7 @@ public class Scenario {
                     @JsonProperty("name") String name,
                     @JsonProperty("state") String currentState,
                     @JsonProperty("possibleStates") Set<String> ignored,
-                    @JsonProperty("mappingIds") Set<StubMapping> stubMappings) {
+                    @JsonProperty("mappings") Set<StubMapping> stubMappings) {
         this.id = id;
         this.name = name;
         this.state = currentState;
@@ -89,7 +87,7 @@ public class Scenario {
             .toSet();
     }
 
-    public Set<StubMapping> getStubMappings() {
+    public Set<StubMapping> getMappings() {
         return stubMappings;
     }
 
@@ -128,12 +126,12 @@ public class Scenario {
         return Objects.equals(getId(), scenario.getId()) &&
             Objects.equals(getName(), scenario.getName()) &&
             Objects.equals(getState(), scenario.getState()) &&
-            Objects.equals(getStubMappings(), scenario.getStubMappings());
+            Objects.equals(getMappings(), scenario.getMappings());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getState(), getStubMappings());
+        return Objects.hash(getId(), getName(), getState(), getMappings());
     }
 
     public static final Predicate<Scenario> withName(final String name) {
