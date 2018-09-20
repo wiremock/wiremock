@@ -1,22 +1,7 @@
 {
-  "name": "minimal-mistakes",
-  "version": "3.2.9",
-  "description": "Minimal Mistakes Jekyll theme npm build scripts",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/mmistakes/minimal-mistakes.git"
-  },
-  "keywords": [
-    "jekyll",
-    "theme",
-    "minimal"
-  ],
-  "author": "Michael Rose",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mmistakes/minimal-mistakes/issues"
-  },
-  "homepage": "https://mmistakes.github.io/minimal-mistakes/",
+  "name": "wiremock-docs",
+  "version": "2.19.0",
+  "description": "WireMock documentation processor",
   "engines": {
     "node": ">= 0.10.0"
   },
