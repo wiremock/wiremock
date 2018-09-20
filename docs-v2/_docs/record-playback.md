@@ -190,7 +190,8 @@ POST /__admin/recordings/start
   "targetBaseUrl" : "http://example.mocklab.io",
   "filters" : {
     "urlPathPattern" : "/api/.*",
-    "method" : "GET"
+    "method" : "GET",
+    "allowNonProxied": true
   },
   "captureHeaders" : {
     "Accept" : { },
@@ -225,6 +226,7 @@ snapshotRecord(
       recordSpec()
           .onlyRequestsMatching(getRequestedFor(urlPathMatching("/api/.*")))
           .onlyRequestIds(singletonList(UUID.fromString("40a93c4a-d378-4e07-8321-6158d5dbcb29")))
+          .allowNonProxied(true)
           .captureHeader("Accept")
           .captureHeader("Content-Type", true)
           .extractBinaryBodiesOver(10240)
@@ -279,6 +281,9 @@ The following sections will detail each parameter in turn:
 `filters` supports selection of requests to be recorded according to the same [request matcher](/docs/request-matching) format used elsewhere in WireMock.
 
 Additionally, when snapshotting the `ids` parameter allows specific serve events to be selected by ID.
+
+The `allowNonProxied` attribute, when set to `true` will cause requests that did not get proxied to a target service to be recorded/snapshotted. This is useful if
+you wish to "teach" WireMock your API by feeding it requests from your app that initially don't match a stub, then snapshotting to generate the correct stubs.  
  
 
 ### Capturing request headers
