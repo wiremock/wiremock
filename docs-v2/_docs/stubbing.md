@@ -277,6 +277,11 @@ Or
 
 > **note**
 >
+> Body file paths should always be relative i.e. not have a leading /
+
+
+> **note**
+>
 > All strings used by WireMock, including the contents of body files are
 > expected to be in `UTF-8` format. Passing strings in other character
 > sets, whether by JVM configuration or body file encoding will most
