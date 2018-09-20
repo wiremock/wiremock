@@ -401,6 +401,12 @@ public class StandaloneAcceptanceTest {
         fail("WireMock did not shut down");
     }
 
+    @Test
+    public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
+        runner = new WireMockServerRunner();
+        assertThat(runner.isRunning(), is(false));
+    }
+
     private static final String BAD_MAPPING =
         "{ 													\n" +
             "	\"requesttttt\": {      						\n" +

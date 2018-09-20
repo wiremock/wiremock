@@ -112,7 +112,11 @@ public class WireMockServerRunner {
 	}
 
     public boolean isRunning() {
-        return wireMockServer.isRunning();
+		if (wireMockServer == null) {
+			return false;
+		} else {
+			return wireMockServer.isRunning();
+		}
     }
 
     public int port() { return wireMockServer.port(); }
