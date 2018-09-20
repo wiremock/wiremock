@@ -411,6 +411,17 @@ schemas:
       200:
         description: Settings successfully updated
 
+/reset:
+  description: Reset all
+  post:
+    description: Reset mappings to the default set and reset the request journal
+    responses:
+      200:
+        description: Successfully reset
+        body:
+          application/json:
+            example: !include examples/empty.example.json
+
 /shutdown:
   description: Shutdown function
   post:
