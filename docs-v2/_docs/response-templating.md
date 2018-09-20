@@ -85,6 +85,39 @@ wm.stubFor(get(urlPathEqualTo("/templated"))
 ```
 {% endraw %}
 
+
+## Templated body file
+
+The body file for a response can be selected dynamically by templating the file path:
+
+### Java
+
+{% raw %}
+```java
+wm.stubFor(get(urlPathMatching("/static/.*"))
+  .willReturn(ok()
+    .withBodyFile("files/{{request.pathSegments.[1]}}")));
+
+```
+{% endraw %}
+
+
+{% raw %}
+### JSON
+```json
+{
+  "request" : {
+    "urlPathPattern" : "/static/.*",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
+  }
+}
+```
+{% endraw %}
+
 ## The request model
 The model of the request is supplied to the header and body templates. The following request attributes are available:
  
