@@ -17,13 +17,15 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.StreamSources;
-import com.github.tomakehurst.wiremock.common.Strings;
 import com.google.common.base.Optional;
 import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.github.tomakehurst.wiremock.common.Gzip.isGzipped;
+import static com.github.tomakehurst.wiremock.common.Gzip.unGzip;
+import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.noHeaders;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -113,7 +115,7 @@ public class Response {
     }
 
 	public String getBodyAsString() {
-        return Strings.stringFromBytes(getBody(), headers.getContentTypeHeader().charset());
+        return stringFromBytes(isGzipped(getBody()) ? unGzip(getBody()) : getBody(), headers.getContentTypeHeader().charset());
 	}
 
     public InputStream getBodyStream() {
