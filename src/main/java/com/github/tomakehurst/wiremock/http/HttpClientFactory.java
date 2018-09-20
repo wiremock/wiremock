@@ -18,6 +18,10 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.common.KeyStoreSettings;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthenticationStrategy;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.config.SocketConfig;
@@ -25,8 +29,10 @@ import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
@@ -38,6 +44,7 @@ import static com.github.tomakehurst.wiremock.common.KeyStoreSettings.NO_STORE;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class HttpClientFactory {
 
@@ -65,6 +72,14 @@ public class HttpClientFactory {
         if (proxySettings != NO_PROXY) {
             HttpHost proxyHost = new HttpHost(proxySettings.host(), proxySettings.port());
             builder.setProxy(proxyHost);
+            if(!isEmpty(proxySettings.getUsername()) && !isEmpty(proxySettings.getPassword())) {
+                builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
+                BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(
+                        new AuthScope(proxySettings.host(), proxySettings.port()),
+                        new UsernamePasswordCredentials(proxySettings.getUsername(), proxySettings.getPassword()));
+                builder.setDefaultCredentialsProvider(credentialsProvider);
+            }
         }
 
         if (trustStoreSettings != NO_STORE) {
