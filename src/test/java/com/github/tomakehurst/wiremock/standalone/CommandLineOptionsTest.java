@@ -123,6 +123,30 @@ public class CommandLineOptionsTest {
         assertThat(options.httpsSettings().keyStorePassword(), is("someotherpwd"));
     }
 
+    @Test
+    public void setsKeyStoreType() {
+        CommandLineOptions options = new CommandLineOptions("--keystore-type", "keystoretype");
+        assertThat(options.httpsSettings().keyStoreType(), is("keystoretype"));
+    }
+
+    @Test
+    public void defaultsKeyStoreTypeIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.httpsSettings().keyStoreType(), is("JKS"));
+    }
+
+    @Test
+    public void setsTrustStoreType() {
+        CommandLineOptions options = new CommandLineOptions("--truststore-type", "truststoretype");
+        assertThat(options.httpsSettings().trustStoreType(), is("truststoretype"));
+    }
+
+    @Test
+    public void defaultsTrustStoreTypeIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.httpsSettings().trustStoreType(), is("JKS"));
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void throwsExceptionIfKeyStoreSpecifiedWithoutHttpsPort() {
         new CommandLineOptions("--https-keystore", "/my/keystore");
