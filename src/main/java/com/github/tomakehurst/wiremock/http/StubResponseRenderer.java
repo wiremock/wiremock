@@ -19,17 +19,18 @@ import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
-import com.google.common.base.Optional;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.base.MoreObjects;
 
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
-
 import static com.github.tomakehurst.wiremock.http.Response.response;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class StubResponseRenderer implements ResponseRenderer {
-	
+
 	private final FileSource fileSource;
 	private final GlobalSettingsHolder globalSettingsHolder;
 	private final ProxyResponseRenderer proxyResponseRenderer;
@@ -46,23 +47,22 @@ public class StubResponseRenderer implements ResponseRenderer {
 	}
 
 	@Override
-	public Response render(ResponseDefinition responseDefinition) {
-		if (!responseDefinition.wasConfigured()) {
+	public Response render(ServeEvent serveEvent) {
+        ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+        if (!responseDefinition.wasConfigured()) {
 			return Response.notConfigured();
 		}
 
-		Response response = buildResponse(responseDefinition);
+		Response response = buildResponse(serveEvent);
 		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
 	}
 
-	private Response buildResponse(ResponseDefinition responseDefinition) {
-		addDelayIfSpecifiedGloballyOrIn(responseDefinition);
-		addRandomDelayIfSpecifiedGloballyOrIn(responseDefinition);
-
-		if (responseDefinition.isProxyResponse()) {
-			return proxyResponseRenderer.render(responseDefinition);
+	private Response buildResponse(ServeEvent serveEvent) {
+		if (serveEvent.getResponseDefinition().isProxyResponse()) {
+			return proxyResponseRenderer.render(serveEvent);
 		} else {
-			return renderDirectly(responseDefinition);
+			Response.Builder responseBuilder = renderDirectly(serveEvent);
+			return responseBuilder.build();
 		}
 	}
 
@@ -83,16 +83,37 @@ public class StubResponseRenderer implements ResponseRenderer {
 		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
 	}
 
-	private Response renderDirectly(ResponseDefinition responseDefinition) {
+	private Response.Builder renderDirectly(ServeEvent serveEvent) {
+        ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
+
+        HttpHeaders headers = responseDefinition.getHeaders();
+        StubMapping stubMapping = serveEvent.getStubMapping();
+        if (serveEvent.getWasMatched() && stubMapping != null) {
+            headers =
+                firstNonNull(headers, new HttpHeaders())
+                .plus(new HttpHeader("Matched-Stub-Id", stubMapping.getId().toString()));
+
+            if (stubMapping.getName() != null) {
+                headers = headers.plus(new HttpHeader("Matched-Stub-Name", stubMapping.getName()));
+            }
+        }
+
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
 				.statusMessage(responseDefinition.getStatusMessage())
-                .headers(responseDefinition.getHeaders())
-                .fault(responseDefinition.getFault());
+                .headers(headers)
+                .fault(responseDefinition.getFault())
+				.configureDelay(
+					globalSettingsHolder.get().getFixedDelay(),
+					globalSettingsHolder.get().getDelayDistribution(),
+					responseDefinition.getFixedDelayMilliseconds(),
+					responseDefinition.getDelayDistribution()
+				)
+				.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
 		if (responseDefinition.specifiesBodyFile()) {
 			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
-            responseBuilder.body(bodyFile.readContents());
+            responseBuilder.body(bodyFile);
 		} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
@@ -101,44 +122,6 @@ public class StubResponseRenderer implements ResponseRenderer {
             }
 		}
 
-        return responseBuilder.build();
-	}
-	
-    private void addDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
-    	Optional<Integer> optionalDelay = getDelayFromResponseOrGlobalSetting(response);
-        if (optionalDelay.isPresent()) {
-	        try {
-	            Thread.sleep(optionalDelay.get());
-	        } catch (InterruptedException e) {
-	            Thread.currentThread().interrupt();
-	        }
-	    }
-    }
-    
-    private Optional<Integer> getDelayFromResponseOrGlobalSetting(ResponseDefinition response) {
-    	Integer delay = response.getFixedDelayMilliseconds() != null ?
-    			response.getFixedDelayMilliseconds() :
-    			globalSettingsHolder.get().getFixedDelay();
-    	
-    	return Optional.fromNullable(delay);
-    }
-
-    private void addRandomDelayIfSpecifiedGloballyOrIn(ResponseDefinition response) {
-		if (response.getDelayDistribution() != null) {
-			addRandomDelayIn(response.getDelayDistribution());
-		} else {
-			addRandomDelayIn(globalSettingsHolder.get().getDelayDistribution());
-		}
-    }
-
-	private void addRandomDelayIn(DelayDistribution delayDistribution) {
-		if (delayDistribution == null) return;
-
-		long delay = delayDistribution.sampleMillis();
-		try {
-           TimeUnit.MILLISECONDS.sleep(delay);
-        } catch (InterruptedException e) {
-           Thread.currentThread().interrupt();
-        }
+        return responseBuilder;
 	}
 }

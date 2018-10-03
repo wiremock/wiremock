@@ -1,8 +1,13 @@
 #%RAML 0.8
 ---
 title: WireMock
-version: 2.10.1
+version: 2.19.0
 mediaType: application/json
+baseUri: /__admin
+
+protocols:
+  - HTTPS
+  - HTTP
 
 documentation:
   - title: WireMock admin
@@ -13,11 +18,15 @@ documentation:
 schemas:
   - stubMapping: !include schemas/stub-mapping.schema.json
   - stubMappings: !include schemas/stub-mappings.schema.json
+  - loggedRequest: !include schemas/logged-request.schema.json
   - requestPattern: !include schemas/request-pattern.schema.json
-  - recordSpec: !include schemas/record-spec.schema.json
+  - contentPattern: !include schemas/content-pattern.schema.json
+  - snapshot: !include schemas/snapshot.schema.json
+  - startRecording: !include schemas/start-recording.schema.json
   - scenarios: !include schemas/scenarios.schema.json
+  - globalSettings: !include schemas/global-settings.schema.json
 
-/__admin/mappings:
+/mappings:
   description: Stub mappings
 
   get:
@@ -128,8 +137,33 @@ schemas:
         200:
           description: Successfully removed
 
+  /find-by-metadata:
+    post:
+      description: Find stubs by matching on their metadata
+      body:
+        application/json:
+          example: !include examples/by-metadata-request.example.json
+          schema: contentPattern
 
-/__admin/requests:
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include examples/stub-mappings.example.json
+
+  /remove-by-metadata:
+      post:
+        description: Remove stubs by matching on their metadata
+        body:
+          application/json:
+            example: !include examples/by-metadata-request.example.json
+            schema: contentPattern
+
+        responses:
+          200:
+            description: The stub mappings were successfully removed 
+
+/requests:
   description: Logged requests and responses received by the mock service
 
   get:
@@ -241,7 +275,7 @@ schemas:
               application/json:
                 example: !include examples/near-misses.example.json
 
-/__admin/recordings:
+/recordings:
   description: Stub mapping record and snapshot functions
 
   /start:
@@ -250,7 +284,7 @@ schemas:
       description: Start recording stub mappings
       body:
         application/json:
-          schema: recordSpec
+          schema: startRecording
           example: !include examples/record-spec.example.json
 
       responses:
@@ -290,7 +324,7 @@ schemas:
       description: Take a snapshot recording
       body:
         application/json:
-          schema: recordSpec
+          schema: snapshot
           example: !include examples/snapshot-spec.example.json
 
       responses:
@@ -301,7 +335,7 @@ schemas:
                 schema: stubMappings
                 example: !include examples/recorded-stub-mappings.example.json
 
-/__admin/scenarios:
+/scenarios:
   description: Scenarios support modelling of stateful behaviour
 
   get:
@@ -327,7 +361,7 @@ schemas:
               example: !include examples/empty.example.json
 
 
-/__admin/near-misses:
+/near-misses:
   description: Near misses allow querying of received requests or request patterns according to similarity
 
   /request:
@@ -335,6 +369,7 @@ schemas:
       description: Find at most 3 near misses for closest stub mappings to the specified request
       body:
         application/json:
+          schema: loggedRequest
           example: !include examples/logged-request.example.json
 
       responses:
@@ -360,12 +395,13 @@ schemas:
             application/json:
               example: !include examples/near-misses.example.json
 
-/__admin/settings:
+/settings:
   description: Global settings
   post:
     description: Update global settings
     body:
       application/json:
+        schema: globalSettings
         example: |
           {
               "fixedDelay": 500
@@ -375,7 +411,18 @@ schemas:
       200:
         description: Settings successfully updated
 
-/__admin/shutdown:
+/reset:
+  description: Reset all
+  post:
+    description: Reset mappings to the default set and reset the request journal
+    responses:
+      200:
+        description: Successfully reset
+        body:
+          application/json:
+            example: !include examples/empty.example.json
+
+/shutdown:
   description: Shutdown function
   post:
     description: Shutdown the WireMock server

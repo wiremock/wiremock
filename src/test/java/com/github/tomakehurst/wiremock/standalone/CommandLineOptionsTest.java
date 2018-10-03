@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -41,6 +42,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -183,7 +185,19 @@ public class CommandLineOptionsTest {
         CommandLineOptions options = new CommandLineOptions("--proxy-via", "somehost.mysite.com:8080");
         assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
         assertThat(options.proxyVia().port(), is(8080));
+        assertThat(options.proxyVia().getUsername(), isEmptyOrNullString());
+        assertThat(options.proxyVia().getPassword(), isEmptyOrNullString());
     }
+
+    @Test
+    public void returnsCorrectlyParsedProxyViaParameterWithCredentials() {
+        CommandLineOptions options = new CommandLineOptions("--proxy-via", "user:password@somehost.mysite.com:8080");
+        assertThat(options.proxyVia().host(), is("somehost.mysite.com"));
+        assertThat(options.proxyVia().port(), is(8080));
+        assertThat(options.proxyVia().getUsername(), is("user"));
+        assertThat(options.proxyVia().getPassword(), is("password"));
+    }
+
 
     @Test
     public void returnsNoProxyWhenNoProxyViaSpecified() {
@@ -353,6 +367,39 @@ public class CommandLineOptionsTest {
     public void defaultsToNotRequiringHttpsForAdminApi() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getHttpsRequiredForAdminApi(), is(false));
+    }
+
+    @Test
+    public void enablesAsynchronousResponse() {
+        CommandLineOptions options = new CommandLineOptions("--async-response-enabled", "true");
+        assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(true));
+    }
+
+    @Test
+    public void disablesAsynchronousResponseByDefault() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getAsynchronousResponseSettings().isEnabled(), is(false));
+    }
+
+    @Test
+    public void setsNumberOfAsynchronousResponseThreads() {
+        CommandLineOptions options = new CommandLineOptions("--async-response-threads", "20");
+        assertThat(options.getAsynchronousResponseSettings().getThreads(), is(20));
+    }
+
+    @Test
+    public void setsDefaultNumberOfAsynchronousResponseThreads() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getAsynchronousResponseSettings().getThreads(), is(10));
+    }
+
+    @Test
+    public void usesPortInToString() {
+        CommandLineOptions options = new CommandLineOptions("--port", "1337");
+        assertThat(options.toString(), allOf(containsString("1337")));
+
+        options.setResultingPort(1338);
+        assertThat(options.toString(), allOf(containsString("1338")));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

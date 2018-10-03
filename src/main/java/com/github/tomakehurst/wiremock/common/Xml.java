@@ -15,8 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -40,9 +42,15 @@ public class Xml {
 
     public static String prettyPrint(String xml) {
         try {
-            Document doc = read(xml);
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            transformerFactory.setAttribute("indent-number", 2);
+            return prettyPrint(read(xml));
+        } catch (Exception e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static String prettyPrint(Document doc) {
+        try {
+            TransformerFactory transformerFactory = createTransformerFactory();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(INDENT, "yes");
             transformer.setOutputProperty(OMIT_XML_DECLARATION, "yes");
@@ -55,15 +63,31 @@ public class Xml {
         }
     }
 
-    public static Document read(String xml) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        InputSource is = new InputSource(new StringReader(xml));
-        return db.parse(is);
+    private static TransformerFactory createTransformerFactory() {
+        try {
+            TransformerFactory transformerFactory = (TransformerFactory) Class.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl").newInstance();
+            transformerFactory.setAttribute("indent-number", 2);
+            return transformerFactory;
+        } catch (Exception e) {
+            return TransformerFactory.newInstance();
+        }
+    }
+
+    public static Document read(String xml) {
+        try {
+            DocumentBuilderFactory dbf = newDocumentBuilderFactory();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            InputSource is = new InputSource(new StringReader(xml));
+            return db.parse(is);
+        } catch (SAXException e) {
+            throw XmlException.fromSaxException(e);
+        } catch (Exception e) {
+            return throwUnchecked(e, Document.class);
+        }
     }
 
     public static String toStringValue(Node node) {
-        switch(node.getNodeType()) {
+        switch (node.getNodeType()) {
             case Node.TEXT_NODE:
             case Node.ATTRIBUTE_NODE:
                 return node.getTextContent();
@@ -84,6 +108,34 @@ public class Xml {
             return sw.toString();
         } catch (TransformerException e) {
             return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static DocumentBuilderFactory newDocumentBuilderFactory() {
+        try {
+            DocumentBuilderFactory dbf = new SkipResolvingEntitiesDocumentBuilderFactory();
+            dbf.setFeature("http://xml.org/sax/features/validation", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            return dbf;
+        } catch (ParserConfigurationException e) {
+            return throwUnchecked(e, DocumentBuilderFactory.class);
+        }
+    }
+
+    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+        @Override
+        public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+            DocumentBuilder documentBuilder = super.newDocumentBuilder();
+            documentBuilder.setEntityResolver(new SkipResolvingEntitiesDocumentBuilderFactory.ResolveToEmptyString());
+            return documentBuilder;
+        }
+
+        private static class ResolveToEmptyString implements EntityResolver {
+            @Override
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                return new InputSource(new StringReader(""));
+            }
         }
     }
 }

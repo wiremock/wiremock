@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.recording.RecordSpec;
@@ -189,15 +190,19 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     public String url(String path) {
-        boolean https = options.httpsSettings().enabled();
-        String protocol = https ? "https" : "http";
-        int port = https ? httpsPort() : port();
-
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
 
-        return String.format("%s://localhost:%d%s", protocol, port, path);
+        return String.format("%s%s", baseUrl(), path);
+    }
+
+    public String baseUrl() {
+        boolean https = options.httpsSettings().enabled();
+        String protocol = https ? "https" : "http";
+        int port = https ? httpsPort() : port();
+
+        return String.format("%s://localhost:%d", protocol, port);
     }
 
     public boolean isRunning() {
@@ -237,6 +242,16 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public StubMapping getSingleStubMapping(UUID id) {
         return client.getStubMapping(id).getItem();
+    }
+
+    @Override
+    public List<StubMapping> findStubMappingsByMetadata(StringValuePattern pattern) {
+        return client.findAllStubsByMetadata(pattern);
+    }
+
+    @Override
+    public void removeStubMappingsByMetadata(StringValuePattern pattern) {
+        client.removeStubsByMetadataPattern(pattern);
     }
 
     @Override
@@ -437,5 +452,15 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void shutdownServer() {
         shutdown();
+    }
+
+    @Override
+    public ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern) {
+        return wireMockApp.findAllStubsByMetadata(pattern);
+    }
+
+    @Override
+    public void removeStubsByMetadata(StringValuePattern pattern) {
+        wireMockApp.removeStubsByMetadata(pattern);
     }
 }

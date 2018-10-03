@@ -20,6 +20,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -34,10 +35,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.util.EntityUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import com.github.tomakehurst.wiremock.testsupport.MappingJsonSamples;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
@@ -54,10 +52,10 @@ public class BindAddressTest {
     @Before
     public void prepare() throws Exception {
         nonBindAddress = getIpAddressOtherThan(localhost);
-        if (nonBindAddress == null) {
-            fail("Impossible to validate the binding address. This machine has only a one Ip address ["
-                    + localhost + "]");
-        }
+
+        assumeFalse(
+            "Impossible to validate the binding address. This machine has only a one Ip address [" + localhost + "]",
+            nonBindAddress == null);
 
         wireMockServer = new WireMockServer(wireMockConfig()
             .bindAddress(localhost)

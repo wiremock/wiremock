@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class RequestPatternBuilder {
@@ -36,6 +37,7 @@ public class RequestPatternBuilder {
     private List<ContentPattern<?>> bodyPatterns = newArrayList();
     private Map<String, StringValuePattern> cookies = newLinkedHashMap();
     private BasicCredentials basicCredentials;
+    private List<MultipartValuePattern> multiparts = newLinkedList();
 
     private ValueMatcher<Request> customMatcher;
 
@@ -77,6 +79,43 @@ public class RequestPatternBuilder {
         return new RequestPatternBuilder(RequestMethod.ANY, WireMock.anyUrl());
     }
 
+    /**
+     * Construct a builder that uses an existing RequestPattern as a template
+     *
+     * @param requestPattern A RequestPattern to copy
+     * @return A builder based on the RequestPattern
+     */
+    public static RequestPatternBuilder like(RequestPattern requestPattern) {
+        RequestPatternBuilder builder = new RequestPatternBuilder();
+        builder.url = requestPattern.getUrlMatcher();
+        builder.method = requestPattern.getMethod();
+        if (requestPattern.getHeaders() != null) {
+            builder.headers = requestPattern.getHeaders();
+        }
+        if (requestPattern.getQueryParameters() != null) {
+            builder.queryParams = requestPattern.getQueryParameters();
+        }
+        if (requestPattern.getCookies() != null) {
+            builder.cookies = requestPattern.getCookies();
+        }
+        if (requestPattern.getBodyPatterns() != null) {
+            builder.bodyPatterns = requestPattern.getBodyPatterns();
+        }
+        if (requestPattern.hasCustomMatcher()) {
+            builder.customMatcher = requestPattern.getMatcher();
+        }
+        if (requestPattern.getMultipartPatterns() != null) {
+            builder.multiparts = requestPattern.getMultipartPatterns();
+        }
+        builder.basicCredentials = requestPattern.getBasicAuthCredentials();
+        builder.customMatcherDefinition = requestPattern.getCustomMatcher();
+        return builder;
+    }
+
+    public RequestPatternBuilder but() {
+        return this;
+    }
+
     public RequestPatternBuilder withUrl(String url) {
         this.url = WireMock.urlEqualTo(url);
         return this;
@@ -112,6 +151,21 @@ public class RequestPatternBuilder {
         return this;
     }
 
+    public RequestPatternBuilder withRequestBodyPart(MultipartValuePattern multiPattern) {
+        if (multiPattern != null) {
+            multiparts.add(multiPattern);
+        }
+        return this;
+    }
+
+    public RequestPatternBuilder withAnyRequestBodyPart(MultipartValuePatternBuilder multiPatternBuilder) {
+        return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ANY).build());
+    }
+
+    public RequestPatternBuilder withAllRequestBodyParts(MultipartValuePatternBuilder multiPatternBuilder) {
+        return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ALL).build());
+    }
+
     public RequestPattern build() {
         return customMatcher != null ?
             new RequestPattern(customMatcher) :
@@ -125,7 +179,8 @@ public class RequestPatternBuilder {
                     cookies.isEmpty() ? null : cookies,
                     basicCredentials,
                     bodyPatterns.isEmpty() ? null : bodyPatterns,
-                    null
+                    null,
+                    multiparts.isEmpty() ? null : multiparts
                 );
     }
 }

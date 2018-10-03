@@ -24,7 +24,9 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
+import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
+import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import org.junit.After;
 import org.junit.Test;
 
@@ -32,6 +34,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer.CONSOLE_WIDTH_HEADER_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -73,7 +77,52 @@ public class NotMatchedPageAcceptanceTest {
             withHeader("Accept", "text/plain")
         );
 
-        assertThat(response.content(), is(file("not-found-diff-sample_ascii.txt")));
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample_ascii.txt")));
+    }
+
+    @Test
+    public void adjustsWidthWhenConsoleWidthHeaderSpecified() {
+        configure();
+
+        stubFor(post("/thing")
+            .withName("The post stub with a really long name that ought to wrap and let us see exactly how that looks when it is done")
+            .withHeader("X-My-Header", containing("correct value"))
+            .withHeader("Accept", matching("text/plain.*"))
+            .withRequestBody(equalToJson(
+                "{                              \n" +
+                    "    \"thing\": {               \n" +
+                    "        \"stuff\": [1, 2, 3]   \n" +
+                    "    }                          \n" +
+                    "}"))
+            .willReturn(ok()));
+
+        WireMockResponse response = testClient.postJson(
+            "/thin",
+            "{                        \n" +
+                "    \"thing\": {           \n" +
+                "        \"nothing\": {}    \n" +
+                "    }                      \n" +
+                "}",
+            withHeader("X-My-Header", "wrong value"),
+            withHeader("Accept", "text/plain"),
+            withHeader(CONSOLE_WIDTH_HEADER_KEY, "69")
+        );
+
+        System.out.println(response.content());
+        assertThat(response.content(), equalsMultiLine(file("not-found-diff-sample_ascii-narrow.txt")));
+    }
+
+    @Test
+    public void rendersAPlainTextDiffWhenRequestIsOnlyUrlAndMethod() {
+        configure();
+
+        stubFor(get("/another-url")
+            .withRequestBody(absent())
+            .willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/gettable");
+
+        assertThat(response.statusCode(), is(404));
     }
 
     @Test

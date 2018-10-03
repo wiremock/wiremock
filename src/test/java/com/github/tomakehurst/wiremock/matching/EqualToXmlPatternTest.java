@@ -25,6 +25,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Locale;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -40,6 +44,10 @@ public class EqualToXmlPatternTest {
     public void init() {
         context = new Mockery();
         LocalNotifier.set(new ConsoleNotifier(true));
+
+        // We assert English XML parser error messages in this test. So we set our default locale to English to make
+        // this test succeed even for users with non-English default locales.
+        Locale.setDefault(Locale.ENGLISH);
     }
 
     @After
@@ -125,7 +133,7 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
-    public void returnsNoMatchAnd1DistanceWhenDocumentsAreTotallyDifferent() {
+    public void returnsNoMatchWhenDocumentsAreTotallyDifferent() {
         EqualToXmlPattern pattern = new EqualToXmlPattern(
             "<things>\n" +
             "    <thing characteristic=\"tepid\"/>\n" +
@@ -136,7 +144,7 @@ public class EqualToXmlPatternTest {
         MatchResult matchResult = pattern.match("<no-things-at-all />");
 
         assertFalse(matchResult.isExactMatch());
-        assertThat(matchResult.getDistance(), is(0.375)); //Not high enough really, some more tweaking needed
+        assertThat(matchResult.getDistance(), is(0.5)); //Not high enough really, some more tweaking needed
     }
 
     @Test
@@ -264,15 +272,18 @@ public class EqualToXmlPatternTest {
     }
 
     @Test
-    public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
-        expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        WireMock.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+    public void returnsNoMatchWhenTagNamesDifferAndContentIsSame() throws Exception {
+        final EqualToXmlPattern pattern = new EqualToXmlPattern("<one>Hello</one>");
+        final MatchResult matchResult = pattern.match("<two>Hello</two>");
+
+        assertThat(matchResult.isExactMatch(), equalTo(false));
+        assertThat(matchResult.getDistance(), not(equalTo(0.0)));
     }
 
     @Test
-    public void logsASensibleErrorMessageWhenTestXmlIsBadlyFormed() {
+    public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
         expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        WireMock.equalToXml("badly-formed >").match("<well-formed />").isExactMatch();
+        WireMock.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
     }
 
     @Test

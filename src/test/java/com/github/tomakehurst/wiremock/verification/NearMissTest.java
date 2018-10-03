@@ -27,6 +27,7 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.HEAD;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.skyscreamer.jsonassert.JSONCompareMode.LENIENT;
@@ -100,6 +101,7 @@ public class NearMissTest {
         assertThat(nearMiss.getStubMapping().getRequest().getMethod(), is(GET));
         assertThat(nearMiss.getMatchResult().getDistance(), is(0.5));
         assertThat(nearMiss.getRequestPattern(), nullValue());
+        assertThat(nearMiss.toString(), notNullValue());
     }
 
     @Test

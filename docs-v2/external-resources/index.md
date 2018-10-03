@@ -37,6 +37,9 @@ Mason Malone has built an extension for matching requests based on the contents 
 Also from Mason, an extension for finding and removing unused stub mappings:<br>
 [https://github.com/MasonM/wiremock-unused-stubs-extension](https://github.com/MasonM/wiremock-unused-stubs-extension)
 
+Felipe Fernández has built a Spock extension to enhance automation around record and replay functionality:<br>
+[https://github.com/felipefzdz/spock-wiremock-extension](https://github.com/felipefzdz/spock-wiremock-extension)
+
 
 ## Other languages
 
@@ -98,3 +101,7 @@ the testing setup used by his team at Amex:<br>
 Tom and Rob Elliot gave a join talk at Skillsmatter about patterns for readable and scalable tests with WireMock, and an approach for unit testing a
 CDN:<br>
 [https://skillsmatter.com/skillscasts/6853-scalable-management-of-test-data-making-tests-readable](https://skillsmatter.com/skillscasts/6853-scalable-management-of-test-data-making-tests-readable)
+
+## MockLab
+
+[Build a Paypal sandbox for load testing in 10 minutes](https://www.mocklab.io/blog/build-a-paypal-sandbox-for-load-testing/)

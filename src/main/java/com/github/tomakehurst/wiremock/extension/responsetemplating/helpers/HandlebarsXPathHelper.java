@@ -55,7 +55,7 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         Document doc;
         try (final StringReader reader = new StringReader(inputXml)) {
             InputSource source = new InputSource(reader);
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
             final DocumentBuilder builder = factory.newDocumentBuilder();
             doc = builder.parse(source);
         } catch (SAXException se) {

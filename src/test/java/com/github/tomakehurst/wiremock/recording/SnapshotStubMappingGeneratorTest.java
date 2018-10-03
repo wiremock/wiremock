@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -74,7 +75,7 @@ public class SnapshotStubMappingGeneratorTest {
             null,
             null,
             LoggedResponse.from(Response.notConfigured()),
-            false
-        );
+            false,
+            Timing.UNTIMED);
     }
 }

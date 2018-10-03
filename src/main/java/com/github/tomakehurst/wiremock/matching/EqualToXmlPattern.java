@@ -18,48 +18,28 @@ package com.github.tomakehurst.wiremock.matching;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Xml;
 import com.google.common.base.Joiner;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Comparison;
-import org.xmlunit.diff.ComparisonControllers;
-import org.xmlunit.diff.ComparisonListener;
-import org.xmlunit.diff.ComparisonResult;
-import org.xmlunit.diff.ComparisonType;
-import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.StringReader;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.xmlunit.diff.ComparisonType.ATTR_NAME_LOOKUP;
-import static org.xmlunit.diff.ComparisonType.ATTR_VALUE;
-import static org.xmlunit.diff.ComparisonType.CHILD_LOOKUP;
-import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_LENGTH;
-import static org.xmlunit.diff.ComparisonType.CHILD_NODELIST_SEQUENCE;
-import static org.xmlunit.diff.ComparisonType.ELEMENT_NUM_ATTRIBUTES;
-import static org.xmlunit.diff.ComparisonType.NAMESPACE_URI;
-import static org.xmlunit.diff.ComparisonType.NODE_TYPE;
-import static org.xmlunit.diff.ComparisonType.NO_NAMESPACE_SCHEMA_LOCATION;
-import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_DATA;
-import static org.xmlunit.diff.ComparisonType.PROCESSING_INSTRUCTION_TARGET;
-import static org.xmlunit.diff.ComparisonType.SCHEMA_LOCATION;
-import static org.xmlunit.diff.ComparisonType.TEXT_VALUE;
+import static org.xmlunit.diff.ComparisonType.*;
 
 public class EqualToXmlPattern extends StringValuePattern {
 
     private static List<ComparisonType> COUNTED_COMPARISONS = ImmutableList.of(
+        ELEMENT_TAG_NAME,
         SCHEMA_LOCATION,
         NO_NAMESPACE_SCHEMA_LOCATION,
         NODE_TYPE,
@@ -70,13 +50,15 @@ public class EqualToXmlPattern extends StringValuePattern {
         ELEMENT_NUM_ATTRIBUTES,
         ATTR_VALUE,
         CHILD_NODELIST_LENGTH,
-        CHILD_NODELIST_SEQUENCE,
         CHILD_LOOKUP,
         ATTR_NAME_LOOKUP
     );
 
+    private final Document xmlDocument;
+
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
         super(expectedValue);
+        xmlDocument = Xml.read(expectedValue);
     }
 
     public String getEqualToXml() {
@@ -104,7 +86,8 @@ public class EqualToXmlPattern extends StringValuePattern {
                         .ignoreWhitespace()
                         .ignoreComments()
                         .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
+                        .withNodeMatcher(new OrderInvariantNodeMatcher())
+                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
                         .build();
 
                     return !diff.hasDifferences();
@@ -143,7 +126,7 @@ public class EqualToXmlPattern extends StringValuePattern {
                                 }
                             }
                         })
-                        .withDocumentBuilderFactory(new SkipResolvingEntitiesDocumentBuilderFactory())
+                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
                         .build();
                 } catch (XMLUnitException e) {
                     notifier().info("Failed to process XML. " + e.getMessage() +
@@ -172,19 +155,26 @@ public class EqualToXmlPattern extends StringValuePattern {
         }
     };
 
-    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+
+    private static final class OrderInvariantNodeMatcher extends DefaultNodeMatcher {
         @Override
-        public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
-            DocumentBuilder documentBuilder = super.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new ResolveToEmptyString());
-            return documentBuilder;
+        public Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
+
+            return super.match(
+                sort(controlNodes),
+                sort(testNodes)
+            );
         }
 
-        private class ResolveToEmptyString implements EntityResolver {
-            @Override
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                return new InputSource(new StringReader(""));
-            }
+        private static Iterable<Node> sort(Iterable<Node> nodes) {
+            return FluentIterable.from(nodes).toSortedList(COMPARATOR);
         }
+
+        private static final Comparator<Node> COMPARATOR = new Comparator<Node>() {
+            @Override
+            public int compare(Node node1, Node node2) {
+                return node1.getLocalName().compareTo(node2.getLocalName());
+            }
+        };
     }
 }

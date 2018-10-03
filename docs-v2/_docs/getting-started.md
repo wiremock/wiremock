@@ -27,6 +27,7 @@ following in the dependencies section of your POM:
     <groupId>com.github.tomakehurst</groupId>
     <artifactId>wiremock</artifactId>
     <version>{{ site.wiremock_version }}</version>
+    <scope>test</scope>
 </dependency>
 ```
 

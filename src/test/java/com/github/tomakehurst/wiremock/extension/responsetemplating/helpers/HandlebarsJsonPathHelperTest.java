@@ -29,8 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
@@ -75,8 +74,92 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
     }
 
     @Test
-    public void extractsASimpleValueFromTheInputJson() throws IOException {
+    public void listResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json")
+                .body("{\n" +
+                    "    \"items\": [\n" +
+                    "        {\n" +
+                    "            \"name\": \"One\"\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"name\": \"Two\"\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"name\": \"Three\"\n" +
+                    "        }\n" +
+                    "    ]\n" +
+                    "}"),
+            aResponse()
+                .withBody("" +
+                    "{{#each (jsonPath request.body '$.items') as |item|}}{{item.name}} {{/each}}")
+                .build(),
+            noFileSource(),
+            Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("One Two Three "));
+    }
+
+    @Test
+    public void mapResultFromJsonPathQueryCanBeUsedByHandlebarsEachHelper() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json")
+                .body("{\n" +
+                    "    \"items\": {\n" +
+                    "        \"one\": 1,\n" +
+                    "        \"two\": 2,\n" +
+                    "        \"three\": 3\n" +
+                    "    }\n" +
+                    "}"),
+            aResponse()
+                .withBody("" +
+                    "{{#each (jsonPath request.body '$.items') as |value key|}}{{key}}: {{value}} {{/each}}")
+                .build(),
+            noFileSource(),
+            Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("one: 1 two: 2 three: 3 "));
+    }
+
+    @Test
+    public void singleValueResultFromJsonPathQueryCanBeUsedByHandlebarsIfHelper() {
+        final ResponseDefinition responseDefinition = this.transformer.transform(
+            mockRequest()
+                .url("/json")
+                .body("{\n" +
+                    "    \"items\": {\n" +
+                    "        \"one\": true,\n" +
+                    "        \"two\": false,\n" +
+                    "        \"three\": true\n" +
+                    "    }\n" +
+                    "}"),
+            aResponse()
+                .withBody("" +
+                    "{{#if (jsonPath request.body '$.items.one')}}One{{/if}}\n" +
+                    "{{#if (jsonPath request.body '$.items.two')}}Two{{/if}}")
+                .build(),
+            noFileSource(),
+            Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), containsString("One"));
+        assertThat(responseDefinition.getBody(), not(containsString("Two")));
+    }
+
+    @Test
+    public void extractsASingleStringValueFromTheInputJson() throws IOException {
         testHelper(helper,"{\"test\":\"success\"}", "$.test", "success");
+    }
+
+    @Test
+    public void extractsASingleNumberValueFromTheInputJson() throws IOException {
+        testHelper(helper,"{\"test\": 1.2}", "$.test", "1.2");
+    }
+
+    @Test
+    public void extractsASingleBooleanValueFromTheInputJson() throws IOException {
+        testHelper(helper,"{\"test\": false}", "$.test", "false");
     }
 
     @Test
