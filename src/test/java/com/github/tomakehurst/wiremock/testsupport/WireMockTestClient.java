@@ -29,6 +29,7 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -38,13 +39,12 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.http.MimeType.JSON;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
 import static org.apache.http.entity.ContentType.APPLICATION_XML;
 
@@ -148,6 +148,18 @@ public class WireMockTestClient {
 
     public WireMockResponse postWithBody(String url, String body, String bodyMimeType, String bodyEncoding) {
         return post(url, new StringEntity(body, ContentType.create(bodyMimeType, bodyEncoding)));
+    }
+
+    public WireMockResponse postWithMultiparts(String url, Collection<MultipartBody> parts, TestHttpHeader... headers) {
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+        if (parts != null) {
+            for (MultipartBody part : parts) {
+                builder.addPart(part.getFilename(), part);
+            }
+        }
+
+        return post(url, builder.build(), headers);
     }
 
     public WireMockResponse postWithChunkedBody(String url, byte[] body) {

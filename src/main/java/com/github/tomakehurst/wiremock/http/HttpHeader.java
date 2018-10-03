@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.http;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
+import java.util.Collections;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Arrays.asList;
 
 public class HttpHeader extends MultiValue {
@@ -32,7 +34,10 @@ public class HttpHeader extends MultiValue {
     }
 
     public HttpHeader(String key, Collection<String> values) {
-        super(key, ImmutableList.copyOf(values));
+        super(
+            key,
+            ImmutableList.copyOf(firstNonNull(values, Collections.<String>emptyList()))
+        );
     }
 
     public static HttpHeader httpHeader(CaseInsensitiveKey key, String... values) {

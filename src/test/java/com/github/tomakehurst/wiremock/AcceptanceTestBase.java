@@ -27,6 +27,7 @@ import org.junit.BeforeClass;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Locale;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
@@ -43,6 +44,10 @@ public class AcceptanceTestBase {
 	@BeforeClass
 	public static void setupServer() {
 		setupServerWithEmptyFileRoot();
+
+		// We assert English XML parser error messages in some tests. So we set our default locale to English to make
+		// those tests succeed even for users with non-English default locales.
+		Locale.setDefault(Locale.ENGLISH);
 	}
 
 	@AfterClass

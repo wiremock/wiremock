@@ -16,25 +16,39 @@
 package com.github.tomakehurst.wiremock.servlet;
 
 import com.github.tomakehurst.wiremock.common.Gzip;
-import com.github.tomakehurst.wiremock.http.*;
+import com.github.tomakehurst.wiremock.http.ContentTypeHeader;
 import com.github.tomakehurst.wiremock.http.Cookie;
+import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.github.tomakehurst.wiremock.http.HttpHeaders;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
-
-import javax.servlet.http.*;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Maps;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.*;
-
+import java.io.InputStream;
 import java.nio.charset.Charset;
-import static com.google.common.base.Charsets.UTF_8;
+import java.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.io.ByteStreams.toByteArray;
 import static java.util.Collections.list;
@@ -46,6 +60,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     private final HttpServletRequest request;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
+    private Collection<Part> cachedMultiparts;
 
     public WireMockHttpServletRequestAdapter(HttpServletRequest request) {
         this.request = request;
@@ -83,6 +98,21 @@ public class WireMockHttpServletRequestAdapter implements Request {
     @Override
     public RequestMethod getMethod() {
         return RequestMethod.fromString(request.getMethod().toUpperCase());
+    }
+
+    @Override
+    public String getScheme() {
+        return request.getScheme();
+    }
+
+    @Override
+    public String getHost() {
+        return request.getServerName();
+    }
+
+    @Override
+    public int getPort() {
+        return request.getServerPort();
     }
 
     @Override
@@ -231,6 +261,69 @@ public class WireMockHttpServletRequestAdapter implements Request {
         }
 
         return false;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<Part> getParts() {
+        if (!isMultipart()) {
+            return null;
+        }
+
+        if (cachedMultiparts == null) {
+            try {
+                String contentTypeHeaderValue = from(contentTypeHeader().values()).join(Joiner.on(" "));
+                InputStream inputStream = new ByteArrayInputStream(getBody());
+                MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
+                request.setAttribute(org.eclipse.jetty.server.Request.__MULTIPART_INPUT_STREAM, inputStreamParser);
+                cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
+                    @Override
+                    public Part apply(javax.servlet.http.Part input) {
+                        return WireMockHttpServletMultipartAdapter.from(input);
+                    }
+                }).toList();
+            } catch (IOException | ServletException exception) {
+                return throwUnchecked(exception, Collection.class);
+            }
+        }
+
+        return (cachedMultiparts.size() > 0) ? cachedMultiparts : null;
+    }
+
+    private Collection<javax.servlet.http.Part> safelyGetRequestParts() throws IOException, ServletException {
+        try {
+            return request.getParts();
+        } catch (IOException ioe) {
+            if (ioe.getMessage().contains("Missing content for multipart")) {
+                return Collections.emptyList();
+            }
+
+            throw ioe;
+        }
+    }
+
+    @Override
+    public boolean isMultipart() {
+        String header = getHeader("Content-Type");
+        return (header != null && header.contains("multipart/form-data"));
+    }
+
+    @Override
+    public Part getPart(final String name) {
+        if (name == null || name.length() == 0) {
+            return null;
+        }
+        if (cachedMultiparts == null) {
+            if (getParts() == null) {
+                return null;
+            }
+        }
+        return from(cachedMultiparts).firstMatch(new Predicate<Part>() {
+            @Override
+            public boolean apply(Part input) {
+                return name.equals(input.getName());
+            }
+        }).get();
     }
 
     @Override

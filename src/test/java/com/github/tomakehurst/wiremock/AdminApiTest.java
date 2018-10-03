@@ -16,30 +16,57 @@
 package com.github.tomakehurst.wiremock;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
+import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
+import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matches;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class AdminApiTest extends AcceptanceTestBase {
 
     static Stubbing dsl = wireMockServer;
+
+    @After
+    public void tearDown() throws Exception {
+        deleteAllBodyFiles();
+    }
+
+    private void deleteAllBodyFiles() throws IOException {
+        FileSource filesRoot = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        if (filesRoot.exists()) {
+            List<TextFile> textFiles = filesRoot.listFilesRecursively();
+            for (TextFile textFile : textFiles) {
+                Files.delete(Paths.get(textFile.getPath()));
+            }
+        }
+    }
 
     @Test
     public void getAllStubMappings() throws Exception {
@@ -385,6 +412,157 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInUrl() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{                                      \n" +
+            "    \"request\": {                            \n" +
+            "        \"urlPattern\": \"/@$&%*[[^^£$&%\"    \n" +
+            "    }                                         \n" +
+            "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 13\n" +
+            "/@$&%*[[^^£$&%\n" +
+            "             ^"));
+        assertThat(errors.first().getSource().getPointer(), is("/request"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInHeader() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"headers\": {\n" +
+                "            \"Accept\": {\n" +
+                "                \"matches\": \"%[[json[[\"\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 8\n" +
+            "%[[json[[\n" +
+            "        ^"));
+        assertThat(errors.first().getSource().getPointer(), is("/request/headers/Accept"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidRegexUsedInBodyPattern() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalTo\": \"fine\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"matches\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), equalsMultiLine("Unclosed character class near index 16\n" +
+            "somebad]]][[stuff\n" +
+            "                ^"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidMatchOperator() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"matching\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidMatchOperatorManyBodyPatterns() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalTo\": \"fine\"\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"matching\": \"somebad]]][[stuff\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/1"));
+        assertThat(errors.first().getDetail(), is("{\"matching\":\"somebad]]][[stuff\"} is not a valid match operation"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusOnEqualToJsonOperand() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalToJson\": \"(wrong)\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getDetail(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
+            " at [Source: (wrong); line: 1, column: 2]"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenInvalidEqualToXmlSpecified() {
+        WireMockResponse response = testClient.postXml("/__admin/mappings",
+            "{\n" +
+                "    \"request\": {\n" +
+                "        \"bodyPatterns\": [\n" +
+                "            {\n" +
+                "                \"equalToXml\": \"(wrong)\"\n" +
+                "            }\n" +
+                "        ]\n" +
+                "    }\n" +
+                "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("Content is not allowed in prolog.; line 1; column 1"));
+    }
+
+    @Test
     public void servesRamlSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/raml");
         assertThat(response.statusCode(), is(200));
@@ -409,6 +587,79 @@ public class AdminApiTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/__admin/docs");
         assertThat(response.statusCode(), is(200));
         assertThat(response.content(), containsString("<html"));
+    }
+
+    @Test
+    public void deleteStubFile() throws Exception {
+        String fileName = "bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "contents");
+
+        int statusCode = testClient.delete("/__admin/files/bar.txt").statusCode();
+
+        assertEquals(200, statusCode);
+        assertFalse("File should have been deleted", Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists());
+    }
+
+    @Test
+    public void editStubFileContent() throws Exception {
+        String fileName = "bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "AAA");
+
+        int statusCode = testClient.putWithBody("/__admin/files/bar.txt", "BBB", "text/plain").statusCode();
+
+        assertEquals(200, statusCode);
+        assertEquals("File should have been changed", "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString());
+    }
+
+    @Test
+    public void listStubFiles() throws Exception {
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile("bar.txt", "contents");
+        fileSource.writeTextFile("zoo.txt", "contents");
+
+        WireMockResponse response = testClient.get("/__admin/files");
+
+        assertEquals(200, response.statusCode());
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
+    }
+
+    @Test
+    public void fetchStubWithMetadata() {
+        UUID id = UUID.randomUUID();
+        wireMockServer.stubFor(get("/with-metadata")
+            .withId(id)
+            .withMetadata(ImmutableMap.<String, Object>of(
+                "one", 1,
+                "two", "2",
+                "three", true,
+                "four", ImmutableMap.of(
+                    "five", "55555"
+                )
+            )));
+
+        WireMockResponse response = testClient.get("/__admin/mappings/" + id);
+
+        JsonAssertion.assertThat(response.content()).field("metadata").field("one").isEqualTo(1);
+        JsonAssertion.assertThat(response.content()).field("metadata").field("two").isEqualTo("2");
+        JsonAssertion.assertThat(response.content()).field("metadata").field("three").isEqualTo(true);
+        JsonAssertion.assertThat(response.content()).field("metadata").field("four").field("five").isEqualTo("55555");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void stubMetadataIsAbsentWhenNoneSpecified() {
+        UUID id = UUID.randomUUID();
+        wireMockServer.stubFor(get("/without-metadata").withId(id));
+
+        WireMockResponse response = testClient.get("/__admin/mappings/" + id);
+        Map<String, ?> data = Json.read(response.content(), Map.class);
+
+        assertThat(data, not(hasKey("metadata")));
     }
 
 }

@@ -15,9 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.junit;
 
-import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -36,6 +36,9 @@ public interface Stubbing {
 
     List<StubMapping> getStubMappings();
     StubMapping getSingleStubMapping(UUID id);
+
+    List<StubMapping> findStubMappingsByMetadata(StringValuePattern pattern);
+    void removeStubMappingsByMetadata(StringValuePattern pattern);
 
     void verify(RequestPatternBuilder requestPatternBuilder);
     void verify(int count, RequestPatternBuilder requestPatternBuilder);

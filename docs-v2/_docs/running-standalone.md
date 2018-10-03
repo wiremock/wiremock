@@ -26,7 +26,7 @@ $ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
 
 The following can optionally be specified on the command line:
 
-`--port`: Set the HTTP port number e.g. `--port 9999`
+`--port`: Set the HTTP port number e.g. `--port 9999`. Use `--port 0` to dynamically determine a port.
 
 `--https-port`: If specified, enables HTTPS on the supplied port.
 
@@ -102,6 +102,12 @@ accepting requests.
 
 `--jetty-header-buffer-size`: The Jetty buffer size for request headers,
 e.g. `--jetty-header-buffer-size 16384`, defaults to 8192K.
+
+`--async-response-enabled`: Enable asynchronous request processing in Jetty. 
+Recommended when using WireMock for performance testing with delays, as it allows much more efficient use of container threads and therefore higher throughput. Defaults to `false`.
+
+`--async-response-threads`: Set the number of asynchronous (background) response threads. 
+Effective only with `asynchronousResponseEnabled=true`. Defaults to 10.
 
 `--extensions`: Extension class names e.g.
 com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.

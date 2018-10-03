@@ -15,9 +15,21 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-public class InvalidRequestException extends ClientError {
+public class AsynchronousResponseSettings {
 
-    public InvalidRequestException(Errors errors) {
-        super(errors);
+    private final boolean enabled;
+    private final int threads;
+
+    public AsynchronousResponseSettings(boolean enabled, int threads) {
+        this.enabled = enabled;
+        this.threads = threads;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public int getThreads() {
+        return threads;
     }
 }

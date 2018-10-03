@@ -18,6 +18,8 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.common.Errors;
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.LoggedResponse;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -29,6 +31,7 @@ import com.google.common.base.Predicate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ServeEvent {
 
@@ -37,6 +40,7 @@ public class ServeEvent {
     private final StubMapping stubMapping;
     private final ResponseDefinition responseDefinition;
     private final LoggedResponse response;
+    private final AtomicReference<Timing> timing;
 
     @JsonCreator
     public ServeEvent(@JsonProperty("id") UUID id,
@@ -44,20 +48,26 @@ public class ServeEvent {
                       @JsonProperty("mapping") StubMapping stubMapping,
                       @JsonProperty("responseDefinition") ResponseDefinition responseDefinition,
                       @JsonProperty("response") LoggedResponse response,
-                      @JsonProperty("wasMatched") boolean ignoredReadOnly) {
+                      @JsonProperty("wasMatched") boolean ignoredReadOnly,
+                      @JsonProperty("timing") Timing timing) {
         this.id = id;
         this.request = request;
         this.responseDefinition = responseDefinition;
         this.stubMapping = stubMapping;
         this.response = response;
+        this.timing = new AtomicReference<>(timing);
     }
 
     public ServeEvent(LoggedRequest request, StubMapping stubMapping, ResponseDefinition responseDefinition) {
-        this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false);
+        this(UUID.randomUUID(), request, stubMapping, responseDefinition, null, false, null);
     }
 
     public static ServeEvent forUnmatchedRequest(LoggedRequest request) {
         return new ServeEvent(request, null, ResponseDefinition.notConfigured());
+    }
+
+    public static ServeEvent forBadRequest(LoggedRequest request, Errors errors) {
+        return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
     }
 
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
@@ -68,8 +78,12 @@ public class ServeEvent {
         return new ServeEvent(request, stubMapping, responseDefinition);
     }
 
-    public ServeEvent complete(Response response) {
-        return new ServeEvent(id, request, stubMapping, responseDefinition, LoggedResponse.from(response), false);
+    public ServeEvent complete(Response response, int processTimeMillis) {
+        return new ServeEvent(id, request, stubMapping, responseDefinition, LoggedResponse.from(response), false, new Timing((int) response.getInitialDelay(), processTimeMillis));
+    }
+
+    public void afterSend(int responseSendTimeMillis) {
+        timing.set(timing.get().withResponseSendTime(responseSendTimeMillis));
     }
 
     @JsonIgnore
@@ -99,6 +113,10 @@ public class ServeEvent {
 
     public LoggedResponse getResponse() {
         return response;
+    }
+
+    public Timing getTiming() {
+        return timing.get();
     }
 
     @JsonIgnore

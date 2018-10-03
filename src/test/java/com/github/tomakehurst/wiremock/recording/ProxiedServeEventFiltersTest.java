@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -39,24 +40,24 @@ public class ProxiedServeEventFiltersTest {
     @Test
     public void applyWithUniversalRequestPattern() {
         ServeEvent serveEvent = proxiedServeEvent(mockRequest());
-        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(RequestPattern.ANYTHING, null);
+        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(RequestPattern.ANYTHING, null, false);
         assertTrue(filters.apply(serveEvent));
 
         // Should default to RequestPattern.ANYTHING when passing null for filters
-        filters = new ProxiedServeEventFilters(null, null);
+        filters = new ProxiedServeEventFilters(null, null, false);
         assertTrue(filters.apply(serveEvent));
     }
 
     @Test
     public void applyWithUnproxiedServeEvent() {
         ServeEvent serveEvent = toServeEvent(null, null, ResponseDefinition.ok());
-        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, null);
+        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, null, false);
         assertFalse(filters.apply(serveEvent));
     }
 
     @Test
     public void applyWithMethodPattern() {
-        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(newRequestPattern(GET, anyUrl()).build(), null);
+        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(newRequestPattern(GET, anyUrl()).build(), null, false);
         MockRequest request = mockRequest().method(GET).url("/foo");
 
         assertTrue(filters.apply(proxiedServeEvent(request)));
@@ -70,7 +71,7 @@ public class ProxiedServeEventFiltersTest {
             UUID.fromString("00000000-0000-0000-0000-000000000000"),
             UUID.fromString("00000000-0000-0000-0000-000000000001")
         );
-        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, ids);
+        ProxiedServeEventFilters filters = new ProxiedServeEventFilters(null, ids, false);
 
         assertTrue(filters.apply(proxiedServeEvent(ids.get(0))));
         assertTrue(filters.apply(proxiedServeEvent(ids.get(1))));
@@ -81,7 +82,8 @@ public class ProxiedServeEventFiltersTest {
     public void applyWithMethodAndUrlPattern() {
         ProxiedServeEventFilters filters = new ProxiedServeEventFilters(
             newRequestPattern(GET, urlEqualTo("/foo")).build(),
-            null
+            null,
+            false
         );
         MockRequest request = mockRequest().method(GET).url("/foo");
 
@@ -99,7 +101,8 @@ public class ProxiedServeEventFiltersTest {
         );
         ProxiedServeEventFilters filters = new ProxiedServeEventFilters(
             newRequestPattern(GET, anyUrl()).build(),
-            ids
+            ids,
+            false
         );
 
         assertTrue(filters.apply(proxiedServeEvent(ids.get(0), request)));
@@ -114,8 +117,8 @@ public class ProxiedServeEventFiltersTest {
             null,
             responseDefinition,
             null,
-            true
-        );
+            true,
+            Timing.UNTIMED);
     }
 
     private ServeEvent proxiedServeEvent(UUID id, MockRequest request) {

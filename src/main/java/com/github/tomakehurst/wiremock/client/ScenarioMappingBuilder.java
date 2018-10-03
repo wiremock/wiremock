@@ -15,9 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 
+import java.util.Map;
 import java.util.UUID;
 
 public interface ScenarioMappingBuilder extends MappingBuilder {
@@ -28,7 +31,9 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder atPriority(Integer priority);
     ScenarioMappingBuilder withHeader(String key, StringValuePattern headerPattern);
     ScenarioMappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    ScenarioMappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
     ScenarioMappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
+    ScenarioMappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
     ScenarioMappingBuilder inScenario(String scenarioName);
     ScenarioMappingBuilder withId(UUID id);
     ScenarioMappingBuilder persistent();
@@ -36,6 +41,10 @@ public interface ScenarioMappingBuilder extends MappingBuilder {
     ScenarioMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
     <P> ScenarioMappingBuilder withPostServeAction(String extensionName, P parameters);
+
+    ScenarioMappingBuilder withMetadata(Map<String, ?> metadata);
+    ScenarioMappingBuilder withMetadata(Metadata metadata);
+    ScenarioMappingBuilder withMetadata(Metadata.Builder metadata);
 
     ScenarioMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 }

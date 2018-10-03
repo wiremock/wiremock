@@ -19,12 +19,11 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
 import com.google.common.base.Predicate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,9 +73,43 @@ public class StubMappingJsonRecorder implements RequestListener {
             }
         }
 
-        String body = request.getBodyAsString();
-        if (!body.isEmpty()) {
-            builder.withRequestBody(valuePatternForContentType(request));
+        if (request.isMultipart()) {
+            for (Request.Part part : request.getParts()) {
+                builder.withRequestBodyPart(valuePatternForPart(part));
+            }
+        } else {
+            String body = request.getBodyAsString();
+            if (!body.isEmpty()) {
+                builder.withRequestBody(valuePatternForContentType(request));
+            }
+        }
+
+        return builder.build();
+    }
+
+    private MultipartValuePattern valuePatternForPart(Request.Part part) {
+        MultipartValuePatternBuilder builder = new MultipartValuePatternBuilder().withName(part.getName()).matchingType(MultipartValuePattern.MatchingType.ALL);
+
+        if (!headersToMatch.isEmpty()) {
+            Collection<HttpHeader> all = part.getHeaders().all();
+
+            for (HttpHeader httpHeader : all) {
+                if (headersToMatch.contains(httpHeader.caseInsensitiveKey())) {
+                    builder.withHeader(httpHeader.key(), equalTo(httpHeader.firstValue()));
+                }
+            }
+        }
+
+        HttpHeader contentType = part.getHeader("Content-Type");
+
+        if (!contentType.isPresent() || contentType.firstValue().contains("text")) {
+            builder.withBody(equalTo(part.getBody().asString()));
+        } else if (contentType.firstValue().contains("json")) {
+            builder.withBody(equalToJson(part.getBody().asString(), true, true));
+        } else if (contentType.firstValue().contains("xml")) {
+            builder.withBody(equalToXml(part.getBody().asString()));
+        } else {
+            builder.withBody(binaryEqualTo(part.getBody().asBytes()));
         }
 
         return builder.build();

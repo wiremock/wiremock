@@ -15,10 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
+import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.google.common.collect.ImmutableMap;
 
+import java.util.Map;
 import java.util.UUID;
 
 public interface MappingBuilder {
@@ -26,7 +30,9 @@ public interface MappingBuilder {
     MappingBuilder atPriority(Integer priority);
     MappingBuilder withHeader(String key, StringValuePattern headerPattern);
     MappingBuilder withQueryParam(String key, StringValuePattern queryParamPattern);
+    MappingBuilder withQueryParams(Map<String, StringValuePattern> queryParams);
     MappingBuilder withRequestBody(ContentPattern<?> bodyPattern);
+    MappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder);
     ScenarioMappingBuilder inScenario(String scenarioName);
     MappingBuilder withId(UUID id);
     MappingBuilder withName(String name);
@@ -37,6 +43,10 @@ public interface MappingBuilder {
     MappingBuilder withCookie(String name, StringValuePattern cookieValuePattern);
 
     <P> MappingBuilder withPostServeAction(String extensionName, P parameters);
+
+    MappingBuilder withMetadata(Map<String, ?> metadata);
+    MappingBuilder withMetadata(Metadata metadata);
+    MappingBuilder withMetadata(Metadata.Builder metadata);
 
     MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 

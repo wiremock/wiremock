@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.common.Json.write;
+import static com.github.tomakehurst.wiremock.common.Json.writePrivate;
 import static com.google.common.collect.Iterables.filter;
 
 public class JsonFileMappingsSource implements MappingsSource {
@@ -52,7 +53,7 @@ public class JsonFileMappingsSource implements MappingsSource {
 		if (mappingFileName == null) {
 			mappingFileName = SafeNames.makeSafeFileName(stubMapping);
 		}
-		mappingsFileSource.writeTextFile(mappingFileName, write(stubMapping));
+		mappingsFileSource.writeTextFile(mappingFileName, writePrivate(stubMapping));
         fileNameMap.put(stubMapping.getId(), mappingFileName);
 		stubMapping.setDirty(false);
 	}
@@ -79,14 +80,15 @@ public class JsonFileMappingsSource implements MappingsSource {
 		}
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), AbstractFileSource.byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
-            StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-            mapping.setDirty(false);
-			stubMappings.addMapping(mapping);
-			fileNameMap.put(mapping.getId(), getFileName(mappingFile));
+			try {
+				StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
+				mapping.setDirty(false);
+				stubMappings.addMapping(mapping);
+				fileNameMap.put(mapping.getId(), mappingFile.getPath());
+			} catch (JsonException e) {
+				throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
+			}
 		}
 	}
 
-	private String getFileName(TextFile mappingFile) {
-		return mappingFile.getUri().toString().replaceAll("^.*/", "");
-	}
 }

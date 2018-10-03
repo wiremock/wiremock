@@ -43,11 +43,12 @@
   display: block;
   list-style-type: none;
   white-space: nowrap;
+  font-size: 16px;
 
   &--lg {
     font-family: "McLaren", "Segoe UI", "Helvetica Neue", "Lucida Grande", Arial, sans-serif;
     font-size: $type-size-4;
-    padding-right: 5em;
+    padding-right: 2em;
     font-weight: 700;
   }
 }

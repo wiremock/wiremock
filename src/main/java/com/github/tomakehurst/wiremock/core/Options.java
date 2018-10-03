@@ -15,10 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.github.tomakehurst.wiremock.common.*;
+import com.github.tomakehurst.wiremock.common.AsynchronousResponseSettings;
+import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.HttpsSettings;
+import com.github.tomakehurst.wiremock.common.JettySettings;
+import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
+import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
@@ -52,9 +58,11 @@ public interface Options {
     boolean shouldPreserveHostHeader();
     String proxyHostHeader();
     HttpServerFactory httpServerFactory();
+    ThreadPoolFactory threadPoolFactory();
     <T extends Extension> Map<String, T> extensionsOfType(Class<T> extensionType);
     WiremockNetworkTrafficListener networkTrafficListener();
     Authenticator getAdminAuthenticator();
     boolean getHttpsRequiredForAdminApi();
     NotMatchedRenderer getNotMatchedRenderer();
+    AsynchronousResponseSettings getAsynchronousResponseSettings();
 }

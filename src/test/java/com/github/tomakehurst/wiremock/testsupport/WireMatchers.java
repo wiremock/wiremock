@@ -27,10 +27,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.hamcrest.TypeSafeMatcher;
+import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.*;
+import org.hamcrest.core.IsEqual;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.xmlunit.builder.DiffBuilder;
@@ -50,6 +49,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.collect.Iterables.*;
+import static java.lang.System.lineSeparator;
 import static java.util.Arrays.asList;
 
 public class WireMatchers {
@@ -299,6 +299,20 @@ public class WireMatchers {
                 description.appendText("a file containing all of: " + Joiner.on(", ").join(contents));
             }
         };
+    }
+
+    public static Matcher<String> equalsMultiLine(final String expected) {
+        String normalisedExpected = normaliseLineBreaks(expected);
+        return new IsEqual<String>(normalisedExpected) {
+            @Override
+            public boolean matches(Object actualValue) {
+                return super.matches(actualValue.toString());
+            }
+        };
+    }
+
+    private static String normaliseLineBreaks(String s) {
+	    return s.replace("\n", lineSeparator());
     }
 
     private static String fileContents(File input) {

@@ -21,16 +21,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Dates;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.http.*;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 import java.nio.charset.Charset;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.Urls.safelyCreateURL;
 import static com.google.common.base.Charsets.UTF_8;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.decodeBase64;
@@ -39,10 +46,14 @@ import static com.github.tomakehurst.wiremock.common.Strings.stringFromBytes;
 import static com.github.tomakehurst.wiremock.common.Urls.splitQuery;
 import static com.github.tomakehurst.wiremock.http.HttpHeaders.copyOf;
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.collect.FluentIterable.from;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LoggedRequest implements Request {
 
+    private final String scheme;
+    private final String host;
+    private final int port;
     private final String url;
     private final String absoluteUrl;
     private final String clientIp;
@@ -53,6 +64,7 @@ public class LoggedRequest implements Request {
     private final byte[] body;
     private final boolean isBrowserProxyRequest;
     private final Date loggedDate;
+    private final Collection<Part> multiparts;
 
     public static LoggedRequest createFrom(Request request) {
         return new LoggedRequest(request.getUrl(),
@@ -63,8 +75,9 @@ public class LoggedRequest implements Request {
             ImmutableMap.copyOf(request.getCookies()),
             request.isBrowserProxyRequest(),
             new Date(),
-            request.getBodyAsBase64(),
-            null);
+            request.getBody(),
+            request.getParts()
+        );
     }
 
     @JsonCreator
@@ -78,17 +91,45 @@ public class LoggedRequest implements Request {
             @JsonProperty("browserProxyRequest") boolean isBrowserProxyRequest,
             @JsonProperty("loggedDate") Date loggedDate,
             @JsonProperty("bodyAsBase64") String bodyAsBase64,
-            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding) {
+            @JsonProperty("body") String ignoredBodyOnlyUsedForBinding,
+            @JsonProperty("multiparts") Collection<Part> multiparts) {
+        this(url, absoluteUrl, method, clientIp, headers, cookies, isBrowserProxyRequest, loggedDate, decodeBase64(bodyAsBase64), multiparts);
+    }
+
+    public LoggedRequest(
+            String url,
+            String absoluteUrl,
+            RequestMethod method,
+            String clientIp,
+            HttpHeaders headers,
+            Map<String, Cookie> cookies,
+            boolean isBrowserProxyRequest,
+            Date loggedDate,
+            byte[] body,
+            Collection<Part> multiparts) {
         this.url = url;
+
         this.absoluteUrl = absoluteUrl;
+        if (absoluteUrl == null) {
+            this.scheme = null;
+            this.host = null;
+            this.port = -1;
+        } else {
+            URL fullUrl = safelyCreateURL(absoluteUrl);
+            this.scheme = fullUrl.getProtocol();
+            this.host = fullUrl.getHost();
+            this.port = fullUrl.getPort();
+        }
+
         this.clientIp = clientIp;
         this.method = method;
-        this.body = decodeBase64(bodyAsBase64);
+        this.body = body;
         this.headers = headers;
         this.cookies = cookies;
         this.queryParams = splitQuery(URI.create(url));
         this.isBrowserProxyRequest = isBrowserProxyRequest;
         this.loggedDate = loggedDate;
+        this.multiparts = multiparts;
     }
 
     @Override
@@ -104,6 +145,21 @@ public class LoggedRequest implements Request {
     @Override
     public RequestMethod getMethod() {
         return method;
+    }
+
+    @Override
+    public String getScheme() {
+        return scheme;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public int getPort() {
+        return port;
     }
 
     @Override
@@ -131,7 +187,7 @@ public class LoggedRequest implements Request {
     public ContentTypeHeader contentTypeHeader() {
         if (headers != null) {
             return headers.getContentTypeHeader();
-        } 
+        }
         return null;
     }
 
@@ -212,5 +268,28 @@ public class LoggedRequest implements Request {
     @Override
     public String toString() {
         return Json.write(this);
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isMultipart() {
+        return (multiparts != null && multiparts.size() > 0);
+    }
+
+    @JsonIgnore
+    @Override
+    public Collection<Part> getParts() {
+        return multiparts;
+    }
+
+    @JsonIgnore
+    @Override
+    public Part getPart(final String name) {
+        return (multiparts != null && name != null) ? from(multiparts).firstMatch(new Predicate<Part>() {
+            @Override
+            public boolean apply(Part input) {
+                return (name.equals(input.getName()));
+            }
+        }).get() : null;
     }
 }

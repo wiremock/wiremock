@@ -21,12 +21,12 @@ import java.util.Objects;
 
 public class GlobalSettings {
 
-	private Integer fixedDelay;
+    private Integer fixedDelay;
     private DelayDistribution delayDistribution;
 
-	public Integer getFixedDelay() {
-		return fixedDelay;
-	}
+    public Integer getFixedDelay() {
+        return fixedDelay;
+    }
 
     public void setFixedDelay(Integer fixedDelay) {
         this.fixedDelay = fixedDelay;

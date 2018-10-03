@@ -16,11 +16,13 @@
 package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.google.common.base.Stopwatch;
 
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public abstract class AbstractRequestHandler implements RequestHandler, RequestEventSource {
 
@@ -41,11 +43,12 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	@Override
 	public void handle(Request request, HttpResponder httpResponder) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
 		ServeEvent serveEvent = handleRequest(request);
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
-		Response response = responseRenderer.render(responseDefinition);
-		ServeEvent completedServeEvent = serveEvent.complete(response);
+		Response response = responseRenderer.render(serveEvent);
+		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
 		if (logRequests()) {
 			notifier().info("Request received:\n" +
@@ -60,9 +63,13 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
         beforeResponseSent(completedServeEvent, response);
 
+		stopwatch.reset();
+		stopwatch.start();
 		httpResponder.respond(request, response);
 
+        completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
         afterResponseSent(completedServeEvent, response);
+        stopwatch.stop();
 	}
 
 	private static String formatRequest(Request request) {
