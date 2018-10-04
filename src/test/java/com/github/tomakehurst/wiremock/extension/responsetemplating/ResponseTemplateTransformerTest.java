@@ -272,6 +272,23 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("5"));
     }
+    
+    @Test
+    public void areConditionalHelpersLoaded() {
+
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .body("fiver"),
+            aResponse().withBody(
+                "{{{eq 5 5 yes='y' no='n'}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("y"));
+    }
+    
+    
+    
 
     @Test
     public void proxyBaseUrl() {
