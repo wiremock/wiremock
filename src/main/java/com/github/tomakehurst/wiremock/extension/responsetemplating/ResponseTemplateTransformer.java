@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.AssignHelper;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -76,6 +77,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
         for (NumberHelper helper: NumberHelper.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
+        }
+        
+        for (ConditionalHelpers helper: ConditionalHelpers.values()) {
+        	this.handlebars.registerHelper(helper.name(), helper);
         }
 
         this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
