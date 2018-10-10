@@ -24,7 +24,7 @@ Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock
 
 Questions and Issues
 --------------------
-If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the
+If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the 
 [WireMock mailing list](https://groups.google.com/forum/#!forum/wiremock-user).
 
 On the other hand if you're pretty certain you've found a bug please open an issue.
