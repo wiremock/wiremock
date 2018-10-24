@@ -64,7 +64,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             );
         }
 
-        notifier().info("Received request to " + request.getUrl() + " with body " + request.getBodyAsString());
+        notifier().info("Admin request received:\n" + formatRequest(request));
         String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
 
         try {

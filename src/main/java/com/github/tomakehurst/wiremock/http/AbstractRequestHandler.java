@@ -72,7 +72,7 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         stopwatch.stop();
 	}
 
-	private static String formatRequest(Request request) {
+	protected String formatRequest(Request request) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(request.getClientIp())
 				.append(" - ")
