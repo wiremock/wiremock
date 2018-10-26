@@ -72,7 +72,6 @@ public class AdminRequestHandlerTest {
                 withHeader(postHeaderABCName, postHeaderABCValue));
 
         assertEquals(1, notifier.getLogCount());
-        System.out.println(notifier.getInfoMessage());
         assertNotNull(notifier.getInfoMessage());
         assertTrue(notifier.getInfoMessage().contains("Admin request received:\n" +
                 "127.0.0.1 - POST /mappings\n"));
