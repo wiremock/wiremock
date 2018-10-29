@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
@@ -275,6 +276,8 @@ public class WireMockHttpServletRequestAdapter implements Request {
                 String contentTypeHeaderValue = from(contentTypeHeader().values()).join(Joiner.on(" "));
                 InputStream inputStream = new ByteArrayInputStream(getBody());
                 MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
+                MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
+                request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
                 request.setAttribute(org.eclipse.jetty.server.Request.__MULTIPART_INPUT_STREAM, inputStreamParser);
                 cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
                     @Override
