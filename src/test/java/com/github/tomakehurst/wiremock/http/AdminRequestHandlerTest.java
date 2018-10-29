@@ -17,25 +17,29 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.apache.http.entity.StringEntity;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 
 public class AdminRequestHandlerTest {
+    private Mockery context;
+    private WireMockServer wm;
+    private WireMockTestClient client;
 
-    WireMockServer wm;
-    WireMockTestClient client;
-
-    public void initWithOptions(Options options) {
-        wm = new WireMockServer(options);
-        wm.start();
-        client = new WireMockTestClient(wm.port());
+    @Before
+    public void init() {
+        context = new Mockery();
     }
 
     @After
@@ -46,13 +50,15 @@ public class AdminRequestHandlerTest {
     }
 
     @Test
-    public void getAdminRequestLogForAStubMappingPost() throws Exception {
-        InMemoryNotifier notifier = new InMemoryNotifier();
-        initWithOptions(options().dynamicPort().notifier(notifier));
+    public void shouldLogInfoOnRequest() throws UnsupportedEncodingException {
+        final Notifier notifier = context.mock(Notifier.class);
+        wm = new WireMockServer(options().dynamicPort().notifier(notifier));
+        wm.start();
+        client = new WireMockTestClient(wm.port());
 
-        String postHeaderABCName = "ABC";
-        String postHeaderABCValue = "abc123";
-        String postBody =
+        final String postHeaderABCName = "ABC";
+        final String postHeaderABCValue = "abc123";
+        final String postBody =
                 "{\n" +
                 "    \"request\": {\n" +
                 "        \"method\": \"GET\",\n" +
@@ -67,44 +73,16 @@ public class AdminRequestHandlerTest {
                 "    }\n" +
                 "}";
 
-        client.post("/__admin/mappings",
-                new StringEntity(postBody),
+        context.checking(new Expectations() {{
+            one(notifier).info(with(allOf(
+                    containsString("Admin request received:\n127.0.0.1 - POST /mappings\n"),
+                    containsString(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"),
+                    containsString(postBody))));
+        }});
+
+        client.post("/__admin/mappings", new StringEntity(postBody),
                 withHeader(postHeaderABCName, postHeaderABCValue));
 
-        assertEquals(1, notifier.getLogCount());
-        assertNotNull(notifier.getInfoMessage());
-        assertTrue(notifier.getInfoMessage().contains("Admin request received:\n" +
-                "127.0.0.1 - POST /mappings\n"));
-        assertTrue(notifier.getInfoMessage().contains(postHeaderABCName + ": [" + postHeaderABCValue + "]\n"));
-        assertTrue(notifier.getInfoMessage().contains(postBody));
-    }
-
-    private class InMemoryNotifier implements Notifier {
-        private String infoMessage;
-        private short logCount;
-
-        @Override
-        public void info(String message) {
-            logCount++;
-            this.infoMessage = message;
-        }
-
-        @Override
-        public void error(String message) {
-            logCount++;
-        }
-
-        @Override
-        public void error(String message, Throwable t) {
-            logCount++;
-        }
-
-        public String getInfoMessage() {
-            return infoMessage;
-        }
-
-        public short getLogCount() {
-            return logCount;
-        }
+        context.assertIsSatisfied();
     }
 }
