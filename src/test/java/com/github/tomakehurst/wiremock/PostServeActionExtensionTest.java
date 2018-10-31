@@ -83,7 +83,7 @@ public class PostServeActionExtensionTest {
         client.get("/count-me");
 
         await()
-            .atMost(10, SECONDS)
+            .atMost(5, SECONDS)
             .until(getContent("/__admin/named-counter/things"), is("4"));
     }
 
@@ -179,10 +179,14 @@ public class PostServeActionExtensionTest {
 
             String counterName = counterNameParam.counterName;
 
-            Integer count = firstNonNull(counters.get(counterName), 0);
-
             counters.putIfAbsent(counterName, 0);
-            counters.replace(counterName, ++count);
+            Integer oldValue;
+            Integer newValue;
+
+            do {
+                oldValue = counters.get(counterName);
+                newValue = oldValue + 1;
+            } while (!counters.replace(counterName, oldValue, newValue));
 
         }
     }
