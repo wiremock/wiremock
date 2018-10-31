@@ -77,7 +77,7 @@ public class StubResponseRenderer implements ResponseRenderer {
 		ResponseTransformer transformer = transformers.get(0);
 		Response newResponse =
 				transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-						transformer.transform(request, response, fileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+						transformer.transform(request, response, fileSource, responseDefinition.getTransformerParameters()) :
 						response;
 
 		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
