@@ -83,7 +83,7 @@ public class PostServeActionExtensionTest {
         client.get("/count-me");
 
         await()
-            .atMost(5, SECONDS)
+            .atMost(10, SECONDS)
             .until(getContent("/__admin/named-counter/things"), is("4"));
     }
 
