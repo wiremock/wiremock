@@ -77,7 +77,7 @@ public class SnapshotStubMappingGeneratorTest {
     }
 
     @Test
-    public void applyCaptureAllHeadersTest() {
+    public void applyCaptureAllHeadersTestNoBlackList() {
         Map<String,String> testRequestHeaders = new HashMap<>();
         testRequestHeaders.put("capture", "test");
         testRequestHeaders.put("alsoCapture", "test");
@@ -90,7 +90,7 @@ public class SnapshotStubMappingGeneratorTest {
         final ResponseDefinition responseDefinition = ResponseDefinition.ok();
 
         SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
-            new CaptureAllHeadersRequestTransformer(null),
+            new CaptureAllHeadersRequestTransformer(null,null),
             responseDefinitionTransformer(responseDefinition)
         );
 
@@ -99,6 +99,36 @@ public class SnapshotStubMappingGeneratorTest {
 
         assertThat(actual.getRequest().getHeaders(), is(expected.getRequest().getHeaders()));
     }
+
+    @Test
+    public void applyCaptureAllHeadersTestWithBlacklist() {
+        Map<String,String> testRequestHeaders = new HashMap<>();
+        testRequestHeaders.put("capture", "test");
+        testRequestHeaders.put("alsoCapture", "test");
+        testRequestHeaders.put("ignore", "test");
+
+        Map<String,CaptureHeadersSpec> headersToIgnore = new HashMap<>();
+        headersToIgnore.put("Ignore",new CaptureHeadersSpec(true));
+
+        final RequestPatternBuilder expectedRequestPatternBuilder = newRequestPattern();
+        expectedRequestPatternBuilder.withHeader("capture", new EqualToPattern("test",true));
+        expectedRequestPatternBuilder.withHeader("alsoCapture", new EqualToPattern("test",true));
+
+
+        final ResponseDefinition responseDefinition = ResponseDefinition.ok();
+
+        SnapshotStubMappingGenerator stubMappingTransformer = new SnapshotStubMappingGenerator(
+            new CaptureAllHeadersRequestTransformer(headersToIgnore,null),
+            responseDefinitionTransformer(responseDefinition)
+        );
+
+        StubMapping actual = stubMappingTransformer.apply(serveEventWithRequestHeaders(testRequestHeaders));
+        StubMapping expected = new StubMapping(expectedRequestPatternBuilder.build(), responseDefinition);
+
+        assertThat(actual.getRequest().getHeaders(), is(expected.getRequest().getHeaders()));
+    }
+
+
 
     private static RequestPatternTransformer requestPatternTransformer(final RequestPatternBuilder requestPatternBuilder) {
         return new RequestPatternTransformer(null, null) {

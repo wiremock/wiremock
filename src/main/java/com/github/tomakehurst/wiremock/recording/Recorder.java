@@ -133,9 +133,10 @@ public class Recorder {
     }
 
     public SnapshotStubMappingGenerator getSnapshotStubMappingGenerator(RecordSpec recordSpec) {
-        if (recordSpec.getCaptureAllHeaders()) {
+        if (recordSpec.shouldCaptureAllHeaders()) {
             return new SnapshotStubMappingGenerator(
-                new CaptureAllHeadersRequestTransformer(recordSpec.getRequestBodyPatternFactory()),
+                new CaptureAllHeadersRequestTransformer(recordSpec.getCaptureHeaders(),
+                    recordSpec.getRequestBodyPatternFactory()),
                 new LoggedResponseDefinitionTransformer());
         } else {
             return new SnapshotStubMappingGenerator(recordSpec.getCaptureHeaders(),

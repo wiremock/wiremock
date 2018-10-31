@@ -35,6 +35,7 @@ public class RecordSpec {
     private final ProxiedServeEventFilters filters;
 
     // Headers from the request to include in the stub mapping, if they match the corresponding matcher
+    // If captureAllHeaders is enabled, this is treated as a BlackList instead of a WhiteList
     private final Map<String, CaptureHeadersSpec> captureHeaders;
 
     // Factory for the StringValuePattern that will be used to match request bodies
@@ -58,7 +59,8 @@ public class RecordSpec {
     // Parameters for stub mapping transformers
     private final Parameters transformerParameters;
 
-    // if this is set to true, all headers will be captured for each request and must match exactly to be replayed
+    // If this is set to true, all headers will be captured for each request and must match exactly to be replayed
+    // To ignore headers add them to the captureHeaders Map
     private final Boolean captureAllHeaders;
 
     @JsonCreator
@@ -127,7 +129,7 @@ public class RecordSpec {
 
     public RequestBodyPatternFactory getRequestBodyPatternFactory() { return requestBodyPatternFactory; }
 
-    public Boolean getCaptureAllHeaders() {
+    public Boolean shouldCaptureAllHeaders() {
         return captureAllHeaders;
     }
 }
