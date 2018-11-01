@@ -76,4 +76,10 @@ public class UrlsTest {
         String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/?param=value"));
         assertThat(pathParts, is("foo-bar"));
     }
+
+    @Test
+    public void returnsNonDelimitedStringForUrlWithMoreThanTwoPathParts() {
+        String pathParts = Urls.urlToPathParts(URI.create("/foo/bar/zoo/wire/mock?param=value"));
+        assertThat(pathParts, is("foo-bar-zoo-wire-mock"));
+    }
 }
