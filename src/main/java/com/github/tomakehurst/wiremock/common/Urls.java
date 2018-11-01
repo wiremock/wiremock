@@ -68,9 +68,8 @@ public class Urls {
 
         return nodeCount > 0 ?
             Joiner.on("-")
-            .join(from(uriPathNodes)
-                .skip(nodeCount - Math.min(nodeCount, 2))
-            ):
+            .join(from(uriPathNodes))
+             :
             "";
     }
 
