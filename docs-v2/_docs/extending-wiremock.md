@@ -234,7 +234,7 @@ In Java 8 and above this can be achieved using a lambda:
 
 ```java
 wireMockServer.stubFor(requestMatching(request ->
-    MatchResult.of(request.getBody().length > 2048);
+    MatchResult.of(request.getBody().length > 2048)
 ).willReturn(aResponse().withStatus(422)));
 ```
 
