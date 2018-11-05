@@ -185,7 +185,7 @@ JSON:
 
 ## Matching other attributes
 
-All request attributes other the the URL can be matched using the following set of operators.
+All request attributes other than the URL can be matched using the following set of operators.
 
 ### Equality
 
@@ -805,7 +805,7 @@ JSON:
 
 ## Multipart/form-data
 
-Deems a match if a multipart value is valid and matches any or all the the multipart pattern matchers supplied.   As a Multipart is a 'mini' HTTP request in itself all existing Header and Body content matchers can by applied to a Multipart pattern.
+Deems a match if a multipart value is valid and matches any or all the multipart pattern matchers supplied.   As a Multipart is a 'mini' HTTP request in itself all existing Header and Body content matchers can by applied to a Multipart pattern.
 A Multipart pattern can be defined as matching `ANY` request multiparts or `ALL`. The default matching type is `ANY`.
 
 Java:
