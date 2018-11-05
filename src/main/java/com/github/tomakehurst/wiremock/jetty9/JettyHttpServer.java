@@ -58,6 +58,10 @@ public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
 
+    static {
+        System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
+    }
+
     private final Server jettyServer;
     private final ServerConnector httpConnector;
     private final ServerConnector httpsConnector;
