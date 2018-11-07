@@ -166,6 +166,20 @@ public class RequestPatternBuilder {
         return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ALL).build());
     }
 
+    public RequestPatternBuilder andMatching(ValueMatcher<Request> customMatcher) {
+        this.customMatcher = customMatcher;
+        return this;
+    }
+
+    public RequestPatternBuilder andMatching(String customRequestMatcherName) {
+        return andMatching(customRequestMatcherName, Parameters.empty());
+    }
+
+    public RequestPatternBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
+        this.customMatcherDefinition = new CustomMatcherDefinition(customRequestMatcherName, parameters);
+        return this;
+    }
+
     public RequestPattern build() {
         return customMatcher != null ?
             new RequestPattern(customMatcher) :
