@@ -15,9 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
+import com.github.tomakehurst.wiremock.extension.plugin.ExtensionFile;
+import com.github.tomakehurst.wiremock.extension.plugin.PluginLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -37,18 +40,27 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.EXTENSIONS_ROOT;
 import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+
 public class WireMockConfiguration implements Options {
 
+    private static final String PLUGIN_CONFIG_FILE = "plugins.json";
     private int portNumber = DEFAULT_PORT;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
 
@@ -232,7 +244,7 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
-    public WireMockConfiguration bindAddress(String bindAddress){
+    public WireMockConfiguration bindAddress(String bindAddress) {
         this.bindAddress = bindAddress;
         return this;
     }
@@ -257,8 +269,8 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
-    	return this;
+        this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
+        return this;
     }
 
     public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
@@ -342,26 +354,16 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public HttpsSettings httpsSettings() {
-        return new HttpsSettings.Builder()
-                .port(httpsPort)
-                .keyStorePath(keyStorePath)
-                .keyStorePassword(keyStorePassword)
-                .keyStoreType(keyStoreType)
-                .trustStorePath(trustStorePath)
-                .trustStorePassword(trustStorePassword)
-                .trustStoreType(trustStoreType)
-                .needClientAuth(needClientAuth)
-                .build();
+        return new HttpsSettings.Builder().port(httpsPort).keyStorePath(keyStorePath).keyStorePassword(keyStorePassword)
+                .keyStoreType(keyStoreType).trustStorePath(trustStorePath).trustStorePassword(trustStorePassword)
+                .trustStoreType(trustStoreType).needClientAuth(needClientAuth).build();
     }
 
     @Override
     public JettySettings jettySettings() {
-        return JettySettings.Builder.aJettySettings()
-                .withAcceptors(jettyAcceptors)
-                .withAcceptQueueSize(jettyAcceptQueueSize)
-                .withRequestHeaderSize(jettyHeaderBufferSize)
-                .withStopTimeout(jettyStopTimeout)
-                .build();
+        return JettySettings.Builder.aJettySettings().withAcceptors(jettyAcceptors)
+                .withAcceptQueueSize(jettyAcceptQueueSize).withRequestHeaderSize(jettyHeaderBufferSize)
+                .withStopTimeout(jettyStopTimeout).build();
     }
 
     @Override
@@ -411,7 +413,7 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
-    	return matchingHeaders;
+        return matchingHeaders;
     }
 
     @Override
@@ -463,6 +465,43 @@ public class WireMockConfiguration implements Options {
     @Override
     public AsynchronousResponseSettings getAsynchronousResponseSettings() {
         return new AsynchronousResponseSettings(asynchronousResponseEnabled, asynchronousResponseThreads);
+    }
+
+    @Override
+    public void reloadFileExtensions() {
+        FileSource extensionsFileSource = filesRoot.child(EXTENSIONS_ROOT);
+        if (extensionsFileSource.exists()) {
+            try {
+                // Get json extension config
+                TextFile configFile = extensionsFileSource.getTextFileNamed(PLUGIN_CONFIG_FILE);
+                String configFileText = configFile.readContentsAsString();
+                if (StringUtils.isNotBlank(configFileText)) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    ExtensionFile extensionFile = mapper.readValue(configFileText, ExtensionFile.class);
+
+                    List<URLClassLoader> jarClassLoaders = new ArrayList<>();
+                    ClassLoader currentClassLoader = getCurrentClassLoader();
+                    for (TextFile textFile : extensionsFileSource.listFilesRecursively()) {
+                        if (StringUtils.endsWithIgnoreCase(textFile.getPath(), ".jar")) {
+                            URL jarUrl = new URL("jar", "", "file:" + textFile.getPath() + "!/");
+                            URLClassLoader cl = new URLClassLoader(new URL[] { jarUrl }, currentClassLoader);
+                            jarClassLoaders.add(cl);
+                        }
+                    }
+                    List<Extension> pluginExtensions = PluginLoader.initExtensionsInstances(extensionFile,
+                            jarClassLoaders);
+                    Extension[] extensionArray = new Extension[pluginExtensions.size()];
+                    this.extensions(pluginExtensions.toArray(extensionArray));
+                }
+            } catch (Exception ex) {
+                notifier().error("Exception loading extensions", ex);
+            }
+        }
+    }
+
+    private ClassLoader getCurrentClassLoader() {
+        final ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+        return contextCL == null ? ClassUtils.class.getClassLoader() : contextCL;
     }
 
 }

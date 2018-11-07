@@ -15,12 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
+import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.google.common.base.Optional;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+
+import java.net.MalformedURLException;
+import java.util.Map;
 
 public class WireMockConfigurationTest {
 
@@ -49,5 +56,20 @@ public class WireMockConfigurationTest {
         QueuedThreadPool threadPool = (QueuedThreadPool) wireMockConfiguration.threadPoolFactory().buildThreadPool(wireMockConfiguration);
 
         assertThat(threadPool.getMaxThreads(), is(maxThreads));
+    }
+    
+    @Test
+    public void testReloadFileExtensions() throws MalformedURLException {
+    	WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().usingFilesUnderDirectory("src/test/resources");
+    	wireMockConfiguration.reloadFileExtensions();
+    	
+    	
+    	Map<String, Extension> extensions = wireMockConfiguration.extensionsOfType(Extension.class);
+    	assertEquals("Two extensions must be loaded from json definition", 2, extensions.keySet().size());
+    	
+    	ResponseTemplateTransformer responseTemplateTransformer = (ResponseTemplateTransformer) extensions.get("response-template");
+    	assertNotNull("ResponseTemplateTransformer extension must be loaded", responseTemplateTransformer);
+    	assertNotNull("Json defined test helper 1 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest1"));
+    	assertNotNull("Json defined test helper 2 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest2"));
     }
 }
