@@ -21,10 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 
 class DiffLine<V> {
 
-    private final String requestAttribute;
-    private final NamedValueMatcher<V> pattern;
-    private final V value;
-    private final String printedPatternValue;
+    protected final String requestAttribute;
+    protected final NamedValueMatcher<V> pattern;
+    protected final V value;
+    protected final String printedPatternValue;
 
     public DiffLine(String requestAttribute, NamedValueMatcher<V> pattern, V value, String printedPatternValue) {
         this.requestAttribute = requestAttribute;
@@ -67,7 +67,7 @@ class DiffLine<V> {
             message += ". When using a regex, \"?\" should be \"\\\\?\"";
         }
 
-        if (pattern instanceof UrlPattern && !pattern.getExpected().startsWith("/")) {
+        if (pattern instanceof UrlPattern && pattern != UrlPattern.ANY && !pattern.getExpected().startsWith("/")) {
             message += ". URLs must start with a /";
         }
 

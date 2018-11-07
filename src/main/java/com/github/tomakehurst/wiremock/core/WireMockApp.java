@@ -54,7 +54,6 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
-    private static final PlainTextDiffRenderer diffRenderer = new PlainTextDiffRenderer();
 
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
@@ -64,6 +63,7 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+    private final PlainTextDiffRenderer diffRenderer;
 
     private final Recorder recorder;
 
@@ -79,11 +79,13 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+        Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
         stubMappings = new InMemoryStubMappings(
-            options.extensionsOfType(RequestMatcherExtension.class),
+                customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();
@@ -108,6 +110,7 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
         loadDefaultMappings();
     }

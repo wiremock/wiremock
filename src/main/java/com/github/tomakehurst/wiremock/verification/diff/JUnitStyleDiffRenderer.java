@@ -25,10 +25,6 @@ import static com.google.common.collect.FluentIterable.from;
 public class JUnitStyleDiffRenderer {
 
     public String render(Diff diff) {
-        if (diff.hasCustomMatcher()) {
-            return "(Request pattern had a custom matcher so no diff can be shown)";
-        }
-
         List<DiffLine<?>> lines = diff.getLines();
 
         String expected = Joiner.on("\n")

@@ -27,11 +27,8 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.matching.RequestMatcherExtension.NEVER;
@@ -40,6 +37,7 @@ import static com.github.tomakehurst.wiremock.matching.WeightedMatchResult.weigh
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static java.util.Arrays.asList;
 
 public class RequestPattern implements NamedValueMatcher<Request> {
 
@@ -52,50 +50,58 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     private final List<ContentPattern<?>> bodyPatterns;
     private final List<MultipartValuePattern> multipartPatterns;
 
-    private CustomMatcherDefinition customMatcherDefinition;
-    private ValueMatcher<Request> matcher;
+    private final CustomMatcherDefinition customMatcherDefinition;
+    private final ValueMatcher<Request> matcher;
+    private final boolean hasInlineCustomMatcher;
 
-    private final RequestMatcher defaultMatcher = new RequestMatcher() {
-        @Override
-        public MatchResult match(Request request) {
-            return MatchResult.aggregateWeighted(
-                weight(url.match(request.getUrl()), 10.0),
-                weight(method.match(request.getMethod()), 3.0),
-
-                weight(allHeadersMatchResult(request)),
-                weight(allQueryParamsMatch(request)),
-                weight(allCookiesMatch(request)),
-                weight(allBodyPatternsMatch(request)),
-                weight(allMultipartPatternsMatch(request))
-            );
-        }
-
-        @Override
-        public String getName() {
-            return "default";
-        }
-
-    };
-
-    public RequestPattern(UrlPattern url,
-                          RequestMethod method,
-                          Map<String, MultiValuePattern> headers,
-                          Map<String, MultiValuePattern> queryParams,
-                          Map<String, StringValuePattern> cookies,
-                          BasicCredentials basicAuthCredentials,
-                          List<ContentPattern<?>> bodyPatterns,
-                          CustomMatcherDefinition customMatcherDefinition,
-                          List<MultipartValuePattern> multiPattern) {
-        this.url = url;
+    public RequestPattern(final UrlPattern url,
+                          final RequestMethod method,
+                          final Map<String, MultiValuePattern> headers,
+                          final Map<String, MultiValuePattern> queryParams,
+                          final Map<String, StringValuePattern> cookies,
+                          final BasicCredentials basicAuthCredentials,
+                          final List<ContentPattern<?>> bodyPatterns,
+                          final CustomMatcherDefinition customMatcherDefinition,
+                          final ValueMatcher<Request> customMatcher,
+                          final List<MultipartValuePattern> multiPattern) {
+        this.url = firstNonNull(url, UrlPattern.ANY);
         this.method = firstNonNull(method, RequestMethod.ANY);
         this.headers = headers;
         this.queryParams = queryParams;
         this.cookies = cookies;
         this.basicAuthCredentials = basicAuthCredentials;
         this.bodyPatterns = bodyPatterns;
-        this.matcher = defaultMatcher;
         this.customMatcherDefinition = customMatcherDefinition;
         this.multipartPatterns = multiPattern;
+        this.hasInlineCustomMatcher = customMatcher != null;
+
+        this.matcher = new RequestMatcher() {
+            @Override
+            public MatchResult match(Request request) {
+                List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
+                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+
+                        weight(allHeadersMatchResult(request)),
+                        weight(allQueryParamsMatch(request)),
+                        weight(allCookiesMatch(request)),
+                        weight(allBodyPatternsMatch(request)),
+                        weight(allMultipartPatternsMatch(request))
+                ));
+
+                if (hasInlineCustomMatcher) {
+                    matchResults.add(weight(customMatcher.match(request)));
+                }
+
+                return MatchResult.aggregateWeighted(matchResults);
+            }
+
+            @Override
+            public String getName() {
+                return "request-matcher";
+            }
+
+        };
     }
 
     @JsonCreator
@@ -121,6 +127,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             basicAuthCredentials,
             bodyPatterns,
             customMatcherDefinition,
+            null,
             multiPattern
         );
     }
@@ -134,16 +141,16 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         null,
         null,
         null,
+        null,
         null
     );
 
     public RequestPattern(ValueMatcher<Request> customMatcher) {
-        this(null, null, null, null, null, null, null, null, null);
-        this.matcher = customMatcher;
+        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, null, customMatcher, null);
     }
 
     public RequestPattern(CustomMatcherDefinition customMatcherDefinition) {
-        this(null, null, null, null, null, null, null, customMatcherDefinition, null);
+        this(UrlPattern.ANY, RequestMethod.ANY, null, null, null, null, null, customMatcherDefinition, null, null);
     }
 
     @Override
@@ -159,7 +166,11 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         if (customMatcherDefinition != null) {
             RequestMatcherExtension requestMatcher =
                 firstNonNull(customMatchers.get(customMatcherDefinition.getName()), NEVER);
-            return requestMatcher.match(request, customMatcherDefinition.getParameters());
+
+            MatchResult standardMatchResult = matcher.match(request);
+            MatchResult customMatchResult = requestMatcher.match(request, customMatcherDefinition.getParameters());
+
+            return MatchResult.aggregate(standardMatchResult, customMatchResult);
         }
 
         return matcher.match(request);
@@ -360,8 +371,16 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return toString();
     }
 
+    public boolean hasInlineCustomMatcher() {
+        return hasInlineCustomMatcher;
+    }
+
+    public boolean hasNamedCustomMatcher() {
+        return customMatcherDefinition != null;
+    }
+
     public boolean hasCustomMatcher() {
-        return matcher != defaultMatcher;
+        return hasInlineCustomMatcher() || hasNamedCustomMatcher();
     }
 
     @Override

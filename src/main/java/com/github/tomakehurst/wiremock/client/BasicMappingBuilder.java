@@ -177,6 +177,24 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
+	@Override
+	public BasicMappingBuilder andMatching(ValueMatcher<Request> customMatcher) {
+    	requestPatternBuilder.andMatching(customMatcher);
+		return this;
+	}
+
+    @Override
+    public BasicMappingBuilder andMatching(String customRequestMatcherName) {
+        requestPatternBuilder.andMatching(customRequestMatcherName);
+        return this;
+    }
+
+    @Override
+    public BasicMappingBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
+        requestPatternBuilder.andMatching(customRequestMatcherName, parameters);
+        return this;
+    }
+
     @Override
 	public StubMapping build() {
 		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
