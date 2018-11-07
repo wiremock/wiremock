@@ -85,6 +85,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                           BasicCredentials basicAuthCredentials,
                           List<ContentPattern<?>> bodyPatterns,
                           CustomMatcherDefinition customMatcherDefinition,
+                          ValueMatcher<Request> customMatcher,
                           List<MultipartValuePattern> multiPattern) {
         this.url = url;
         this.method = firstNonNull(method, RequestMethod.ANY);
@@ -96,6 +97,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         this.matcher = defaultMatcher;
         this.customMatcherDefinition = customMatcherDefinition;
         this.multipartPatterns = multiPattern;
+
+        if (customMatcher != null) {
+            matcher = customMatcher;
+        }
     }
 
     @JsonCreator
@@ -121,6 +126,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             basicAuthCredentials,
             bodyPatterns,
             customMatcherDefinition,
+            null,
             multiPattern
         );
     }
@@ -128,6 +134,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
     public static RequestPattern ANYTHING = new RequestPattern(
         WireMock.anyUrl(),
         RequestMethod.ANY,
+        null,
         null,
         null,
         null,

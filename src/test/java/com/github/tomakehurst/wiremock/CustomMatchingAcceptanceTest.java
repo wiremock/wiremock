@@ -91,6 +91,7 @@ public class CustomMatchingAcceptanceTest {
 
         assertThat(client.get("/the/correct/one").statusCode(), is(200));
         assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+        assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
     }
 
     @Test
@@ -102,6 +103,7 @@ public class CustomMatchingAcceptanceTest {
 
         assertThat(client.get("/the/correct/one").statusCode(), is(200));
         assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+        assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
     }
 
     public static class MyRequestMatcher extends RequestMatcherExtension {

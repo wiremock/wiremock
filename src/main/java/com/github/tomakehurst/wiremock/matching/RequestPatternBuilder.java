@@ -181,20 +181,31 @@ public class RequestPatternBuilder {
     }
 
     public RequestPattern build() {
-        return customMatcher != null ?
-            new RequestPattern(customMatcher) :
-            customMatcherDefinition != null ?
-                new RequestPattern(customMatcherDefinition) :
-                new RequestPattern(
-                    url,
-                    method,
-                    headers.isEmpty() ? null : headers,
-                    queryParams.isEmpty() ? null : queryParams,
-                    cookies.isEmpty() ? null : cookies,
-                    basicCredentials,
-                    bodyPatterns.isEmpty() ? null : bodyPatterns,
-                    null,
-                    multiparts.isEmpty() ? null : multiparts
-                );
+        new RequestPattern(
+                url,
+                method,
+                headers.isEmpty() ? null : headers,
+                queryParams.isEmpty() ? null : queryParams,
+                cookies.isEmpty() ? null : cookies,
+                basicCredentials,
+                bodyPatterns.isEmpty() ? null : bodyPatterns,
+                customMatcherDefinition,
+                multiparts.isEmpty() ? null : multiparts
+        );
+//        return customMatcher != null ?
+//            new RequestPattern(customMatcher) :
+//            customMatcherDefinition != null ?
+//                new RequestPattern(customMatcherDefinition) :
+//                new RequestPattern(
+//                    url,
+//                    method,
+//                    headers.isEmpty() ? null : headers,
+//                    queryParams.isEmpty() ? null : queryParams,
+//                    cookies.isEmpty() ? null : cookies,
+//                    basicCredentials,
+//                    bodyPatterns.isEmpty() ? null : bodyPatterns,
+//                    null,
+//                    multiparts.isEmpty() ? null : multiparts
+//                );
     }
 }
