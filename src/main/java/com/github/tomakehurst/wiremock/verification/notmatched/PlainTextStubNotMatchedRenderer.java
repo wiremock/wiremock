@@ -19,12 +19,14 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.NearMiss;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
@@ -37,9 +39,12 @@ public class PlainTextStubNotMatchedRenderer extends NotMatchedRenderer {
         LoggedRequest loggedRequest = LoggedRequest.createFrom(request.getOriginalRequest().or(request));
         List<NearMiss> nearMisses = admin.findTopNearMissesFor(loggedRequest).getNearMisses();
 
+        Map<String, RequestMatcherExtension> customMatcherExtensions =
+                admin.getOptions().extensionsOfType(RequestMatcherExtension.class);
+
         PlainTextDiffRenderer diffRenderer = loggedRequest.containsHeader(CONSOLE_WIDTH_HEADER_KEY) ?
-            new PlainTextDiffRenderer(Integer.parseInt(loggedRequest.getHeader(CONSOLE_WIDTH_HEADER_KEY))) :
-            new PlainTextDiffRenderer();
+            new PlainTextDiffRenderer(customMatcherExtensions, Integer.parseInt(loggedRequest.getHeader(CONSOLE_WIDTH_HEADER_KEY))) :
+            new PlainTextDiffRenderer(customMatcherExtensions);
 
         String body;
         if (nearMisses.isEmpty()) {

@@ -16,9 +16,12 @@
 package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.common.Metadata;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.matching.ContentPattern;
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableMap;
 
@@ -47,6 +50,10 @@ public interface MappingBuilder {
     MappingBuilder withMetadata(Map<String, ?> metadata);
     MappingBuilder withMetadata(Metadata metadata);
     MappingBuilder withMetadata(Metadata.Builder metadata);
+
+    MappingBuilder andMatching(ValueMatcher<Request> requestMatcher);
+    MappingBuilder andMatching(String customRequestMatcherName);
+    MappingBuilder andMatching(String customRequestMatcherName, Parameters parameters);
 
     MappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder);
 

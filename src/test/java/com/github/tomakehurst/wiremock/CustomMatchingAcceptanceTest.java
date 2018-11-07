@@ -17,19 +17,20 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.client.WireMockBuilder;
+import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcher;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.requestMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -53,14 +54,14 @@ public class CustomMatchingAcceptanceTest {
     }
 
     @Test
-    public void inlineRequestMatcherExtension() {
+    public void customRequestMatcherCanBeDefinedAsClass() {
         wmRule.stubFor(requestMatching(new MyRequestMatcher()).willReturn(aResponse().withStatus(200)));
         assertThat(client.get("/correct").statusCode(), is(200));
         assertThat(client.get("/wrong").statusCode(), is(404));
     }
 
     @Test
-    public void inlineRequestMatcher() {
+    public void customRequestMatcherCanBeDefinedInline() {
         wmRule.stubFor(requestMatching(new RequestMatcher() {
             @Override
             public MatchResult match(Request request) {
@@ -78,9 +79,41 @@ public class CustomMatchingAcceptanceTest {
     }
 
     @Test
-    public void requestMatcherAsExtension() {
+    public void customRequestMatcherCanBeSpecifiedAsNamedExtension() {
         wm.register(requestMatching("path-contains-param", Parameters.one("path", "findthis")).willReturn(aResponse().withStatus(200)));
         assertThat(client.get("/findthis/thing").statusCode(), is(200));
+    }
+
+    @Test
+    public void inlineCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
+        wmRule.stubFor(get(urlPathMatching("/the/.*/one"))
+                .andMatching(new MyRequestMatcher())
+                .willReturn(ok())
+        );
+
+        assertThat(client.get("/the/correct/one").statusCode(), is(200));
+        assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+        assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
+    }
+
+    @Test
+    public void namedCustomRequestMatcherCanBeCombinedWithStandardMatchers() {
+        wm.register(get(urlPathMatching("/the/.*/one"))
+                .andMatching("path-contains-param", Parameters.one("path", "correct"))
+                .willReturn(ok())
+        );
+
+        assertThat(client.get("/the/correct/one").statusCode(), is(200));
+        assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+        assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
+    }
+
+    @Test(expected = AdminException.class)
+    public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
+        wm.register(get(urlPathMatching("/the/.*/one"))
+                .andMatching(new MyRequestMatcher())
+                .willReturn(ok())
+        );
     }
 
     public static class MyRequestMatcher extends RequestMatcherExtension {

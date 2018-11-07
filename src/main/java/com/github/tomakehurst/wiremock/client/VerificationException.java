@@ -60,7 +60,7 @@ public class VerificationException extends AssertionError {
         );
     }
 
-    public VerificationException(String messageStart, Diff diff) {
+    private VerificationException(String messageStart, Diff diff) {
         super(messageStart + " " + diff.toString());
     }
 

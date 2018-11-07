@@ -30,8 +30,8 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class RequestPatternBuilder {
 
-    private UrlPattern url;
-    private RequestMethod method;
+    private UrlPattern url = UrlPattern.ANY;
+    private RequestMethod method = RequestMethod.ANY;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
     private List<ContentPattern<?>> bodyPatterns = newArrayList();
@@ -101,7 +101,7 @@ public class RequestPatternBuilder {
         if (requestPattern.getBodyPatterns() != null) {
             builder.bodyPatterns = requestPattern.getBodyPatterns();
         }
-        if (requestPattern.hasCustomMatcher()) {
+        if (requestPattern.hasInlineCustomMatcher()) {
             builder.customMatcher = requestPattern.getMatcher();
         }
         if (requestPattern.getMultipartPatterns() != null) {
@@ -166,21 +166,32 @@ public class RequestPatternBuilder {
         return withRequestBodyPart(multiPatternBuilder.matchingType(MultipartValuePattern.MatchingType.ALL).build());
     }
 
+    public RequestPatternBuilder andMatching(ValueMatcher<Request> customMatcher) {
+        this.customMatcher = customMatcher;
+        return this;
+    }
+
+    public RequestPatternBuilder andMatching(String customRequestMatcherName) {
+        return andMatching(customRequestMatcherName, Parameters.empty());
+    }
+
+    public RequestPatternBuilder andMatching(String customRequestMatcherName, Parameters parameters) {
+        this.customMatcherDefinition = new CustomMatcherDefinition(customRequestMatcherName, parameters);
+        return this;
+    }
+
     public RequestPattern build() {
-        return customMatcher != null ?
-            new RequestPattern(customMatcher) :
-            customMatcherDefinition != null ?
-                new RequestPattern(customMatcherDefinition) :
-                new RequestPattern(
-                    url,
-                    method,
-                    headers.isEmpty() ? null : headers,
-                    queryParams.isEmpty() ? null : queryParams,
-                    cookies.isEmpty() ? null : cookies,
-                    basicCredentials,
-                    bodyPatterns.isEmpty() ? null : bodyPatterns,
-                    null,
-                    multiparts.isEmpty() ? null : multiparts
-                );
+        return new RequestPattern(
+                url,
+                method,
+                headers.isEmpty() ? null : headers,
+                queryParams.isEmpty() ? null : queryParams,
+                cookies.isEmpty() ? null : cookies,
+                basicCredentials,
+                bodyPatterns.isEmpty() ? null : bodyPatterns,
+                customMatcherDefinition,
+                customMatcher,
+                multiparts.isEmpty() ? null : multiparts
+        );
     }
 }
