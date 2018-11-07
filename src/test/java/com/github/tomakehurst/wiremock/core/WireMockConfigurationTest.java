@@ -21,9 +21,7 @@ import com.google.common.base.Optional;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.net.MalformedURLException;
@@ -60,16 +58,16 @@ public class WireMockConfigurationTest {
     
     @Test
     public void testReloadFileExtensions() throws MalformedURLException {
-    	WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().usingFilesUnderDirectory("src/test/resources");
+    	WireMockConfiguration wireMockConfiguration = WireMockConfiguration.wireMockConfig().usingFilesUnderDirectory("src/test/resources/extensionsTestFolder");
     	wireMockConfiguration.reloadFileExtensions();
     	
     	
     	Map<String, Extension> extensions = wireMockConfiguration.extensionsOfType(Extension.class);
-    	assertEquals("Two extensions must be loaded from json definition", 2, extensions.keySet().size());
+    	assertThat("Two extensions must be loaded from json definition", extensions.keySet().size(), is(2));
     	
     	ResponseTemplateTransformer responseTemplateTransformer = (ResponseTemplateTransformer) extensions.get("response-template");
-    	assertNotNull("ResponseTemplateTransformer extension must be loaded", responseTemplateTransformer);
-    	assertNotNull("Json defined test helper 1 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest1"));
-    	assertNotNull("Json defined test helper 2 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest2"));
+    	assertThat("ResponseTemplateTransformer extension must be loaded", responseTemplateTransformer, is(notNullValue()));
+    	assertThat("Json defined test helper 1 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest1"), is(notNullValue()));
+    	assertThat("Json defined test helper 2 should be loaded", responseTemplateTransformer.getHandlebars().helper("helpertest2"), is(notNullValue()));
     }
 }

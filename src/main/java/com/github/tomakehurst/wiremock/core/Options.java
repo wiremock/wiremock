@@ -65,5 +65,5 @@ public interface Options {
     boolean getHttpsRequiredForAdminApi();
     NotMatchedRenderer getNotMatchedRenderer();
     AsynchronousResponseSettings getAsynchronousResponseSettings();
-	void reloadFileExtensions();
+    void reloadFileExtensions();
 }

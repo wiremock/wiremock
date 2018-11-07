@@ -77,7 +77,7 @@ public class WireMockApp implements StubServer, Admin {
         this.browserProxyingEnabled = options.browserProxyingEnabled();
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
-        //options.reloadFileExtensions();
+        options.reloadFileExtensions();
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
         stubMappings = new InMemoryStubMappings(

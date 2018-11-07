@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.plugin.ExtensionFile;
+import com.github.tomakehurst.wiremock.extension.plugin.PluginInitializationException;
 import com.github.tomakehurst.wiremock.extension.plugin.PluginLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -55,6 +56,7 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -354,16 +356,26 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public HttpsSettings httpsSettings() {
-        return new HttpsSettings.Builder().port(httpsPort).keyStorePath(keyStorePath).keyStorePassword(keyStorePassword)
-                .keyStoreType(keyStoreType).trustStorePath(trustStorePath).trustStorePassword(trustStorePassword)
-                .trustStoreType(trustStoreType).needClientAuth(needClientAuth).build();
+        return new HttpsSettings.Builder()
+                .port(httpsPort)
+                .keyStorePath(keyStorePath)
+                .keyStorePassword(keyStorePassword)
+                .keyStoreType(keyStoreType)
+                .trustStorePath(trustStorePath)
+                .trustStorePassword(trustStorePassword)
+                .trustStoreType(trustStoreType)
+                .needClientAuth(needClientAuth)
+                .build();
     }
 
     @Override
     public JettySettings jettySettings() {
-        return JettySettings.Builder.aJettySettings().withAcceptors(jettyAcceptors)
-                .withAcceptQueueSize(jettyAcceptQueueSize).withRequestHeaderSize(jettyHeaderBufferSize)
-                .withStopTimeout(jettyStopTimeout).build();
+        return JettySettings.Builder.aJettySettings()
+                .withAcceptors(jettyAcceptors)
+                .withAcceptQueueSize(jettyAcceptQueueSize)
+                .withRequestHeaderSize(jettyHeaderBufferSize)
+                .withStopTimeout(jettyStopTimeout)
+                .build();
     }
 
     @Override
@@ -493,7 +505,7 @@ public class WireMockConfiguration implements Options {
                     Extension[] extensionArray = new Extension[pluginExtensions.size()];
                     this.extensions(pluginExtensions.toArray(extensionArray));
                 }
-            } catch (Exception ex) {
+            } catch (PluginInitializationException | IOException | RuntimeException ex) {
                 notifier().error("Exception loading extensions", ex);
             }
         }
