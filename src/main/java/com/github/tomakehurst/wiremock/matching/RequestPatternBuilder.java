@@ -30,8 +30,8 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class RequestPatternBuilder {
 
-    private UrlPattern url;
-    private RequestMethod method;
+    private UrlPattern url = UrlPattern.ANY;
+    private RequestMethod method = RequestMethod.ANY;
     private Map<String, MultiValuePattern> headers = newLinkedHashMap();
     private Map<String, MultiValuePattern> queryParams = newLinkedHashMap();
     private List<ContentPattern<?>> bodyPatterns = newArrayList();
@@ -181,7 +181,7 @@ public class RequestPatternBuilder {
     }
 
     public RequestPattern build() {
-        new RequestPattern(
+        return new RequestPattern(
                 url,
                 method,
                 headers.isEmpty() ? null : headers,
@@ -190,22 +190,8 @@ public class RequestPatternBuilder {
                 basicCredentials,
                 bodyPatterns.isEmpty() ? null : bodyPatterns,
                 customMatcherDefinition,
+                customMatcher,
                 multiparts.isEmpty() ? null : multiparts
         );
-//        return customMatcher != null ?
-//            new RequestPattern(customMatcher) :
-//            customMatcherDefinition != null ?
-//                new RequestPattern(customMatcherDefinition) :
-//                new RequestPattern(
-//                    url,
-//                    method,
-//                    headers.isEmpty() ? null : headers,
-//                    queryParams.isEmpty() ? null : queryParams,
-//                    cookies.isEmpty() ? null : cookies,
-//                    basicCredentials,
-//                    bodyPatterns.isEmpty() ? null : bodyPatterns,
-//                    null,
-//                    multiparts.isEmpty() ? null : multiparts
-//                );
     }
 }

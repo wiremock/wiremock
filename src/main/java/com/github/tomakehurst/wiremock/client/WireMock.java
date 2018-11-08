@@ -329,7 +329,7 @@ public class WireMock {
     }
 
     public static UrlPattern anyUrl() {
-        return new UrlPattern(new AnythingPattern(), false);
+        return UrlPattern.ANY;
     }
 
 	public static CountMatchingStrategy lessThan(int expected) {
