@@ -102,8 +102,8 @@ public class CustomMatchingAcceptanceTest {
                 .willReturn(ok())
         );
 
-//        assertThat(client.get("/the/correct/one").statusCode(), is(200));
-//        assertThat(client.get("/the/wrong/one").statusCode(), is(404));
+        assertThat(client.get("/the/correct/one").statusCode(), is(200));
+        assertThat(client.get("/the/wrong/one").statusCode(), is(404));
         assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
     }
 
