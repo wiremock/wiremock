@@ -15,12 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.extension.Extension;
 import com.github.tomakehurst.wiremock.extension.ExtensionLoader;
 import com.github.tomakehurst.wiremock.extension.plugin.ExtensionFile;
-import com.github.tomakehurst.wiremock.extension.plugin.PluginInitializationException;
 import com.github.tomakehurst.wiremock.extension.plugin.PluginLoader;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
@@ -488,8 +486,7 @@ public class WireMockConfiguration implements Options {
                 TextFile configFile = extensionsFileSource.getTextFileNamed(PLUGIN_CONFIG_FILE);
                 String configFileText = configFile.readContentsAsString();
                 if (StringUtils.isNotBlank(configFileText)) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    ExtensionFile extensionFile = mapper.readValue(configFileText, ExtensionFile.class);
+                    ExtensionFile extensionFile = Json.read(configFileText, ExtensionFile.class);
 
                     List<URLClassLoader> jarClassLoaders = new ArrayList<>();
                     ClassLoader currentClassLoader = getCurrentClassLoader();
@@ -505,7 +502,7 @@ public class WireMockConfiguration implements Options {
                     Extension[] extensionArray = new Extension[pluginExtensions.size()];
                     this.extensions(pluginExtensions.toArray(extensionArray));
                 }
-            } catch (PluginInitializationException | IOException | RuntimeException ex) {
+            } catch (IOException | RuntimeException ex) {
                 notifier().error("Exception loading extensions", ex);
             }
         }

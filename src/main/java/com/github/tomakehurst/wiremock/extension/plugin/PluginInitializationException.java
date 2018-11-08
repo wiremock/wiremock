@@ -1,6 +1,6 @@
 package com.github.tomakehurst.wiremock.extension.plugin;
 
-public class PluginInitializationException extends Exception {
+public class PluginInitializationException extends RuntimeException {
 
     /**
      * 

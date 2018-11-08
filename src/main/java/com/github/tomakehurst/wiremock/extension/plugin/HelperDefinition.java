@@ -1,24 +1,26 @@
 package com.github.tomakehurst.wiremock.extension.plugin;
 
-public class HelperDefinition {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private String helperName;
-	private String helperClass;
+public final class HelperDefinition {
 
-	public String getHelperName() {
-		return helperName;
-	}
+    private final String helperName;
+    private final String helperClass;
 
-	public void setHelperName(String helperName) {
-		this.helperName = helperName;
-	}
+    @JsonCreator
+    public HelperDefinition(@JsonProperty("helperName") String helperName,
+            @JsonProperty("helperClass") String helperClass) {
+        this.helperName = helperName;
+        this.helperClass = helperClass;
+    }
 
-	public String getHelperClass() {
-		return helperClass;
-	}
+    public String getHelperName() {
+        return helperName;
+    }
 
-	public void setHelperClass(String helperClass) {
-		this.helperClass = helperClass;
-	}
+    public String getHelperClass() {
+        return helperClass;
+    }
 
 }

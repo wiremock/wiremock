@@ -1,28 +1,36 @@
 package com.github.tomakehurst.wiremock.extension.plugin;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ExtensionFile {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private List<HelperDefinition> helpers = new ArrayList<>();
+public final class ExtensionFile {
 
-	private List<ExtensionDefinition> extensionList = new ArrayList<>();
+    private final List<HelperDefinition> helpers;
 
-	public List<HelperDefinition> getHelpers() {
-		return helpers;
-	}
+    private final List<ExtensionDefinition> extensionList;
 
-	public void setHelpers(List<HelperDefinition> helpers) {
-		this.helpers = helpers;
-	}
+    @JsonCreator
+    public ExtensionFile(@JsonProperty("helpers") List<HelperDefinition> helpers,
+            @JsonProperty("extensionList") List<ExtensionDefinition> extensionList) {
+        this.helpers = helpers;
+        this.extensionList = extensionList;
+    }
 
-	public List<ExtensionDefinition> getExtensionList() {
-		return extensionList;
-	}
+    public List<HelperDefinition> getHelpers() {
+        if (helpers == null) {
+            return Collections.emptyList();
+        }
+        return helpers;
+    }
 
-	public void setExtensionList(List<ExtensionDefinition> extensionList) {
-		this.extensionList = extensionList;
-	}
+    public List<ExtensionDefinition> getExtensionList() {
+        if (extensionList == null) {
+            return Collections.emptyList();
+        }
+        return extensionList;
+    }
 
 }

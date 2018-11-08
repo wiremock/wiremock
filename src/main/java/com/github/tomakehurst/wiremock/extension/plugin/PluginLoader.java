@@ -19,18 +19,18 @@ public class PluginLoader {
     private static final String CANT_INSTANTIATE_HELPER_ERROR = "Can't instantiate helper %s of type %s";
     private static final String CANT_INSTANTIATE_EXTENSION_ERROR = "Can't instantiate extension %s";
     private static final String CANT_INSTANTIATE_PARAM_ERROR = "Can't instantiate param of type %s with value %s";
-    
+
     private static final String CANT_FIND_PARAM_CONSTRUCTOR_ERROR = "Can't find constructor for param type %s";
     private static final String CANT_FIND_EXTENSION_CONSTRUCTOR_ERROR = "Can't find apropiate constructor for extension type %s";
-    
-    public static final String HELPER_REF = "@helpers";    
+
+    public static final String HELPER_REF = "@helpers";
 
     private PluginLoader() {
 
     }
 
     public static List<Extension> initExtensionsInstances(ExtensionFile extensionFile,
-            List<URLClassLoader> jarClassLoaders) throws PluginInitializationException {
+            List<URLClassLoader> jarClassLoaders) {
         // Load all helpers in new object HashMap<String, Helper>
         Map<String, Helper<?>> helpersInstances = initHelpers(extensionFile, jarClassLoaders);
         // Load all extensions and instantiate them, modify param if value = @helpers
@@ -38,7 +38,7 @@ public class PluginLoader {
     }
 
     private static List<Extension> initExtensions(Map<String, Helper<?>> helpersInstances, ExtensionFile extensionFile,
-            List<URLClassLoader> jarClassLoaders) throws PluginInitializationException {
+            List<URLClassLoader> jarClassLoaders) {
         List<Extension> extensions = new ArrayList<>();
         for (ExtensionDefinition extensionDefinition : extensionFile.getExtensionList()) {
             extensions.add(initExtension(extensionDefinition, helpersInstances, jarClassLoaders));
@@ -47,8 +47,7 @@ public class PluginLoader {
     }
 
     private static Extension initExtension(ExtensionDefinition extensionDefinition,
-            Map<String, Helper<?>> helpersInstances, List<URLClassLoader> jarClassLoaders)
-            throws PluginInitializationException {
+            Map<String, Helper<?>> helpersInstances, List<URLClassLoader> jarClassLoaders) {
         Class<Extension> extensionClass = (Class<Extension>) getClassFromAnyLoader(jarClassLoaders,
                 extensionDefinition.getExtensionClassname());
 
@@ -71,7 +70,8 @@ public class PluginLoader {
                 Object[] argArray = new Object[initargs.size()];
                 return extensionConstructor.newInstance(initargs.toArray(argArray));
             }
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException
+                | IllegalArgumentException e) {
             throw new PluginInitializationException(
                     String.format(CANT_INSTANTIATE_EXTENSION_ERROR, extensionDefinition.getExtensionClassname()), e);
         }
@@ -79,8 +79,7 @@ public class PluginLoader {
     }
 
     private static Constructor<Extension> extractConstructor(Class<Extension> extensionClass,
-            List<ArgumentDefinition> arguments, List<URLClassLoader> jarClassLoaders)
-            throws PluginInitializationException {
+            List<ArgumentDefinition> arguments, List<URLClassLoader> jarClassLoaders) {
 
         Class<?>[] parameterTypes = new Class[arguments.size()];
         for (int i = 0; i < arguments.size(); i++) {
@@ -94,8 +93,7 @@ public class PluginLoader {
         }
     }
 
-    private static Object instantiateParam(ArgumentDefinition definition, List<URLClassLoader> jarClassLoaders)
-            throws PluginInitializationException {
+    private static Object instantiateParam(ArgumentDefinition definition, List<URLClassLoader> jarClassLoaders) {
         Class paramClass = getClassFromAnyLoader(jarClassLoaders, definition.getType());
         if (paramClass.isPrimitive()) {
             paramClass = ClassUtils.primitiveToWrapper(paramClass);
@@ -116,8 +114,8 @@ public class PluginLoader {
 
     }
 
-    private static Map<String, Helper<?>> initHelpers(ExtensionFile extensionFile, List<URLClassLoader> jarClassLoaders)
-            throws PluginInitializationException {
+    private static Map<String, Helper<?>> initHelpers(ExtensionFile extensionFile,
+            List<URLClassLoader> jarClassLoaders) {
         Map<String, Helper<?>> instantiatedHelpers = new HashMap<>();
         for (HelperDefinition helperDefinition : extensionFile.getHelpers()) {
             Class<Helper<?>> helperClass = (Class<Helper<?>>) getClassFromAnyLoader(jarClassLoaders,
@@ -132,8 +130,7 @@ public class PluginLoader {
         return instantiatedHelpers;
     }
 
-    private static Class<?> getClassFromAnyLoader(List<URLClassLoader> jarClassLoaders, String className)
-            throws PluginInitializationException {
+    private static Class<?> getClassFromAnyLoader(List<URLClassLoader> jarClassLoaders, String className) {
         try {
             return ClassUtils.getClass(className);
         } catch (ClassNotFoundException e) {

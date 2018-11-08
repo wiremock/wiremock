@@ -1,28 +1,33 @@
 package com.github.tomakehurst.wiremock.extension.plugin;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ExtensionDefinition {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	private String extensionClassname;
+public final class ExtensionDefinition {
 
-	private List<ArgumentDefinition> arguments = new ArrayList<>();
+    private final String extensionClassname;
 
-	public String getExtensionClassname() {
-		return extensionClassname;
-	}
+    private final List<ArgumentDefinition> arguments;
 
-	public void setExtensionClassname(String extensionClassname) {
-		this.extensionClassname = extensionClassname;
-	}
+    @JsonCreator
+    public ExtensionDefinition(@JsonProperty("extensionClassname") String extensionClassname,
+            @JsonProperty("arguments") List<ArgumentDefinition> arguments) {
+        this.extensionClassname = extensionClassname;
+        this.arguments = arguments;
+    }
 
-	public List<ArgumentDefinition> getArguments() {
-		return arguments;
-	}
+    public String getExtensionClassname() {
+        return extensionClassname;
+    }
 
-	public void setArguments(List<ArgumentDefinition> arguments) {
-		this.arguments = arguments;
-	}
+    public List<ArgumentDefinition> getArguments() {
+        if (arguments == null) {
+            return Collections.emptyList();
+        }
+        return arguments;
+    }
 
 }
