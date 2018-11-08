@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.client.WireMockBuilder;
+import com.github.tomakehurst.wiremock.common.AdminException;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -105,6 +106,14 @@ public class CustomMatchingAcceptanceTest {
         assertThat(client.get("/the/correct/one").statusCode(), is(200));
         assertThat(client.get("/the/wrong/one").statusCode(), is(404));
         assertThat(client.postJson("/the/correct/one", "{}").statusCode(), is(404));
+    }
+
+    @Test(expected = AdminException.class)
+    public void throwsExecptionIfInlineCustomMatcherUsedWithRemote() {
+        wm.register(get(urlPathMatching("/the/.*/one"))
+                .andMatching(new MyRequestMatcher())
+                .willReturn(ok())
+        );
     }
 
     public static class MyRequestMatcher extends RequestMatcherExtension {
