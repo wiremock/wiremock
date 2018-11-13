@@ -44,6 +44,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
         new ImmutableMap.Builder<String, Class<? extends StringValuePattern>>()
             .put("equalTo", EqualToPattern.class)
+            .put("equalToXmd", EqualToXmdPattern.class)
             .put("equalToJson", EqualToJsonPattern.class)
             .put("matchesJsonPath", MatchesJsonPathPattern.class)
             .put("equalToXml", EqualToXmlPattern.class)
