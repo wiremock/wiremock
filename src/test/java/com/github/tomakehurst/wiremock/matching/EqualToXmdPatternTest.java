@@ -23,9 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class EqualToXmdPatternTest {
@@ -43,19 +40,6 @@ public class EqualToXmdPatternTest {
     @After
     public void cleanup() {
         LocalNotifier.set(null);
-    }
-
-    @Test
-    public void returnsNoMatchAnd1DistanceWhenActualIsNotXml() {
-        EqualToXmlPattern pattern = new EqualToXmlPattern(
-            "<things>\n" +
-                "    <thing characteristic=\"tepid\"/>\n" +
-                "    <thing characteristic=\"tedious\"/>\n" +
-                "</things>"
-        );
-        MatchResult matchResult = pattern.match("{ \"markup\": \"wrong\" }");
-        assertFalse(matchResult.isExactMatch());
-        assertThat(matchResult.getDistance(), is(1.0));
     }
 
     @Test
