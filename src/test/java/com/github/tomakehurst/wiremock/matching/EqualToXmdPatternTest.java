@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 package com.github.tomakehurst.wiremock.matching;
-import com.github.tomakehurst.wiremock.client.WireMock;
+
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.common.Notifier;
 import java.util.Locale;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsString;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
 public class EqualToXmdPatternTest {
     private Mockery context;
+
     @Before
     public void init() {
         context = new Mockery();
@@ -42,10 +39,12 @@ public class EqualToXmdPatternTest {
         // this test succeed even for users with non-English default locales.
         Locale.setDefault(Locale.ENGLISH);
     }
+
     @After
     public void cleanup() {
         LocalNotifier.set(null);
     }
+
     @Test
     public void returnsNoMatchAnd1DistanceWhenActualIsNotXml() {
         EqualToXmlPattern pattern = new EqualToXmlPattern(
@@ -58,6 +57,7 @@ public class EqualToXmdPatternTest {
         assertFalse(matchResult.isExactMatch());
         assertThat(matchResult.getDistance(), is(1.0));
     }
+
     @Test
     public void returnsExactMatchWhenDocumentsAreIdentical() {
         String testXML = "<things>\n" +
