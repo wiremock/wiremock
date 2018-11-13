@@ -15,6 +15,9 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -317,5 +320,28 @@ public class PlainTextDiffRendererTest {
         System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-multipart.txt")));
+    }
+
+    @Test
+    public void showsErrorInDiffWhenCustomMatcherNotSatisfiedInMixedStub() {
+        Diff diff = new Diff(post("/thing")
+                .withName("Standard and custom matched stub")
+                .andMatching(new ValueMatcher<Request>() {
+                    @Override
+                    public MatchResult match(Request value) {
+                        return MatchResult.noMatch();
+                    }
+                })
+                .build(),
+
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_mixed-matchers.txt")));
     }
 }

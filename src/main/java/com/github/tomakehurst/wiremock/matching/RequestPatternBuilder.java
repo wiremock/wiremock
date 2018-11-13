@@ -101,7 +101,7 @@ public class RequestPatternBuilder {
         if (requestPattern.getBodyPatterns() != null) {
             builder.bodyPatterns = requestPattern.getBodyPatterns();
         }
-        if (requestPattern.hasCustomMatcher()) {
+        if (requestPattern.hasInlineCustomMatcher()) {
             builder.customMatcher = requestPattern.getMatcher();
         }
         if (requestPattern.getMultipartPatterns() != null) {

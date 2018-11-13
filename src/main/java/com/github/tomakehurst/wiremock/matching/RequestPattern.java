@@ -52,7 +52,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
 
     private final CustomMatcherDefinition customMatcherDefinition;
     private final ValueMatcher<Request> matcher;
-    private final boolean hasCustomMatcher;
+    private final boolean hasInlineCustomMatcher;
 
     public RequestPattern(final UrlPattern url,
                           final RequestMethod method,
@@ -73,7 +73,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         this.bodyPatterns = bodyPatterns;
         this.customMatcherDefinition = customMatcherDefinition;
         this.multipartPatterns = multiPattern;
-        this.hasCustomMatcher = customMatcher != null;
+        this.hasInlineCustomMatcher = customMatcher != null;
 
         this.matcher = new RequestMatcher() {
             @Override
@@ -89,7 +89,7 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                         weight(allMultipartPatternsMatch(request))
                 ));
 
-                if (hasCustomMatcher) {
+                if (hasInlineCustomMatcher) {
                     matchResults.add(weight(customMatcher.match(request)));
                 }
 
@@ -371,8 +371,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return toString();
     }
 
+    public boolean hasInlineCustomMatcher() {
+        return hasInlineCustomMatcher;
+    }
+
     public boolean hasCustomMatcher() {
-        return hasCustomMatcher;
+        return hasInlineCustomMatcher || customMatcherDefinition != null;
     }
 
     @Override

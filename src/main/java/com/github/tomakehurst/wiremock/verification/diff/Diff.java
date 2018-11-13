@@ -22,10 +22,8 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.BaseEncoding;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +150,11 @@ public class Diff {
             }
         }
 
+        if (requestPattern.hasInlineCustomMatcher()) {
+            CustomMatcherLine customMatcherLine = new CustomMatcherLine(requestPattern.getMatcher(), request);
+            builder.add(customMatcherLine);
+        }
+
         return builder.build();
     }
 
@@ -226,6 +229,6 @@ public class Diff {
 
 
     public boolean hasCustomMatcher() {
-        return requestPattern.hasCustomMatcher();
+        return requestPattern.hasInlineCustomMatcher();
     }
 }
