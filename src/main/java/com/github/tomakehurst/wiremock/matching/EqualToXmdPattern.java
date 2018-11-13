@@ -25,7 +25,7 @@ public class EqualToXmdPattern extends StringValuePattern {
     private Validator validator = Validator.forLanguage(Languages.W3C_XML_SCHEMA_NS_URI);
 
     public EqualToXmdPattern(
-        @JsonProperty("equalToXMD") String testValue
+        @JsonProperty("equalToXmd") String testValue
     ) {
         super(testValue);
         validator.setSchemaSource(Input.fromString(testValue).build());
