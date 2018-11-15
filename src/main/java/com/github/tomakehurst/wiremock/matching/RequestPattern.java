@@ -375,8 +375,12 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         return hasInlineCustomMatcher;
     }
 
+    public boolean hasNamedCustomMatcher() {
+        return customMatcherDefinition != null;
+    }
+
     public boolean hasCustomMatcher() {
-        return hasInlineCustomMatcher || customMatcherDefinition != null;
+        return hasInlineCustomMatcher() || hasNamedCustomMatcher();
     }
 
     @Override

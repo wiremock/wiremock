@@ -56,6 +56,10 @@ public class Diff {
     }
 
     public List<DiffLine<?>> getLines() {
+        return getLines(Collections.<String, RequestMatcherExtension>emptyMap());
+    }
+
+    public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
         ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
@@ -151,9 +155,18 @@ public class Diff {
         }
 
         if (requestPattern.hasInlineCustomMatcher()) {
-            CustomMatcherLine customMatcherLine = new CustomMatcherLine(requestPattern.getMatcher(), request);
+            InlineCustomMatcherLine customMatcherLine = new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
             builder.add(customMatcherLine);
         }
+
+        if (requestPattern.hasNamedCustomMatcher()) {
+            RequestMatcherExtension customMatcher = customMatcherExtensions.get(requestPattern.getCustomMatcher().getName());
+            if (customMatcher != null) {
+                NamedCustomMatcherLine namedCustomMatcherLine = new NamedCustomMatcherLine(customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
+                builder.add(namedCustomMatcherLine);
+            }
+        }
+
 
         return builder.build();
     }

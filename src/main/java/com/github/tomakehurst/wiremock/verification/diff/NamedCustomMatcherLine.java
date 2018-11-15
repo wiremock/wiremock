@@ -15,13 +15,24 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
-public class CustomMatcherLine extends DiffLine<Request> {
+public class NamedCustomMatcherLine extends DiffLine<Request> {
 
-    public CustomMatcherLine(ValueMatcher<Request> customMatcher, Request request) {
-        super("custom matcher", new CustomMatcherWrapper(customMatcher), new EmptyToStringRequestWrapper(request), "[custom matcher]");
+    private final RequestMatcherExtension customMatcher;
+    private final Parameters parameters;
+
+    public NamedCustomMatcherLine(RequestMatcherExtension customMatcher, Parameters parameters, Request request) {
+        super("custom matcher", customMatcher, new EmptyToStringRequestWrapper(request), "[custom matcher: " + customMatcher.getName() + "]");
+        this.customMatcher = customMatcher;
+        this.parameters = parameters;
     }
 
+    @Override
+    protected boolean isExactMatch() {
+        return customMatcher.match(value, parameters).isExactMatch();
+    }
 }
