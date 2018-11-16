@@ -67,7 +67,7 @@ class DiffLine<V> {
             message += ". When using a regex, \"?\" should be \"\\\\?\"";
         }
 
-        if (pattern instanceof UrlPattern && !pattern.getExpected().startsWith("/")) {
+        if (pattern instanceof UrlPattern && pattern != UrlPattern.ANY && !pattern.getExpected().startsWith("/")) {
             message += ". URLs must start with a /";
         }
 

@@ -367,6 +367,27 @@ public class PlainTextDiffRendererTest {
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_mixed-matchers-named-custom.txt")));
     }
 
+    @Test
+    public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
+        Diff diff = new Diff(requestMatching(new ValueMatcher<Request>() {
+                    @Override
+                    public MatchResult match(Request value) {
+                        return MatchResult.noMatch();
+                    }
+                })
+                .build(),
+
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_only-custom_matcher.txt")));
+    }
+
     public static class MyCustomMatcher extends RequestMatcherExtension {
 
         @Override
