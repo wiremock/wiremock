@@ -20,12 +20,12 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.validation.Languages;
 import org.xmlunit.validation.Validator;
 
-public class EqualToXmdPattern extends StringValuePattern {
+public class EqualToXsdPattern extends StringValuePattern {
 
     private Validator validator = Validator.forLanguage(Languages.W3C_XML_SCHEMA_NS_URI);
 
-    public EqualToXmdPattern(
-        @JsonProperty("equalToXmd") String testValue
+    public EqualToXsdPattern(
+        @JsonProperty("equalToXsd") String testValue
     ) {
         super(testValue);
         validator.setSchemaSource(Input.fromString(testValue).build());

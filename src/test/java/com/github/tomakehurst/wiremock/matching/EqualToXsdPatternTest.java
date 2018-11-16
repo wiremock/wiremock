@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class EqualToXmdPatternTest {
+public class EqualToXsdPatternTest {
     private Mockery context;
 
     @Before
@@ -48,7 +48,7 @@ public class EqualToXmdPatternTest {
             "     <thing characteristic=\"tepid\"/>\n" +
             "     <thing characteristic=\"tedious\"/>\n" +
             "  </things>";
-        String testXMD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        String testXSD = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
             "  <xs:element name=\"things\" type=\"thingsType\"/>\n" +
             "  <xs:complexType name=\"thingType\">\n" +
@@ -64,7 +64,7 @@ public class EqualToXmdPatternTest {
             "    </xs:sequence>\n" +
             "  </xs:complexType>\n" +
             "</xs:schema>";
-        EqualToXmdPattern pattern = new EqualToXmdPattern(testXMD);
+        EqualToXsdPattern pattern = new EqualToXsdPattern(testXSD);
         assertTrue(pattern.match(testXML).isExactMatch());
     }
 }

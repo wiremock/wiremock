@@ -25,8 +25,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -44,7 +42,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
     private static final Map<String, Class<? extends StringValuePattern>> PATTERNS =
         new ImmutableMap.Builder<String, Class<? extends StringValuePattern>>()
             .put("equalTo", EqualToPattern.class)
-            .put("equalToXmd", EqualToXmdPattern.class)
+            .put("equalToXsd", EqualToXsdPattern.class)
             .put("equalToJson", EqualToJsonPattern.class)
             .put("matchesJsonPath", MatchesJsonPathPattern.class)
             .put("equalToXml", EqualToXmlPattern.class)
