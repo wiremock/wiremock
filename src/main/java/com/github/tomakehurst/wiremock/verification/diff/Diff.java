@@ -164,6 +164,8 @@ public class Diff {
             if (customMatcher != null) {
                 NamedCustomMatcherLine namedCustomMatcherLine = new NamedCustomMatcherLine(customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
                 builder.add(namedCustomMatcherLine);
+            } else {
+                builder.add(new SectionDelimiter("[custom matcher: " + requestPattern.getCustomMatcher().getName() + "]"));
             }
         }
 
@@ -242,6 +244,6 @@ public class Diff {
 
 
     public boolean hasCustomMatcher() {
-        return requestPattern.hasInlineCustomMatcher();
+        return requestPattern.hasInlineCustomMatcher() || requestPattern.hasNamedCustomMatcher();
     }
 }
