@@ -65,4 +65,56 @@ public class StubMappingTest {
 
         assertThat(stub.getInsertionIndex(), is(42L));
     }
+
+    @Test
+    public void deserialisesArrayStubsAsArrays() {
+        String json =
+                "[" +
+                        "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"method\": \"ANY-1\",\n" +
+                        "        \"url\": \"/\"\n" +
+                        "    },\n" +
+                        "    \"response\": {\n" +
+                        "        \"status\": 200\n" +
+                        "    }" +
+                        "}"
+                        + "," +
+                        "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"method\": \"ANY-2\",\n" +
+                        "        \"url\": \"/\"\n" +
+                        "    },\n" +
+                        "    \"response\": {\n" +
+                        "        \"status\": 200\n" +
+                        "    }" +
+                        "}" +
+                 "]";
+
+
+        StubMapping[] stub = StubMapping.buildAsArrayFrom(json);
+
+        assertThat(stub.length, is(2));
+        assertThat(stub[0].getRequest().getMethod().getName(), is("ANY-1"));
+        assertThat(stub[1].getRequest().getMethod().getName(), is("ANY-2"));
+    }
+
+    @Test
+    public void deserialisesNonArrayStubIntoAsArray() {
+        String json = "{\n" +
+                "    \"request\": {\n" +
+                "        \"method\": \"ANY-1\",\n" +
+                "        \"url\": \"/\"\n" +
+                "    },\n" +
+                "    \"response\": {\n" +
+                "        \"status\": 200\n" +
+                "    }" +
+                "}";
+
+
+        StubMapping[] stub = StubMapping.buildAsArrayFrom(json);
+
+        assertThat(stub.length, is(1));
+        assertThat(stub[0].getRequest().getMethod().getName(), is("ANY-1"));
+    }
 }

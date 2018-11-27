@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.extension.Parameters;
@@ -71,6 +72,21 @@ public class StubMapping {
     public static StubMapping buildFrom(String mappingSpecJson) {
         return Json.read(mappingSpecJson, StubMapping.class);
     }
+
+	public static StubMapping[] buildAsArrayFrom(String mappingSpecJson) {
+		JsonNode node = Json.node(mappingSpecJson);
+		if (node.isArray()) {
+			StubMapping[] mappings = Json.read(mappingSpecJson, StubMapping[].class);
+			for (StubMapping mapping : mappings) {
+				if (mapping.shouldBePersisted()) {
+					throw new IllegalArgumentException("Array stub mappings cannot be persistent");
+				}
+			}
+			return mappings;
+		} else {
+			return new StubMapping[]{buildFrom(mappingSpecJson)};
+		}
+	}
 
     public static String buildJsonStringFor(StubMapping mapping) {
 		return Json.write(mapping);

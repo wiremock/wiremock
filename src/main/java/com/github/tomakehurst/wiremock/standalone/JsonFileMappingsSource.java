@@ -81,10 +81,12 @@ public class JsonFileMappingsSource implements MappingsSource {
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), AbstractFileSource.byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
 			try {
-				StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-				mapping.setDirty(false);
-				stubMappings.addMapping(mapping);
-				fileNameMap.put(mapping.getId(), mappingFile.getPath());
+				StubMapping[] mappings = StubMapping.buildAsArrayFrom(mappingFile.readContentsAsString());
+				for (StubMapping mapping: mappings) {
+					mapping.setDirty(false);
+					stubMappings.addMapping(mapping);
+					fileNameMap.put(mapping.getId(), mappingFile.getPath());
+				}
 			} catch (JsonException e) {
 				throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
 			}
