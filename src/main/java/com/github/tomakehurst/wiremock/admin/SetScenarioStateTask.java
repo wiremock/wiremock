@@ -31,8 +31,8 @@ public class SetScenarioStateTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        ScenarioState scenarioState = Json.read(request.getBodyAsString(), ScenarioState.class);
-        Scenario scenario = find(admin.getAllScenarios().getScenarios(), Scenario.withName(scenarioState.getScenarioName());
+        ScenarioState scenarioState = ScenarioState.buildFrom(request.getBodyAsString());
+        Scenario scenario = find(admin.getAllScenarios().getScenarios(), Scenario.withName(scenarioState.getScenarioName()));
 
         try {
             admin.setScenarioState(scenario, scenarioState.getState());

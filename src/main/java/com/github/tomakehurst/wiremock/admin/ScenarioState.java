@@ -27,6 +27,10 @@ public class ScenarioState {
         this.state = state;
     }
 
+    public ScenarioState() {
+        //Concession to Jackson
+    }
+
     public String getScenarioName() {
         return scenarioName;
     }
