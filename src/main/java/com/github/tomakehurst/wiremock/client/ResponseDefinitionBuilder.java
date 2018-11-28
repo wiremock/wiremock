@@ -204,6 +204,9 @@ public class ResponseDefinitionBuilder {
 			this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
 			this.proxyBaseUrl = from.proxyBaseUrl;
 			this.responseTransformerNames = from.responseTransformerNames;
+			this.transformerParameters = from.transformerParameters != null ?
+                    Parameters.from(from.transformerParameters) :
+                    Parameters.empty();
 		}
 
 		public ProxyResponseDefinitionBuilder withAdditionalRequestHeader(String key, String value) {

@@ -30,12 +30,14 @@
  */
 package com.github.tomakehurst.wiremock.client;
 
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.ProxyResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -59,7 +61,7 @@ public class ResponseDefinitionBuilderTest {
     }
 
     @Test
-    public void likeShouldCreateCompleteResponseDefinitionCopy() throws Exception {
+    public void likeShouldCreateCompleteResponseDefinitionCopy() {
         ResponseDefinition originalResponseDefinition = ResponseDefinitionBuilder.responseDefinition()
                 .withStatus(200)
                 .withStatusMessage("OK")
@@ -78,5 +80,16 @@ public class ResponseDefinitionBuilderTest {
         ResponseDefinition copiedResponseDefinition = ResponseDefinitionBuilder.like(originalResponseDefinition).build();
 
         assertThat(copiedResponseDefinition, is(originalResponseDefinition));
+    }
+
+    @Test
+    public void proxyResponseDefinitionBuilderShouldGetTransformerAndParameters() {
+        ResponseDefinitionBuilder builderTemplate = ResponseDefinitionBuilder
+                .responseDefinition()
+                .withTransformer("transformer", "param", "value");
+        ProxyResponseDefinitionBuilder proxyBuilder = new ProxyResponseDefinitionBuilder(builderTemplate);
+
+        assertThat(proxyBuilder.responseTransformerNames, contains("transformer"));
+        assertThat((String)proxyBuilder.transformerParameters.get("param"), is("value"));
     }
 }
