@@ -100,9 +100,14 @@ public class Scenarios {
     }
 
     public void moveScenarioToState(Scenario scenario, String newState) {
-        if (scenarioMap.contains(scenario) && scenario.getPossibleStates().contains(newState)){
-            final Scenario newScenario = scenario.setState(newState);
-            scenarioMap.put(newScenario.getName(), newScenario);
+        if (scenarioMap.contains(scenario)){
+            if (scenario.getPossibleStates().contains(newState)) {
+                final Scenario newScenario = scenario.setState(newState);
+                scenarioMap.put(newScenario.getName(), newScenario);
+            } else {
+                final Errors error = Errors.single(70, "Could not find the given scenario state");
+                throw new InvalidInputException(error);
+            }
         } else {
             final Errors error = Errors.single(70, "Could not find the given scenario");
             throw new InvalidInputException(error);
