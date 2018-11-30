@@ -101,7 +101,6 @@ public class AdminRoutes {
         router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
         router.add(POST, "/shutdown", ShutdownServerTask.class);
 
-        router.add(GET, "/docs/raml", GetRamlSpecTask.class);
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
     }
