@@ -53,4 +53,3 @@ tmp*
 
 src/main/resources/swagger/wiremock-admin-api.json
 src/main/resources/assets/swagger-ui/swagger-ui-dist
-docs-v2/_docs/wiremock-admin-api.html
