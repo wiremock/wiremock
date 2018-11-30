@@ -6,7 +6,6 @@
     "node": ">= 0.10.0"
   },
   "devDependencies": {
-    "api-spec-converter": "2.0.1",
     "autoprefixer": "^6.3.5",
     "json-schema-ref-parser": "6.0.1",
     "node-sass": "4.9.3",
@@ -15,6 +14,7 @@
     "postcss-cli": "^2.5.1",
     "raml2html": "3.0.1",
     "swagger-ui-dist": "3.20.1",
+    "swagger-cli": "2.2.0",
     "uglify-js": "^2.6.1",
     "shx": "0.2.2"
   },
@@ -31,6 +31,7 @@
     "preprocess-schemas": "shx rm -rf tmp/raml* && shx mkdir -p tmp/raml && shx cp -rf ../src/main/resources/raml/* tmp/raml && shx rm -rf tmp/raml/schemas/* && node bin/bundle-schemas -i ../src/main/resources/raml/schemas -o tmp/raml/schemas",
     "swaggerui": "shx cp -rf node_modules/swagger-ui-dist/ ../src/main/resources/assets/swagger-ui/",
     "raml2html": "npm run preprocess-schemas && raml2html -t lib/raml2html-template.nunjucks -i tmp/raml/wiremock-admin-api.raml -o _docs/wiremock-admin-api.html",
-    "apidocs": "npm-run-all raml2html swaggerui && shx mkdir -p ../src/main/resources/swagger && api-spec-converter -f raml -t swagger_2 tmp/raml/wiremock-admin-api.raml > ../src/main/resources/swagger/wiremock-admin-api.json"
+    "swaggerjson": "swagger-cli bundle -r -t json ../src/main/resources/swagger/wiremock-admin-api.yaml > ../src/main/resources/swagger/wiremock-admin-api.json",
+    "apidocs": "npm-run-all raml2html swaggerui swaggerjson"
   }
 }

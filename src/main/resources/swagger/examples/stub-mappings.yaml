@@ -1,0 +1,25 @@
+meta:
+  total: 2
+mappings:
+  - id: "76ada7b0-49ae-4229-91c4-396a36f18e09"
+    uuid: "76ada7b0-49ae-4229-91c4-396a36f18e09"
+    request:
+      method: GET
+      url: /search?q=things
+      headers:
+        Accept:
+          equalTo: application/json
+    response:
+      status: 200
+      jsonBody:
+        - thing1
+        - thing2
+      headers:
+        Content-Type: application/json
+  - request:
+      method: POST
+      urlPath: /some/things
+      bodyPatterns:
+        - { equalToXml: <stuff /> }
+    response:
+      status: 201
