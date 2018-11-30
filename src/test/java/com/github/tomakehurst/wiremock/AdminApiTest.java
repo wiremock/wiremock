@@ -563,13 +563,6 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void servesRamlSpec() {
-        WireMockResponse response = testClient.get("/__admin/docs/raml");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("#%RAML 0.8"));
-    }
-
-    @Test
     public void servesSwaggerSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/swagger");
         assertThat(response.statusCode(), is(200));
