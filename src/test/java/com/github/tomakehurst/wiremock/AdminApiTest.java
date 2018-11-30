@@ -573,7 +573,7 @@ public class AdminApiTest extends AcceptanceTestBase {
     public void servesSwaggerSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/swagger");
         assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("\"swagger\": \"2.0\""));
+        assertThat(response.content(), containsString("\"openapi\": \"3.0.0\""));
     }
 
     @Test
