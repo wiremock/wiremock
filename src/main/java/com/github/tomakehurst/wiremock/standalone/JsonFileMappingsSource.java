@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
+import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonParser;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 import java.util.HashMap;
@@ -32,10 +33,12 @@ public class JsonFileMappingsSource implements MappingsSource {
 
 	private final FileSource mappingsFileSource;
 	private final Map<UUID, String> fileNameMap;
+	private final StubMappingJsonParser jsonParser;
 
 	public JsonFileMappingsSource(FileSource mappingsFileSource) {
 		this.mappingsFileSource = mappingsFileSource;
 		fileNameMap = new HashMap<>();
+        jsonParser = new StubMappingJsonParser();
 	}
 
 	@Override
@@ -81,10 +84,12 @@ public class JsonFileMappingsSource implements MappingsSource {
 		Iterable<TextFile> mappingFiles = filter(mappingsFileSource.listFilesRecursively(), AbstractFileSource.byFileExtension("json"));
 		for (TextFile mappingFile: mappingFiles) {
 			try {
-				StubMapping mapping = StubMapping.buildFrom(mappingFile.readContentsAsString());
-				mapping.setDirty(false);
-				stubMappings.addMapping(mapping);
-				fileNameMap.put(mapping.getId(), mappingFile.getPath());
+				List<StubMapping> mappings = jsonParser.parse(mappingFile.readContentsAsString());
+				for (StubMapping mapping: mappings) {
+                    mapping.setDirty(false);
+                    stubMappings.addMapping(mapping);
+                    fileNameMap.put(mapping.getId(), mappingFile.getPath());
+                }
 			} catch (JsonException e) {
 				throw new MappingFileException(mappingFile.getPath(), e.getErrors().first().getDetail());
 			}

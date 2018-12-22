@@ -1,0 +1,75 @@
+{
+  "_args": [
+    [
+      "swagger-ui-dist@3.20.1",
+      "/Users/tomakehurst/dev/java/wiremock/docs-v2"
+    ]
+  ],
+  "_development": true,
+  "_from": "swagger-ui-dist@3.20.1",
+  "_id": "swagger-ui-dist@3.20.1",
+  "_inBundle": false,
+  "_integrity": "sha512-iqFNNmJWH24leUj/ohS5iZTHLZSPZse8c9F+WSCMi6ZJcRBgYKcT413c8BR5BEdKvU1kkIwvYy7C8DOjTRq9hQ==",
+  "_location": "/swagger-ui-dist",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "swagger-ui-dist@3.20.1",
+    "name": "swagger-ui-dist",
+    "escapedName": "swagger-ui-dist",
+    "rawSpec": "3.20.1",
+    "saveSpec": null,
+    "fetchSpec": "3.20.1"
+  },
+  "_requiredBy": [
+    "#DEV:/"
+  ],
+  "_resolved": "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-3.20.1.tgz",
+  "_spec": "3.20.1",
+  "_where": "/Users/tomakehurst/dev/java/wiremock/docs-v2",
+  "bugs": {
+    "url": "https://github.com/swagger-api/swagger-ui/issues"
+  },
+  "contributors": [
+    {
+      "url": "in alphabetical order"
+    },
+    {
+      "name": "Anna Bodnia",
+      "email": "anna.bodnia@gmail.com"
+    },
+    {
+      "name": "Buu Nguyen",
+      "email": "buunguyen@gmail.com"
+    },
+    {
+      "name": "Josh Ponelat",
+      "email": "jponelat@gmail.com"
+    },
+    {
+      "name": "Kyle Shockey",
+      "email": "kyleshockey1@gmail.com"
+    },
+    {
+      "name": "Robert Barnwell",
+      "email": "robert@robertismy.name"
+    },
+    {
+      "name": "Sahar Jafari",
+      "email": "shr.jafari@gmail.com"
+    }
+  ],
+  "dependencies": {},
+  "description": "[![NPM version](https://badge.fury.io/js/swagger-ui-dist.svg)](http://badge.fury.io/js/swagger-ui-dist)",
+  "devDependencies": {},
+  "homepage": "https://github.com/swagger-api/swagger-ui#readme",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "name": "swagger-ui-dist",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/swagger-api/swagger-ui.git"
+  },
+  "version": "3.20.1"
+}
