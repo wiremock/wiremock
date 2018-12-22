@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-09-20T18:43:29+01:00">
+  <meta property="article:published_time" content="2018-12-22T18:25:47+00:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -350,7 +350,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stubbing">
     <meta itemprop="description" content="       If you want start stubbing quickly with zero code, try MockLab. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.    Learn more">
-    <meta itemprop="datePublished" content="September 20, 2018">
+    <meta itemprop="datePublished" content="December 22, 2018">
     
 
     <div class="page__inner-wrap">
@@ -377,8 +377,8 @@ returned when the relative URL exactly matches <code class="highlighter-rouge">/
 query parameters). The body of the response will be “Hello world!” and a
 <code class="highlighter-rouge">Content-Type</code> header will be sent with a value of <code class="highlighter-rouge">text-plain</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">exactUrlOnly</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">exactUrlOnly</span><span class="o">()</span> <span class="o">{</span>
     <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">))</span>
             <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/plain"</span><span class="o">)</span>
@@ -387,8 +387,7 @@ query parameters). The body of the response will be “Hello world!” and a
     <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">200</span><span class="o">));</span>
     <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing/else"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">404</span><span class="o">));</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <blockquote>
   <p><strong>note</strong></p>
@@ -402,21 +401,20 @@ document can either be posted to
 <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings</code> or placed in a file with a
 <code class="highlighter-rouge">.json</code> extension under the <code class="highlighter-rouge">mappings</code> directory:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world!"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello world!"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h3 id="java-shortcuts">Java Shortcuts</h3>
 
@@ -424,14 +422,13 @@ document can either be posted to
 
 <p>Requests matching an exact URL plus one of the most common HTTP methods (GET, POST, PUT, DELETE) can be stubbed like this:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">)</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">)</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Common responses can also be abbreviated e.g.:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">delete</span><span class="o">(</span><span class="s">"/fine"</span><span class="o">)</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">delete</span><span class="o">(</span><span class="s">"/fine"</span><span class="o">)</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()));</span>
 
 <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/fine-with-body"</span><span class="o">)</span>
@@ -449,8 +446,7 @@ document can either be posted to
 <span class="n">stubFor</span><span class="o">(</span><span class="n">put</span><span class="o">(</span><span class="s">"/status-only"</span><span class="o">)</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">status</span><span class="o">(</span><span class="mi">418</span><span class="o">)));</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>More DSL examples <a href="https://github.com/tomakehurst/wiremock/tree/master/src/test/java/ignored/Examples.java#374">can be found here</a>.</p>
 
@@ -465,8 +461,8 @@ be set.</p>
 
 <p>Java:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">statusMessage</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">statusMessage</span><span class="o">()</span> <span class="o">{</span>
     <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">))</span>
             <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
@@ -476,23 +472,21 @@ be set.</p>
     <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">200</span><span class="o">));</span>
     <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/some/thing/else"</span><span class="o">).</span><span class="na">statusCode</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="mi">404</span><span class="o">));</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>JSON:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/some/thing"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"statusMessage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Everything was just fine!"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"statusMessage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Everything was just fine!"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="stub-priority">Stub priority</h2>
 
@@ -506,7 +500,7 @@ useful to exert more control.</p>
 for any URL that doesn’t match any more specific cases. Adding a
 priority to a stub mapping facilitates this:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Catch-all case</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//Catch-all case</span>
 <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)).</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">401</span><span class="o">)));</span>
 
@@ -515,53 +509,49 @@ priority to a stub mapping facilitates this:</p>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
             <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
             <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Resource state"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Priority is set via the <code class="highlighter-rouge">priority</code> attribute in JSON:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/specific-resource"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/specific-resource"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="sending-response-headers">Sending response headers</h2>
 
 <p>In addition to matching on request headers, it’s also possible to send response headers:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/whatever"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/whatever"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"application/json"</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Cache-Control"</span><span class="o">,</span> <span class="s">"no-cache"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Or</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/whatever"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/whatever"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"Cache-Control"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-cache"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/plain"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Cache-Control"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-cache"</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="specifying-the-response-body">Specifying the response body</h2>
 
@@ -569,37 +559,34 @@ priority to a stub mapping facilitates this:</p>
 
 <p>Java:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Literal text to put in the body"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>JSON:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Literal text to put in the body"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Literal text to put in the body"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <p>If you’re specifying a JSON body via the JSON API, you can avoid having to escape it like this:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w">    </span><span class="s2">"response"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"arbitrary_json"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"arbitrary_json"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <p>To read the body content from a file, place the file under the <code class="highlighter-rouge">__files</code>
 directory. By default this is expected to be under <code class="highlighter-rouge">src/test/resources</code>
@@ -608,26 +595,24 @@ under the current directory in which the server was started. To make
 your stub use the file, simply call <code class="highlighter-rouge">bodyFile()</code> on the response builder
 with the file’s path relative to <code class="highlighter-rouge">__files</code>:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body-file"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/body-file"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withBodyFile</span><span class="o">(</span><span class="s">"path/to/myfile.xml"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Or</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body-file"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/body-file"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"bodyFileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"path/to/myfile.xml"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"bodyFileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"path/to/myfile.xml"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <blockquote>
   <p><strong>note</strong></p>
@@ -647,27 +632,25 @@ likely produce strange behaviour.</p>
 <p>A response body in binary format can be specified as a <code class="highlighter-rouge">byte[]</code> via an
 overloaded <code class="highlighter-rouge">body()</code>:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/binary-body"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/binary-body"</span><span class="o">))</span>
         <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="k">new</span> <span class="kt">byte</span><span class="o">[]</span> <span class="o">{</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span> <span class="o">})));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The JSON API accepts this as a base64 string (to avoid stupidly long
 JSON documents):</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/binary-body"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/binary-body"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"base64Body"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WUVTIElOREVFRCE="</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"base64Body"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"WUVTIElOREVFRCE="</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="default-response-for-unmapped-requests">Default response for unmapped requests</h2>
 
@@ -677,32 +660,30 @@ JSON documents):</p>
 
 <p>In Java</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">any</span><span class="o">(</span><span class="n">anyUrl</span><span class="o">())</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">any</span><span class="o">(</span><span class="n">anyUrl</span><span class="o">())</span>
                 <span class="o">.</span><span class="na">atPriority</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
                         <span class="o">.</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">404</span><span class="o">)</span>
                         <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{\"status\":\"Error\",\"message\":\"Endpoint not found\"}"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In JSON</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"priority"</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">".*"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"priority"</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"urlPattern"</span><span class="p">:</span><span class="w"> </span><span class="s2">".*"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"Error"</span><span class="p">,</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"Endpoint not found"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
+  </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"jsonBody"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s2">"status"</span><span class="p">:</span><span class="s2">"Error"</span><span class="p">,</span><span class="s2">"message"</span><span class="p">:</span><span class="s2">"Endpoint not found"</span><span class="p">},</span><span class="w">
+    </span><span class="s2">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"Content-Type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="saving-stubs">Saving stubs</h2>
 
@@ -722,7 +703,7 @@ Note that this feature is not available when running WireMock from a servlet con
 
 <p>In Java:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wireMockServer</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wireMockServer</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">))</span>
     <span class="o">.</span><span class="na">withId</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
     <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
         <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Original"</span><span class="o">)));</span>
@@ -735,22 +716,20 @@ Note that this feature is not available when running WireMock from a servlet con
         <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"Modified"</span><span class="o">)));</span>
 
 <span class="n">assertThat</span><span class="o">(</span><span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/edit-this"</span><span class="o">).</span><span class="na">content</span><span class="o">(),</span> <span class="n">is</span><span class="o">(</span><span class="s">"Modified"</span><span class="o">));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>To do the equivalent via the JSON API, <code class="highlighter-rouge">PUT</code> the edited stub mapping to <code class="highlighter-rouge">/__admin/mappings/{id}</code>:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/edit-me"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"urlPath"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/edit-me"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+  </span><span class="s2">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="file-serving">File serving</h2>
 <p>When running the standalone JAR, files placed under the <code class="highlighter-rouge">__files</code> directory will
@@ -766,14 +745,13 @@ matching the URL exists. For example if a file exists
 
 <p>Stub mappings can be deleted via the Java API as follows:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">StubMapping</span> <span class="n">stubMapping</span> <span class="o">=</span> <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/delete-me"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">StubMapping</span> <span class="n">stubMapping</span> <span class="o">=</span> <span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlEqualTo</span><span class="o">(</span><span class="s">"/delete-me"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">().</span><span class="na">withStatus</span><span class="o">(</span><span class="mi">200</span><span class="o">)));</span>
 
 <span class="c1">// Do things with the stub</span>
 
 <span class="n">removeStub</span><span class="o">(</span><span class="n">stubMapping</span><span class="o">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>They can be deleted via the HTTP API by issuing a <code class="highlighter-rouge">DELETE</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>
 where <code class="highlighter-rouge">id</code> is the UUID of the stub mapping, found in its <code class="highlighter-rouge">id</code> field.</p>

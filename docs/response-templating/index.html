@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-09-20T18:43:29+01:00">
+  <meta property="article:published_time" content="2018-12-22T18:25:47+00:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -350,7 +350,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="September 20, 2018">
+    <meta itemprop="datePublished" content="December 22, 2018">
     
 
     <div class="page__inner-wrap">
@@ -367,12 +367,11 @@ render an identifier from part of the URL in the response body.</p>
 <h2 id="enabling-response-templating">Enabling response templating</h2>
 <p>When starting WireMock programmatically, response templating can be enabled by adding <code class="highlighter-rouge">ResponseTemplateTransformer</code> as an extension e.g.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Rule</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
 <span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
     <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span>
 <span class="o">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The boolean constructor parameter indicates whether the extension should be applied globally. If true, all stub mapping responses will be rendered as templates prior
 to being served.</p>
@@ -381,25 +380,23 @@ to being served.</p>
 
 <h3 id="java">Java</h3>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
       <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"{{request.path.[0]}}"</span><span class="o">)</span>
       <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">"response-template"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="json">JSON</h3>
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <p>Command line parameters can be used to enable templating when running WireMock <a href="/docs/running-standalone/#command-line-options">standalone</a>.</p>
 
@@ -409,25 +406,23 @@ to being served.</p>
 
 <h3 id="java-1">Java</h3>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathEqualTo</span><span class="o">(</span><span class="s">"/templated"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">aResponse</span><span class="o">()</span>
       <span class="o">.</span><span class="na">proxiedFrom</span><span class="o">(</span><span class="s">"{{request.headers.X-WM-Proxy-Url}}"</span><span class="o">)</span>
       <span class="o">.</span><span class="na">withTransformers</span><span class="o">(</span><span class="s">"response-template"</span><span class="o">)));</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="json-1">JSON</h3>
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"proxyBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.headers.X-WM-Proxy-Url}}"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"proxyBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.headers.X-WM-Proxy-Url}}"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="templated-body-file">Templated body file</h2>
 
@@ -435,26 +430,24 @@ to being served.</p>
 
 <h3 id="java-2">Java</h3>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/static/.*"</span><span class="o">))</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wm</span><span class="o">.</span><span class="na">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/static/.*"</span><span class="o">))</span>
   <span class="o">.</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()</span>
     <span class="o">.</span><span class="na">withBodyFile</span><span class="o">(</span><span class="s">"files/{{request.pathSegments.[1]}}"</span><span class="o">)));</span>
 
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="json-2">JSON</h3>
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/static/.*"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/static/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.pathSegments.[1]}}"</span><span class="w">
+  </span><span class="s2">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.pathSegments.[1]}}"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <h2 id="the-request-model">The request model</h2>
 <p>The model of the request is supplied to the header and body templates. The following request attributes are available:</p>
@@ -494,139 +487,125 @@ to being served.</p>
 <h2 id="handlebars-helpers">Handlebars helpers</h2>
 <p>All of the standard helpers (template functions) provided by the <a href="https://github.com/jknack/handlebars.java">Java Handlebars implementation by jknack</a>
 plus all of the <a href="https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/StringHelpers.java">string helpers</a>
+and the <a href="https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/ConditionalHelpers.java">conditional helpers</a>
 are available e.g.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{capitalize</span><span class="w"> </span><span class="err">request.query.search</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{capitalize request.query.search}}
+</code></pre></div></div>
 
 <h2 id="number-and-assignment-helpers">Number and assignment helpers</h2>
 <p>Variable assignment and number helpers are available:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{#assign</span><span class="w"> </span><span class="err">'myCapitalisedQuery'</span><span class="p">}</span><span class="err">}</span><span class="p">{</span><span class="err">{capitalize</span><span class="w"> </span><span class="err">request.query.search</span><span class="p">}</span><span class="err">}</span><span class="p">{</span><span class="err">{/assign</span><span class="p">}</span><span class="err">}</span><span class="w">
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{#assign 'myCapitalisedQuery'}}{{capitalize request.query.search}}{{/assign}}
 
-</span><span class="p">{</span><span class="err">{isOdd</span><span class="w"> </span><span class="err">3</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{isOdd</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="err">'rightBox'</span><span class="p">}</span><span class="err">}</span><span class="w">
+{{isOdd 3}}
+{{isOdd 3 'rightBox'}}
 
-</span><span class="p">{</span><span class="err">{isEven</span><span class="w"> </span><span class="err">2</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{isEven</span><span class="w"> </span><span class="err">4</span><span class="w"> </span><span class="err">'leftBox'</span><span class="p">}</span><span class="err">}</span><span class="w">
+{{isEven 2}}
+{{isEven 4 'leftBox'}}
 
-</span><span class="p">{</span><span class="err">{stripes</span><span class="w"> </span><span class="err">3</span><span class="w"> </span><span class="err">'row-even'</span><span class="w"> </span><span class="err">'row-odd'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+{{stripes 3 'row-even' 'row-odd'}}
+</code></pre></div></div>
 
 <h2 id="xpath-helpers">XPath helpers</h2>
 <p>Addiionally some helpers are available for working with JSON and XML.</p>
 
 <p>When the incoming request contains XML, the <code class="highlighter-rouge">xPath</code> helper can be used to extract values or sub documents via an XPath 1.0 expression. For instance, given the XML</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;outer&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;outer&gt;</span>
     <span class="nt">&lt;inner&gt;</span>Stuff<span class="nt">&lt;/inner&gt;</span>
 <span class="nt">&lt;/outer&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{xPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'/outer/inner/text()'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner/text()'}}
+</code></pre></div></div>
 
 <p>And given the same XML the following will render <code class="highlighter-rouge">&lt;inner&gt;Stuff&lt;/inner&gt;</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{xPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'/outer/inner'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{xPath request.body '/outer/inner'}}
+</code></pre></div></div>
 
 <p>As a convenience the <code class="highlighter-rouge">soapXPath</code> helper also exists for extracting values from SOAP bodies e.g. for the SOAP document:</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;soap:Envelope</span> <span class="na">xmlns:soap=</span><span class="s">"http://www.w3.org/2003/05/soap-envelope/"</span><span class="nt">&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;soap:Envelope</span> <span class="na">xmlns:soap=</span><span class="s">"http://www.w3.org/2003/05/soap-envelope/"</span><span class="nt">&gt;</span>
     <span class="nt">&lt;soap:Body&gt;</span>
         <span class="nt">&lt;m:a&gt;</span>
             <span class="nt">&lt;m:test&gt;</span>success<span class="nt">&lt;/m:test&gt;</span>
         <span class="nt">&lt;/m:a&gt;</span>
     <span class="nt">&lt;/soap:Body&gt;</span>
 <span class="nt">&lt;/soap:Envelope&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The following will render “success” in the output:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{soapXPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'/a/test/text()'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{soapXPath request.body '/a/test/text()'}}
+</code></pre></div></div>
 
 <h2 id="jsonpath-helper">JSONPath helper</h2>
 <p>It is similarly possible to extract JSON values or sub documents via JSONPath using the <code class="highlighter-rouge">jsonPath</code> helper. Given the JSON</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <p>The following will render “Stuff” into the output:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{jsonPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'$.outer.inner'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer.inner'}}
+</code></pre></div></div>
 
-<p>And for the same JSON the following will render <code class="highlighter-rouge"><span class="p">{</span><span class="w"> </span><span class="nt">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w"> </span><span class="p">}</span></code>:</p>
+<p>And for the same JSON the following will render <code class="highlighter-rouge">{ "inner": "Stuff" }</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{jsonPath</span><span class="w"> </span><span class="err">request.body</span><span class="w"> </span><span class="err">'$.outer'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{jsonPath request.body '$.outer'}}
+</code></pre></div></div>
 
 <h2 id="date-and-time-helpers">Date and time helpers</h2>
 <p>A helper is present to render the current date/time, with the ability to specify the format (<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">via Java’s SimpleDateFormat</a>) and offset.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='3</span><span class="w"> </span><span class="err">days'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='-24</span><span class="w"> </span><span class="err">seconds'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='1</span><span class="w"> </span><span class="err">years'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='10</span><span class="w"> </span><span class="err">years'</span><span class="w"> </span><span class="err">format='yyyy-MM-dd'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now}}
+{{now offset='3 days'}}
+{{now offset='-24 seconds'}}
+{{now offset='1 years'}}
+{{now offset='10 years' format='yyyy-MM-dd'}}
+</code></pre></div></div>
 
 <p>Dates can be rendered in a specific timezone (the default is UTC):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">timezone='Australia/Sydney'</span><span class="w"> </span><span class="err">format='yyyy-MM-dd</span><span class="w"> </span><span class="err">HH:mm:ssZ'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now timezone='Australia/Sydney' format='yyyy-MM-dd HH:mm:ssZ'}}
+</code></pre></div></div>
 
 <p>Pass <code class="highlighter-rouge">epoch</code> as the format to render the date as unix epoch time.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{now</span><span class="w"> </span><span class="err">offset='2</span><span class="w"> </span><span class="err">years'</span><span class="w"> </span><span class="err">format='epoch'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{now offset='2 years' format='epoch'}}
+</code></pre></div></div>
 
 <p>Dates can be parsed from other model elements:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{date</span><span class="w"> </span><span class="err">(parseDate</span><span class="w"> </span><span class="err">request.headers.MyDate)</span><span class="w"> </span><span class="err">offset='-1</span><span class="w"> </span><span class="err">days'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{date (parseDate request.headers.MyDate) offset='-1 days'}}
+</code></pre></div></div>
 
 <h2 id="random-value-helper">Random value helper</h2>
 <p>Random strings of various kinds can be generated:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=33</span><span class="w"> </span><span class="err">type='ALPHANUMERIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=12</span><span class="w"> </span><span class="err">type='ALPHANUMERIC'</span><span class="w"> </span><span class="err">uppercase=true</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=55</span><span class="w"> </span><span class="err">type='ALPHABETIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=27</span><span class="w"> </span><span class="err">type='ALPHABETIC'</span><span class="w"> </span><span class="err">uppercase=true</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=10</span><span class="w"> </span><span class="err">type='NUMERIC'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">length=5</span><span class="w"> </span><span class="err">type='ALPHANUMERIC_AND_SYMBOLS'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span><span class="p">{</span><span class="err">{randomValue</span><span class="w"> </span><span class="err">type='UUID'</span><span class="p">}</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{randomValue length=33 type='ALPHANUMERIC'}}
+{{randomValue length=12 type='ALPHANUMERIC' uppercase=true}}
+{{randomValue length=55 type='ALPHABETIC'}}
+{{randomValue length=27 type='ALPHABETIC' uppercase=true}}
+{{randomValue length=10 type='NUMERIC'}}
+{{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
+{{randomValue type='UUID'}}
+</code></pre></div></div>
 
 <h2 id="custom-helpers">Custom helpers</h2>
 <p>Custom Handlebars helpers can be registered with the transformer on construction:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringLengthHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringLengthHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">Object</span> <span class="n">apply</span><span class="o">(</span><span class="n">String</span> <span class="n">context</span><span class="o">,</span> <span class="n">Options</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="n">String</span> <span class="n">context</span><span class="o">,</span> <span class="n">Options</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="na">length</span><span class="o">();</span>
     <span class="o">}</span>
 <span class="o">};</span>
@@ -635,8 +614,7 @@ are available e.g.</p>
 <span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
     <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">),</span> <span class="s">"string-length"</span><span class="o">,</span> <span class="n">stringLengthHelper</span><span class="o">)</span>
 <span class="o">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 
         

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-09-20T18:43:29+01:00">
+  <meta property="article:published_time" content="2018-12-22T18:25:47+00:00">
   
     <link rel="next" href="/docs/record-playback/" title="Record and Playback (New)">
   
@@ -350,7 +350,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Record and Playback (Legacy)">
     <meta itemprop="description" content="WireMock has the ability to create stub mappings by recording themwhile you send requests. This can be used to quickly capture acollection of responses from a real service then use them offline inyour tests.">
-    <meta itemprop="datePublished" content="September 20, 2018">
+    <meta itemprop="datePublished" content="December 22, 2018">
     
 
     <div class="page__inner-wrap">
@@ -369,16 +369,14 @@ your tests.</strong></p>
 
 <p>Recording is done by starting the standalone runner like this:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.19.0.jar --proxy-all<span class="o">=</span><span class="s2">"http://search.twitter.com"</span> --record-mappings --verbose
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.20.0.jar <span class="nt">--proxy-all</span><span class="o">=</span><span class="s2">"http://search.twitter.com"</span> <span class="nt">--record-mappings</span> <span class="nt">--verbose</span>
+</code></pre></div></div>
 
 <p>Once it’s started you send requests to it as if it was the remote
 service:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s2">"http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</span>
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl <span class="s2">"http://localhost:8080/search.json?q=from:sirbonar&amp;result_type=recent&amp;rpp=1"</span>
+</code></pre></div></div>
 
 <p>Now if you look under <code class="highlighter-rouge">mappings</code> and <code class="highlighter-rouge">__files</code> (under the current
 directory you’re running WireMock in) you’ll see that a new file has

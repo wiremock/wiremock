@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-09-20T18:43:29+01:00">
+  <meta property="article:published_time" content="2018-12-22T18:25:47+00:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -350,7 +350,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="September 20, 2018">
+    <meta itemprop="datePublished" content="December 22, 2018">
     
 
     <div class="page__inner-wrap">
@@ -370,11 +370,10 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.19.0/wiremock-standalone-2.19.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.20.0/wiremock-standalone-2.20.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java -jar wiremock-standalone-2.19.0.jar
-</code></pre>
-</div>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.20.0.jar
+</code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
 
@@ -478,36 +477,32 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 <p>The WireMock Java API can be used against a running server on a different host if required. If you’re only planning to configure a single remote instance from within your program you can configure the static DSL to point to it:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
 
 <span class="c1">// or for HTTPS</span>
 <span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8443</span><span class="o">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Alternatively you can create an instance of the client (or as many as there are servers to configure):</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
 <span class="n">WireMock</span> <span class="n">wireMock2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"2nd.remote.host"</span><span class="o">,</span> <span class="mi">8001</span><span class="o">);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="configuring-via-json-over-http">Configuring via JSON over HTTP</h2>
 
 <p>You can create a stub mapping by posting to WireMock’s HTTP API:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -X POST <span class="se">\</span>
---data <span class="s1">'{ "request": { "url": "/get/this", "method": "GET" }, "response": { "status": 200, "body": "Here it is!\n" }}'</span> <span class="se">\</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl <span class="nt">-X</span> POST <span class="se">\</span>
+<span class="nt">--data</span> <span class="s1">'{ "request": { "url": "/get/this", "method": "GET" }, "response": { "status": 200, "body": "Here it is!\n" }}'</span> <span class="se">\</span>
 http://localhost:8080/__admin/mappings/new
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>And then fetch it back:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl http://localhost:8080/get/this
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl http://localhost:8080/get/this
 Here it is!
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The full stubbing API syntax is described in <a href="/docs/stubbing/">Stubbing</a>.</p>
 
@@ -520,25 +515,23 @@ it creates two directories under the current one: <code class="highlighter-rouge
 <p>To create a stub like the one above by this method, drop a file with a
 <code class="highlighter-rouge">.json</code> extension under <code class="highlighter-rouge">mappings</code> with the following content:</p>
 
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/mytest"</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/mytest"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"More content\n"</span><span class="w">
+    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"More content</span><span class="se">\n</span><span class="s2">"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+</span></code></pre></div></div>
 
 <p>After restarting the server you should be able to do this:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl http://localhost:8080/api/mytest
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>curl http://localhost:8080/api/mytest
 More content
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>See <a href="/docs/stubbing/">stubbing</a> and <a href="/docs/verifying/">verifying</a> for more on the JSON API.</p>
 
