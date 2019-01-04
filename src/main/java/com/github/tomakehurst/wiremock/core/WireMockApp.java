@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -68,6 +69,10 @@ public class WireMockApp implements StubServer, Admin {
     private final Recorder recorder;
 
     private Options options;
+
+    static {
+        Xml.optimizeFactoriesLoading();
+    }
 
     public WireMockApp(Options options, Container container) {
         this.options = options;
