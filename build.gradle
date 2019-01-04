@@ -36,7 +36,7 @@ def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 def versions = [
     handlebars: '4.0.7',
     jackson: '2.8.11',
-    jacksonDatabind: '2.8.11.2',
+    jacksonDatabind: '2.8.11.3',
     jetty  : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
     xmlUnit: '2.5.1'
 ]
