@@ -195,6 +195,7 @@ public class ResponseDefinitionBuilder {
 
 		public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
 			this.status = from.status;
+			this.statusMessage = from.statusMessage;
 			this.headers = from.headers;
 			this.binaryBody = from.binaryBody;
 			this.stringBody = from.stringBody;
@@ -202,8 +203,11 @@ public class ResponseDefinitionBuilder {
 			this.bodyFileName = from.bodyFileName;
 			this.fault = from.fault;
 			this.fixedDelayMilliseconds = from.fixedDelayMilliseconds;
+			this.delayDistribution = from.delayDistribution;
+			this.chunkedDribbleDelay = from.chunkedDribbleDelay;
 			this.proxyBaseUrl = from.proxyBaseUrl;
 			this.responseTransformerNames = from.responseTransformerNames;
+			this.transformerParameters = from.transformerParameters;
 		}
 
 		public ProxyResponseDefinitionBuilder withAdditionalRequestHeader(String key, String value) {
