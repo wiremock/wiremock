@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2018-12-22T18:27:19+00:00">
+  <meta property="article:published_time" content="2019-01-04T17:29:13+00:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -86,11 +86,11 @@
 
   <!-- Google Analytics -->
 <style>.async-hide { opacity: 0 !important} </style>
-<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
-  h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
-  (a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
-})(window,document.documentElement,'async-hide','dataLayer',4000,
-  {'GTM-WQTGSSM':true});</script>
+<!--<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;-->
+  <!--h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};-->
+  <!--(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;-->
+<!--})(window,document.documentElement,'async-hide','dataLayer',4000,-->
+  <!--{'GTM-WQTGSSM':true});</script>-->
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -343,7 +343,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="December 22, 2018">
+    <meta itemprop="datePublished" content="January 04, 2019">
     
 
     <div class="page__inner-wrap">
@@ -374,7 +374,8 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p><code class="highlighter-rouge">--port</code>: Set the HTTP port number e.g. <code class="highlighter-rouge">--port 9999</code>. Use <code class="highlighter-rouge">--port 0</code> to dynamically determine a port.</p>
 
-<p><code class="highlighter-rouge">--https-port</code>: If specified, enables HTTPS on the supplied port.</p>
+<p><code class="highlighter-rouge">--https-port</code>: If specified, enables HTTPS on the supplied port.
+Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the <code class="highlighter-rouge">--port</code> parameter in order to avoid conflicts.</p>
 
 <p><code class="highlighter-rouge">--bind-address</code>: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.</p>
 
@@ -588,7 +589,7 @@ a request with an empty body to <code class="highlighter-rouge">http://&lt;host&
   </ul>
 </div>
 
-<div class="page__footer-copyright">&copy; 2018 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
+<div class="page__footer-copyright">&copy; 2019 Tom Akehurst. Powered by <a href="http://jekyllrb.com"
                                                                                                                                                                   rel="nofollow">Jekyll</a> &amp; <a
   href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.
 </div>
