@@ -28,7 +28,8 @@ The following can optionally be specified on the command line:
 
 `--port`: Set the HTTP port number e.g. `--port 9999`. Use `--port 0` to dynamically determine a port.
 
-`--https-port`: If specified, enables HTTPS on the supplied port. (Note: When you specify this parameter, wiremock will still, additionally, bind to an http port (8080 - by default). So when running multiple wiremock servers, you will have to specify the --port parameter also, to ensure that a port conflict does not occur with other wiremock servers)
+`--https-port`: If specified, enables HTTPS on the supplied port.
+Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the `--port` parameter in order to avoid conflicts.
 
 `--bind-address`: The IP address the WireMock server should serve from. Binds to all local network adapters if unspecified.
 
