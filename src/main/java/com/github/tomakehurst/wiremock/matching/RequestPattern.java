@@ -78,14 +78,10 @@ public class RequestPattern implements NamedValueMatcher<Request> {
         this.matcher = new RequestMatcher() {
             @Override
             public MatchResult match(Request request) {
-                if (!RequestPattern.this.method.match(request.getMethod()).isExactMatch()) {
-                    return MatchResult.noMatch();
-                }
-                if (!RequestPattern.this.url.match(request.getUrl()).isExactMatch()) {
-                    return MatchResult.noMatch();
-                }
-
                 List<WeightedMatchResult> matchResults = new ArrayList<>(asList(
+                        weight(RequestPattern.this.url.match(request.getUrl()), 10.0),
+                        weight(RequestPattern.this.method.match(request.getMethod()), 3.0),
+
                         weight(allHeadersMatchResult(request)),
                         weight(allQueryParamsMatch(request)),
                         weight(allCookiesMatch(request)),
