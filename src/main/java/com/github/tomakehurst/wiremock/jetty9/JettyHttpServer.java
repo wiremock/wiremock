@@ -55,7 +55,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
-public abstract class JettyHttpServer implements HttpServer {
+public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
 
@@ -278,7 +278,9 @@ public abstract class JettyHttpServer implements HttpServer {
         );
     }
 
-    protected abstract SslContextFactory buildSslContextFactory();
+    protected SslContextFactory buildSslContextFactory() {
+        return new SslContextFactory();
+    }
 
     protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
         HttpConfiguration httpConfig = new HttpConfiguration();

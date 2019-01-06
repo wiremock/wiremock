@@ -39,7 +39,7 @@ public class JettyHttpServerFactory implements HttpServerFactory {
                 Class<? extends JettyHttpServer> serverClass = (Class<? extends JettyHttpServer>) Class.forName("com.github.tomakehurst.wiremock.jetty92.Jetty92HttpServer");
                 return safelyGetConstructor(serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
             } catch (ClassNotFoundException cnfe) {
-                return Exceptions.throwUnchecked(cnfe, Constructor.class);
+                return safelyGetConstructor(JettyHttpServer.class, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
             }
         }
     }

@@ -1,3 +1,6 @@
+jar.baseName = 'wiremock-jre8'
+shadowJar.baseName = 'wiremock-jre8-standalone'
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.8
 
@@ -32,6 +35,3 @@ task dumpThing {
     }
 
 }
-
-shadowJar.baseName = 'wiremock-jre8-standalone'
-jar.baseName = 'wiremock-jre8'

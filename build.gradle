@@ -13,6 +13,7 @@ allprojects {
     }
 
     apply plugin: 'idea'
+    apply plugin: 'eclipse'
     apply plugin: 'java'
     apply plugin: 'scala'
     apply plugin: 'project-report'
@@ -86,11 +87,28 @@ allprojects {
         testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
     }
 
+    compileTestJava {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
+        systemProperty 'user.timezone', 'Australia/Sydney'
+
+        exclude 'ignored/**'
+
+        maxParallelForks = 3
+
+        testLogging {
+            events "failed"
+            exceptionFormat "full"
+        }
+    }
+
 }
 
 
 subprojects {
-    apply plugin: 'eclipse'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
@@ -110,25 +128,6 @@ subprojects {
     }
 
     def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
-
-    compileTestJava {
-        options.encoding = 'UTF-8'
-    }
-
-    test {
-        // Set the timezone for testing somewhere other than my machine to increase the chances of catching timezone bugs
-        systemProperty 'user.timezone', 'Australia/Sydney'
-
-        exclude 'ignored/**'
-
-        maxParallelForks = 3
-
-        testLogging {
-            events "failed"
-            exceptionFormat "full"
-        }
-    }
-
 
     configurations {
         shadowJar
@@ -284,6 +283,7 @@ subprojects {
         }
         publications {
             thinJar(MavenPublication) {
+                artifactId "${jar.baseName}"
                 from components.java
                 artifact sourcesJar
                 artifact javadocJar
@@ -313,7 +313,7 @@ subprojects {
             }
 
             standaloneJar(MavenPublication) {
-                artifactId "${project.name}-standalone"
+                artifactId "${jar.baseName}-standalone"
                 from components.shadow
 
                 artifact sourcesJar
