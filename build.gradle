@@ -36,8 +36,8 @@ def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 def versions = [
     handlebars: '4.0.7',
     jackson: '2.8.11',
-    jacksonDatabind: '2.8.11.2',
-    jetty  : '9.2.24.v20180105', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+    jacksonDatabind: '2.8.11.3',
+    jetty  : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
     xmlUnit: '2.5.1'
 ]
 
@@ -54,7 +54,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
         "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
-    compile "org.apache.httpcomponents:httpclient:4.5.5"
+    compile "org.apache.httpcomponents:httpclient:4.5.6"
     compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
     compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
     compile "com.jayway.jsonpath:json-path:2.4.0"
@@ -331,21 +331,25 @@ publishing {
     }
 }
 
-task checkReleasePreconditions << {
-    def REQUIRED_GIT_BRANCH = 'master'
+task checkReleasePreconditions {
+    doLast {
+        def REQUIRED_GIT_BRANCH = 'master'
 
-    println "Using Java version: ${System.getProperty('java.runtime.version')}"
-    assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
+        println "Using Java version: ${System.getProperty('java.runtime.version')}"
+        assert System.getProperty('java.runtime.version').startsWith('1.7'), "Must release with Java 7 to avoid collection bug"
 
-    def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
+        def currentGitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+        assert currentGitBranch == REQUIRED_GIT_BRANCH || shouldPublishLocally, "Must be on the $REQUIRED_GIT_BRANCH branch in order to release to Sonatype"
+    }
 }
 publish.dependsOn checkReleasePreconditions
 
-task addGitTag << {
-    if (!shouldPublishLocally) {
-        println "git tag ${version}".execute().text
-        println "git push origin --tags".execute().text
+task addGitTag {
+    doLast {
+        if (!shouldPublishLocally) {
+            println "git tag ${version}".execute().text
+            println "git push origin --tags".execute().text
+        }
     }
 }
 
@@ -386,68 +390,74 @@ task release {
     dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
 }
 
-task 'set-release-dir' << {
-    if (releaseDir) {
-        releaseDirUrl = 'file://' + releaseDir
-        if (!releaseDirUrl.endsWith('/')) {
-            releaseDirUrl = releaseDirUrl + '/';
-        }
+task 'set-release-dir' {
+    doLast {
+        if (releaseDir) {
+            releaseDirUrl = 'file://' + releaseDir
+            if (!releaseDirUrl.endsWith('/')) {
+                releaseDirUrl = releaseDirUrl + '/';
+            }
 
-        tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
+            tasks.uploadArchives.repositories.mavenDeployer.repository.url = releaseDirUrl
 
-        println 'Release dir set to: ' + releaseDirUrl
-    } else {
-        logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
-        System.exit(1)
-    }
-}
-
-task 'bump-patch-version' << {
-    def filesWithVersion = [
-        'build.gradle'                                      : { "version = '${it}" },
-        'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-        'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
-    ]
-
-    def currentVersion = project.version
-    def nextVersion = "${majorVersion}.${minorVersion}.${patchVersion + 1}"
-
-    filesWithVersion.each { fileName, lineWithVersionTemplates ->
-        def file = new File(fileName)
-        def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-            lineWithVersionTemplates :
-            [lineWithVersionTemplates]
-
-        lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-            def oldLine = lineWithVersionTemplate.call(currentVersion)
-            def newLine = lineWithVersionTemplate.call(nextVersion)
-            println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-            file.text = file.text.replace(oldLine, newLine)
+            println 'Release dir set to: ' + releaseDirUrl
+        } else {
+            logger.error "Please specify release dir e.g. -P/home/me/.m2/repository"
+            System.exit(1)
         }
     }
 }
 
-task 'bump-minor-version' << {
-    def filesWithVersion = [
-        'build.gradle'                                      : { "version = '${it}" },
-        'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
-        'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
-    ]
+task 'bump-patch-version' {
+    doLast {
+        def filesWithVersion = [
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+        ]
 
-    def currentVersion = project.version
-    def nextVersion = "${majorVersion}.${minorVersion + 1}.0"
+        def currentVersion = project.version
+        def nextVersion = "${majorVersion}.${minorVersion}.${patchVersion + 1}"
 
-    filesWithVersion.each { fileName, lineWithVersionTemplates ->
-        def file = new File(fileName)
-        def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-            lineWithVersionTemplates :
-            [lineWithVersionTemplates]
+        filesWithVersion.each { fileName, lineWithVersionTemplates ->
+            def file = new File(fileName)
+            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
 
-        lineWithVersionTemplateList.each { lineWithVersionTemplate ->
-            def oldLine = lineWithVersionTemplate.call(currentVersion)
-            def newLine = lineWithVersionTemplate.call(nextVersion)
-            println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
-            file.text = file.text.replace(oldLine, newLine)
+            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+                def oldLine = lineWithVersionTemplate.call(currentVersion)
+                def newLine = lineWithVersionTemplate.call(nextVersion)
+                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+                file.text = file.text.replace(oldLine, newLine)
+            }
+        }
+    }
+}
+
+task 'bump-minor-version' {
+    doLast {
+        def filesWithVersion = [
+            'build.gradle'                                      : { "version = '${it}" },
+            'docs-v2/_config.yml'                               : { "wiremock_version: ${it}" },
+            'src/main/resources/swagger/wiremock-admin-api.yaml': { "version: ${it}" }
+        ]
+
+        def currentVersion = project.version
+        def nextVersion = "${majorVersion}.${minorVersion + 1}.0"
+
+        filesWithVersion.each { fileName, lineWithVersionTemplates ->
+            def file = new File(fileName)
+            def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
+                lineWithVersionTemplates :
+                [lineWithVersionTemplates]
+
+            lineWithVersionTemplateList.each { lineWithVersionTemplate ->
+                def oldLine = lineWithVersionTemplate.call(currentVersion)
+                def newLine = lineWithVersionTemplate.call(nextVersion)
+                println "Replacing '${oldLine}' with '${newLine}' in ${fileName}"
+                file.text = file.text.replace(oldLine, newLine)
+            }
         }
     }
 }
@@ -468,8 +478,9 @@ task wrapper(type: Wrapper) {
     gradleVersion = '3.1'
 }
 
-task 'add-copyright-headers' << {
-    def copyrightNotice = """/*
+task 'add-copyright-headers' {
+    doLast {
+        def copyrightNotice = """/*
  * Copyright (C) 2011 Thomas Akehurst
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -486,12 +497,13 @@ task 'add-copyright-headers' << {
  */
 """
 
-    def srcDir = new File('src')
-    srcDir.eachFileRecurse { file ->
-        if (file.name.endsWith(".java") && !file.text.contains(copyrightNotice)) {
-            println "Adding copyright header to $file.path"
-            def newFileText = copyrightNotice + file.text;
-            file.text = newFileText;
+        def srcDir = new File('src')
+        srcDir.eachFileRecurse { file ->
+            if (file.name.endsWith(".java") && !file.text.contains(copyrightNotice)) {
+                println "Adding copyright header to $file.path"
+                def newFileText = copyrightNotice + file.text;
+                file.text = newFileText;
+            }
         }
     }
 }

@@ -252,6 +252,19 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void conditionalHelper() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                        .url("/things")
+                        .header("X-Thing", "1"),
+                aResponse().withBody(
+                        "{{#eq request.headers.X-Thing.[0] '1'}}ONE{{else}}MANY{{/eq}}"
+                )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("ONE"));
+    }
+
+    @Test
     public void customHelper() {
         Helper<String> helper = new Helper<String>() {
             @Override
