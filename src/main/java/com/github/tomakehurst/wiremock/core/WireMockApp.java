@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
@@ -54,7 +55,6 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
-    private static final PlainTextDiffRenderer diffRenderer = new PlainTextDiffRenderer();
 
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
@@ -64,10 +64,15 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+    private final PlainTextDiffRenderer diffRenderer;
 
     private final Recorder recorder;
 
     private Options options;
+
+    static {
+        Xml.optimizeFactoriesLoading();
+    }
 
     public WireMockApp(Options options, Container container) {
         this.options = options;
@@ -79,11 +84,13 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = options.mappingsSaver();
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+        Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
         stubMappings = new InMemoryStubMappings(
-            options.extensionsOfType(RequestMatcherExtension.class),
+                customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
             fileSource);
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
         this.container = container;
         loadDefaultMappings();
@@ -108,6 +115,7 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
         loadDefaultMappings();
     }

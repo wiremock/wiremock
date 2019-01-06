@@ -86,25 +86,25 @@ public class JsonTest {
             "}"
         ));
 
-        assertThat(count, is(16));
+        assertThat(count, is(24));
     }
 
     @Test
-    public void counts0ForEmptyArray() {
+    public void counts1ForEmptyArray() {
         int count = Json.deepSize(Json.node(
             "[]"
         ));
 
-        assertThat(count, is(0));
+        assertThat(count, is(1));
     }
 
     @Test
-    public void counts0ForEmptyObject() {
+    public void counts1ForEmptyObject() {
         int count = Json.deepSize(Json.node(
             "{}"
         ));
 
-        assertThat(count, is(0));
+        assertThat(count, is(1));
     }
 	
 	private static class TestPojo {

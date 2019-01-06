@@ -21,6 +21,8 @@ import com.google.common.base.Objects;
 
 public class UrlPattern implements NamedValueMatcher<String> {
 
+    public static final UrlPattern ANY = new UrlPattern(new AnythingPattern(), false);
+
     protected final StringValuePattern pattern;
     private final boolean regex;
 

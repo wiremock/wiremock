@@ -16,8 +16,11 @@
 package com.github.tomakehurst.wiremock.verification.diff;
 
 import com.github.tomakehurst.wiremock.common.Strings;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Map;
 
 import static java.lang.System.lineSeparator;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -29,12 +32,14 @@ public class PlainTextDiffRenderer {
     private final String SEPARATOR = lineSeparator();
 
     private final int consoleWidth;
+    private final Map<String, RequestMatcherExtension> customMatcherExtensions;
 
-    public PlainTextDiffRenderer() {
-        this(119);
+    public PlainTextDiffRenderer(Map<String, RequestMatcherExtension> customMatcherExtensions) {
+        this(customMatcherExtensions, 119);
     }
 
-    public PlainTextDiffRenderer(int consoleWidth) {
+    public PlainTextDiffRenderer(Map<String, RequestMatcherExtension> customMatcherExtensions, int consoleWidth) {
+        this.customMatcherExtensions = customMatcherExtensions;
         this.consoleWidth = consoleWidth;
     }
 
@@ -47,7 +52,7 @@ public class PlainTextDiffRenderer {
             writeBlankLine(sb);
         }
 
-        for (DiffLine<?> line: diff.getLines()) {
+        for (DiffLine<?> line: diff.getLines(customMatcherExtensions)) {
             boolean isBodyLine = line.getRequestAttribute().equals("Body");
             if (!isBodyLine || line.isForNonMatch()) {
                 writeLine(sb, line.getPrintedPatternValue(), line.getActual().toString(), line.getMessage());

@@ -20,10 +20,15 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ClasspathFileSourceTest {
 
@@ -73,6 +78,17 @@ public class ClasspathFileSourceTest {
 
         String contents = new String(binaryFile.readContents());
         assertThat(contents, containsString("zip"));
+    }
+
+    @Test
+    public void readsBinaryFileFromZipWithoutMatch() {
+        classpathFileSource = new ClasspathFileSource("zippeddir");
+        try {
+            classpathFileSource.getBinaryFileNamed("thisWillNotBeFound.txt");
+            fail("Should have thrown exception.");
+        } catch (Exception e) {
+            assertThat("Informative error", e.getMessage(), startsWith("Was unable to find entry: \"zippeddir/thisWillNotBeFound.txt\", found:"));
+        }
     }
 
     @Test

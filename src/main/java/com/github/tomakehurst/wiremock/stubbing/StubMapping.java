@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.stubbing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -31,6 +32,7 @@ import java.util.UUID;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 @JsonPropertyOrder({ "id", "name", "request", "newRequest", "response", "uuid" })
+@JsonIgnoreProperties({ "$schema" }) // Allows this to be added as a hint to IDEs like VS Code
 public class StubMapping {
 	
 	public static final int DEFAULT_PRIORITY = 5; 
