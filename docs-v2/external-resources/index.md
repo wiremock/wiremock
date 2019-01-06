@@ -19,6 +19,9 @@ examples for client testing.
 A Spring REST Docs integration for WireMock that generates WireMock stub mappings from your test cases:<br>
 [https://github.com/epages-de/restdocs-wiremock](https://github.com/epages-de/restdocs-wiremock)
 
+WireMock Maven Plugin:<br>
+[https://github.com/automatictester/wiremock-maven-plugin](https://github.com/automatictester/wiremock-maven-plugin)
+
 
 ## Extensions
 Simulate webhooks with this extension:<br>
