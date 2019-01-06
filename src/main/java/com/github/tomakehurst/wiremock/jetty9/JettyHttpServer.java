@@ -41,6 +41,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
 import java.lang.reflect.InvocationTargetException;
@@ -54,7 +55,7 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 
-public class JettyHttpServer implements HttpServer {
+public abstract class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
 
@@ -217,7 +218,7 @@ public class JettyHttpServer implements HttpServer {
         return httpsConnector.getLocalPort();
     }
 
-    protected long stopTimeout() {
+    public long stopTimeout() {
         return jettyServer.getStopTimeout();
     }
 
@@ -247,7 +248,7 @@ public class JettyHttpServer implements HttpServer {
             NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
-        CustomizedSslContextFactory sslContextFactory = new CustomizedSslContextFactory();
+        SslContextFactory sslContextFactory = buildSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
@@ -276,6 +277,8 @@ public class JettyHttpServer implements HttpServer {
                 new HttpConnectionFactory(httpConfig)
         );
     }
+
+    protected abstract SslContextFactory buildSslContextFactory();
 
     protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
         HttpConfiguration httpConfig = new HttpConfiguration();

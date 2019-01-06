@@ -1,0 +1,37 @@
+sourceCompatibility = 1.7
+targetCompatibility = 1.8
+
+def versions = [
+    handlebars: '4.1.2',
+    jackson: '2.9.8',
+    jacksonDatabind: '2.9.8',
+    jetty  : '9.4.14.v20181114',
+]
+
+dependencies {
+    compile "org.eclipse.jetty:jetty-server:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
+    compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
+
+    compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
+        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+        "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
+
+    compile "com.github.jknack:handlebars:$versions.handlebars", {
+        exclude group: 'org.mozilla', module: 'rhino'
+    }
+    compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
+        exclude group: 'org.mozilla', module: 'rhino'
+    }
+}
+
+task dumpThing {
+    doLast {
+        println shadowJar.baseName
+    }
+
+}
+
+shadowJar.baseName = 'wiremock-jre8-standalone'
+jar.baseName = 'wiremock-jre8'

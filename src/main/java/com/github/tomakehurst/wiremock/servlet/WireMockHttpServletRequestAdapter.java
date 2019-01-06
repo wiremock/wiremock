@@ -278,7 +278,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
                 MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
                 MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
                 request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
-                request.setAttribute(org.eclipse.jetty.server.Request.__MULTIPART_INPUT_STREAM, inputStreamParser);
+                request.setAttribute("org.eclipse.jetty.multiPartInputStream", inputStreamParser);
                 cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
                     @Override
                     public Part apply(javax.servlet.http.Part input) {
