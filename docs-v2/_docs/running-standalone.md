@@ -39,6 +39,9 @@ certificate to use with HTTPS. The keystore must have a password of
 If this option isn't used WireMock will default to its own self-signed
 certificate.
 
+`--keymanager-password`: Password to the key manager, if something other than
+"password".
+
 `--keystore-password`: Password to the keystore, if something other than
 "password".
 

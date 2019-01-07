@@ -66,6 +66,7 @@ public class CommandLineOptions implements Options {
 	private static final String PORT = "port";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
+    private static final String HTTPS_KEYMANAGER_PASSWORD = "keymanager-password";
     private static final String HTTPS_KEYSTORE = "https-keystore";
     private static final String HTTPS_KEYSTORE_PASSWORD = "keystore-password";
     private static final String HTTPS_KEYSTORE_TYPE = "keystore-type";
@@ -113,6 +114,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(HTTPS_KEYSTORE_PASSWORD, "Password for the alternative keystore.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(HTTPS_KEYSTORE_TYPE, "Type of the alternative keystore.").withRequiredArg().defaultsTo("JKS");
         optionParser.accepts(HTTPS_KEYSTORE, "Path to an alternative keystore for HTTPS. Password is assumed to be \"password\" if not specified.").requiredIf(HTTPS_TRUSTSTORE).requiredIf(HTTPS_KEYSTORE_PASSWORD).withRequiredArg().defaultsTo(Resources.getResource("keystore").toString());
+        optionParser.accepts(HTTPS_KEYMANAGER_PASSWORD, "Password for the alternative key manager.").withRequiredArg().defaultsTo("password");
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
@@ -239,6 +241,7 @@ public class CommandLineOptions implements Options {
     public HttpsSettings httpsSettings() {
         return new HttpsSettings.Builder()
                 .port(httpsPortNumber())
+                .keyManagerPassword((String) optionSet.valueOf(HTTPS_KEYMANAGER_PASSWORD))
                 .keyStorePath((String) optionSet.valueOf(HTTPS_KEYSTORE))
                 .keyStorePassword((String) optionSet.valueOf(HTTPS_KEYSTORE_PASSWORD))
                 .keyStoreType((String) optionSet.valueOf(HTTPS_KEYSTORE_TYPE))

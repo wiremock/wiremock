@@ -250,7 +250,8 @@ public class JettyHttpServer implements HttpServer {
         CustomizedSslContextFactory sslContextFactory = new CustomizedSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
-        sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
+        sslContextFactory.setKeyManagerPassword(httpsSettings.keyManagerPassword());
+        sslContextFactory.setKeyStorePassword(httpsSettings.keyStorePassword());
         sslContextFactory.setKeyStoreType(httpsSettings.keyStoreType());
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());

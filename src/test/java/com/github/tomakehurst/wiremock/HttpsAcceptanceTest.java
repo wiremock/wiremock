@@ -160,7 +160,7 @@ public class HttpsAcceptanceTest {
     @Test
     public void acceptsAlternativeKeystoreWithNonDefaultPassword() throws Exception {
         String keystorePath = Resources.getResource("test-keystore-pwd").toString();
-        startServerWithKeystore(keystorePath, "anotherpassword");
+        startServerWithKeystore(keystorePath, "topsecret", "anotherpassword");
         stubFor(get(urlEqualTo("/alt-password-https")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         assertThat(contentFor(url("/alt-password-https")), is("HTTPS content"));
@@ -278,11 +278,12 @@ public class HttpsAcceptanceTest {
         httpClient = HttpClientFactory.createClient();
     }
 
-    private void startServerWithKeystore(String keystorePath, String keystorePassword) {
+    private void startServerWithKeystore(String keystorePath, String keystorePassword, String keymanagerPassword) {
         WireMockConfiguration config = wireMockConfig().dynamicPort().dynamicHttpsPort();
         if (keystorePath != null) {
             config.keystorePath(keystorePath);
             config.keystorePassword(keystorePassword);
+            config.keymanagerPassword(keymanagerPassword);
         }
 
         wireMockServer = new WireMockServer(config);
@@ -293,7 +294,7 @@ public class HttpsAcceptanceTest {
     }
 
     private void startServerWithKeystore(String keystorePath) {
-        startServerWithKeystore(keystorePath, "password");
+        startServerWithKeystore(keystorePath, "password", "password");
     }
 
     private void startServerWithDefaultKeystore() {

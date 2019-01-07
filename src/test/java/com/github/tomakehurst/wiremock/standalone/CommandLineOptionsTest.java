@@ -107,6 +107,14 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void setsKeyManagerPassword() {
+        CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
+                "--https-keystore", "/my/keystore",
+                "--keymanager-password", "somekmpwd");
+        assertThat(options.httpsSettings().keyManagerPassword(), is("somekmpwd"));
+    }
+
+    @Test
     public void setsTrustStorePathAndPassword() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443",
                 "--https-keystore", "/my/keystore",
