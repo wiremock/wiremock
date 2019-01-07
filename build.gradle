@@ -127,6 +127,10 @@ subprojects {
         from project(':').sourceSets.test.resources.srcDirs
     }
 
+    dependencies {
+        testRuntime files('../src/test/resources/classpath file source/classpathfiles.zip', '../src/test/resources/classpath-filesource.jar')
+    }
+
     def shouldPublishLocally = System.getProperty('LOCAL_PUBLISH')
 
     configurations {
