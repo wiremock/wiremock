@@ -23,24 +23,21 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Maps;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-import org.eclipse.jetty.util.MultiPartInputStreamParser;
 
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
@@ -59,16 +56,16 @@ public class WireMockHttpServletRequestAdapter implements Request {
     public static final String ORIGINAL_REQUEST_KEY = "wiremock.ORIGINAL_REQUEST";
 
     private final HttpServletRequest request;
+    private final MultipartRequestConfigurer multipartRequestConfigurer;
     private byte[] cachedBody;
     private String urlPrefixToRemove;
     private Collection<Part> cachedMultiparts;
 
-    public WireMockHttpServletRequestAdapter(HttpServletRequest request) {
+    public WireMockHttpServletRequestAdapter(HttpServletRequest request,
+                                             MultipartRequestConfigurer multipartRequestConfigurer,
+                                             String urlPrefixToRemove) {
         this.request = request;
-    }
-
-    public WireMockHttpServletRequestAdapter(HttpServletRequest request, String urlPrefixToRemove) {
-        this.request = request;
+        this.multipartRequestConfigurer = multipartRequestConfigurer;
         this.urlPrefixToRemove = urlPrefixToRemove;
     }
 
@@ -273,12 +270,11 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
         if (cachedMultiparts == null) {
             try {
-                String contentTypeHeaderValue = from(contentTypeHeader().values()).join(Joiner.on(" "));
-                InputStream inputStream = new ByteArrayInputStream(getBody());
-                MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
-                MultipartConfigElement multipartConfigElement = new MultipartConfigElement((String)null);
-                request.setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
-                request.setAttribute("org.eclipse.jetty.multiPartInputStream", inputStreamParser);
+//                String contentTypeHeaderValue = from(contentTypeHeader().values()).join(Joiner.on(" "));
+//                InputStream inputStream = new ByteArrayInputStream(getBody());
+//                MultiPartInputStreamParser inputStreamParser = new MultiPartInputStreamParser(inputStream, contentTypeHeaderValue, null, null);
+//                request.setAttribute("org.eclipse.jetty.multiPartInputStream", inputStreamParser);
+                multipartRequestConfigurer.configure(request);
                 cachedMultiparts = from(safelyGetRequestParts()).transform(new Function<javax.servlet.http.Part, Part>() {
                     @Override
                     public Part apply(javax.servlet.http.Part input) {
