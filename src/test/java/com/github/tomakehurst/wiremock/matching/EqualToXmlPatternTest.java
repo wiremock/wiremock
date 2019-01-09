@@ -32,9 +32,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EqualToXmlPatternTest {
 
@@ -299,5 +297,16 @@ public class EqualToXmlPatternTest {
             one(notifier).info(with(containsString(message)));
         }});
         LocalNotifier.set(notifier);
+    }
+
+    @Test
+    public void returnsMatchWhenTextNodeIsIgnored() {
+        String expectedXml = "<a>#{xmlunit.ignore}</a>";
+        String actualXml = "<a>123</a>";
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}");
+        MatchResult matchResult = pattern.match(actualXml);
+
+        assertTrue(matchResult.isExactMatch());
+        assertEquals(matchResult.getDistance(), 0.0, 0);
     }
 }

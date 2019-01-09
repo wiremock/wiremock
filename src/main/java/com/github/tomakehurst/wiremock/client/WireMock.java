@@ -17,9 +17,6 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
-import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
-import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
-import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -30,6 +27,9 @@ import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
+import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
+import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -196,6 +196,10 @@ public class WireMock {
 
     public static StringValuePattern equalToXml(String value) {
         return new EqualToXmlPattern(value);
+    }
+
+    public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
+	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
     }
 
     public static MatchesXPathPattern matchingXPath(String value) {
