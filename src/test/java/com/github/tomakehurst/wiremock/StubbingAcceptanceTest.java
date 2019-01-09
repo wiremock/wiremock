@@ -15,22 +15,19 @@
  */
 package com.github.tomakehurst.wiremock;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
-import com.github.tomakehurst.wiremock.common.Metadata;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
-import com.github.tomakehurst.wiremock.testsupport.MultipartBody;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
-
-import java.util.*;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -40,12 +37,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.testsupport.MultipartBody.part;
@@ -53,13 +56,9 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.Collections.singletonList;
-import static org.apache.http.entity.ContentType.APPLICATION_JSON;
-import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
-import static org.apache.http.entity.ContentType.APPLICATION_XML;
-import static org.apache.http.entity.ContentType.TEXT_PLAIN;
+import static org.apache.http.entity.ContentType.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
@@ -491,6 +490,69 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.request("OPTIONS", "/no-body");
         assertThat(response.statusCode(), is(200));
     }
+
+	@Test
+	public void matchXmlBodyWhenTextNodeIsIgnored() throws UnsupportedEncodingException {
+		String expectedXml = "<a>#{xmlunit.ignore}</a>";
+		boolean enablePlaceholers = true;
+		String placeholderOpeningDelimiterRegex = "#\\{";
+		String placeholderOpeningDelimiterRegexInJSON = "#\\\\{";
+		String placeholderClosingDelimiterRegex = "}";
+		String actualXml = "<a>123</a>";
+		String url = "/some/thing";
+		final String stubSpec =
+			"{" +
+				"\"request\": {" +
+					"\"url\": \"" + url + "\"," +
+					"\"method\": \"POST\"," +
+					"\"bodyPatterns\": [{" +
+						"\"equalToXml\": \"" + expectedXml + "\"," +
+						"\"enablePlaceholders\": " + enablePlaceholers + "," +
+						"\"placeholderOpeningDelimiterRegex\": \"" + placeholderOpeningDelimiterRegexInJSON + "\"," +
+						"\"placeholderClosingDelimiterRegex\": \"" + placeholderClosingDelimiterRegex + "\"" +
+					"}]" +
+				"}," +
+				"\"response\": {" +
+					"\"status\": 200" +
+				"}" +
+			"}";
+		testClient.post("/__admin/mappings", new StringEntity(stubSpec));
+
+		WireMockResponse response = testClient.post(url, new StringEntity(actualXml));
+		assertEquals(200, response.statusCode());
+
+		wireMockServer.verify(postRequestedFor(urlEqualTo(url))
+				.withRequestBody(equalToXml(expectedXml, enablePlaceholers, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex)));
+	}
+
+	@Test
+	public void equalToXmlPatternWithPlaceholdersJSONSerialization() throws IOException {
+		String requestBody = "<a>#{xmlunit.ignore}</a>";
+		boolean enablePlaceholers = true;
+		String placeholderOpeningDelimiterRegex = "#\\{";
+		String placeholderOpeningDelimiterRegexInJSON = "#\\\\{";
+		String placeholderClosingDelimiterRegex = "}";
+		String expectedBodyPatternsJSONInResponse =
+			"[{" +
+				"\"equalToXml\": \"" + requestBody + "\"," +
+				"\"enablePlaceholders\": " + enablePlaceholers + "," +
+				"\"placeholderOpeningDelimiterRegex\": \"" + placeholderOpeningDelimiterRegexInJSON + "\"," +
+				"\"placeholderClosingDelimiterRegex\": \"" + placeholderClosingDelimiterRegex + "\"" +
+			"}]";
+
+		StubMapping stubMapping = wireMockServer.stubFor(post("/some/thing")
+				.withRequestBody(equalToXml(requestBody, enablePlaceholers, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex)));
+
+		WireMockResponse response = testClient.get("/__admin/mappings/" + stubMapping.getId());
+		assertEquals(200, response.statusCode());
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ArrayNode expectedBodyPatterns = (ArrayNode) objectMapper.readTree(expectedBodyPatternsJSONInResponse);
+		ObjectNode responseBody = (ObjectNode) objectMapper.readTree(response.content());
+		ObjectNode request = (ObjectNode) responseBody.findValue("request");
+		ArrayNode actualBodyPatterns = (ArrayNode) request.findPath("bodyPatterns");
+		assertTrue(Objects.equals(expectedBodyPatterns, actualBodyPatterns));
+	}
 
     @Test
     public void matchesQueryParamsUnencoded() {
