@@ -198,6 +198,10 @@ public class WireMock {
         return new EqualToXmlPattern(value);
     }
 
+    public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders) {
+        return new EqualToXmlPattern(value, enablePlaceholders, null, null);
+    }
+
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
 	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
     }
