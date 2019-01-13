@@ -85,22 +85,14 @@ public class MatchesXPathPattern extends PathPattern {
     }
 
     @Override
-    protected MatchResult isSimpleJsonPathMatch(String value) {
-        if (value == null) {
-            return MatchResult.noMatch();
-        }
-
+    protected MatchResult isSimpleMatch(String value) {
         NodeList nodeList = findXmlNodesMatching(value);
 
         return MatchResult.of(nodeList != null && nodeList.getLength() > 0);
     }
 
     @Override
-    protected MatchResult isAdvancedJsonPathMatch(String value) {
-        if (value == null) {
-            return MatchResult.noMatch();
-        }
-
+    protected MatchResult isAdvancedMatch(String value) {
         NodeList nodeList = findXmlNodesMatching(value);
         if (nodeList == null || nodeList.getLength() == 0) {
             return MatchResult.noMatch();
@@ -117,6 +109,12 @@ public class MatchesXPathPattern extends PathPattern {
     }
 
     private NodeList findXmlNodesMatching(String value) {
+        // For performance reason, don't try to parse non XML value
+        if (value == null || !value.trim().startsWith("<")) {
+            notifier().info(String.format(
+                "Warning: failed to parse the XML document\nXML: %s", value));
+            return null;
+        }
         try {
             DocumentBuilder documentBuilder = Xml.newDocumentBuilderFactory().newDocumentBuilder();
             documentBuilder.setErrorHandler(new SilentErrorHandler());
