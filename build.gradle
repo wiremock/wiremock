@@ -29,20 +29,21 @@ allprojects {
     }
 
     def versions = [
-        handlebars: '4.0.7',
-        jackson: '2.8.11',
-        jacksonDatabind: '2.8.11.3',
-        jetty: '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
-        xmlUnit: '2.5.1'
+        handlebars     : '4.0.7',
+        jackson        : '2.9.8',
+        jacksonDatabind: '2.9.8',
+        jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+        xmlUnit        : '2.5.1',
+        guava          : '20.0'
     ]
 //    def versions = [
-//        handlebars: '4.1.2',
-////    jackson: '2.9.8',
-////    jacksonDatabind: '2.9.8',
-//        jackson: '2.8.11',
-//        jacksonDatabind: '2.8.11.3',
-//        jetty  : '9.4.14.v20181114',
-//        xmlUnit: '2.5.1'
+//        handlebars     : '4.1.2',
+//        jackson        : '2.9.8',
+//        jacksonDatabind: '2.9.8',
+//        jetty          : '9.4.14.v20181114',
+//        xmlUnit        : '2.5.1',
+////        guava          : '27.0.1-jre',
+//        guava          : '20.0'
 //    ]
 
     dependencies {
@@ -50,7 +51,7 @@ allprojects {
         compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
         compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
         compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-        compile "com.google.guava:guava:20.0"
+        compile "com.google.guava:guava:$versions.guava"
         compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
             "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"

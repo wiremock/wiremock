@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -31,26 +30,51 @@ import java.util.UUID;
 public class ProxiedServeEventFilters implements Predicate<ServeEvent> {
 
     @JsonUnwrapped
-    private final RequestPattern filters;
+    private RequestPattern filters;
 
     @JsonUnwrapped
-    private final List<UUID> ids;
+    private List<UUID> ids;
 
     @JsonUnwrapped
-    private final boolean allowNonProxied;
+    private boolean allowNonProxied;
 
+    public static final ProxiedServeEventFilters ALLOW_ALL = new ProxiedServeEventFilters(null, null, false);
+
+    // For Jackson. This class needs to be mutable as @JsonUnwrapped doesn't yet do constructor based serialisation
     public ProxiedServeEventFilters() {
-        this(null, null, false);
     }
 
-    @JsonCreator
     public ProxiedServeEventFilters(
-        @JsonProperty("filters") RequestPattern filters,
-        @JsonProperty("ids") List<UUID> ids,
-        @JsonProperty("allowNonProxied") boolean allowNonProxied
+        RequestPattern filters,
+        List<UUID> ids,
+        boolean allowNonProxied
     ) {
         this.filters = filters;
         this.ids = ids;
+        this.allowNonProxied = allowNonProxied;
+    }
+
+    public RequestPattern getFilters() {
+        return filters;
+    }
+
+    public void setFilters(RequestPattern filters) {
+        this.filters = filters;
+    }
+
+    public List<UUID> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<UUID> ids) {
+        this.ids = ids;
+    }
+
+    public boolean isAllowNonProxied() {
+        return allowNonProxied;
+    }
+
+    public void setAllowNonProxied(boolean allowNonProxied) {
         this.allowNonProxied = allowNonProxied;
     }
 

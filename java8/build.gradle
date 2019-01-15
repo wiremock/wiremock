@@ -5,12 +5,10 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.8
 
 def versions = [
-    handlebars: '4.1.2',
-//    jackson: '2.9.8',
-//    jacksonDatabind: '2.9.8',
-    jackson: '2.8.11',
-    jacksonDatabind: '2.8.11.3',
-    jetty  : '9.4.14.v20181114',
+    handlebars     : '4.1.2',
+    jetty          : '9.4.14.v20181114',
+//    guava          : '27.0.1-jre',
+    guava          : '20.0'
 ]
 
 dependencies {
@@ -19,9 +17,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
     compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
 
-    compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-        "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
+    compile "com.google.guava:guava:$versions.guava"
 
     compile "com.github.jknack:handlebars:$versions.handlebars", {
         exclude group: 'org.mozilla', module: 'rhino'
