@@ -170,7 +170,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     public String getHeader(String key) {
         List<String> headerNames = list(request.getHeaderNames());
         for (String currentKey : headerNames) {
-            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+            if (currentKey.equalsIgnoreCase(key)) {
                 return request.getHeader(currentKey);
             }
         }
@@ -183,7 +183,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     public HttpHeader header(String key) {
         List<String> headerNames = list(request.getHeaderNames());
         for (String currentKey : headerNames) {
-            if (currentKey.toLowerCase().equals(key.toLowerCase())) {
+            if (currentKey.equalsIgnoreCase(key)) {
                 List<String> valueList = list(request.getHeaders(currentKey));
                 if (valueList.isEmpty()) {
                     return HttpHeader.empty(key);
@@ -219,7 +219,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
     @SuppressWarnings("unchecked")
     @Override
     public Set<String> getAllHeaderKeys() {
-        LinkedHashSet<String> headerKeys = new LinkedHashSet<String>();
+        LinkedHashSet<String> headerKeys = new LinkedHashSet<>();
         for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements(); ) {
             headerKeys.add(headerNames.nextElement());
         }
@@ -253,7 +253,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
 
     @Override
     public boolean isBrowserProxyRequest() {
-        if (!isJetty()) {
+        if (!JettyUtils.isJetty()) {
             return false;
         }
         if (request instanceof org.eclipse.jetty.server.Request) {
@@ -334,22 +334,7 @@ public class WireMockHttpServletRequestAdapter implements Request {
         Request originalRequest = (Request) request.getAttribute(ORIGINAL_REQUEST_KEY);
         return Optional.fromNullable(originalRequest);
     }
-
-    private boolean isJetty() {
-        try {
-            getClass("org.eclipse.jetty.server.Request");
-            return true;
-        } catch (Exception e) {
-        }
-        return false;
-    }
-
-    private void getClass(String type) throws ClassNotFoundException {
-        ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
-        ClassLoader loader = contextCL == null ? WireMockHttpServletRequestAdapter.class.getClassLoader() : contextCL;
-        Class.forName(type, false, loader);
-    }
-
+    
     @Override
     public String toString() {
         return request.toString() + getBodyAsString();
