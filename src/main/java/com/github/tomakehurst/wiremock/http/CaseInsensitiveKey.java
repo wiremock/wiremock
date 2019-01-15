@@ -35,7 +35,7 @@ public class CaseInsensitiveKey {
 
         CaseInsensitiveKey that = (CaseInsensitiveKey) o;
 
-        if (key != null ? !key.toLowerCase().equals(that.key.toLowerCase()) : that.key != null) return false;
+        if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) return false;
 
         return true;
     }
