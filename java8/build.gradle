@@ -1,14 +1,13 @@
 jar.baseName = 'wiremock-jre8'
 shadowJar.baseName = 'wiremock-jre8-standalone'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 def versions = [
     handlebars     : '4.1.2',
     jetty          : '9.4.14.v20181114',
-//    guava          : '27.0.1-jre',
-    guava          : '20.0'
+    guava          : '27.0.1-jre'
 ]
 
 dependencies {

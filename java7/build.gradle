@@ -1,22 +1,2 @@
 jar.baseName = 'wiremock'
 shadowJar.baseName = 'wiremock-standalone'
-
-def versions = [
-    handlebars     : '4.0.7',
-    jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
-    xmlUnit        : '2.5.1'
-]
-
-dependencies {
-    compile "org.eclipse.jetty:jetty-server:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-servlet:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
-    compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
-
-    compile "com.github.jknack:handlebars:$versions.handlebars", {
-        exclude group: 'org.mozilla', module: 'rhino'
-    }
-    compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
-        exclude group: 'org.mozilla', module: 'rhino'
-    }
-}

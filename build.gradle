@@ -42,8 +42,8 @@ allprojects {
 //        jacksonDatabind: '2.9.8',
 //        jetty          : '9.4.14.v20181114',
 //        xmlUnit        : '2.5.1',
-////        guava          : '27.0.1-jre',
-//        guava          : '20.0'
+//        guava          : '27.0.1-jre',
+////        guava          : '20.0'
 //    ]
 
     dependencies {
