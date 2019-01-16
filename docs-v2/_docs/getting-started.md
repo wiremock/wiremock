@@ -6,55 +6,33 @@ redirect_from: "/getting-started.html"
 description: Getting started with WireMock. Java, JUnit, standalone, servlet container.
 ---
 
-WireMock is distributed in two flavours - a standard JAR containing just
-WireMock, and a standalone fat JAR containing WireMock plus all its
-dependencies.
+## Installation
 
-The standalone JAR's dependencies are shaded i.e. they are hidden in
-alternative packages. This allows WireMock to be used in projects with
-conflicting versions of its dependencies. The standalone JAR is also
-runnable (discussed in more detail below).
+WireMock is distributed via Maven Central and can be included in your project using common build tools' dependency management.
 
-**Currently it is recommended that you use the standalone JAR as a dependency with Spring Boot projects. This avoids a conflict over the Jetty version**
+To add the standard WireMock JAR as a project dependency, put the following in the dependencies section of your build file:
 
-## Maven
-
-To add the standard WireMock JAR as a project dependency, put the
-following in the dependencies section of your POM:
+### Maven
 
 ```xml
 <dependency>
     <groupId>com.github.tomakehurst</groupId>
-    <artifactId>wiremock</artifactId>
+    <artifactId>wiremock-jre8</artifactId>
     <version>{{ site.wiremock_version }}</version>
     <scope>test</scope>
 </dependency>
 ```
 
-Or to use the standalone JAR:
-
-```xml
-<dependency>
-    <groupId>com.github.tomakehurst</groupId>
-    <artifactId>wiremock-standalone</artifactId>
-    <version>{{ site.wiremock_version }}</version>
-</dependency>
-```
-
-## Gradle
+### Gradle
 
 ```groovy
-testCompile "com.github.tomakehurst:wiremock:{{ site.wiremock_version }}"
+testCompile "com.github.tomakehurst:wiremock-jre8:{{ site.wiremock_version }}"
 ```
 
-Or
+WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
+See [Download and Installation](/docs/download-and-installation/) for details.
 
-```groovy
-testCompile "com.github.tomakehurst:wiremock-standalone:{{ site.wiremock_version }}"
-```
-
-## JUnit 4.x
-
+## Writing a test with JUnit 4.x
 
 To use WireMock's fluent API add the following import:
 
@@ -101,7 +79,7 @@ For more details on verifying requests and stubbing responses, see [Stubbing](/d
 
 For more information on the JUnit rule see [The JUnit Rule](/docs/junit-rule/).
 
-## Detailed configuration
+## Changing port numbers
 
 For a bit more control over the settings of the WireMock server created
 by the rule you can pass a fluently built Options object to either
@@ -116,7 +94,6 @@ public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().port(8089).
 ```
 
 ### Random port numbers
-
 
 You can have WireMock (or more accurately the JVM) pick random, free
 HTTP and HTTPS ports (which is a great idea if you want to run your
