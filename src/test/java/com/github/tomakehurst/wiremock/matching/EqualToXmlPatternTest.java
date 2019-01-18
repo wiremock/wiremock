@@ -15,15 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.http.entity.StringEntity;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -31,16 +26,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class EqualToXmlPatternTest {
@@ -351,21 +343,5 @@ public class EqualToXmlPatternTest {
 
         assertTrue(matchResult.isExactMatch());
         assertEquals(matchResult.getDistance(), 0.0, 0);
-    }
-
-    @Test
-    public void returnsMatchWhenTextNodeIsIgnored_AcceptanceTest() throws UnsupportedEncodingException {
-        String expectedXml = "<a>#{xmlunit.ignore}</a>";
-        String actualXml = "<a>123</a>";
-        WireMockTestClient client = new WireMockTestClient(wm.port());
-        String url = "/some/thing";
-        EqualToXmlPattern equalToXmlPattern = equalToXml(expectedXml, true, "#\\{", "}");
-
-        wm.stubFor(post(urlEqualTo(url)).withRequestBody(equalToXmlPattern)
-                .willReturn(aResponse().withStatus(200)));
-
-        client.post(url, new StringEntity(actualXml));
-
-        verify(postRequestedFor(urlEqualTo(url)).withRequestBody(equalToXmlPattern));
     }
 }
