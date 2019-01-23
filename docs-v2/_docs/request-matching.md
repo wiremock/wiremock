@@ -655,7 +655,7 @@ JSON:
 
 #### Use placeholders
 
-The XMLUnit placeholders feature is supported in WireMock. For example, when comparing the XML documents, you can ignore some text nodes.
+The XMLUnit [Placeholders](https://github.com/xmlunit/user-guide/wiki/Placeholders) feature is supported in WireMock. For example, when comparing the XML documents, you can ignore some text nodes.
 
 Java:
 
