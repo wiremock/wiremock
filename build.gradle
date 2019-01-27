@@ -90,7 +90,7 @@ allprojects {
         testCompile "com.googlecode.jarjar:jarjar:1.3"
         testCompile "commons-io:commons-io:2.4"
         testCompile 'org.scala-lang:scala-library:2.11.12'
-        testCompile 'org.littleshoot:littleproxy:1.1.2'
+        testCompile 'org.littleshoot:littleproxy:1.1.2:littleproxy-shade'
         testCompile 'org.apache.httpcomponents:httpmime:4.5'
 
         testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
