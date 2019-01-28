@@ -59,6 +59,7 @@ allprojects {
         compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
         compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
         compile "com.jayway.jsonpath:json-path:2.4.0"
+        compile "org.ow2.asm:asm:7.0"
         compile "org.slf4j:slf4j-api:1.7.12"
         compile "net.sf.jopt-simple:jopt-simple:5.0.3"
         compile("junit:junit:4.12") {
