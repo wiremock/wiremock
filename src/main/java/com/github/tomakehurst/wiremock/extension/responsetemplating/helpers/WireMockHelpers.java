@@ -82,5 +82,13 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context.toString(), options);
         }
+    },
+    param {
+        private HandlebarsBodyParamHelper helper = new HandlebarsBodyParamHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context.toString(), options);
+        }
     }
 }
