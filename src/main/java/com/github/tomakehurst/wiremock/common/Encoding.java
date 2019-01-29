@@ -21,11 +21,10 @@ public class Encoding {
 
     private static Base64Encoder getInstance() {
         if (encoder == null) {
-            try {
-                Class.forName("javax.xml.bind.DatatypeConverter");
-                encoder = new DatatypeConverterBase64Encoder();
-            } catch (ClassNotFoundException e) {
-                encoder = new GuavaBase64Encoder();
+            synchronized(Encoding.class) {
+                if (encoder == null) {
+                    encoder = new GuavaBase64Encoder();
+                }
             }
         }
 

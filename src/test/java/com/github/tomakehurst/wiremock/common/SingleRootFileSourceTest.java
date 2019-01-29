@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
+import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +35,7 @@ import static org.junit.Assert.assertThat;
 
 public class SingleRootFileSourceTest {
 
-    public static final String ROOT_PATH = "src/test/resources/filesource";
+    public static final String ROOT_PATH = filePath("filesource");
 
     @SuppressWarnings("unchecked")
 	@Test

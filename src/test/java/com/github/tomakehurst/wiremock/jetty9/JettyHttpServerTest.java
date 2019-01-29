@@ -43,6 +43,7 @@ public class JettyHttpServerTest {
     private Mockery context;
     private AdminRequestHandler adminRequestHandler;
     private StubRequestHandler stubRequestHandler;
+    private JettyHttpServerFactory serverFactory = new JettyHttpServerFactory();
 
     @Before
     public void init() {
@@ -64,7 +65,8 @@ public class JettyHttpServerTest {
                 .wireMockConfig()
                 .jettyStopTimeout(expectedStopTimeout);
 
-        JettyHttpServer jettyHttpServer = new JettyHttpServer(config, adminRequestHandler, stubRequestHandler);
+
+        JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
         assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
     }
@@ -74,7 +76,7 @@ public class JettyHttpServerTest {
         long expectedStopTimeout = 0L;
         WireMockConfiguration config = WireMockConfiguration.wireMockConfig();
 
-        JettyHttpServer jettyHttpServer = new JettyHttpServer(config, adminRequestHandler, stubRequestHandler);
+        JettyHttpServer jettyHttpServer = (JettyHttpServer) serverFactory.buildHttpServer(config, adminRequestHandler, stubRequestHandler);
 
         assertThat(jettyHttpServer.stopTimeout(), is(expectedStopTimeout));
     }

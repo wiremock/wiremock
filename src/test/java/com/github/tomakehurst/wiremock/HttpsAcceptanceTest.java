@@ -28,11 +28,12 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
@@ -303,19 +304,17 @@ public class HttpsAcceptanceTest {
     static String secureContentFor(String url, String clientTrustStore, String trustStorePassword) throws Exception {
         KeyStore trustStore = readKeyStore(clientTrustStore, trustStorePassword);
 
-        // Trust own CA and all self-signed certs
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy())
                 .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
-                .useTLS()
+                .setProtocol("TLS")
                 .build();
 
-        // Allow TLSv1 protocol only
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                 sslcontext,
-                new String[] { "TLSv1" }, // supported protocols
+                null, // supported protocols
                 null,  // supported cipher suites
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                NoopHostnameVerifier.INSTANCE);
 
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(sslsf)
