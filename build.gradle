@@ -1,15 +1,22 @@
-plugins {
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
 }
 
 allprojects {
     buildscript {
         repositories {
+            jcenter()
             maven {
                 url "https://oss.sonatype.org"
             }
             mavenCentral()
         }
+
     }
 
     apply plugin: 'idea'
@@ -115,15 +122,13 @@ allprojects {
             exceptionFormat "full"
         }
     }
-
 }
 
-
 subprojects {
+    apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
-    apply plugin: 'com.github.johnrengelman.shadow'
 
     sourceSets {
         main.java.srcDir project(':').sourceSets.main.java
@@ -327,9 +332,10 @@ subprojects {
                 }
             }
 
-            standaloneJar(MavenPublication) {
+            standaloneJar(MavenPublication) { publication ->
                 artifactId "${jar.baseName}-standalone"
-                from components.shadow
+                project.shadow.component(publication)
+//                from components.shadow
 
                 artifact sourcesJar
                 artifact javadocJar
