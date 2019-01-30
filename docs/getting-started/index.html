@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-01-04T20:12:27+00:00">
+  <meta property="article:published_time" content="2019-01-30T20:59:12+00:00">
   
     <link rel="next" href="/docs/https/" title="HTTPS">
   
@@ -222,6 +222,12 @@
       </a>
       
       <li>
+        <a href="/docs/download-and-installation/">
+
+        Download and Installation
+      </a>
+      
+      <li>
         <a href="/docs/junit-rule/">
 
         The JUnit 4.x Rule
@@ -342,8 +348,8 @@
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Getting Started">
-    <meta itemprop="description" content="WireMock is distributed in two flavours - a standard JAR containing justWireMock, and a standalone fat JAR containing WireMock plus all itsdependencies.">
-    <meta itemprop="datePublished" content="January 04, 2019">
+    <meta itemprop="description" content="Installation">
+    <meta itemprop="datePublished" content="January 30, 2019">
     
 
     <div class="page__inner-wrap">
@@ -353,50 +359,31 @@
       </header>
 
       <section class="page__content" itemprop="text">
-        <p>WireMock is distributed in two flavours - a standard JAR containing just
-WireMock, and a standalone fat JAR containing WireMock plus all its
-dependencies.</p>
+        <h2 id="installation">Installation</h2>
 
-<p>The standalone JAR’s dependencies are shaded i.e. they are hidden in
-alternative packages. This allows WireMock to be used in projects with
-conflicting versions of its dependencies. The standalone JAR is also
-runnable (discussed in more detail below).</p>
+<p>WireMock is distributed via Maven Central and can be included in your project using common build tools’ dependency management.</p>
 
-<p><strong>Currently it is recommended that you use the standalone JAR as a dependency with Spring Boot projects. This avoids a conflict over the Jetty version</strong></p>
+<p>To add the standard WireMock JAR as a project dependency, put the following in the dependencies section of your build file:</p>
 
-<h2 id="maven">Maven</h2>
-
-<p>To add the standard WireMock JAR as a project dependency, put the
-following in the dependencies section of your POM:</p>
+<h3 id="maven">Maven</h3>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.20.0<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.21.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
-<p>Or to use the standalone JAR:</p>
+<h3 id="gradle">Gradle</h3>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-    <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
-    <span class="nt">&lt;artifactId&gt;</span>wiremock-standalone<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.20.0<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.21.0"</span>
 </code></pre></div></div>
 
-<h2 id="gradle">Gradle</h2>
+<p>WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
+See <a href="/docs/download-and-installation/">Download and Installation</a> for details.</p>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock:2.20.0"</span>
-</code></pre></div></div>
-
-<p>Or</p>
-
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-standalone:2.20.0"</span>
-</code></pre></div></div>
-
-<h2 id="junit-4x">JUnit 4.x</h2>
+<h2 id="writing-a-test-with-junit-4x">Writing a test with JUnit 4.x</h2>
 
 <p>To use WireMock’s fluent API add the following import:</p>
 
@@ -440,7 +427,7 @@ tests</a></p>
 
 <p>For more information on the JUnit rule see <a href="/docs/junit-rule/">The JUnit Rule</a>.</p>
 
-<h2 id="detailed-configuration">Detailed configuration</h2>
+<h2 id="changing-port-numbers">Changing port numbers</h2>
 
 <p>For a bit more control over the settings of the WireMock server created
 by the rule you can pass a fluently built Options object to either
@@ -506,7 +493,7 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p>This will start the server on port 8080:</p>
 
-<p>You can <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.20.0/wiremock-standalone-2.20.0.jar">download the standalone JAR from
+<p>You can <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.21.0/wiremock-standalone-2.21.0.jar">download the standalone JAR from
 here</a>.</p>
 
 <p>See <a href="/docs/running-standalone/">Running as a Standalone Process</a> running-standalone for more details and commandline options.</p>
