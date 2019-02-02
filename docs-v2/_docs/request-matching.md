@@ -33,7 +33,7 @@ stubFor(any(urlPathEqualTo("/everything"))
   	aMultipart()
   		.withName("info")
   		.withHeader("Content-Type", containing("charset"))
-  		.withMultipartBody(equalToJson("{}"))
+  		.withBody(equalToJson("{}"))
   )
   .willReturn(aResponse()));
 ```
@@ -306,7 +306,7 @@ Deems a match if the entire attribute value matched the expected regular express
 Java:
 
 ```java
-.withQueryParam("search_term", matches("^(.*)wiremock([A-Za-z]+)$"))
+.withQueryParam("search_term", matching("^(.*)wiremock([A-Za-z]+)$"))
 ```
 
 JSON:
