@@ -38,12 +38,12 @@ public abstract class PathPattern extends StringValuePattern {
     @Override
     public MatchResult match(String value) {
         if (isSimple()) {
-            return isSimpleJsonPathMatch(value);
+            return isSimpleMatch(value);
         }
 
-        return isAdvancedJsonPathMatch(value);
+        return isAdvancedMatch(value);
     }
 
-    protected abstract MatchResult isSimpleJsonPathMatch(String value);
-    protected abstract MatchResult isAdvancedJsonPathMatch(String value);
+    protected abstract MatchResult isSimpleMatch(String value);
+    protected abstract MatchResult isAdvancedMatch(String value);
 }

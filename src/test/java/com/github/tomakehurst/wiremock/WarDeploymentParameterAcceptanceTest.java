@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -45,7 +46,7 @@ public class WarDeploymentParameterAcceptanceTest {
     @Test
     public void testCustomMapping() throws Exception {
         // Test war deployment using a different servlet mapping path (see webappCustomMapping).
-        init("sample-war/src/main/webappCustomMapping", "/mapping");
+        init(sampleWarRootDir() + "/src/main/webappCustomMapping", "/mapping");
         givenThat(get(urlEqualTo("/war/stub")).willReturn(
                 aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
 
@@ -55,7 +56,7 @@ public class WarDeploymentParameterAcceptanceTest {
     @Test
     public void testLimitedRequestJournal() throws Exception {
         // Test war deployment usint a request journal restricted to two entries
-        init("sample-war/src/main/webappLimitedRequestJournal", "");
+        init(sampleWarRootDir() + "/src/main/webappLimitedRequestJournal", "");
         // We don't have to create a stub since failed requests are also recorded
         testClient.get("/wiremock/request1");
         testClient.get("/wiremock/request2");

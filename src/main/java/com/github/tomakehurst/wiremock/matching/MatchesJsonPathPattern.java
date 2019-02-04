@@ -42,7 +42,7 @@ public class MatchesJsonPathPattern extends PathPattern {
         return expectedValue;
     }
 
-    protected MatchResult isSimpleJsonPathMatch(String value) {
+    protected MatchResult isSimpleMatch(String value) {
         try {
             Object obj = JsonPath.read(value, expectedValue);
 
@@ -76,7 +76,7 @@ public class MatchesJsonPathPattern extends PathPattern {
 
     }
 
-    protected MatchResult isAdvancedJsonPathMatch(String value) {
+    protected MatchResult isAdvancedMatch(String value) {
         Object obj = null;
         try {
             obj = JsonPath.read(value, expectedValue);

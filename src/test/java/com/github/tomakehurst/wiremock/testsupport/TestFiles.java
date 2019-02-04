@@ -18,11 +18,17 @@ package com.github.tomakehurst.wiremock.testsupport;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class TestFiles {
+
+    public static String defaultTestFilesRoot() {
+        return filePath("test-file-root");
+    }
 
     public static String file(String path) {
         try {
@@ -30,5 +36,19 @@ public class TestFiles {
         } catch (IOException e) {
             return throwUnchecked(e, String.class);
         }
+    }
+
+    public static String filePath(String path) {
+        try {
+            return new File(Resources.getResource(path).toURI()).getAbsolutePath();
+        } catch (URISyntaxException e) {
+            return throwUnchecked(e, String.class);
+        }
+    }
+
+    public static String sampleWarRootDir() {
+        return new File("sample-war").exists() ?
+                "sample-war" :
+                "../sample-war";
     }
 }

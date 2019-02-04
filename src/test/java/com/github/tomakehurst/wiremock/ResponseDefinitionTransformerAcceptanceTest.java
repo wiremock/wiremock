@@ -30,6 +30,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -153,6 +154,7 @@ public class ResponseDefinitionTransformerAcceptanceTest {
     private void startWithExtensions(String... extensions) {
         wm = new WireMockServer(wireMockConfig()
                 .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
                 .extensions(extensions));
         wm.start();
         client = new WireMockTestClient(wm.port());

@@ -23,10 +23,7 @@ import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
-import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
+import com.github.tomakehurst.wiremock.servlet.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -41,6 +38,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
 import java.lang.reflect.InvocationTargetException;
@@ -217,7 +215,7 @@ public class JettyHttpServer implements HttpServer {
         return httpsConnector.getLocalPort();
     }
 
-    protected long stopTimeout() {
+    public long stopTimeout() {
         return jettyServer.getStopTimeout();
     }
 
@@ -247,7 +245,7 @@ public class JettyHttpServer implements HttpServer {
             NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
-        CustomizedSslContextFactory sslContextFactory = new CustomizedSslContextFactory();
+        SslContextFactory sslContextFactory = buildSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
@@ -275,6 +273,11 @@ public class JettyHttpServer implements HttpServer {
                 ),
                 new HttpConnectionFactory(httpConfig)
         );
+    }
+
+    // Override this for platform-specific impls
+    protected SslContextFactory buildSslContextFactory() {
+        return new SslContextFactory();
     }
 
     protected HttpConfiguration createHttpConfig(JettySettings jettySettings) {
@@ -348,6 +351,8 @@ public class JettyHttpServer implements HttpServer {
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
+        mockServiceContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
+
         MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
         mimeTypes.addMimeMapping("html", "text/html");
@@ -394,6 +399,8 @@ public class JettyHttpServer implements HttpServer {
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
 
+        adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
+
         FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
         filterHolder.setInitParameters(ImmutableMap.of(
             "chainPreflight", "false",
@@ -404,6 +411,11 @@ public class JettyHttpServer implements HttpServer {
         adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         return adminContext;
+    }
+
+    // Override this for platform-specific impls
+    protected MultipartRequestConfigurer buildMultipartRequestConfigurer() {
+        return new DefaultMultipartRequestConfigurer();
     }
 
     private static class NetworkTrafficListenerAdapter implements NetworkTrafficListener {
