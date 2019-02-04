@@ -41,7 +41,7 @@ public class MultipartParser {
                     return WireMockHttpServletMultipartAdapter.from(input);
                 }
             }).toList();
-        } catch (IOException | ServletException e) {
+        } catch (Exception e) {
             return throwUnchecked(e, Collection.class);
         }
     }

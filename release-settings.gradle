@@ -1,0 +1,2 @@
+rootProject.name = 'wiremock'
+include 'java7', 'java8'

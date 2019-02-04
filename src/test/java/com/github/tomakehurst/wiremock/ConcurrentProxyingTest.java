@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -37,7 +38,7 @@ public class ConcurrentProxyingTest {
     public WireMockRule wm = new WireMockRule(options().dynamicPort(), false);
 
     @Rule
-    public WireMockRule target = new WireMockRule(options().dynamicPort().usingFilesUnderDirectory("src/test/resources"), false);
+    public WireMockRule target = new WireMockRule(options().dynamicPort().usingFilesUnderDirectory(defaultTestFilesRoot()), false);
 
     WireMockTestClient client;
 

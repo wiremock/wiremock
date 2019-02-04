@@ -71,7 +71,7 @@ public class RecordSpec {
         @JsonProperty("transformers") List<String> transformers,
         @JsonProperty("transformerParameters") Parameters transformerParameters) {
         this.targetBaseUrl = targetBaseUrl;
-        this.filters = filters == null ? new ProxiedServeEventFilters() : filters;
+        this.filters = filters == null ? ProxiedServeEventFilters.ALLOW_ALL : filters;
         this.captureHeaders = captureHeaders;
         this.requestBodyPatternFactory = requestBodyPatternFactory == null ? RequestBodyAutomaticPatternFactory.DEFAULTS : requestBodyPatternFactory;
         this.extractBodyCriteria = extractBodyCriteria;
