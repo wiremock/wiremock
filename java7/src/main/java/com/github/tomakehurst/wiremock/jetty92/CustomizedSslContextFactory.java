@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.jetty9;
+package com.github.tomakehurst.wiremock.jetty92;
 
 
 import javax.net.ssl.*;
 
 /**
- * Created by agupt13 on 6/9/16.
- *
  * This class is customized because the Android JVM classes do not support the `setEndpointIdentificationAlgorithm` for https communication.
  */
 public class CustomizedSslContextFactory extends org.eclipse.jetty.util.ssl.SslContextFactory  {

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -75,6 +76,7 @@ public class ResponseTemplatingAcceptanceTest {
         @Rule
         public WireMockRule wm = new WireMockRule(options()
             .dynamicPort()
+            .withRootDirectory(defaultTestFilesRoot())
             .extensions(new ResponseTemplateTransformer(true))
         );
 

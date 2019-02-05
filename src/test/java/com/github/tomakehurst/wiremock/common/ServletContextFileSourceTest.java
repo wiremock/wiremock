@@ -18,26 +18,14 @@ package com.github.tomakehurst.wiremock.common;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.SessionTrackingMode;
+import javax.servlet.*;
 import javax.servlet.descriptor.JspConfigDescriptor;
-
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.fileNamed;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.hasExactlyIgnoringOrder;
 import static org.junit.Assert.assertThat;
@@ -163,7 +151,7 @@ public class ServletContextFileSourceTest {
 
         @Override
         public String getRealPath(String path) {
-            return "src/test/resources/filesource";
+            return filePath("filesource");
         }
 
         @Override

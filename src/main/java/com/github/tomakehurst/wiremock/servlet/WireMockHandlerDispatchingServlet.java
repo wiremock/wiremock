@@ -56,6 +56,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private Notifier notifier;
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
+	private MultipartRequestConfigurer multipartRequestConfigurer;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -66,7 +67,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
 	    }
 
-        scheduledExecutorService = (ScheduledExecutorService) config.getServletContext().getAttribute(ASYNCHRONOUS_RESPONSE_EXECUTOR);
+        scheduledExecutorService = (ScheduledExecutorService) context.getAttribute(ASYNCHRONOUS_RESPONSE_EXECUTOR);
 
         String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
 		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
@@ -80,6 +81,8 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             new NoFaultInjectorFactory();
 
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
+
+		multipartRequestConfigurer = (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
 	}
 
 	private String getNormalizedMappedUnder(ServletConfig config) {
@@ -102,7 +105,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
 		LocalNotifier.set(notifier);
 
-		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, mappedUnder);
+		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder);
 
 		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
 		requestHandler.handle(request, responder);
