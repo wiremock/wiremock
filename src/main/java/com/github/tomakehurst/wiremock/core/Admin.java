@@ -58,6 +58,7 @@ public interface Admin {
     FindNearMissesResult findNearMissesForUnmatchedRequests();
 
     GetScenariosResult getAllScenarios();
+    void resetScenario(String scenarioName);
 
     void updateGlobalSettings(GlobalSettings settings);
 
@@ -77,4 +78,6 @@ public interface Admin {
 
     ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern);
     void removeStubsByMetadata(StringValuePattern pattern);
+
+
 }
