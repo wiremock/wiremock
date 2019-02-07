@@ -91,4 +91,6 @@ public class MappingsLoaderAcceptanceTest {
         assertThat(stubs, hasItem(stubMappingWithUrl("/multi/2")));
         assertThat(stubs, hasItem(stubMappingWithUrl("/multi/3")));
     }
+
+
 }
