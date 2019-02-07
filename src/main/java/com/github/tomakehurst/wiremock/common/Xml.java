@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.common;
 
 import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.EntityResolver;
@@ -30,15 +31,41 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static javax.xml.transform.OutputKeys.INDENT;
 import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 public class Xml {
+
+    public static void optimizeFactoriesLoading() {
+        String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
+        String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
+
+        setProperty(TransformerFactory.class.getName(), transformerFactoryImpl);
+        setProperty(
+                XPathFactory.DEFAULT_PROPERTY_NAME + ":" + XPathFactory.DEFAULT_OBJECT_MODEL_URI,
+                xPathFactoryImpl
+        );
+
+        XMLUnit.setTransformerFactory(transformerFactoryImpl);
+        XMLUnit.setXPathFactory(xPathFactoryImpl);
+    }
+
+    private static String setProperty(final String name, final String value) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            @Override
+            public String run() {
+                return System.setProperty(name, value);
+            }
+        });
+    }
 
     public static String prettyPrint(String xml) {
         try {

@@ -15,23 +15,54 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.http.AdminRequestHandler;
 import com.github.tomakehurst.wiremock.http.HttpServer;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 public class JettyHttpServerFactory implements HttpServerFactory {
+
+    private static final Constructor<? extends JettyHttpServer> SERVER_CONSTRUCTOR = getServerConstructor();
+
+    @SuppressWarnings("unchecked")
+    private static Constructor<? extends JettyHttpServer> getServerConstructor() {
+        try {
+            Class<? extends JettyHttpServer> serverClass = (Class<? extends JettyHttpServer>) Class.forName("com.github.tomakehurst.wiremock.jetty94.Jetty94HttpServer");
+            return safelyGetConstructor(serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
+        } catch (ClassNotFoundException e) {
+            try {
+                Class<? extends JettyHttpServer> serverClass = (Class<? extends JettyHttpServer>) Class.forName("com.github.tomakehurst.wiremock.jetty92.Jetty92HttpServer");
+                return safelyGetConstructor(serverClass, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
+            } catch (ClassNotFoundException cnfe) {
+                return safelyGetConstructor(JettyHttpServer.class, Options.class, AdminRequestHandler.class, StubRequestHandler.class);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> safelyGetConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+        try {
+            return clazz.getConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            return Exceptions.throwUnchecked(e, Constructor.class);
+        }
+    }
+
     @Override
     public HttpServer buildHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
             StubRequestHandler stubRequestHandler
     ) {
-        return new JettyHttpServer(
-                options,
-                adminRequestHandler,
-                stubRequestHandler
-        );
+        try {
+            return SERVER_CONSTRUCTOR.newInstance(options, adminRequestHandler, stubRequestHandler);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            return Exceptions.throwUnchecked(e, HttpServer.class);
+        }
     }
 }

@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.testsupport.Network;
+import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.sampleWarRootDir;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -49,15 +51,16 @@ public class WarDeploymentAcceptanceTest {
 	public void init() throws Exception {
         int port = Network.findFreePort();
 		jetty = new Server(port);
-		WebAppContext context = new WebAppContext("sample-war/src/main/webapp", "/wiremock");
+        String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
+        WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
 		jetty.setHandler(context);
 		jetty.start();
 		
 		WireMock.configureFor("localhost", port, "/wiremock");
 		testClient = new WireMockTestClient(port);
 	}
-	
-	@After
+
+    @After
 	public void cleanup() throws Exception {
 		jetty.stop();
 		WireMock.configure();

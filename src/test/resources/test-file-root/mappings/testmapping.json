@@ -1,0 +1,13 @@
+{
+    "request": {
+        "method": "GET",
+        "urlPattern": "/testmapping"
+    },
+    "response": {
+        "status": 200,
+        "body": "default test mapping",
+        "headers": {
+            "Content-Type": "text/plain"
+        }
+    }
+}
