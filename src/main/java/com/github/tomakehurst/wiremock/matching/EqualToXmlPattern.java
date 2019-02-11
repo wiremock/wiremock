@@ -26,6 +26,7 @@ import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
+import org.xmlunit.placeholder.PlaceholderDifferenceEvaluator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -55,10 +56,30 @@ public class EqualToXmlPattern extends StringValuePattern {
     );
 
     private final Document xmlDocument;
+    private final Boolean enablePlaceholders;
+    private final String placeholderOpeningDelimiterRegex;
+    private final String placeholderClosingDelimiterRegex;
+    private final DifferenceEvaluator diffEvaluator;
 
     public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue) {
+        this(expectedValue, null, null, null);
+    }
+
+    public EqualToXmlPattern(@JsonProperty("equalToXml") String expectedValue,
+                             @JsonProperty("enablePlaceholders") Boolean enablePlaceholders,
+                             @JsonProperty("placeholderOpeningDelimiterRegex") String placeholderOpeningDelimiterRegex,
+                             @JsonProperty("placeholderClosingDelimiterRegex") String placeholderClosingDelimiterRegex) {
         super(expectedValue);
         xmlDocument = Xml.read(expectedValue);
+        this.enablePlaceholders = enablePlaceholders;
+        this.placeholderOpeningDelimiterRegex = placeholderOpeningDelimiterRegex;
+        this.placeholderClosingDelimiterRegex = placeholderClosingDelimiterRegex;
+        if (enablePlaceholders != null && enablePlaceholders) {
+            diffEvaluator = DifferenceEvaluators.chain(IGNORE_UNCOUNTED_COMPARISONS,
+                    new PlaceholderDifferenceEvaluator(placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex));
+        } else {
+            diffEvaluator = IGNORE_UNCOUNTED_COMPARISONS;
+        }
     }
 
     public String getEqualToXml() {
@@ -70,6 +91,18 @@ public class EqualToXmlPattern extends StringValuePattern {
         return Xml.prettyPrint(getValue());
     }
 
+    public Boolean isEnablePlaceholders() {
+        return enablePlaceholders;
+    }
+
+    public String getPlaceholderOpeningDelimiterRegex() {
+        return placeholderOpeningDelimiterRegex;
+    }
+
+    public String getPlaceholderClosingDelimiterRegex() {
+        return placeholderClosingDelimiterRegex;
+    }
+
     @Override
     public MatchResult match(final String value) {
         return new MatchResult() {
@@ -78,23 +111,22 @@ public class EqualToXmlPattern extends StringValuePattern {
                 if (isNullOrEmpty(value)) {
                     return false;
                 }
-
                 try {
                     Diff diff = DiffBuilder.compare(Input.from(expectedValue))
-                        .withTest(value)
-                        .withComparisonController(ComparisonControllers.StopWhenDifferent)
-                        .ignoreWhitespace()
-                        .ignoreComments()
-                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withNodeMatcher(new OrderInvariantNodeMatcher())
-                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
-                        .build();
+                            .withTest(value)
+                            .withComparisonController(ComparisonControllers.StopWhenDifferent)
+                            .ignoreWhitespace()
+                            .ignoreComments()
+                            .withDifferenceEvaluator(diffEvaluator)
+                            .withNodeMatcher(new OrderInvariantNodeMatcher())
+                            .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                            .build();
 
                     return !diff.hasDifferences();
                 } catch (XMLUnitException e) {
                     notifier().info("Failed to process XML. " + e.getMessage() +
-                        "\nExpected:\n" + expectedValue +
-                        "\n\nActual:\n" + value);
+                            "\nExpected:\n" + expectedValue +
+                            "\n\nActual:\n" + value);
                     return false;
                 }
             }
@@ -111,32 +143,32 @@ public class EqualToXmlPattern extends StringValuePattern {
                 Diff diff = null;
                 try {
                     diff = DiffBuilder.compare(Input.from(expectedValue))
-                        .withTest(value)
-                        .ignoreWhitespace()
-                        .ignoreComments()
-                        .withDifferenceEvaluator(IGNORE_UNCOUNTED_COMPARISONS)
-                        .withComparisonListeners(new ComparisonListener() {
-                            @Override
-                            public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
-                                if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
-                                    totalComparisons.incrementAndGet();
-                                    if (outcome == ComparisonResult.DIFFERENT) {
-                                        differences.incrementAndGet();
+                            .withTest(value)
+                            .ignoreWhitespace()
+                            .ignoreComments()
+                            .withDifferenceEvaluator(diffEvaluator)
+                            .withComparisonListeners(new ComparisonListener() {
+                                @Override
+                                public void comparisonPerformed(Comparison comparison, ComparisonResult outcome) {
+                                    if (COUNTED_COMPARISONS.contains(comparison.getType()) && comparison.getControlDetails().getValue() != null) {
+                                        totalComparisons.incrementAndGet();
+                                        if (outcome == ComparisonResult.DIFFERENT) {
+                                            differences.incrementAndGet();
+                                        }
                                     }
                                 }
-                            }
-                        })
-                        .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
-                        .build();
+                            })
+                            .withDocumentBuilderFactory(Xml.newDocumentBuilderFactory())
+                            .build();
                 } catch (XMLUnitException e) {
                     notifier().info("Failed to process XML. " + e.getMessage() +
-                        "\nExpected:\n" + expectedValue +
-                        "\n\nActual:\n" + value);
+                            "\nExpected:\n" + expectedValue +
+                            "\n\nActual:\n" + value);
                     return 1.0;
                 }
 
                 notifier().info(
-                    Joiner.on("\n").join(diff.getDifferences())
+                        Joiner.on("\n").join(diff.getDifferences())
                 );
 
                 return differences.doubleValue() / totalComparisons.doubleValue();
@@ -161,8 +193,8 @@ public class EqualToXmlPattern extends StringValuePattern {
         public Iterable<Map.Entry<Node, Node>> match(Iterable<Node> controlNodes, Iterable<Node> testNodes) {
 
             return super.match(
-                sort(controlNodes),
-                sort(testNodes)
+                    sort(controlNodes),
+                    sort(testNodes)
             );
         }
 
