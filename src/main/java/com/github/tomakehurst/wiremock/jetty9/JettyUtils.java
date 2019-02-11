@@ -70,7 +70,7 @@ public class JettyUtils {
     }
 
     public static Socket getTlsSocket(Response response) {
-        HttpChannel<?> httpChannel = response.getHttpOutput().getHttpChannel();
+        HttpChannel httpChannel = response.getHttpOutput().getHttpChannel();
         SslConnection.DecryptedEndPoint sslEndpoint = (SslConnection.DecryptedEndPoint) httpChannel.getEndPoint();
         Object endpoint = sslEndpoint.getSslConnection().getEndPoint();
         try {
