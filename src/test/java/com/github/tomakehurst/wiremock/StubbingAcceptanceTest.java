@@ -492,66 +492,25 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
 	@Test
-	public void matchXmlBodyWhenTextNodeIsIgnored() throws UnsupportedEncodingException {
-		String expectedXml = "<a>#{xmlunit.ignore}</a>";
-		boolean enablePlaceholers = true;
-		String placeholderOpeningDelimiterRegex = "#\\{";
-		String placeholderOpeningDelimiterRegexInJSON = "#\\\\{";
-		String placeholderClosingDelimiterRegex = "}";
-		String actualXml = "<a>123</a>";
-		String url = "/some/thing";
-		final String stubSpec =
-			"{" +
-				"\"request\": {" +
-					"\"url\": \"" + url + "\"," +
-					"\"method\": \"POST\"," +
-					"\"bodyPatterns\": [{" +
-						"\"equalToXml\": \"" + expectedXml + "\"," +
-						"\"enablePlaceholders\": " + enablePlaceholers + "," +
-						"\"placeholderOpeningDelimiterRegex\": \"" + placeholderOpeningDelimiterRegexInJSON + "\"," +
-						"\"placeholderClosingDelimiterRegex\": \"" + placeholderClosingDelimiterRegex + "\"" +
-					"}]" +
-				"}," +
-				"\"response\": {" +
-					"\"status\": 200" +
-				"}" +
-			"}";
-		testClient.post("/__admin/mappings", new StringEntity(stubSpec));
+	public void matchXmlBodyWhenTextNodeIsIgnored() {
+		String url = "/ignore/my/xml";
 
-		WireMockResponse response = testClient.post(url, new StringEntity(actualXml));
-		assertEquals(200, response.statusCode());
+		stubFor(post(url)
+				.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", true, "#\\{", "}"))
+				.willReturn(ok()));
 
-		wireMockServer.verify(postRequestedFor(urlEqualTo(url))
-				.withRequestBody(equalToXml(expectedXml, enablePlaceholers, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex)));
+		assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(200));
 	}
 
 	@Test
-	public void equalToXmlPatternWithPlaceholdersJSONSerialization() throws IOException {
-		String requestBody = "<a>#{xmlunit.ignore}</a>";
-		boolean enablePlaceholers = true;
-		String placeholderOpeningDelimiterRegex = "#\\{";
-		String placeholderOpeningDelimiterRegexInJSON = "#\\\\{";
-		String placeholderClosingDelimiterRegex = "}";
-		String expectedBodyPatternsJSONInResponse =
-			"[{" +
-				"\"equalToXml\": \"" + requestBody + "\"," +
-				"\"enablePlaceholders\": " + enablePlaceholers + "," +
-				"\"placeholderOpeningDelimiterRegex\": \"" + placeholderOpeningDelimiterRegexInJSON + "\"," +
-				"\"placeholderClosingDelimiterRegex\": \"" + placeholderClosingDelimiterRegex + "\"" +
-			"}]";
+	public void doesNotIgnoreXmlWhenPlaceholderMatchingIsFalse() {
+		String url = "/do-not-ignore/my/xml";
 
-		StubMapping stubMapping = wireMockServer.stubFor(post("/some/thing")
-				.withRequestBody(equalToXml(requestBody, enablePlaceholers, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex)));
+		stubFor(post(url)
+				.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", false, "#\\{", "}"))
+				.willReturn(ok()));
 
-		WireMockResponse response = testClient.get("/__admin/mappings/" + stubMapping.getId());
-		assertEquals(200, response.statusCode());
-
-		ObjectMapper objectMapper = new ObjectMapper();
-		ArrayNode expectedBodyPatterns = (ArrayNode) objectMapper.readTree(expectedBodyPatternsJSONInResponse);
-		ObjectNode responseBody = (ObjectNode) objectMapper.readTree(response.content());
-		ObjectNode request = (ObjectNode) responseBody.findValue("request");
-		ArrayNode actualBodyPatterns = (ArrayNode) request.findPath("bodyPatterns");
-		assertTrue(Objects.equals(expectedBodyPatterns, actualBodyPatterns));
+		assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(404));
 	}
 
     @Test
