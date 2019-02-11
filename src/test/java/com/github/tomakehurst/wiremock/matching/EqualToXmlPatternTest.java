@@ -16,9 +16,11 @@
 package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -305,20 +307,18 @@ public class EqualToXmlPatternTest {
 
     @Test
     public void createEqualToXmlPatternWithPlaceholderFromWireMockClass() {
-        Boolean enablePlaceholders = Boolean.TRUE;
         String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
         String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
-        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
-        assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
-        assertEquals(placeholderOpeningDelimiterRegex, equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
-        assertEquals(placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
+        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", true, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+        assertThat(equalToXmlPattern.isEnablePlaceholders(), is(true));
+        assertThat(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex(), is(placeholderOpeningDelimiterRegex));
+        assertThat(equalToXmlPattern.getPlaceholderClosingDelimiterRegex(), is(placeholderClosingDelimiterRegex));
     }
 
     @Test
     public void createEqualToXmlPatternWithPlaceholderFromWireMockClass_DefaultDelimiters() {
-        Boolean enablePlaceholders = Boolean.TRUE;
-        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", enablePlaceholders);
-        assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
+        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", true);
+        assertThat(equalToXmlPattern.isEnablePlaceholders(), is(true));
         assertNull(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
         assertNull(equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
     }
@@ -331,7 +331,7 @@ public class EqualToXmlPatternTest {
         MatchResult matchResult = pattern.match(actualXml);
 
         assertTrue(matchResult.isExactMatch());
-        assertEquals(matchResult.getDistance(), 0.0, 0);
+        assertThat(matchResult.getDistance(), is(0.0));
     }
 
     @Test
@@ -342,6 +342,49 @@ public class EqualToXmlPatternTest {
         MatchResult matchResult = pattern.match(actualXml);
 
         assertTrue(matchResult.isExactMatch());
-        assertEquals(matchResult.getDistance(), 0.0, 0);
+        assertThat(matchResult.getDistance(), is(0.0));
+    }
+
+    @Test
+    public void deserializesEqualToXmlWithPlaceholder() {
+        Boolean enablePlaceholders = Boolean.TRUE;
+        String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
+        String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
+        String patternJson = "{" +
+                "\"equalToXml\" : \"<a/>\", " +
+                "\"enablePlaceholders\" : " + enablePlaceholders + ", " +
+                "\"placeholderOpeningDelimiterRegex\" : \"" + placeholderOpeningDelimiterRegex + "\", " +
+                "\"placeholderClosingDelimiterRegex\" : \"" + placeholderClosingDelimiterRegex + "\"}";
+        StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
+
+        assertTrue(stringValuePattern instanceof EqualToXmlPattern);
+        EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
+        assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
+        assertEquals(placeholderOpeningDelimiterRegex, equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
+        assertEquals(placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
+    }
+
+    @Test
+    public void serializesEqualToXmlWithPlaceholder() {
+        String xml = "<stuff />";
+        Boolean enablePlaceholders = Boolean.TRUE;
+        String placeholderOpeningDelimiterRegex = "[";
+        String placeholderClosingDelimiterRegex = "]";
+
+        StringValuePattern pattern = new EqualToXmlPattern(
+                xml,
+                enablePlaceholders,
+                placeholderOpeningDelimiterRegex,
+                placeholderClosingDelimiterRegex
+        );
+
+        String json = Json.write(pattern);
+
+        assertThat(json, WireMatchers.equalToJson("{\n" +
+                "  \"equalToXml\": \"<stuff />\",\n" +
+                "  \"enablePlaceholders\": true,\n" +
+                "  \"placeholderOpeningDelimiterRegex\": \"[\",\n" +
+                "  \"placeholderClosingDelimiterRegex\": \"]\"\n" +
+                "}"));
     }
 }

@@ -653,7 +653,7 @@ JSON:
 }
 ```
 
-#### Use placeholders
+#### Use of placeholders
 
 The XMLUnit [placeholders](https://github.com/xmlunit/user-guide/wiki/Placeholders) feature is supported in WireMock. For example, when comparing the XML documents, you can ignore some text nodes.
 
