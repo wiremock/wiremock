@@ -15,30 +15,34 @@
  */
 package com.github.tomakehurst.wiremock.matching;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Locale;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class EqualToXmlPatternTest {
 
     private Mockery context;
+
+    @Rule
+    public WireMockRule wm = new WireMockRule(options().dynamicPort());
 
     @Before
     public void init() {
@@ -283,7 +287,7 @@ public class EqualToXmlPatternTest {
     @Test
     public void logsASensibleErrorMessageWhenActualXmlIsBadlyFormed() {
         expectInfoNotification("Failed to process XML. Content is not allowed in prolog.");
-        WireMock.equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
+        equalToXml("<well-formed />").match("badly-formed >").isExactMatch();
     }
 
     @Test
@@ -299,5 +303,88 @@ public class EqualToXmlPatternTest {
             one(notifier).info(with(containsString(message)));
         }});
         LocalNotifier.set(notifier);
+    }
+
+    @Test
+    public void createEqualToXmlPatternWithPlaceholderFromWireMockClass() {
+        String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
+        String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
+        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", true, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+        assertThat(equalToXmlPattern.isEnablePlaceholders(), is(true));
+        assertThat(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex(), is(placeholderOpeningDelimiterRegex));
+        assertThat(equalToXmlPattern.getPlaceholderClosingDelimiterRegex(), is(placeholderClosingDelimiterRegex));
+    }
+
+    @Test
+    public void createEqualToXmlPatternWithPlaceholderFromWireMockClass_DefaultDelimiters() {
+        EqualToXmlPattern equalToXmlPattern = equalToXml("<a/>", true);
+        assertThat(equalToXmlPattern.isEnablePlaceholders(), is(true));
+        assertNull(equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
+        assertNull(equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
+    }
+
+    @Test
+    public void returnsMatchWhenTextNodeIsIgnored() {
+        String expectedXml = "<a>#{xmlunit.ignore}</a>";
+        String actualXml = "<a>123</a>";
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, "#\\{", "}");
+        MatchResult matchResult = pattern.match(actualXml);
+
+        assertTrue(matchResult.isExactMatch());
+        assertThat(matchResult.getDistance(), is(0.0));
+    }
+
+    @Test
+    public void returnsMatchWhenTextNodeIsIgnored_DefaultDelimiters() {
+        String expectedXml = "<a>${xmlunit.ignore}</a>";
+        String actualXml = "<a>123</a>";
+        EqualToXmlPattern pattern = new EqualToXmlPattern(expectedXml, true, null, null);
+        MatchResult matchResult = pattern.match(actualXml);
+
+        assertTrue(matchResult.isExactMatch());
+        assertThat(matchResult.getDistance(), is(0.0));
+    }
+
+    @Test
+    public void deserializesEqualToXmlWithPlaceholder() {
+        Boolean enablePlaceholders = Boolean.TRUE;
+        String placeholderOpeningDelimiterRegex = "theOpeningDelimiterRegex";
+        String placeholderClosingDelimiterRegex = "theClosingDelimiterRegex";
+        String patternJson = "{" +
+                "\"equalToXml\" : \"<a/>\", " +
+                "\"enablePlaceholders\" : " + enablePlaceholders + ", " +
+                "\"placeholderOpeningDelimiterRegex\" : \"" + placeholderOpeningDelimiterRegex + "\", " +
+                "\"placeholderClosingDelimiterRegex\" : \"" + placeholderClosingDelimiterRegex + "\"}";
+        StringValuePattern stringValuePattern = Json.read(patternJson, StringValuePattern.class);
+
+        assertTrue(stringValuePattern instanceof EqualToXmlPattern);
+        EqualToXmlPattern equalToXmlPattern = (EqualToXmlPattern) stringValuePattern;
+        assertEquals(enablePlaceholders, equalToXmlPattern.isEnablePlaceholders());
+        assertEquals(placeholderOpeningDelimiterRegex, equalToXmlPattern.getPlaceholderOpeningDelimiterRegex());
+        assertEquals(placeholderClosingDelimiterRegex, equalToXmlPattern.getPlaceholderClosingDelimiterRegex());
+    }
+
+    @Test
+    public void serializesEqualToXmlWithPlaceholder() {
+        String xml = "<stuff />";
+        Boolean enablePlaceholders = Boolean.TRUE;
+        String placeholderOpeningDelimiterRegex = "[";
+        String placeholderClosingDelimiterRegex = "]";
+
+        StringValuePattern pattern = new EqualToXmlPattern(
+                xml,
+                enablePlaceholders,
+                placeholderOpeningDelimiterRegex,
+                placeholderClosingDelimiterRegex
+        );
+
+        String json = Json.write(pattern);
+
+        assertThat(json, WireMatchers.equalToJson("{\n" +
+                "  \"equalToXml\": \"<stuff />\",\n" +
+                "  \"enablePlaceholders\": true,\n" +
+                "  \"placeholderOpeningDelimiterRegex\": \"[\",\n" +
+                "  \"placeholderClosingDelimiterRegex\": \"]\"\n" +
+                "}"));
     }
 }

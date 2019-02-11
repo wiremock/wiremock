@@ -653,6 +653,60 @@ JSON:
 }
 ```
 
+#### Use of placeholders
+
+The XMLUnit [placeholders](https://github.com/xmlunit/user-guide/wiki/Placeholders) feature is supported in WireMock. For example, when comparing the XML documents, you can ignore some text nodes.
+
+Java:
+
+```java
+.withRequestBody(equalToXml("<message><id>${xmlunit.ignore}</id><content>Hello</content></message>", true))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "equalToXml" : "<message><id>${xmlunit.ignore}</id><content>Hello</content></message>",
+      "enablePlaceholders" : true
+    } ]
+    ...
+  },
+  ...
+}
+```
+
+When the actual request body is `<message><id>123456</id><content>Hello</content></message>`, it will be deemed a match.
+
+If the default placeholder delimiters `${` and `}` can not be used, you can specify custom delimiters (using regular expressions). For example
+
+Java:
+
+```java
+.withRequestBody(equalToXml("<message><id>[[xmlunit.ignore]]</id><content>Hello</content></message>", true, "\\[\\[", "]]"))
+```
+
+JSON:
+
+```json
+{
+  "request": {
+    ...
+    "bodyPatterns" : [ {
+      "equalToXml" : "<message><id>[[xmlunit.ignore]]</id><content>Hello</content></message>",
+      "enablePlaceholders" : true,
+      "placeholderOpeningDelimiterRegex" : "\\[\\[",
+      "placeholderClosingDelimiterRegex" : "]]"
+    } ]
+    ...
+  },
+  ...
+}
+```
+
 ### XPath
 
 Deems a match if the attribute value is valid XML and matches the XPath expression supplied. An XML document will be considered to match if any elements are returned by the XPath evaluation. WireMock delegates to Java's in-built XPath engine (via XMLUnit), therefore up to (at least) Java 8 it supports XPath version 1.0.
