@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
+import com.github.tomakehurst.wiremock.admin.model.StubImport;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -779,5 +780,13 @@ public class WireMock {
 
     public static void removeStubsByMetadata(StringValuePattern pattern) {
 	    defaultInstance.get().removeStubsByMetadataPattern(pattern);
+    }
+
+    public void importStubMappings(StubImport stubImport) {
+	    admin.importStubs(stubImport);
+    }
+
+    public static void importStubs(StubImport stubImport) {
+	    defaultInstance.get().importStubMappings(stubImport);
     }
 }

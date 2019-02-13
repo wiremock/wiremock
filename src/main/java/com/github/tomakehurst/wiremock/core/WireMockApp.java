@@ -35,9 +35,11 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,8 @@ import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.contains;
+import static com.google.common.collect.Iterables.transform;
 
 public class WireMockApp implements StubServer, Admin {
 
@@ -416,6 +420,36 @@ public class WireMockApp implements StubServer, Admin {
         for (StubMapping mapping: foundMappings) {
             removeStubMapping(mapping);
         }
+    }
+
+    @Override
+    public void importStubs(StubImport stubImport) {
+        List<StubMapping> mappings = stubImport.getMappings();
+        for (int i = mappings.size() - 1; i >= 0; i--) {
+            StubMapping mapping = mappings.get(i);
+            if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
+                if (stubImport.getImportOptions().getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
+                    editStubMapping(mapping);
+                }
+            } else {
+                addStubMapping(mapping);
+            }
+        }
+
+        if (stubImport.getImportOptions().getDeleteAllNotInImport()) {
+            Iterable<UUID> ids = transform(mappings, new Function<StubMapping, UUID>() {
+                @Override
+                public UUID apply(StubMapping input) {
+                    return input.getId();
+                }
+            });
+            for (StubMapping mapping: listAllStubMappings().getMappings()) {
+                if (!contains(ids, mapping.getId())) {
+                    removeStubMapping(mapping);
+                }
+            }
+        }
+
     }
 
 
