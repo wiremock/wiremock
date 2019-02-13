@@ -463,4 +463,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public void removeStubsByMetadata(StringValuePattern pattern) {
         wireMockApp.removeStubsByMetadata(pattern);
     }
+
+    @Override
+    public void importStubs(StubImport stubImport) {
+        wireMockApp.importStubs(stubImport);
+    }
 }
