@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock.client;
 
 import com.github.tomakehurst.wiremock.admin.model.ListStubMappingsResult;
 import com.github.tomakehurst.wiremock.admin.model.SingleStubMappingResult;
-import com.github.tomakehurst.wiremock.admin.model.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -33,9 +33,6 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.standalone.RemoteMappingsLoader;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 
@@ -783,10 +780,18 @@ public class WireMock {
     }
 
     public void importStubMappings(StubImport stubImport) {
-	    admin.importStubs(stubImport);
+        admin.importStubs(stubImport);
+    }
+
+    public void importStubMappings(StubImportBuilder stubImport) {
+	    importStubMappings(stubImport.build());
+    }
+
+    public static void importStubs(StubImportBuilder stubImport) {
+	    importStubs(stubImport.build());
     }
 
     public static void importStubs(StubImport stubImport) {
-	    defaultInstance.get().importStubMappings(stubImport);
+        defaultInstance.get().importStubMappings(stubImport);
     }
 }

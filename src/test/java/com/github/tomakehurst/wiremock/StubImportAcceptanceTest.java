@@ -1,6 +1,21 @@
+/*
+ * Copyright (C) 2011 Thomas Akehurst
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.admin.model.StubImport;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -11,8 +26,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.StubImport.stubImport;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.stubMappingWithUrl;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -28,13 +43,11 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void importsAllStubsWhenNoneAreAlreadyPresent() {
-        StubImport stubImport = new StubImport(asList(
-                get("/one").willReturn(ok()).build(),
-                post("/two").willReturn(ok()).build(),
-                put("/three").willReturn(ok()).build()
-        ), StubImport.Options.DEFAULTS);
-
-        admin.importStubs(stubImport);
+        admin.importStubs(stubImport()
+                .stub(get("/one").willReturn(ok()))
+                .stub(post("/two").willReturn(ok()))
+                .stub(put("/three").willReturn(ok()))
+                .build());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
 
@@ -50,15 +63,13 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
                 .withId(id1)
                 .willReturn(ok("Original")));
 
-        StubImport stubImport = new StubImport(asList(
-                get("/one")
-                        .withId(id1)
-                        .willReturn(ok("Updated")).build(),
-                post("/two").willReturn(ok()).build(),
-                put("/three").willReturn(ok()).build()
-        ), StubImport.Options.DEFAULTS);
-
-        admin.importStubs(stubImport);
+        admin.importStubs(stubImport()
+                .stub(get("/one")
+                                .withId(id1)
+                                .willReturn(ok("Updated")))
+                .stub(post("/two").willReturn(ok()))
+                .stub(put("/three").willReturn(ok()))
+                .build());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(3));
@@ -72,16 +83,15 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
                 .withId(id1)
                 .willReturn(ok("Original")));
 
-        StubImport stubImport = new StubImport(asList(
-                get("/one")
-                        .withId(id1)
-                        .willReturn(ok("Updated")).build(),
-                post("/two").willReturn(ok()).build(),
-                put("/three").willReturn(ok()).build()
-        ), new StubImport.Options(StubImport.Options.DuplicatePolicy.IGNORE, false));
-
         WireMock wireMock = new WireMock(wireMockServer.port());
-        wireMock.importStubMappings(stubImport);
+        wireMock.importStubMappings(stubImport()
+                .stub(get("/one")
+                        .withId(id1)
+                        .willReturn(ok("Updated")))
+                .stub(post("/two").willReturn(ok()))
+                .stub(put("/three").willReturn(ok()))
+                .ignoreExisting()
+                .build());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(3));
@@ -97,15 +107,14 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
         wm.stubFor(get("/four").willReturn(ok()));
         wm.stubFor(get("/five").willReturn(ok()));
 
-        StubImport stubImport = new StubImport(asList(
-                get("/one")
+        WireMock.importStubs(stubImport()
+                .stub(get("/one")
                         .withId(id1)
-                        .willReturn(ok("Updated")).build(),
-                post("/two").willReturn(ok()).build(),
-                put("/three").willReturn(ok()).build()
-        ), new StubImport.Options(StubImport.Options.DuplicatePolicy.OVERWRITE, true));
-
-        WireMock.importStubs(stubImport);
+                        .willReturn(ok("Updated")))
+                .stub(post("/two").willReturn(ok()))
+                .stub(put("/three").willReturn(ok()))
+                .deleteAllExistingStubsNotInImport()
+                .build());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(3));
@@ -124,15 +133,15 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
         wm.stubFor(get("/four").willReturn(ok()));
         wm.stubFor(get("/five").willReturn(ok()));
 
-        StubImport stubImport = new StubImport(asList(
-                get("/one")
+        WireMock.importStubs(stubImport()
+                .stub(get("/one")
                         .withId(id1)
-                        .willReturn(ok("Updated")).build(),
-                post("/two").willReturn(ok()).build(),
-                put("/three").willReturn(ok()).build()
-        ), new StubImport.Options(StubImport.Options.DuplicatePolicy.OVERWRITE, false));
-
-        WireMock.importStubs(stubImport);
+                        .willReturn(ok("Updated")))
+                .stub(post("/two").willReturn(ok()))
+                .stub(put("/three").willReturn(ok()))
+                .overwriteExisting()
+                .doNotDeleteExistingStubs()
+                .build());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(5));
