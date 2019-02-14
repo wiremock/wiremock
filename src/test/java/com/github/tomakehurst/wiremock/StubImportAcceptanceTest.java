@@ -89,8 +89,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
                         .willReturn(ok("Updated")))
                 .stub(post("/two").willReturn(ok()))
                 .stub(put("/three").willReturn(ok()))
-                .ignoreExisting()
-                .build());
+                .ignoreExisting());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(3));
@@ -112,8 +111,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
                         .willReturn(ok("Updated")))
                 .stub(post("/two").willReturn(ok()))
                 .stub(put("/three").willReturn(ok()))
-                .deleteAllExistingStubsNotInImport()
-                .build());
+                .deleteAllExistingStubsNotInImport());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(3));
@@ -139,8 +137,7 @@ public class StubImportAcceptanceTest extends AcceptanceTestBase {
                 .stub(post("/two").willReturn(ok()))
                 .stub(put("/three").willReturn(ok()))
                 .overwriteExisting()
-                .doNotDeleteExistingStubs()
-                .build());
+                .doNotDeleteExistingStubs());
 
         List<StubMapping> stubs = admin.listAllStubMappings().getMappings();
         assertThat(stubs.size(), is(5));
