@@ -52,7 +52,8 @@ public class ResponseDefinitionTest {
                 Fault.EMPTY_RESPONSE,
                 ImmutableList.of("transformer-1"),
                 Parameters.one("name", "Jeff"),
-                true
+                true,
+                null
         );
 
         ResponseDefinition copiedResponse = copyOf(response);

@@ -17,20 +17,28 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.jknack.handlebars.EscapingStrategy;
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.HandlebarsException;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.StubMappingContext;
+import com.github.tomakehurst.wiremock.http.CacheStrategy;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.responseDefinition;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
@@ -543,6 +551,35 @@ public class ResponseTemplateTransformerTest {
         ));
     }
 
+    @Test(expected = IOException.class)
+    public void addStubMappingWithAlwaysCachedAndTemplatizeBodyFile() {
+        FileSource files = getTestFileSource();
+        StubMapping mapping = new StubMapping();
+        mapping.setId(UUID.fromString("0-0-0-0-1"));
+        mapping.setResponse(
+                responseDefinition().withBodyFile("/greet-{{request.query.name}}.txt")
+                                    .withCacheStrategy(CacheStrategy.Always)
+                                    .build()
+        );
+        mapping.getResponse().setStubMappingId(mapping.getId());
+        transformer.onStubMappingAdded(new StubMappingContext().setFiles(files), mapping);
+
+    }
+
+    @Test
+    public void addStubMappingWithAlwaysCachedAndRawBodyFile() {
+        FileSource files = getTestFileSource();
+        StubMapping mapping = new StubMapping();
+        mapping.setId(UUID.fromString("0-0-0-0-1"));
+        mapping.setResponse(
+                responseDefinition().withBodyFile("/greet-Ram.txt")
+                        .withCacheStrategy(CacheStrategy.Always)
+                        .build()
+        );
+        mapping.getResponse().setStubMappingId(mapping.getId());
+        transformer.onStubMappingAdded(new StubMappingContext().setFiles(files), mapping);
+    }
+
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
         return transformer.transform(
             request,
@@ -556,8 +593,12 @@ public class ResponseTemplateTransformerTest {
         return transformer.transform(
             request,
             responseDefinitionBuilder.build(),
-            new ClasspathFileSource(this.getClass().getClassLoader().getResource("templates").getPath()),
+            getTestFileSource(),
             Parameters.empty()
         );
+    }
+
+    private ClasspathFileSource getTestFileSource() {
+        return new ClasspathFileSource(this.getClass().getClassLoader().getResource("templates").getPath());
     }
 }

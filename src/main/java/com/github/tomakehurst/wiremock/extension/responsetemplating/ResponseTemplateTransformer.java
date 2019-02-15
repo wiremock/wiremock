@@ -15,6 +15,14 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
@@ -24,28 +32,23 @@ import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubMappingContext;
+import com.github.tomakehurst.wiremock.extension.StubMappingListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
+import com.github.tomakehurst.wiremock.http.CacheStrategy;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.MoreObjects.firstNonNull;
-
-public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
+public class ResponseTemplateTransformer extends ResponseDefinitionTransformer implements StubMappingListener {
 
     public static final String NAME = "response-template";
 
@@ -78,7 +81,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         for (NumberHelper helper: NumberHelper.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
-        
+
         for (ConditionalHelpers helper: ConditionalHelpers.values()) {
         	this.handlebars.registerHelper(helper.name(), helper);
         }
@@ -93,6 +96,8 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         for (Map.Entry<String, Helper> entry: helpers.entrySet()) {
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
+
+        this.handlebars.with(new DefinitionBasedTemplateCache());
     }
 
     @Override
@@ -115,14 +120,8 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
                 .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
                 .build();
 
-        if (responseDefinition.specifiesTextBodyContent()) {
-            Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
-            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
-        } else if (responseDefinition.specifiesBodyFile()) {
-            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
-            String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
-            TextFile file = files.getTextFileNamed(compiledFilePath);
-            Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
+        Template bodyTemplate = tryBodyTemplate(responseDefinition, files, model);
+        if (bodyTemplate != null) {
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }
 
@@ -160,6 +159,29 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         return Collections.emptyMap();
     }
 
+    private Template tryBodyTemplate(ResponseDefinition responseDefinition, FileSource files, ImmutableMap<String, Object> model) {
+        Template bodyTemplate = null;
+
+        DefinitionBasedTemplateSource bodyTemplateSource = tryBodyTemplateSource(responseDefinition, files, model);
+
+        if (bodyTemplateSource != null) {
+            bodyTemplate = uncheckedCompileTemplate(bodyTemplateSource);
+        }
+        return bodyTemplate;
+    }
+
+    private DefinitionBasedTemplateSource tryBodyTemplateSource(ResponseDefinition responseDefinition, FileSource files, ImmutableMap<String, Object> model) {
+        DefinitionBasedTemplateSource bodyTemplateSource = null;
+        if (responseDefinition.specifiesTextBodyContent()) {
+            bodyTemplateSource = DefinitionBasedTemplateSource.fromString(responseDefinition.getStubMappingId(), responseDefinition.getBody(), responseDefinition.getCacheStrategy());
+        } else if (responseDefinition.specifiesBodyFile()) {
+            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+            String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
+            bodyTemplateSource = DefinitionBasedTemplateSource.fromTextFile(responseDefinition.getStubMappingId(), files.getTextFileNamed(compiledFilePath), responseDefinition.getCacheStrategy());
+        }
+        return bodyTemplateSource;
+    }
+
     private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
         String newBody = uncheckedApplyTemplate(bodyTemplate, model);
         newResponseDefBuilder.withBody(newBody);
@@ -173,11 +195,51 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
     }
 
+    private Template uncheckedCompileTemplate(DefinitionBasedTemplateSource source) {
+        try {
+            return handlebars.compile(source);
+        } catch (IOException e) {
+            return throwUnchecked(e, Template.class);
+        }
+    }
+
     private Template uncheckedCompileTemplate(String content) {
         try {
             return handlebars.compileInline(content);
         } catch (IOException e) {
             return throwUnchecked(e, Template.class);
         }
+    }
+
+    @Override
+    public void onStubMappingReset(StubMappingContext context) {
+        this.handlebars.getCache().clear();
+    }
+
+    @Override
+    public void onStubMappingAdded(StubMappingContext context, StubMapping added) {
+        ResponseDefinition responseDefinition = added.getResponse();
+        if (CacheStrategy.isAlways(responseDefinition.getCacheStrategy())) {
+            tryBodyTemplate(responseDefinition, context.getFiles(), ImmutableMap.<String, Object>of());
+        }
+    }
+
+    @Override
+    public void onStubMappingRemoved(StubMappingContext context, StubMapping removed) {
+        this.handlebars.getCache().evict(MappingBasedTemplateSource.fromMapping(removed));
+    }
+
+    @Override
+    public void onStubMappingUpdated(StubMappingContext context, StubMapping before, StubMapping after) {
+        ResponseDefinition beforeR = before.getResponse();
+        ResponseDefinition afterR  = after.getResponse();
+        DefinitionBasedTemplateSource beforeS = tryBodyTemplateSource(beforeR, context.getFiles(), ImmutableMap.<String, Object>of());
+        if (beforeS != null) {
+            DefinitionBasedTemplateSource afterS = tryBodyTemplateSource(afterR, context.getFiles(), ImmutableMap.<String, Object>of());
+            if (afterS != null && CacheStrategy.isNever(afterS.getCacheStrategy()) || !beforeS.equals(afterS)) {
+                onStubMappingRemoved(context, before);
+            }
+        }
+        onStubMappingAdded(context, after);
     }
 }

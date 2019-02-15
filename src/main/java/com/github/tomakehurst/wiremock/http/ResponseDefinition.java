@@ -25,11 +25,11 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.google.common.net.MediaType;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
@@ -55,6 +55,10 @@ public class ResponseDefinition {
     private Boolean wasConfigured = true;
     private Request originalRequest;
 
+    private CacheStrategy cacheStrategy = null;
+
+    private transient UUID stubMappingId;
+
     @JsonCreator
     public ResponseDefinition(@JsonProperty("status") int status,
                               @JsonProperty("statusMessage") String statusMessage,
@@ -71,8 +75,26 @@ public class ResponseDefinition {
                               @JsonProperty("fault") Fault fault,
                               @JsonProperty("transformers") List<String> transformers,
                               @JsonProperty("transformerParameters") Parameters transformerParameters,
-                              @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+                              @JsonProperty("fromConfiguredStub") Boolean wasConfigured,
+                              @JsonProperty("cache") CacheStrategy cacheStrategy) {
+        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured, cacheStrategy);
+    }
+    
+    private ResponseDefinition(int status,
+            String statusMessage,
+            Body body,
+            String bodyFileName,
+            HttpHeaders headers,
+            HttpHeaders additionalProxyRequestHeaders,
+            Integer fixedDelayMilliseconds,
+            DelayDistribution delayDistribution,
+            ChunkedDribbleDelay chunkedDribbleDelay,
+            String proxyBaseUrl,
+            Fault fault,
+            List<String> transformers,
+            Parameters transformerParameters,
+            Boolean wasConfigured) {
+        this(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured, null);
     }
 
     public ResponseDefinition(int status,
@@ -90,8 +112,9 @@ public class ResponseDefinition {
                               Fault fault,
                               List<String> transformers,
                               Parameters transformerParameters,
-                              Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+                              Boolean wasConfigured,
+                              CacheStrategy cacheStrategy) {
+        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured, cacheStrategy);
     }
 
     private ResponseDefinition(int status,
@@ -107,7 +130,8 @@ public class ResponseDefinition {
                                Fault fault,
                                List<String> transformers,
                                Parameters transformerParameters,
-                               Boolean wasConfigured) {
+                               Boolean wasConfigured,
+                               CacheStrategy cacheStrategy) {
         this.status = status > 0 ? status : 200;
         this.statusMessage = statusMessage;
 
@@ -124,6 +148,7 @@ public class ResponseDefinition {
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
         this.wasConfigured = wasConfigured == null ? true : wasConfigured;
+        this.cacheStrategy = cacheStrategy;
     }
 
     public ResponseDefinition(final int statusCode, final String bodyContent) {
@@ -214,7 +239,8 @@ public class ResponseDefinition {
             original.fault,
             original.transformers,
             original.transformerParameters,
-            original.wasConfigured
+            original.wasConfigured,
+            original.cacheStrategy
         );
         return newResponseDef;
     }
@@ -328,6 +354,14 @@ public class ResponseDefinition {
         return fault;
     }
 
+    public CacheStrategy getCacheStrategy() {
+        return cacheStrategy;
+    }
+    
+    public void setCacheStrategy(CacheStrategy cacheStrategy) {
+        this.cacheStrategy = cacheStrategy;
+    }
+
     @JsonInclude(NON_EMPTY)
     public List<String> getTransformers() {
         return transformers;
@@ -340,6 +374,14 @@ public class ResponseDefinition {
 
     public boolean hasTransformer(AbstractTransformer transformer) {
         return transformers != null && transformers.contains(transformer.getName());
+    }
+
+    public void setStubMappingId(UUID id) {
+        this.stubMappingId = id;
+    }
+    @JsonIgnore
+    public UUID getStubMappingId() {
+        return stubMappingId;
     }
 
     @Override
@@ -361,16 +403,19 @@ public class ResponseDefinition {
             Objects.equals(transformers, that.transformers) &&
             Objects.equals(transformerParameters, that.transformerParameters) &&
             Objects.equals(browserProxyUrl, that.browserProxyUrl) &&
-            Objects.equals(wasConfigured, that.wasConfigured);
+            Objects.equals(wasConfigured, that.wasConfigured) &&
+            Objects.equals(cacheStrategy, that.cacheStrategy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured);
+        return Objects.hash(status, statusMessage, body, bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, browserProxyUrl, wasConfigured, cacheStrategy);
     }
 
     @Override
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
+
+
 }

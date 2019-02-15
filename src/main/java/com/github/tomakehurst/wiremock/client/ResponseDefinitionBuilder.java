@@ -46,6 +46,7 @@ public class ResponseDefinitionBuilder {
 	protected List<String> responseTransformerNames;
 	protected Map<String, Object> transformerParameters = newHashMap();
 	protected Boolean wasConfigured = true;
+	protected CacheStrategy cacheStrategy;
 
 	public static ResponseDefinitionBuilder like(ResponseDefinition responseDefinition) {
 		ResponseDefinitionBuilder builder = new ResponseDefinitionBuilder();
@@ -68,6 +69,7 @@ public class ResponseDefinitionBuilder {
 			Parameters.from(responseDefinition.getTransformerParameters()) :
 			Parameters.empty();
 		builder.wasConfigured = responseDefinition.isFromConfiguredStub();
+		builder.cacheStrategy = responseDefinition.getCacheStrategy();
 		return builder;
 	}
 
@@ -148,6 +150,11 @@ public class ResponseDefinitionBuilder {
 	public ResponseDefinitionBuilder withTransformer(String transformerName, String parameterKey, Object parameterValue) {
 		withTransformers(transformerName);
 		withTransformerParameter(parameterKey, parameterValue);
+		return this;
+	}
+
+	public ResponseDefinitionBuilder withCacheStrategy(CacheStrategy cacheStrategy) {
+		this.cacheStrategy = cacheStrategy;
 		return this;
 	}
 
@@ -256,7 +263,8 @@ public class ResponseDefinitionBuilder {
 						fault,
 						responseTransformerNames,
 						transformerParameters,
-                        wasConfigured) :
+                        wasConfigured,
+                        cacheStrategy) :
 				new ResponseDefinition(
 						status,
 						statusMessage,
@@ -273,7 +281,8 @@ public class ResponseDefinitionBuilder {
 						fault,
 						responseTransformerNames,
 						transformerParameters,
-					    wasConfigured
+					    wasConfigured,
+					    cacheStrategy
 				);
 	}
 }
