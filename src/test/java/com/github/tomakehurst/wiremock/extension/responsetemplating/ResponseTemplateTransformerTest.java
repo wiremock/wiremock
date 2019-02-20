@@ -25,7 +25,9 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -40,9 +42,19 @@ import static org.junit.Assert.assertThat;
 public class ResponseTemplateTransformerTest {
 
     private ResponseTemplateTransformer transformer;
+    
+    private String sysKey = "system.key";
+    private String sysValue = "system-value";
+    private String envKey = "ENV_KEY";
+    private String envValue = "env-value";
+
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Before
     public void setup() {
+        System.setProperty(sysKey, sysValue);
+        environmentVariables.set(envKey, envValue);
         transformer = new ResponseTemplateTransformer(true);
     }
 
@@ -197,6 +209,34 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is(
             "Body: All of the body content"
+        ));
+    }
+    
+    @Test
+    public void requestSystemVariable() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things"),
+            aResponse().withBody(
+                sysKey+"={{sys.["+sysKey+"]}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            sysKey+"="+sysValue
+        ));
+    }
+
+    @Test
+    public void requestEnvVariable() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things"),
+            aResponse().withBody(
+                envKey+"={{env."+envKey+"}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+            envKey+"="+envValue
         ));
     }
 

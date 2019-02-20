@@ -15,6 +15,17 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
@@ -36,14 +47,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.google.common.base.MoreObjects.firstNonNull;
+import com.google.common.collect.Maps;
 
 public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
@@ -52,6 +56,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     private final boolean global;
 
     private final Handlebars handlebars;
+
+    private ImmutableMap<String, String> sys;
+    private ImmutableMap<String, String> env;
 
     public ResponseTemplateTransformer(boolean global) {
         this(global, Collections.<String, Helper>emptyMap());
@@ -67,6 +74,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
     public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers) {
         this.global = global;
+
+        this.sys=getSystemProperties();
+        this.env=getSystemEnv();
+
         this.handlebars = handlebars;
 
         for (StringHelpers helper: StringHelpers.values()) {
@@ -110,7 +121,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
         final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
                 .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
-                .put("request", RequestTemplateModel.from(request)).build();
+                .put("request", RequestTemplateModel.from(request))
+                .put("env", firstNonNull(env, Collections.<String, Object>emptyMap()))
+                .put("sys", firstNonNull(sys, Collections.<String, Object>emptyMap()))
+                .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
@@ -148,6 +162,24 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
 
         return newResponseDefBuilder.build();
+    }
+
+    private ImmutableMap<String, String> getSystemProperties() {
+        return AccessController.doPrivileged(new PrivilegedAction<ImmutableMap<String, String>>() {
+            @Override
+            public ImmutableMap<String, String> run() {
+                return Maps.fromProperties(System.getProperties());
+            }
+        });
+    }
+
+    private ImmutableMap<String, String> getSystemEnv() {
+        return AccessController.doPrivileged(new PrivilegedAction<ImmutableMap<String, String>>() {
+            @Override
+            public ImmutableMap<String, String> run() {
+                return ImmutableMap.copyOf(System.getenv());
+            }
+        });
     }
 
     private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
