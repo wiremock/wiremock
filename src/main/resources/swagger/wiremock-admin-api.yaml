@@ -12,12 +12,12 @@ servers:
   - url: /
 
 tags:
-  - name: Mappings
+  - name: Stub Mappings
     description: Operations on stub mappings
     externalDocs:
       description: User documentation
       url: http://wiremock.org/docs/stubbing/
-  - name: Request Journal
+  - name: Requests
     description: Logged requests and responses received by the mock service
     externalDocs:
       description: User documentation
@@ -45,7 +45,7 @@ paths:
     get:
       summary: Get all stub mappings
       tags:
-         - Mappings
+         - Stub Mappings
       parameters:
         - description: The maximum number of results to return
           in: query
@@ -73,7 +73,7 @@ paths:
     post:
       summary: Create a new stub mapping
       tags:
-         - Mappings
+         - Stub Mappings
       requestBody:
         $ref: "#/components/requestBodies/stubMapping"
       responses:
@@ -82,7 +82,7 @@ paths:
     delete:
       summary: Delete all stub mappings
       tags:
-         - Mappings
+         - Stub Mappings
       responses:
         '200':
           description: Successfully deleted
@@ -92,7 +92,7 @@ paths:
       summary: Reset stub mappings
       description: Restores stub mappings to the defaults defined back in the backing store
       tags:
-         - Mappings
+         - Stub Mappings
       responses:
         '200':
           description: Successfully reset
@@ -102,7 +102,7 @@ paths:
       summary: Persist stub mappings
       description: Save all persistent stub mappings to the backing store
       tags:
-         - Mappings
+         - Stub Mappings
       responses:
         '200':
           description: Successfully saved
@@ -119,7 +119,7 @@ paths:
     get:
       summary: Get stub mapping by ID
       tags:
-         - Mappings
+         - Stub Mappings
       responses:
         '404':
           description: Stub mapping not found
@@ -128,7 +128,7 @@ paths:
     put:
       summary: Update a stub mapping
       tags:
-         - Mappings
+         - Stub Mappings
       requestBody:
         $ref: "#/components/requestBodies/stubMapping"
       responses:
@@ -139,7 +139,7 @@ paths:
     delete:
       summary: Delete a stub mapping
       tags:
-         - Mappings
+         - Stub Mappings
       responses:
         '404':
           description: Stub mapping not found
@@ -150,7 +150,7 @@ paths:
     post:
       description: Find stubs by matching on their metadata
       tags:
-        - Mappings
+        - Stub Mappings
       requestBody:
         content:
           application/json:
@@ -173,7 +173,7 @@ paths:
     post:
       summary: Delete stub mappings matching metadata
       tags:
-        - Mappings
+        - Stub Mappings
       requestBody:
         content:
           application/json:
@@ -189,7 +189,7 @@ paths:
     get:
       summary: Get all requests in journal
       tags:
-         - Request Journal
+         - Requests
       parameters:
         - description: The maximum number of results to return
           in: query
@@ -213,7 +213,7 @@ paths:
     delete:
       summary: Delete all requests in journal
       tags:
-         - Request Journal
+         - Requests
       responses:
         '200':
           description: Successfully deleted
@@ -222,7 +222,7 @@ paths:
     get:
       summary: Get request by ID
       tags:
-         - Request Journal
+         - Requests
       parameters:
         - description: The UUID of the logged request
           in: path
@@ -245,7 +245,7 @@ paths:
     post:
       summary: Empty the request journal
       tags:
-         - Request Journal
+         - Requests
       responses:
         '200':
           description: Successfully reset
@@ -255,7 +255,7 @@ paths:
       summary: Count requests by criteria
       description: Count requests logged in the journal matching the specified criteria
       tags:
-         - Request Journal
+         - Requests
       requestBody:
         $ref: "#/components/requestBodies/requestPattern"
       responses:
@@ -275,7 +275,7 @@ paths:
       summary: Find requests by criteria
       description: Retrieve details of requests logged in the journal matching the specified criteria
       tags:
-         - Request Journal
+         - Requests
       requestBody:
         $ref: "#/components/requestBodies/requestPattern"
       responses:
@@ -291,7 +291,7 @@ paths:
       summary: Find unmatched requests
       description: Get details of logged requests that weren't matched by any stub mapping
       tags:
-         - Request Journal
+         - Requests
       responses:
         '200':
           description: Unmatched request details
