@@ -42,6 +42,7 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.standalone.MappingsLoader;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.stubbing.StubMappingJsonRecorder;
 import com.github.tomakehurst.wiremock.verification.*;
@@ -462,5 +463,10 @@ public class WireMockServer implements Container, Stubbing, Admin {
     @Override
     public void removeStubsByMetadata(StringValuePattern pattern) {
         wireMockApp.removeStubsByMetadata(pattern);
+    }
+
+    @Override
+    public void importStubs(StubImport stubImport) {
+        wireMockApp.importStubs(stubImport);
     }
 }

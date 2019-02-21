@@ -72,6 +72,7 @@ public class AdminRoutes {
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
         router.add(POST, "/mappings/find-by-metadata", FindStubMappingsByMetadataTask.class);
         router.add(POST, "/mappings/remove-by-metadata", RemoveStubMappingsByMetadataTask.class);
+        router.add(POST, "/mappings/import", ImportStubMappingsTask.class);
 
         router.add(GET, "/files", GetAllStubFilesTask.class);
         router.add(PUT, "/files/{filename}", EditStubFileTask.class);

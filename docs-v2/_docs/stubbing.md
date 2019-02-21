@@ -459,3 +459,62 @@ A single stub mapping can be retrieved by ID in Java by calling `WireMock.getSin
 UUID of the stub mapping.
 
 Via the HTTP client a mapping can be retrieved by sending a `GET` to `http://<host>:<port>/__admin/mappings/{id}`.
+
+
+## Bulk importing stubs
+
+Multiple stubs can be imported in one call.
+
+Java:
+
+```java
+WireMock.importStubs(stubImport()
+    .stub(get("/one").willReturn(ok()))
+    .stub(post("/two").willReturn(ok("Body content")))
+    .stub(put("/three").willReturn(ok()))
+    .ignoreExisting()
+    .deleteAllExistingStubsNotInImport());
+```
+
+Via the JSON API, `POST` the to `/__admin/mappings/import`:
+
+```json
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/one"
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "id": "8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7",
+      "request": {
+        "url": "/two"
+      },
+      "response": {
+        "status": 200,
+        "body": "Body content"
+      }
+    }
+  ],
+
+  "importOptions": {
+    "duplicatePolicy": "IGNORE",
+    "deleteAllNotInImport": true
+  }
+}
+```
+
+### Existing stubs policy
+
+By default, if a stub in an import already exists (has an ID of a stub already loaded), then the existing stub will be overwritten.
+This can be changed by setting `duplicatePolicy` in the JSON to `IGNORE` or calling `ignoreExisting()` on the Java builder.
+
+### Replacing all stubs with the import
+
+If you want to ensure that the only stubs loaded after the import has completed are the ones it contains, you can set
+`"deleteAllNotInImport": true` in the JSON or call `deleteAllExistingStubsNotInImport()` on the Java builder.
