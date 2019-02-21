@@ -165,7 +165,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
     private Template uncheckedCompileTemplate(String content) {
         try {
-            return handlebars.compileInline(content);
+            return new HandlebarsOptimizedTemplate(handlebars, content);
         } catch (IOException e) {
             return throwUnchecked(e, Template.class);
         }
