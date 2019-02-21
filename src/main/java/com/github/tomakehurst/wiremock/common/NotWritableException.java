@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.security;
+package com.github.tomakehurst.wiremock.common;
 
-import com.google.common.net.HttpHeaders;
+public class NotWritableException extends RuntimeException {
 
-public class ClientTokenAuthenticator extends SingleHeaderClientAuthenticator {
-
-    public ClientTokenAuthenticator(String token) {
-        super(HttpHeaders.AUTHORIZATION, "Token " + token);
+    public NotWritableException(String message) {
+        super(message);
     }
 }

@@ -190,6 +190,40 @@ More content
 See [stubbing](/docs/stubbing/) and [verifying](/docs/verifying/) for more on the JSON API.
 
 
+### Multi-stub JSON files
+
+JSON files containing multiple stub mappings can also be used. These are of the form:
+
+```json
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/one"
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "id": "8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7",
+      "request": {
+        "url": "/two"
+      },
+      "response": {
+        "body": "Updated"
+      }
+    }
+  ]
+}
+```
+
+> **note**
+>
+> Stubs loaded from multi-mapping files are read-only, so any attempt to update or remove (including remove all) will cause an error to be thrown. 
+
+
 ## Pushing JSON files to a remote WireMock instance
 You can push a collection of mappings to a remote  
 

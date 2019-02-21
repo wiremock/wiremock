@@ -25,8 +25,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -69,6 +67,8 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         Class<? extends StringValuePattern> patternClass = findPatternClass(rootNode);
         if (patternClass.equals(EqualToJsonPattern.class)) {
             return deserializeEqualToJson(rootNode);
+        } else if (patternClass.equals(EqualToXmlPattern.class)) {
+            return deserializeEqualToXml(rootNode);
         } else if (patternClass.equals(MatchesJsonPathPattern.class)) {
             return deserialiseMatchesJsonPathPattern(rootNode);
         } else if (patternClass.equals(MatchesXPathPattern.class)) {
@@ -121,6 +121,20 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         } else {
             return new EqualToJsonPattern(operand, ignoreArrayOrder, ignoreExtraElements);
         }
+    }
+
+    private EqualToXmlPattern deserializeEqualToXml(JsonNode rootNode) throws JsonMappingException {
+        if (!rootNode.has("equalToXml")) {
+            throw new JsonMappingException(rootNode.toString() + " is not a valid match operation");
+        }
+
+        JsonNode operand = rootNode.findValue("equalToXml");
+
+        Boolean enablePlaceholders = fromNullable(rootNode.findValue("enablePlaceholders"));
+        String placeholderOpeningDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderOpeningDelimiterRegex"));
+        String placeholderClosingDelimiterRegex = fromNullableTextNode(rootNode.findValue("placeholderClosingDelimiterRegex"));
+
+        return new EqualToXmlPattern(operand.textValue(), enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
     }
 
     private MatchesJsonPathPattern deserialiseMatchesJsonPathPattern(JsonNode rootNode) throws JsonMappingException {
@@ -181,6 +195,10 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
     private static Boolean fromNullable(JsonNode node) {
         return node == null ? null : node.asBoolean();
+    }
+
+    private static String fromNullableTextNode(JsonNode node) {
+        return node == null ? null : node.asText();
     }
 
     @SuppressWarnings("unchecked")

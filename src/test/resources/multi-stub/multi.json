@@ -1,0 +1,36 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "url": "/multi/1",
+        "method": "GET"
+      },
+
+      "response": {
+        "status": 200
+      }
+    },
+
+    {
+      "request": {
+        "url": "/multi/2",
+        "method": "GET"
+      },
+
+      "response": {
+        "status": 200
+      }
+    },
+
+    {
+      "request": {
+        "url": "/multi/3",
+        "method": "GET"
+      },
+
+      "response": {
+        "status": 200
+      }
+    }
+  ]
+}
