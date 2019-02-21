@@ -24,6 +24,7 @@
     "watch:css": "onchange \"assets/_scss/**/*.scss\" -- npm run build:css",
     "watch:js": "onchange \"assets/js/**/*.js\" -e \"assets/js/main.min.js\" -- npm run build:js",
     "watch:all": "npm-run-all --parallel watch:css watch:js",
+    "serve": "npm run apidocs && npm run watch:all",
     "build:css": "npm run scss && npm run autoprefixer",
     "build:js": "npm run uglify",
     "build:all": "npm run build:css && npm run build:js",
