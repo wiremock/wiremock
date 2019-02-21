@@ -708,6 +708,19 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void deleteStubFileInTree() throws Exception {
+        String fileName = "foo/bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+        fileSource.writeTextFile(fileName, "contents");
+
+        int statusCode = testClient.delete("/__admin/files/foo/bar.txt").statusCode();
+
+        assertEquals(200, statusCode);
+        assertFalse(Paths.get(fileSource.getTextFileNamed(fileName).getPath()).toFile().exists(), "File should have been deleted");
+    }
+
+    @Test
     public void editStubFileContent() throws Exception {
         String fileName = "bar.txt";
         FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
@@ -718,6 +731,18 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         assertEquals(200, statusCode);
         assertEquals("BBB", fileSource.getTextFileNamed(fileName).readContentsAsString(), "File should have been changed");
+    }
+
+    @Test
+    public void createStubFileContentInTree() throws Exception {
+        String fileName = "foo/bar.txt";
+        FileSource fileSource = wireMockServer.getOptions().filesRoot().child(FILES_ROOT);
+        fileSource.createIfNecessary();
+
+        int statusCode = testClient.putWithBody("/__admin/files/foo/bar.txt", "BBB", "text/plain").statusCode();
+
+        assertEquals(200, statusCode);
+        assertEquals( "BBB", fileSource.getTextFileNamed(fileName).readContentsAsString(), "File should have been changed");
     }
 
     @Test
