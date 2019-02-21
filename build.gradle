@@ -422,27 +422,6 @@ subprojects {
     }
 }
 
-final DOCS_DIR = project(':').rootDir.getAbsolutePath() + '/docs-v2'
-
-task npmInstall(type: Exec) {
-    workingDir DOCS_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'i'
-    } else {
-        commandLine 'npm', 'i'
-    }
-}
-
-task generateApiDocs(type: Exec) {
-    dependsOn npmInstall
-    workingDir DOCS_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'apidocs'
-    } else {
-        commandLine 'npm', 'run', 'apidocs'
-    }
-}
-
 task 'bump-patch-version' {
     doLast {
         def filesWithVersion = [
