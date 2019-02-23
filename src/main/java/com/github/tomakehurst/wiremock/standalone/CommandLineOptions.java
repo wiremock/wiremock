@@ -86,6 +86,7 @@ public class CommandLineOptions implements Options {
     private static final String CONTAINER_THREADS = "container-threads";
     private static final String GLOBAL_RESPONSE_TEMPLATING = "global-response-templating";
     private static final String LOCAL_RESPONSE_TEMPLATING = "local-response-templating";
+    private static final String RESPONSE_TEMPLATING_CACHE = "response-templating-cache";
     private static final String ADMIN_API_BASIC_AUTH = "admin-api-basic-auth";
     private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
     private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
@@ -126,8 +127,9 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(JETTY_HEADER_BUFFER_SIZE, "The size of Jetty's buffer for request headers").withRequiredArg();
         optionParser.accepts(JETTY_STOP_TIMEOUT, "Timeout in milliseconds for Jetty to stop").withRequiredArg();
         optionParser.accepts(PRINT_ALL_NETWORK_TRAFFIC, "Print all raw incoming and outgoing network traffic to console");
-        optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates");
-        optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates");
+        optionParser.accepts(RESPONSE_TEMPLATING_CACHE, "Set TemplateCache class for Handlebars templates").withRequiredArg();
+        optionParser.accepts(GLOBAL_RESPONSE_TEMPLATING, "Preprocess all responses with Handlebars templates").withOptionalArg();
+        optionParser.accepts(LOCAL_RESPONSE_TEMPLATING, "Preprocess selected responses with Handlebars templates").withOptionalArg();
         optionParser.accepts(ADMIN_API_BASIC_AUTH, "Require HTTP Basic authentication for admin API calls with the supplied credentials in username:password format").withRequiredArg();
         optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
@@ -310,11 +312,19 @@ public class CommandLineOptions implements Options {
             );
         }
 
+        TemplateCache templateCache = null;
+
+        if (optionSet.has(RESPONSE_TEMPLATING_CACHE)) {
+            templateCache = getTemplateCache((String) optionSet.valueOf(RESPONSE_TEMPLATING_CACHE));
+        }
+
         if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(true);
+            String classNames = (String) optionSet.valueOf(GLOBAL_RESPONSE_TEMPLATING);
+            ResponseTemplateTransformer transformer =  new ResponseTemplateTransformer(true, templateCache, getHelpers(classNames));
             builder.put(transformer.getName(), (T) transformer);
         } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(false);
+            String classNames = (String) optionSet.valueOf(LOCAL_RESPONSE_TEMPLATING);
+            ResponseTemplateTransformer transformer =  new ResponseTemplateTransformer(false, templateCache, getHelpers(classNames));
             builder.put(transformer.getName(), (T) transformer);
         }
 
@@ -503,6 +513,39 @@ public class CommandLineOptions implements Options {
 
     private int getAsynchronousResponseThreads() {
         return Integer.valueOf((String) optionSet.valueOf(ASYNCHRONOUS_RESPONSE_THREADS));
+    }
+
+    private TemplateCache getTemplateCache(String className){
+        if (isNotEmpty(className)) {
+            try {
+                Class<?> cacheClass = Thread.currentThread().getContextClassLoader().loadClass(className.trim());
+                if (TemplateCache.class.isAssignableFrom(cacheClass)){
+                    return (TemplateCache)cacheClass.newInstance();
+                }
+            } catch (Exception e) {
+                throw new AssertionError("Cannot load TemplateCache", e);
+            }
+        }
+        return null;
+    }
+
+    private Map<String, Helper> getHelpers(String classNames){
+        Map<String, Helper> helpers = new HashMap<>();
+        if (isNotEmpty(classNames)) {
+            for (String className : classNames.split(",")) {
+                try {
+                    Class<?> helperClass = Thread.currentThread().getContextClassLoader().loadClass(className.trim());
+                    if (helperClass.isEnum()){
+                        for (Enum helper: (Enum[])helperClass.getEnumConstants()) {
+                            helpers.put(helper.name(), (Helper)helper);
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new AssertionError("Cannot load helper", e);
+                }
+            }
+        }
+        return helpers;
     }
 
 }
