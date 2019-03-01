@@ -21,10 +21,12 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
@@ -45,6 +47,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -57,8 +60,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
 
     private final Handlebars handlebars;
 
-    private ImmutableMap<String, String> sys;
-    private ImmutableMap<String, String> env;
+    private final Map<String, Object> config;
 
     public ResponseTemplateTransformer(boolean global) {
         this(global, Collections.<String, Helper>emptyMap());
@@ -75,8 +77,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers) {
         this.global = global;
 
-        this.sys=getSystemProperties();
-        this.env=getSystemEnv();
+        this.config=getConfig();
 
         this.handlebars = handlebars;
 
@@ -106,7 +107,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
     }
 
-    @Override
+	@Override
     public boolean applyGlobally() {
         return global;
     }
@@ -122,15 +123,14 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
                 .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
                 .put("request", RequestTemplateModel.from(request))
-                .put("env", firstNonNull(env, Collections.<String, Object>emptyMap()))
-                .put("sys", firstNonNull(sys, Collections.<String, Object>emptyMap()))
+                .put("config", firstNonNull(config, Collections.<String, Object>emptyMap()))
                 .build();
-
+        
         if (responseDefinition.specifiesTextBodyContent()) {
-            Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
+        	Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
-            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+        	Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
             TextFile file = files.getTextFileNamed(compiledFilePath);
             Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
@@ -144,7 +144,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
                     List<String> newValues = Lists.transform(input.values(), new Function<String, String>() {
                         @Override
                         public String apply(String input) {
-                            Template template = uncheckedCompileTemplate(input);
+                        	Template template = uncheckedCompileTemplate(input);
                             return uncheckedApplyTemplate(template, model);
                         }
                     });
@@ -156,7 +156,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
 
         if (responseDefinition.getProxyBaseUrl() != null) {
-            Template proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
+        	Template proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
             String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
             newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
         }
@@ -164,23 +164,60 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         return newResponseDefBuilder.build();
     }
 
-    private ImmutableMap<String, String> getSystemProperties() {
-        return AccessController.doPrivileged(new PrivilegedAction<ImmutableMap<String, String>>() {
+    private Map<String, String> getSystemProperties() {
+        return AccessController.doPrivileged(new PrivilegedAction<Map<String, String>>() {
             @Override
-            public ImmutableMap<String, String> run() {
-                return Maps.fromProperties(System.getProperties());
+            public Map<String, String> run() {
+                return (Map) System.getProperties();
             }
         });
     }
 
-    private ImmutableMap<String, String> getSystemEnv() {
-        return AccessController.doPrivileged(new PrivilegedAction<ImmutableMap<String, String>>() {
+    private Map<String, String> getSystemEnv() {
+        return AccessController.doPrivileged(new PrivilegedAction<Map<String, String>>() {
             @Override
-            public ImmutableMap<String, String> run() {
-                return ImmutableMap.copyOf(System.getenv());
+            public Map<String, String> run() {
+            	Map<String, String> envVarsWithVariations = new LinkedHashMap<>();
+            	envVarsWithVariations.putAll(System.getenv());
+            	
+            	// normalizing the key names
+            	for (Map.Entry<String, String> entry : System.getenv().entrySet()){
+            		
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase(), entry.getValue());
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase(), entry.getValue());
+
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase().replaceAll("_", "."), entry.getValue());
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase().replaceAll("_", "-"), entry.getValue());
+            		
+            		envVarsWithVariations.putIfAbsent(entry.getKey().replaceAll("_", "."), entry.getValue());
+            		envVarsWithVariations.putIfAbsent(entry.getKey().replaceAll("_", "-"), entry.getValue());
+            		
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase().replace("_", "."), entry.getValue());
+            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase().replace("_", "-"), entry.getValue());
+        		}
+            	return envVarsWithVariations;
             }
         });
     }
+
+    private Map<String, Object> getConfig() {
+    	Map<String, String> envVars=getSystemEnv();
+    	Map<String, String> sysVars=getSystemProperties();
+		
+    	// lookup in the system variables first, followed by environment variables
+		Map<String, Object> configMap = new LinkedHashMap<>();
+		
+		// so put env vars first
+    	configMap.putAll(envVars);
+    	
+    	// then put sys vars and override env vars if exist
+    	configMap.putAll(sysVars);
+    	
+    	configMap.put("env", envVars);
+    	configMap.put("sys", sysVars);
+    	
+		return configMap;
+	}
 
     private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
         String newBody = uncheckedApplyTemplate(bodyTemplate, model);
@@ -196,7 +233,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     }
 
     private Template uncheckedCompileTemplate(String content) {
-        try {
+    	try {
             return handlebars.compileInline(content);
         } catch (IOException e) {
             return throwUnchecked(e, Template.class);

@@ -43,10 +43,10 @@ public class ResponseTemplateTransformerTest {
 
     private ResponseTemplateTransformer transformer;
     
-    private String sysKey = "system.key";
-    private String sysValue = "system-value";
-    private String envKey = "ENV_KEY";
-    private String envValue = "env-value";
+    private String sysKey = "wire_mock.rocks";
+    private String sysValue = "wiremock rocks!";
+    private String envKey = "WIRE_MOCK.rocks";
+    private String envValue = "WIREMOCK ROCKS!";
 
     @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -211,32 +211,91 @@ public class ResponseTemplateTransformerTest {
             "Body: All of the body content"
         ));
     }
-    
+
     @Test
-    public void requestSystemVariable() {
-        ResponseDefinition transformedResponseDef = transform(mockRequest()
-                .url("/things"),
+    public void requestConfigVariable() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest().url("/things"),
             aResponse().withBody(
-                sysKey+"={{sys.["+sysKey+"]}}"
+                "{{config.["+envKey+"]}}\n"
+                + "{{config.["+envKey.toLowerCase()+"]}}\n"
+                + "{{config.["+envKey.toUpperCase()+"]}}\n"
+                + "{{config.["+envKey.toLowerCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.["+envKey.toLowerCase().replaceAll("_", "-")+"]}}\n"
+                + "{{config.["+envKey.replaceAll("_", ".")+"]}}\n"
+                + "{{config.["+envKey.replaceAll("_", "-")+"]}}\n"
+                + "{{config.["+envKey.toUpperCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.["+envKey.toUpperCase().replaceAll("_", "-")+"]}}\n"
             )
         );
 
         assertThat(transformedResponseDef.getBody(), is(
-            sysKey+"="+sysValue
+                envValue+"\n"
+                    + sysValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+        ));
+    }
+
+    @Test
+    public void requestSystemVariable() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest().url("/things"),
+            aResponse().withBody(
+                "{{config.sys.["+sysKey+"]}}\n"
+                + "{{config.sys.["+sysKey.toLowerCase()+"]}}\n"
+                + "{{config.sys.["+sysKey.toUpperCase()+"]}}\n"
+                + "{{config.sys.["+sysKey.toLowerCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.sys.["+sysKey.toLowerCase().replaceAll("_", "-")+"]}}\n"
+                + "{{config.sys.["+sysKey.replaceAll("_", ".")+"]}}\n"
+                + "{{config.sys.["+sysKey.replaceAll("_", "-")+"]}}\n"
+                + "{{config.sys.["+sysKey.toUpperCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.sys.["+sysKey.toUpperCase().replaceAll("_", "-")+"]}}\n"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is(
+        		sysValue+"\n"
+                    + sysValue+"\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
+                    + "\n"
         ));
     }
 
     @Test
     public void requestEnvVariable() {
-        ResponseDefinition transformedResponseDef = transform(mockRequest()
-                .url("/things"),
+        ResponseDefinition transformedResponseDef = transform(mockRequest().url("/things"),
             aResponse().withBody(
-                envKey+"={{env."+envKey+"}}"
+                "{{config.env.["+envKey+"]}}\n"
+                + "{{config.env.["+envKey.toLowerCase()+"]}}\n"
+                + "{{config.env.["+envKey.toUpperCase()+"]}}\n"
+                + "{{config.env.["+envKey.toLowerCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.env.["+envKey.toLowerCase().replaceAll("_", "-")+"]}}\n"
+                + "{{config.env.["+envKey.replaceAll("_", ".")+"]}}\n"
+                + "{{config.env.["+envKey.replaceAll("_", "-")+"]}}\n"
+                + "{{config.env.["+envKey.toUpperCase().replaceAll("_", ".")+"]}}\n"
+                + "{{config.env.["+envKey.toUpperCase().replaceAll("_", "-")+"]}}\n"
             )
         );
 
         assertThat(transformedResponseDef.getBody(), is(
-            envKey+"="+envValue
+                envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
+                    + envValue+"\n"
         ));
     }
 
