@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.security;
+package com.github.tomakehurst.wiremock.stubbing;
 
-import com.github.tomakehurst.wiremock.http.HttpHeader;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Collections;
 import java.util.List;
 
-public class SingleHeaderClientAuthenticator implements ClientAuthenticator {
+public class StubMappingCollection extends StubMapping {
 
-    private final String key;
-    private final String value;
+    private List<StubMapping> mappings;
 
-    public SingleHeaderClientAuthenticator(String key, String value) {
-        this.key = key;
-        this.value = value;
+    @JsonIgnore
+    public boolean isMulti() {
+        return mappings != null;
     }
 
-    @Override
-    public List<HttpHeader> generateAuthHeaders() {
-        return Collections.singletonList(new HttpHeader(key, value));
+    @JsonIgnore
+    public List<? extends StubMapping> getMappingOrMappings() {
+        return isMulti() ? getMappings() : Collections.singletonList(this);
+    }
+
+    public List<StubMapping> getMappings() {
+        return mappings;
+    }
+
+    public void setMappings(List<StubMapping> mappings) {
+        this.mappings = mappings;
     }
 }

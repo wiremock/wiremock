@@ -71,7 +71,7 @@ public class HttpHeader extends MultiValue {
 
         HttpHeader that = (HttpHeader) o;
 
-        if (key != null ? !key.toLowerCase().equals(that.key.toLowerCase()) : that.key != null) return false;
+        if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) return false;
         if (values != null ? !values.equals(that.values) : that.values != null) return false;
 
         return true;

@@ -426,7 +426,9 @@ public class StandaloneAcceptanceTest {
         expectException.expectMessage(allOf(
             containsString("Error loading file"),
             containsString("bad-mapping.json"),
-            containsString("Unrecognized field \"requesttttt\" (class com.github.tomakehurst.wiremock.stubbing.StubMapping), not marked as ignorable")
+            containsString("Unrecognized field \"requesttttt\""),
+            containsString("class com.github.tomakehurst.wiremock.stubbing.StubMapping"),
+            containsString("not marked as ignorable")
         ));
         startRunner();
     }
