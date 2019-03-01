@@ -183,21 +183,28 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
             	// normalizing the key names
             	for (Map.Entry<String, String> entry : System.getenv().entrySet()){
             		
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase(), entry.getValue());
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase(), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toLowerCase(), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toUpperCase(), entry.getValue());
 
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase().replaceAll("_", "."), entry.getValue());
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toLowerCase().replaceAll("_", "-"), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toLowerCase().replaceAll("_", "."), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toLowerCase().replaceAll("_", "-"), entry.getValue());
             		
-            		envVarsWithVariations.putIfAbsent(entry.getKey().replaceAll("_", "."), entry.getValue());
-            		envVarsWithVariations.putIfAbsent(entry.getKey().replaceAll("_", "-"), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().replaceAll("_", "."), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().replaceAll("_", "-"), entry.getValue());
             		
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase().replace("_", "."), entry.getValue());
-            		envVarsWithVariations.putIfAbsent(entry.getKey().toUpperCase().replace("_", "-"), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toUpperCase().replace("_", "."), entry.getValue());
+            		putIfAbsent(envVarsWithVariations, entry.getKey().toUpperCase().replace("_", "-"), entry.getValue());
         		}
             	return envVarsWithVariations;
             }
         });
+    }
+    
+    private void putIfAbsent(Map<String, String> map, String key, String value) {
+        Object valueIfExist = map.get(key);
+        if (valueIfExist == null) {
+        	map.put(key, value);
+        }
     }
 
     private Map<String, Object> getConfig() {
