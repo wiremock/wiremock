@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.AssignHelper;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
@@ -77,6 +78,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         for (NumberHelper helper: NumberHelper.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
+        
+        for (ConditionalHelpers helper: ConditionalHelpers.values()) {
+        	this.handlebars.registerHelper(helper.name(), helper);
+        }
 
         this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
 
@@ -111,7 +116,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
-            TextFile file = files.getTextFileNamed(responseDefinition.getBodyFileName());
+            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+            String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
+            TextFile file = files.getTextFileNamed(compiledFilePath);
             Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }

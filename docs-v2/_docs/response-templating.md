@@ -85,6 +85,39 @@ wm.stubFor(get(urlPathEqualTo("/templated"))
 ```
 {% endraw %}
 
+
+## Templated body file
+
+The body file for a response can be selected dynamically by templating the file path:
+
+### Java
+
+{% raw %}
+```java
+wm.stubFor(get(urlPathMatching("/static/.*"))
+  .willReturn(ok()
+    .withBodyFile("files/{{request.pathSegments.[1]}}")));
+
+```
+{% endraw %}
+
+
+{% raw %}
+### JSON
+```json
+{
+  "request" : {
+    "urlPathPattern" : "/static/.*",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
+  }
+}
+```
+{% endraw %}
+
 ## The request model
 The model of the request is supplied to the header and body templates. The following request attributes are available:
  
@@ -92,7 +125,7 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.requestLine.path` - URL path
 
-`request.requestLine.path.[<n>]`- URL path segment (zero indexed) e.g. `request.path.[2]`
+`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
 
 `request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
@@ -124,6 +157,7 @@ The model of the request is supplied to the header and body templates. The follo
 ## Handlebars helpers
 All of the standard helpers (template functions) provided by the [Java Handlebars implementation by jknack](https://github.com/jknack/handlebars.java)
 plus all of the [string helpers](https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/StringHelpers.java)
+and the [conditional helpers](https://github.com/jknack/handlebars.java/blob/master/handlebars/src/main/java/com/github/jknack/handlebars/helper/ConditionalHelpers.java)
 are available e.g.
 
 {% raw %}

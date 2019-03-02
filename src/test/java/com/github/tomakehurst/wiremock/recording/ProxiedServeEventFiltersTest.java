@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Timing;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
@@ -116,8 +117,8 @@ public class ProxiedServeEventFiltersTest {
             null,
             responseDefinition,
             null,
-            true
-        );
+            true,
+            Timing.UNTIMED);
     }
 
     private ServeEvent proxiedServeEvent(UUID id, MockRequest request) {

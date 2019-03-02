@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.common;
+package com.github.tomakehurst.wiremock.verification.diff;
 
-import javax.xml.bind.DatatypeConverter;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
-class DatatypeConverterBase64Encoder implements Base64Encoder {
-    @Override
-    public String encode(byte[] content) {
-        return DatatypeConverter.printBase64Binary(content);
+public class InlineCustomMatcherLine extends DiffLine<Request> {
+
+    public InlineCustomMatcherLine(ValueMatcher<Request> customMatcher, Request request) {
+        super("custom matcher", new CustomMatcherWrapper(customMatcher), new EmptyToStringRequestWrapper(request), "[custom matcher]");
     }
 
-    @Override
-    public byte[] decode(String base64) {
-        return DatatypeConverter.parseBase64Binary(base64);
-    }
 }

@@ -15,9 +15,16 @@
  */
 package com.github.tomakehurst.wiremock.verification.diff;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Json.prettyPrint;
@@ -35,7 +42,7 @@ public class PlainTextDiffRendererTest {
 
     @Before
     public void init() {
-        diffRenderer = new PlainTextDiffRenderer();
+        diffRenderer = new PlainTextDiffRenderer(Collections.<String, RequestMatcherExtension>singletonMap("my-custom-matcher", new MyCustomMatcher()));
     }
 
     @Test
@@ -317,5 +324,82 @@ public class PlainTextDiffRendererTest {
         System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-multipart.txt")));
+    }
+
+    @Test
+    public void showsErrorInDiffWhenInlineCustomMatcherNotSatisfiedInMixedStub() {
+        Diff diff = new Diff(post("/thing")
+                .withName("Standard and custom matched stub")
+                .andMatching(new ValueMatcher<Request>() {
+                    @Override
+                    public MatchResult match(Request value) {
+                        return MatchResult.noMatch();
+                    }
+                })
+                .build(),
+
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_mixed-matchers.txt")));
+    }
+
+    @Test
+    public void showsErrorInDiffWhenNamedCustomMatcherNotSatisfiedInMixedStub() {
+        Diff diff = new Diff(post("/thing")
+                .withName("Standard and custom matched stub")
+                .andMatching("my-custom-matcher", Parameters.one("myVal", "present"))
+                .build(),
+
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_mixed-matchers-named-custom.txt")));
+    }
+
+    @Test
+    public void showsAppropriateErrorInDiffWhenCustomMatcherIsUsedExclusively() {
+        Diff diff = new Diff(requestMatching(new ValueMatcher<Request>() {
+                    @Override
+                    public MatchResult match(Request value) {
+                        return MatchResult.noMatch();
+                    }
+                })
+                .build(),
+
+                mockRequest()
+                        .method(POST)
+                        .url("/thing")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_only-custom_matcher.txt")));
+    }
+
+    public static class MyCustomMatcher extends RequestMatcherExtension {
+
+        @Override
+        public MatchResult match(Request request, Parameters parameters) {
+            parameters.getString("myVal"); // Ensure we're getting passed parameters as expcted
+            return MatchResult.noMatch();
+        }
+
+        @Override
+        public String getName() {
+            return "my-custom-matcher";
+        }
+
     }
 }

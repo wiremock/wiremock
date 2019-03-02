@@ -27,11 +27,14 @@ import org.junit.BeforeClass;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Locale;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 
 public class AcceptanceTestBase {
 
@@ -43,6 +46,10 @@ public class AcceptanceTestBase {
 	@BeforeClass
 	public static void setupServer() {
 		setupServerWithEmptyFileRoot();
+
+		// We assert English XML parser error messages in some tests. So we set our default locale to English to make
+		// those tests succeed even for users with non-English default locales.
+		Locale.setDefault(Locale.ENGLISH);
 	}
 
 	@AfterClass
@@ -51,7 +58,7 @@ public class AcceptanceTestBase {
 	}
 
 	public static void setupServerWithEmptyFileRoot() {
-		setupServer(wireMockConfig().withRootDirectory("src/test/resources/empty"));
+		setupServer(wireMockConfig().withRootDirectory(filePath("empty")));
 	}
 
 	public static void setupServerWithTempFileRoot() {
@@ -70,10 +77,11 @@ public class AcceptanceTestBase {
 	}
 
 	public static void setupServerWithMappingsInFileRoot() {
-		setupServer(wireMockConfig());
+		setupServer(wireMockConfig().withRootDirectory(defaultTestFilesRoot()));
 	}
 
     public static void setupServer(WireMockConfiguration options) {
+        System.out.println("Configuring WireMockServer with root directory: " + options.filesRoot().getPath());
         if(options.portNumber() == Options.DEFAULT_PORT) {
 			options.dynamicPort();
         }

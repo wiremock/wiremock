@@ -537,8 +537,10 @@ public class AdminApiTest extends AcceptanceTestBase {
 
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
-        assertThat(errors.first().getDetail(), is("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n" +
-            " at [Source: (wrong); line: 1, column: 2]"));
+        assertThat(errors.first().getDetail(), allOf(
+                containsString("Unexpected character ('(' (code 40)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')"),
+                containsString("line: 1, column: 2"))
+        );
     }
 
     @Test

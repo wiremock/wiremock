@@ -234,7 +234,7 @@ In Java 8 and above this can be achieved using a lambda:
 
 ```java
 wireMockServer.stubFor(requestMatching(request ->
-    MatchResult.of(request.getBody().length > 2048);
+    MatchResult.of(request.getBody().length > 2048)
 ).willReturn(aResponse().withStatus(422)));
 ```
 
@@ -283,6 +283,49 @@ or via JSON:
 }
 ```
 
+### Combining standard and custom request matchers
+
+An inline custom matcher can be used in combination with standard matchers in the following way:
+
+```java
+stubFor(get(urlPathMatching("/the/.*/one"))
+        .andMatching(new MyRequestMatcher()) // Will also accept a Java 8+ lambda
+        .willReturn(ok()));
+```
+
+Note that inline matchers of this form can only be used from Java, and only when `stubFor` is being called against a local
+WireMock server. An exception will be thrown if attempting to use an inline custom matcher against a remote instance.
+
+
+Custom matchers defined as extensions can also be combined with standard matchers.
+
+Java:
+
+```java
+stubFor(get(urlPathMatching("/the/.*/one"))
+        .andMatching("path-contains-param", Parameters.one("path", "correct"))
+        .willReturn(ok()));
+```
+
+JSON:
+
+```json
+{
+  "request" : {
+    "urlPathPattern" : "/the/.*/one",
+    "method" : "GET",
+    "customMatcher" : {
+      "name" : "path-contains-param",
+      "parameters" : {
+        "path" : "correct"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200
+  }
+}
+```
 
 ## Post-serve actions
 

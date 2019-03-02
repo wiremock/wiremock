@@ -329,7 +329,7 @@ public class WireMock {
     }
 
     public static UrlPattern anyUrl() {
-        return new UrlPattern(new AnythingPattern(), false);
+        return UrlPattern.ANY;
     }
 
 	public static CountMatchingStrategy lessThan(int expected) {
@@ -519,7 +519,7 @@ public class WireMock {
 		final RequestPattern requestPattern = requestPatternBuilder.build();
 
 		int actualCount;
-		if (requestPattern.hasCustomMatcher()) {
+		if (requestPattern.hasInlineCustomMatcher()) {
             List<LoggedRequest> requests = admin.findRequestsMatching(RequestPattern.everything()).getRequests();
             actualCount = from(requests).filter(thatMatch(requestPattern)).size();
         } else {

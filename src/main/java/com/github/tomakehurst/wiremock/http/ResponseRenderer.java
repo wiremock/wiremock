@@ -15,10 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+
 public interface ResponseRenderer {
 	
-	public static final String CONTEXT_KEY = "ResponseRenderer";
-
-	Response render(ResponseDefinition responseDefinition);
+	Response render(ServeEvent serveEvent);
 	
 }

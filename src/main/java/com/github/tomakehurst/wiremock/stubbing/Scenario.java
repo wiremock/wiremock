@@ -18,15 +18,15 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.common.Json;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import static com.google.common.base.Predicates.equalTo;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 
 public class Scenario {
@@ -36,21 +36,22 @@ public class Scenario {
 	private final UUID id;
 	private final String name;
 	private final String state;
-	private final Set<String> possibleStates;
+	private final Set<StubMapping> stubMappings;
 
 	@JsonCreator
 	public Scenario(@JsonProperty("id") UUID id,
                     @JsonProperty("name") String name,
                     @JsonProperty("state") String currentState,
-                    @JsonProperty("possibleStates") Set<String> possibleStates) {
+                    @JsonProperty("possibleStates") Set<String> ignored,
+                    @JsonProperty("mappings") Set<StubMapping> stubMappings) {
         this.id = id;
         this.name = name;
         this.state = currentState;
-		this.possibleStates = possibleStates;
-	}
+        this.stubMappings = stubMappings;
+    }
 	
 	public static Scenario inStartedState(String name) {
-		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED));
+		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED), Collections.<StubMapping>emptySet());
 	}
 
     public UUID getId() {
@@ -66,38 +67,50 @@ public class Scenario {
 	}
 
     public Set<String> getPossibleStates() {
-        return possibleStates;
+        FluentIterable<String> requiredStates = from(stubMappings)
+            .transform(new Function<StubMapping, String>() {
+                @Override
+                public String apply(StubMapping mapping) {
+                    return mapping.getRequiredScenarioState();
+                }
+            });
+
+        return from(stubMappings)
+            .transform(new Function<StubMapping, String>() {
+                @Override
+                public String apply(StubMapping mapping) {
+                    return mapping.getNewScenarioState();
+                }
+            })
+            .append(requiredStates)
+            .filter(Predicates.notNull())
+            .toSet();
     }
 
-	Scenario setState(String newState) {
-		return new Scenario(id, name, newState, possibleStates);
+    public Set<StubMapping> getMappings() {
+        return stubMappings;
+    }
+
+    Scenario setState(String newState) {
+		return new Scenario(id, name, newState, null, stubMappings);
 	}
 
 	Scenario reset() {
-        return new Scenario(id, name, STARTED, possibleStates);
+        return new Scenario(id, name, STARTED, null, stubMappings);
 	}
 
-    Scenario withPossibleState(String newScenarioState) {
-	    if (newScenarioState == null) {
-	        return this;
-        }
-
-        ImmutableSet<String> newStates = ImmutableSet.<String>builder()
-            .addAll(possibleStates)
-            .add(newScenarioState)
+    Scenario withStubMapping(StubMapping stubMapping) {
+        Set<StubMapping> newMappings = ImmutableSet.<StubMapping>builder()
+            .addAll(stubMappings)
+            .add(stubMapping)
             .build();
-        return new Scenario(id, name, state, newStates);
+
+        return new Scenario(id, name, state, null, newMappings);
     }
 
-    public Scenario withoutPossibleState(String scenarioState) {
-        return new Scenario(
-            id,
-            name,
-            state,
-            from(possibleStates)
-                .filter(not(equalTo(scenarioState)))
-                .toSet()
-        );
+    Scenario withoutStubMapping(StubMapping stubMapping) {
+        Set<StubMapping> newMappings = Sets.difference(stubMappings, ImmutableSet.of(stubMapping));
+        return new Scenario(id, name, state, null, newMappings);
     }
 
 	@Override
@@ -110,14 +123,15 @@ public class Scenario {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Scenario scenario = (Scenario) o;
-        return Objects.equals(name, scenario.name) &&
-            Objects.equals(state, scenario.state) &&
-            Objects.equals(possibleStates, scenario.possibleStates);
+        return Objects.equals(getId(), scenario.getId()) &&
+            Objects.equals(getName(), scenario.getName()) &&
+            Objects.equals(getState(), scenario.getState()) &&
+            Objects.equals(getMappings(), scenario.getMappings());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, state, possibleStates);
+        return Objects.hash(getId(), getName(), getState(), getMappings());
     }
 
     public static final Predicate<Scenario> withName(final String name) {

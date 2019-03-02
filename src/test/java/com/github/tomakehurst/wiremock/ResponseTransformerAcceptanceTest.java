@@ -24,11 +24,10 @@ import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -67,6 +66,15 @@ public class ResponseTransformerAcceptanceTest {
         wm.stubFor(get(urlEqualTo("/global-response-transform")).willReturn(aResponse()));
 
         assertThat(client.get("/global-response-transform").firstHeader("X-Extra"), is("extra val"));
+    }
+
+    @Test
+    public void filesRootIsCorrectlyPassedToTransformer() {
+        startWithExtensions(FilesUsingResponseTransformer.class);
+
+        wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));
+
+        assertThat(client.get("/response-transform-with-files").content(), endsWith("src/test/resources/__files/plain-example.txt"));
     }
 
     @SuppressWarnings("unchecked")
@@ -130,6 +138,26 @@ public class ResponseTransformerAcceptanceTest {
         @Override
         public String getName() {
             return "global-response-transformer";
+        }
+
+        @Override
+        public boolean applyGlobally() {
+            return true;
+        }
+    }
+
+    public static class FilesUsingResponseTransformer extends ResponseTransformer {
+
+        @Override
+        public Response transform(Request request, Response response, FileSource files, Parameters parameters) {
+            return Response.Builder.like(response).but()
+                .body(files.getTextFileNamed("plain-example.txt").getPath())
+                .build();
+        }
+
+        @Override
+        public String getName() {
+            return "files-using-response-transformer";
         }
 
         @Override

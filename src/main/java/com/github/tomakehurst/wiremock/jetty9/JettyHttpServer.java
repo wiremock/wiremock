@@ -24,10 +24,7 @@ import com.github.tomakehurst.wiremock.http.RequestHandler;
 import com.github.tomakehurst.wiremock.http.StubRequestHandler;
 import com.github.tomakehurst.wiremock.http.trafficlistener.WiremockNetworkTrafficListener;
 import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
-import com.github.tomakehurst.wiremock.servlet.ContentTypeSettingFilter;
-import com.github.tomakehurst.wiremock.servlet.FaultInjectorFactory;
-import com.github.tomakehurst.wiremock.servlet.TrailingSlashFilter;
-import com.github.tomakehurst.wiremock.servlet.WireMockHandlerDispatchingServlet;
+import com.github.tomakehurst.wiremock.servlet.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
@@ -45,11 +42,13 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -61,6 +60,11 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
+    private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
+
+    static {
+        System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
+    }
 
     private final Server jettyServer;
     private final ServerConnector httpConnector;
@@ -136,11 +140,19 @@ public class JettyHttpServer implements HttpServer {
 
         try {
             final HandlerWrapper gzipWrapper = (HandlerWrapper) gzipHandlerClass.newInstance();
+            setGZippableMethods(gzipWrapper, gzipHandlerClass);
             gzipWrapper.setHandler(mockServiceContext);
             handlers.addHandler(gzipWrapper);
         } catch (final Exception e) {
             throwUnchecked(e);
         }
+    }
+
+    private static void setGZippableMethods(HandlerWrapper gzipHandler, Class<?> gzipHandlerClass) {
+        try {
+            Method addIncludedMethods = gzipHandlerClass.getDeclaredMethod("addIncludedMethods", String[].class);
+            addIncludedMethods.invoke(gzipHandler, new Object[] { GZIPPABLE_METHODS });
+        } catch (Exception ignored) {}
     }
 
     protected void finalizeSetup(final Options options) {
@@ -211,7 +223,7 @@ public class JettyHttpServer implements HttpServer {
         return this.httpsConnector.getLocalPort();
     }
 
-    protected long stopTimeout() {
+    public long stopTimeout() {
         return this.jettyServer.getStopTimeout();
     }
 
@@ -241,7 +253,7 @@ public class JettyHttpServer implements HttpServer {
             final NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
-        final CustomizedSslContextFactory sslContextFactory = new CustomizedSslContextFactory();
+        SslContextFactory sslContextFactory = buildSslContextFactory();
 
         sslContextFactory.setKeyStorePath(httpsSettings.keyStorePath());
         sslContextFactory.setKeyManagerPassword(httpsSettings.keyStorePassword());
@@ -269,6 +281,11 @@ public class JettyHttpServer implements HttpServer {
                 ),
                 new HttpConnectionFactory(httpConfig)
         );
+    }
+
+    // Override this for platform-specific impls
+    protected SslContextFactory buildSslContextFactory() {
+        return new SslContextFactory();
     }
 
     protected HttpConfiguration createHttpConfig(final JettySettings jettySettings) {
@@ -342,6 +359,8 @@ public class JettyHttpServer implements HttpServer {
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
+        mockServiceContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
+
         final MimeTypes mimeTypes = new MimeTypes();
         mimeTypes.addMimeMapping("json", "application/json");
         mimeTypes.addMimeMapping("html", "text/html");
@@ -408,6 +427,8 @@ public class JettyHttpServer implements HttpServer {
         adminContext.setAttribute(AdminRequestHandler.class.getName(), adminRequestHandler);
         adminContext.setAttribute(Notifier.KEY, notifier);
 
+        adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
+
         final FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
         filterHolder.setInitParameters(ImmutableMap.of(
                 "chainPreflight", "false",
@@ -418,6 +439,11 @@ public class JettyHttpServer implements HttpServer {
         adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         return adminContext;
+    }
+
+    // Override this for platform-specific impls
+    protected MultipartRequestConfigurer buildMultipartRequestConfigurer() {
+        return new DefaultMultipartRequestConfigurer();
     }
 
     private static class NetworkTrafficListenerAdapter implements NetworkTrafficListener {

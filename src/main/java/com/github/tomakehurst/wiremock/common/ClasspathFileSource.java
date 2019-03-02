@@ -25,7 +25,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -35,8 +34,6 @@ import java.util.zip.ZipFile;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Iterators.find;
-import static com.google.common.collect.Iterators.forEnumeration;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
@@ -104,12 +101,17 @@ public class ClasspathFileSource implements FileSource {
     }
 
     private URI getZipEntryUri(final String name) {
-        ZipEntry zipEntry = find(forEnumeration(zipFile.entries()), new Predicate<ZipEntry>() {
-            public boolean apply(ZipEntry input) {
-                return input.getName().equals(path + "/" + name);
+        final String lookFor = path + "/" + name;
+        final Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
+        StringBuilder candidates = new StringBuilder();
+        while(enumeration.hasMoreElements()) {
+            final ZipEntry candidate = enumeration.nextElement();
+            if (candidate.getName().equals(lookFor)) {
+                return getUriFor(candidate);
             }
-        });
-        return getUriFor(zipEntry);
+            candidates.append(candidate.getName() + "\n");
+        }
+        throw new RuntimeException("Was unable to find entry: \"" + lookFor + "\", found:\n" + candidates.toString());
     }
 
     @Override

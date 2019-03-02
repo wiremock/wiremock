@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.admin.AdminRoutes;
 import com.github.tomakehurst.wiremock.admin.LimitAndOffsetPaginator;
 import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.extension.AdminApiExtension;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
@@ -58,7 +59,6 @@ public class WireMockApp implements StubServer, Admin {
     public static final String ADMIN_CONTEXT_ROOT = "/__admin";
     public static final String MAPPINGS_ROOT = "mappings";
 
-    private static final PlainTextDiffRenderer diffRenderer = new PlainTextDiffRenderer();
 
     private final StubMappings stubMappings;
     private final RequestJournal requestJournal;
@@ -68,16 +68,20 @@ public class WireMockApp implements StubServer, Admin {
     private final Container container;
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
+    private final PlainTextDiffRenderer diffRenderer;
 
     private final Recorder recorder;
 
     private Options options;
 
+    static {
+        Xml.optimizeFactoriesLoading();
+    }
+
     private final ProxyHandler proxyHandler;
 
     public WireMockApp(final Options options, final Container container) {
         this.proxyHandler = new ProxyHandler(this);
-
 
         this.options = options;
 
@@ -87,13 +91,14 @@ public class WireMockApp implements StubServer, Admin {
         this.defaultMappingsLoader = options.mappingsLoader();
         this.mappingsSaver = options.mappingsSaver();
         this.globalSettingsHolder = new GlobalSettingsHolder();
-        this.requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(
-                options.maxRequestJournalEntries());
+        this.requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
+        Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
         this.stubMappings = new InMemoryStubMappings(
-                options.extensionsOfType(RequestMatcherExtension.class),
-                options.extensionsOfType(ResponseDefinitionTransformer.class),
-                fileSource);
-        this.nearMissCalculator = new NearMissCalculator(this.stubMappings, this.requestJournal);
+                customMatchers,
+            options.extensionsOfType(ResponseDefinitionTransformer.class),
+            fileSource);
+        this.nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        this.diffRenderer = new PlainTextDiffRenderer(customMatchers);
         this.recorder = new Recorder(this);
         this.container = container;
         this.loadDefaultMappings();
@@ -118,9 +123,10 @@ public class WireMockApp implements StubServer, Admin {
         this.requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
         this.stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
         this.container = container;
-        this.nearMissCalculator = new NearMissCalculator(this.stubMappings, this.requestJournal);
-        this.recorder = new Recorder(this);
-        this.loadDefaultMappings();
+        nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
+        diffRenderer = new PlainTextDiffRenderer(requestMatchers);
+        recorder = new Recorder(this);
+        loadDefaultMappings();
     }
 
     public AdminRequestHandler buildAdminRequestHandler() {
@@ -190,7 +196,7 @@ public class WireMockApp implements StubServer, Admin {
         final List<NearMiss> nearest = this.nearMissCalculator.findNearestTo(request);
         final String message;
         if (!nearest.isEmpty()) {
-            message = WireMockApp.diffRenderer.render(nearest.get(0).getDiff());
+            message = diffRenderer.render(nearest.get(0).getDiff());
         } else {
             message = "Request was not matched as there were no stubs registered:\n" + request;
         }

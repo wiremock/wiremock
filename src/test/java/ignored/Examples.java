@@ -531,4 +531,12 @@ public class Examples extends AcceptanceTestBase {
             .chooseBodyMatchTypeAutomatically()
             .build()));
     }
+
+    @Test
+    public void customAndStandardMatcherJson() {
+        System.out.println(Json.write(get(urlPathMatching("/the/.*/one"))
+                .andMatching("path-contains-param", Parameters.one("path", "correct"))
+                .willReturn(ok())
+                .build()));
+    }
 }

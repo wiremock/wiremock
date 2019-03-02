@@ -87,6 +87,27 @@ public class WireMockServerTests {
         assertThat(wireMockServer.url("something"), is(String.format("https://localhost:%d/something", port)));
     }
 
+    @Test
+    public void buildsBaseHttpUrl() {
+        WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        int port = wireMockServer.port();
+
+        assertThat(wireMockServer.baseUrl(), is(String.format("http://localhost:%d", port)));
+    }
+
+    @Test
+    public void buildsBaseHttpsUrl() {
+        WireMockServer wireMockServer = new WireMockServer(options()
+            .dynamicPort()
+            .dynamicHttpsPort()
+        );
+        wireMockServer.start();
+        int port = wireMockServer.httpsPort();
+
+        assertThat(wireMockServer.baseUrl(), is(String.format("https://localhost:%d", port)));
+    }
+
     // https://github.com/tomakehurst/wiremock/issues/193
     @Test
     public void supportsRecordingProgrammaticallyWithoutHeaderMatching() {

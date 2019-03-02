@@ -78,6 +78,7 @@ public class RequestPatternBuilderTest {
             new BasicCredentials("user", "pass"),
             ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
             null,
+            null,
             null
         );
 
@@ -127,6 +128,7 @@ public class RequestPatternBuilderTest {
                 ImmutableMap.of("cookie", WireMock.equalTo("yum")),
                 new BasicCredentials("user", "pass"),
                 ImmutableList.<ContentPattern<?>>of(WireMock.equalTo("BODY")),
+                null,
                 null,
                 asList(multipartPattern)
         );

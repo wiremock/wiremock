@@ -20,6 +20,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -173,6 +174,18 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void templatizeBodyFile() {
+        ResponseDefinition transformedResponseDef = transformFromResponseFile(mockRequest()
+                .url("/the/entire/path?name=Ram"),
+            aResponse().withBodyFile(
+                "/greet-{{request.query.name}}.txt"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("Hello Ram"));
+    }
+
+    @Test
     public void requestBody() {
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
@@ -239,6 +252,19 @@ public class ResponseTemplateTransformerTest {
     }
 
     @Test
+    public void conditionalHelper() {
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                        .url("/things")
+                        .header("X-Thing", "1"),
+                aResponse().withBody(
+                        "{{#eq request.headers.X-Thing.[0] '1'}}ONE{{else}}MANY{{/eq}}"
+                )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("ONE"));
+    }
+
+    @Test
     public void customHelper() {
         Helper<String> helper = new Helper<String>() {
             @Override
@@ -259,6 +285,23 @@ public class ResponseTemplateTransformerTest {
 
         assertThat(transformedResponseDef.getBody(), is("5"));
     }
+    
+    @Test
+    public void areConditionalHelpersLoaded() {
+
+        ResponseDefinition transformedResponseDef = transform(mockRequest()
+                .url("/things")
+                .body("fiver"),
+            aResponse().withBody(
+                "{{{eq 5 5 yes='y' no='n'}}}"
+            )
+        );
+
+        assertThat(transformedResponseDef.getBody(), is("y"));
+    }
+    
+    
+    
 
     @Test
     public void proxyBaseUrl() {
@@ -505,6 +548,15 @@ public class ResponseTemplateTransformerTest {
             request,
             responseDefinitionBuilder.build(),
             noFileSource(),
+            Parameters.empty()
+        );
+    }
+
+    private ResponseDefinition transformFromResponseFile(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
+        return transformer.transform(
+            request,
+            responseDefinitionBuilder.build(),
+            new ClasspathFileSource(this.getClass().getClassLoader().getResource("templates").getPath()),
             Parameters.empty()
         );
     }

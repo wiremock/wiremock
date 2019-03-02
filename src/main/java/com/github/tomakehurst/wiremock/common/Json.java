@@ -103,17 +103,14 @@ public final class Json {
             return 0;
         }
 
-        int acc = 0;
+        int acc = 1;
         if (node.isContainerNode()) {
-
             for (JsonNode child : node) {
                 acc++;
                 if (child.isContainerNode()) {
                     acc += deepSize(child);
                 }
             }
-        } else {
-            acc++;
         }
 
         return acc;

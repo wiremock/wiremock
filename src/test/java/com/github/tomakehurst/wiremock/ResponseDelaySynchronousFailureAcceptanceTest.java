@@ -54,7 +54,7 @@ public class ResponseDelaySynchronousFailureAcceptanceTest {
 
     private WireMockConfiguration getOptions() {
         WireMockConfiguration wireMockConfiguration = new WireMockConfiguration();
-        wireMockConfiguration.jettyAcceptors(1).containerThreads(4);
+        wireMockConfiguration.jettyAcceptors(1).containerThreads(8);
         wireMockConfiguration.asynchronousResponseEnabled(false);
         wireMockConfiguration.dynamicPort();
         return wireMockConfiguration;

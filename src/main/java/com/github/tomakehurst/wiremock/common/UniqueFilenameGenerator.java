@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.net.URI;
 
 public class UniqueFilenameGenerator {
@@ -27,14 +29,18 @@ public class UniqueFilenameGenerator {
         String pathPart = Urls.urlToPathParts(URI.create(url));
         pathPart = pathPart.equals("") ? "(root)" : sanitise(pathPart);
 
+        if (pathPart.length() > 150) {
+            pathPart = StringUtils.truncate(pathPart, 150);
+        }
+
         return new StringBuilder(prefix)
-                .append("-")
-                .append(pathPart)
-                .append("-")
-                .append(id)
-                .append(".")
-                .append(extension)
-                .toString();
+            .append("-")
+            .append(pathPart)
+            .append("-")
+            .append(id)
+            .append(".")
+            .append(extension)
+            .toString();
     }
 
     private static String sanitise(String input) {

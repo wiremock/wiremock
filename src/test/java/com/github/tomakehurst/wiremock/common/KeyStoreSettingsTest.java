@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.security.KeyStore;
 
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 import static org.junit.Assert.assertNotNull;
 
 public class KeyStoreSettingsTest {
@@ -20,7 +21,7 @@ public class KeyStoreSettingsTest {
 
     @Test
     public void loadsTrustStoreFromFilesystem() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings("src/test/resources/test-clientstore", TRUSTSTORE_PASSWORD);
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(filePath("test-clientstore"), TRUSTSTORE_PASSWORD);
 
         KeyStore keyStore = trustStoreSettings.loadStore();
         assertNotNull(keyStore);

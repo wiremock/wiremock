@@ -22,10 +22,8 @@ import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.matching.*;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.BaseEncoding;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +56,10 @@ public class Diff {
     }
 
     public List<DiffLine<?>> getLines() {
+        return getLines(Collections.<String, RequestMatcherExtension>emptyMap());
+    }
+
+    public List<DiffLine<?>> getLines(Map<String, RequestMatcherExtension> customMatcherExtensions) {
         ImmutableList.Builder<DiffLine<?>> builder = ImmutableList.builder();
 
         DiffLine<RequestMethod> methodSection = new DiffLine<>("HTTP method", requestPattern.getMethod(), request.getMethod(), requestPattern.getMethod().getName());
@@ -152,6 +154,22 @@ public class Diff {
             }
         }
 
+        if (requestPattern.hasInlineCustomMatcher()) {
+            InlineCustomMatcherLine customMatcherLine = new InlineCustomMatcherLine(requestPattern.getMatcher(), request);
+            builder.add(customMatcherLine);
+        }
+
+        if (requestPattern.hasNamedCustomMatcher()) {
+            RequestMatcherExtension customMatcher = customMatcherExtensions.get(requestPattern.getCustomMatcher().getName());
+            if (customMatcher != null) {
+                NamedCustomMatcherLine namedCustomMatcherLine = new NamedCustomMatcherLine(customMatcher, requestPattern.getCustomMatcher().getParameters(), request);
+                builder.add(namedCustomMatcherLine);
+            } else {
+                builder.add(new SectionDelimiter("[custom matcher: " + requestPattern.getCustomMatcher().getName() + "]"));
+            }
+        }
+
+
         return builder.build();
     }
 
@@ -226,6 +244,6 @@ public class Diff {
 
 
     public boolean hasCustomMatcher() {
-        return requestPattern.hasCustomMatcher();
+        return requestPattern.hasInlineCustomMatcher() || requestPattern.hasNamedCustomMatcher();
     }
 }

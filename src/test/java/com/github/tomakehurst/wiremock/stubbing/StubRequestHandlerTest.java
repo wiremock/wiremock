@@ -81,7 +81,7 @@ public class StubRequestHandlerTest {
             );
 
             Response response = response().status(200).body("Body content").build();
-			allowing(responseRenderer).render(with(any(ResponseDefinition.class))); will(returnValue(response));
+			allowing(responseRenderer).render(with(any(ServeEvent.class))); will(returnValue(response));
 		}});
 
 		Request request = aRequest(context)
@@ -105,7 +105,7 @@ public class StubRequestHandlerTest {
 			allowing(stubServer).serveStubFor(request); will(returnValue(
                 ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
 			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
-            allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+            allowing(responseRenderer).render(with(any(ServeEvent.class)));
                 will(returnValue(new Response.Builder().build()));
 		}});
 
@@ -123,7 +123,7 @@ public class StubRequestHandlerTest {
 		context.checking(new Expectations() {{
 			allowing(stubServer).serveStubFor(request);
 			    will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
-			allowing(responseRenderer).render(with(any(ResponseDefinition.class)));
+			allowing(responseRenderer).render(with(any(ServeEvent.class)));
                 will(returnValue(new Response.Builder().build()));
 		}});
 

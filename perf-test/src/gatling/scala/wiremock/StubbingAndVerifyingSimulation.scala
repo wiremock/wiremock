@@ -7,12 +7,15 @@ import scala.concurrent.duration._
 
 class StubbingAndVerifyingSimulation extends Simulation {
 
-  val loadTestConfiguration = new LoadTestConfiguration()
+  val loadTestConfiguration = LoadTestConfiguration.fromEnvironment()
 
   val random = scala.util.Random
 
   before {
     loadTestConfiguration.before()
+//    loadTestConfiguration.mixed100StubScenario()
+//    loadTestConfiguration.onlyGet6000StubScenario()
+    loadTestConfiguration.getLargeStubScenario()
   }
 
   after {
@@ -20,12 +23,12 @@ class StubbingAndVerifyingSimulation extends Simulation {
   }
 
   val httpConf = http
-    .baseURL(s"http://localhost:${loadTestConfiguration.getWireMockPort}/")
+    .baseURL(loadTestConfiguration.getBaseUrl)
 
-  val scenario1 = {
+  val mixed100StubScenario = {
 
-    scenario("Load Test 1")
-          .repeat(5) {
+    scenario("Mixed 100")
+          .repeat(1) {
             exec(http("GETs")
                 .get(session => s"load-test/${random.nextInt(49) + 1}")
                 .header("Accept", "text/plain+stuff")
@@ -64,8 +67,34 @@ class StubbingAndVerifyingSimulation extends Simulation {
               .check(status.is(200)))
   }
 
+  val onlyGet6000StubScenario = {
+    scenario("6000 GETs")
+      .repeat(1) {
+        exec(http("GETs")
+          .get(session => s"load-test/${random.nextInt(5999) + 1}")
+          .header("Accept", "text/plain+stuff")
+          .check(status.is(200)))
+        .exec(http("Not founds")
+          .get(session => s"load-test/${random.nextInt(5999) + 7000}")
+          .header("Accept", "text/plain+stuff")
+          .check(status.is(404)))
+      }
+  }
+
+  val getLargeStubsScenario = {
+    scenario("100 large GETs")
+      .repeat(1) {
+        exec(http("GETs")
+          .get(session => s"load-test/${random.nextInt(99) + 1}")
+          .header("Accept", "text/plain+stuff")
+          .check(status.is(200)))
+      }
+  }
+
   setUp(
-    scenario1.inject(constantUsersPerSec(200) during(10 seconds))
+//    mixed100StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+//    onlyGet6000StubScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
+    getLargeStubsScenario.inject(constantUsersPerSec(loadTestConfiguration.getRate) during(loadTestConfiguration.getDurationSeconds seconds))
   ).protocols(httpConf)
 
 }

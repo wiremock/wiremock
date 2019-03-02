@@ -103,8 +103,11 @@ public class EqualToJsonPattern extends StringValuePattern {
                 @Override
                 public boolean isExactMatch() {
                     // Try to do it the fast way first, then fall back to doing the full diff
-                    return (!shouldIgnoreArrayOrder() && !shouldIgnoreExtraElements() && Objects.equals(actual, expected))
-                        || getDistance() == 0.0;
+                    if (!shouldIgnoreArrayOrder() && !shouldIgnoreExtraElements()) {
+                        return Objects.equals(actual, expected);
+                    }
+
+                    return getDistance() == 0.0;
                 }
 
                 @Override
@@ -129,7 +132,6 @@ public class EqualToJsonPattern extends StringValuePattern {
             List<String> path = getPath(pathString.textValue());
             if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation)) {
                 JsonNode valueNode = operation.equals("remove") ? null : child.findValue("value");
-//                JsonNode valueNode = child.findValue("value");
                 JsonNode referencedExpectedNode = getNodeAtPath(expected, pathString);
                 if (valueNode == null) {
                     acc += deepSize(referencedExpectedNode);

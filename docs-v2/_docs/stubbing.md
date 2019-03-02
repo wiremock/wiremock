@@ -180,17 +180,22 @@ Priority is set via the `priority` attribute in JSON:
 
 ## Sending response headers
 
-In addition to matching on request headers, it's also possible to send response headers:
+In addition to matching on request headers, it's also possible to send response headers.
+
+
+Java:
 
 ```java
 stubFor(get(urlEqualTo("/whatever"))
         .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
+                .withHeader("Set-Cookie", "session_id=91837492837")
+                .withHeader("Set-Cookie", "split_test_group=B") // You can call withHeader more than once for the same header if multiple values are required
                 .withHeader("Cache-Control", "no-cache")));
 ```
 
-Or
+JSON:
 
 ```json
 {
@@ -202,6 +207,7 @@ Or
         "status": 200,
         "headers": {
             "Content-Type": "text/plain",
+            "Set-Cookie": ["session_id=91837492837", "split_test_group=B"],
             "Cache-Control": "no-cache"
         }
     }
@@ -274,6 +280,11 @@ Or
     }
 }
 ```
+
+> **note**
+>
+> Body file paths should always be relative i.e. not have a leading /
+
 
 > **note**
 >
