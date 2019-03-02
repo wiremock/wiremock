@@ -627,7 +627,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/__admin/files");
 
         assertEquals(200, response.statusCode());
-        assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*bar.txt\", \".*zoo.*txt\" ]"));
     }
 
     @Test

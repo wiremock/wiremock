@@ -29,12 +29,12 @@ allprojects {
     }
 
     def versions = [
-        handlebars     : '4.0.7',
-        jackson        : '2.9.8',
-        jacksonDatabind: '2.9.8',
-        jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
-        xmlUnit        : '2.5.1',
-        guava          : '20.0'
+            handlebars     : '4.0.7',
+            jackson        : '2.9.8',
+            jacksonDatabind: '2.9.8',
+            jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+            xmlUnit        : '2.5.1',
+            guava          : '20.0'
     ]
 //    def versions = [
 //        handlebars     : '4.1.2',
@@ -52,12 +52,11 @@ allprojects {
         compile "org.eclipse.jetty:jetty-servlets:$versions.jetty"
         compile "org.eclipse.jetty:jetty-webapp:$versions.jetty"
         compile "org.eclipse.jetty:jetty-rewrite:$versions.jetty"
-    compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: "${versions.jetty}"
-    compile "javax.websocket:javax.websocket-api:1.1"
-    compile "com.google.guava:guava:$versions.guava"
+        compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: "${versions.jetty}"
+        compile "com.google.guava:guava:$versions.guava"
         compile "com.fasterxml.jackson.core:jackson-core:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
-            "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
+                "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
+                "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonDatabind"
         compile "org.apache.httpcomponents:httpclient:4.5.6"
         compile "org.xmlunit:xmlunit-core:$versions.xmlUnit"
         compile "org.xmlunit:xmlunit-legacy:$versions.xmlUnit"
@@ -218,12 +217,12 @@ subprojects {
         standaloneJarPom new File(standaloneJarPomPath)
     }
 
-signing {
-    required {
-        !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+    signing {
+        required {
+            !version.toString().contains("SNAPSHOT") && (gradle.taskGraph.hasTask("uploadArchives") || gradle.taskGraph.hasTask("publish"))
+        }
+        sign configurations.archives
     }
-    sign configurations.archives
-}
 
     task signJars(type: Sign, dependsOn: [javadocJar, sourcesJar, testJar]) {
         sign javadocJar
@@ -385,22 +384,22 @@ signing {
 
     task npmInstall(type: Exec) {
         workingDir DOCS_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'i'
-    } else {
-        commandLine 'npm', 'i'
+        if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+            commandLine 'cmd', '/c', 'npm', 'i'
+        } else {
+            commandLine 'npm', 'i'
+        }
     }
-}
 
     task generateApiDocs(type: Exec) {
         dependsOn npmInstall
         workingDir DOCS_DIR
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'apidocs'
-    } else {
-        commandLine 'npm', 'run', 'apidocs'
+        if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'apidocs'
+        } else {
+            commandLine 'npm', 'run', 'apidocs'
+        }
     }
-}
 
     jar.dependsOn generateApiDocs
     processResources.dependsOn generateApiDocs
@@ -412,47 +411,46 @@ signing {
     clean.dependsOn deleteGeneratedApiDocs
 
     task npmInstallWebapp(type: Exec) {
-    workingDir 'webapp/wiremock'
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'i'
-    } else {
-        commandLine 'npm', 'i'
+        workingDir 'webapp/wiremock'
+        if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+            commandLine 'cmd', '/c', 'npm', 'i'
+        } else {
+            commandLine 'npm', 'i'
+        }
     }
-}
 
-task generateWebapp(type: Exec) {
-    dependsOn npmInstallWebapp
-    workingDir 'webapp/wiremock'
-    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        commandLine 'cmd', '/c', 'npm', 'run', 'prod'
-    } else {
-        commandLine 'npm', 'run', 'prod'
+    task generateWebapp(type: Exec) {
+        dependsOn npmInstallWebapp
+        workingDir 'webapp/wiremock'
+        if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+            commandLine 'cmd', '/c', 'npm', 'run', 'prod'
+        } else {
+            commandLine 'npm', 'run', 'prod'
+        }
     }
-}
 
-jar.dependsOn generateWebapp
-processResources.dependsOn generateWebapp
+    jar.dependsOn generateWebapp
+    processResources.dependsOn generateWebapp
 
-task deleteGeneratedWebapp(type: Delete) {
-    delete "src/main/resources/assets/webapp"
-}
+    task deleteGeneratedWebapp(type: Delete) {
+        delete "src/main/resources/assets/webapp"
+    }
 
-clean.dependsOn deleteGeneratedWebapp
+    clean.dependsOn deleteGeneratedWebapp
 
-task release {
-    dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
-    dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
-}
-
+    task release {
+        dependsOn 'generatePomFileForThinJarPublication', 'generatePomFileForStandaloneJarPublication'
+        dependsOn clean, jar, shadowJar, signAll, publish, addGitTag
+    }
 }
 
 
 task 'bump-patch-version' {
     doLast {
         def filesWithVersion = [
-            'build.gradle'                                   : { "version = '${it}" },
-            'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
-            'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
+                'build.gradle'                                   : { "version = '${it}" },
+                'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+                'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -461,8 +459,8 @@ task 'bump-patch-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                lineWithVersionTemplates :
-                [lineWithVersionTemplates]
+                    lineWithVersionTemplates :
+                    [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)
@@ -477,9 +475,9 @@ task 'bump-patch-version' {
 task 'bump-minor-version' {
     doLast {
         def filesWithVersion = [
-            'build.gradle'                                   : { "version = '${it}" },
-            'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
-            'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
+                'build.gradle'                                   : { "version = '${it}" },
+                'docs-v2/_config.yml'                            : { "wiremock_version: ${it}" },
+                'src/main/resources/raml/wiremock-admin-api.raml': { "version: ${it}" }
         ]
 
         def currentVersion = project.version
@@ -488,8 +486,8 @@ task 'bump-minor-version' {
         filesWithVersion.each { fileName, lineWithVersionTemplates ->
             def file = new File(fileName)
             def lineWithVersionTemplateList = lineWithVersionTemplates instanceof List ?
-                lineWithVersionTemplates :
-                [lineWithVersionTemplates]
+                    lineWithVersionTemplates :
+                    [lineWithVersionTemplates]
 
             lineWithVersionTemplateList.each { lineWithVersionTemplate ->
                 def oldLine = lineWithVersionTemplate.call(currentVersion)
