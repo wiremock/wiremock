@@ -7,6 +7,9 @@ import {StubMapping} from "../../model/wiremock/stub-mapping";
 import {ResponseDefinition} from "../../model/wiremock/response-definition";
 import {WiremockService} from "../../services/wiremock.service";
 import {debounceTime} from "rxjs/operators";
+import {LoggedRequest} from "../../model/wiremock/logged-request";
+
+import * as moment from 'moment';
 
 @Component({
   selector: 'wm-separated',
@@ -71,4 +74,5 @@ export class SeparatedComponent implements OnInit, OnChanges {
   asServeEvent(item: Item): ServeEvent {
     return <ServeEvent>item;
   }
+
 }

@@ -1,6 +1,8 @@
 import {Item} from './item';
 import {UtilService} from '../../services/util.service';
 import {Proxy} from './proxy';
+import * as moment from "moment";
+import {Moment} from "moment";
 
 export class LoggedRequest extends Proxy implements Item {
 
@@ -15,6 +17,7 @@ export class LoggedRequest extends Proxy implements Item {
   bodyAsBase64: string;
   isBrowserProxyRequest: boolean;
   loggedDate: any;
+  date: string;
 
   constructor() {
     super();
@@ -56,6 +59,7 @@ export class LoggedRequest extends Proxy implements Item {
     this.bodyAsBase64 = unchecked.bodyAsBase64;
     this.isBrowserProxyRequest = unchecked.isBrowserProxyRequest;
     this.loggedDate = unchecked.loggedDate;
+    this.date = moment(this.loggedDate).format();
 
     return this;
   }
