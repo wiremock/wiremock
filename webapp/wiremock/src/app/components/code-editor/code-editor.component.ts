@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, NgZone, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {UtilService} from '../../services/util.service';
 
 @Component({
@@ -48,7 +48,7 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit {
   @Input()
   options = CodeEditorComponent.DEFAULT_OPTIONS;
 
-  constructor() {
+  constructor(private zone: NgZone) {
   }
 
   ngOnInit() {

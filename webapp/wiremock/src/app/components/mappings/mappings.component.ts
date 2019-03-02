@@ -12,7 +12,7 @@ import {Item} from '../../model/wiremock/item';
 import {Subject} from 'rxjs/internal/Subject';
 import {ProxyConfig} from '../../model/wiremock/proxy-config';
 import {Tab, TabSelectionService} from '../../services/tab-selection.service';
-import {AutoRefreshService} from "../../services/auto-refresh.service";
+import {AutoRefreshService} from '../../services/auto-refresh.service';
 
 @Component({
   selector: 'wm-mappings',
@@ -101,8 +101,8 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
   ngOnInit() {
 
     this.webSocketService.observe('mappings').pipe(
-        filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
-        takeUntil(this.ngUnsubscribe), debounceTime(100))
+      filter(() => this.autoRefreshService.isAutoRefreshEnabled()),
+      takeUntil(this.ngUnsubscribe), debounceTime(100))
       .subscribe(() => {
         this.loadMappings();
       });
@@ -140,6 +140,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     this.wiremockService.saveNewMapping(this.editor.getCode()).subscribe(data => {
       console.log(data.getId());
       this.activeItemId = data.getId();
+      this.messageService.setMessage(new Message('save successful', MessageType.INFO, 2000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -156,6 +157,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     this.wiremockService.saveMapping(item.getId(), this.editor.getCode()).subscribe(data => {
       // console.log(data.getId());
       this.activeItemId = data.getId();
+      this.messageService.setMessage(new Message('save successful', MessageType.INFO, 2000));
     }, err => {
       UtilService.showErrorMessage(this.messageService, err);
     });
@@ -315,6 +317,39 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     } else {
       this.messageService.setMessage(new Message(MappingsComponent.COPY_FAILURE, MessageType.ERROR, 10000));
     }
+  }
+
+  editViaKeyboard($event, activeItem) {
+    if (activeItem != null && (!activeItem.isProxy() || activeItem.isProxyEnabled())) {
+      if(this.editMode === State.NORMAL) {
+        this.editMapping(activeItem);
+      }
+    }
+
+    $event.stopPropagation();
+    return false;
+  }
+
+  abortViaKeyboard($event) {
+    if(this.editMode === State.EDIT || this.editMode === State.NEW){
+      this.editMode = State.NORMAL;
+    }
+
+    $event.stopPropagation();
+    return false;
+  }
+
+  saveViaKeyboard($event, activeItem) {
+    if (activeItem != null) {
+      if(this.editMode === State.NEW){
+        this.saveNewMapping();
+      }  else if(this.editMode === State.EDIT){
+        this.saveEditMapping(activeItem);
+      }
+    }
+
+    $event.stopPropagation();
+    return false;
   }
 }
 

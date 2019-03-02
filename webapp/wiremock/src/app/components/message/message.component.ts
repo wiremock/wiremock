@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Message, MessageService} from './message.service';
+import {Message, MessageService, MessageType} from './message.service';
 import {UtilService} from '../../services/util.service';
 
 @Component({
@@ -14,6 +14,8 @@ export class MessageComponent implements OnInit {
 
   message: Message;
 
+  timeout: number;
+
   constructor(private messageService: MessageService) {
     this.message = null;
 
@@ -21,7 +23,10 @@ export class MessageComponent implements OnInit {
       this.message = next;
 
       if (UtilService.isDefined(next) && UtilService.isDefined(next.duration)) {
-        setTimeout(() => {
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
           this.closeAlert();
         }, next.duration);
       }
