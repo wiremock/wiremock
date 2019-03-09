@@ -1,0 +1,21 @@
+id: 12fb14bb-600e-4bfa-bd8d-be7f12562c99
+request:
+  url: "/received-request/2"
+  absoluteUrl: http://localhost:56738/received-request/2
+  method: GET
+  clientIp: 127.0.0.1
+  headers:
+    Connection: keep-alive
+    Host: localhost:56738
+    User-Agent: Apache-HttpClient/4.5.1 (Java/1.7.0_51)
+  cookies: {}
+  browserProxyRequest: false
+  loggedDate: 1471442557047
+  bodyAsBase64: ''
+  body: ''
+  loggedDateString: '2016-08-17T14:02:37Z'
+responseDefinition:
+  status: 404
+  transformers: []
+  fromConfiguredStub: false
+  transformerParameters: {}
