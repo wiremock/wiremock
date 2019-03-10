@@ -44,6 +44,9 @@ import static javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION;
 
 public class Xml {
 
+    private Xml() {
+        // Hide constructor
+    }
     public static void optimizeFactoriesLoading() {
         String transformerFactoryImpl = TransformerFactory.newInstance().getClass().getName();
         String xPathFactoryImpl = XPathFactory.newInstance().getClass().getName();
@@ -139,23 +142,47 @@ public class Xml {
     }
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() {
-        try {
-            DocumentBuilderFactory dbf = new SkipResolvingEntitiesDocumentBuilderFactory();
-            dbf.setFeature("http://xml.org/sax/features/validation", false);
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            return dbf;
-        } catch (ParserConfigurationException e) {
-            return throwUnchecked(e, DocumentBuilderFactory.class);
-        }
+        return new SkipResolvingEntitiesDocumentBuilderFactory();
     }
 
-    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+    private static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
+
+        private static final ThreadLocal<DocumentBuilderFactory> DBF_CACHE = new ThreadLocal<DocumentBuilderFactory>() {
+            @Override
+            protected DocumentBuilderFactory initialValue() {
+                try {
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(DocumentBuilderFactoryImpl.class.getName(), null);
+                    dbf.setFeature("http://xml.org/sax/features/validation", false);
+                    dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+                    dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                    return dbf;
+                } catch (ParserConfigurationException e) {
+                    return throwUnchecked(e, DocumentBuilderFactory.class);
+                }
+            }
+        };
+        private static final ThreadLocal<DocumentBuilder> DB_CACHE = new ThreadLocal<DocumentBuilder>() {
+            @Override
+            protected DocumentBuilder initialValue() {
+                try {
+                    return DBF_CACHE.get().newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                    return throwUnchecked(e, DocumentBuilder.class);
+                }
+            }
+
+            @Override
+            public DocumentBuilder get() {
+                DocumentBuilder documentBuilder = super.get();
+                documentBuilder.setEntityResolver(new ResolveToEmptyString());
+                documentBuilder.setErrorHandler(null);
+                return documentBuilder;
+            }
+        };
+
         @Override
         public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
-            DocumentBuilder documentBuilder = super.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new SkipResolvingEntitiesDocumentBuilderFactory.ResolveToEmptyString());
-            return documentBuilder;
+            return DB_CACHE.get();
         }
 
         private static class ResolveToEmptyString implements EntityResolver {
@@ -163,6 +190,26 @@ public class Xml {
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
                 return new InputSource(new StringReader(""));
             }
+        }
+
+        @Override
+        public void setAttribute(String name, Object value) {
+            DBF_CACHE.get().setAttribute(name, value);
+        }
+
+        @Override
+        public Object getAttribute(String name) {
+            return DBF_CACHE.get().getAttribute(name);
+        }
+
+        @Override
+        public void setFeature(String name, boolean value) throws ParserConfigurationException {
+            DBF_CACHE.get().setFeature(name, value);
+        }
+
+        @Override
+        public boolean getFeature(String name) throws ParserConfigurationException {
+            return DBF_CACHE.get().getFeature(name);
         }
     }
 }
