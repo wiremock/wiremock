@@ -26,6 +26,10 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class TestFiles {
 
+    public static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
+    public static final String TRUST_STORE_PATH = filePath("test-truststore.pkcs12");
+    public static final String KEY_STORE_PATH = filePath("test-keystore");
+
     public static String defaultTestFilesRoot() {
         return filePath("test-file-root");
     }
@@ -51,4 +55,5 @@ public class TestFiles {
                 "sample-war" :
                 "../sample-war";
     }
+
 }

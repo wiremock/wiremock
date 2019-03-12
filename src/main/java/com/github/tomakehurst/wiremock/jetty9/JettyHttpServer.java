@@ -41,7 +41,6 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -253,7 +252,6 @@ public class JettyHttpServer implements HttpServer {
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
-            sslContextFactory.setTrustStoreType(httpsSettings.trustStoreType());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
