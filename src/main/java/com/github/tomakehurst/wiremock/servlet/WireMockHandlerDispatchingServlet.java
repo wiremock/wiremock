@@ -217,7 +217,10 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, InputStream content) {
         try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
-            ByteStreams.copy(content, out);
+            byte[] body = ByteStreams.toByteArray(content);
+            httpServletResponse.setContentLength(body.length);
+            out.write(body);
+//            ByteStreams.copy(content, out);
             out.flush();
         } catch (IOException e) {
             throwUnchecked(e);
