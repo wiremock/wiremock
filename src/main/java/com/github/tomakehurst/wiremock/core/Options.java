@@ -36,6 +36,8 @@ import java.util.Map;
 
 public interface Options {
 
+    enum ChunkedEncodingPolicy { ALWAYS, NEVER, BODY_FILE }
+
     int DEFAULT_PORT = 8080;
     int DYNAMIC_PORT = 0;
     int DEFAULT_CONTAINER_THREADS = 10;
@@ -65,4 +67,5 @@ public interface Options {
     boolean getHttpsRequiredForAdminApi();
     NotMatchedRenderer getNotMatchedRenderer();
     AsynchronousResponseSettings getAsynchronousResponseSettings();
+    ChunkedEncodingPolicy getChunkedEncodingPolicy();
 }

@@ -105,6 +105,7 @@ public class JettyHttpServer implements HttpServer {
                 stubRequestHandler,
                 options.filesRoot(),
                 options.getAsynchronousResponseSettings(),
+                options.getChunkedEncodingPolicy(),
                 notifier
         );
 
@@ -326,6 +327,7 @@ public class JettyHttpServer implements HttpServer {
             StubRequestHandler stubRequestHandler,
             FileSource fileSource,
             AsynchronousResponseSettings asynchronousResponseSettings,
+            Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -339,6 +341,7 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory());
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
+        mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());
