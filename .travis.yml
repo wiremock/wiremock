@@ -6,11 +6,10 @@ jdk:
   - openjdk8
 
 install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 6.3.0
-  - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 8.12.0
+  - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses -x generateApiDocs
+  - apt-get upgrade -y openjdk7
 
 script:
-  - $JAVA_HOME/bin/java -version
-  - java -version
-  - ./gradlew test --info --stacktrace --no-daemon
+  - ./gradlew check --info --stacktrace --no-daemon
 
