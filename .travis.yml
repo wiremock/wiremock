@@ -8,7 +8,7 @@ jdk:
 install:
   - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 8.12.0
   - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses -x generateApiDocs
-  - sudo apt-get upgrade -y java-1.7.0-openjdk-amd64
+  - sudo apt list | grep openjdk
 
 script:
   - ./gradlew check --info --stacktrace --no-daemon
