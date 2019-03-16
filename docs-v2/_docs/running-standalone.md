@@ -119,6 +119,9 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 `--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
 
+`--use-chunked-encoding`: Set the policy for sending responses with `Transfer-Encoding: chunked`. Valid values are `always`, `never` and `body_file`. 
+The last of these will cause chunked encoding to be used only when a stub defines its response body from a file. 
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client
