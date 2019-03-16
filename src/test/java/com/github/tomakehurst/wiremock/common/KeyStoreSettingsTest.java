@@ -19,15 +19,14 @@ import org.junit.Test;
 
 import java.security.KeyStore;
 
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.TRUST_STORE_PASSWORD;
-import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.junit.Assert.assertNotNull;
 
 public class KeyStoreSettingsTest {
 
     @Test
     public void loadsTrustStoreFromClasspath() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings("test-truststore.pkcs12", TRUST_STORE_PASSWORD);
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_NAME, TRUST_STORE_PASSWORD);
 
         KeyStore keyStore = trustStoreSettings.loadStore();
         assertNotNull(keyStore);
@@ -35,7 +34,7 @@ public class KeyStoreSettingsTest {
 
     @Test
     public void loadsTrustStoreFromFilesystem() {
-        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(filePath("test-truststore.pkcs12"), TRUST_STORE_PASSWORD);
+        KeyStoreSettings trustStoreSettings = new KeyStoreSettings(TRUST_STORE_PATH, TRUST_STORE_PASSWORD);
 
         KeyStore keyStore = trustStoreSettings.loadStore();
         assertNotNull(keyStore);
