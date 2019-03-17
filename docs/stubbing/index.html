@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-01-30T20:59:12+00:00">
+  <meta property="article:published_time" content="2019-03-17T21:37:37+00:00">
   
     <link rel="next" href="/docs/verifying/" title="Verifying">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Stubbing">
     <meta itemprop="description" content="       If you want start stubbing quickly with zero code, try MockLab. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.    Learn more">
-    <meta itemprop="datePublished" content="January 30, 2019">
+    <meta itemprop="datePublished" content="March 17, 2019">
     
 
     <div class="page__inner-wrap">
@@ -791,6 +791,62 @@ and you don’t want these to disappear when you do a reset you can call
 UUID of the stub mapping.</p>
 
 <p>Via the HTTP client a mapping can be retrieved by sending a <code class="highlighter-rouge">GET</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/mappings/{id}</code>.</p>
+
+<h2 id="bulk-importing-stubs">Bulk importing stubs</h2>
+
+<p>Multiple stubs can be imported in one call.</p>
+
+<p>Java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">importStubs</span><span class="o">(</span><span class="n">stubImport</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">stub</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/one"</span><span class="o">).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()))</span>
+    <span class="o">.</span><span class="na">stub</span><span class="o">(</span><span class="n">post</span><span class="o">(</span><span class="s">"/two"</span><span class="o">).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">(</span><span class="s">"Body content"</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">stub</span><span class="o">(</span><span class="n">put</span><span class="o">(</span><span class="s">"/three"</span><span class="o">).</span><span class="na">willReturn</span><span class="o">(</span><span class="n">ok</span><span class="o">()))</span>
+    <span class="o">.</span><span class="na">ignoreExisting</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">deleteAllExistingStubsNotInImport</span><span class="o">());</span>
+</code></pre></div></div>
+
+<p>Via the JSON API, <code class="highlighter-rouge">POST</code> the to <code class="highlighter-rouge">/__admin/mappings/import</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"mappings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/one"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/two"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Body content"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+
+  </span><span class="s2">"importOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"duplicatePolicy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IGNORE"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"deleteAllNotInImport"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="existing-stubs-policy">Existing stubs policy</h3>
+
+<p>By default, if a stub in an import already exists (has an ID of a stub already loaded), then the existing stub will be overwritten.
+This can be changed by setting <code class="highlighter-rouge">duplicatePolicy</code> in the JSON to <code class="highlighter-rouge">IGNORE</code> or calling <code class="highlighter-rouge">ignoreExisting()</code> on the Java builder.</p>
+
+<h3 id="replacing-all-stubs-with-the-import">Replacing all stubs with the import</h3>
+
+<p>If you want to ensure that the only stubs loaded after the import has completed are the ones it contains, you can set
+<code class="highlighter-rouge">"deleteAllNotInImport": true</code> in the JSON or call <code class="highlighter-rouge">deleteAllExistingStubsNotInImport()</code> on the Java builder.</p>
 
         
       </section>

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-01-30T20:59:12+00:00">
+  <meta property="article:published_time" content="2019-03-17T21:37:37+00:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="January 30, 2019">
+    <meta itemprop="datePublished" content="March 17, 2019">
     
 
     <div class="page__inner-wrap">
@@ -369,9 +369,9 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.21.0/wiremock-standalone-2.21.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.22.0/wiremock-standalone-2.22.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.21.0.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.22.0.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -471,6 +471,9 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 <p><code class="highlighter-rouge">--local-response-templating</code>: Enable rendering of response definitions using Handlebars templates for specific stub mappings.</p>
 
+<p><code class="highlighter-rouge">--use-chunked-encoding</code>: Set the policy for sending responses with <code class="highlighter-rouge">Transfer-Encoding: chunked</code>. Valid values are <code class="highlighter-rouge">always</code>, <code class="highlighter-rouge">never</code> and <code class="highlighter-rouge">body_file</code>. 
+The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.</p>
+
 <p><code class="highlighter-rouge">--help</code>: Show command line help</p>
 
 <h2 id="configuring-wiremock-using-the-java-client">Configuring WireMock using the Java client</h2>
@@ -534,6 +537,40 @@ More content
 </code></pre></div></div>
 
 <p>See <a href="/docs/stubbing/">stubbing</a> and <a href="/docs/verifying/">verifying</a> for more on the JSON API.</p>
+
+<h3 id="multi-stub-json-files">Multi-stub JSON files</h3>
+
+<p>JSON files containing multiple stub mappings can also be used. These are of the form:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"mappings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/one"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/two"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Updated"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><strong>note</strong></p>
+
+  <p>Stubs loaded from multi-mapping files are read-only, so any attempt to update or remove (including remove all) will cause an error to be thrown.</p>
+</blockquote>
 
 <h2 id="pushing-json-files-to-a-remote-wiremock-instance">Pushing JSON files to a remote WireMock instance</h2>
 <p>You can push a collection of mappings to a remote</p>
