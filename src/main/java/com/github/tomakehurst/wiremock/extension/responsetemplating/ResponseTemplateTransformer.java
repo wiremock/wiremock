@@ -108,9 +108,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     @Override
     public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
+
         final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
                 .put("parameters", firstNonNull(parameters, Collections.<String, Object>emptyMap()))
-                .put("request", RequestTemplateModel.from(request)).build();
+                .put("request", RequestTemplateModel.from(request))
+                .putAll(addExtraModelElements(request, responseDefinition, files, parameters))
+                .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
             Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
@@ -148,6 +151,13 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
 
         return newResponseDefBuilder.build();
+    }
+
+    /**
+     * Override this to add extra elements to the template model
+     */
+    protected Map<String, Object> addExtraModelElements(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+        return Collections.emptyMap();
     }
 
     private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
