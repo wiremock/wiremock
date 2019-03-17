@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -150,12 +149,38 @@ public class Xml {
         }
     }
 
-    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactoryImpl {
+    public static class SkipResolvingEntitiesDocumentBuilderFactory extends DocumentBuilderFactory {
+        private final DocumentBuilderFactory documentBuilderFactory;
+
+        public SkipResolvingEntitiesDocumentBuilderFactory() {
+            documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        }
+
         @Override
         public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
-            DocumentBuilder documentBuilder = super.newDocumentBuilder();
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             documentBuilder.setEntityResolver(new SkipResolvingEntitiesDocumentBuilderFactory.ResolveToEmptyString());
             return documentBuilder;
+        }
+
+        @Override
+        public void setAttribute(String name, Object value) throws IllegalArgumentException {
+            documentBuilderFactory.setAttribute(name, value);
+        }
+
+        @Override
+        public Object getAttribute(String name) throws IllegalArgumentException {
+            return documentBuilderFactory.getAttribute(name);
+        }
+
+        @Override
+        public void setFeature(String name, boolean value) throws ParserConfigurationException {
+            documentBuilderFactory.setFeature(name, value);
+        }
+
+        @Override
+        public boolean getFeature(String name) throws ParserConfigurationException {
+            return documentBuilderFactory.getFeature(name);
         }
 
         private static class ResolveToEmptyString implements EntityResolver {
