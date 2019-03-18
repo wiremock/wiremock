@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.common.BinaryFile;
 import com.github.tomakehurst.wiremock.common.InputStreamSource;
 import com.github.tomakehurst.wiremock.common.StreamSources;
 import com.github.tomakehurst.wiremock.common.Strings;
@@ -118,6 +119,10 @@ public class Response {
 
     public InputStream getBodyStream() {
         return bodyStreamSource == null ? null : bodyStreamSource.getStream();
+    }
+
+    public boolean hasInlineBody() {
+	    return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
     }
 
 	public HttpHeaders getHeaders() {

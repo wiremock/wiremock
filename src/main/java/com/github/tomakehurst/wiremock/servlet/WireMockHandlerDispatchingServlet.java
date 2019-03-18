@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.servlet;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.core.FaultInjector;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockApp;
 import com.github.tomakehurst.wiremock.http.*;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -32,6 +33,8 @@ import java.io.InputStream;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.BODY_FILE;
+import static com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequestAdapter.ORIGINAL_REQUEST_KEY;
 import static com.google.common.base.Charsets.UTF_8;
@@ -57,6 +60,7 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 	private String wiremockFileSourceRoot = "/";
 	private boolean shouldForwardToFilesContext;
 	private MultipartRequestConfigurer multipartRequestConfigurer;
+	private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
 
 	@Override
 	public void init(ServletConfig config) {
@@ -83,6 +87,11 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
 		notifier = (Notifier) context.getAttribute(Notifier.KEY);
 
 		multipartRequestConfigurer = (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
+
+		Object chunkedEncodingPolicyAttr = context.getAttribute(Options.ChunkedEncodingPolicy.class.getName());
+		chunkedEncodingPolicy = chunkedEncodingPolicyAttr != null ?
+                (Options.ChunkedEncodingPolicy) chunkedEncodingPolicyAttr :
+                Options.ChunkedEncodingPolicy.ALWAYS;
 	}
 
 	private String getNormalizedMappedUnder(ServletConfig config) {
@@ -202,6 +211,10 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
             for (String value: header.values()) {
                 httpServletResponse.addHeader(header.key(), value);
             }
+        }
+
+        if (chunkedEncodingPolicy == NEVER || (chunkedEncodingPolicy == BODY_FILE && response.hasInlineBody())) {
+            httpServletResponse.setContentLength(response.getBody().length);
         }
 
         if (response.shouldAddChunkedDribbleDelay()) {

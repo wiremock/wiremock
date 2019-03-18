@@ -41,7 +41,6 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import javax.servlet.DispatcherType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -106,6 +105,7 @@ public class JettyHttpServer implements HttpServer {
                 stubRequestHandler,
                 options.filesRoot(),
                 options.getAsynchronousResponseSettings(),
+                options.getChunkedEncodingPolicy(),
                 notifier
         );
 
@@ -253,7 +253,6 @@ public class JettyHttpServer implements HttpServer {
         if (httpsSettings.hasTrustStore()) {
             sslContextFactory.setTrustStorePath(httpsSettings.trustStorePath());
             sslContextFactory.setTrustStorePassword(httpsSettings.trustStorePassword());
-            sslContextFactory.setTrustStoreType(httpsSettings.trustStoreType());
         }
         sslContextFactory.setNeedClientAuth(httpsSettings.needClientAuth());
 
@@ -328,6 +327,7 @@ public class JettyHttpServer implements HttpServer {
             StubRequestHandler stubRequestHandler,
             FileSource fileSource,
             AsynchronousResponseSettings asynchronousResponseSettings,
+            Options.ChunkedEncodingPolicy chunkedEncodingPolicy,
             Notifier notifier
     ) {
         ServletContextHandler mockServiceContext = new ServletContextHandler(jettyServer, "/");
@@ -341,6 +341,7 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.setAttribute(JettyFaultInjectorFactory.class.getName(), new JettyFaultInjectorFactory());
         mockServiceContext.setAttribute(StubRequestHandler.class.getName(), stubRequestHandler);
         mockServiceContext.setAttribute(Notifier.KEY, notifier);
+        mockServiceContext.setAttribute(Options.ChunkedEncodingPolicy.class.getName(), chunkedEncodingPolicy);
         ServletHolder servletHolder = mockServiceContext.addServlet(WireMockHandlerDispatchingServlet.class, "/");
         servletHolder.setInitParameter(RequestHandler.HANDLER_CLASS_KEY, StubRequestHandler.class.getName());
         servletHolder.setInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY, JettyFaultInjectorFactory.class.getName());

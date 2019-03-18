@@ -15,7 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -151,7 +150,7 @@ public class Xml {
             @Override
             protected DocumentBuilderFactory initialValue() {
                 try {
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(DocumentBuilderFactoryImpl.class.getName(), null);
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     dbf.setFeature("http://xml.org/sax/features/validation", false);
                     dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
                     dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
