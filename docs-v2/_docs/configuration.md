@@ -147,3 +147,20 @@ For details see [Extending WireMock](/docs/extending-wiremock/).
 // Add extensions
 .extensions("com.mycorp.ExtensionOne", "com.mycorp.ExtensionTwo")
 ```
+
+## Transfer encoding
+
+By default WireMock will send all responses chunk encoded, meaning with a `Transfer-Encoding: chunked` header present and no `Content-Length` header.
+
+This behaviour can be modified by setting a chunked encoding policy e.g.
+
+```java
+.useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.BODY_FILE)
+```
+
+Valid values are:
+
+* `NEVER` - Never use chunked encoding. Warning: this will buffer all response bodies in order to calculate the size.
+This might put a lot of strain on the garbage collector if you're using large response bodies.
+* `BODY_FILE` - Use chunked encoding for body files but calculate a `Content-Length` for directly configured bodies.
+* `ALWAYS` - Always use chunk encoding - the default.

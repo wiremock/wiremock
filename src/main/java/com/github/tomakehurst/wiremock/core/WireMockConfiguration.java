@@ -91,6 +91,7 @@ public class WireMockConfiguration implements Options {
     private NotMatchedRenderer notMatchedRenderer = new PlainTextStubNotMatchedRenderer();
     private boolean asynchronousResponseEnabled;
     private int asynchronousResponseThreads;
+    private ChunkedEncodingPolicy chunkedEncodingPolicy;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -330,6 +331,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration useChunkedTransferEncoding(ChunkedEncodingPolicy policy) {
+        this.chunkedEncodingPolicy = policy;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -465,4 +471,8 @@ public class WireMockConfiguration implements Options {
         return new AsynchronousResponseSettings(asynchronousResponseEnabled, asynchronousResponseThreads);
     }
 
+    @Override
+    public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
+        return chunkedEncodingPolicy;
+    }
 }

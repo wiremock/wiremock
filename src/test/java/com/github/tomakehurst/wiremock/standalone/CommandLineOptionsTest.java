@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.standalone;
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
@@ -385,6 +386,12 @@ public class CommandLineOptionsTest {
     public void setsNumberOfAsynchronousResponseThreads() {
         CommandLineOptions options = new CommandLineOptions("--async-response-threads", "20");
         assertThat(options.getAsynchronousResponseSettings().getThreads(), is(20));
+    }
+
+    @Test
+    public void setsChunkedEncodingPolicy() {
+        CommandLineOptions options = new CommandLineOptions("--use-chunked-encoding", "always");
+        assertThat(options.getChunkedEncodingPolicy(), is(Options.ChunkedEncodingPolicy.ALWAYS));
     }
 
     @Test

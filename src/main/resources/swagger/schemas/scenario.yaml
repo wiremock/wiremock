@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    type: string
+    description: The scenario ID
+    example: c8d249ec-d86d-48b1-88a8-a660e6848042
+  name:
+    type: string
+    description: The scenario name
+    example: my_scenario
+  possibleStates:
+    type: array
+    items:
+      default: Started
+      description: All the states this scenario can be in
+      type: string
+    example: [ Started, state_1, state_2 ]
+  state:
+    type: string
+    default: Started
+    description: The current state of this scenario
+    example: state_2
+

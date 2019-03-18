@@ -1,0 +1,16 @@
+mappings:
+  - id: 093f1027-e5e0-4921-9e6d-e619dfd5d2c7
+    name: recordables_123
+    request:
+      url: "/recordables/123"
+      method: GET
+    response:
+      status: 200
+      body: |-
+        {
+          "message": "Congratulations on your first recording!"
+        }
+      headers:
+        Content-Type: application/json
+    uuid: 093f1027-e5e0-4921-9e6d-e619dfd5d2c7
+    persistent: true

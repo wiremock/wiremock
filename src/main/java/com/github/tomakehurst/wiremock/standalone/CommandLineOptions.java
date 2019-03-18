@@ -57,7 +57,7 @@ import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_IN
 
 public class CommandLineOptions implements Options {
 
-	private static final String HELP = "help";
+    private static final String HELP = "help";
 	private static final String RECORD_MAPPINGS = "record-mappings";
 	private static final String MATCH_HEADERS = "match-headers";
 	private static final String PROXY_ALL = "proxy-all";
@@ -90,6 +90,7 @@ public class CommandLineOptions implements Options {
     private static final String ADMIN_API_REQUIRE_HTTPS = "admin-api-require-https";
     private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
     private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
+    private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -132,6 +133,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ADMIN_API_REQUIRE_HTTPS, "Require HTTPS to be used to access the admin API");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
+        optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -493,6 +495,13 @@ public class CommandLineOptions implements Options {
     @Override
     public AsynchronousResponseSettings getAsynchronousResponseSettings() {
         return new AsynchronousResponseSettings(isAsynchronousResponseEnabled(), getAsynchronousResponseThreads());
+    }
+
+    @Override
+    public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
+        return optionSet.has(USE_CHUNKED_ENCODING) ?
+                ChunkedEncodingPolicy.valueOf(optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase()) :
+                ChunkedEncodingPolicy.ALWAYS;
     }
 
     private boolean isAsynchronousResponseEnabled() {

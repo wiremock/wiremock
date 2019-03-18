@@ -49,18 +49,39 @@ public class WarDeploymentAcceptanceTest {
 	
 	@Before
 	public void init() throws Exception {
-        int port = Network.findFreePort();
-		jetty = new Server(port);
         String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
-        WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
-		jetty.setHandler(context);
-		jetty.start();
-		
+		WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
+
+		int port = attemptToStartOnRandomPort(context);
+
 		WireMock.configureFor("localhost", port, "/wiremock");
 		testClient = new WireMockTestClient(port);
 	}
 
-    @After
+	private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
+		int port;
+
+		int attemptsRemaining = 3;
+		while (true) {
+			port = Network.findFreePort();
+			jetty = new Server(port);
+			jetty.setHandler(context);
+			try {
+				jetty.start();
+				break;
+			} catch (Exception e) {
+				attemptsRemaining--;
+				if (attemptsRemaining > 0) {
+					continue;
+				}
+
+				throw e;
+			}
+		}
+		return port;
+	}
+
+	@After
 	public void cleanup() throws Exception {
 		jetty.stop();
 		WireMock.configure();

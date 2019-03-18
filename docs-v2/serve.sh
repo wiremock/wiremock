@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-npm run watch:all &
+npm run serve &
 bundle exec jekyll serve
