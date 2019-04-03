@@ -72,6 +72,7 @@ public class AdminRoutes {
         router.add(DELETE, "/mappings/{id}", RemoveStubMappingTask.class);
         router.add(POST, "/mappings/find-by-metadata", FindStubMappingsByMetadataTask.class);
         router.add(POST, "/mappings/remove-by-metadata", RemoveStubMappingsByMetadataTask.class);
+        router.add(POST, "/mappings/import", ImportStubMappingsTask.class);
 
         router.add(GET, "/files", GetAllStubFilesTask.class);
         router.add(GET, "/files/{filename}", GetStubFilesTask.class);
@@ -102,7 +103,6 @@ public class AdminRoutes {
         router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
         router.add(POST, "/shutdown", ShutdownServerTask.class);
 
-        router.add(GET, "/docs/raml", GetRamlSpecTask.class);
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);
         router.add(GET, "/docs", GetDocIndexTask.class);
 

@@ -15,20 +15,50 @@
  */
 package com.github.tomakehurst.wiremock.jetty9;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+
+import java.lang.reflect.Method;
+import java.net.Socket;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import java.net.Socket;
-import java.net.URI;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-
 public class JettyUtils {
+
+    private static final Map<Class<?>, Method> URI_METHOD_BY_CLASS_CACHE = new HashMap<>();
+    private static final boolean IS_JETTY;
+    static {
+        // do the check only once per classloader / execution
+        IS_JETTY = isClassExist("org.eclipse.jetty.server.Request");
+    }
+
+    private JettyUtils() {
+        // Hide public constructor
+    }
+
+    public static boolean isJetty() {
+        return IS_JETTY;
+    }
+
+    private static boolean isClassExist(String type) {
+        try {
+            ClassLoader contextCL = Thread.currentThread().getContextClassLoader();
+            ClassLoader loader = contextCL == null ? JettyUtils.class.getClassLoader() : contextCL;
+            Class.forName(type, false, loader);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public static Response unwrapResponse(HttpServletResponse httpServletResponse) {
         if (httpServletResponse instanceof HttpServletResponseWrapper) {
@@ -52,14 +82,24 @@ public class JettyUtils {
 
     public static URI getUri(Request request) {
         try {
-            return toUri(request.getClass().getDeclaredMethod("getUri").invoke(request));
-        } catch (Exception ignored) {
-            try {
-                return toUri(request.getClass().getDeclaredMethod("getHttpURI").invoke(request));
-            } catch (Exception ignored2) {
-                throw new IllegalArgumentException(request + " does not have a getUri or getHttpURI method");
-            }
+            return toUri(getURIMethodFromClass(request.getClass()).invoke(request));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(request + " does not have a getUri or getHttpURI method");
         }
+    }
+    
+    private static Method getURIMethodFromClass(Class<?> requestClass) throws NoSuchMethodException {
+        if(URI_METHOD_BY_CLASS_CACHE.containsKey(requestClass)){
+            return URI_METHOD_BY_CLASS_CACHE.get(requestClass);
+        }
+        Method method;
+        try {
+            method = requestClass.getDeclaredMethod("getUri");
+        } catch (NoSuchMethodException ignored) {
+            method = requestClass.getDeclaredMethod("getHttpURI");
+        }
+        URI_METHOD_BY_CLASS_CACHE.put(requestClass, method);
+        return method;
     }
 
     private static URI toUri(Object httpURI) {

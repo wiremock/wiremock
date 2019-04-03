@@ -26,6 +26,17 @@ import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class TestFiles {
 
+    public static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
+    public static final String TRUST_STORE_NAME = getTrustStoreRelativeName();
+    public static final String TRUST_STORE_PATH = filePath(TRUST_STORE_NAME);
+    public static final String KEY_STORE_PATH = filePath("test-keystore");
+
+    private static String getTrustStoreRelativeName() {
+        return System.getProperty("java.specification.version").equals("1.7") ?
+                "test-truststore.jks" :
+                "test-truststore.pkcs12";
+    }
+
     public static String defaultTestFilesRoot() {
         return filePath("test-file-root");
     }
@@ -51,4 +62,5 @@ public class TestFiles {
                 "sample-war" :
                 "../sample-war";
     }
+
 }

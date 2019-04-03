@@ -119,6 +119,9 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 `--local-response-templating`: Enable rendering of response definitions using Handlebars templates for specific stub mappings.
 
+`--use-chunked-encoding`: Set the policy for sending responses with `Transfer-Encoding: chunked`. Valid values are `always`, `never` and `body_file`. 
+The last of these will cause chunked encoding to be used only when a stub defines its response body from a file. 
+
 `--help`: Show command line help
 
 ## Configuring WireMock using the Java client
@@ -188,6 +191,40 @@ More content
 ```
 
 See [stubbing](/docs/stubbing/) and [verifying](/docs/verifying/) for more on the JSON API.
+
+
+### Multi-stub JSON files
+
+JSON files containing multiple stub mappings can also be used. These are of the form:
+
+```json
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/one"
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "id": "8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7",
+      "request": {
+        "url": "/two"
+      },
+      "response": {
+        "body": "Updated"
+      }
+    }
+  ]
+}
+```
+
+> **note**
+>
+> Stubs loaded from multi-mapping files are read-only, so any attempt to update or remove (including remove all) will cause an error to be thrown. 
 
 
 ## Pushing JSON files to a remote WireMock instance

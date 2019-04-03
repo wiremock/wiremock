@@ -565,17 +565,10 @@ public class AdminApiTest extends AcceptanceTestBase {
     }
 
     @Test
-    public void servesRamlSpec() {
-        WireMockResponse response = testClient.get("/__admin/docs/raml");
-        assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("#%RAML 0.8"));
-    }
-
-    @Test
     public void servesSwaggerSpec() {
         WireMockResponse response = testClient.get("/__admin/docs/swagger");
         assertThat(response.statusCode(), is(200));
-        assertThat(response.content(), containsString("\"swagger\": \"2.0\""));
+        assertThat(response.content(), containsString("\"openapi\": \"3.0.0\""));
     }
 
     @Test
@@ -662,6 +655,47 @@ public class AdminApiTest extends AcceptanceTestBase {
         Map<String, ?> data = Json.read(response.content(), Map.class);
 
         assertThat(data, not(hasKey("metadata")));
+    }
+
+    static final String IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"method\": \"GET\",\n" +
+            "        \"url\": \"/one\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": \"8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/two\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"body\": \"Updated\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \n" +
+            "  \"importOptions\": {\n" +
+            "    \"duplicatePolicy\": \"IGNORE\",\n" +
+            "    \"deleteAllNotInImport\": true\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void importStubs() {
+        UUID id2 = UUID.fromString("8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7");
+        wm.stubFor(get("/two").withId(id2).willReturn(ok("Original")));
+        wm.stubFor(get("/three").willReturn(ok()));
+
+        testClient.postJson("/__admin/mappings/import", IMPORT_JSON);
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
+        assertThat(stubs.size(), is(2));
     }
 
 }

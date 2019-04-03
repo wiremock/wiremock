@@ -23,6 +23,7 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -104,4 +105,6 @@ public interface Admin {
     ListStubMappingsResult findAllStubsByMetadata(StringValuePattern pattern);
 
     void removeStubsByMetadata(StringValuePattern pattern);
+
+    void importStubs(StubImport stubImport);
 }

@@ -34,6 +34,7 @@ import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
 import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
+import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
 import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
@@ -374,6 +375,15 @@ public class HttpAdminClient implements Admin {
         this.executeRequest(
                 this.adminRoutes.requestSpecForTask(RemoveStubMappingsByMetadataTask.class),
                 pattern,
+                Void.class
+        );
+    }
+
+    @Override
+    public void importStubs(StubImport stubImport) {
+        executeRequest(
+                adminRoutes.requestSpecForTask(ImportStubMappingsTask.class),
+                stubImport,
                 Void.class
         );
     }

@@ -20,6 +20,10 @@ import com.google.common.base.Function;
 public class CaseInsensitiveKey {
 
     private final String key;
+
+    /** Cache the hash code for the key */
+    private int hash; // Default to 0
+
     public CaseInsensitiveKey(String key) {
         this.key = key;
     }
@@ -35,14 +39,22 @@ public class CaseInsensitiveKey {
 
         CaseInsensitiveKey that = (CaseInsensitiveKey) o;
 
-        if (key != null ? !key.toLowerCase().equals(that.key.toLowerCase()) : that.key != null) return false;
+        if (key != null ? !key.equalsIgnoreCase(that.key) : that.key != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return key != null ? key.toLowerCase().hashCode() : 0;
+        int h = hash;
+        if (h == 0 && key.length() > 0) {
+            for (int i = 0; i < key.length(); i++) {
+                char c = Character.toLowerCase(key.charAt(i));
+                h = 31 * h + c;
+            }
+            hash = h;
+        }
+        return h;
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
+import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
@@ -36,11 +37,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.matchers.ThrowableCauseMatcher;
 import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.SSLContext;
@@ -57,6 +56,7 @@ import java.security.cert.CertificateException;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -66,10 +66,6 @@ import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class HttpsAcceptanceTest {
-
-    private static final String TRUST_STORE_PATH = toPath("test-clientstore");
-    private static final String KEY_STORE_PATH = toPath("test-keystore");
-    private static final String TRUST_STORE_PASSWORD = "mytruststorepassword";
 
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
@@ -307,6 +303,7 @@ public class HttpsAcceptanceTest {
         SSLContext sslcontext = SSLContexts.custom()
                 .loadTrustMaterial(null, new TrustSelfSignedStrategy())
                 .loadKeyMaterial(trustStore, trustStorePassword.toCharArray())
+                .setKeyStoreType("pkcs12")
                 .setProtocol("TLS")
                 .build();
 

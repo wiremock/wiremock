@@ -171,4 +171,9 @@ public class WarConfiguration implements Options {
     public AsynchronousResponseSettings getAsynchronousResponseSettings() {
         return new AsynchronousResponseSettings(false, 0);
     }
+
+    @Override
+    public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
+        return ChunkedEncodingPolicy.ALWAYS;
+    }
 }
