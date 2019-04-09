@@ -651,6 +651,46 @@ public class ResponseTemplateTransformerTest {
         assertThat(body, is("3"));
     }
 
+    @Test
+    public void firstListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.first}}"))
+                .getBody();
+
+        assertThat(body, is("1"));
+    }
+
+    @Test
+    public void lastListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.last}}"))
+                .getBody();
+
+        assertThat(body, is("4"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-2]}}"))
+                .getBody();
+
+        assertThat(body, is("2"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd2() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-1]}}"))
+                .getBody();
+
+        assertThat(body, is("3"));
+    }
+
     private String transform(String responseBodyTemplate) {
         return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
     }
