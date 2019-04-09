@@ -595,13 +595,21 @@ public class ResponseTemplateTransformerTest {
 
     @Test
     public void extractFormValue() {
-        String body = transform("{{{formField request.body 'item2'}}}", "item1=one&item2=two%202&item3=three%203");
+        String body = transform("{{{formData request.body 'form'}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
+        assertThat(body, is("two%202"));
+    }
+
+    @Test
+    public void extractFormMultiValue() {
+        String body = transform(
+                "{{{formData request.body 'form'}}}{{form.item.1}}", "item=1&item=two%202&item=3"
+        );
         assertThat(body, is("two%202"));
     }
 
     @Test
     public void extractFormValueWithUrlDecoding() {
-        String body = transform("{{{formField request.body 'item2' urlDecode=true}}}", "item1=one&item2=two%202&item3=three%203");
+        String body = transform("{{{formData request.body 'form' urlDecode=true}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
         assertThat(body, is("two 2"));
     }
 
