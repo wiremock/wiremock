@@ -82,5 +82,63 @@ public enum WireMockHelpers implements Helper<Object> {
         public Object apply(Object context, Options options) throws IOException {
             return helper.apply(context.toString(), options);
         }
+    },
+
+    trim {
+        private StringTrimHelper helper = new StringTrimHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    base64 {
+        private Base64Helper helper = new Base64Helper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    urlEncode {
+        private UrlEncodingHelper helper = new UrlEncodingHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    formField {
+        private FormFieldHelper helper = new FormFieldHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    regexExtract {
+        private RegexExtractHelper helper = new RegexExtractHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
+    },
+
+    size {
+        private SizeHelper helper = new SizeHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return helper.apply(context, options);
+        }
     }
+
+
+
+
 }
