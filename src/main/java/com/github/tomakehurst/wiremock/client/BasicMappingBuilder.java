@@ -45,6 +45,10 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     private Map<String, Parameters> postServeActions = newLinkedHashMap();
     private Metadata metadata;
 
+    BasicMappingBuilder(RequestPatternBuilder requestPatternBuilder) {
+        this.requestPatternBuilder = requestPatternBuilder;
+	}
+
     BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
 	}

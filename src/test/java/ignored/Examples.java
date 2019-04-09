@@ -16,6 +16,7 @@
 package ignored;
 
 import com.github.tomakehurst.wiremock.AcceptanceTestBase;
+import com.github.tomakehurst.wiremock.client.TestResouce;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.Json;
@@ -539,4 +540,9 @@ public class Examples extends AcceptanceTestBase {
                 .willReturn(ok())
                 .build()));
     }
+
+	@Test
+	public void fromInvocation() {
+		stubFor(invocation(TestResouce.class, (r) -> r.getStuff()).willReturn(aResponse().withStatus(202)));
+	}
 }

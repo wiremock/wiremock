@@ -794,4 +794,8 @@ public class WireMock {
     public static void importStubs(StubImport stubImport) {
         defaultInstance.get().importStubMappings(stubImport);
     }
+
+	public static <T> MappingBuilder invocation(final Class<T> resource, final ResourceInvocation<T> invocation) {
+		return new InvocationMappingBuilder<>(resource, invocation);
+	}
 }

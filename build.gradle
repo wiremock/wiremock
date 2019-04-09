@@ -28,8 +28,8 @@ allprojects {
     group = 'com.github.tomakehurst'
     version = '2.22.0'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         mavenCentral()
@@ -87,6 +87,7 @@ allprojects {
         compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
             exclude group: 'org.mozilla', module: 'rhino'
         }
+        compile 'javax:javaee-api:8.0'
 
         testCompile "org.hamcrest:hamcrest-all:1.3"
         testCompile("org.jmock:jmock:2.5.1") {
