@@ -111,8 +111,8 @@ public enum WireMockHelpers implements Helper<Object> {
         }
     },
 
-    formField {
-        private FormFieldHelper helper = new FormFieldHelper();
+    formData {
+        private FormDataHelper helper = new FormDataHelper();
 
         @Override
         public Object apply(Object context, Options options) throws IOException {
