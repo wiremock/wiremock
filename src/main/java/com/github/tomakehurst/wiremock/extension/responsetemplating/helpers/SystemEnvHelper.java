@@ -16,14 +16,18 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
-public class SystemEnvHelper extends HandlebarsHelper<Void> {
+public class SystemEnvHelper extends HandlebarsHelper<String> {
 
     @Override
-    public Object apply(Void context, Options options) throws IOException {
-        String variableName = options.hash("name", "");
+    public String apply(final String variableName, final Options options) throws IOException {
+        if (StringUtils.isEmpty(variableName)) {
+            return this.handleError("The variable name cannot be empty");
+        }
+
         return System.getenv(variableName);
     }
 }

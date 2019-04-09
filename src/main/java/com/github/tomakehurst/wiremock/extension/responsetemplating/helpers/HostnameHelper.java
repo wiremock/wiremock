@@ -24,11 +24,6 @@ public class HostnameHelper extends HandlebarsHelper<Void> {
 
     @Override
     public Object apply(Void context, Options options) throws IOException {
-        boolean uppercase = options.hash("uppercase", false);
-
-        String rawValue = InetAddress.getLocalHost().getHostName();
-        return uppercase?
-            rawValue.toUpperCase() :
-            rawValue.toLowerCase();
+        return InetAddress.getLocalHost().getHostName();
     }
 }

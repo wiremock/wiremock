@@ -18,7 +18,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,19 +27,16 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class HostnameHelperTest {
 
     private HostnameHelper helper;
-    private ResponseTemplateTransformer transformer;
     private String hostname;
 
     @Before
     public void init() throws UnknownHostException {
         helper = new HostnameHelper();
-        transformer = new ResponseTemplateTransformer(true);
         hostname = InetAddress.getLocalHost().getHostName();
 
         LocalNotifier.set(new ConsoleNotifier(true));
@@ -53,16 +49,6 @@ public class HostnameHelperTest {
 
         String output = render(optionsHash);
         assertThat(output, equalToIgnoringWhiteSpace(hostname));
-    }
-
-    @Test
-    public void generatesUppercaseHostname() throws Exception {
-        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-                "uppercase", true
-        );
-
-        String output = render(optionsHash);
-        assertEquals(output, hostname.toUpperCase());
     }
 
     private String render(ImmutableMap<String, Object> optionsHash) throws IOException {
