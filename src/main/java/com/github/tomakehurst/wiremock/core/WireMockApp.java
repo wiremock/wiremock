@@ -37,11 +37,11 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
@@ -65,8 +65,8 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
     private final PlainTextDiffRenderer diffRenderer;
-
     private final Recorder recorder;
+    private final List<StubLifecycleListener> stubLifecycleListeners;
 
     private Options options;
 
@@ -92,6 +92,8 @@ public class WireMockApp implements StubServer, Admin {
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
+        stubLifecycleListeners = ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values());
+
         this.container = container;
         loadDefaultMappings();
     }
@@ -117,6 +119,7 @@ public class WireMockApp implements StubServer, Admin {
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
+        stubLifecycleListeners = Collections.emptyList();
         loadDefaultMappings();
     }
 
@@ -200,6 +203,10 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
         }
+
+        for (StubLifecycleListener listener: stubLifecycleListeners) {
+            listener.stubCreated(stubMapping);
+        }
     }
 
     @Override
@@ -208,6 +215,10 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.remove(stubMapping);
         }
+
+        for (StubLifecycleListener listener: stubLifecycleListeners) {
+            listener.stubRemoved(stubMapping);
+        }
     }
 
     @Override
@@ -215,6 +226,10 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings.editMapping(stubMapping);
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
+        }
+
+        for (StubLifecycleListener listener: stubLifecycleListeners) {
+            listener.stubEdited(stubMapping);
         }
     }
 
@@ -248,6 +263,10 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings.reset();
         resetRequests();
         loadDefaultMappings();
+
+        for (StubLifecycleListener listener: stubLifecycleListeners) {
+            listener.stubsResetToDefaults();
+        }
     }
 
     @Override
@@ -259,6 +278,10 @@ public class WireMockApp implements StubServer, Admin {
     public void resetMappings() {
         mappingsSaver.removeAll();
         stubMappings.reset();
+
+        for (StubLifecycleListener listener: stubLifecycleListeners) {
+            listener.stubsReset();
+        }
     }
 
     @Override
