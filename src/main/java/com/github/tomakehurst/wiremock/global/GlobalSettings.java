@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.global;
 
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 
 import java.util.Objects;
@@ -23,6 +24,7 @@ public class GlobalSettings {
 
     private Integer fixedDelay;
     private DelayDistribution delayDistribution;
+    private Parameters extended;
 
     public Integer getFixedDelay() {
         return fixedDelay;
@@ -40,6 +42,14 @@ public class GlobalSettings {
         delayDistribution = distribution;
     }
 
+    public Parameters getExtended() {
+        return extended;
+    }
+
+    public void setExtended(Parameters extended) {
+        this.extended = extended;
+    }
+
     public GlobalSettings copy() {
         GlobalSettings newSettings = new GlobalSettings();
         newSettings.setFixedDelay(fixedDelay);
@@ -51,15 +61,14 @@ public class GlobalSettings {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         GlobalSettings that = (GlobalSettings) o;
-
-        return Objects.equals(fixedDelay, that.fixedDelay)
-                && Objects.equals(delayDistribution, that.delayDistribution);
+        return Objects.equals(getFixedDelay(), that.getFixedDelay()) &&
+                Objects.equals(getDelayDistribution(), that.getDelayDistribution()) &&
+                Objects.equals(getExtended(), that.getExtended());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fixedDelay, delayDistribution);
+        return Objects.hash(getFixedDelay(), getDelayDistribution(), getExtended());
     }
 }

@@ -469,4 +469,9 @@ public class WireMockServer implements Container, Stubbing, Admin {
     public void importStubs(StubImport stubImport) {
         wireMockApp.importStubs(stubImport);
     }
+
+    @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return wireMockApp.getGlobalSettings();
+    }
 }

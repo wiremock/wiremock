@@ -99,6 +99,8 @@ public class AdminRoutes {
         router.add(POST, "/near-misses/request", FindNearMissesForRequestTask.class);
         router.add(POST, "/near-misses/request-pattern", FindNearMissesForRequestPatternTask.class);
 
+        router.add(GET, "/settings", GetGlobalSettingsTask.class);
+        router.add(PUT, "/settings", GlobalSettingsUpdateTask.class);
         router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
         router.add(POST, "/shutdown", ShutdownServerTask.class);
 
