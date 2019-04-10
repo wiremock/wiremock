@@ -471,5 +471,9 @@ public class WireMockApp implements StubServer, Admin {
 
     }
 
+    @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return new GetGlobalSettingsResult(globalSettingsHolder.get());
+    }
 
 }

@@ -698,4 +698,18 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(stubs.size(), is(2));
     }
 
+    final String SETTINGS_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"mySetting\": 123\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPut() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
+    }
+
 }
