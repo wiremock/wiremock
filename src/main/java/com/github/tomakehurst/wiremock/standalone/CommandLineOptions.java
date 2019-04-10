@@ -489,6 +489,8 @@ public class CommandLineOptions implements Options {
             builder.put(ADMIN_API_REQUIRE_HTTPS, "true");
         }
 
+        builder.put(NOTIFIER, notifier().getClass().getCanonicalName());
+
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Object> param: builder.build().entrySet()) {
             int paddingLength = 29 - param.getKey().length();
