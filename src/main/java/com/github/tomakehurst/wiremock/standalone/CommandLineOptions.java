@@ -15,6 +15,19 @@
  */
 package com.github.tomakehurst.wiremock.standalone;
 
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
+import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
+import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
+import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.MappingsSaver;
 import com.github.tomakehurst.wiremock.core.Options;
@@ -37,23 +50,10 @@ import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRendere
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
 import com.google.common.io.Resources;
+
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
-import static com.github.tomakehurst.wiremock.core.WireMockApp.MAPPINGS_ROOT;
-import static com.github.tomakehurst.wiremock.extension.ExtensionLoader.valueAssignableFrom;
-import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS;
 
 public class CommandLineOptions implements Options {
 
@@ -91,6 +91,7 @@ public class CommandLineOptions implements Options {
     private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
     private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
+    private static final String NOTIFIER = "notifier";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -134,6 +135,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
+        optionParser.accepts(NOTIFIER, "Use a specific notifier. Can be either ConsoleNotifier, Slf4jNotifier or a full identifier").withRequiredArg().defaultsTo("ConsoleNotifier");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -387,7 +389,23 @@ public class CommandLineOptions implements Options {
 
     @Override
     public Notifier notifier() {
-        return new ConsoleNotifier(verboseLoggingEnabled());
+        String notifier = (String) optionSet.valueOf(NOTIFIER);
+        if ("ConsoleNotifier".equals(notifier)) {
+            return new ConsoleNotifier(verboseLoggingEnabled());
+        }
+        if ("Slf4jNotifier".equals(notifier)) {
+            return new Slf4jNotifier(verboseLoggingEnabled());
+        }
+        else {
+            try {
+                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                Class<?> cls = loader.loadClass(notifier);
+                return (Notifier)cls.newInstance();
+            } catch (Exception e) {
+                return throwUnchecked(e, null);
+            }
+
+        }
     }
 
     @Override

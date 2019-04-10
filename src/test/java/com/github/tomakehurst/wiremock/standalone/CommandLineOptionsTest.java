@@ -16,8 +16,7 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
-import com.github.tomakehurst.wiremock.common.FileSource;
-import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.*;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
@@ -409,6 +408,30 @@ public class CommandLineOptionsTest {
         assertThat(options.toString(), allOf(containsString("1338")));
     }
 
+    @Test
+    public void setsDefaultNotifier() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.notifier(), is(instanceOf(ConsoleNotifier.class)));
+    }
+
+    @Test
+    public void setsConsoleNotifier() {
+        CommandLineOptions options = new CommandLineOptions("--notifier", "ConsoleNotifier");
+        assertThat(options.notifier(), is(instanceOf(ConsoleNotifier.class)));
+    }
+
+    @Test
+    public void setsSlf4jNotifier() {
+        CommandLineOptions options = new CommandLineOptions("--notifier", "Slf4jNotifier");
+        assertThat(options.notifier(), is(instanceOf(Slf4jNotifier.class)));
+    }
+
+    @Test
+    public void setsCustomNotifier() {
+	    CommandLineOptions options = new CommandLineOptions("--notifier", "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$TestNofifier");
+        assertThat(options.notifier(), is(instanceOf(TestNofifier.class)));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }
@@ -434,5 +457,23 @@ public class CommandLineOptionsTest {
 
         @Override
         public String getName() { return "RequestMatcherExtension_One"; }
+    }
+
+    public static class TestNofifier implements Notifier {
+
+        @Override
+        public void info(final String message) {
+
+        }
+
+        @Override
+        public void error(final String message) {
+
+        }
+
+        @Override
+        public void error(final String message, final Throwable t) {
+
+        }
     }
 }
