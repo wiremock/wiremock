@@ -283,11 +283,13 @@ Dates can be rendered in a specific timezone (the default is UTC):
 ```
 {% endraw %}
 
-Pass `epoch` as the format to render the date as unix epoch time.
+Pass `epoch` as the format to render the date as UNIX epoch time (in milliseconds), or `unix` as the format to render
+the UNIX timestamp in seconds.
 
 {% raw %}
 ```
 {{now offset='2 years' format='epoch'}}
+{{now offset='2 years' format='unix'}}
 ```
 {% endraw %}
 
