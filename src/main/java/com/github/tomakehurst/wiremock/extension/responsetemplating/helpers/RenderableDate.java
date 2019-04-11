@@ -36,9 +36,15 @@ public class RenderableDate {
     @Override
     public String toString() {
         if (format != null) {
-            return format.equals("epoch") ?
-                String.valueOf(date.getTime()) :
-                formatCustom();
+            if (format.equals("epoch")) {
+                return String.valueOf(date.getTime());
+            }
+
+            if (format.equals("unix")) {
+                return String.valueOf(date.getTime() / 1000L);
+            }
+
+            return formatCustom();
         }
 
         return timezoneName != null ?
