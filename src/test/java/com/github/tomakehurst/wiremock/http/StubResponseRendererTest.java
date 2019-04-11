@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.http;
 
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
@@ -54,7 +55,7 @@ public class StubResponseRendererTest {
 
     @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
     public void endpointFixedDelayShouldOverrideGlobalDelay() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+        globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
         Response response = stubResponseRenderer.render(createServeEvent(100));
 
@@ -63,7 +64,7 @@ public class StubResponseRendererTest {
 
     @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
     public void globalFixedDelayShouldNotBeOverriddenIfNoEndpointDelaySpecified() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+        globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
         Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -72,14 +73,14 @@ public class StubResponseRendererTest {
 
     @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
     public void shouldSetGlobalFixedDelayOnResponse() throws Exception {
-        globalSettingsHolder.get().setFixedDelay(1000);
+        globalSettingsHolder.replaceWith(GlobalSettings.builder().fixedDelay(1000).build());
 
         Response response = stubResponseRenderer.render(createServeEvent(null));
 
         assertThat(response.getInitialDelay(), is(1000L));
     }
 
-    @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
+    @Test
     public void shouldSetEndpointFixedDelayOnResponse() throws Exception {
         Response response = stubResponseRenderer.render(createServeEvent(2000));
 
@@ -88,12 +89,12 @@ public class StubResponseRendererTest {
 
     @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
     public void shouldSetEndpointDistributionDelayOnResponse() throws Exception {
-        globalSettingsHolder.get().setDelayDistribution(new DelayDistribution() {
+        globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
             public long sampleMillis() {
                 return 123;
             }
-        });
+        }).build());
 
         Response response = stubResponseRenderer.render(createServeEvent(null));
 
@@ -102,12 +103,12 @@ public class StubResponseRendererTest {
 
     @Test(timeout = EXECUTE_WITHOUT_SLEEP_MILLIS)
     public void shouldCombineFixedDelayDistributionDelay() throws Exception {
-        globalSettingsHolder.get().setDelayDistribution(new DelayDistribution() {
+        globalSettingsHolder.replaceWith(GlobalSettings.builder().delayDistribution(new DelayDistribution() {
             @Override
             public long sampleMillis() {
                 return 123;
             }
-        });
+        }).build());
         Response response = stubResponseRenderer.render(createServeEvent(2000));
         assertThat(response.getInitialDelay(), is(2123L));
     }

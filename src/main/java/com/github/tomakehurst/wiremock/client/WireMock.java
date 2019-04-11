@@ -630,8 +630,10 @@ public class WireMock {
 	}
 
 	public void setGlobalFixedDelayVariable(int milliseconds) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setFixedDelay(milliseconds);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .fixedDelay(milliseconds)
+                .build();
 		updateGlobalSettings(settings);
 	}
 
@@ -640,8 +642,10 @@ public class WireMock {
 	}
 
 	public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setDelayDistribution(distribution);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .delayDistribution(distribution)
+                .build();
 		updateGlobalSettings(settings);
 	}
 

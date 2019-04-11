@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.global;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 
@@ -22,39 +23,45 @@ import java.util.Objects;
 
 public class GlobalSettings {
 
-    private Integer fixedDelay;
-    private DelayDistribution delayDistribution;
-    private Parameters extended;
+    private final Integer fixedDelay;
+    private final DelayDistribution delayDistribution;
+    private final Parameters extended;
+
+    public static GlobalSettings.Builder builder() {
+        return new Builder();
+    }
+
+    public static GlobalSettings defaults() {
+        return new Builder().build();
+    }
+
+    public GlobalSettings(
+            @JsonProperty("fixedDelay") Integer fixedDelay,
+            @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
+            @JsonProperty("extended") Parameters extended
+    ) {
+        this.fixedDelay = fixedDelay;
+        this.delayDistribution = delayDistribution;
+        this.extended = extended;
+    }
 
     public Integer getFixedDelay() {
         return fixedDelay;
-    }
-
-    public void setFixedDelay(Integer fixedDelay) {
-        this.fixedDelay = fixedDelay;
     }
 
     public DelayDistribution getDelayDistribution() {
         return delayDistribution;
     }
 
-    public void setDelayDistribution(DelayDistribution distribution) {
-        delayDistribution = distribution;
-    }
-
     public Parameters getExtended() {
         return extended;
     }
 
-    public void setExtended(Parameters extended) {
-        this.extended = extended;
-    }
-
-    public GlobalSettings copy() {
-        GlobalSettings newSettings = new GlobalSettings();
-        newSettings.setFixedDelay(fixedDelay);
-        newSettings.setDelayDistribution(delayDistribution);
-        return newSettings;
+    public GlobalSettings.Builder copy() {
+        return new Builder()
+                .fixedDelay(fixedDelay)
+                .delayDistribution(delayDistribution)
+                .extended(extended);
     }
 
     @Override
@@ -70,5 +77,30 @@ public class GlobalSettings {
     @Override
     public int hashCode() {
         return Objects.hash(getFixedDelay(), getDelayDistribution(), getExtended());
+    }
+
+    public static class Builder {
+        private Integer fixedDelay;
+        private DelayDistribution delayDistribution;
+        private Parameters extended;
+
+        public Builder fixedDelay(Integer fixedDelay) {
+            this.fixedDelay = fixedDelay;
+            return this;
+        }
+
+        public Builder delayDistribution(DelayDistribution delayDistribution) {
+            this.delayDistribution = delayDistribution;
+            return this;
+        }
+
+        public Builder extended(Parameters extended) {
+            this.extended = extended;
+            return this;
+        }
+
+        public GlobalSettings build() {
+            return new GlobalSettings(fixedDelay, delayDistribution, extended);
+        }
     }
 }

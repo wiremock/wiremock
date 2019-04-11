@@ -76,9 +76,9 @@ public class GlobalSettingsAcceptanceTest extends AcceptanceTestBase {
 
 	@Test
 	public void setAndRetrieveExtendedSettings() {
-		GlobalSettings settings = new GlobalSettings();
-		settings.setExtended(Parameters.one("mySetting", "setting-value"));
-		WireMock.updateSettings(settings);
+		WireMock.updateSettings(GlobalSettings.builder()
+				.extended(Parameters.one("mySetting", "setting-value"))
+				.build());
 
 		GlobalSettings fetchedSettings = WireMock.getSettings();
 
