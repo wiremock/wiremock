@@ -67,6 +67,7 @@ public class WireMockApp implements StubServer, Admin {
     private final PlainTextDiffRenderer diffRenderer;
     private final Recorder recorder;
     private final List<StubLifecycleListener> stubLifecycleListeners;
+    private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
 
@@ -93,6 +94,7 @@ public class WireMockApp implements StubServer, Admin {
         diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
         stubLifecycleListeners = ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values());
+        globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
         this.container = container;
         loadDefaultMappings();
@@ -120,6 +122,7 @@ public class WireMockApp implements StubServer, Admin {
         diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
         stubLifecycleListeners = Collections.emptyList();
+        globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
     }
 
@@ -372,8 +375,18 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return new GetGlobalSettingsResult(globalSettingsHolder.get());
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
+        GlobalSettings oldSettings = globalSettingsHolder.get();
         globalSettingsHolder.replaceWith(newSettings);
+
+        for (GlobalSettingsListener listener: globalSettingsListeners) {
+            listener.globalSettingsUpdated(oldSettings, newSettings);
+        }
     }
 
     public int port() {
@@ -469,11 +482,6 @@ public class WireMockApp implements StubServer, Admin {
             }
         }
 
-    }
-
-    @Override
-    public GetGlobalSettingsResult getGlobalSettings() {
-        return new GetGlobalSettingsResult(globalSettingsHolder.get());
     }
 
 }
