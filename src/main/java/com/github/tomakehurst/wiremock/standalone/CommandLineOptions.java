@@ -41,6 +41,8 @@ import com.google.common.collect.*;
 import com.google.common.io.Resources;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -135,7 +137,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
-        optionParser.accepts(NOTIFIER, "Use a specific notifier. Can be either ConsoleNotifier, Slf4jNotifier or a full identifier").withRequiredArg().defaultsTo("ConsoleNotifier");
+        optionParser.accepts(NOTIFIER, "Use a specific notifier. Can be either ConsoleNotifier, Slf4jNotifier or a fully qualified name of the class which implements Notifier interface").withRequiredArg().defaultsTo("ConsoleNotifier");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -390,19 +392,19 @@ public class CommandLineOptions implements Options {
     @Override
     public Notifier notifier() {
         String notifier = (String) optionSet.valueOf(NOTIFIER);
-        if ("ConsoleNotifier".equals(notifier)) {
+        if (ConsoleNotifier.class.getSimpleName().equals(notifier)) {
             return new ConsoleNotifier(verboseLoggingEnabled());
         }
-        if ("Slf4jNotifier".equals(notifier)) {
+        if (Slf4jNotifier.class.getSimpleName().equals(notifier)) {
             return new Slf4jNotifier(verboseLoggingEnabled());
         }
         else {
             try {
-                ClassLoader loader = Thread.currentThread().getContextClassLoader();
-                Class<?> cls = loader.loadClass(notifier);
-                return (Notifier)cls.newInstance();
+                @SuppressWarnings("unchecked")
+                Class<Notifier> notifierClass = (Class<Notifier>)ClassUtils.getClass(notifier);
+                return ConstructorUtils.invokeConstructor(notifierClass);
             } catch (Exception e) {
-                return throwUnchecked(e, null);
+                throw new IllegalArgumentException("Cannot load notifier by its name: " + notifier, e);
             }
 
         }
