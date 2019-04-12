@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.helper.AssignHelper;
 import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
@@ -116,13 +115,13 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
                 .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
-            Template bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
+            HandlebarsOptimizedTemplate bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
-            Template filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+            HandlebarsOptimizedTemplate filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
             TextFile file = files.getTextFileNamed(compiledFilePath);
-            Template bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
+            HandlebarsOptimizedTemplate bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }
 
@@ -133,7 +132,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
                     List<String> newValues = Lists.transform(input.values(), new Function<String, String>() {
                         @Override
                         public String apply(String input) {
-                            Template template = uncheckedCompileTemplate(input);
+                            HandlebarsOptimizedTemplate template = uncheckedCompileTemplate(input);
                             return uncheckedApplyTemplate(template, model);
                         }
                     });
@@ -145,7 +144,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
 
         if (responseDefinition.getProxyBaseUrl() != null) {
-            Template proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
+            HandlebarsOptimizedTemplate proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
             String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
             newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
         }
@@ -160,12 +159,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         return Collections.emptyMap();
     }
 
-    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, Template bodyTemplate) {
+    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate) {
         String newBody = uncheckedApplyTemplate(bodyTemplate, model);
         newResponseDefBuilder.withBody(newBody);
     }
 
-    private String uncheckedApplyTemplate(Template template, Object context) {
+    private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {
         try {
             return template.apply(context);
         } catch (IOException e) {
@@ -173,11 +172,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
     }
 
-    private Template uncheckedCompileTemplate(String content) {
+    private HandlebarsOptimizedTemplate uncheckedCompileTemplate(String content) {
         try {
-            return handlebars.compileInline(content);
+            return new HandlebarsOptimizedTemplate(handlebars, content);
         } catch (IOException e) {
-            return throwUnchecked(e, Template.class);
+            return throwUnchecked(e, HandlebarsOptimizedTemplate.class);
         }
     }
 }
