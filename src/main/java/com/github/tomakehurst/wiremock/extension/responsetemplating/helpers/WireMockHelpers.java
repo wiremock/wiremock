@@ -47,7 +47,7 @@ public enum WireMockHelpers implements Helper<Object> {
 
         @Override
         public Object apply(final Object context, final Options options) throws IOException {
-            return this.helper.apply(String.valueOf(context), options);
+            return this.helper.apply(context, options);
         }
     },
     randomValue {
