@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class RenderableDate {
+    private static final long DIVIDE_MILLISECONDS_TO_SECONDS = 1000L;
 
     private final Date date;
     private final String format;
@@ -41,7 +42,7 @@ public class RenderableDate {
             }
 
             if (format.equals("unix")) {
-                return String.valueOf(date.getTime() / 1000L);
+                return String.valueOf(date.getTime() / DIVIDE_MILLISECONDS_TO_SECONDS);
             }
 
             return formatCustom();
