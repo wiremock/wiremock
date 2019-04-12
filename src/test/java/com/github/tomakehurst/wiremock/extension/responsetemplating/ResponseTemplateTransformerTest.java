@@ -691,6 +691,16 @@ public class ResponseTemplateTransformerTest {
         assertThat(body, is("3"));
     }
 
+    @Test
+    public void correctlyRendersWhenContentExistsEitherSideOfTemplate() {
+        String body = transform(
+                mockRequest().url("/stuff?one=1&two=2"),
+                ok("Start \n\n {{request.query.one}} middle {{{request.query.two}}} end\n"))
+                .getBody();
+
+        assertThat(body, is("Start \n\n 1 middle 2 end\n"));
+    }
+
     private String transform(String responseBodyTemplate) {
         return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
     }
