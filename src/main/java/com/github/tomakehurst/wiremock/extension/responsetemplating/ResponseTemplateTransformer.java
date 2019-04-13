@@ -144,9 +144,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
             TextFile file = files.getTextFileNamed(compiledFilePath);
 
-            HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
-                    TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
-            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
+            boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
+            if (!disableBodyFileTemplating) {
+                HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
+                        TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
+                applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
+            }
         }
 
         if (responseDefinition.getHeaders() != null) {

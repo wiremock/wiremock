@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.Request;
@@ -25,6 +26,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -34,6 +36,7 @@ import java.util.*;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.FILES_ROOT;
 import static com.github.tomakehurst.wiremock.http.ResponseDefinition.copyOf;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.find;
@@ -94,7 +97,12 @@ public class InMemoryStubMappings implements StubMappings {
         ResponseDefinitionTransformer transformer = transformers.get(0);
         ResponseDefinition newResponseDef =
             transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-                transformer.transform(request, responseDefinition, rootFileSource.child(FILES_ROOT), responseDefinition.getTransformerParameters()) :
+                transformer.transform(
+                		request,
+						responseDefinition,
+						rootFileSource.child(FILES_ROOT),
+						firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty())
+				) :
                 responseDefinition;
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
