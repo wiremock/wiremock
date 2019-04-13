@@ -199,7 +199,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         if (maxCacheEntries != null && maxCacheEntries < 1) {
             return new HandlebarsOptimizedTemplate(handlebars, content);
         }
-        
+
         try {
             return cache.get(key, new Callable<HandlebarsOptimizedTemplate>() {
                 @Override
@@ -230,6 +230,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
 
     public long getCacheSize() {
         return cache.size();
+    }
+
+    public Long getMaxCacheEntries() {
+        return maxCacheEntries;
     }
 
     public static class Builder {
