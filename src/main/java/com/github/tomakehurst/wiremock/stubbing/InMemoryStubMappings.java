@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.SingleRootFileSource;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
@@ -26,7 +27,6 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
@@ -47,17 +47,21 @@ public class InMemoryStubMappings implements StubMappings {
 	private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
+    private final List<StubLifecycleListener> stubLifecycleListeners;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource) {
+	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
 		this.customMatchers = customMatchers;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
-    }
+		this.stubLifecycleListeners = stubLifecycleListeners;
+	}
 
 	public InMemoryStubMappings() {
 		this(Collections.<String, RequestMatcherExtension>emptyMap(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
-             new SingleRootFileSource("."));
+             new SingleRootFileSource("."),
+			 Collections.<StubLifecycleListener>emptyList()
+		);
 	}
 
 	@Override
@@ -100,12 +104,20 @@ public class InMemoryStubMappings implements StubMappings {
 	public void addMapping(StubMapping mapping) {
 		mappings.add(mapping);
 		scenarios.onStubMappingAdded(mapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.stubCreated(mapping);
+		}
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
 		mappings.remove(mapping);
 		scenarios.onStubMappingRemoved(mapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.stubRemoved(mapping);
+		}
 	}
 
 	@Override
@@ -128,6 +140,10 @@ public class InMemoryStubMappings implements StubMappings {
 
 		mappings.replace(existingMapping, stubMapping);
 		scenarios.onStubMappingUpdated(existingMapping, stubMapping);
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.stubEdited(existingMapping, stubMapping);
+		}
 	}
 
 
@@ -135,6 +151,10 @@ public class InMemoryStubMappings implements StubMappings {
 	public void reset() {
 		mappings.clear();
         scenarios.clear();
+
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.stubsReset();
+		}
 	}
 	
 	@Override
