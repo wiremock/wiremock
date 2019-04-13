@@ -15,15 +15,18 @@
  */
 package com.github.tomakehurst.wiremock.common;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 import java.io.IOException;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public final class Json {
 
@@ -48,8 +51,8 @@ public final class Json {
 		try {
 			ObjectMapper mapper = getObjectMapper();
 			return mapper.readValue(json, clazz);
-		} catch (JsonMappingException mappingException) {
-            throw JsonException.fromJackson(mappingException);
+		} catch (JsonProcessingException processingException) {
+            throw JsonException.fromJackson(processingException);
         } catch (IOException ioe) {
 			return throwUnchecked(ioe, clazz);
 		}
@@ -59,8 +62,8 @@ public final class Json {
         try {
             ObjectMapper mapper = getObjectMapper();
             return mapper.readValue(json, typeRef);
-        } catch (JsonMappingException mappingException) {
-            throw JsonException.fromJackson(mappingException);
+        } catch (JsonProcessingException processingException) {
+            throw JsonException.fromJackson(processingException);
         } catch (IOException ioe) {
             return throwUnchecked(ioe, (Class<T>) typeRef.getType());
         }
