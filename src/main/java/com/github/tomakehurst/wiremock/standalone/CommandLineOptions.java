@@ -91,6 +91,7 @@ public class CommandLineOptions implements Options {
     private static final String ASYNCHRONOUS_RESPONSE_ENABLED = "async-response-enabled";
     private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
+    private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -134,6 +135,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_ENABLED, "Enable asynchronous response").withRequiredArg().defaultsTo("false");
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
+        optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -313,10 +315,16 @@ public class CommandLineOptions implements Options {
         }
 
         if (optionSet.has(GLOBAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(true);
+            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                    .global(true)
+                    .maxCacheEntries(getMaxTemplateCacheEntries())
+                    .build();
             builder.put(transformer.getName(), (T) transformer);
         } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
-            ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(false);
+            ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
+                    .global(false)
+                    .maxCacheEntries(getMaxTemplateCacheEntries())
+                    .build();
             builder.put(transformer.getName(), (T) transformer);
         }
 
@@ -502,6 +510,12 @@ public class CommandLineOptions implements Options {
         return optionSet.has(USE_CHUNKED_ENCODING) ?
                 ChunkedEncodingPolicy.valueOf(optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase()) :
                 ChunkedEncodingPolicy.ALWAYS;
+    }
+
+    private Long getMaxTemplateCacheEntries() {
+        return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES) ?
+                Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString()) :
+                null;
     }
 
     private boolean isAsynchronousResponseEnabled() {
