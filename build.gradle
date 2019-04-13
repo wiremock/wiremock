@@ -218,6 +218,8 @@ subprojects {
         dependencies {
             exclude(dependency('junit:junit'))
         }
+
+        mergeServiceFiles()
     }
 
     def repoUser
