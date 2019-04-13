@@ -22,16 +22,22 @@ import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.github.jknack.handlebars.helper.NumberHelper;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
+import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -40,17 +46,20 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
+public class ResponseTemplateTransformer extends ResponseDefinitionTransformer implements StubLifecycleListener {
 
     public static final String NAME = "response-template";
 
     private final boolean global;
 
     private final Handlebars handlebars;
+    private final Cache<TemplateCacheKey, HandlebarsOptimizedTemplate> cache;
 
     public ResponseTemplateTransformer(boolean global) {
         this(global, Collections.<String, Helper>emptyMap());
@@ -92,6 +101,8 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         for (Map.Entry<String, Helper> entry: helpers.entrySet()) {
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
+
+        cache = CacheBuilder.newBuilder().build();
     }
 
     @Override
@@ -105,7 +116,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
     }
 
     @Override
-    public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+    public ResponseDefinition transform(Request request, final ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
         ResponseDefinitionBuilder newResponseDefBuilder = ResponseDefinitionBuilder.like(responseDefinition);
 
         final ImmutableMap<String, Object> model = ImmutableMap.<String, Object>builder()
@@ -115,36 +126,37 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
                 .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
-            HandlebarsOptimizedTemplate bodyTemplate = uncheckedCompileTemplate(responseDefinition.getBody());
+            HandlebarsOptimizedTemplate bodyTemplate = getTemplate(TemplateCacheKey.forInlineBody(responseDefinition), responseDefinition.getBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
-            HandlebarsOptimizedTemplate filePathTemplate = uncheckedCompileTemplate(responseDefinition.getBodyFileName());
+            HandlebarsOptimizedTemplate filePathTemplate = new HandlebarsOptimizedTemplate(handlebars, responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
             TextFile file = files.getTextFileNamed(compiledFilePath);
-            HandlebarsOptimizedTemplate bodyTemplate = uncheckedCompileTemplate(file.readContentsAsString());
+
+            HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
+                    TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         }
 
         if (responseDefinition.getHeaders() != null) {
             Iterable<HttpHeader> newResponseHeaders = Iterables.transform(responseDefinition.getHeaders().all(), new Function<HttpHeader, HttpHeader>() {
                 @Override
-                public HttpHeader apply(HttpHeader input) {
-                    List<String> newValues = Lists.transform(input.values(), new Function<String, String>() {
-                        @Override
-                        public String apply(String input) {
-                            HandlebarsOptimizedTemplate template = uncheckedCompileTemplate(input);
-                            return uncheckedApplyTemplate(template, model);
-                        }
-                    });
+                public HttpHeader apply(final HttpHeader header) {
+                    ImmutableList.Builder<String> valueListBuilder = ImmutableList.builder();
+                    int index = 0;
+                    for (String headerValue: header.values()) {
+                        HandlebarsOptimizedTemplate template = getTemplate(TemplateCacheKey.forHeader(responseDefinition, header.key(), index++), headerValue);
+                        valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                    }
 
-                    return new HttpHeader(input.key(), newValues);
+                    return new HttpHeader(header.key(), valueListBuilder.build());
                 }
             });
             newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
         }
 
         if (responseDefinition.getProxyBaseUrl() != null) {
-            HandlebarsOptimizedTemplate proxyBaseUrlTemplate = uncheckedCompileTemplate(responseDefinition.getProxyBaseUrl());
+            HandlebarsOptimizedTemplate proxyBaseUrlTemplate = getTemplate(TemplateCacheKey.forProxyUrl(responseDefinition), responseDefinition.getProxyBaseUrl());
             String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
             newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
         }
@@ -172,11 +184,36 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer {
         }
     }
 
-    private HandlebarsOptimizedTemplate uncheckedCompileTemplate(String content) {
+    private HandlebarsOptimizedTemplate getTemplate(final TemplateCacheKey key, final String content) {
         try {
-            return new HandlebarsOptimizedTemplate(handlebars, content);
-        } catch (IOException e) {
-            return throwUnchecked(e, HandlebarsOptimizedTemplate.class);
+            return cache.get(key, new Callable<HandlebarsOptimizedTemplate>() {
+                @Override
+                public HandlebarsOptimizedTemplate call() {
+                    return new HandlebarsOptimizedTemplate(handlebars, content);
+                }
+            });
+        } catch (ExecutionException e) {
+            return Exceptions.throwUnchecked(e, HandlebarsOptimizedTemplate.class);
         }
+    }
+
+    @Override
+    public void stubCreated(StubMapping stub) {}
+
+    @Override
+    public void stubEdited(StubMapping oldStub, StubMapping newStub) {}
+
+    @Override
+    public void stubRemoved(StubMapping stub) {
+        cache.invalidateAll();
+    }
+
+    @Override
+    public void stubsReset() {
+        cache.invalidateAll();
+    }
+
+    public long getCacheSize() {
+        return cache.size();
     }
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import com.github.tomakehurst.wiremock.common.Exceptions;
 
 public class HandlebarsOptimizedTemplate {
 
@@ -28,7 +29,7 @@ public class HandlebarsOptimizedTemplate {
 	private String templateContent;
 	private String endContent;
 
-	public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) throws IOException {
+	public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
 		startContent = content;
 		templateContent = "";
 		endContent = "";
@@ -43,7 +44,16 @@ public class HandlebarsOptimizedTemplate {
 				endContent = content.substring(lastDelimEndPosition + Handlebars.DELIM_END.length(), content.length());
 			}
 		}
-		this.template = handlebars.compileInline(templateContent);
+
+		this.template = uncheckedCompileTemplate(handlebars, templateContent);
+	}
+
+	private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {
+		try {
+			return handlebars.compileInline(templateContent);
+		} catch (IOException e) {
+			return Exceptions.throwUnchecked(e, Template.class);
+		}
 	}
 
 	public String apply(Object context) throws IOException {
