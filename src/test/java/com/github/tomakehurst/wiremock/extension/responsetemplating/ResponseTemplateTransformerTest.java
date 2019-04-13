@@ -31,10 +31,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -699,6 +699,26 @@ public class ResponseTemplateTransformerTest {
                 .getBody();
 
         assertThat(body, is("Start \n\n 1 middle 2 end\n"));
+    }
+
+    @Test
+    public void clearsTemplateCacheOnReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.stubsReset();
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void clearsTemplateCacheWhenAnyStubRemovedReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.stubRemoved(get(anyUrl()).build());
+
+        assertThat(transformer.getCacheSize(), is(0L));
     }
 
     private String transform(String responseBodyTemplate) {
