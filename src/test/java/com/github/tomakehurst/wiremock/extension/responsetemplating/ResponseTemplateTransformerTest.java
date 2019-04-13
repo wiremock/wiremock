@@ -26,6 +26,7 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -274,7 +275,10 @@ public class ResponseTemplateTransformerTest {
             }
         };
 
-        transformer = new ResponseTemplateTransformer(false, "string-length", helper);
+        transformer = ResponseTemplateTransformer.builder()
+                .global(false)
+                .helper("string-length", helper)
+                .build();
 
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
@@ -334,7 +338,10 @@ public class ResponseTemplateTransformerTest {
     @Test
     public void escapingCanBeDisabled() {
         Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
-        ResponseTemplateTransformer transformerWithEscapingDisabled = new ResponseTemplateTransformer(true, handlebars, Collections.<String, Helper>emptyMap());
+        ResponseTemplateTransformer transformerWithEscapingDisabled = ResponseTemplateTransformer.builder()
+                .global(true)
+                .handlebars(handlebars)
+                .build();
         final ResponseDefinition responseDefinition = transformerWithEscapingDisabled.transform(
                 mockRequest()
                         .url("/json").
@@ -717,6 +724,36 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformer.getCacheSize(), greaterThan(0L));
 
         transformer.stubRemoved(get(anyUrl()).build());
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void honoursCacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(3L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
+
+        assertThat(transformer.getCacheSize(), is(3L));
+    }
+
+    @Test
+    public void honours0CacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(0L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
 
         assertThat(transformer.getCacheSize(), is(0L));
     }

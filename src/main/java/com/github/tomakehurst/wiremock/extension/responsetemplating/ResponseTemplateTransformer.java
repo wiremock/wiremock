@@ -44,6 +44,7 @@ import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -60,6 +61,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
 
     private final Handlebars handlebars;
     private final Cache<TemplateCacheKey, HandlebarsOptimizedTemplate> cache;
+    private final Long maxCacheEntries;
+
+    public static Builder builder() {
+        return new Builder();
+    }
 
     public ResponseTemplateTransformer(boolean global) {
         this(global, Collections.<String, Helper>emptyMap());
@@ -70,10 +76,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
     }
 
     public ResponseTemplateTransformer(boolean global, Map<String, Helper> helpers) {
-        this(global, new Handlebars(), helpers);
+        this(global, new Handlebars(), helpers, null);
     }
 
-    public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers) {
+    public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers, Long maxCacheEntries) {
         this.global = global;
         this.handlebars = handlebars;
 
@@ -102,7 +108,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
 
-        cache = CacheBuilder.newBuilder().build();
+        this.maxCacheEntries = maxCacheEntries;
+        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+        if (maxCacheEntries != null) {
+            cacheBuilder.maximumSize(maxCacheEntries);
+        }
+        cache = cacheBuilder.build();
     }
 
     @Override
@@ -185,6 +196,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
     }
 
     private HandlebarsOptimizedTemplate getTemplate(final TemplateCacheKey key, final String content) {
+        if (maxCacheEntries != null && maxCacheEntries < 1) {
+            return new HandlebarsOptimizedTemplate(handlebars, content);
+        }
+        
         try {
             return cache.get(key, new Callable<HandlebarsOptimizedTemplate>() {
                 @Override
@@ -215,5 +230,41 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
 
     public long getCacheSize() {
         return cache.size();
+    }
+
+    public static class Builder {
+        private boolean global = true;
+        private Handlebars handlebars = new Handlebars();
+        private Map<String, Helper> helpers = new HashMap<>();
+        private Long maxCacheEntries = null;
+
+        public Builder global(boolean global) {
+            this.global = global;
+            return this;
+        }
+
+        public Builder handlebars(Handlebars handlebars) {
+            this.handlebars = handlebars;
+            return this;
+        }
+
+        public Builder helpers(Map<String, Helper> helpers) {
+            this.helpers = helpers;
+            return this;
+        }
+
+        public Builder helper(String name, Helper helper) {
+            this.helpers.put(name, helper);
+            return this;
+        }
+
+        public Builder maxCacheEntries(Long maxCacheEntries) {
+            this.maxCacheEntries = maxCacheEntries;
+            return this;
+        }
+
+        public ResponseTemplateTransformer build() {
+            return new ResponseTemplateTransformer(global, handlebars, helpers, maxCacheEntries);
+        }
     }
 }
