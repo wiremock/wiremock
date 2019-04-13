@@ -57,7 +57,7 @@ public class StubLifecycleListenerAcceptanceTest {
         UUID id = UUID.randomUUID();
         wm.stubFor(get("/test").withId(id).withName("Created").willReturn(ok()));
         wm.editStub(get("/test").withId(id).withName("Edited").willReturn(ok()));
-        assertThat(listener.events.get(1), is("stubEdited, name: Edited"));
+        assertThat(listener.events.get(1), is("stubEdited, old name: Created, new name: Edited"));
     }
 
     @Test
@@ -74,13 +74,6 @@ public class StubLifecycleListenerAcceptanceTest {
         assertThat(listener.events.get(1), is("stubsReset"));
     }
 
-    @Test
-    public void callbackMethodIsCalledForStubsResetToDefault() {
-        wm.stubFor(get("/test").withName("To remove").willReturn(ok()));
-        wm.resetToDefaultMappings();
-        assertThat(listener.events.get(1), is("stubsResetToDefaults"));
-    }
-
     public static class TestStubLifecycleListener implements StubLifecycleListener {
 
         public List<String> events = new ArrayList<>();
@@ -91,8 +84,8 @@ public class StubLifecycleListenerAcceptanceTest {
         }
 
         @Override
-        public void stubEdited(StubMapping stub) {
-            events.add("stubEdited, name: " + stub.getName());
+        public void stubEdited(StubMapping oldStub, StubMapping newStub) {
+            events.add("stubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
         }
 
         @Override
@@ -103,11 +96,6 @@ public class StubLifecycleListenerAcceptanceTest {
         @Override
         public void stubsReset() {
             events.add("stubsReset");
-        }
-
-        @Override
-        public void stubsResetToDefaults() {
-            events.add("stubsResetToDefaults");
         }
 
         @Override

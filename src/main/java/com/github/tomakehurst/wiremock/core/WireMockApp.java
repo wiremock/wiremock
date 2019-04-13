@@ -66,7 +66,6 @@ public class WireMockApp implements StubServer, Admin {
     private final NearMissCalculator nearMissCalculator;
     private final PlainTextDiffRenderer diffRenderer;
     private final Recorder recorder;
-    private final List<StubLifecycleListener> stubLifecycleListeners;
     private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
@@ -87,13 +86,14 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
         stubMappings = new InMemoryStubMappings(
-                customMatchers,
+            customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
-            fileSource);
+            fileSource,
+            ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
+        );
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
-        stubLifecycleListeners = ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values());
         globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
 
         this.container = container;
@@ -116,12 +116,11 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
+        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
-        stubLifecycleListeners = Collections.emptyList();
         globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
     }
@@ -206,10 +205,6 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
         }
-
-        for (StubLifecycleListener listener: stubLifecycleListeners) {
-            listener.stubCreated(stubMapping);
-        }
     }
 
     @Override
@@ -218,10 +213,6 @@ public class WireMockApp implements StubServer, Admin {
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.remove(stubMapping);
         }
-
-        for (StubLifecycleListener listener: stubLifecycleListeners) {
-            listener.stubRemoved(stubMapping);
-        }
     }
 
     @Override
@@ -229,10 +220,6 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings.editMapping(stubMapping);
         if (stubMapping.shouldBePersisted()) {
             mappingsSaver.save(stubMapping);
-        }
-
-        for (StubLifecycleListener listener: stubLifecycleListeners) {
-            listener.stubEdited(stubMapping);
         }
     }
 
@@ -266,10 +253,6 @@ public class WireMockApp implements StubServer, Admin {
         stubMappings.reset();
         resetRequests();
         loadDefaultMappings();
-
-        for (StubLifecycleListener listener: stubLifecycleListeners) {
-            listener.stubsResetToDefaults();
-        }
     }
 
     @Override
@@ -281,10 +264,6 @@ public class WireMockApp implements StubServer, Admin {
     public void resetMappings() {
         mappingsSaver.removeAll();
         stubMappings.reset();
-
-        for (StubLifecycleListener listener: stubLifecycleListeners) {
-            listener.stubsReset();
-        }
     }
 
     @Override
