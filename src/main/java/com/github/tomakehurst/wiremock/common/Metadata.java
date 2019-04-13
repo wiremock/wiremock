@@ -34,19 +34,31 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     public Integer getInt(String key) {
-        return checkValidityAndCast(key, Integer.class);
+        return checkPresenceValidityAndCast(key, Integer.class);
+    }
+
+    public Integer getInt(String key, Integer defaultValue) {
+        return returnIfValidOrDefaultIfNot(key, Integer.class, defaultValue);
     }
 
     public Boolean getBoolean(String key) {
-        return checkValidityAndCast(key, Boolean.class);
+        return checkPresenceValidityAndCast(key, Boolean.class);
+    }
+
+    public Boolean getBoolean(String key, Boolean defaultValue) {
+        return returnIfValidOrDefaultIfNot(key, Boolean.class, defaultValue);
     }
 
     public String getString(String key) {
-        return checkValidityAndCast(key, String.class);
+        return checkPresenceValidityAndCast(key, String.class);
+    }
+
+    public String getString(String key, String defaultValue) {
+        return returnIfValidOrDefaultIfNot(key, String.class, defaultValue);
     }
 
     public List<?> getList(String key) {
-        return checkValidityAndCast(key, List.class);
+        return checkPresenceValidityAndCast(key, List.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -57,9 +69,18 @@ public class Metadata extends LinkedHashMap<String, Object> {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkValidityAndCast(String key, Class<T> type) {
+    private <T> T checkPresenceValidityAndCast(String key, Class<T> type) {
         checkKeyPresent(key);
         checkArgument(type.isAssignableFrom(get(key).getClass()), key + " is not of type " + type.getSimpleName());
+        return (T) get(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T returnIfValidOrDefaultIfNot(String key, Class<T> type, T defaultValue) {
+        if (!containsKey(key) || !type.isAssignableFrom(get(key).getClass())) {
+            return defaultValue;
+        }
+
         return (T) get(key);
     }
 

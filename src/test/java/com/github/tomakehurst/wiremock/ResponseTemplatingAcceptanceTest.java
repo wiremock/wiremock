@@ -153,5 +153,24 @@ public class ResponseTemplatingAcceptanceTest {
             assertThat(response.firstHeader("X-Value"), is("two"));
         }
 
+        @Test
+        public void supportsDisablingTemplatingOfBodyFilesPerStub() {
+            UUID id = UUID.randomUUID();
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-1.txt")));
+
+            assertThat(client.get("/templated").content(), is("templated"));
+
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-1.txt")
+                            .withTransformerParameter("disableBodyFileTemplating", true)));
+
+            assertThat(client.get("/templated").content(), is("{{request.path.[0]}}"));
+        }
+
     }
 }
