@@ -712,4 +712,40 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
     }
 
+    static final String STUB_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/one\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/two\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void importMultipleStubsWithDefaultParameters() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", STUB_IMPORT_JSON);
+
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> allStubs = wm.getStubMappings();
+        assertThat(allStubs.size(), is(2));
+        assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
+        assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+
+    }
+
 }

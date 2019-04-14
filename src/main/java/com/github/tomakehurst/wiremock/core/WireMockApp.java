@@ -33,6 +33,7 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -45,6 +46,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.transform;
@@ -436,10 +438,12 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void importStubs(StubImport stubImport) {
         List<StubMapping> mappings = stubImport.getMappings();
+        StubImport.Options importOptions = firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
+
         for (int i = mappings.size() - 1; i >= 0; i--) {
             StubMapping mapping = mappings.get(i);
             if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
-                if (stubImport.getImportOptions().getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
+                if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
                     editStubMapping(mapping);
                 }
             } else {
@@ -447,7 +451,7 @@ public class WireMockApp implements StubServer, Admin {
             }
         }
 
-        if (stubImport.getImportOptions().getDeleteAllNotInImport()) {
+        if (importOptions.getDeleteAllNotInImport()) {
             Iterable<UUID> ids = transform(mappings, new Function<StubMapping, UUID>() {
                 @Override
                 public UUID apply(StubMapping input) {
