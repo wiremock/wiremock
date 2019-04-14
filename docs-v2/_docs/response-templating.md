@@ -67,7 +67,7 @@ public WireMockRule wm = new WireMockRule(options()
     .extensions(ResponseTemplateTransformer.builder()
                                 .global(false)
                                 .maxCacheEntries(3L)
-                                .build();)
+                                .build())
 );
 ```
 
@@ -191,6 +191,12 @@ For instance, given a request URL like `/multi-query?things=1&things=2&things=3`
 {{request.query.things.last}} // Will return 3
 ```
 {% endraw %}
+
+> **Note**
+>
+> When using the `eq` helper with one-or-many values, it is necessary to use the indexed form, even if only one value is present.
+> The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
+> with another String value. 
 
 
 ## Handlebars helpers
