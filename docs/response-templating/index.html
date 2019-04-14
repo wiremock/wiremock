@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-04-13T21:40:59+01:00">
+  <meta property="article:published_time" content="2019-04-14T17:48:34+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="April 13, 2019">
+    <meta itemprop="datePublished" content="April 14, 2019">
     
 
     <div class="page__inner-wrap">
@@ -398,6 +398,24 @@ to being served.</p>
 </span></code></pre></div></div>
 
 <p>Command line parameters can be used to enable templating when running WireMock <a href="/docs/running-standalone/#command-line-options">standalone</a>.</p>
+
+<h2 id="template-caching">Template caching</h2>
+
+<p>By default, all templated fragments (headers, bodies and proxy URLs) are cached in their compiled form for performance,
+since compilation can be expensive for larger templates.</p>
+
+<p>The size of the cache is not limited by default, but can be a construction time:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="n">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+                                <span class="o">.</span><span class="na">global</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">maxCacheEntries</span><span class="o">(</span><span class="mi">3L</span><span class="o">)</span>
+                                <span class="o">.</span><span class="na">build</span><span class="o">())</span>
+<span class="o">);</span>
+</code></pre></div></div>
+
+<p>Setting the limit to 0 will disable caching completely.</p>
 
 <h2 id="proxying">Proxying</h2>
 
@@ -482,6 +500,29 @@ to being served.</p>
 <p><code class="highlighter-rouge">request.cookies.&lt;key&gt;.[&lt;n&gt;]</code> - nth value of a request cookie e.g. <code class="highlighter-rouge">request.cookies.JSESSIONID.[2]</code></p>
 
 <p><code class="highlighter-rouge">request.body</code> - Request body text (avoid for non-text bodies)</p>
+
+<h3 id="values-that-can-be-one-or-many">Values that can be one or many</h3>
+
+<p>A number of HTTP elements (query parameters, form fields, headers) can be single or multiple valued. The template request model and built-in helpers attempt to make
+this easy to work with by wrapping these in a “list or single” type that returns the first (and often only) value when no index is specified, but also support index access.</p>
+
+<p>For instance, given a request URL like <code class="highlighter-rouge">/multi-query?things=1&amp;things=2&amp;things=3</code> I can extract the query data in the following ways:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{request.query.things}} // Will return 1
+{{request.query.things.0}} // Will return 1
+{{request.query.things.first}} // Will return 1
+{{request.query.things.1}} // Will return 2
+{{request.query.things.[-1]}} // Will return 2
+{{request.query.things.last}} // Will return 3
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>Note</strong></p>
+
+  <p>When using the <code class="highlighter-rouge">eq</code> helper with one-or-many values, it is necessary to use the indexed form, even if only one value is present.
+The reason for this is that the non-indexed form returns the wrapper type and not a String, and will therefore fail any comparison
+with another String value.</p>
+</blockquote>
 
 <h2 id="handlebars-helpers">Handlebars helpers</h2>
 <p>All of the standard helpers (template functions) provided by the <a href="https://github.com/jknack/handlebars.java">Java Handlebars implementation by jknack</a>
@@ -599,6 +640,84 @@ the UNIX timestamp in seconds.</p>
 {{randomValue length=10 type='NUMERIC'}}
 {{randomValue length=5 type='ALPHANUMERIC_AND_SYMBOLS'}}
 {{randomValue type='UUID'}}
+</code></pre></div></div>
+
+<h2 id="string-trim-helper">String trim helper</h2>
+<p>Use the <code class="highlighter-rouge">trim</code> helper to remove whitespace from the start and end of the input:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{trim request.headers.X-Padded-Header}}
+
+{{#trim}}
+    
+    Some stuff with whitespace
+     
+{{/trim}}
+</code></pre></div></div>
+
+<h2 id="base64-helper">Base64 helper</h2>
+<p>The <code class="highlighter-rouge">base64</code> helper can be used to base64 encode and decode values:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{base64 request.headers.X-Plain-Header}}
+{{base64 request.headers.X-Encoded-Header decode=true}}
+
+{{#base64}}
+Content to encode     
+{{/base64}}
+
+{{#base64 decode=true}}
+Q29udGVudCB0byBkZWNvZGUK     
+{{/base64}}
+</code></pre></div></div>
+
+<h2 id="url-encoding-helper">URL encoding helper</h2>
+<p>The <code class="highlighter-rouge">urlEncode</code> helper can be used to URL encode and decode values:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{urlEncode request.headers.X-Plain-Header}}
+{{urlEncode request.headers.X-Encoded-Header decode=true}}
+
+{{#urlEncode}}
+Content to encode     
+{{/urlEncode}}
+
+{{#urlEncode decode=true}}
+Content%20to%20decode     
+{{/urlEncode}}
+</code></pre></div></div>
+
+<h2 id="form-helper">Form helper</h2>
+<p>The <code class="highlighter-rouge">formData</code> helper parses its input as an HTTP form, returning an object containing the individual fields as attributes.
+The helper takes the input string and variable name as its required parameters, with an optional <code class="highlighter-rouge">urlDecode</code> parameter
+indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field <code class="highlighter-rouge">formField3</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}}{{{form.formField3}}
+</code></pre></div></div>
+
+<p>If the form submitted has multiple values for a given field, these can be accessed by index:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.1}}, {{{form.multiValueField.2}}
+{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.first}}, {{{form.multiValueField.last}}
+</code></pre></div></div>
+
+<h2 id="regular-expression-extract-helper">Regular expression extract helper</h2>
+<p>The <code class="highlighter-rouge">regexExtract</code> helper supports extraction of values matching a regular expresson from a string.</p>
+
+<p>A single value can be extracted like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '[A-Z]+'}}"
+</code></pre></div></div>
+
+<p>Regex groups can be used to extract multiple parts into an object for later use (the last parameter is a variable name to which the object will be assigned):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
+{{parts.0}},{{parts.1}},{{parts.2}}
+</code></pre></div></div>
+
+<h2 id="size-helper">Size helper</h2>
+
+<p>The <code class="highlighter-rouge">size</code> helper returns the size of a string, list or map:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{size 'abcde'}}
+{{size request.query.things}}
 </code></pre></div></div>
 
 <h2 id="custom-helpers">Custom helpers</h2>

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-04-13T21:40:59+01:00">
+  <meta property="article:published_time" content="2019-04-14T17:48:34+01:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="April 13, 2019">
+    <meta itemprop="datePublished" content="April 14, 2019">
     
 
     <div class="page__inner-wrap">
@@ -470,6 +470,8 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 <p><code class="highlighter-rouge">--global-response-templating</code>: Render all response definitions using Handlebars templates.</p>
 
 <p><code class="highlighter-rouge">--local-response-templating</code>: Enable rendering of response definitions using Handlebars templates for specific stub mappings.</p>
+
+<p><code class="highlighter-rouge">--max-template-cache-entries</code>: Set the maximum number of compiled template fragments to cache. Only has any effect when response templating is enabled. Defaults to no limit.</p>
 
 <p><code class="highlighter-rouge">--use-chunked-encoding</code>: Set the policy for sending responses with <code class="highlighter-rouge">Transfer-Encoding: chunked</code>. Valid values are <code class="highlighter-rouge">always</code>, <code class="highlighter-rouge">never</code> and <code class="highlighter-rouge">body_file</code>. 
 The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.</p>
