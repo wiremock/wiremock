@@ -319,6 +319,115 @@ Random strings of various kinds can be generated:
 {% endraw %}
 
 
+## String trim helper
+Use the `trim` helper to remove whitespace from the start and end of the input:
+
+{% raw %}
+```
+{{trim request.headers.X-Padded-Header}}
+
+{{#trim}}
+    
+    Some stuff with whitespace
+     
+{{/trim}}
+```
+{% endraw %}
+
+
+## Base64 helper
+The `base64` helper can be used to base64 encode and decode values:
+
+{% raw %}
+```
+{{base64 request.headers.X-Plain-Header}}
+{{base64 request.headers.X-Encoded-Header decode=true}}
+
+{{#base64}}
+Content to encode     
+{{/base64}}
+
+{{#base64 decode=true}}
+Q29udGVudCB0byBkZWNvZGUK     
+{{/base64}}
+```
+{% endraw %}
+
+
+## URL encoding helper
+The `urlEncode` helper can be used to URL encode and decode values:
+
+{% raw %}
+```
+{{urlEncode request.headers.X-Plain-Header}}
+{{urlEncode request.headers.X-Encoded-Header decode=true}}
+
+{{#urlEncode}}
+Content to encode     
+{{/urlEncode}}
+
+{{#urlEncode decode=true}}
+Content%20to%20decode     
+{{/urlEncode}}
+```
+{% endraw %}
+
+
+## Form helper
+The `formData` helper parses its input as an HTTP form, returning an object containing the individual fields as attributes.
+The helper takes the input string and variable name as its required parameters, with an optional `urlDecode` parameter
+indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field `formField3`: 
+
+{% raw %}
+```
+{{formData request.body 'form' urlDecode=true}}}{{{form.formField3}}
+```
+{% endraw %}
+
+If the form submitted has multiple values for a given field, these can be accessed by index:
+
+{% raw %}
+```
+{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.1}}, {{{form.multiValueField.2}}
+{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.first}}, {{{form.multiValueField.last}}
+```
+{% endraw %}
+
+
+## Regular expression extract helper
+The `regexExtract` helper supports extraction of values matching a regular expresson from a string.
+
+A single value can be extracted like this:
+
+{% raw %}
+```
+{{regexExtract request.body '[A-Z]+'}}"
+```
+{% endraw %}
+
+Regex groups can be used to extract multiple parts into an object for later use (the last parameter is a variable name to which the object will be assigned):
+
+{% raw %}
+``` 
+{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}
+{{parts.0}},{{parts.1}},{{parts.2}}
+```
+{% endraw %}
+ 
+
+## Size helper
+
+The `size` helper returns the size of a string, list or map:
+
+{% raw %}
+``` 
+{{size 'abcde'}}
+{{size request.query.things}}
+```
+{% endraw %}
+
+
+
 ## Custom helpers
 Custom Handlebars helpers can be registered with the transformer on construction:
   
