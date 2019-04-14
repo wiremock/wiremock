@@ -54,6 +54,26 @@ wm.stubFor(get(urlPathEqualTo("/templated"))
 
 Command line parameters can be used to enable templating when running WireMock [standalone](/docs/running-standalone/#command-line-options).
 
+## Template caching
+
+By default, all templated fragments (headers, bodies and proxy URLs) are cached in their compiled form for performance,
+since compilation can be expensive for larger templates.
+
+The size of the cache is not limited by default, but can be a construction time:
+
+```java
+@Rule
+public WireMockRule wm = new WireMockRule(options()
+    .extensions(ResponseTemplateTransformer.builder()
+                                .global(false)
+                                .maxCacheEntries(3L)
+                                .build();)
+);
+```
+
+Setting the limit to 0 will disable caching completely.
+
+
 ## Proxying
 
 Templating also works when defining proxy URLs, e.g.
@@ -149,9 +169,28 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.cookies.<key>` - First value of a request cookie e.g. `request.cookies.JSESSIONID`
  
- `request.cookies.<key>.[<n>]` - nth value of a request cookie e.g. `request.cookies.JSESSIONID.[2]`
+`request.cookies.<key>.[<n>]` - nth value of a request cookie e.g. `request.cookies.JSESSIONID.[2]`
 
 `request.body` - Request body text (avoid for non-text bodies)
+
+
+### Values that can be one or many
+
+A number of HTTP elements (query parameters, form fields, headers) can be single or multiple valued. The template request model and built-in helpers attempt to make
+this easy to work with by wrapping these in a "list or single" type that returns the first (and often only) value when no index is specified, but also support index access.
+
+For instance, given a request URL like `/multi-query?things=1&things=2&things=3` I can extract the query data in the following ways:
+
+{% raw %}
+```
+{{request.query.things}} // Will return 1
+{{request.query.things.0}} // Will return 1
+{{request.query.things.first}} // Will return 1
+{{request.query.things.1}} // Will return 2
+{{request.query.things.[-1]}} // Will return 2
+{{request.query.things.last}} // Will return 3
+```
+{% endraw %}
 
 
 ## Handlebars helpers
