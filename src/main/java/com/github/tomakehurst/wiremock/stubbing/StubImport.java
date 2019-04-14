@@ -15,10 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StubImport {
 
     private final List<StubMapping> mappings;

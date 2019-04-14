@@ -732,7 +732,10 @@ public class AdminApiTest extends AcceptanceTestBase {
             "        \"status\": 200\n" +
             "      }\n" +
             "    }\n" +
-            "  ]\n" +
+            "  ],\n" +
+            "  \"meta\" : {\n" +
+            "    \"total\" : 2\n" +
+            "  }\n" +
             "}";
 
     @Test
