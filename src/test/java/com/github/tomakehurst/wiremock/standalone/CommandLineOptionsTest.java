@@ -440,6 +440,7 @@ public class CommandLineOptionsTest {
         ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
 
         assertThat(transformer.getMaxCacheEntries(), nullValue());
+    }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
