@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.admin.model;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
 
-public class GlobalSettingsHolder {
+public class GetGlobalSettingsResult {
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
-	
-	public void replaceWith(GlobalSettings globalSettings) {
-		globalSettingsRef.set(globalSettings);
-	}
-	
-	public GlobalSettings get() {
-		return globalSettingsRef.get();
-	}
+    private final GlobalSettings settings;
+
+    public GetGlobalSettingsResult(@JsonProperty("settings") GlobalSettings settings) {
+        this.settings = settings;
+    }
+
+    public GlobalSettings getSettings() {
+        return settings;
+    }
 }

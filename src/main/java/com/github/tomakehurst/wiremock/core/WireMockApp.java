@@ -33,18 +33,20 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.jsonResponse;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.NOT_MATCHED;
 import static com.github.tomakehurst.wiremock.stubbing.ServeEvent.TO_LOGGED_REQUEST;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.transform;
@@ -65,8 +67,8 @@ public class WireMockApp implements StubServer, Admin {
     private final MappingsSaver mappingsSaver;
     private final NearMissCalculator nearMissCalculator;
     private final PlainTextDiffRenderer diffRenderer;
-
     private final Recorder recorder;
+    private final List<GlobalSettingsListener> globalSettingsListeners;
 
     private Options options;
 
@@ -86,12 +88,16 @@ public class WireMockApp implements StubServer, Admin {
         requestJournal = options.requestJournalDisabled() ? new DisabledRequestJournal() : new InMemoryRequestJournal(options.maxRequestJournalEntries());
         Map<String, RequestMatcherExtension> customMatchers = options.extensionsOfType(RequestMatcherExtension.class);
         stubMappings = new InMemoryStubMappings(
-                customMatchers,
+            customMatchers,
             options.extensionsOfType(ResponseDefinitionTransformer.class),
-            fileSource);
+            fileSource,
+            ImmutableList.copyOf(options.extensionsOfType(StubLifecycleListener.class).values())
+        );
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(customMatchers);
         recorder = new Recorder(this);
+        globalSettingsListeners = ImmutableList.copyOf(options.extensionsOfType(GlobalSettingsListener.class).values());
+
         this.container = container;
         loadDefaultMappings();
     }
@@ -112,11 +118,12 @@ public class WireMockApp implements StubServer, Admin {
         this.mappingsSaver = mappingsSaver;
         globalSettingsHolder = new GlobalSettingsHolder();
         requestJournal = requestJournalDisabled ? new DisabledRequestJournal() : new InMemoryRequestJournal(maxRequestJournalEntries);
-        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource);
+        stubMappings = new InMemoryStubMappings(requestMatchers, transformers, rootFileSource, Collections.<StubLifecycleListener>emptyList());
         this.container = container;
         nearMissCalculator = new NearMissCalculator(stubMappings, requestJournal);
         diffRenderer = new PlainTextDiffRenderer(requestMatchers);
         recorder = new Recorder(this);
+        globalSettingsListeners = Collections.emptyList();
         loadDefaultMappings();
     }
 
@@ -349,8 +356,18 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return new GetGlobalSettingsResult(globalSettingsHolder.get());
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
+        GlobalSettings oldSettings = globalSettingsHolder.get();
         globalSettingsHolder.replaceWith(newSettings);
+
+        for (GlobalSettingsListener listener: globalSettingsListeners) {
+            listener.globalSettingsUpdated(oldSettings, newSettings);
+        }
     }
 
     public int port() {
@@ -421,10 +438,12 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void importStubs(StubImport stubImport) {
         List<StubMapping> mappings = stubImport.getMappings();
+        StubImport.Options importOptions = firstNonNull(stubImport.getImportOptions(), StubImport.Options.DEFAULTS);
+
         for (int i = mappings.size() - 1; i >= 0; i--) {
             StubMapping mapping = mappings.get(i);
             if (mapping.getId() != null && getStubMapping(mapping.getId()).isPresent()) {
-                if (stubImport.getImportOptions().getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
+                if (importOptions.getDuplicatePolicy() == StubImport.Options.DuplicatePolicy.OVERWRITE) {
                     editStubMapping(mapping);
                 }
             } else {
@@ -432,7 +451,7 @@ public class WireMockApp implements StubServer, Admin {
             }
         }
 
-        if (stubImport.getImportOptions().getDeleteAllNotInImport()) {
+        if (importOptions.getDeleteAllNotInImport()) {
             Iterable<UUID> ids = transform(mappings, new Function<StubMapping, UUID>() {
                 @Override
                 public UUID apply(StubMapping input) {
@@ -447,6 +466,5 @@ public class WireMockApp implements StubServer, Admin {
         }
 
     }
-
 
 }

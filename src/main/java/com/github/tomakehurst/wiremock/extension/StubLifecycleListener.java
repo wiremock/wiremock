@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.extension;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-public class GlobalSettingsHolder {
+public interface StubLifecycleListener extends Extension {
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
-	
-	public void replaceWith(GlobalSettings globalSettings) {
-		globalSettingsRef.set(globalSettings);
-	}
-	
-	public GlobalSettings get() {
-		return globalSettingsRef.get();
-	}
+    void stubCreated(StubMapping stub);
+    void stubEdited(StubMapping oldStub, StubMapping newStub);
+    void stubRemoved(StubMapping stub);
+    void stubsReset();
 }

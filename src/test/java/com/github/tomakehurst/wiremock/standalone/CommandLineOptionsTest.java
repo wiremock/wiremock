@@ -34,14 +34,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class CommandLineOptionsTest {
@@ -430,6 +423,23 @@ public class CommandLineOptionsTest {
 	    CommandLineOptions options = new CommandLineOptions("--notifier", "com.github.tomakehurst.wiremock.standalone.CommandLineOptionsTest$TestNofifier");
         assertThat(options.notifier(), is(instanceOf(TestNofifier.class)));
     }
+
+    @Test
+    public void configuresMaxTemplateCacheEntriesIfSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
+
+        assertThat(transformer.getMaxCacheEntries(), is(5L));
+    }
+
+    @Test
+    public void configuresMaxTemplateCacheEntriesToNullIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
+
+        assertThat(transformer.getMaxCacheEntries(), nullValue());
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override

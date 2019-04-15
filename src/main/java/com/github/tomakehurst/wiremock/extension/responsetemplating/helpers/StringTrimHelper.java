@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Options;
+import com.github.jknack.handlebars.TagType;
 
-public class GlobalSettingsHolder {
+import java.io.IOException;
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
-	
-	public void replaceWith(GlobalSettings globalSettings) {
-		globalSettingsRef.set(globalSettings);
-	}
-	
-	public GlobalSettings get() {
-		return globalSettingsRef.get();
-	}
+public class StringTrimHelper implements Helper<Object> {
+
+    @Override
+    public Object apply(Object context, Options options) throws IOException {
+        String value = options.tagType == TagType.SECTION ?
+                options.fn(context).toString() :
+                context.toString();
+
+        return value.trim();
+    }
 }
