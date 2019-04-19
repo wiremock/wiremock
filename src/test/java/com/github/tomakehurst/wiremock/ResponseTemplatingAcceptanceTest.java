@@ -170,6 +170,14 @@ public class ResponseTemplatingAcceptanceTest {
                             .withTransformerParameter("disableBodyFileTemplating", true)));
 
             assertThat(client.get("/templated").content(), is("{{request.path.[0]}}"));
+
+            wm.stubFor(get(urlPathMatching("/templated/.*"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-{{request.path.1}}.txt")
+                            .withTransformerParameter("disableBodyFileTemplating", true)));
+
+            assertThat(client.get("/templated/1").content(), is("{{request.path.[0]}}"));
         }
 
     }

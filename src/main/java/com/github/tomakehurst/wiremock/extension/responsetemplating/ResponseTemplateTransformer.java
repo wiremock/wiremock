@@ -142,10 +142,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         } else if (responseDefinition.specifiesBodyFile()) {
             HandlebarsOptimizedTemplate filePathTemplate = new HandlebarsOptimizedTemplate(handlebars, responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
-            TextFile file = files.getTextFileNamed(compiledFilePath);
 
             boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
-            if (!disableBodyFileTemplating) {
+            if (disableBodyFileTemplating) {
+                newResponseDefBuilder.withBodyFile(compiledFilePath);
+            } else {
+                TextFile file = files.getTextFileNamed(compiledFilePath);
                 HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
                         TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
                 applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
