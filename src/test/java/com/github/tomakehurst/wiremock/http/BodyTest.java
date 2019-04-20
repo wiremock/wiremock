@@ -15,7 +15,10 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.github.tomakehurst.wiremock.common.Json;
+
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 
@@ -32,6 +35,7 @@ public class BodyTest {
 
         assertThat(body.asString(), is("this content"));
         assertThat(body.isBinary(), is(true));
+        assertThat(body.isJson(), is(false));
     }
 
     @Test
@@ -40,6 +44,7 @@ public class BodyTest {
 
         assertThat(body.asString(), is("this content"));
         assertThat(body.isBinary(), is(false));
+        assertThat(body.isJson(), is(false));
     }
 
     @Test
@@ -48,6 +53,7 @@ public class BodyTest {
 
         assertThat(body.asString(), is("1"));
         assertThat(body.isBinary(), is(false));
+        assertThat(body.isJson(), is(true));
     }
 
     @Test
@@ -58,6 +64,15 @@ public class BodyTest {
 
         assertThat(body.asString(), is("this content"));
         assertThat(body.isBinary(), is(true));
+        assertThat(body.isJson(), is(false));
     }
 
+
+    @Test
+    public void bodyAsJson() {
+        final JsonNode jsonContent = Json.node("{\"name\":\"wiremock\",\"isCool\":true}");
+        Body body = Body.fromOneOf(null, null, jsonContent, "lskdjflsjdflks");
+
+        assertThat(body.asJson(), is(jsonContent));
+    }
 }
