@@ -43,6 +43,8 @@ Also from Mason, an extension for finding and removing unused stub mappings:<br>
 Felipe Fernández has built a Spock extension to enhance automation around record and replay functionality:<br>
 [https://github.com/felipefzdz/spock-wiremock-extension](https://github.com/felipefzdz/spock-wiremock-extension)
 
+Automate configuration of stubs, given JAX-RS annotated resources, with this extension:<br>
+[https://github.com/tomasbjerre/wiremock-jaxrs](https://github.com/tomasbjerre/wiremock-jaxrs)
 
 ## Other languages
 
