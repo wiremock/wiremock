@@ -32,7 +32,7 @@ public class Body {
 
     private final byte[] content;
     private final boolean binary;
-    private boolean json;
+    private final boolean json;
 
     public Body(byte[] content) {
         this(content, true);
@@ -41,11 +41,13 @@ public class Body {
     private Body(byte[] content, boolean binary) {
         this.content = content;
         this.binary = binary;
+        json = false;
     }
 
     public Body(String content) {
         this.content = Strings.bytesFromString(content);
         binary = false;
+        json = false;
     }
 
     public Body(JsonNode content) {
@@ -131,6 +133,4 @@ public class Body {
                 ", json=" + json+
                 '}';
     }
-
-
 }
