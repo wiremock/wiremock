@@ -190,7 +190,7 @@ public class WarConfiguration implements Options {
     }
 
     @Override
-    public Options.ChunkedEncodingPolicy getChunkedEncodingPolicy() {
-        return Options.ChunkedEncodingPolicy.ALWAYS;
+    public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
+        return ChunkedEncodingPolicy.ALWAYS;
     }
 }
