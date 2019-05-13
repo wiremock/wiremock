@@ -47,9 +47,10 @@ public class StubLifecycleListenerAcceptanceTest {
     }
 
     @Test
-    public void callbackMethodIsCalledForStubCreation() {
+    public void beforeAndAfterMethodsAreCalledForStubCreation() {
         wm.stubFor(get("/test").withName("Created").willReturn(ok()));
-        assertThat(listener.events.get(0), is("stubCreated, name: Created"));
+        assertThat(listener.events.get(0), is("beforeStubCreated, name: Created"));
+        assertThat(listener.events.get(1), is("afterStubCreated, name: Created"));
     }
 
     @Test
@@ -57,21 +58,24 @@ public class StubLifecycleListenerAcceptanceTest {
         UUID id = UUID.randomUUID();
         wm.stubFor(get("/test").withId(id).withName("Created").willReturn(ok()));
         wm.editStub(get("/test").withId(id).withName("Edited").willReturn(ok()));
-        assertThat(listener.events.get(1), is("stubEdited, old name: Created, new name: Edited"));
+        assertThat(listener.events.get(2), is("beforeStubEdited, old name: Created, new name: Edited"));
+        assertThat(listener.events.get(3), is("afterStubEdited, old name: Created, new name: Edited"));
     }
 
     @Test
     public void callbackMethodIsCalledForStubRemove() {
         StubMapping stub = wm.stubFor(get("/test").withName("To remove").willReturn(ok()));
         wm.removeStub(stub);
-        assertThat(listener.events.get(1), is("stubRemoved, name: To remove"));
+        assertThat(listener.events.get(2), is("beforeStubRemoved, name: To remove"));
+        assertThat(listener.events.get(3), is("afterStubRemoved, name: To remove"));
     }
 
     @Test
     public void callbackMethodIsCalledForStubsReset() {
         wm.stubFor(get("/test").withName("To remove").willReturn(ok()));
         wm.resetMappings();
-        assertThat(listener.events.get(1), is("stubsReset"));
+        assertThat(listener.events.get(2), is("beforeStubsReset"));
+        assertThat(listener.events.get(3), is("afterStubsReset"));
     }
 
     public static class TestStubLifecycleListener implements StubLifecycleListener {
@@ -79,23 +83,43 @@ public class StubLifecycleListenerAcceptanceTest {
         public List<String> events = new ArrayList<>();
 
         @Override
-        public void stubCreated(StubMapping stub) {
-            events.add("stubCreated, name: " + stub.getName());
+        public void beforeStubCreated(StubMapping stub) {
+            events.add("beforeStubCreated, name: " + stub.getName());
         }
 
         @Override
-        public void stubEdited(StubMapping oldStub, StubMapping newStub) {
-            events.add("stubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
+        public void afterStubCreated(StubMapping stub) {
+            events.add("afterStubCreated, name: " + stub.getName());
         }
 
         @Override
-        public void stubRemoved(StubMapping stub) {
-            events.add("stubRemoved, name: " + stub.getName());
+        public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {
+            events.add("beforeStubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
         }
 
         @Override
-        public void stubsReset() {
-            events.add("stubsReset");
+        public void afterStubEdited(StubMapping oldStub, StubMapping newStub) {
+            events.add("afterStubEdited, old name: " + oldStub.getName() + ", new name: " + newStub.getName());
+        }
+
+        @Override
+        public void beforeStubRemoved(StubMapping stub) {
+            events.add("beforeStubRemoved, name: " + stub.getName());
+        }
+
+        @Override
+        public void afterStubRemoved(StubMapping stub) {
+            events.add("afterStubRemoved, name: " + stub.getName());
+        }
+
+        @Override
+        public void beforeStubsReset() {
+            events.add("beforeStubsReset");
+        }
+
+        @Override
+        public void afterStubsReset() {
+            events.add("afterStubsReset");
         }
 
         @Override

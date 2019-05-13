@@ -218,18 +218,30 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
     }
 
     @Override
-    public void stubCreated(StubMapping stub) {}
+    public void beforeStubCreated(StubMapping stub) {}
 
     @Override
-    public void stubEdited(StubMapping oldStub, StubMapping newStub) {}
+    public void afterStubCreated(StubMapping stub) {}
 
     @Override
-    public void stubRemoved(StubMapping stub) {
+    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {}
+
+    @Override
+    public void afterStubEdited(StubMapping oldStub, StubMapping newStub) {}
+
+    @Override
+    public void beforeStubRemoved(StubMapping stub) {}
+
+    @Override
+    public void afterStubRemoved(StubMapping stub) {
         cache.invalidateAll();
     }
 
     @Override
-    public void stubsReset() {
+    public void beforeStubsReset() {}
+
+    @Override
+    public void afterStubsReset() {
         cache.invalidateAll();
     }
 
