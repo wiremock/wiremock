@@ -188,9 +188,12 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition notPermitted(String message) {
-        Errors errors = Errors.single(40, message);
+        return notPermitted(Errors.single(40, message));
+    }
+
+    public static ResponseDefinition notPermitted(Errors errors) {
         return ResponseDefinitionBuilder
-            .jsonResponse(Json.write(errors), HTTP_FORBIDDEN);
+                .jsonResponse(errors, HTTP_FORBIDDEN);
     }
 
     public static ResponseDefinition browserProxy(Request originalRequest) {

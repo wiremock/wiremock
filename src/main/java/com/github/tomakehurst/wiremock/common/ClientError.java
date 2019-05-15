@@ -33,6 +33,8 @@ public class ClientError extends RuntimeException {
                 return new InvalidInputException(errors);
             case 30:
                 return new NotRecordingException();
+            case 50:
+                return new NotPermittedException(errors);
             default:
                 return new ClientError(errors);
         }

@@ -70,6 +70,10 @@ public class ServeEvent {
         return new ServeEvent(request, null, ResponseDefinition.badRequest(errors));
     }
 
+    public static ServeEvent forNotAllowedRequest(LoggedRequest request, Errors errors) {
+        return new ServeEvent(request, null, ResponseDefinition.notPermitted(errors));
+    }
+
     public static ServeEvent of(LoggedRequest request, ResponseDefinition responseDefinition) {
         return new ServeEvent(request, null, responseDefinition);
     }
