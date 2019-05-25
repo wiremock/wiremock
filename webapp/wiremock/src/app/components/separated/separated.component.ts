@@ -20,14 +20,25 @@ export class SeparatedComponent implements OnInit, OnChanges {
 
   @HostBinding('class') classes = 'wmHolyGrailScroll';
 
-  @Input()
-  activeItem: Item;
+  private _activeItem: Item;
 
   color: string[] = ['bg-warning', 'bg-info', 'bg-danger', 'bg-primary', 'bg-secondary', 'bg-dark'];
   colorIndex = 0;
 
   bodyFileData: string;
   bodyGroupKey: string;
+
+
+  get activeItem(): Item {
+    return this._activeItem;
+  }
+
+  @Input()
+  set activeItem(value: Item) {
+    if(UtilService.isUndefined(this._activeItem) || this._activeItem.getCode() != value.getCode()){
+      this._activeItem = value;
+    }
+  }
 
   constructor(private wiremockService: WiremockService) {
   }
@@ -37,13 +48,13 @@ export class SeparatedComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     this.colorIndex = 0;
-    if (UtilService.isDefined(this.activeItem)) {
+    if (UtilService.isDefined(this._activeItem)) {
       let responseDefinition: ResponseDefinition;
-      if (this.activeItem instanceof StubMapping) {
-        responseDefinition = (this.activeItem as StubMapping).response;
+      if (this._activeItem instanceof StubMapping) {
+        responseDefinition = (this._activeItem as StubMapping).response;
         this.bodyGroupKey = 'response';
-      }else if (this.activeItem instanceof ServeEvent) {
-        responseDefinition = (this.activeItem as ServeEvent).responseDefinition;
+      }else if (this._activeItem instanceof ServeEvent) {
+        responseDefinition = (this._activeItem as ServeEvent).responseDefinition;
         this.bodyGroupKey = 'responseDefinition';
       }else{
         responseDefinition = null;
