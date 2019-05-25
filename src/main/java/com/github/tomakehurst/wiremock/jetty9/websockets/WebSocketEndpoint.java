@@ -16,8 +16,6 @@ public class WebSocketEndpoint {
 
     @OnOpen
     public void onWebSocketConnect(final Session session) {
-        System.out.println("Socket Connected: " + session);
-
         WebSocketEndpoint.sessions.add(session);
     }
 
@@ -28,15 +26,11 @@ public class WebSocketEndpoint {
 
     @OnClose
     public void onWebSocketClose(final CloseReason reason, final Session session) {
-        System.out.println("Socket Closed: " + reason);
-
         WebSocketEndpoint.sessions.remove(session);
     }
 
     @OnError
     public void onWebSocketError(final Session session, final Throwable cause) {
-        cause.printStackTrace(System.err);
-
         //        WebSocketEndpoint.sessions.remove(session);
     }
 

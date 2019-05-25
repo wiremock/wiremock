@@ -630,8 +630,10 @@ public class WireMock {
 	}
 
 	public void setGlobalFixedDelayVariable(int milliseconds) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setFixedDelay(milliseconds);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .fixedDelay(milliseconds)
+                .build();
 		updateGlobalSettings(settings);
 	}
 
@@ -640,12 +642,18 @@ public class WireMock {
 	}
 
 	public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-		GlobalSettings settings = globalSettingsHolder.get().copy();
-		settings.setDelayDistribution(distribution);
+		GlobalSettings settings = globalSettingsHolder.get()
+                .copy()
+                .delayDistribution(distribution)
+                .build();
 		updateGlobalSettings(settings);
 	}
 
-	private void updateGlobalSettings(GlobalSettings settings) {
+	public static void updateSettings(GlobalSettings settings) {
+	    defaultInstance.get().updateGlobalSettings(settings);
+    }
+
+	public void updateGlobalSettings(GlobalSettings settings) {
 		globalSettingsHolder.replaceWith(settings);
 		admin.updateGlobalSettings(settings);
 	}
@@ -793,5 +801,13 @@ public class WireMock {
 
     public static void importStubs(StubImport stubImport) {
         defaultInstance.get().importStubMappings(stubImport);
+    }
+
+    public GlobalSettings getGlobalSettings() {
+	    return admin.getGlobalSettings().getSettings();
+    }
+
+    public static GlobalSettings getSettings() {
+        return defaultInstance.get().getGlobalSettings();
     }
 }

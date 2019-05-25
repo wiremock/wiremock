@@ -101,7 +101,7 @@ public class HandlebarsCurrentDateHelperTest {
     }
 
     @Test
-    public void rendersNowAsUnixEpoch() throws Exception {
+    public void rendersNowAsUnixEpochInMilliseconds() throws Exception {
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
             "format", "epoch"
         );
@@ -110,6 +110,18 @@ public class HandlebarsCurrentDateHelperTest {
         Object output = render(date, optionsHash);
 
         assertThat(output.toString(), is(String.valueOf(date.getTime())));
+    }
+
+    @Test
+    public void rendersNowAsUnixEpochInSeconds() throws Exception {
+        ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
+                "format", "unix"
+        );
+
+        Date date = new Date();
+        Object output = render(date, optionsHash);
+
+        assertThat(output.toString(), is(String.valueOf(date.getTime() / 1000L)));
     }
 
     @Test

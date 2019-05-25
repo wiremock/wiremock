@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.tomakehurst.wiremock.global;
+package com.github.tomakehurst.wiremock.admin;
 
-import java.util.concurrent.atomic.AtomicReference;
+import com.github.tomakehurst.wiremock.admin.model.PathParams;
+import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 
-public class GlobalSettingsHolder {
+public class GetGlobalSettingsTask implements AdminTask {
 
-	private AtomicReference<GlobalSettings> globalSettingsRef = new AtomicReference<>(GlobalSettings.defaults());
-	
-	public void replaceWith(GlobalSettings globalSettings) {
-		globalSettingsRef.set(globalSettings);
-	}
-	
-	public GlobalSettings get() {
-		return globalSettingsRef.get();
-	}
+    @Override
+    public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
+        return ResponseDefinition.okForJson(admin.getGlobalSettings());
+    }
 }

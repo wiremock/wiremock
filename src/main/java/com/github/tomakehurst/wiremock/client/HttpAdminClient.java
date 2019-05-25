@@ -388,6 +388,11 @@ public class HttpAdminClient implements Admin {
         );
     }
 
+    @Override
+    public GetGlobalSettingsResult getGlobalSettings() {
+        return executeRequest(adminRoutes.requestSpecForTask(GetGlobalSettingsTask.class), GetGlobalSettingsResult.class);
+    }
+
     public int port() {
         return this.port;
     }

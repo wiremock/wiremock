@@ -107,4 +107,6 @@ public interface Admin {
     void removeStubsByMetadata(StringValuePattern pattern);
 
     void importStubs(StubImport stubImport);
+
+    GetGlobalSettingsResult getGlobalSettings();
 }

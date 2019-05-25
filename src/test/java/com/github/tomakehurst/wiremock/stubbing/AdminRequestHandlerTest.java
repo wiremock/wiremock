@@ -142,8 +142,7 @@ public class AdminRequestHandlerTest {
 	@Test
 	public void shouldUpdateGlobalSettings() {
         context.checking(new Expectations() {{
-            GlobalSettings expectedSettings = new GlobalSettings();
-            expectedSettings.setFixedDelay(2000);
+            GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
             allowing(admin).updateGlobalSettings(expectedSettings);
         }});
 
