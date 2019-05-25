@@ -98,7 +98,6 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
       const newPath = this.router.url.split('?')[0];
 
       if (currentUrl.indexOf(newPath) === -1 || (currentUrl.indexOf(newPath) > -1 && currentUrl.indexOf(this.activeItemId) === -1)) {
-        console.log(newPath + '?active=' + this.activeItemId);
         this.router.navigate([this.router.url.split('?')[0]], {queryParams: {active: this.activeItemId}});
       }
     } else {
@@ -106,7 +105,6 @@ export class LayoutComponent implements OnInit, OnChanges, OnDestroy {
       const currentUrl = this.router.url;
       const newUrl = this.router.url.split('?')[0];
       if (currentUrl !== newUrl) {
-        console.log(newUrl);
         this.router.navigate([newUrl]);
       }
     }

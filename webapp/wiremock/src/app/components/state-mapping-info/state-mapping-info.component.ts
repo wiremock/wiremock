@@ -15,7 +15,6 @@ export class StateMappingInfoComponent implements OnInit {
   constructor(public activeModal: NgbActiveModal) { }
 
   ngOnInit() {
-    console.log(this.mapping);
   }
 
 }

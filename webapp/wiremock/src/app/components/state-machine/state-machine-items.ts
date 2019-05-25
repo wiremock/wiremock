@@ -48,6 +48,17 @@ export class StateMachineItems {
     });
   }
 
+  public static createSelfState(): Element{
+    const circle = new joint.shapes.standard.Circle();
+    circle.resize(1, 1);
+    circle.attr({
+      body: {
+        fill: 'black'
+      }
+    });
+    return circle;
+  }
+
   public static createStartState(): Element {
     const circle = new joint.shapes.standard.Circle();
     circle.resize(20, 20);

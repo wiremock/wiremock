@@ -138,7 +138,6 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   saveNewMapping() {
     this.wiremockService.saveNewMapping(this.editor.getCode()).subscribe(data => {
-      console.log(data.getId());
       this.activeItemId = data.getId();
       this.messageService.setMessage(new Message('save successful', MessageType.INFO, 2000));
     }, err => {
@@ -155,7 +154,6 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   saveEditMapping(item: Item) {
     this.wiremockService.saveMapping(item.getId(), this.editor.getCode()).subscribe(data => {
-      // console.log(data.getId());
       this.activeItemId = data.getId();
       this.messageService.setMessage(new Message('save successful', MessageType.INFO, 2000));
     }, err => {
