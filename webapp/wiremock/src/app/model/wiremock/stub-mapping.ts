@@ -9,13 +9,17 @@ export class StubMapping extends Proxy implements Item {
 
   uuid: string;
   name: string;
-  persistent: Boolean;
+  persistent: boolean;
   request: RequestPattern;
   response: ResponseDefinition;
   priority: number;
   scenarioName: string;
   requiredScenarioState: string;
   newScenarioState: string;
+
+  postServeActions: Map<String, any>;
+
+  metadata: any;
 
   constructor() {
     super();
@@ -48,6 +52,8 @@ export class StubMapping extends Proxy implements Item {
     this.scenarioName = unchecked.scenarioName;
     this.requiredScenarioState = unchecked.requiredScenarioState;
     this.newScenarioState = unchecked.newScenarioState;
+    this.metadata = unchecked.metadata;
+    this.postServeActions = unchecked.postServeActions;
 
     if (UtilService.isDefined(proxyConfig) && (UtilService.isDefined(this.response.proxyBaseUrl) || proxyConfig.proxyConfig.has(this.uuid))) {
       this.setProxy(true);
