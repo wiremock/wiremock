@@ -43,10 +43,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   private graph = new joint.dia.Graph();
   private paper: Paper;
 
-  const states: Map<String, Element>;
-  const links: StateLink[];
-
-
+  private states: Map<String, Element>;
+  private links: StateLink[];
 
   private dragStartPosition = null;
 
