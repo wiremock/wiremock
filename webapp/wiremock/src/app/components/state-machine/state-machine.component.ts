@@ -70,14 +70,10 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
     this.addLinks(this.links, this.states);
     this.addStatesToGraph(this.states);
     this.addLinksToGraph(this.links, this.states);
-    console.log(this.links);
-
     this.doLayout();
 
     this.selfLinks(this.links);
     this.sameDirectionLinks(this.links);
-
-
   }
 
   private initPaper() {

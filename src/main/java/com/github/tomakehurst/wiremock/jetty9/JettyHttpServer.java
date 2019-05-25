@@ -418,11 +418,11 @@ public class JettyHttpServer implements HttpServer {
         //        ServerContainer wsContainer = WebSocketServerContainerInitializer;
 
         final RewriteHandler rewrite = new RewriteHandler();
-//        rewrite.setRewriteRequestURI(true);
-//        rewrite.setRewritePathInfo(true);
+        rewrite.setRewriteRequestURI(true);
+        rewrite.setRewritePathInfo(true);
 
         RewriteRegexRule rewriteRule = new RewriteRegexRule();
-        rewriteRule.setRegex("/webapp/(?!index.html).*");
+        rewriteRule.setRegex("/webapp/(mappings|matched|unmatched|state).*");
         rewriteRule.setReplacement("/index.html");
         rewrite.addRule(rewriteRule);
 
