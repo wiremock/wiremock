@@ -3,6 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {MappingsComponent} from './components/mappings/mappings.component';
 import {MatchedComponent} from './components/matched/matched.component';
 import {UnmatchedComponent} from './components/unmatched/unmatched.component';
+import {StateComponent} from "./components/state/state.component";
 
 const routes: Routes = [
   {
@@ -16,6 +17,9 @@ const routes: Routes = [
   },
   {
     path: 'unmatched', component: UnmatchedComponent
+  },
+  {
+    path: 'state', component: StateComponent
   }
 ];
 

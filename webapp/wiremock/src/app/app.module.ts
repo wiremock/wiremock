@@ -56,6 +56,9 @@ import {DialogRecordingComponent} from './dialogs/dialog-recording/dialog-record
 import {SearchService} from './services/search.service';
 import {AceEditorModule} from 'ng2-ace-editor';
 import { CodeEditorComponent } from './components/code-editor/code-editor.component';
+import { StateComponent } from './components/state/state.component';
+import { StateMachineComponent } from './components/state-machine/state-machine.component';
+import { StateMappingInfoComponent } from './components/state-mapping-info/state-mapping-info.component';
 
 
 // add icons. Only remove if not used anymore otherwise app will crash!
@@ -103,7 +106,10 @@ library.add(faCamera);
     SplitCamelCasePipe,
     MessageComponent,
     DialogRecordingComponent,
-    CodeEditorComponent
+    CodeEditorComponent,
+    StateComponent,
+    StateMachineComponent,
+    StateMappingInfoComponent
   ],
   imports: [
     BrowserModule,
@@ -117,7 +123,7 @@ library.add(faCamera);
   ],
   providers: [WiremockService, WebSocketService, MessageService, SearchService, NgbModal],
   bootstrap: [AppComponent],
-  entryComponents: [DialogRecordingComponent]
+  entryComponents: [DialogRecordingComponent, StateMappingInfoComponent]
 })
 export class AppModule {
 }
