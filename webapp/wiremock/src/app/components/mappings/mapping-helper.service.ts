@@ -66,7 +66,7 @@ export class MappingHelperService {
     }
 
     mapping.response.jsonBody = JSON.parse(mapping.response.body);
-    mapping.response.body = null;
+    delete mapping.response.body;
 
     return mapping;
   }

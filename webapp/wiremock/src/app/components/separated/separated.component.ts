@@ -1,15 +1,12 @@
 import {Component, HostBinding, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Item} from '../../model/wiremock/item';
 import {ServeEvent} from '../../model/wiremock/serve-event';
-import {isDefined} from "@ng-bootstrap/ng-bootstrap/util/util";
 import {UtilService} from "../../services/util.service";
 import {StubMapping} from "../../model/wiremock/stub-mapping";
 import {ResponseDefinition} from "../../model/wiremock/response-definition";
 import {WiremockService} from "../../services/wiremock.service";
 import {debounceTime} from "rxjs/operators";
-import {LoggedRequest} from "../../model/wiremock/logged-request";
 
-import * as moment from 'moment';
 
 @Component({
   selector: 'wm-separated',
