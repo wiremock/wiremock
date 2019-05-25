@@ -34,7 +34,8 @@ export class StateMachineItems {
         offset: 0,
         action: function (evt) {
           const modalRef = modalService.open(StateMappingInfoComponent, {
-            size: 'lg'
+            size: 'lg',
+            windowClass: 'stateMapping'
           });
           modalRef.componentInstance.mapping = mapping;
         }

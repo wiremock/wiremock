@@ -1,55 +1,40 @@
-WireMock - a web service test double for all occasions
+WireMock with GUI
 ======================================================
-
-[![Build Status](https://travis-ci.org/tomakehurst/wiremock.svg?branch=master)](https://travis-ci.org/tomakehurst/wiremock)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.tomakehurst/wiremock.svg)](https://search.maven.org/artifact/com.github.tomakehurst/wiremock)
-
+Extends WireMock with a graphical user interface
 
 Key Features
 ------------
-	
--	HTTP response stubbing, matchable on URL, header and body content patterns
--	Request verification
--	Runs in unit tests, as a standalone process or as a WAR app
--	Configurable via a fluent Java API, JSON files and JSON over HTTP
+-	Mappings
+     - A paginated list of all mapping
+     - Search for mappings
+     - Add / Edit / Remove new mappings 
+     - Add templates directly into mapping (Response Templating, Proxying, etc.)
+     - Save / Reset / Remove all mappings
+     - Reset all scenarios
+     - Separated view improve readability
+-	Matched
+     - A paginated list of all requests which could be handled by Wiremock
+     - Copy cUrl
+     - Reset Journal
+-	Unmatched
+     - A paginated list of all requests which could not be handled by Wiremock
+     - Copy cUrl
+     - Copy request to clipboard for new mapping creation
+     - Copy SOAP to clipboard which understands not matched SOAP requests and help during creation
+     - Reset Journal
+-	StateMachine (experimental)
+     - A paginated list of all mappings which are part of a scenario
+     - States are calculated automatically
+     - Mappings are represented as links
+     - Button on links allows to show mapping details
 -	Record/playback of stubs
--	Fault injection
--	Per-request conditional proxying
--   Browser proxying for request inspection and replacement
--	Stateful behaviour simulation
--	Configurable response delays
- 
+     - Help to start recording or snapshot
+-	Auto refresh when mappings or requests changes
 
-Full documentation can be found at [wiremock.org](http://wiremock.org/ "wiremock.org")
-
-Questions and Issues
---------------------
-If you have a question about WireMock, or are experiencing a problem you're not sure is a bug please post a message to the 
-[WireMock mailing list](https://groups.google.com/forum/#!forum/wiremock-user).
-
-On the other hand if you're pretty certain you've found a bug please open an issue.
-
-Contributing
+Images
 ------------
-We welcome bug fixes and new features in the form of pull requests. If you'd like to contribute, please be mindful of the
-following guidelines:
-* All changes should include suitable tests, whether to demonstrate the bug or exercise and document the new feature.
-* Please make one change per pull request.
-* If the new feature is significantly large/complex/breaks existing behaviour, please first post a summary of your idea
-on the mailing list to generate a discussion. This will avoid significant amounts of coding time spent on changes that ultimately get rejected.
-* Try to avoid reformats of files that change the indentation, tabs to spaces etc., as this makes reviewing diffs much
-more difficult.
+[Mappings](./images/mappings.png)
 
-Building WireMock locally
--------------------------
-To run all of WireMock's tests:
-```bash
-./gradlew clean test
-```
+[Separated View](./images/mappings-separated.png)
 
-To build both JARs (thin and standalone):
-```bash
-./gradlew jar shadowJar
-```
-
-The built JARs will be placed under ``build/libs``.
+[StateMachine](./images/state-machine.png)
