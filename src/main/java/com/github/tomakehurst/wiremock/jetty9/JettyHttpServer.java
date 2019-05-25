@@ -31,8 +31,10 @@ import com.google.common.io.Resources;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.NetworkTrafficListener;
+import org.eclipse.jetty.rewrite.handler.RedirectPatternRule;
 import org.eclipse.jetty.rewrite.handler.RedirectRegexRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
+import org.eclipse.jetty.rewrite.handler.RewriteRegexRule;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
@@ -416,11 +418,13 @@ public class JettyHttpServer implements HttpServer {
         //        ServerContainer wsContainer = WebSocketServerContainerInitializer;
 
         final RewriteHandler rewrite = new RewriteHandler();
+//        rewrite.setRewriteRequestURI(true);
+//        rewrite.setRewritePathInfo(true);
 
-        final RedirectRegexRule redirect = new RedirectRegexRule();
-        redirect.setRegex("/webapp/(mappings|matched|unmatched).*");
-        redirect.setReplacement("/__admin/webapp/index.html");
-        rewrite.addRule(redirect);
+        RewriteRegexRule rewriteRule = new RewriteRegexRule();
+        rewriteRule.setRegex("/webapp/(?!index.html).*");
+        rewriteRule.setReplacement("/index.html");
+        rewrite.addRule(rewriteRule);
 
         adminContext.setHandler(rewrite);
 

@@ -151,11 +151,6 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
           padding: 15,
           maxAllowedDirectionChange: 0
         });
-
-        // link.router('oneSide', {
-        //   side: 'left',
-        //   padding: 50
-        // });
       } else {
         link.connector('rounded');
         link.router('normal', {
@@ -190,12 +185,14 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   @HostListener('window:resize', ['$event'])
   onResize() {
-    this.paper.setDimensions(0, 0);
-    this.paper.setDimensions(this.container.nativeElement.offsetWidth, this.container.nativeElement.offsetHeight);
+    if (UtilService.isDefined(this.paper)) {
+      this.paper.setDimensions(0, 0);
+      this.paper.setDimensions(this.container.nativeElement.offsetWidth, this.container.nativeElement.offsetHeight);
+    }
   }
 
   onMove(event: MouseEvent) {
-    if (UtilService.isDefined(this.dragStartPosition)) {
+    if (UtilService.isDefined(this.paper) && UtilService.isDefined(this.dragStartPosition)) {
       this.paper.translate(event.offsetX - this.dragStartPosition.x, event.offsetY - this.dragStartPosition.y);
       //  var scale = V(paper.viewport).scale();
       // dragStartPosition = { x: x * scale.sx, y: y * scale.sy};
