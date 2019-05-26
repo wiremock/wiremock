@@ -46,6 +46,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   private links: StateLink[];
 
   private dragStartPosition = null;
+  private space = false;
 
   constructor(private container: ElementRef, private modalService: NgbModal) {
   }
@@ -88,7 +89,9 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
     this.dragStartPosition = null;
 
     this.paper.on('blank:pointerdown', (event, x, y) => {
-      this.dragStartPosition = {x: x, y: y}
+      if (this.space) {
+        this.dragStartPosition = {x: x, y: y};
+      }
     });
 
     this.paper.on('cell:pointerup blank:pointerup', (cellView, x, y) => {
@@ -200,6 +203,17 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
       //  var scale = V(paper.viewport).scale();
       // dragStartPosition = { x: x * scale.sx, y: y * scale.sy};
     }
+  }
+
+  @HostListener('document:keyup.space', ['$event'])
+  onSpaceUp(event) {
+    this.space = false;
+    this.dragStartPosition = null;
+  }
+
+  @HostListener('document:keydown.space', ['$event'])
+  onSpaceDown(event) {
+    this.space = true;
   }
 
   private selfLinks(links: StateLink[]) {

@@ -1,7 +1,9 @@
 :host{
   display: flex;
   flex: 1;
-  cursor: move;
+  .move{
+    cursor: move;
+  }
 }
 
 #canvas.grid{
