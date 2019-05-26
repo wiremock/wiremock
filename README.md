@@ -31,6 +31,12 @@ Key Features
      - Help to start recording or snapshot
 -	Auto refresh when mappings or requests changes
 
+How to open?
+------------
+The gui is part of the Wiremock admin interface. Therefore, just open the following URL: 
+
+\<Wiremock baseUrl\>/__admin/webapp
+
 Images
 ------------
 [Mappings](./images/mappings.png)
