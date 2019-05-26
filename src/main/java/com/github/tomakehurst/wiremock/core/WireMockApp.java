@@ -282,6 +282,7 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void resetScenarios() {
         this.stubMappings.resetScenarios();
+        WebSocketEndpoint.broadcast(Message.SCENARIO);
     }
 
     @Override

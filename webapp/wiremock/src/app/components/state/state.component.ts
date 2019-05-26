@@ -10,7 +10,7 @@ import {debounceTime, filter, takeUntil} from "rxjs/operators";
 import {Subject} from "rxjs";
 import {WiremockService} from "../../services/wiremock.service";
 import {WebSocketService} from "../../services/web-socket.service";
-import {MessageService} from "../message/message.service";
+import {Message, MessageService, MessageType} from "../message/message.service";
 import {TabSelectionService} from "../../services/tab-selection.service";
 import {AutoRefreshService} from "../../services/auto-refresh.service";
 import {UtilService} from "../../services/util.service";
@@ -81,5 +81,13 @@ export class StateComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  resetAllScenarios() {
+    this.wiremockService.resetScenarios().subscribe(() => {
+      this.messageService.setMessage(new Message('Reset of all scenarios successful', MessageType.INFO, 3000));
+    }, err => {
+      UtilService.showErrorMessage(this.messageService, err);
+    });
   }
 }

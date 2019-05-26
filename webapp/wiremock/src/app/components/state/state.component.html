@@ -1,4 +1,17 @@
 <wm-layout [items]="result">
+  <ng-template #actions let-activeItem>
+    <div ngbDropdown class="btn-group" role="group">
+      <button id="wmScenarioDrop" type="button" class="btn btn-secondary dropdown-toggle" ngbDropdownToggle>
+        Scenarios
+      </button>
+      <div ngbDropdownMenu class="dropdown-menu">
+        <button type="button" class="dropdown-item" (click)="resetAllScenarios()">
+          <fa-icon icon="sync-alt"></fa-icon>
+          Reset all Scenarios
+        </button>
+      </div>
+    </div>
+  </ng-template>
   <ng-template #content let-activeItem>
     <wm-state-machine [item]="activeItem"></wm-state-machine>
   </ng-template>
