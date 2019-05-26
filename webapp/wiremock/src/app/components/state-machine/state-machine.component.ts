@@ -254,7 +254,11 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
     links.forEach(data => {
       if (data.target !== data.source) {
-        if (UtilService.isUndefined(linkMap.get(data.source + data.target))) {
+        if (UtilService.isDefined(linkMap.get(data.target + data.source))) {
+          // same direction but other way around
+          linkMap.get(data.target + data.source).push(data);
+          return;
+        }else if (UtilService.isUndefined(linkMap.get(data.source + data.target))) {
           linkMap.set(data.source + data.target, []);
         }
         linkMap.get(data.source + data.target).push(data);
@@ -264,8 +268,6 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
     linkMap.forEach(selfLinks => {
       selfLinks.forEach((data, index) => {
         const linkView = this.paper.findViewByModel(data.link.id) as LinkView;
-        const conn = linkView.getConnection();
-
         const center = linkView.getConnection().bbox().center();
 
         // TODO: remove verticies and set again. Needed if this should work with moving elements
