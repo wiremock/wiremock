@@ -7,7 +7,9 @@ public enum Message {
     MAPPINGS("mappings"),
     UNMATCHED("unmatched"),
     MATCHED("matched"),
-    RECORDING("recording");
+    RECORDING("recording"),
+    SCENARIO("scenario"),
+    ;
 
     private final String message;
 

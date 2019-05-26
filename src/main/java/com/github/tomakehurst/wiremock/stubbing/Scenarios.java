@@ -15,6 +15,8 @@
  */
 package com.github.tomakehurst.wiremock.stubbing;
 
+import com.github.tomakehurst.wiremock.jetty9.websockets.Message;
+import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -91,6 +93,7 @@ public class Scenarios {
             if (mapping.modifiesScenarioState() &&
                 (mapping.getRequiredScenarioState() == null || scenario.getState().equals(mapping.getRequiredScenarioState()))) {
                 Scenario newScenario = scenario.setState(mapping.getNewScenarioState());
+                WebSocketEndpoint.broadcast(Message.SCENARIO);
                 scenarioMap.put(scenarioName, newScenario);
             }
         }

@@ -15,6 +15,7 @@ import {GetServeEventsResult} from '../model/wiremock/get-serve-events-result';
 import {SnapshotRecordResult} from '../model/wiremock/snapshot-record-result';
 import {ProxyConfig} from '../model/wiremock/proxy-config';
 import {RecordingStatus} from '../model/wiremock/recording-status';
+import {ScenarioResult} from "../model/wiremock/scenario-result";
 
 @Injectable()
 export class WiremockService {
@@ -65,6 +66,10 @@ export class WiremockService {
 
   deleteMapping(id: string): Observable<ResponseDefinition> {
     return this.defaultPipe(this.http.delete<ResponseDefinition>(WiremockService.getUrl('mappings/' + id)));
+  }
+
+  getScenarios(): Observable<ScenarioResult> {
+    return this.defaultPipe(this.http.get<ScenarioResult>(WiremockService.getUrl('scenarios')));
   }
 
   resetJournal(): Observable<ResponseDefinition> {

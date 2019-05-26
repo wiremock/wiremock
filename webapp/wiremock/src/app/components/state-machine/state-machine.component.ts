@@ -13,13 +13,12 @@ import * as joint from "jointjs";
 import {dia} from "jointjs";
 import Paper = dia.Paper;
 import {StateMachineItems} from "./state-machine-items";
-import {ScenarioGroup} from "../../model/scenario-group";
 import Element = dia.Element;
 import {UtilService} from "../../services/util.service";
 import {StateLink} from "../../model/state-link";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {SelfLink} from "../../model/self-link";
 import LinkView = dia.LinkView;
+import {Scenario} from "../../model/wiremock/scenario";
 
 
 @Component({
@@ -32,7 +31,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   private static readonly ANY = '{{ANY}}';
 
   @Input()
-  item: ScenarioGroup;
+  item: Scenario;
 
   @ViewChild('canvas')
   canvas: ElementRef;
@@ -98,11 +97,19 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private searchForStates(states: Map<String, dia.Element>) {
-    this.item.stateNames.forEach(stateName => {
+    this.item.possibleStates.forEach(stateName => {
       if (stateName === 'Started') {
-        states.set(stateName, StateMachineItems.createStartState());
+        if (this.item.state === 'Started') {
+          states.set(stateName, StateMachineItems.createActiveStartState());
+        }else{
+          states.set(stateName, StateMachineItems.createStartState());
+        }
       } else {
-        states.set(stateName, StateMachineItems.createState(stateName));
+        if (this.item.state == stateName) {
+          states.set(stateName, StateMachineItems.createActiveState(stateName));
+        }else{
+          states.set(stateName, StateMachineItems.createState(stateName));
+        }
       }
     });
   }

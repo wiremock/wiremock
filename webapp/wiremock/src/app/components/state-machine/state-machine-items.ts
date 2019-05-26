@@ -60,7 +60,11 @@ export class StateMachineItems {
     return circle;
   }
 
-  public static createStartState(): Element {
+  public static createActiveStartState(): Element {
+    return StateMachineItems.createStartState('#F58E00');
+  }
+
+  public static createStartState(color: string = 'black'): Element {
     const circle = new joint.shapes.standard.Circle();
     circle.resize(20, 20);
     circle.attr({
@@ -74,7 +78,7 @@ export class StateMachineItems {
         title: 'Started'
       },
       body: {
-        fill: 'black',
+        fill: color,
         cursor: 'move'
       }
     });
@@ -102,7 +106,15 @@ export class StateMachineItems {
     return ellipse;
   }
 
+  public static createActiveState(title: string): Element {
+    return StateMachineItems.createStatePrivate(title, '#F58E00', '#FFFFFF');
+  }
+
   public static createState(title: string): Element {
+    return StateMachineItems.createStatePrivate(title, '#FFE6C9', '#000000');
+  }
+
+  public static createStatePrivate(title: string, bgColor: string, color: string): Element {
     const ellipse = new joint.shapes.standard.Ellipse();
     ellipse.resize(160, 100);
     ellipse.attr({
@@ -111,12 +123,14 @@ export class StateMachineItems {
           text: title,
           height: '50%',
           ellipsis: true,
-          width: -20
+          width: -20,
         },
-        title: title
+        title: title,
+        color: color,
+        fill: color
       },
       body: {
-        fill: '#FFE6C9',
+        fill: bgColor,
         cursor: 'move'
       }
     });
