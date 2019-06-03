@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
@@ -137,7 +138,8 @@ public class WireMockApp implements StubServer, Admin {
             this,
             new BasicResponseRenderer(),
             options.getAdminAuthenticator(),
-            options.getHttpsRequiredForAdminApi()
+            options.getHttpsRequiredForAdminApi(),
+            Collections.<RequestFilter>emptyList()
         );
     }
 
@@ -158,7 +160,8 @@ public class WireMockApp implements StubServer, Admin {
             ),
             this,
             postServeActions,
-            requestJournal
+            requestJournal,
+            ImmutableList.copyOf(options.extensionsOfType(RequestFilter.class).values())
         );
     }
 

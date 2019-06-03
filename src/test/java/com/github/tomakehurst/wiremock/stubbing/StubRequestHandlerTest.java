@@ -18,6 +18,7 @@ package com.github.tomakehurst.wiremock.stubbing;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestListener;
 import com.github.tomakehurst.wiremock.http.Response;
@@ -66,7 +67,7 @@ public class StubRequestHandlerTest {
         admin = context.mock(Admin.class);
 		requestJournal = context.mock(RequestJournal.class);
 
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal);
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList());
 
         context.checking(new Expectations() {{
             allowing(requestJournal);

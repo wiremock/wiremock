@@ -15,7 +15,12 @@
  */
 package com.github.tomakehurst.wiremock.http;
 
+import com.github.tomakehurst.wiremock.extension.requestfilter.ContinueAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilterAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.StopAction;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.google.common.base.Stopwatch;
 
 import java.util.List;
@@ -28,9 +33,11 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 
 	protected List<RequestListener> listeners = newArrayList();
 	protected final ResponseRenderer responseRenderer;
+	protected final List<RequestFilter> requestFilters;
 
-	public AbstractRequestHandler(ResponseRenderer responseRenderer) {
+	public AbstractRequestHandler(ResponseRenderer responseRenderer, List<RequestFilter> requestFilters) {
 		this.responseRenderer = responseRenderer;
+		this.requestFilters = requestFilters;
 	}
 
 	@Override
@@ -44,7 +51,20 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 	@Override
 	public void handle(Request request, HttpResponder httpResponder) {
         Stopwatch stopwatch = Stopwatch.createStarted();
-		ServeEvent serveEvent = handleRequest(request);
+
+		ServeEvent serveEvent;
+
+		if (!requestFilters.isEmpty()) {
+			RequestFilterAction requestFilterAction = processFilters(request, requestFilters, RequestFilterAction.continueWith(request));
+			if (requestFilterAction instanceof ContinueAction) {
+				serveEvent = handleRequest(((ContinueAction) requestFilterAction).getRequest());
+			} else {
+				serveEvent = ServeEvent.of(LoggedRequest.createFrom(request), ((StopAction) requestFilterAction).getResponseDefinition());
+			}
+		} else {
+			serveEvent = handleRequest(request);
+		}
+
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 		responseDefinition.setOriginalRequest(request);
 		Response response = responseRenderer.render(serveEvent);
@@ -70,6 +90,21 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
         completedServeEvent.afterSend((int) stopwatch.elapsed(MILLISECONDS));
         afterResponseSent(completedServeEvent, response);
         stopwatch.stop();
+	}
+
+	private static RequestFilterAction processFilters(Request request, List<RequestFilter> requestFilters, RequestFilterAction lastAction) {
+		if (requestFilters.isEmpty()) {
+			return lastAction;
+		}
+
+		RequestFilterAction action = requestFilters.get(0).filter(request);
+
+		if (action instanceof ContinueAction) {
+			Request newRequest = ((ContinueAction) action).getRequest();
+			return processFilters(newRequest, requestFilters.subList(1, requestFilters.size()), action);
+		}
+
+		return action;
 	}
 
 	protected String formatRequest(Request request) {

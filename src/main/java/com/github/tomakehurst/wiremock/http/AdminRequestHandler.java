@@ -23,11 +23,13 @@ import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.NotPermittedException;
 import com.github.tomakehurst.wiremock.core.Admin;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 
 import java.net.URI;
+import java.util.List;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 import static com.github.tomakehurst.wiremock.core.WireMockApp.ADMIN_CONTEXT_ROOT;
@@ -39,8 +41,14 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private final Authenticator authenticator;
     private final boolean requireHttps;
 
-	public AdminRequestHandler(AdminRoutes adminRoutes, Admin admin, ResponseRenderer responseRenderer, Authenticator authenticator, boolean requireHttps) {
-		super(responseRenderer);
+	public AdminRequestHandler(AdminRoutes adminRoutes,
+                               Admin admin,
+                               ResponseRenderer responseRenderer,
+                               Authenticator authenticator,
+                               boolean requireHttps,
+                               List<RequestFilter> requestFilters
+    ) {
+		super(responseRenderer, requestFilters);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
         this.authenticator = authenticator;
