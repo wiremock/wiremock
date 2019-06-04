@@ -6,6 +6,8 @@ import {StubMapping} from "../../model/wiremock/stub-mapping";
 import {ResponseDefinition} from "../../model/wiremock/response-definition";
 import {WiremockService} from "../../services/wiremock.service";
 import {debounceTime} from "rxjs/operators";
+import {LoggedRequest} from "../../model/wiremock/logged-request";
+import * as qs from "querystring";
 
 
 @Component({
@@ -20,11 +22,11 @@ export class SeparatedComponent implements OnInit, OnChanges {
   private _activeItem: Item;
 
   color: string[] = ['bg-warning', 'bg-info', 'bg-danger', 'bg-primary', 'bg-secondary', 'bg-dark'];
-  colorIndex = 0;
 
   bodyFileData: string;
   bodyGroupKey: string;
 
+  xWwwFormUrlEncodedParams: string;
 
   get activeItem(): Item {
     return this._activeItem;
@@ -44,7 +46,6 @@ export class SeparatedComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.colorIndex = 0;
     if (UtilService.isDefined(this._activeItem)) {
       let responseDefinition: ResponseDefinition;
       if (this._activeItem instanceof StubMapping) {
@@ -57,22 +58,41 @@ export class SeparatedComponent implements OnInit, OnChanges {
         responseDefinition = null;
       }
 
+      // body from file
       if (UtilService.isDefined(responseDefinition) && UtilService.isDefined(responseDefinition.bodyFileName)) {
         this.wiremockService.getFileBody(responseDefinition.bodyFileName).pipe(debounceTime(500)).subscribe(body => this.bodyFileData = body);
       }else{
         this.bodyFileData = null;
         this.bodyGroupKey = null;
       }
+
+      // x-www-form-urlencoded
+      this.xWwwFormUrlEncoded(responseDefinition);
+
+    }
+  }
+
+  private xWwwFormUrlEncoded(responseDefinition: ResponseDefinition) {
+    let headers = {};
+    let body;
+    if (UtilService.isDefined(responseDefinition)) {
+        headers = responseDefinition.headers;
+        body = responseDefinition.body;
+    } else if (this._activeItem instanceof LoggedRequest) {
+      headers = (this._activeItem as LoggedRequest).headers;
+      body = (this._activeItem as LoggedRequest).body;
+    }
+
+    if(UtilService.isDefined(headers['Content-Type']) && headers['Content-Type'] === 'application/x-www-form-urlencoded'){
+      // found x-www-form-urlencoded. Try to check body
+      this.xWwwFormUrlEncodedParams = JSON.stringify(qs.parse(body));
+    } else {
+      this.xWwwFormUrlEncodedParams = null;
     }
   }
 
   isObject(property: any): boolean {
     return typeof property === 'object';
-  }
-
-  getNextColor(): string {
-    this.colorIndex++;
-    return this.color[this.colorIndex - 1];
   }
 
   isServeEvent(item: Item) {

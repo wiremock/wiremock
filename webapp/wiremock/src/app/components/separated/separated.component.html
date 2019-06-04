@@ -63,4 +63,24 @@
       </div>
     </div>
   </ng-container>
+
+  <ng-container *ngIf="xWwwFormUrlEncodedParams">
+    <div class="card bg-light text-white mb-3">
+      <div class="card-header text-dark">
+        x-www-form-urlencoded
+      </div>
+      <div class="card-body bg-light text-dark">
+        <table class="table table-sm mb-0">
+          <tbody>
+          <tr>
+            <td class="wmTableColumnKey">body</td>
+            <td>
+              <wm-code-entry [code]="xWwwFormUrlEncodedParams"></wm-code-entry>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
 </div>

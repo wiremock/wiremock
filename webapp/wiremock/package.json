@@ -45,6 +45,7 @@
     "ng2-ace-editor": "^0.3.8",
     "rxjs": "^6.0.0",
     "vkbeautify": "^0.99.3",
+    "query-string": "^6.5.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
