@@ -7,4 +7,7 @@ public interface RequestFilter extends Extension {
 
     RequestFilterAction filter(Request request);
 
+    boolean applyToAdmin();
+    boolean applyToStubs();
+
 }

@@ -34,9 +34,9 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collections;
@@ -139,7 +139,7 @@ public class WireMockApp implements StubServer, Admin {
             new BasicResponseRenderer(),
             options.getAdminAuthenticator(),
             options.getHttpsRequiredForAdminApi(),
-            Collections.<RequestFilter>emptyList()
+            getAdminRequestFilters()
         );
     }
 
@@ -161,8 +161,30 @@ public class WireMockApp implements StubServer, Admin {
             this,
             postServeActions,
             requestJournal,
-            ImmutableList.copyOf(options.extensionsOfType(RequestFilter.class).values())
+            getStubRequestFilters()
         );
+    }
+
+    private List<RequestFilter> getAdminRequestFilters() {
+        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+                .filter(new Predicate<RequestFilter>() {
+                    @Override
+                    public boolean apply(RequestFilter filter) {
+                        return filter.applyToAdmin();
+                    }
+                })
+                .toList();
+    }
+
+    private List<RequestFilter> getStubRequestFilters() {
+        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+                .filter(new Predicate<RequestFilter>() {
+                    @Override
+                    public boolean apply(RequestFilter filter) {
+                        return filter.applyToStubs();
+                    }
+                })
+                .toList();
     }
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
