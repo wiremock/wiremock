@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, NgZone, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, NgZone, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {UtilService} from '../../services/util.service';
 
 @Component({
@@ -35,6 +35,8 @@ export class CodeEditorComponent implements OnInit, OnChanges, AfterViewInit {
     // firstLineNumber: 1
     wrap: true,
     enableMultiselect: true
+    // maxLines: 100
+    // minLines: 10
   };
 
   @ViewChild('editor') editor;

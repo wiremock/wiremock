@@ -3,52 +3,38 @@ import {ServeEvent} from '../model/wiremock/serve-event';
 
 export class CurlExtractor {
 
-  static copyCurl(request: LoggedRequest | ServeEvent): string {
-    if (request instanceof LoggedRequest) {
-      return CurlExtractor.extractCurl(request);
-    } else {
-      return CurlExtractor.extractCurl(request.request);
+  public static copyCurl(request: LoggedRequest | ServeEvent): string {
+    return CurlExtractor.extractCurl(request).toString();
+  }
+
+  public static extractCurl(request: LoggedRequest | ServeEvent): Curl {
+    if (request instanceof ServeEvent) {
+      return this.extractCurl(request.request);
     }
+    const curl: Curl = new Curl();
+    curl.httpMethod = request.method;
+    curl.url = request.absoluteUrl;
+    curl.body = request.body;
+    curl.verbose = true;
+    curl.headers = this.extractHeaders(request);
+
+    return curl;
   }
 
-  private static extractCurl(request: LoggedRequest): string {
-    let curlString = 'curl ';
-    curlString += CurlExtractor.extractHttpMethod(request) + ' ';
-    curlString += CurlExtractor.extractURL(request) + ' ';
-    curlString += this.extractBody(request) + ' ';
-    curlString += this.addVerbose() + ' ';
-    curlString += this.extractHeaders(request) + ' ';
+  private static extractHeaders(request: LoggedRequest): Header[] {
 
-    return curlString;
+    const headers = [];
+    const keys = Object.keys(request.headers);
+
+    keys.forEach(key => {
+      const header = new Header();
+      header.key = key;
+      header.value = request.headers[key];
+      headers.push(header);
+    });
+    return headers;
   }
 
-  private static extractHttpMethod(request: LoggedRequest): string {
-    return '-X ' + request.method;
-  }
-
-  private static extractURL(request: LoggedRequest): string {
-    return '\'' + request.absoluteUrl + '\'';
-  }
-
-  private static extractBody(request: LoggedRequest): string {
-    return '-d \'' + request.body.replace(/\n/g, '') + '\'';
-  }
-
-  private static addVerbose(): string {
-    return '-v';
-  }
-
-  private static extractHeaders(request: LoggedRequest): string {
-    let headerString = '';
-    const headers = request.headers;
-    for (const property in headers) {
-      if (headers.hasOwnProperty(property) && this.checkProperty(property)) {
-        const value = headers[property];
-        headerString += '-H "' + property + ': ' + value + '" ';
-      }
-    }
-    return headerString;
-  }
 
   private static checkProperty(property): boolean {
     switch (property) {
@@ -64,5 +50,116 @@ export class CurlExtractor {
         return false;
     }
     return true;
+  }
+}
+
+export class Curl {
+  private _httpMethod: string;
+  private _url: string;
+  private _body: string;
+  private _verbose: boolean;
+  private _headers: Header[];
+
+  get httpMethod(): string {
+    return this._httpMethod;
+  }
+
+  set httpMethod(value: string) {
+    this._httpMethod = value;
+  }
+
+  get url(): string {
+    return this._url;
+  }
+
+  set url(value: string) {
+    this._url = value;
+  }
+
+  get body(): string {
+    return this._body;
+  }
+
+  set body(value: string) {
+    this._body = value;
+  }
+
+  get verbose(): boolean {
+    return this._verbose;
+  }
+
+  set verbose(value: boolean) {
+    this._verbose = value;
+  }
+
+  get headers(): Header[] {
+    return this._headers;
+  }
+
+  set headers(value: Header[]) {
+    this._headers = value;
+  }
+
+  public toString(): string {
+    let curlString = 'curl ';
+    curlString += this.httpMethodToString() + ' \\\n';
+    curlString += this.urlToString() + ' \\\n';
+    curlString += this.bodyToString() + ' \\\n';
+    if (this.verbose) {
+      curlString += this.verboseToString() + ' \\\n';
+    }
+    curlString += this.headersToString();
+
+    return curlString;
+  }
+
+  private httpMethodToString(): string {
+    return '-X ' + this.httpMethod;
+  }
+
+  private urlToString(): string {
+    return '\'' + this.url + '\'';
+  }
+
+  private bodyToString(): string {
+    return '-d \'' + this.body + '\'';
+  }
+
+  private verboseToString(): string {
+    return '-v';
+  }
+
+  private headersToString(): string {
+    let headerString = '';
+    const headers = this.headers;
+    headers.forEach((header, i) => {
+      headerString += '-H \'' + header.key + ': ' + header.value + '\'';
+      if (i !== this.headers.length - 1) {
+        headerString += ' \\\n';
+      }
+    });
+    return headerString;
+  }
+}
+
+export class Header {
+  private _key: string;
+  private _value: string;
+
+
+  get key(): string {
+    return this._key;
+  }
+
+  set key(value: string) {
+    this._key = value;
+  }
+
+  get value(): string {
+    return this._value;
+  }
+
+  set value(value: string) {
+    this._value = value;
   }
 }

@@ -1,0 +1,9 @@
+<div class="curl-container">
+  <div class="curl-editor-container">
+    <wm-code-editor #editor [code]="curlString" [language]="'ini'"></wm-code-editor>
+  </div>
+  <button type="button" class="btn btn-secondary" (click)="copyCurl()">
+    <fa-icon icon="copy"></fa-icon>
+    Copy cURL
+  </button>
+</div>

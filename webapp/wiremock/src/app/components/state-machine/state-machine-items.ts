@@ -35,7 +35,7 @@ export class StateMachineItems {
         action: function (evt) {
           const modalRef = modalService.open(StateMappingInfoComponent, {
             size: 'lg',
-            windowClass: 'stateMapping'
+            windowClass: 'modal-h70'
           });
           modalRef.componentInstance.mapping = mapping;
         }

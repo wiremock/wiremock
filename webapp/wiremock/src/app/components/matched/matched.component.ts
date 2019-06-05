@@ -9,6 +9,8 @@ import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
 import {AutoRefreshService} from "../../services/auto-refresh.service";
+import {CurlPreviewComponent} from "../curl-preview/curl-preview.component";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
   selector: 'wm-matched',
@@ -24,7 +26,8 @@ export class MatchedComponent implements OnInit, OnDestroy {
   serveEventResult: GetServeEventsResult;
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService, private autoRefreshService: AutoRefreshService) {
+              private messageService: MessageService, private autoRefreshService: AutoRefreshService,
+              private modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -55,6 +58,15 @@ export class MatchedComponent implements OnInit, OnDestroy {
     }
   }
 
+  editCurl(request: ServeEvent) {
+    let curl = CurlExtractor.extractCurl(request);
+    const modalRef = this.modalService.open(CurlPreviewComponent, {
+      size: 'lg',
+      windowClass: 'modal-h70'
+    });
+    modalRef.componentInstance.curl = curl;
+  }
+
   resetJournal() {
     this.wiremockService.resetJournal().subscribe(() => {
       // do nothing
@@ -67,4 +79,5 @@ export class MatchedComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
+
 }

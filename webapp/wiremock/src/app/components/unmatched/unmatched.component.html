@@ -9,10 +9,21 @@
         <fa-icon icon="copy"></fa-icon>
         Copy SOAP
       </button>
-      <button type="button" class="btn btn-secondary" [disabled]="!activeItem" (click)="copyCurl(activeItem)">
-        <fa-icon icon="copy"></fa-icon>
-        Copy Curl
-      </button>
+      <div ngbDropdown class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary" [disabled]="!activeItem" (click)="copyCurl(activeItem)">
+          <fa-icon icon="copy"></fa-icon>
+          Copy cURL
+        </button>
+        <div class="btn-group" ngbDropdown role="group" placement="bottom-right">
+          <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>
+          <div ngbDropdownMenu class="dropdown-menu">
+            <button type="button" class="dropdown-item" (click)="editCurl(activeItem)">
+              <fa-icon icon="pencil-alt"></fa-icon>
+              Edit cURL
+            </button>
+          </div>
+        </div>
+      </div>
       <button type="button" class="btn btn-secondary" (click)="resetJournal()">
         <fa-icon icon="trash"></fa-icon>
         Reset Journal

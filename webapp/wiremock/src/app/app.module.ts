@@ -55,10 +55,11 @@ import {MessageService} from './components/message/message.service';
 import {DialogRecordingComponent} from './dialogs/dialog-recording/dialog-recording.component';
 import {SearchService} from './services/search.service';
 import {AceEditorModule} from 'ng2-ace-editor';
-import { CodeEditorComponent } from './components/code-editor/code-editor.component';
-import { StateComponent } from './components/state/state.component';
-import { StateMachineComponent } from './components/state-machine/state-machine.component';
-import { StateMappingInfoComponent } from './components/state-mapping-info/state-mapping-info.component';
+import {CodeEditorComponent} from './components/code-editor/code-editor.component';
+import {StateComponent} from './components/state/state.component';
+import {StateMachineComponent} from './components/state-machine/state-machine.component';
+import {StateMappingInfoComponent} from './components/state-mapping-info/state-mapping-info.component';
+import {CurlPreviewComponent} from './components/curl-preview/curl-preview.component';
 
 
 // add icons. Only remove if not used anymore otherwise app will crash!
@@ -109,7 +110,8 @@ library.add(faCamera);
     CodeEditorComponent,
     StateComponent,
     StateMachineComponent,
-    StateMappingInfoComponent
+    StateMappingInfoComponent,
+    CurlPreviewComponent
   ],
   imports: [
     BrowserModule,
@@ -123,7 +125,7 @@ library.add(faCamera);
   ],
   providers: [WiremockService, WebSocketService, MessageService, SearchService, NgbModal],
   bootstrap: [AppComponent],
-  entryComponents: [DialogRecordingComponent, StateMappingInfoComponent]
+  entryComponents: [DialogRecordingComponent, StateMappingInfoComponent, CurlPreviewComponent]
 })
 export class AppModule {
 }

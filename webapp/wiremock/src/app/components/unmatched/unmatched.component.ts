@@ -9,6 +9,9 @@ import {debounceTime, filter, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/internal/Subject';
 import {CurlExtractor} from '../../services/curl-extractor';
 import {AutoRefreshService} from "../../services/auto-refresh.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {StateMappingInfoComponent} from "../state-mapping-info/state-mapping-info.component";
+import {CurlPreviewComponent} from "../curl-preview/curl-preview.component";
 
 @Component({
   selector: 'wm-unmatched',
@@ -24,7 +27,8 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
   requestResult: FindRequestResult;
 
   constructor(private wiremockService: WiremockService, private webSocketService: WebSocketService,
-              private messageService: MessageService, private autoRefreshService: AutoRefreshService) {
+              private messageService: MessageService, private autoRefreshService: AutoRefreshService,
+              private modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -70,6 +74,15 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
     } else {
       this.messageService.setMessage(new Message('Was not able to copy. Details in log', MessageType.ERROR, 10000));
     }
+  }
+
+  editCurl(request: LoggedRequest) {
+    let curl = CurlExtractor.extractCurl(request);
+    const modalRef = this.modalService.open(CurlPreviewComponent, {
+      size: 'lg',
+      windowClass: 'modal-h70'
+    });
+    modalRef.componentInstance.curl = curl;
   }
 
   private copyMappingTemplateToClipboard(message: string) {
@@ -141,4 +154,5 @@ export class UnmatchedComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
+
 }
