@@ -49,7 +49,8 @@ To run all of WireMock's tests:
 
 To build both JARs (thin and standalone):
 ```bash
-./gradlew jar shadowJar
+./gradlew -c release-settings.gradle :java8:shadowJar
 ```
 
-The built JARs will be placed under ``build/libs``.
+The built JAR will be placed under ``java8/build/libs``.
+
