@@ -83,7 +83,8 @@ export class SeparatedComponent implements OnInit, OnChanges {
       body = (this._activeItem as LoggedRequest).body;
     }
 
-    if(UtilService.isDefined(headers['Content-Type']) && headers['Content-Type'] === 'application/x-www-form-urlencoded'){
+    if(UtilService.isDefined(headers) && UtilService.isDefined(headers['Content-Type'])
+      && headers['Content-Type'] === 'application/x-www-form-urlencoded'){
       // found x-www-form-urlencoded. Try to check body
       this.xWwwFormUrlEncodedParams = JSON.stringify(qs.parse(body));
     } else {
