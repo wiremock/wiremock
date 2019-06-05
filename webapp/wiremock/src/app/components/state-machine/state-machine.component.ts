@@ -33,6 +33,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   @Input()
   item: Scenario;
 
+  private lastItem: Scenario;
+
   @ViewChild('canvas')
   canvas: ElementRef;
 
@@ -47,6 +49,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   private dragStartPosition = null;
   private space = false;
+
+  private paperPos: {x:number, y:number};
 
   constructor(private container: ElementRef, private modalService: NgbModal) {
   }
@@ -74,6 +78,14 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
     this.selfLinks(this.links);
     this.sameDirectionLinks(this.links);
+
+    if (UtilService.isUndefined(this.lastItem) || this.lastItem.getId() !== this.item.getId()) {
+      // reset position to 0, 0 if scenario changed or nothing was yet open
+      this.paperPos = {x: 0, y: 0};
+    }
+
+    this.paper.translate(this.paperPos.x, this.paperPos.y);
+    this.lastItem = this.item;
   }
 
   private initPaper() {
@@ -199,7 +211,8 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
 
   onMove(event: MouseEvent) {
     if (UtilService.isDefined(this.paper) && UtilService.isDefined(this.dragStartPosition)) {
-      this.paper.translate(event.offsetX - this.dragStartPosition.x, event.offsetY - this.dragStartPosition.y);
+      this.paperPos = {x: event.offsetX - this.dragStartPosition.x, y: event.offsetY - this.dragStartPosition.y};
+      this.paper.translate(this.paperPos.x, this.paperPos.y);
       //  var scale = V(paper.viewport).scale();
       // dragStartPosition = { x: x * scale.sx, y: y * scale.sy};
     }
