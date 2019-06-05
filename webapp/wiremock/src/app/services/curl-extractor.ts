@@ -31,7 +31,7 @@ export class CurlExtractor {
   }
 
   private static extractBody(request: LoggedRequest): string {
-    return '-d "' + request.body.replace(/\n/g, '') + '"';
+    return '-d \'' + request.body.replace(/\n/g, '') + '\'';
   }
 
   private static addVerbose(): string {
