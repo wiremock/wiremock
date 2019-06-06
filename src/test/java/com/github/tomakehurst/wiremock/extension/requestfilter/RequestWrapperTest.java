@@ -1,11 +1,9 @@
 package com.github.tomakehurst.wiremock.extension.requestfilter;
 
 import com.github.tomakehurst.wiremock.http.*;
-import com.github.tomakehurst.wiremock.matching.MockMultipart;
 import com.github.tomakehurst.wiremock.matching.MockRequest;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import java.util.List;
@@ -13,9 +11,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.common.Encoding.encodeBase64;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
-import static com.google.common.collect.Iterables.getFirst;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RequestWrapperTest {
@@ -141,6 +137,21 @@ public class RequestWrapperTest {
         assertThat(wrappedRequest.getCookies().size(), is(3));
         assertThat(wrappedRequest.getCookies().get("Two").firstValue(), is("2"));
         assertThat(wrappedRequest.getCookies().get("Three").firstValue(), is("3"));
+    }
+
+    @Test
+    public void removesSpecifiedCookies() {
+        MockRequest request = mockRequest()
+                .cookie("One", "1")
+                .cookie("Two", "2")
+                .cookie("Three", "3");
+
+        Request wrappedRequest = RequestWrapper.create()
+                .removeCookie("Two")
+                .wrap(request);
+
+        assertThat(wrappedRequest.getCookies().size(), is(2));
+        assertThat(wrappedRequest.getCookies().get("Two"), nullValue());
     }
 
     @Test

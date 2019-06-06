@@ -26,6 +26,7 @@ public class RequestWrapper implements Request {
     private final List<String> removedHeaders;
     private final Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers;
     private final Map<String, Cookie> additionalCookies;
+    private final List<String> cookiesToRemove;
     private final Map<String, FieldTransformer<Cookie>> cookieTransformers;
     private final FieldTransformer<Body> bodyTransformer;
     private final FieldTransformer<Part> multipartTransformer;
@@ -39,6 +40,7 @@ public class RequestWrapper implements Request {
                 Collections.<String>emptyList(),
                 Collections.<CaseInsensitiveKey, FieldTransformer<List<String>>>emptyMap(),
                 Collections.<String, Cookie>emptyMap(),
+                Collections.<String>emptyList(),
                 Collections.<String, FieldTransformer<Cookie>>emptyMap(),
                 null,
                 null
@@ -53,6 +55,7 @@ public class RequestWrapper implements Request {
             List<String> removedHeaders,
             Map<CaseInsensitiveKey, FieldTransformer<List<String>>> headerTransformers,
             Map<String, Cookie> additionalCookies,
+            List<String> cookiesToRemove,
             Map<String, FieldTransformer<Cookie>> cookieTransformers,
             FieldTransformer<Body> bodyTransformer,
             FieldTransformer<Part> multipartTransformer
@@ -65,6 +68,7 @@ public class RequestWrapper implements Request {
         this.removedHeaders = removedHeaders;
         this.headerTransformers = headerTransformers;
         this.additionalCookies = additionalCookies;
+        this.cookiesToRemove = cookiesToRemove;
         this.cookieTransformers = cookieTransformers;
         this.bodyTransformer = bodyTransformer;
         this.multipartTransformer = multipartTransformer;
@@ -179,7 +183,9 @@ public class RequestWrapper implements Request {
                     cookieTransformers.get(entry.getKey()).transform(entry.getValue()) :
                     entry.getValue();
 
-            builder.put(entry.getKey(), newCookie);
+            if (!cookiesToRemove.contains(entry.getKey())) {
+                builder.put(entry.getKey(), newCookie);
+            }
         }
 
         builder.putAll(additionalCookies);
@@ -297,7 +303,7 @@ public class RequestWrapper implements Request {
         }
 
         public Request wrap(Request request) {
-            return new RequestWrapper(request, requestMethod, absoluteUrlTransformer, additionalHeaders, headersToRemove, headerTransformers, additionalCookies, cookieTransformers, bodyTransformer, mutlipartTransformer);
+            return new RequestWrapper(request, requestMethod, absoluteUrlTransformer, additionalHeaders, headersToRemove, headerTransformers, additionalCookies, cookiesToRemove, cookieTransformers, bodyTransformer, mutlipartTransformer);
         }
 
         public Builder transformBody(FieldTransformer<Body> transformer) {
@@ -317,6 +323,11 @@ public class RequestWrapper implements Request {
 
         public Builder addCookie(String name, Cookie value) {
             additionalCookies.put(name, value);
+            return this;
+        }
+
+        public Builder removeCookie(String name) {
+            cookiesToRemove.add(name);
             return this;
         }
     }
