@@ -11,6 +11,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHeader;
@@ -57,7 +60,7 @@ public class RequestFilterAcceptanceTest {
         );
 
         wm.stubFor(get(url)
-                .withHeader("X-Modify-Me", equalTo("_ABC"))
+                .withHeader("X-Modify-Me", matching("_[ABC]{3}"))
                 .willReturn(ok()));
 
         WireMockResponse response = client.get(url, withHeader("X-Modify-Me", "_"));
@@ -183,17 +186,14 @@ public class RequestFilterAcceptanceTest {
 
         @Override
         public RequestFilterAction filter(Request request) {
-            Request newRequest = new RequestWrapper(request) {
-                @Override
-                public HttpHeader header(String key) {
-                    HttpHeader existingHeader = super.header(key);
-                    if (key.equals("X-Modify-Me")) {
-                        return new HttpHeader("X-Modify-Me", existingHeader.firstValue() + value);
-                    }
-
-                    return existingHeader;
-                }
-            };
+            Request newRequest = RequestWrapper.create()
+                    .transformHeader("X-Modify-Me", new FieldTransformer<List<String>>() {
+                        @Override
+                        public List<String> transform(List<String> existingValue) {
+                            return Collections.singletonList(existingValue.get(0) + value);
+                        }
+                    })
+                    .wrap(request);
 
             return RequestFilterAction.continueWith(newRequest);
         }

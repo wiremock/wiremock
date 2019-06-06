@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -77,5 +78,30 @@ public class MockMultipart implements Request.Part {
     @Override
     public Body getBody() {
         return body;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MockMultipart that = (MockMultipart) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(headers, that.headers) &&
+                Objects.equals(body, that.body);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, headers, body);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("MockMultipart{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", headers=").append(headers);
+        sb.append(", body=").append(body);
+        sb.append('}');
+        return sb.toString();
     }
 }
