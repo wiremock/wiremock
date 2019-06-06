@@ -28,6 +28,9 @@ import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -696,6 +699,90 @@ public class AdminApiTest extends AcceptanceTestBase {
         List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
         assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
         assertThat(stubs.size(), is(2));
+    }
+
+    static final String EMPTY_ID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"\",\n" +
+            "      \"name\": \"Empty ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullIdFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_ID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    static final String EMPTY_UUID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"27d7818b-4df6-4630-a6ab-c50e87e384e1\",\n" +
+            "      \"uuid\": \"\",\n" +
+            "      \"name\": \"Empty UUID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": \"95b5c478-eb39-4bad-ba55-a336dbfeaa53\",\n" +
+            "      \"uuid\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullUuidFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_UUID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    private static final Matcher<StubMapping> hasIdAndUuid() {
+        return new TypeSafeMatcher<StubMapping>() {
+            @Override
+            protected boolean matchesSafely(StubMapping stub) {
+                return stub.getId() != null && stub.getUuid() != null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub with a non-null ID and UUID");
+            }
+        };
     }
 
     final String SETTINGS_JSON = "{\n" +
