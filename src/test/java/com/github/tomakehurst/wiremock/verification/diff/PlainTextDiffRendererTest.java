@@ -32,8 +32,11 @@ import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
 import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.file;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
+import static com.github.tomakehurst.wiremock.verification.diff.JUnitStyleDiffRenderer.junitStyleDiffMessage;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PlainTextDiffRendererTest {
@@ -386,6 +389,23 @@ public class PlainTextDiffRendererTest {
         System.out.println(output);
 
         assertThat(output, equalsMultiLine(file("not-found-diff-sample_only-custom_matcher.txt")));
+    }
+
+
+    @Test
+    public void handlesUrlsWithQueryStringAndNoPath() {
+        Diff diff = new Diff(
+                newRequestPattern(GET, urlMatching("/?q=correct"))
+                        .build(),
+                mockRequest()
+                        .method(GET)
+                        .url("/q=wrong")
+        );
+
+        String output = diffRenderer.render(diff);
+        System.out.println(output);
+
+        assertThat(output, equalsMultiLine(file("not-found-diff-sample_no-path.txt")));
     }
 
     public static class MyCustomMatcher extends RequestMatcherExtension {

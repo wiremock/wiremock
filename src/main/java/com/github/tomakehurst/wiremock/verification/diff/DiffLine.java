@@ -80,6 +80,10 @@ class DiffLine<V> {
             return true;
         }
 
+        if (index < 2) {
+            return false;
+        }
+
         String sub = s.substring(index - 2, index);
         return sub.equals("\\\\");
     }
