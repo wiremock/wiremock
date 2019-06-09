@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.admin.NotFoundException;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
 import com.github.tomakehurst.wiremock.common.NotPermittedException;
+import com.github.tomakehurst.wiremock.common.Urls;
 import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.security.Authenticator;
@@ -74,7 +75,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         }
 
         notifier().info("Admin request received:\n" + formatRequest(request));
-        String path = URI.create(withoutAdminRoot(request.getUrl())).getPath();
+        String path = Urls.getPath(withoutAdminRoot(request.getUrl()));
 
         try {
             AdminTask adminTask = adminRoutes.taskFor(request.getMethod(), path);

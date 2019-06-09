@@ -37,6 +37,7 @@ import static com.github.tomakehurst.wiremock.testsupport.TestHttpHeader.withHea
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalsMultiLine;
 import static com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer.CONSOLE_WIDTH_HEADER_KEY;
 import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -154,8 +155,18 @@ public class NotMatchedPageAcceptanceTest {
         assertThat(response.content(), is("No you don't!"));
     }
 
+    @Test
+    public void returns404AndDiffReportWhenPlusSymbolInQuery() {
+        configure();
+
+        WireMockResponse response = testClient.get("/some/api/records?sort=updated+asc&filter_updated_gt=2019-01-02");
+
+        assertThat(response.statusCode(), is(404));
+        assertThat(response.content(), containsString("No response could be served"));
+    }
+
     private void configure() {
-        configure(WireMockConfiguration.wireMockConfig());
+        configure(WireMockConfiguration.wireMockConfig().dynamicPort());
     }
 
     private void configure(WireMockConfiguration options) {
