@@ -224,7 +224,7 @@ public class Diff {
 
         try {
             return pattern.getClass().equals(EqualToJsonPattern.class) ?
-                Json.prettyPrint(body.asString()) :
+                Json.prettyPrint(Json.write(body.asJson())) :
                 pattern.getClass().equals(EqualToXmlPattern.class) ?
                     Xml.prettyPrint(body.asString()) :
                     pattern.getClass().equals(BinaryEqualToPattern.class) ?

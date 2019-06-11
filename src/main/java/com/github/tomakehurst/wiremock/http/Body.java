@@ -32,6 +32,7 @@ public class Body {
 
     private final byte[] content;
     private final boolean binary;
+    private final boolean json;
 
     public Body(byte[] content) {
         this(content, true);
@@ -40,16 +41,19 @@ public class Body {
     private Body(byte[] content, boolean binary) {
         this.content = content;
         this.binary = binary;
+        json = false;
     }
 
     public Body(String content) {
         this.content = Strings.bytesFromString(content);
         binary = false;
+        json = false;
     }
 
     public Body(JsonNode content) {
         this.content = Json.toByteArray(content);
         binary = false;
+        json = true;
     }
 
     static Body fromBytes(byte[] bytes) {
@@ -93,6 +97,12 @@ public class Body {
         return binary;
     }
 
+    public JsonNode asJson() {return Json.node(asString()); }
+
+    public boolean isJson() {
+        return json;
+    }
+
     public boolean isAbsent() {
         return content == null;
     }
@@ -120,6 +130,7 @@ public class Body {
         return "Body {" +
                 "content=" + asString() +
                 ", binary=" + binary +
+                ", json=" + json+
                 '}';
     }
 }

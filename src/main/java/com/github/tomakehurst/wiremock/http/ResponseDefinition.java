@@ -239,7 +239,7 @@ public class ResponseDefinition {
     }
 
     public String getBody() {
-        return !body.isBinary() ? body.asString() : null;
+        return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
     }
 
     @JsonIgnore
@@ -254,6 +254,11 @@ public class ResponseDefinition {
 
     public String getBase64Body() {
         return body.isBinary() ? body.asBase64() : null;
+    }
+
+    public JsonNode getJsonBody() {
+
+        return body.isJson() ? body.asJson(): null;
     }
 
     public String getBodyFileName() {
@@ -376,4 +381,6 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
+
+
 }
