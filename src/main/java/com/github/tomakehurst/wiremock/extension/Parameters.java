@@ -44,7 +44,4 @@ public class Parameters extends Metadata {
         return from(Json.objectToMap(myData));
     }
 
-    public <T> T as(Class<T> myDataClass) {
-        return Json.mapToObject(this, myDataClass);
-    }
 }
