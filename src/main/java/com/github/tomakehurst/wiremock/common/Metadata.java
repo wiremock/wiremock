@@ -88,8 +88,16 @@ public class Metadata extends LinkedHashMap<String, Object> {
         checkArgument(containsKey(key), key + "' not present");
     }
 
+    public static <T> Metadata from(T myData) {
+        return new Metadata(Json.objectToMap(myData));
+    }
+
     public static Builder metadata() {
         return new Builder();
+    }
+
+    public <T> T as(Class<T> myDataClass) {
+        return Json.mapToObject(this, myDataClass);
     }
 
     public static class Builder {
