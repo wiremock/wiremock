@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.http.DelayDistribution;
 import com.github.tomakehurst.wiremock.http.UniformDistribution;
@@ -832,7 +833,27 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name, is("abc"));
     }
 
+    final String EXTENDED_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"one\": 11,\n" +
+            "    \"three\": 3\n" +
+            "  }\n" +
+            "}";
 
+    @Test
+    public void patchExtendedGlobalSettings() {
+        wireMockServer.updateGlobalSettings(GlobalSettings.builder()
+                .extended(Parameters.one("two", 2))
+                .build());
+
+        WireMockResponse response = testClient.patchWithBody("/__admin/settings/extended", EXTENDED_JSON, "application/json");
+        assertThat(response.statusCode(), is(200));
+
+        Parameters extended = wireMockServer.getGlobalSettings().getSettings().getExtended();
+        assertThat(extended.getInt("one"), is(11));
+        assertThat(extended.getInt("two"), is(2));
+        assertThat(extended.getInt("three"), is(3));
+    }
 
     static final String STUB_IMPORT_JSON = "{\n" +
             "  \"mappings\": [\n" +
