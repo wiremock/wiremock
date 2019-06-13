@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.admin.tasks;
 
 import com.github.tomakehurst.wiremock.admin.AdminTask;
+import com.github.tomakehurst.wiremock.admin.model.GetGlobalSettingsResult;
 import com.github.tomakehurst.wiremock.admin.model.PathParams;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.core.Admin;
@@ -27,7 +28,13 @@ public class GlobalSettingsUpdateTask implements AdminTask {
 
     @Override
     public ResponseDefinition execute(Admin admin, Request request, PathParams pathParams) {
-        GlobalSettings newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
+        GlobalSettings newSettings;
+        try {
+            newSettings = Json.read(request.getBodyAsString(), GlobalSettings.class);
+        } catch (Exception e) {
+            newSettings = Json.read(request.getBodyAsString(), GetGlobalSettingsResult.class).getSettings();
+        }
+
         admin.updateGlobalSettings(newSettings);
         return ResponseDefinition.ok();
     }

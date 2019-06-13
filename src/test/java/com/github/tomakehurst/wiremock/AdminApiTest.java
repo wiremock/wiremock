@@ -20,6 +20,9 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -30,6 +33,7 @@ import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Test;
@@ -799,6 +803,37 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
     }
 
+    final String WRAPPED_SETTINGS_JSON = "{\n" +
+            "  \"settings\": {\n" +
+            "    \"delayDistribution\": {\n" +
+            "      \"type\": \"uniform\",\n" +
+            "      \"lower\": 100,\n" +
+            "      \"upper\": 300\n" +
+            "    },\n" +
+            "\n" +
+            "    \"extended\": {\n" +
+            "      \"one\": 1,\n" +
+            "      \"two\": {\n" +
+            "        \"name\": \"abc\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPutWithWrapper() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", WRAPPED_SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+
+        GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
+        assertThat(settings.getDelayDistribution(), Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+        assertThat(settings.getExtended().getInt("one"), is(1));
+        assertThat(settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name, is("abc"));
+    }
+
+
+
     static final String STUB_IMPORT_JSON = "{\n" +
             "  \"mappings\": [\n" +
             "    {\n" +
@@ -836,6 +871,10 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
         assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
 
+    }
+
+    public static class TestExtendedSettingsData {
+        public String name;
     }
 
 }
