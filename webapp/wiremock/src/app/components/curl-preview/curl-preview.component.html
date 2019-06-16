@@ -1,9 +1,18 @@
-<div class="curl-container">
-  <div class="curl-editor-container">
-    <wm-code-editor #editor [code]="curlString" [language]="'ini'"></wm-code-editor>
-  </div>
+<div class="modal-header">
+  <h4 class="modal-title">Edit cURL</h4>
+  <button type="button" class="close" aria-label="Close" tabindex="-1" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <wm-code-editor #editor [code]="curlString" [language]="'ini'"></wm-code-editor>
+</div>
+<div class="modal-footer">
   <button type="button" class="btn btn-secondary" (click)="copyCurl()">
     <fa-icon icon="copy"></fa-icon>
     Copy cURL
   </button>
 </div>
+
+
+

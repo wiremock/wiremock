@@ -44,7 +44,7 @@ export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, A
 
   copyCurl() {
     this.activeModal.dismiss();
-    if (UtilService.copyToClipboard(this.curlString)) {
+    if (UtilService.copyToClipboard(this.codeEditor.getCode())) {
       this.messageService.setMessage(new Message('Curl copied to clipboard', MessageType.INFO, 3000));
     } else {
       this.messageService.setMessage(new Message('Was not able to copy. Details in log', MessageType.ERROR, 10000));
