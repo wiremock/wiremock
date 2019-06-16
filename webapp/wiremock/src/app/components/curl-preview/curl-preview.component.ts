@@ -66,7 +66,7 @@ export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, A
 
     if (!this.visible && UtilService.isDefined(offsetParent) && offsetParent.offsetParent !== document.body) {
       this.visible = true;
-      this.codeEditor.editor.getEditor().resize();
+      this.codeEditor.resize();
     }
   }
 }

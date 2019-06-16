@@ -50,6 +50,7 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
     mergeUndoDeltas: 'true',
     behavioursEnabled: true,
     wrapBehavioursEnabled: true,
+    copyWithEmptySelection: true,
     autoScrollEditorIntoView: true, // we need that
     useSoftTabs: true,
     // ...
@@ -69,13 +70,14 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
 
   codeReadonOnlyOptions = {
     selectionStyle: 'text',
-    highlightActiveLine: false, // readOnly
+    highlightActiveLine: true, // readOnly
     highlightSelectedWord: true,
     readOnly: true, // readOnly
     cursorStyle: 'ace',
     mergeUndoDeltas: 'true',
     behavioursEnabled: true,
     wrapBehavioursEnabled: true,
+    copyWithEmptySelection: true,
     autoScrollEditorIntoView: true, // we need that
     useSoftTabs: true,
     // ...
@@ -128,6 +130,14 @@ export class MappingsComponent implements OnInit, OnDestroy, WebSocketListener {
       err => {
         UtilService.showErrorMessage(this.messageService, err);
       });
+  }
+
+  editorValueChange(value: string) {
+    if (this.editMode === State.NEW) {
+      this.newMappingText = value;
+    } else if (this.editMode === State.EDIT) {
+      this.editMappingText = value;
+    }
   }
 
   newMapping() {

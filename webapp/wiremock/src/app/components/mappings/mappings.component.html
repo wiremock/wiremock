@@ -151,6 +151,7 @@
         <wm-code-editor #editor
                         [code]="editMode === State.NORMAL ? activeItem?.getCode() : editMode === State.NEW ? newMappingText : editMappingText"
                         [language]="'json'" [options]="editMode === State.NORMAL ? codeReadonOnlyOptions : codeOptions"
+                        (valueChange)="editorValueChange($event)"
                         (window:keydown.control.s)="saveViaKeyboard($event, activeItem)"
                         (window:keydown.control.e)="editViaKeyboard($event, activeItem)"
                         (window:keydown.esc)="abortViaKeyboard($event)"></wm-code-editor>

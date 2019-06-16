@@ -54,7 +54,6 @@ import {MessageComponent} from './components/message/message.component';
 import {MessageService} from './components/message/message.service';
 import {DialogRecordingComponent} from './dialogs/dialog-recording/dialog-recording.component';
 import {SearchService} from './services/search.service';
-import {AceEditorModule} from 'ng2-ace-editor';
 import {CodeEditorComponent} from './components/code-editor/code-editor.component';
 import {StateComponent} from './components/state/state.component';
 import {StateMachineComponent} from './components/state-machine/state-machine.component';
@@ -120,8 +119,7 @@ library.add(faCamera);
     FontAwesomeModule,
     HttpClientModule,
     ReactiveFormsModule,
-    FormsModule,
-    AceEditorModule
+    FormsModule
   ],
   providers: [WiremockService, WebSocketService, MessageService, SearchService, NgbModal],
   bootstrap: [AppComponent],

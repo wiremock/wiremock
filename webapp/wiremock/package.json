@@ -42,7 +42,7 @@
     "jointjs": "2.2.1",
     "jquery": "3.3.1",
     "moment": "2.24.0",
-    "ng2-ace-editor": "^0.3.8",
+    "ace-builds": "^1.4.4",
     "rxjs": "^6.0.0",
     "vkbeautify": "^0.99.3",
     "query-string": "^6.5.0",
