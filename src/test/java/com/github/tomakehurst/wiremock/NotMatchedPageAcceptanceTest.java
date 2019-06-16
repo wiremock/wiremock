@@ -160,6 +160,7 @@ public class NotMatchedPageAcceptanceTest {
         configure();
 
         WireMockResponse response = testClient.get("/some/api/records?sort=updated+asc&filter_updated_gt=2019-01-02");
+        System.err.println(response.content());
 
         assertThat(response.statusCode(), is(404));
         assertThat(response.content(), containsString("No response could be served"));
