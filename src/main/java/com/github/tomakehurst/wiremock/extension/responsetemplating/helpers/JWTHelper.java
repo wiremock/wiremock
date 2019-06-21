@@ -6,11 +6,15 @@ import com.github.jknack.handlebars.Options;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
@@ -41,39 +45,51 @@ public class JWTHelper extends HandlebarsHelper<Object> {
         }
 
         try {
-            return OBJECT_MAPPER.readValue(json, new TypeReference<HashMap<String, Object>>() {});
+            return OBJECT_MAPPER.readValue(json, new TypeReference<HashMap<String, Object>>() {
+            });
         } catch (IOException e) {
             e.printStackTrace();
             return new HashMap<>();
         }
     }
 
-    private String createJWT(final SignatureAlgorithm signatureAlgorithm, final String apiKey,
+    private String createJWT(SignatureAlgorithm signatureAlgorithm, final String apiKey,
                              final Map<String, Object> claims,
                              final String payload,
                              final Map<String, Object> header) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
-        if (!signatureAlgorithm.isJdkStandard()) {
-            throw new IllegalStateException("Not a JDK standard which is not supported");
+        if (signatureAlgorithm == null) {
+            signatureAlgorithm = SignatureAlgorithm.NONE;
         }
 
-        byte[] apiKeyBytes = DatatypeConverter.parseBase64Binary(apiKey);
+        final JwtBuilder jwtBuilder = Jwts.builder();
 
-        Key key;
-        switch (signatureAlgorithm.getFamilyName()){
-            case "HMAC":
-                key = new SecretKeySpec(apiKeyBytes, signatureAlgorithm.getJcaName());
-                break;
-            case "RSA":
-            case "ECDSA":
-            default:
-                final KeyFactory keyFactory = KeyFactory.getInstance(signatureAlgorithm.getFamilyName());
-                key = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(apiKeyBytes));
-                break;
+        if (signatureAlgorithm != SignatureAlgorithm.NONE) {
+
+            if (StringUtils.isBlank(apiKey)) {
+                throw new IllegalStateException("key must not be empty in case algo is defined");
+            }
+
+            byte[] apiKeyBytes = DatatypeConverter.parseBase64Binary(apiKey);
+
+            Key key;
+            switch (signatureAlgorithm.getFamilyName()) {
+                case "HMAC":
+                    key = new SecretKeySpec(apiKeyBytes, signatureAlgorithm.getJcaName());
+                    break;
+                case "ECDSA":
+                    final KeyFactory ecdsaKf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
+                    key = ecdsaKf.generatePrivate(new PKCS8EncodedKeySpec(apiKeyBytes));
+                    break;
+                case "RSA":
+                default:
+                    final KeyFactory rsaKf = KeyFactory.getInstance(signatureAlgorithm.getFamilyName());
+                    key = rsaKf.generatePrivate(new PKCS8EncodedKeySpec(apiKeyBytes));
+                    break;
+            }
+
+            jwtBuilder.signWith(key, signatureAlgorithm);
         }
-
-        final JwtBuilder jwtBuilder = Jwts.builder().signWith(key, signatureAlgorithm);
-
 
         if (claims != null && !claims.isEmpty()) {
             jwtBuilder.setClaims(claims);
