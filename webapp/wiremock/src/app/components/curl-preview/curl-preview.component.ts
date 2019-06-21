@@ -36,7 +36,7 @@ export class CurlPreviewComponent implements OnInit, OnChanges, AfterViewInit, A
     }
   }
 
-  constructor(private elementRef: ElementRef, private messageService:MessageService, private activeModal: NgbActiveModal) {
+  constructor(private elementRef: ElementRef, private messageService:MessageService, public activeModal: NgbActiveModal) {
   }
 
   ngOnInit() {

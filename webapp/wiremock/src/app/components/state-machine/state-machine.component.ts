@@ -48,7 +48,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   private links: StateLink[];
 
   private dragStartPosition = null;
-  private space = false;
+  space = false;
 
   private paperPos: {x:number, y:number};
 
