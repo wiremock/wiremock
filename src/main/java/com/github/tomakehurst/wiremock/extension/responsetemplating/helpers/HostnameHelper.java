@@ -20,10 +20,10 @@ import com.github.jknack.handlebars.Options;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class HostnameHelper extends HandlebarsHelper<Void> {
+public class HostnameHelper extends HandlebarsHelper<Object> {
 
     @Override
-    public Object apply(Void context, Options options) throws IOException {
+    public Object apply(Object context, Options options) throws IOException {
         return InetAddress.getLocalHost().getHostName();
     }
 }

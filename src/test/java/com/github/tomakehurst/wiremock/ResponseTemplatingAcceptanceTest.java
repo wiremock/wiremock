@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(Enclosed.class)
@@ -40,8 +40,8 @@ public class ResponseTemplatingAcceptanceTest {
 
         @Rule
         public WireMockRule wm = new WireMockRule(options()
-            .dynamicPort()
-            .extensions(new ResponseTemplateTransformer(false))
+                .dynamicPort()
+                .extensions(new ResponseTemplateTransformer(false))
         );
 
         @Before
@@ -52,9 +52,9 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void appliesResponseTemplateWhenAddedToStubMapping() {
             wm.stubFor(get(urlPathEqualTo("/templated"))
-                .willReturn(aResponse()
-                    .withBody("{{request.path.[0]}}")
-                    .withTransformers("response-template")));
+                    .willReturn(aResponse()
+                            .withBody("{{request.path.[0]}}")
+                            .withTransformers("response-template")));
 
             assertThat(client.get("/templated").content(), is("templated"));
         }
@@ -62,8 +62,8 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void doesNotApplyResponseTemplateWhenNotAddedToStubMapping() {
             wm.stubFor(get(urlPathEqualTo("/not-templated"))
-                .willReturn(aResponse()
-                    .withBody("{{request.path.[0]}}")));
+                    .willReturn(aResponse()
+                            .withBody("{{request.path.[0]}}")));
 
             assertThat(client.get("/not-templated").content(), is("{{request.path.[0]}}"));
         }
@@ -75,9 +75,9 @@ public class ResponseTemplatingAcceptanceTest {
 
         @Rule
         public WireMockRule wm = new WireMockRule(options()
-            .dynamicPort()
-            .withRootDirectory(defaultTestFilesRoot())
-            .extensions(new ResponseTemplateTransformer(true))
+                .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
+                .extensions(new ResponseTemplateTransformer(true))
         );
 
         @Before
@@ -88,8 +88,8 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void appliesResponseTemplate() {
             wm.stubFor(get(urlPathEqualTo("/templated"))
-                .willReturn(aResponse()
-                    .withBody("{{request.path.[0]}}")));
+                    .willReturn(aResponse()
+                            .withBody("{{request.path.[0]}}")));
 
             assertThat(client.get("/templated").content(), is("templated"));
         }
@@ -97,8 +97,8 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void appliesToResponseBodyFromFile() {
             wm.stubFor(get(urlPathEqualTo("/templated"))
-                .willReturn(aResponse()
-                    .withBodyFile("templated-example.txt")));
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example.txt")));
 
             assertThat(client.get("/templated").content(), is("templated"));
         }
@@ -106,13 +106,40 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void copesWithBase64BodiesWithoutTemplateElements() {
             wm.stubFor(get(urlMatching("/documents/document/.+"))
-                .willReturn(ok()
-                    .withBase64Body("JVBERi0xLjEKJcKlwrHDqwoKMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCgoyIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2VzCiAgICAgL0tpZHMgWzMgMCBSXQogICAgIC9Db3VudCAxCiAgICAgL01lZGlhQm94IFswIDAgMzAwIDE0NF0KICA+PgplbmRvYmoKCjMgMCBvYmoKICA8PCAgL1R5cGUgL1BhZ2UKICAgICAgL1BhcmVudCAyIDAgUgogICAgICAvUmVzb3VyY2VzCiAgICAgICA8PCAvRm9udAogICAgICAgICAgIDw8IC9GMQogICAgICAgICAgICAgICA8PCAvVHlwZSAvRm9udAogICAgICAgICAgICAgICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAgICAgICAgICAgICAgL0Jhc2VGb250IC9UaW1lcy1Sb21hbgogICAgICAgICAgICAgICA+PgogICAgICAgICAgID4+CiAgICAgICA+PgogICAgICAvQ29udGVudHMgNCAwIFIKICA+PgplbmRvYmoKCjQgMCBvYmoKICA8PCAvTGVuZ3RoIDU1ID4+CnN0cmVhbQogIEJUCiAgICAvRjEgMTggVGYKICAgIDAgMCBUZAogICAgKEhlbGxvIFdvcmxkKSBUagogIEVUCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxNzggMDAwMDAgbiAKMDAwMDAwMDQ1NyAwMDAwMCBuIAp0cmFpbGVyCiAgPDwgIC9Sb290IDEgMCBSCiAgICAgIC9TaXplIDUKICA+PgpzdGFydHhyZWYKNTY1CiUlRU9GCg=="))
+                    .willReturn(ok()
+                            .withBase64Body("JVBERi0xLjEKJcKlwrHDqwoKMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCgoyIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2VzCiAgICAgL0tpZHMgWzMgMCBSXQogICAgIC9Db3VudCAxCiAgICAgL01lZGlhQm94IFswIDAgMzAwIDE0NF0KICA+PgplbmRvYmoKCjMgMCBvYmoKICA8PCAgL1R5cGUgL1BhZ2UKICAgICAgL1BhcmVudCAyIDAgUgogICAgICAvUmVzb3VyY2VzCiAgICAgICA8PCAvRm9udAogICAgICAgICAgIDw8IC9GMQogICAgICAgICAgICAgICA8PCAvVHlwZSAvRm9udAogICAgICAgICAgICAgICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAgICAgICAgICAgICAgL0Jhc2VGb250IC9UaW1lcy1Sb21hbgogICAgICAgICAgICAgICA+PgogICAgICAgICAgID4+CiAgICAgICA+PgogICAgICAvQ29udGVudHMgNCAwIFIKICA+PgplbmRvYmoKCjQgMCBvYmoKICA8PCAvTGVuZ3RoIDU1ID4+CnN0cmVhbQogIEJUCiAgICAvRjEgMTggVGYKICAgIDAgMCBUZAogICAgKEhlbGxvIFdvcmxkKSBUagogIEVUCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxNzggMDAwMDAgbiAKMDAwMDAwMDQ1NyAwMDAwMCBuIAp0cmFpbGVyCiAgPDwgIC9Sb290IDEgMCBSCiAgICAgIC9TaXplIDUKICA+PgpzdGFydHhyZWYKNTY1CiUlRU9GCg=="))
             );
 
             WireMockResponse response = client.get("/documents/document/123");
 
             assertThat(response.statusCode(), is(200));
+        }
+
+        @Test
+        public void appliesResponseTemplateWithHostname() {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{hostname}}")));
+
+            assertThat(client.get("/templated").content(), notNullValue());
+        }
+
+        @Test
+        public void appliesResponseTemplateShouldEmptyWithNonExistingSystemValue() {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{systemValue type='ENVIRONMENT' key='TEST'}}")));
+
+            assertThat(client.get("/templated").content(), isEmptyOrNullString());
+        }
+
+        @Test
+        public void appliesResponseTemplateShouldNotEmptyWithExistingSystemValue() {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
+
+            assertThat(client.get("/templated").content(), notNullValue());
         }
     }
 }

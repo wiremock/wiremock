@@ -62,15 +62,15 @@ public enum WireMockHelpers implements Helper<Object> {
         private HostnameHelper helper = new HostnameHelper();
 
         @Override
-        public Object apply(final Object context, final Options options) throws IOException {
-            return this.helper.apply(null, options);
+        public Object apply(Object context, Options options) throws IOException {
+            return this.helper.apply(context, options);
         }
     },
-    systemEnv {
-        private SystemEnvHelper helper = new SystemEnvHelper();
+    systemValue {
+        private SystemValueHelper helper = new SystemValueHelper();
 
         @Override
-        public Object apply(final Object context, final Options options) throws IOException {
+        public Object apply(Object context, Options options) throws IOException {
             return this.helper.apply(null, options);
         }
     },
