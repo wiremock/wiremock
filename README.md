@@ -31,11 +31,23 @@ Key Features
      - Help to start recording or snapshot
 -	Auto refresh when mappings or requests changes
 
-How to open?
+Where do I find the GUI?
 ------------
 The gui is part of the Wiremock admin interface. Therefore, just open the following URL: 
 
 \<Wiremock baseUrl\>/__admin/webapp
+
+Features except gui
+------------
+Custom Handlebars helpers
+
+| Name          | Parameter     | Description   |
+| ------------- | ------------- | ------------- |
+| JWT           | algo          | Signing algorithm. Check jsonwebtoken for SignatureAlgorithm. E.g. RS256 |
+|               | key           | Base64 encoded key to use. Kind of key depends on used algo |
+|               | claims        | a json string which describes the claims to use. Must not be null in case no payload is defined |
+|               | payload       | a json string which contains the content of the jwt. Must not be null in case no claims are defined |
+|               | header        | a json string which contains the header to use |
 
 Images
 ------------
