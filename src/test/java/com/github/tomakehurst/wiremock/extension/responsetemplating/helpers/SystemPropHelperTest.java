@@ -25,43 +25,52 @@ import org.junit.Test;
 import java.io.IOException;
 import java.security.AccessControlException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-public class SystemEnvHelperTest {
+public class SystemPropHelperTest {
 
-    private SystemEnvHelper helper;
+    private SystemPropHelper helper;
 
     @Before
     public void init() {
-        helper = new SystemEnvHelper();
+        helper = new SystemPropHelper();
 
         LocalNotifier.set(new ConsoleNotifier(true));
     }
 
     @Test
-    public void getExistingEnvironmentVariableShouldNotNull() throws Exception {
-        String output = render("OS");
-        assertNotNull(output);
-        assertTrue(output.length() > 0);
+    public void getEmptyKeyShouldReturnError() throws Exception {
+        String value = render("");
+        assertEquals("[ERROR: The property name cannot be empty]", value);
     }
 
     @Test
-    public void getNonExistingEnvironmentVariableShouldNull() throws Exception {
-        String output = render("NON_EXISTING_VAR");
-        assertNull(output);
+    public void getAllowedPropertyShouldSuccess() throws Exception {
+        System.setProperty("test.key", "aaa");
+        assertEquals("aaa", System.getProperty("test.key"));
+
+        String value = render("test.key");
+        assertEquals("aaa", value);
     }
 
     @Test
-    public void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
+    public void getForbiddenPropertyShouldReturnError() throws Exception {
+        System.setProperty("test.key", "aaa");
         System.setSecurityManager(new SecurityManager() {
-            public void checkSecurityAccess(String target) {
-                if (StringUtils.equals(target, "TEST_VAR"))
+            public void checkPropertyAccess(String key) {
+                if (StringUtils.equals(key, "test.key"))
                     throw new AccessControlException("Access denied");
             }
         });
+        String value = render("test.key");
+        assertEquals("[ERROR: Access to property test.key is denied]", value);
+    }
 
-        String value = render("TEST_VAR");
-        assertEquals("[ERROR: Access to variable TEST_VAR is denied]", value);
+    @Test
+    public void getNonExistingSystemPropertyShouldNull() throws Exception {
+        String output = render("not.existing.prop");
+        assertNull(output);
     }
 
     private String render(String variableName) throws IOException {

@@ -23,26 +23,25 @@ import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-public class SystemEnvHelper extends HandlebarsHelper<String> {
+public class SystemPropHelper extends HandlebarsHelper<String> {
 
     @Override
-    public String apply(final String variableName, final Options options) throws IOException {
-        if (StringUtils.isEmpty(variableName)) {
-            return this.handleError("The variable name cannot be empty");
+    public String apply(final String propertyName, final Options options) throws IOException {
+        if (StringUtils.isEmpty(propertyName)) {
+            return this.handleError("The property name cannot be empty");
         }
         try {
-            return getSystemEnvironment(variableName);
-
+            return getSystemProperties(propertyName);
         } catch (AccessControlException e) {
-            return this.handleError("Access to variable " + variableName + " is denied");
+            return this.handleError("Access to property " + propertyName + " is denied");
         }
     }
 
-    private String getSystemEnvironment(final String variable) {
+    private String getSystemProperties(final String key) {
         return AccessController.doPrivileged(new PrivilegedAction<String>() {
             @Override
             public String run() {
-                return System.getenv(variable);
+                return System.getProperty(key);
             }
         });
     }

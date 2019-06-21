@@ -316,14 +316,16 @@ Random strings of various kinds can be generated:
 ```
 {% endraw %}
 
-## Hostname and SystemEnv helpers
-A helper is present to render the current hostname/system environment variable value which can be used in container.
+## Hostname, SystemEnv and SystemProp helpers
+A helper is present to render the current hostname/system environment variable/system property value which can be used in container.
  
 {% raw %}
 ```
 {{hostname}}
 {{systemEnv PATH}}
 {{systemEnv JAVA_HOME}}
+{{systemProp os}}
+{{systemProp os.path}}
 ```
 {% endraw %}
 
