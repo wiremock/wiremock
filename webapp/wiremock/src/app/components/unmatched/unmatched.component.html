@@ -15,9 +15,9 @@
           Copy cURL
         </button>
         <div class="btn-group" ngbDropdown role="group" placement="bottom-right">
-          <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>
+          <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle [disabled]="!activeItem"></button>
           <div ngbDropdownMenu class="dropdown-menu">
-            <button type="button" class="dropdown-item" (click)="editCurl(activeItem)">
+            <button type="button" class="dropdown-item" [disabled]="!activeItem" (click)="editCurl(activeItem)">
               <fa-icon icon="pencil-alt"></fa-icon>
               Edit cURL
             </button>
