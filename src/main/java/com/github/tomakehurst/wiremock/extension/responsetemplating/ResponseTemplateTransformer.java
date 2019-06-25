@@ -171,10 +171,27 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             newResponseDefBuilder.withHeaders(new HttpHeaders(newResponseHeaders));
         }
 
+        if (responseDefinition.getAdditionalProxyRequestHeaders() != null) {
+            Iterable<HttpHeader> additionalRequestHeaders = Iterables.transform(responseDefinition.getAdditionalProxyRequestHeaders().all(), new Function<HttpHeader, HttpHeader>() {
+                @Override
+                public HttpHeader apply(final HttpHeader header) {
+                    ImmutableList.Builder<String> valueListBuilder = ImmutableList.builder();
+                    int index = 0;
+                    for (String headerValue: header.values()) {
+                        HandlebarsOptimizedTemplate template = getTemplate(TemplateCacheKey.forHeader(responseDefinition, header.key(), index++), headerValue);
+                        valueListBuilder.add(uncheckedApplyTemplate(template, model));
+                    }
+
+                    return new HttpHeader(header.key(), valueListBuilder.build());
+                }
+            });
+            newResponseDefBuilder.withAdditionalProxyRequestHeaders(new HttpHeaders(additionalRequestHeaders));
+        }
+
         if (responseDefinition.getProxyBaseUrl() != null) {
             HandlebarsOptimizedTemplate proxyBaseUrlTemplate = getTemplate(TemplateCacheKey.forProxyUrl(responseDefinition), responseDefinition.getProxyBaseUrl());
             String newProxyBaseUrl = uncheckedApplyTemplate(proxyBaseUrlTemplate, model);
-            newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
+            newResponseDefBuilder = newResponseDefBuilder.proxiedFrom(newProxyBaseUrl);
         }
 
         return newResponseDefBuilder.build();
