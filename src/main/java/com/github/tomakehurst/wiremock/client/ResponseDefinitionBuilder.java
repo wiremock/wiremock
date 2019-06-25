@@ -40,6 +40,7 @@ public class ResponseDefinitionBuilder {
     protected String base64Body;
     protected String bodyFileName;
     protected List<HttpHeader> headers = newArrayList();
+    protected List<HttpHeader> additionalRequestHeaders = newArrayList();
     protected Integer fixedDelayMilliseconds;
     protected DelayDistribution delayDistribution;
     protected ChunkedDribbleDelay chunkedDribbleDelay;
@@ -54,6 +55,7 @@ public class ResponseDefinitionBuilder {
         builder.status = responseDefinition.getStatus();
         builder.statusMessage = responseDefinition.getStatusMessage();
         builder.headers = responseDefinition.getHeaders() != null ? newArrayList(responseDefinition.getHeaders().all()) : Lists.<HttpHeader>newArrayList();
+        builder.additionalRequestHeaders = responseDefinition.getAdditionalProxyRequestHeaders() != null ? newArrayList(responseDefinition.getAdditionalProxyRequestHeaders().all()) : Lists.<HttpHeader>newArrayList();
         builder.binaryBody = responseDefinition.getByteBodyIfBinary();
         builder.stringBody = responseDefinition.getBody();
         builder.base64Body = responseDefinition.getBase64Body();
@@ -180,12 +182,11 @@ public class ResponseDefinitionBuilder {
 
     public static class ProxyResponseDefinitionBuilder extends ResponseDefinitionBuilder {
 
-        private List<HttpHeader> additionalRequestHeaders = newArrayList();
-
         public ProxyResponseDefinitionBuilder(ResponseDefinitionBuilder from) {
             this.status = from.status;
             this.statusMessage = from.statusMessage;
             this.headers = from.headers;
+            this.additionalRequestHeaders = from.additionalRequestHeaders;
             this.binaryBody = from.binaryBody;
             this.stringBody = from.stringBody;
             this.jsonBody = from.jsonBody;
