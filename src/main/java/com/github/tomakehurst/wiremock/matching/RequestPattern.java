@@ -27,6 +27,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -262,10 +263,13 @@ public class RequestPattern implements NamedValueMatcher<Request> {
                     @Override
                     public MatchResult apply(ContentPattern pattern) {
                         if (StringValuePattern.class.isAssignableFrom(pattern.getClass())) {
-                            return pattern.match(request.getBodyAsString());
+                            String body = StringUtils.isEmpty(request.getBodyAsString()) ?
+                                    null :
+                                    request.getBodyAsString();
+                            return pattern.match(body);
                         }
 
-                        return ((BinaryEqualToPattern) pattern).match(request.getBody());
+                        return pattern.match(request.getBody());
                     }
 
 

@@ -27,4 +27,9 @@ public class AbsentPattern extends StringValuePattern {
     public MatchResult match(String value) {
         return MatchResult.of(value == null);
     }
+
+    @Override
+    public String getExpected() {
+        return "(absent)";
+    }
 }
