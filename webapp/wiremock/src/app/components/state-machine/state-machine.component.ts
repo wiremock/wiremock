@@ -41,7 +41,7 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
   @Input()
   grid: boolean = true;
 
-  private graph = new joint.dia.Graph();
+  private graph;
   private paper: Paper;
 
   private states: Map<String, Element>;
@@ -63,7 +63,10 @@ export class StateMachineComponent implements OnInit, OnChanges, AfterViewInit {
       return;
     }
 
-    this.graph.clear();
+    if (this.graph) {
+      this.graph.clear();
+    }
+    this.graph = new joint.dia.Graph();
 
     this.initPaper();
 

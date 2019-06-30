@@ -1,3 +1,19 @@
-<wm-raw-separated-separated>
-  <wm-separated *ngIf="mapping" [activeItem]="mapping"></wm-separated>
-</wm-raw-separated-separated>
+<div class="modal-header">
+  <h4 class="modal-title">Mapping information</h4>
+  <button type="button" class="close" aria-label="Close" tabindex="-1" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <wm-raw-separated-separated>
+    <wm-separated *ngIf="mapping" [activeItem]="mapping"></wm-separated>
+  </wm-raw-separated-separated>
+</div>
+
+
+
+
+
+
+
+

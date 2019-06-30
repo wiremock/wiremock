@@ -195,5 +195,9 @@ body {
   align-items: center;
 }
 
+// Firefox specific
 
+.modal-dialog {
+ height: calc(100% - 2*1.75rem);
+}
 
