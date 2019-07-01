@@ -74,6 +74,14 @@ public enum WireMockHelpers implements Helper<Object> {
             return this.helper.apply(null, options);
         }
     },
+    systemProp {
+        private SystemPropHelper helper = new SystemPropHelper();
+
+        @Override
+        public Object apply(final Object context, final Options options) throws IOException {
+            return this.helper.apply(null, options);
+        }
+    },
     date {
         private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
