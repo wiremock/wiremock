@@ -447,4 +447,27 @@ public class DiffTest {
                 )
         ));
     }
+
+    @Test
+    public void handlesAbsentRequestBody() {
+        Diff diff = new Diff(
+                newRequestPattern(POST, urlEqualTo("/thing"))
+                        .withRequestBody(absent())
+                        .build(),
+                mockRequest()
+                        .method(POST)
+                        .body("not absent")
+                        .url("/thing")
+        );
+
+        assertThat(diff.toString(), is(
+                junitStyleDiffMessage(
+                        "POST\n" +
+                                "/thing\n\n" +
+                                "(absent)",
+                        "POST\n" +
+                                "/thing\n\n" +
+                                "not absent")
+        ));
+    }
 }

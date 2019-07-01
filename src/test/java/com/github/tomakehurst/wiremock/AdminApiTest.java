@@ -20,6 +20,10 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.TextFile;
+import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.global.GlobalSettings;
+import com.github.tomakehurst.wiremock.http.DelayDistribution;
+import com.github.tomakehurst.wiremock.http.UniformDistribution;
 import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -28,6 +32,10 @@ import com.google.common.collect.ImmutableMap;
 import com.toomuchcoding.jsonassert.JsonAssertion;
 import com.toomuchcoding.jsonassert.JsonVerifiable;
 import org.apache.http.entity.StringEntity;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -696,6 +704,198 @@ public class AdminApiTest extends AcceptanceTestBase {
         List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
         assertThat(stubs.get(1).getResponse().getBody(), is("Original"));
         assertThat(stubs.size(), is(2));
+    }
+
+    static final String EMPTY_ID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"\",\n" +
+            "      \"name\": \"Empty ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullIdFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_ID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    static final String EMPTY_UUID_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"id\": \"27d7818b-4df6-4630-a6ab-c50e87e384e1\",\n" +
+            "      \"uuid\": \"\",\n" +
+            "      \"name\": \"Empty UUID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/empty-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"id\": \"95b5c478-eb39-4bad-ba55-a336dbfeaa53\",\n" +
+            "      \"uuid\": null,\n" +
+            "      \"name\": \"Null ID\",\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/null-id\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 204\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
+
+    @Test
+    public void treatsEmptyOrNullUuidFieldsAsNotPresent() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", EMPTY_UUID_IMPORT_JSON);
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> stubs = wireMockServer.listAllStubMappings().getMappings();
+        assertThat(stubs, everyItem(hasIdAndUuid()));
+    }
+
+    private static final Matcher<StubMapping> hasIdAndUuid() {
+        return new TypeSafeMatcher<StubMapping>() {
+            @Override
+            protected boolean matchesSafely(StubMapping stub) {
+                return stub.getId() != null && stub.getUuid() != null;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("a stub with a non-null ID and UUID");
+            }
+        };
+    }
+
+    final String SETTINGS_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"mySetting\": 123\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPut() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+        assertThat(wireMockServer.getGlobalSettings().getSettings().getExtended().getInt("mySetting"), is(123));
+    }
+
+    final String WRAPPED_SETTINGS_JSON = "{\n" +
+            "  \"settings\": {\n" +
+            "    \"delayDistribution\": {\n" +
+            "      \"type\": \"uniform\",\n" +
+            "      \"lower\": 100,\n" +
+            "      \"upper\": 300\n" +
+            "    },\n" +
+            "\n" +
+            "    \"extended\": {\n" +
+            "      \"one\": 1,\n" +
+            "      \"two\": {\n" +
+            "        \"name\": \"abc\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void updateGlobalSettingsViaPutWithWrapper() {
+        WireMockResponse response = testClient.putWithBody("/__admin/settings", WRAPPED_SETTINGS_JSON, "application/json");
+
+        assertThat(response.statusCode(), is(200));
+
+        GlobalSettings settings = wireMockServer.getGlobalSettings().getSettings();
+        assertThat(settings.getDelayDistribution(), Matchers.<DelayDistribution>instanceOf(UniformDistribution.class));
+        assertThat(settings.getExtended().getInt("one"), is(1));
+        assertThat(settings.getExtended().getMetadata("two").as(TestExtendedSettingsData.class).name, is("abc"));
+    }
+
+    final String EXTENDED_JSON = "{\n" +
+            "  \"extended\": {\n" +
+            "    \"one\": 11,\n" +
+            "    \"three\": 3\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void patchExtendedGlobalSettings() {
+        wireMockServer.updateGlobalSettings(GlobalSettings.builder()
+                .extended(Parameters.one("two", 2))
+                .build());
+
+        WireMockResponse response = testClient.patchWithBody("/__admin/settings/extended", EXTENDED_JSON, "application/json");
+        assertThat(response.statusCode(), is(200));
+
+        Parameters extended = wireMockServer.getGlobalSettings().getSettings().getExtended();
+        assertThat(extended.getInt("one"), is(11));
+        assertThat(extended.getInt("two"), is(2));
+        assertThat(extended.getInt("three"), is(3));
+    }
+
+    static final String STUB_IMPORT_JSON = "{\n" +
+            "  \"mappings\": [\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/one\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"request\": {\n" +
+            "        \"url\": \"/two\",\n" +
+            "        \"method\": \"GET\"\n" +
+            "      },\n" +
+            "      \"response\": {\n" +
+            "        \"status\": 200\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"meta\" : {\n" +
+            "    \"total\" : 2\n" +
+            "  }\n" +
+            "}";
+
+    @Test
+    public void importMultipleStubsWithDefaultParameters() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings/import", STUB_IMPORT_JSON);
+
+        assertThat(response.statusCode(), is(200));
+
+        List<StubMapping> allStubs = wm.getStubMappings();
+        assertThat(allStubs.size(), is(2));
+        assertThat(allStubs.get(0).getRequest().getUrl(), is("/one"));
+        assertThat(allStubs.get(1).getRequest().getUrl(), is("/two"));
+
+    }
+
+    public static class TestExtendedSettingsData {
+        public String name;
     }
 
 }

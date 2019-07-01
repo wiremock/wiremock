@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.common.Metadata;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,7 +45,9 @@ public class Parameters extends Metadata {
         return from(Json.objectToMap(myData));
     }
 
-    public <T> T as(Class<T> myDataClass) {
-        return Json.mapToObject(this, myDataClass);
+    public Parameters merge(Parameters other) {
+        Map<String, Object> attributes = new LinkedHashMap<>(this);
+        attributes.putAll(other);
+        return Parameters.from(attributes);
     }
 }

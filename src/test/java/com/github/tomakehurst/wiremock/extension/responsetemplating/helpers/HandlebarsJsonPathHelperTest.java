@@ -16,14 +16,18 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -204,5 +208,24 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
     @Test
     public void rendersAMeaningfulErrorWhenJsonPathIsNull() {
         testHelperError(helper, "{\"test\":\"success}", null, is("[ERROR: The JSONPath cannot be empty]"));
+    }
+
+    @Test
+    public void extractsValueFromAMap() {
+        ResponseTemplateTransformer transformer = new ResponseTemplateTransformer(true) {
+            @Override
+            protected Map<String, Object> addExtraModelElements(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) {
+                return ImmutableMap.<String, Object>of("mapData", ImmutableMap.of("things", "abc"));
+            }
+        };
+
+        final ResponseDefinition responseDefinition = transformer.transform(
+                mockRequest(),
+                aResponse()
+                        .withBody("{{jsonPath mapData '$.things'}}").build(),
+                noFileSource(),
+                Parameters.empty());
+
+        assertThat(responseDefinition.getBody(), is("abc"));
     }
 }

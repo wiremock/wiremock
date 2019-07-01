@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.util.UUID;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
@@ -97,8 +99,9 @@ public class ResponseTemplatingAcceptanceTest {
         @Test
         public void appliesToResponseBodyFromFile() {
             wm.stubFor(get(urlPathEqualTo("/templated"))
-                    .willReturn(aResponse()
-                            .withBodyFile("templated-example.txt")));
+                .willReturn(aResponse()
+                    .withBodyFile("templated-example-1.txt")));
+
 
             assertThat(client.get("/templated").content(), is("templated"));
         }
@@ -141,5 +144,68 @@ public class ResponseTemplatingAcceptanceTest {
 
             assertThat(client.get("/templated").content(), notNullValue());
         }
+
+      public void supportsSelectionResponseBodyTemplateViaTemplate() {
+            wm.stubFor(get(urlPathMatching("/templated/.*"))
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-{{request.path.1}}.txt")));
+
+            assertThat(client.get("/templated/2").content(), is("templated"));
+            assertThat(client.get("/templated/3").content(), is("3"));
+        }
+
+        @Test
+        public void cacheIsClearedWhenStubEdited() {
+            String url = "/templated/one/two";
+            UUID id = UUID.randomUUID();
+
+            wm.stubFor(get(urlPathEqualTo(url))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withHeader("X-Value", "{{request.path.1}}")
+                            .withBody("{{request.path.1}}")));
+
+            WireMockResponse response = client.get(url);
+            assertThat(response.content(), is("one"));
+            assertThat(response.firstHeader("X-Value"), is("one"));
+
+            wm.stubFor(get(urlPathEqualTo(url))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withHeader("X-Value", "{{request.path.2}}")
+                            .withBody("{{request.path.2}}")));
+
+            response = client.get(url);
+            assertThat(response.content(), is("two"));
+            assertThat(response.firstHeader("X-Value"), is("two"));
+        }
+
+        @Test
+        public void supportsDisablingTemplatingOfBodyFilesPerStub() {
+            UUID id = UUID.randomUUID();
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-1.txt")));
+
+            assertThat(client.get("/templated").content(), is("templated"));
+
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-1.txt")
+                            .withTransformerParameter("disableBodyFileTemplating", true)));
+
+            assertThat(client.get("/templated").content(), is("{{request.path.[0]}}"));
+
+            wm.stubFor(get(urlPathMatching("/templated/.*"))
+                    .withId(id)
+                    .willReturn(aResponse()
+                            .withBodyFile("templated-example-{{request.path.1}}.txt")
+                            .withTransformerParameter("disableBodyFileTemplating", true)));
+
+            assertThat(client.get("/templated/1").content(), is("{{request.path.[0]}}"));
+        }
+
     }
 }

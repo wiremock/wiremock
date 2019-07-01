@@ -24,11 +24,11 @@ import com.jayway.jsonpath.JsonPathException;
 import java.io.IOException;
 import java.util.Map;
 
-public class HandlebarsJsonPathHelper extends HandlebarsHelper<String> {
+public class HandlebarsJsonPathHelper extends HandlebarsHelper<Object> {
 
     @Override
-    public Object apply(final String inputJson, final Options options) throws IOException {
-        if (inputJson == null) {
+    public Object apply(final Object input, final Options options) throws IOException {
+        if (input == null) {
             return "";
         }
 
@@ -38,11 +38,13 @@ public class HandlebarsJsonPathHelper extends HandlebarsHelper<String> {
 
         final String jsonPath = options.param(0);
         try {
-            Object result = JsonPath.read(inputJson, jsonPath);
+            Object result = input instanceof String ?
+                    JsonPath.read((String) input, jsonPath) :
+                    JsonPath.read(input, jsonPath);
             return JsonData.create(result);
         } catch (InvalidJsonException e) {
             return this.handleError(
-                    inputJson + " is not valid JSON",
+                    input + " is not valid JSON",
                     e.getJson(), e);
         } catch (JsonPathException e) {
             return this.handleError(jsonPath + " is not a valid JSONPath expression", e);

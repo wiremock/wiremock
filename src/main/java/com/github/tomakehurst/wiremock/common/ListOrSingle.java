@@ -49,8 +49,21 @@ public class ListOrSingle<T> extends ArrayList<T> {
         return new ListOrSingle<>(items);
     }
 
-    public T first() {
+    public T getFirst() {
         return get(0);
+    }
+
+    public T getLast() {
+        return get(size() - 1);
+    }
+
+    @Override
+    public T get(int index) {
+        if (index < 0) {
+            index = size() - 1 + index;
+        }
+
+        return super.get(index);
     }
 
     public boolean isSingle() {

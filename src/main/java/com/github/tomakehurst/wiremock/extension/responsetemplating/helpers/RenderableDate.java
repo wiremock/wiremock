@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class RenderableDate {
+    private static final long DIVIDE_MILLISECONDS_TO_SECONDS = 1000L;
 
     private final Date date;
     private final String format;
@@ -36,9 +37,15 @@ public class RenderableDate {
     @Override
     public String toString() {
         if (format != null) {
-            return format.equals("epoch") ?
-                String.valueOf(date.getTime()) :
-                formatCustom();
+            if (format.equals("epoch")) {
+                return String.valueOf(date.getTime());
+            }
+
+            if (format.equals("unix")) {
+                return String.valueOf(date.getTime() / DIVIDE_MILLISECONDS_TO_SECONDS);
+            }
+
+            return formatCustom();
         }
 
         return timezoneName != null ?

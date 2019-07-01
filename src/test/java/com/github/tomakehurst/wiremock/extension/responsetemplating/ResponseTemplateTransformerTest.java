@@ -28,12 +28,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSource;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -273,7 +273,10 @@ public class ResponseTemplateTransformerTest {
             }
         };
 
-        transformer = new ResponseTemplateTransformer(false, "string-length", helper);
+        transformer = ResponseTemplateTransformer.builder()
+                .global(false)
+                .helper("string-length", helper)
+                .build();
 
         ResponseDefinition transformedResponseDef = transform(mockRequest()
                 .url("/things")
@@ -333,7 +336,10 @@ public class ResponseTemplateTransformerTest {
     @Test
     public void escapingCanBeDisabled() {
         Handlebars handlebars = new Handlebars().with(EscapingStrategy.NOOP);
-        ResponseTemplateTransformer transformerWithEscapingDisabled = new ResponseTemplateTransformer(true, handlebars, Collections.<String, Helper>emptyMap());
+        ResponseTemplateTransformer transformerWithEscapingDisabled = ResponseTemplateTransformer.builder()
+                .global(true)
+                .handlebars(handlebars)
+                .build();
         final ResponseDefinition responseDefinition = transformerWithEscapingDisabled.transform(
                 mockRequest()
                         .url("/json").
@@ -541,6 +547,221 @@ public class ResponseTemplateTransformerTest {
         assertThat(transformedResponseDef.getBody(), is(
             "Multi 1: one, Multi 2: two, Single 1: 1234"
         ));
+    }
+
+    @Test
+    public void trimContent() {
+        String body = transform("{{#trim}}\n" +
+                "{\n" +
+                "  \"data\": \"spaced out JSON\"\n" +
+                "}\n" +
+                "     {{/trim}}");
+
+        assertThat(body, is("{\n" +
+                "  \"data\": \"spaced out JSON\"\n" +
+                "}"));
+    }
+
+    @Test
+    public void trimValue() {
+        String body = transform("{{trim '   stuff  '}}");
+        assertThat(body, is("stuff"));
+    }
+
+    @Test
+    public void base64EncodeContent() {
+        String body = transform("{{#base64}}hello{{/base64}}");
+        assertThat(body, is("aGVsbG8="));
+    }
+
+    @Test
+    public void base64EncodeValue() {
+        String body = transform("{{{base64 'hello'}}}");
+        assertThat(body, is("aGVsbG8="));
+    }
+
+    @Test
+    public void base64DecodeValue() {
+        String body = transform("{{{base64 'aGVsbG8=' decode=true}}}");
+        assertThat(body, is("hello"));
+    }
+
+    @Test
+    public void urlEncodeValue() {
+        String body = transform("{{{urlEncode 'one two'}}}");
+        assertThat(body, is("one+two"));
+    }
+
+    @Test
+    public void urlDecodeValue() {
+        String body = transform("{{{urlEncode 'one+two' decode=true}}}");
+        assertThat(body, is("one two"));
+    }
+
+    @Test
+    public void extractFormValue() {
+        String body = transform("{{{formData request.body 'form'}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
+        assertThat(body, is("two%202"));
+    }
+
+    @Test
+    public void extractFormMultiValue() {
+        String body = transform(
+                "{{{formData request.body 'form'}}}{{form.item.1}}", "item=1&item=two%202&item=3"
+        );
+        assertThat(body, is("two%202"));
+    }
+
+    @Test
+    public void extractFormValueWithUrlDecoding() {
+        String body = transform("{{{formData request.body 'form' urlDecode=true}}}{{{form.item2}}}", "item1=one&item2=two%202&item3=three%203");
+        assertThat(body, is("two 2"));
+    }
+
+    @Test
+    public void extractSingleRegexValue() {
+        String body = transform("{{regexExtract request.body '[A-Z]+'}}", "abc-DEF-123");
+        assertThat(body, is("DEF"));
+    }
+
+    @Test
+    public void extractMultipleRegexValues() {
+        String body = transform("{{regexExtract request.body '([a-z]+)-([A-Z]+)-([0-9]+)' 'parts'}}{{parts.0}},{{parts.1}},{{parts.2}}", "abc-DEF-123");
+        assertThat(body, is("abc,DEF,123"));
+    }
+
+    @Test
+    public void calculateStringSize() {
+        String body = transform("{{size 'abcde'}}");
+        assertThat(body, is("5"));
+    }
+
+    @Test
+    public void calculateListSize() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{size request.query.things}}"))
+                .getBody();
+
+        assertThat(body, is("4"));
+    }
+
+    @Test
+    public void calculateMapSize() {
+        String body = transform(
+                mockRequest().url("/stuff?one=1&two=2&three=3"),
+                ok("{{size request.query}}"))
+                .getBody();
+
+        assertThat(body, is("3"));
+    }
+
+    @Test
+    public void firstListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.first}}"))
+                .getBody();
+
+        assertThat(body, is("1"));
+    }
+
+    @Test
+    public void lastListElement() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.last}}"))
+                .getBody();
+
+        assertThat(body, is("4"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-2]}}"))
+                .getBody();
+
+        assertThat(body, is("2"));
+    }
+
+    @Test
+    public void listElementOffsetFromEnd2() {
+        String body = transform(
+                mockRequest().url("/stuff?things=1&things=2&things=3&things=4"),
+                ok("{{request.query.things.[-1]}}"))
+                .getBody();
+
+        assertThat(body, is("3"));
+    }
+
+    @Test
+    public void correctlyRendersWhenContentExistsEitherSideOfTemplate() {
+        String body = transform(
+                mockRequest().url("/stuff?one=1&two=2"),
+                ok("Start \n\n {{request.query.one}} middle {{{request.query.two}}} end\n"))
+                .getBody();
+
+        assertThat(body, is("Start \n\n 1 middle 2 end\n"));
+    }
+
+    @Test
+    public void clearsTemplateCacheOnReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.afterStubsReset();
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void clearsTemplateCacheWhenAnyStubRemovedReset() {
+        transform("{{now}}");
+        assertThat(transformer.getCacheSize(), greaterThan(0L));
+
+        transformer.afterStubRemoved(get(anyUrl()).build());
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    @Test
+    public void honoursCacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(3L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
+
+        assertThat(transformer.getCacheSize(), is(3L));
+    }
+
+    @Test
+    public void honours0CacheSizeLimit() {
+        transformer = ResponseTemplateTransformer.builder()
+                .maxCacheEntries(0L)
+                .build();
+
+        transform("{{now}} 1");
+        transform("{{now}} 2");
+        transform("{{now}} 3");
+        transform("{{now}} 4");
+        transform("{{now}} 5");
+
+        assertThat(transformer.getCacheSize(), is(0L));
+    }
+
+    private String transform(String responseBodyTemplate) {
+        return transform(mockRequest(), aResponse().withBody(responseBodyTemplate)).getBody();
+    }
+
+    private String transform(String responseBodyTemplate, String requestBody) {
+        return transform(mockRequest().body(requestBody), aResponse().withBody(responseBodyTemplate)).getBody();
     }
 
     private ResponseDefinition transform(Request request, ResponseDefinitionBuilder responseDefinitionBuilder) {
