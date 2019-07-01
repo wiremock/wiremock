@@ -316,8 +316,10 @@ Random strings of various kinds can be generated:
 ```
 {% endraw %}
 
+
 ## Hostname and SystemValue helpers
 A helper is present to render the current hostname/system environment variable/property value which can be used in container.
+
  
 {% raw %}
 ```
