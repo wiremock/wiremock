@@ -42,7 +42,7 @@ public class SystemValueHelperTest {
     @Test
     public void getExistingEnvironmentVariableShouldNotNull() throws Exception {
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
-                "key", "OS",
+                "key", "PATH",
                 "type", "ENVIRONMENT"
         );
 
