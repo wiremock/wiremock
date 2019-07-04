@@ -17,13 +17,25 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 
-import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 
 public class HostnameHelper extends HandlebarsHelper<Object> {
 
+    private static String HOSTNAME;
+
+    static {
+        try {
+            HOSTNAME = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throwUnchecked(e, String.class);
+        }
+    }
+
     @Override
-    public Object apply(Object context, Options options) throws IOException {
-        return InetAddress.getLocalHost().getHostName();
+    public Object apply(Object context, Options options) {
+        return HOSTNAME;
     }
 }

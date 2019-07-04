@@ -19,8 +19,6 @@ import com.github.jknack.handlebars.Options;
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.AccessControlException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 public class SystemValueHelper extends HandlebarsHelper<Void> {
     @Override
@@ -49,20 +47,10 @@ public class SystemValueHelper extends HandlebarsHelper<Void> {
     }
 
     private String getSystemEnvironment(final String key) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-                return System.getenv(key);
-            }
-        });
+        return System.getenv(key);
     }
 
     private String getSystemProperties(final String key) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            @Override
-            public String run() {
-                return System.getProperty(key);
-            }
-        });
+        return System.getProperty(key);
     }
 }
