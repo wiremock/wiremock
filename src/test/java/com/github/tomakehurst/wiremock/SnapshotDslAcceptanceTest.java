@@ -246,8 +246,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         assertThat(mappings, everyItem(WireMatchers.isInAScenario()));
         assertThat(mappings.get(0).getRequiredScenarioState(), is(Scenario.STARTED));
-        assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-stateful-2"));
-        assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-stateful-3"));
+        assertThat(mappings.get(1).getRequiredScenarioState(), is("scenario-1-stateful-2"));
+        assertThat(mappings.get(2).getRequiredScenarioState(), is("scenario-1-stateful-3"));
     }
 
     @Test
