@@ -112,7 +112,11 @@ public class JettyHttpServer implements HttpServer {
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(ArrayUtils.addAll(extensionHandlers(), adminContext));
 
-        addGZipHandler(mockServiceContext, handlers);
+        if (options.getGzipDisabled()) {
+            handlers.addHandler(mockServiceContext);
+        } else {
+            addGZipHandler(mockServiceContext, handlers);
+        }
 
         return handlers;
     }
@@ -157,7 +161,7 @@ public class JettyHttpServer implements HttpServer {
         final Server server = new Server(options.threadPoolFactory().buildThreadPool(options));
         final JettySettings jettySettings = options.jettySettings();
         final Optional<Long> stopTimeout = jettySettings.getStopTimeout();
-        if(stopTimeout.isPresent()) {
+        if (stopTimeout.isPresent()) {
             server.setStopTimeout(stopTimeout.get());
         }
         return server;

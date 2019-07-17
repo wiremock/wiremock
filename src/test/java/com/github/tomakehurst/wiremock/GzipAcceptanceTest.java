@@ -15,12 +15,10 @@
  */
 package com.github.tomakehurst.wiremock;
 
-import com.github.tomakehurst.wiremock.common.Gzip;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
-import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.GzipCompressingEntity;
@@ -125,6 +123,36 @@ public class GzipAcceptanceTest {
 
         private boolean isNotOldJettyVersion() {
             return !Jetty.VERSION.contains("9.2.");
+        }
+    }
+
+    public static class GzipDisabled {
+
+        @Rule
+        public WireMockRule wm = new WireMockRule(wireMockConfig()
+                .dynamicPort()
+                .gzipDisabled(true));
+
+        WireMockTestClient testClient;
+
+        @Before
+        public void init() {
+            testClient = new WireMockTestClient(wm.port());
+        }
+
+        @Test
+        public void doesNotGzipWhenDisabledInConfiguration() {
+            String url = "/no-gzip-response";
+            String bodyText = "body text";
+            wm.stubFor(get(urlEqualTo(url)).willReturn(ok(bodyText)));
+
+            WireMockResponse response = testClient.get(url, withHeader("Accept-Encoding", "gzip,deflate"));
+
+            assertThat(response.statusCode(), is(200));
+            assertThat(response.headers().containsKey("Content-Encoding"), is(false));
+
+            String plainText = response.content();
+            assertThat(plainText, is(bodyText));
         }
     }
 }

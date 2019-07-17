@@ -92,6 +92,7 @@ public class WireMockConfiguration implements Options {
     private boolean asynchronousResponseEnabled;
     private int asynchronousResponseThreads;
     private ChunkedEncodingPolicy chunkedEncodingPolicy;
+    private boolean gzipDisabled = false;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {
@@ -336,6 +337,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration gzipDisabled(boolean gzipDisabled) {
+        this.gzipDisabled = gzipDisabled;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -474,5 +480,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
         return chunkedEncodingPolicy;
+    }
+
+    @Override
+    public boolean getGzipDisabled() {
+        return gzipDisabled;
     }
 }

@@ -176,4 +176,9 @@ public class WarConfiguration implements Options {
     public ChunkedEncodingPolicy getChunkedEncodingPolicy() {
         return ChunkedEncodingPolicy.ALWAYS;
     }
+
+    @Override
+    public boolean getGzipDisabled() {
+        return false;
+    }
 }
