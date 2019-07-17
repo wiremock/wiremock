@@ -68,4 +68,5 @@ public interface Options {
     NotMatchedRenderer getNotMatchedRenderer();
     AsynchronousResponseSettings getAsynchronousResponseSettings();
     ChunkedEncodingPolicy getChunkedEncodingPolicy();
+    boolean getGzipDisabled();
 }
