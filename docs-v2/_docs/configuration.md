@@ -138,6 +138,14 @@ WireMock wraps all logging in its own ``Notifier`` interface. It ships with no-o
 .notifier(new ConsoleNotifier(true))
 ```
 
+## Gzip
+
+Gzipping of responses can be disabled.
+
+```java
+.gzipDisabled(true)
+```
+
 
 ## Extensions
 
