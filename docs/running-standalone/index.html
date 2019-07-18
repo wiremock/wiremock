@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-07-18T08:46:21+01:00">
+  <meta property="article:published_time" content="2019-07-18T10:20:13+01:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -475,6 +475,8 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 <p><code class="highlighter-rouge">--use-chunked-encoding</code>: Set the policy for sending responses with <code class="highlighter-rouge">Transfer-Encoding: chunked</code>. Valid values are <code class="highlighter-rouge">always</code>, <code class="highlighter-rouge">never</code> and <code class="highlighter-rouge">body_file</code>. 
 The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.</p>
+
+<p><code class="highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
 
 <p><code class="highlighter-rouge">--help</code>: Show command line help</p>
 
