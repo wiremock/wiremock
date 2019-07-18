@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-04-14T18:28:31+01:00">
+  <meta property="article:published_time" content="2019-07-18T08:46:21+01:00">
   
     <link rel="next" href="/docs/getting-started/" title="Getting Started">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Extending WireMock">
     <meta itemprop="description" content="Registering Extensions">
-    <meta itemprop="datePublished" content="April 14, 2019">
+    <meta itemprop="datePublished" content="July 18, 2019">
     
 
     <div class="page__inner-wrap">
@@ -706,6 +706,73 @@ Using a <code class="highlighter-rouge">RequestListener</code> in this case woul
 <p>If you would like to collect the traffic 
 and for example add it to your acceptance test’s output, 
 you can use the <code class="highlighter-rouge">CollectingNetworkTrafficListener</code>.</p>
+
+<h2 id="intercepting-and-modifying-requests">Intercepting and modifying requests</h2>
+
+<p>Requests to both stubs and the admin API can be intercepted and either modified or halted with an immediate response.
+This supports a number of use cases including: authentication, URL rewriting and request header injection.</p>
+
+<p>To intercept stub requests, create a class that extends <code class="highlighter-rouge">StubRequestFilter</code>. For instance, to perform simple authentication:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleAuthRequestFilter</span> <span class="kd">extends</span> <span class="n">StubRequestFilter</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">RequestFilterAction</span> <span class="nf">filter</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"Authorization"</span><span class="o">).</span><span class="na">firstValue</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="s">"Basic abc123"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">RequestFilterAction</span><span class="o">.</span><span class="na">continueWith</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+        <span class="o">}</span>
+        
+        <span class="k">return</span> <span class="n">RequestFilterAction</span><span class="o">.</span><span class="na">stopWith</span><span class="o">(</span><span class="n">ResponseDefinition</span><span class="o">.</span><span class="na">notAuthorised</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"simple-auth"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Then add it as an extension as usual e.g.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleAuthRequestFilter</span><span class="o">()));</span>
+</code></pre></div></div>
+
+<p>To intercept admin API follow the same process, but extend <code class="highlighter-rouge">AdminRequestFilter</code>.</p>
+
+<h3 id="modifying-the-request-during-interception">Modifying the request during interception</h3>
+
+<p>To modify the HTTP request, the simplest approach is to wrap the original request with a <code class="highlighter-rouge">RequestWrapper</code> then continue e.g.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">UrlAndHeadersModifyingFilter</span> <span class="kd">extends</span> <span class="n">StubRequestFilter</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">RequestFilterAction</span> <span class="nf">filter</span><span class="o">(</span><span class="n">Request</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Request</span> <span class="n">wrappedRequest</span> <span class="o">=</span> <span class="n">RequestWrapper</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">transformAbsoluteUrl</span><span class="o">(</span><span class="n">url</span> <span class="o">-&gt;</span> <span class="n">url</span> <span class="o">+</span> <span class="s">"?extraQueryParam=123"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">addHeader</span><span class="o">(</span><span class="s">"X-Custom-Header"</span><span class="o">,</span> <span class="s">"headerval"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">wrap</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+        
+        <span class="k">return</span> <span class="n">RequestFilterAction</span><span class="o">.</span><span class="na">continueWith</span><span class="o">(</span><span class="n">wrappedRequest</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"url-and-header-modifier"</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">RequestWrapper</code> is a builder pattern and allows any number of changes to the request. It supports the following changes:</p>
+
+<ul>
+  <li>Transformation of the URL. <code class="highlighter-rouge">transformAbsoluteUrl</code> takes a <code class="highlighter-rouge">FieldTransformer</code> as a parameter (or equivalent lambda) which maps
+from the old to the new URL. Note that the URL passed in is absolute, and the returned URL must also be.</li>
+  <li>Addition, removal and transformation (via <code class="highlighter-rouge">FieldTransformer</code>) of headers.</li>
+  <li>Addition, removal and transformation of cookies.</li>
+  <li>Changing the HTTP method.</li>
+  <li>Transformation of the request body.</li>
+  <li>Transformation of body parts (if a multipart encoded request).</li>
+</ul>
 
         
       </section>
