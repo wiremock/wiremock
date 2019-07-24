@@ -41,7 +41,7 @@ allprojects {
             jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
             guava          : '20.0',
             jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
+            jacksonDatabind: '2.9.9.1',
             xmlUnit        : '2.6.2'
 
         ],
@@ -50,7 +50,7 @@ allprojects {
             jetty          : '9.4.15.v20190215',
             guava          : '27.0.1-jre',
             jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
+            jacksonDatabind: '2.9.9.1',
             xmlUnit        : '2.6.2'
         ]
     ]
