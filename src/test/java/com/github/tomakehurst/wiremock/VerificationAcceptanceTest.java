@@ -26,39 +26,18 @@ import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToXml;
-import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
-import static com.github.tomakehurst.wiremock.client.WireMock.lessThanOrExactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.matchingXPath;
-import static com.github.tomakehurst.wiremock.client.WireMock.moreThan;
-import static com.github.tomakehurst.wiremock.client.WireMock.moreThanOrExactly;
-import static com.github.tomakehurst.wiremock.client.WireMock.notMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.requestMadeFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.forCustomMatcher;
@@ -420,6 +399,20 @@ public class VerificationAcceptanceTest {
             testClient.get("/without/another/header", withHeader("Content-Type", "application/json"));
             verify(getRequestedFor(urlEqualTo("/without/another/header"))
                     .withoutHeader("Content-Type"));
+        }
+
+        @Test
+        public void verifiesBodyAbsent() throws Exception {
+            testClient.post("/no/body", new StringEntity(""));
+            verify(postRequestedFor(urlEqualTo("/no/body"))
+                    .withRequestBody(absent()));
+        }
+
+        @Test(expected = VerificationException.class)
+        public void failsVerificationWhenAbsentBodyPresent() throws Exception {
+            testClient.post("/no/body", new StringEntity("not absent"));
+            verify(postRequestedFor(urlEqualTo("/no/body"))
+                    .withRequestBody(absent()));
         }
 
         @Test

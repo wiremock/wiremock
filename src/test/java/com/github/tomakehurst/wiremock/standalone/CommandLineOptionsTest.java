@@ -420,6 +420,18 @@ public class CommandLineOptionsTest {
         assertThat(transformer.getMaxCacheEntries(), nullValue());
     }
 
+    @Test
+    public void disablesGzip() {
+        CommandLineOptions options = new CommandLineOptions("--disable-gzip");
+        assertThat(options.getGzipDisabled(), is(true));
+    }
+
+    @Test
+    public void defaultsToGzipEnabled() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getGzipDisabled(), is(false));
+    }
+
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
         @Override
         public ResponseDefinition transform(Request request, ResponseDefinition responseDefinition, FileSource files, Parameters parameters) { return null; }

@@ -19,11 +19,13 @@ import com.github.tomakehurst.wiremock.core.Admin;
 import com.github.tomakehurst.wiremock.core.StubServer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.PostServeAction;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.jetty9.websockets.Message;
 import com.github.tomakehurst.wiremock.jetty9.websockets.WebSocketEndpoint;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.RequestJournal;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
@@ -35,13 +37,14 @@ public class StubRequestHandler extends AbstractRequestHandler {
     private final Map<String, PostServeAction> postServeActions;
     private final RequestJournal requestJournal;
 
-    public StubRequestHandler(final StubServer stubServer,
+	public StubRequestHandler(final StubServer stubServer,
                               final ResponseRenderer responseRenderer,
                               final Admin admin,
                               final Map<String, PostServeAction> postServeActions,
-                              final RequestJournal requestJournal) {
-        super(responseRenderer);
-        this.stubServer = stubServer;
+                              final RequestJournal requestJournal,
+                              final List<RequestFilter> requestFilters) {
+		super(responseRenderer, requestFilters);
+		this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
         this.requestJournal = requestJournal;

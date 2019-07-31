@@ -142,10 +142,12 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         } else if (responseDefinition.specifiesBodyFile()) {
             HandlebarsOptimizedTemplate filePathTemplate = new HandlebarsOptimizedTemplate(handlebars, responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
-            TextFile file = files.getTextFileNamed(compiledFilePath);
 
             boolean disableBodyFileTemplating = parameters.getBoolean("disableBodyFileTemplating", false);
-            if (!disableBodyFileTemplating) {
+            if (disableBodyFileTemplating) {
+                newResponseDefBuilder.withBodyFile(compiledFilePath);
+            } else {
+                TextFile file = files.getTextFileNamed(compiledFilePath);
                 HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
                         TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
                 applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
@@ -216,18 +218,30 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
     }
 
     @Override
-    public void stubCreated(StubMapping stub) {}
+    public void beforeStubCreated(StubMapping stub) {}
 
     @Override
-    public void stubEdited(StubMapping oldStub, StubMapping newStub) {}
+    public void afterStubCreated(StubMapping stub) {}
 
     @Override
-    public void stubRemoved(StubMapping stub) {
+    public void beforeStubEdited(StubMapping oldStub, StubMapping newStub) {}
+
+    @Override
+    public void afterStubEdited(StubMapping oldStub, StubMapping newStub) {}
+
+    @Override
+    public void beforeStubRemoved(StubMapping stub) {}
+
+    @Override
+    public void afterStubRemoved(StubMapping stub) {
         cache.invalidateAll();
     }
 
     @Override
-    public void stubsReset() {
+    public void beforeStubsReset() {}
+
+    @Override
+    public void afterStubsReset() {
         cache.invalidateAll();
     }
 

@@ -23,7 +23,6 @@ import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.jetty9.DefaultMultipartRequestConfigurer;
 import com.github.tomakehurst.wiremock.jetty9.JettyUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -35,7 +34,6 @@ import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 

@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.admin.model.*;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.common.Xml;
 import com.github.tomakehurst.wiremock.extension.*;
+import com.github.tomakehurst.wiremock.extension.requestfilter.RequestFilter;
 import com.github.tomakehurst.wiremock.global.GlobalSettings;
 import com.github.tomakehurst.wiremock.global.GlobalSettingsHolder;
 import com.github.tomakehurst.wiremock.http.*;
@@ -35,9 +36,9 @@ import com.github.tomakehurst.wiremock.stubbing.*;
 import com.github.tomakehurst.wiremock.verification.*;
 import com.github.tomakehurst.wiremock.verification.diff.PlainTextDiffRenderer;
 import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collections;
@@ -140,33 +141,57 @@ public class WireMockApp implements StubServer, Admin {
                 this.options.getNotMatchedRenderer()
         );
         return new AdminRequestHandler(
-                adminRoutes,
-                this,
-                new BasicResponseRenderer(),
-                this.options.getAdminAuthenticator(),
-                this.options.getHttpsRequiredForAdminApi()
+            adminRoutes,
+            this,
+            new BasicResponseRenderer(),
+            options.getAdminAuthenticator(),
+            options.getHttpsRequiredForAdminApi(),
+            getAdminRequestFilters()
         );
     }
 
     public StubRequestHandler buildStubRequestHandler() {
         final Map<String, PostServeAction> postServeActions = this.options.extensionsOfType(PostServeAction.class);
         return new StubRequestHandler(
-                this,
-                new StubResponseRenderer(
-                        this.options.filesRoot().child(WireMockApp.FILES_ROOT),
-                        this.getGlobalSettingsHolder(),
-                        new ProxyResponseRenderer(
-                                this.options.proxyVia(),
-                                this.options.httpsSettings().trustStore(),
-                                this.options.shouldPreserveHostHeader(),
-                                this.options.proxyHostHeader(),
-                                this.globalSettingsHolder),
-                        ImmutableList.copyOf(this.options.extensionsOfType(ResponseTransformer.class).values())
-                ),
-                this,
-                postServeActions,
-                this.requestJournal
+            this,
+            new StubResponseRenderer(
+                options.filesRoot().child(FILES_ROOT),
+                getGlobalSettingsHolder(),
+                new ProxyResponseRenderer(
+                    options.proxyVia(),
+                    options.httpsSettings().trustStore(),
+                    options.shouldPreserveHostHeader(),
+                    options.proxyHostHeader(),
+                    globalSettingsHolder),
+                ImmutableList.copyOf(options.extensionsOfType(ResponseTransformer.class).values())
+            ),
+            this,
+            postServeActions,
+            requestJournal,
+            getStubRequestFilters()
         );
+    }
+
+    private List<RequestFilter> getAdminRequestFilters() {
+        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+                .filter(new Predicate<RequestFilter>() {
+                    @Override
+                    public boolean apply(RequestFilter filter) {
+                        return filter.applyToAdmin();
+                    }
+                })
+                .toList();
+    }
+
+    private List<RequestFilter> getStubRequestFilters() {
+        return FluentIterable.from(options.extensionsOfType(RequestFilter.class).values())
+                .filter(new Predicate<RequestFilter>() {
+                    @Override
+                    public boolean apply(RequestFilter filter) {
+                        return filter.applyToStubs();
+                    }
+                })
+                .toList();
     }
 
     public GlobalSettingsHolder getGlobalSettingsHolder() {
@@ -209,8 +234,12 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
-    public void addStubMapping(final StubMapping stubMapping) {
-        this.stubMappings.addMapping(stubMapping);
+    public void addStubMapping(StubMapping stubMapping) {
+        if (stubMapping.getId() == null) {
+            stubMapping.setId(UUID.randomUUID());
+        }
+
+        stubMappings.addMapping(stubMapping);
         if (stubMapping.shouldBePersisted()) {
             this.mappingsSaver.save(stubMapping);
         }
@@ -389,10 +418,15 @@ public class WireMockApp implements StubServer, Admin {
     @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         GlobalSettings oldSettings = globalSettingsHolder.get();
+
+        for (GlobalSettingsListener listener: globalSettingsListeners) {
+            listener.beforeGlobalSettingsUpdated(oldSettings, newSettings);
+        }
+
         globalSettingsHolder.replaceWith(newSettings);
 
         for (GlobalSettingsListener listener: globalSettingsListeners) {
-            listener.globalSettingsUpdated(oldSettings, newSettings);
+            listener.afterGlobalSettingsUpdated(oldSettings, newSettings);
         }
     }
 

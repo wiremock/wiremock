@@ -103,6 +103,8 @@ public class AdminRoutes {
         router.add(GET, "/settings", GetGlobalSettingsTask.class);
         router.add(PUT, "/settings", GlobalSettingsUpdateTask.class);
         router.add(POST, "/settings", GlobalSettingsUpdateTask.class);
+        router.add(PATCH, "/settings/extended", PatchExtendedSettingsTask.class);
+
         router.add(POST, "/shutdown", ShutdownServerTask.class);
 
         router.add(GET, "/docs/swagger", GetSwaggerSpecTask.class);

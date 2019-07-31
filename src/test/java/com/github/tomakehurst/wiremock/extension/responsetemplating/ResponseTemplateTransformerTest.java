@@ -26,10 +26,8 @@ import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.theories.suppliers.TestedOn;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -713,7 +711,7 @@ public class ResponseTemplateTransformerTest {
         transform("{{now}}");
         assertThat(transformer.getCacheSize(), greaterThan(0L));
 
-        transformer.stubsReset();
+        transformer.afterStubsReset();
 
         assertThat(transformer.getCacheSize(), is(0L));
     }
@@ -723,7 +721,7 @@ public class ResponseTemplateTransformerTest {
         transform("{{now}}");
         assertThat(transformer.getCacheSize(), greaterThan(0L));
 
-        transformer.stubRemoved(get(anyUrl()).build());
+        transformer.afterStubRemoved(get(anyUrl()).build());
 
         assertThat(transformer.getCacheSize(), is(0L));
     }

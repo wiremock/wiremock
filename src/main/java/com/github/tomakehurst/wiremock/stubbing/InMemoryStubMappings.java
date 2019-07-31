@@ -26,7 +26,6 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -110,21 +109,29 @@ public class InMemoryStubMappings implements StubMappings {
 
 	@Override
 	public void addMapping(StubMapping mapping) {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubCreated(mapping);
+		}
+
 		mappings.add(mapping);
 		scenarios.onStubMappingAdded(mapping);
 
 		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.stubCreated(mapping);
+			listener.afterStubCreated(mapping);
 		}
 	}
 
 	@Override
 	public void removeMapping(StubMapping mapping) {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubRemoved(mapping);
+		}
+
 		mappings.remove(mapping);
 		scenarios.onStubMappingRemoved(mapping);
 
 		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.stubRemoved(mapping);
+			listener.afterStubRemoved(mapping);
 		}
 	}
 
@@ -142,6 +149,9 @@ public class InMemoryStubMappings implements StubMappings {
 		}
 
 		final StubMapping existingMapping = optionalExistingMapping.get();
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubEdited(existingMapping, stubMapping);
+		}
 
 		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
 		stubMapping.setDirty(true);
@@ -150,18 +160,22 @@ public class InMemoryStubMappings implements StubMappings {
 		scenarios.onStubMappingUpdated(existingMapping, stubMapping);
 
 		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.stubEdited(existingMapping, stubMapping);
+			listener.afterStubEdited(existingMapping, stubMapping);
 		}
 	}
 
 
 	@Override
 	public void reset() {
+		for (StubLifecycleListener listener: stubLifecycleListeners) {
+			listener.beforeStubsReset();
+		}
+
 		mappings.clear();
         scenarios.clear();
 
 		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.stubsReset();
+			listener.afterStubsReset();
 		}
 	}
 	

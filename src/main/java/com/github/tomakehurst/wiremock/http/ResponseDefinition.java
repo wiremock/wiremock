@@ -188,9 +188,12 @@ public class ResponseDefinition {
     }
 
     public static ResponseDefinition notPermitted(String message) {
-        Errors errors = Errors.single(40, message);
+        return notPermitted(Errors.single(40, message));
+    }
+
+    public static ResponseDefinition notPermitted(Errors errors) {
         return ResponseDefinitionBuilder
-            .jsonResponse(Json.write(errors), HTTP_FORBIDDEN);
+                .jsonResponse(errors, HTTP_FORBIDDEN);
     }
 
     public static ResponseDefinition browserProxy(Request originalRequest) {
@@ -236,7 +239,7 @@ public class ResponseDefinition {
     }
 
     public String getBody() {
-        return !body.isBinary() ? body.asString() : null;
+        return (!body.isBinary() && !body.isJson()) ? body.asString() : null;
     }
 
     @JsonIgnore
@@ -251,6 +254,11 @@ public class ResponseDefinition {
 
     public String getBase64Body() {
         return body.isBinary() ? body.asBase64() : null;
+    }
+
+    public JsonNode getJsonBody() {
+
+        return body.isJson() ? body.asJson(): null;
     }
 
     public String getBodyFileName() {
@@ -373,4 +381,6 @@ public class ResponseDefinition {
     public String toString() {
         return this.wasConfigured ? Json.write(this) : "(no response definition configured)";
     }
+
+
 }

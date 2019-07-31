@@ -92,6 +92,7 @@ public class CommandLineOptions implements Options {
     private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
+    private static final String DISABLE_GZIP = "disable-gzip";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -136,6 +137,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
+        optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -510,6 +512,11 @@ public class CommandLineOptions implements Options {
         return optionSet.has(USE_CHUNKED_ENCODING) ?
                 ChunkedEncodingPolicy.valueOf(optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase()) :
                 ChunkedEncodingPolicy.ALWAYS;
+    }
+
+    @Override
+    public boolean getGzipDisabled() {
+        return optionSet.has(DISABLE_GZIP);
     }
 
     private Long getMaxTemplateCacheEntries() {

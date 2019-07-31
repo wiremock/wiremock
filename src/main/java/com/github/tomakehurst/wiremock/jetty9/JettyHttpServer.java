@@ -123,7 +123,11 @@ public class JettyHttpServer implements HttpServer {
         final HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(ArrayUtils.addAll(this.extensionHandlers(), adminContext));
 
-        this.addGZipHandler(mockServiceContext, handlers);
+        if (options.getGzipDisabled()) {
+            handlers.addHandler(mockServiceContext);
+        } else {
+            addGZipHandler(mockServiceContext, handlers);
+        }
 
         return handlers;
     }
