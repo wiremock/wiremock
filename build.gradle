@@ -435,8 +435,10 @@ subprojects {
 
     clean.dependsOn deleteGeneratedApiDocs
 
+    final WEBAPP_DIR = project(':').rootDir.getAbsolutePath() + '/webapp/wiremock'
+
     task npmInstallWebapp(type: Exec) {
-        workingDir 'webapp/wiremock'
+        workingDir WEBAPP_DIR
         if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
             commandLine 'cmd', '/c', 'npm', 'i'
         } else {
@@ -446,7 +448,7 @@ subprojects {
 
     task generateWebapp(type: Exec) {
         dependsOn npmInstallWebapp
-        workingDir 'webapp/wiremock'
+        workingDir WEBAPP_DIR
         if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
             commandLine 'cmd', '/c', 'npm', 'run', 'prod'
         } else {
