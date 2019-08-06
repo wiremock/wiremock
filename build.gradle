@@ -24,7 +24,6 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'scala'
     apply plugin: 'project-report'
-    apply plugin: 'maven'
 
     group = 'com.github.tomakehurst'
     version = '2.24.0'
