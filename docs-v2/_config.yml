@@ -216,4 +216,4 @@ compress_html:
   ignore:
     envs: development
 
-wiremock_version: 2.24.1
+wiremock_version: 2.24.2
