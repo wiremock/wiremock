@@ -19,14 +19,11 @@ import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringUtils;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.security.AccessControlException;
-
 import static org.junit.Assert.*;
 
 public class SystemValueHelperTest {
@@ -37,6 +34,11 @@ public class SystemValueHelperTest {
     public void init() {
         helper = new SystemValueHelper();
         LocalNotifier.set(new ConsoleNotifier(true));
+    }
+
+    @After
+    public void tearDown() {
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.clear();
     }
 
     @Test
@@ -63,14 +65,8 @@ public class SystemValueHelperTest {
     }
 
     @Test
-    @Ignore
     public void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
-        System.setSecurityManager(new SecurityManager() {
-            public void checkSecurityAccess(String target) {
-                if (StringUtils.equals(target, "TEST_VAR"))
-                    throw new AccessControlException("Access denied");
-            }
-        });
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("JAVA*");
 
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
                 "key", "TEST_VAR",
@@ -92,6 +88,7 @@ public class SystemValueHelperTest {
 
     @Test
     public void getAllowedPropertyShouldSuccess() throws Exception {
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("test*");
         System.setProperty("test.key", "aaa");
         assertEquals("aaa", System.getProperty("test.key"));
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
@@ -103,15 +100,9 @@ public class SystemValueHelperTest {
     }
 
     @Test
-    @Ignore
     public void getForbiddenPropertyShouldReturnError() throws Exception {
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("JAVA*");
         System.setProperty("test.key", "aaa");
-        System.setSecurityManager(new SecurityManager() {
-            public void checkPropertyAccess(String key) {
-                if (StringUtils.equals(key, "test.key"))
-                    throw new AccessControlException("Access denied");
-            }
-        });
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
                 "key", "test.key",
                 "type", "PROPERTY"

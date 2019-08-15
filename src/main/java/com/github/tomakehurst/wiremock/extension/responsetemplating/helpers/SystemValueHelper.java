@@ -19,6 +19,8 @@ import com.github.jknack.handlebars.Options;
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.AccessControlException;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class SystemValueHelper extends HandlebarsHelper<Void> {
     @Override
@@ -27,6 +29,9 @@ public class SystemValueHelper extends HandlebarsHelper<Void> {
         String type = options.hash("type", "ENVIRONMENT");
         if (StringUtils.isEmpty(key)) {
             return this.handleError("The key cannot be empty");
+        }
+        if (!isPermittedKey(key)) {
+            return this.handleError("Access to " + key + " is denied");
         }
         String rawValue = "";
 
@@ -52,5 +57,15 @@ public class SystemValueHelper extends HandlebarsHelper<Void> {
 
     private String getSystemProperties(final String key) {
         return System.getProperty(key);
+    }
+
+    private boolean isPermittedKey(final String key) {
+        return PERMITTED_SYSTEM_KEYS.isEmpty() ||
+                PERMITTED_SYSTEM_KEYS.stream().anyMatch(new Predicate<String>() {
+                    @Override
+                    public boolean test(String reg) {
+                        return Pattern.compile(reg).matcher(key).find();
+                    }
+                });
     }
 }

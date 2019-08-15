@@ -45,9 +45,7 @@ import joptsimple.OptionSet;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
 import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
@@ -92,6 +90,7 @@ public class CommandLineOptions implements Options {
     private static final String ASYNCHRONOUS_RESPONSE_THREADS = "async-response-threads";
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
+    private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -136,6 +135,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
+        optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of regular expressions for names of permitted env vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -318,12 +318,14 @@ public class CommandLineOptions implements Options {
             ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
                     .global(true)
                     .maxCacheEntries(getMaxTemplateCacheEntries())
+                    .permittedSystemKeys(getPermittedSystemKeys())
                     .build();
             builder.put(transformer.getName(), (T) transformer);
         } else if (optionSet.has(LOCAL_RESPONSE_TEMPLATING) && ResponseDefinitionTransformer.class.isAssignableFrom(extensionType)) {
             ResponseTemplateTransformer transformer = ResponseTemplateTransformer.builder()
                     .global(false)
                     .maxCacheEntries(getMaxTemplateCacheEntries())
+                    .permittedSystemKeys(getPermittedSystemKeys())
                     .build();
             builder.put(transformer.getName(), (T) transformer);
         }
@@ -516,6 +518,12 @@ public class CommandLineOptions implements Options {
         return optionSet.has(MAX_TEMPLATE_CACHE_ENTRIES) ?
                 Long.valueOf(optionSet.valueOf(MAX_TEMPLATE_CACHE_ENTRIES).toString()) :
                 null;
+    }
+
+    private Set<String> getPermittedSystemKeys() {
+        return optionSet.has(PERMITTED_SYSTEM_KEYS) ?
+                new HashSet(optionSet.valuesOf(PERMITTED_SYSTEM_KEYS)) :
+                Collections.<String>emptySet();
     }
 
     private boolean isAsynchronousResponseEnabled() {
