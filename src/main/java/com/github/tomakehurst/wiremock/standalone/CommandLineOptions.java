@@ -92,6 +92,9 @@ public class CommandLineOptions implements Options {
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
 
+    private static final String DISABLE_GZIP = "disable-gzip";
+
+
     private final OptionSet optionSet;
     private final FileSource fileSource;
     private final MappingsSource mappingsSource;
@@ -136,6 +139,8 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of regular expressions for names of permitted env vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
+        optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
+
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -512,6 +517,11 @@ public class CommandLineOptions implements Options {
         return optionSet.has(USE_CHUNKED_ENCODING) ?
                 ChunkedEncodingPolicy.valueOf(optionSet.valueOf(USE_CHUNKED_ENCODING).toString().toUpperCase()) :
                 ChunkedEncodingPolicy.ALWAYS;
+    }
+
+    @Override
+    public boolean getGzipDisabled() {
+        return optionSet.has(DISABLE_GZIP);
     }
 
     private Long getMaxTemplateCacheEntries() {

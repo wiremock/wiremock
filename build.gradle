@@ -26,7 +26,7 @@ allprojects {
     apply plugin: 'project-report'
 
     group = 'com.github.tomakehurst'
-    version = '2.24.0'
+    version = '2.24.1'
 
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
@@ -38,19 +38,19 @@ allprojects {
     def versionSets = [
         java7: [
             handlebars     : '4.0.7',
-            jetty          : '9.2.26.v20180806', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
+            jetty          : '9.2.28.v20190418', // Please don't raise PRs upgrading this to the latest version as it drops Java 7 support. See https://github.com/tomakehurst/wiremock/issues/407 and https://github.com/tomakehurst/wiremock/pull/887 for details
             guava          : '20.0',
             jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
+            jacksonDatabind: '2.9.9.3',
             xmlUnit        : '2.6.2'
 
         ],
         java8: [
             handlebars     : '4.1.2',
-            jetty          : '9.4.15.v20190215',
+            jetty          : '9.4.19.v20190610',
             guava          : '27.0.1-jre',
             jackson        : '2.9.9',
-            jacksonDatabind: '2.9.9',
+            jacksonDatabind: '2.9.9.3',
             xmlUnit        : '2.6.2'
         ]
     ]
