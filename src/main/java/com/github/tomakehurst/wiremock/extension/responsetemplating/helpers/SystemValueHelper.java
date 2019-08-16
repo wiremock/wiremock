@@ -19,7 +19,6 @@ import com.github.jknack.handlebars.Options;
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.AccessControlException;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class SystemValueHelper extends HandlebarsHelper<Void> {
@@ -60,12 +59,15 @@ public class SystemValueHelper extends HandlebarsHelper<Void> {
     }
 
     private boolean isPermittedKey(final String key) {
-        return PERMITTED_SYSTEM_KEYS.isEmpty() ||
-                PERMITTED_SYSTEM_KEYS.stream().anyMatch(new Predicate<String>() {
-                    @Override
-                    public boolean test(String reg) {
-                        return Pattern.compile(reg).matcher(key).find();
-                    }
-                });
+        return PERMITTED_SYSTEM_KEYS.isEmpty() || matchedKey(key);
+    }
+
+    private boolean matchedKey(String key) {
+        for (String reg : PERMITTED_SYSTEM_KEYS) {
+            if (Pattern.compile(reg).matcher(key).find()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
