@@ -115,6 +115,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         }
         cache = cacheBuilder.build();
 
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.clear();
         if (permittedSystemKeys != null && !permittedSystemKeys.isEmpty()) {
             HandlebarsHelper.PERMITTED_SYSTEM_KEYS.addAll(permittedSystemKeys);
         }
