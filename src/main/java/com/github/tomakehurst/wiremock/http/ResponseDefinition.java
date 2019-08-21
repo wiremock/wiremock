@@ -243,6 +243,11 @@ public class ResponseDefinition {
     }
 
     @JsonIgnore
+    public String getTextBody() {
+        return !body.isBinary() ? body.asString() : null;
+    }
+
+    @JsonIgnore
     public byte[] getByteBody() {
         return body.asBytes();
     }

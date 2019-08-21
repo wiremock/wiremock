@@ -137,7 +137,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
                 .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
-            HandlebarsOptimizedTemplate bodyTemplate = getTemplate(TemplateCacheKey.forInlineBody(responseDefinition), responseDefinition.getBody());
+            HandlebarsOptimizedTemplate bodyTemplate = getTemplate(TemplateCacheKey.forInlineBody(responseDefinition), responseDefinition.getTextBody());
             applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
         } else if (responseDefinition.specifiesBodyFile()) {
             HandlebarsOptimizedTemplate filePathTemplate = new HandlebarsOptimizedTemplate(handlebars, responseDefinition.getBodyFileName());
