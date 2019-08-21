@@ -32,6 +32,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.defaultTestFilesRoot;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class ResponseTemplatingAcceptanceTest {
@@ -178,6 +179,32 @@ public class ResponseTemplatingAcceptanceTest {
                             .withTransformerParameter("disableBodyFileTemplating", true)));
 
             assertThat(client.get("/templated/1").content(), is("{{request.path.[0]}}"));
+        }
+
+        @Test
+        public void supportsJsonBodiesWithTemplating() {
+            String stubJson = "{\n" +
+                    "  \"request\": {\n" +
+                    "    \"method\": \"POST\",\n" +
+                    "    \"url\" : \"/json-body-templating\"\n" +
+                    "  },\n" +
+                    "  \"response\": {\n" +
+                    "    \"status\": 200,\n" +
+                    "    \"jsonBody\": {\n" +
+                    "      \"modified\": \"{{jsonPath request.body '$.arrayprop.length()'}}\"\n" +
+                    "    },\n" +
+                    "    \"headers\": {\n" +
+                    "      \"Content-Type\": \"application/json\"\n" +
+                    "    }\n" +
+                    "  }\n" +
+                    "}";
+
+            client.postJson("/__admin/mappings", stubJson);
+
+            WireMockResponse response = client.postJson("/json-body-templating", "{ \"arrayprop\": [1,2,3] }");
+            assertThat(
+                    response.content(),
+                    response.statusCode(), is(200));
         }
 
     }
