@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.JsonException;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
 import com.github.tomakehurst.wiremock.common.Notifier;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -29,8 +30,7 @@ import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToJson;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class MatchesJsonPathPatternTest {
@@ -316,6 +316,19 @@ public class MatchesJsonPathPatternTest {
                 "    }                                   \n" +
                 "}",
             StringValuePattern.class);
+    }
+
+    @Test
+    public void equalsIncludesValuePattern() {
+        StringValuePattern pattern1 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
+        StringValuePattern pattern2 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1001"));
+        StringValuePattern pattern3 = matchingJsonPath("$.LinkageDetails.AccountId", equalTo("1000"));
+
+        assertThat(pattern1, not(Matchers.equalTo(pattern2)));
+        assertThat(pattern1.hashCode(), not(Matchers.equalTo(pattern2.hashCode())));
+
+        assertThat(pattern1, Matchers.equalTo(pattern3));
+        assertThat(pattern1.hashCode(), Matchers.equalTo(pattern3.hashCode()));
     }
 
     private void expectInfoNotification(final String message) {
