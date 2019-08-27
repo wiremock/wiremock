@@ -214,12 +214,15 @@ subprojects {
         relocate "net.sf", "wiremock.net.sf"
         relocate "com.github.jknack", "wiremock.com.github.jknack"
         relocate "org.antlr", "wiremock.org.antlr"
+        relocate "javax.servlet", "wiremock.javax.servlet"
 
         dependencies {
             exclude(dependency('junit:junit'))
         }
 
         mergeServiceFiles()
+
+        exclude 'META-INF/maven/javax.servlet/**'
     }
 
     def repoUser
