@@ -18,7 +18,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.LocalNotifier;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,9 +33,8 @@ public class SystemValueHelperTest {
 
     @Before
     public void init() {
-        helper = new SystemValueHelper();
+        helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of(".*")));
         LocalNotifier.set(new ConsoleNotifier(true));
-        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.clear();
     }
 
     @Test
@@ -61,7 +62,7 @@ public class SystemValueHelperTest {
 
     @Test
     public void getForbiddenEnvironmentVariableShouldReturnError() throws Exception {
-        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("JAVA*");
+        helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA*")));
 
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
                 "key", "TEST_VAR",
@@ -83,7 +84,7 @@ public class SystemValueHelperTest {
 
     @Test
     public void getAllowedPropertyShouldSuccess() throws Exception {
-        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("test*");
+        helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("test.*")));
         System.setProperty("test.key", "aaa");
         assertEquals("aaa", System.getProperty("test.key"));
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
@@ -96,7 +97,7 @@ public class SystemValueHelperTest {
 
     @Test
     public void getForbiddenPropertyShouldReturnError() throws Exception {
-        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.add("JAVA*");
+        helper = new SystemValueHelper(new SystemKeyAuthoriser(ImmutableSet.of("JAVA.*")));
         System.setProperty("test.key", "aaa");
         ImmutableMap<String, Object> optionsHash = ImmutableMap.<String, Object>of(
                 "key", "test.key",

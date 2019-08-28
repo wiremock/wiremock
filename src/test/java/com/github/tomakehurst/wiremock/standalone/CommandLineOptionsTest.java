@@ -424,19 +424,13 @@ public class CommandLineOptionsTest {
     @Test
     public void configuresPermittedSystemKeysIfSpecified() {
         CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--permitted-system-keys", "java*,path*");
-        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
-        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-        assertThat(HandlebarsHelper.PERMITTED_SYSTEM_KEYS.size(), is(2));
+        assertThat(options.getPermittedSystemKeys(), hasItems("java*", "path*"));
     }
 
     @Test
-    public void configuresPermittedSystemKeysToEmptyIfNotSpecified() {
+    public void returnsEmptyPermittedKeysIfNotSpecified() {
         CommandLineOptions options = new CommandLineOptions("--global-response-templating");
-        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
-        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
-
-        assertThat(HandlebarsHelper.PERMITTED_SYSTEM_KEYS.size(), is(0));
+        assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
     }
 
     @Test

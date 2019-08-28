@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.net.InetAddress;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -120,33 +121,7 @@ public class ResponseTemplatingAcceptanceTest {
         }
 
         @Test
-        public void appliesResponseTemplateWithHostname() {
-            wm.stubFor(get(urlPathEqualTo("/templated"))
-                    .willReturn(aResponse()
-                            .withBody("{{hostname}}")));
-
-            assertThat(client.get("/templated").content(), notNullValue());
-        }
-
-        @Test
-        public void appliesResponseTemplateShouldEmptyWithNonExistingSystemValue() {
-            wm.stubFor(get(urlPathEqualTo("/templated"))
-                    .willReturn(aResponse()
-                            .withBody("{{systemValue type='ENVIRONMENT' key='TEST'}}")));
-
-            assertThat(client.get("/templated").content(), isEmptyOrNullString());
-        }
-
-        @Test
-        public void appliesResponseTemplateShouldNotEmptyWithExistingSystemValue() {
-            wm.stubFor(get(urlPathEqualTo("/templated"))
-                    .willReturn(aResponse()
-                            .withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
-
-            assertThat(client.get("/templated").content(), notNullValue());
-        }
-
-      public void supportsSelectionResponseBodyTemplateViaTemplate() {
+        public void supportsSelectionResponseBodyTemplateViaTemplate() {
             wm.stubFor(get(urlPathMatching("/templated/.*"))
                     .willReturn(aResponse()
                             .withBodyFile("templated-example-{{request.path.1}}.txt")));
@@ -234,5 +209,68 @@ public class ResponseTemplatingAcceptanceTest {
                     response.statusCode(), is(200));
         }
 
+    }
+
+    public static class RestrictedSystemPropertiesAndEnvVars {
+
+        WireMockTestClient client;
+
+        @Rule
+        public WireMockRule wm = new WireMockRule(options()
+                .dynamicPort()
+                .withRootDirectory(defaultTestFilesRoot())
+                .extensions(new ResponseTemplateTransformer.Builder()
+                        .global(true)
+                        .permittedSystemKeys("allowed.*")
+                        .build()
+                )
+        );
+
+        @Before
+        public void init() {
+            client = new WireMockTestClient(wm.port());
+        }
+
+        @Test
+        public void appliesResponseTemplateWithHostname() throws Exception {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{hostname}}")));
+
+            String expectedHostname = InetAddress.getLocalHost().getHostName();
+
+            assertThat(client.get("/templated").content(), is(expectedHostname));
+        }
+
+        @Test
+        public void rendersPermittedSystemProperty() {
+            System.setProperty("allowed.thing", "123");
+
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{systemValue type='PROPERTY' key='allowed.thing'}}")));
+
+            assertThat(client.get("/templated").content(), is("123"));
+        }
+
+        @Test
+        public void refusesToRenderForbiddenSystemProperty() {
+            System.setProperty("forbidden.thing", "456");
+
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{systemValue type='PROPERTY' key='forbidden.thing'}}")));
+
+            assertThat(client.get("/templated").content(), is("[ERROR: Access to forbidden.thing is denied]"));
+        }
+
+        @Test
+        public void appliesResponseTemplateShouldNotEmptyWithExistingSystemValue() {
+            wm.stubFor(get(urlPathEqualTo("/templated"))
+                    .willReturn(aResponse()
+                            .withBody("{{systemValue type='ENVIRONMENT' key='PATH'}}")));
+
+            assertThat(client.get("/templated").content(), notNullValue());
+        }
     }
 }

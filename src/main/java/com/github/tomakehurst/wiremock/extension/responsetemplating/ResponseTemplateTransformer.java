@@ -29,6 +29,7 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.SystemValueHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -40,6 +41,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 
 import java.io.IOException;
@@ -104,6 +106,8 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             this.handlebars.registerHelper(helper.name(), helper);
         }
 
+        this.handlebars.registerHelper("systemValue", new SystemValueHelper(new SystemKeyAuthoriser(permittedSystemKeys)));
+
         for (Map.Entry<String, Helper> entry: helpers.entrySet()) {
             this.handlebars.registerHelper(entry.getKey(), entry.getValue());
         }
@@ -114,11 +118,6 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             cacheBuilder.maximumSize(maxCacheEntries);
         }
         cache = cacheBuilder.build();
-
-        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.clear();
-        if (permittedSystemKeys != null && !permittedSystemKeys.isEmpty()) {
-            HandlebarsHelper.PERMITTED_SYSTEM_KEYS.addAll(permittedSystemKeys);
-        }
     }
 
     @Override
@@ -263,7 +262,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         private Handlebars handlebars = new Handlebars();
         private Map<String, Helper> helpers = new HashMap<>();
         private Long maxCacheEntries = null;
-        private Set<String> permittedSystemKeys = Collections.emptySet();
+        private Set<String> permittedSystemKeys = null;
 
         public Builder global(boolean global) {
             this.global = global;
@@ -292,6 +291,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
 
         public Builder permittedSystemKeys(Set<String> keys) {
             this.permittedSystemKeys = keys;
+            return this;
+        }
+
+        public Builder permittedSystemKeys(String... keys) {
+            this.permittedSystemKeys = ImmutableSet.copyOf(keys);
             return this;
         }
 
