@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -421,6 +422,24 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void configuresPermittedSystemKeysIfSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--permitted-system-keys", "java*,path*");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
+
+        assertThat(HandlebarsHelper.PERMITTED_SYSTEM_KEYS.size(), is(2));
+    }
+
+    @Test
+    public void configuresPermittedSystemKeysToEmptyIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating");
+        Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
+        ResponseTemplateTransformer transformer = extensions.get(ResponseTemplateTransformer.NAME);
+
+        assertThat(HandlebarsHelper.PERMITTED_SYSTEM_KEYS.size(), is(0));
+    }
+
+    @Test
     public void disablesGzip() {
         CommandLineOptions options = new CommandLineOptions("--disable-gzip");
         assertThat(options.getGzipDisabled(), is(true));
@@ -430,6 +449,7 @@ public class CommandLineOptionsTest {
     public void defaultsToGzipEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getGzipDisabled(), is(false));
+
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

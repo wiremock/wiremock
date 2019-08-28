@@ -121,6 +121,8 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 
 `--max-template-cache-entries`: Set the maximum number of compiled template fragments to cache. Only has any effect when response templating is enabled. Defaults to no limit.
 
+`--permitted-system-keys`: Set the list of regular expressions for names of permitted env vars to access. Only has any effect when templating is enabled. Defaults to no limit.
+
 `--use-chunked-encoding`: Set the policy for sending responses with `Transfer-Encoding: chunked`. Valid values are `always`, `never` and `body_file`. 
 The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.
 

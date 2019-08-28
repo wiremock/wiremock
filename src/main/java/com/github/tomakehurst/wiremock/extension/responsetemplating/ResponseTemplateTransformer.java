@@ -28,6 +28,7 @@ import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.StubLifecycleListener;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.WireMockHelpers;
 import com.github.tomakehurst.wiremock.http.HttpHeader;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
@@ -40,13 +41,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -76,10 +76,10 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
     }
 
     public ResponseTemplateTransformer(boolean global, Map<String, Helper> helpers) {
-        this(global, new Handlebars(), helpers, null);
+        this(global, new Handlebars(), helpers, null, null);
     }
 
-    public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers, Long maxCacheEntries) {
+    public ResponseTemplateTransformer(boolean global, Handlebars handlebars, Map<String, Helper> helpers, Long maxCacheEntries, Set<String> permittedSystemKeys) {
         this.global = global;
         this.handlebars = handlebars;
 
@@ -92,15 +92,15 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         for (NumberHelper helper: NumberHelper.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
-        
+
         for (ConditionalHelpers helper: ConditionalHelpers.values()) {
-        	this.handlebars.registerHelper(helper.name(), helper);
+            this.handlebars.registerHelper(helper.name(), helper);
         }
 
         this.handlebars.registerHelper(AssignHelper.NAME, new AssignHelper());
 
         //Add all available wiremock helpers
-        for(WireMockHelpers helper: WireMockHelpers.values()){
+        for (WireMockHelpers helper: WireMockHelpers.values()) {
             this.handlebars.registerHelper(helper.name(), helper);
         }
 
@@ -114,6 +114,11 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             cacheBuilder.maximumSize(maxCacheEntries);
         }
         cache = cacheBuilder.build();
+
+        HandlebarsHelper.PERMITTED_SYSTEM_KEYS.clear();
+        if (permittedSystemKeys != null && !permittedSystemKeys.isEmpty()) {
+            HandlebarsHelper.PERMITTED_SYSTEM_KEYS.addAll(permittedSystemKeys);
+        }
     }
 
     @Override
@@ -258,6 +263,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         private Handlebars handlebars = new Handlebars();
         private Map<String, Helper> helpers = new HashMap<>();
         private Long maxCacheEntries = null;
+        private Set<String> permittedSystemKeys = Collections.emptySet();
 
         public Builder global(boolean global) {
             this.global = global;
@@ -284,8 +290,13 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
             return this;
         }
 
+        public Builder permittedSystemKeys(Set<String> keys) {
+            this.permittedSystemKeys = keys;
+            return this;
+        }
+
         public ResponseTemplateTransformer build() {
-            return new ResponseTemplateTransformer(global, handlebars, helpers, maxCacheEntries);
+            return new ResponseTemplateTransformer(global, handlebars, helpers, maxCacheEntries, permittedSystemKeys);
         }
     }
 }

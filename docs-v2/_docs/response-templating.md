@@ -364,6 +364,19 @@ Random strings of various kinds can be generated:
 {% endraw %}
 
 
+## Hostname and SystemValue helpers
+A helper is present to render the current hostname/system environment variable/property value which can be used in container.
+
+ 
+{% raw %}
+```
+{{hostname}}
+{{systemValue type='ENVIRONMENT' key='PATH'}}
+{{systemValue type='PROPERTY' key='os.path'}}
+```
+{% endraw %}
+
+
 ## String trim helper
 Use the `trim` helper to remove whitespace from the start and end of the input:
 
@@ -470,7 +483,6 @@ The `size` helper returns the size of a string, list or map:
 {{size request.query.things}}
 ```
 {% endraw %}
-
 
 
 ## Custom helpers

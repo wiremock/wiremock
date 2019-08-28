@@ -58,6 +58,22 @@ public enum WireMockHelpers implements Helper<Object> {
             return this.helper.apply(null, options);
         }
     },
+    hostname {
+        private HostnameHelper helper = new HostnameHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return this.helper.apply(context, options);
+        }
+    },
+    systemValue {
+        private SystemValueHelper helper = new SystemValueHelper();
+
+        @Override
+        public Object apply(Object context, Options options) throws IOException {
+            return this.helper.apply(null, options);
+        }
+    },
     date {
         private HandlebarsCurrentDateHelper helper = new HandlebarsCurrentDateHelper();
 
