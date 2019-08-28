@@ -35,6 +35,7 @@ import com.github.tomakehurst.wiremock.security.BasicAuthenticator;
 import com.github.tomakehurst.wiremock.security.NoAuthenticator;
 import com.github.tomakehurst.wiremock.verification.notmatched.NotMatchedRenderer;
 import com.github.tomakehurst.wiremock.verification.notmatched.PlainTextStubNotMatchedRenderer;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
@@ -138,7 +139,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(ASYNCHRONOUS_RESPONSE_THREADS, "Number of asynchronous response threads").withRequiredArg().defaultsTo("10");
         optionParser.accepts(USE_CHUNKED_ENCODING, "Whether to use Transfer-Encoding: chunked in responses. Can be set to always, never or body_file.").withRequiredArg().defaultsTo("always");
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
-        optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of regular expressions for names of permitted env vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
+        optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
 
 
@@ -530,9 +531,11 @@ public class CommandLineOptions implements Options {
                 null;
     }
 
-    private Set<String> getPermittedSystemKeys() {
+    @SuppressWarnings("unchecked")
+    @VisibleForTesting
+    public Set<String> getPermittedSystemKeys() {
         return optionSet.has(PERMITTED_SYSTEM_KEYS) ?
-                new HashSet(optionSet.valuesOf(PERMITTED_SYSTEM_KEYS)) :
+                ImmutableSet.copyOf((List<String>) optionSet.valuesOf(PERMITTED_SYSTEM_KEYS)) :
                 Collections.<String>emptySet();
     }
 

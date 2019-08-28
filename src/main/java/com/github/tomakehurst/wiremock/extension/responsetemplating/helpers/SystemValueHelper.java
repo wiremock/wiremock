@@ -16,22 +16,31 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import org.apache.commons.lang3.StringUtils;
 
 import java.security.AccessControlException;
 import java.util.regex.Pattern;
 
-public class SystemValueHelper extends HandlebarsHelper<Void> {
+public class SystemValueHelper extends HandlebarsHelper<Object> {
+
+    private final SystemKeyAuthoriser systemKeyAuthoriser;
+
+    public SystemValueHelper(SystemKeyAuthoriser systemKeyAuthoriser) {
+        this.systemKeyAuthoriser = systemKeyAuthoriser;
+    }
+
     @Override
-    public String apply(Void context, Options options) {
+    public String apply(Object context, Options options) {
         String key = options.hash("key", "");
         String type = options.hash("type", "ENVIRONMENT");
         if (StringUtils.isEmpty(key)) {
             return this.handleError("The key cannot be empty");
         }
-        if (!isPermittedKey(key)) {
+        if (!systemKeyAuthoriser.isPermitted(key)) {
             return this.handleError("Access to " + key + " is denied");
         }
+
         String rawValue = "";
 
         try {
@@ -56,18 +65,5 @@ public class SystemValueHelper extends HandlebarsHelper<Void> {
 
     private String getSystemProperties(final String key) {
         return System.getProperty(key);
-    }
-
-    private boolean isPermittedKey(final String key) {
-        return PERMITTED_SYSTEM_KEYS.isEmpty() || matchedKey(key);
-    }
-
-    private boolean matchedKey(String key) {
-        for (String reg : PERMITTED_SYSTEM_KEYS) {
-            if (Pattern.compile(reg).matcher(key).find()) {
-                return true;
-            }
-        }
-        return false;
     }
 }

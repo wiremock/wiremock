@@ -32,7 +32,6 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
 
     public static final String ERROR_PREFIX = "[ERROR: ";
     public static final String ERROR_SUFFIX = "]";
-    public static final Set<String> PERMITTED_SYSTEM_KEYS = new HashSet<>();
 
     /**
      * Handle invalid helper data without exception details or because none was thrown.
