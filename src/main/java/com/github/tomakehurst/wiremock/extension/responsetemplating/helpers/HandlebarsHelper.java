@@ -17,6 +17,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Helper;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 /**
@@ -29,6 +32,7 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
 
     public static final String ERROR_PREFIX = "[ERROR: ";
     public static final String ERROR_SUFFIX = "]";
+    public static final Set<String> PERMITTED_SYSTEM_KEYS = new HashSet<>();
 
     /**
      * Handle invalid helper data without exception details or because none was thrown.
