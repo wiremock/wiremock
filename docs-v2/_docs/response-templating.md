@@ -364,19 +364,6 @@ Random strings of various kinds can be generated:
 {% endraw %}
 
 
-## Hostname and SystemValue helpers
-A helper is present to render the current hostname/system environment variable/property value which can be used in container.
-
- 
-{% raw %}
-```
-{{hostname}}
-{{systemValue type='ENVIRONMENT' key='PATH'}}
-{{systemValue type='PROPERTY' key='os.path'}}
-```
-{% endraw %}
-
-
 ## String trim helper
 Use the `trim` helper to remove whitespace from the start and end of the input:
 
@@ -484,6 +471,46 @@ The `size` helper returns the size of a string, list or map:
 ```
 {% endraw %}
 
+## Hostname helper
+
+The local machine's hostname can be printed:
+
+{% raw %}
+```
+{{hostname}}
+```
+{% endraw %}
+
+
+## System property helper
+Environment variables and system properties can be printed: 
+ 
+{% raw %}
+```
+{{systemValue type='ENVIRONMENT' key='PATH'}}
+{{systemValue type='PROPERTY' key='os.path'}}
+```
+{% endraw %}
+
+To avoid disclosure of sensitive variables, only permitted variables can be read. Permitted variable names
+are defined via a set of regular expressions. These can be configured when constructing the response template extension:
+
+```java
+@Rule
+public WireMockRule wm = new WireMockRule(options()
+        .dynamicPort()
+        .withRootDirectory(defaultTestFilesRoot())
+        .extensions(new ResponseTemplateTransformer.Builder()
+                .global(true)
+                .permittedSystemKeys("allowed.*","also_permitted.*")
+                .build()
+        )
+);
+```
+
+The regular expressions are matched in a case-insensitive manner.
+
+If no permitted system key patterns are set, a single default of `wiremock.*` will be used. 
 
 ## Custom helpers
 Custom Handlebars helpers can be registered with the transformer on construction:
