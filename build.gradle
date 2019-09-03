@@ -88,6 +88,8 @@ allprojects {
             exclude group: 'org.mozilla', module: 'rhino'
         }
 
+        compile 'commons-fileupload:commons-fileupload:1.4'
+
         testCompile "org.hamcrest:hamcrest-all:1.3"
         testCompile("org.jmock:jmock:2.5.1") {
             exclude group: "junit", module: "junit-dep"
