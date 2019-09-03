@@ -60,6 +60,8 @@ Groovy binding by Tom Jankes:<br>
 Python client by Cody Lee:<br>
 [https://pypi.python.org/pypi/wiremock/1.1.1](https://pypi.python.org/pypi/wiremock/1.1.1)
 
+NodeJS wrapper:<br>
+[https://www.npmjs.com/package/wiremock](https://www.npmjs.com/package/wiremock)
 
 
 ## Articles
