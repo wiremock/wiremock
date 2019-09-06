@@ -89,6 +89,7 @@ public class AdminRoutes {
         router.add(GET,  "/requests/unmatched", FindUnmatchedRequestsTask.class);
         router.add(GET,  "/requests/unmatched/near-misses", FindNearMissesForUnmatchedTask.class);
         router.add(GET,  "/requests/{id}", GetServedStubTask.class);
+        router.add(DELETE, "/requests/{id}", RemoveServeEventTask.class);
 
         router.add(POST, "/recordings/snapshot", SnapshotTask.class);
         router.add(POST, "/recordings/start", StartRecordingTask.class);

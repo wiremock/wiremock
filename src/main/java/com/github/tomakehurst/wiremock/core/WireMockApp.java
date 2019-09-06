@@ -349,6 +349,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public void removeServeEvent(UUID eventId) {
+        requestJournal.removeEvent(eventId);
+    }
+
+    @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
         Iterable<ServeEvent> unmatchedServeEvents =

@@ -581,6 +581,22 @@ public class WireMock {
         return admin.getServeEvents().getRequests();
     }
 
+    public static void removeServeEvent(UUID eventId) {
+	    defaultInstance.get().removeEvent(eventId);
+    }
+
+    public void removeEvent(UUID eventId) {
+	    admin.removeServeEvent(eventId);
+    }
+
+    public void removeEvents(RequestPatternBuilder requestPatternBuilder) {
+
+    }
+
+    public static void removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
+	    defaultInstance.get().removeEvents(requestPatternBuilder);
+    }
+
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}

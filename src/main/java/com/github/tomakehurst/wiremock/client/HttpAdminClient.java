@@ -242,6 +242,15 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public void removeServeEvent(UUID eventId) {
+        executeRequest(
+                adminRoutes.requestSpecForTask(RemoveServeEventTask.class),
+                PathParams.single("id", eventId),
+                Void.class
+        );
+    }
+
+    @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class));
         return Json.read(body, FindNearMissesResult.class);

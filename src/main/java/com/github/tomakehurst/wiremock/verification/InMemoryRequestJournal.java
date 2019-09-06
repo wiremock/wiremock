@@ -22,7 +22,9 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,21 +58,27 @@ public class InMemoryRequestJournal implements RequestJournal {
 		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
 	}
 
-    private Predicate<Request> matchedBy(final RequestPattern requestPattern) {
-		return new Predicate<Request>() {
-			public boolean apply(Request input) {
-				return requestPattern.isMatchedBy(input, Collections.<String, RequestMatcherExtension>emptyMap());
-			}
-		};
-	}
-
 	@Override
 	public void requestReceived(ServeEvent serveEvent) {
 		serveEvents.add(serveEvent);
         removeOldEntries();
 	}
 
-    @Override
+	@Override
+	public void removeEvent(final UUID eventId) {
+		Iterable<ServeEvent> toDelete = filter(serveEvents, new Predicate<ServeEvent>() {
+			@Override
+			public boolean apply(ServeEvent input) {
+				return input.getId().equals(eventId);
+			}
+		});
+
+		for (ServeEvent event: toDelete) {
+			serveEvents.remove(event);
+		}
+	}
+
+	@Override
     public List<ServeEvent> getAllServeEvents() {
         return ImmutableList.copyOf(serveEvents).reverse();
     }
