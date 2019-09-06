@@ -15,8 +15,6 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
-import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
@@ -24,15 +22,14 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.thatMatch;
+import static com.github.tomakehurst.wiremock.matching.RequestPattern.withRequstMatching;
 import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestJournal {
@@ -76,6 +73,19 @@ public class InMemoryRequestJournal implements RequestJournal {
 		for (ServeEvent event: toDelete) {
 			serveEvents.remove(event);
 		}
+	}
+
+	@Override
+	public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
+		List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
+				.filter(withRequstMatching(requestPattern))
+				.toList();
+
+		for (ServeEvent event: toDelete) {
+			serveEvents.remove(event);
+		}
+
+		return toDelete;
 	}
 
 	@Override

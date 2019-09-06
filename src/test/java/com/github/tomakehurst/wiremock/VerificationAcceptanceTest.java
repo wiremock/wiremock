@@ -686,25 +686,48 @@ public class VerificationAcceptanceTest {
             assertThat(finalServeEvents.size(), is(3));
         }
 
-//        @Test
-//        public void removesEventsPerSuppliedFilter() {
-//            stubFor(get(anyUrl()).willReturn(ok()));
-//
-//            testClient.get("/one", withHeader("My-Header", "one"));
-//            testClient.get("/one", withHeader("My-Header", "two"));
-//            testClient.get("/two");
-//
-//            removeServeEvents(getRequestedFor(urlPathEqualTo("/one")).withHeader("My-Header", equalTo("two")));
-//
-//            List<ServeEvent> serveEvents = getAllServeEvents();
-//            assertThat(serveEvents.size(), is(2));
-//
-//            ServeEvent event1 = findServeEventWithUrl(serveEvents, "/one");
-//            assertThat(event1.getRequest().header("My-Header").firstValue(), is("one"));
-//
-//            ServeEvent event2 = findServeEventWithUrl(serveEvents, "/two");
-//            assertThat(event2, notNullValue());
-//        }
+        @Test
+        public void removesEventsPerSuppliedFilter() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> removedEvents = removeServeEvents(
+                    getRequestedFor(urlPathEqualTo("/one")).withHeader("My-Header", equalTo("two"))
+            );
+
+            assertThat(removedEvents.size(), is(1));
+            assertThat(removedEvents.get(0).getRequest().header("My-Header").firstValue(), is("two"));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(2));
+
+            ServeEvent event1 = findServeEventWithUrl(serveEvents, "/one");
+            assertThat(event1.getRequest().header("My-Header").firstValue(), is("one"));
+
+            ServeEvent event2 = findServeEventWithUrl(serveEvents, "/two");
+            assertThat(event2, notNullValue());
+        }
+
+        @Test
+        public void returnsEmptyListWhenNoEventsMatchedForRemoval() {
+            stubFor(get(anyUrl()).willReturn(ok()));
+
+            testClient.get("/one", withHeader("My-Header", "one"));
+            testClient.get("/one", withHeader("My-Header", "two"));
+            testClient.get("/two");
+
+            List<ServeEvent> removedEvents = removeServeEvents(
+                    getRequestedFor(urlPathEqualTo("/one")).withHeader("My-Header", equalTo("wrong"))
+            );
+
+            assertThat(removedEvents.size(), is(0));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(3));
+        }
 
     }
 

@@ -93,6 +93,9 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             return ServeEvent.forBadRequest(LoggedRequest.createFrom(request), iie.getErrors());
         } catch (NotPermittedException npe) {
             return ServeEvent.forNotAllowedRequest(LoggedRequest.createFrom(request), npe.getErrors());
+        } catch (Throwable t) {
+            notifier().error("Unrecoverable error handling admin request", t);
+            throw t;
         }
     }
 

@@ -55,4 +55,9 @@ public class DisabledRequestJournal implements RequestJournal {
     @Override
     public void removeEvent(UUID eventId) {
     }
+
+    @Override
+    public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
+        throw new RequestJournalDisabledException();
+    }
 }

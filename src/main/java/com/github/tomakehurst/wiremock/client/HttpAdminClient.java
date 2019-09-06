@@ -36,10 +36,7 @@ import com.github.tomakehurst.wiremock.security.ClientAuthenticator;
 import com.github.tomakehurst.wiremock.security.NotAuthorisedException;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.StringEntity;
@@ -248,6 +245,14 @@ public class HttpAdminClient implements Admin {
                 PathParams.single("id", eventId),
                 Void.class
         );
+    }
+
+    @Override
+    public FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern) {
+        String body = postJsonAssertOkAndReturnBody(
+                urlFor(RemoveServeEventsByRequestPatternTask.class),
+                Json.write(requestPattern));
+        return Json.read(body, FindServeEventsResult.class);
     }
 
     @Override
