@@ -24,6 +24,7 @@ import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -419,6 +420,15 @@ public class RequestPattern implements NamedValueMatcher<Request> {
             @Override
             public boolean apply(Request request) {
                 return pattern.match(request).isExactMatch();
+            }
+        };
+    }
+
+    public static Predicate<ServeEvent> withRequstMatching(final RequestPattern pattern) {
+        return new Predicate<ServeEvent>() {
+            @Override
+            public boolean apply(ServeEvent serveEvent) {
+                return pattern.match(serveEvent.getRequest()).isExactMatch();
             }
         };
     }

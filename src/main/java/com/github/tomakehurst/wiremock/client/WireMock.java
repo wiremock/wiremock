@@ -589,12 +589,12 @@ public class WireMock {
 	    admin.removeServeEvent(eventId);
     }
 
-    public void removeEvents(RequestPatternBuilder requestPatternBuilder) {
-
+    public List<ServeEvent> removeEvents(RequestPatternBuilder requestPatternBuilder) {
+        return admin.removeServeEventsMatching(requestPatternBuilder.build()).getServeEvents();
     }
 
-    public static void removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
-	    defaultInstance.get().removeEvents(requestPatternBuilder);
+    public static List<ServeEvent> removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
+	    return defaultInstance.get().removeEvents(requestPatternBuilder);
     }
 
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {

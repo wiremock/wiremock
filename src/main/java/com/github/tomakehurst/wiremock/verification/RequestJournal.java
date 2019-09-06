@@ -35,4 +35,5 @@ public interface RequestJournal {
     void requestReceived(ServeEvent serveEvent);
 
     void removeEvent(UUID eventId);
+    List<ServeEvent> removeEventsMatching(RequestPattern requestPattern);
 }
