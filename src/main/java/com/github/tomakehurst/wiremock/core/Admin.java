@@ -53,6 +53,8 @@ public interface Admin {
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
     FindRequestsResult findUnmatchedRequests();
 
+    void removeServeEvent(UUID eventId);
+
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
     FindNearMissesResult findTopNearMissesFor(RequestPattern requestPattern);
     FindNearMissesResult findNearMissesForUnmatchedRequests();

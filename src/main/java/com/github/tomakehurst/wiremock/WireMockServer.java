@@ -381,6 +381,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public void removeServeEvent(UUID eventId) {
+        wireMockApp.removeServeEvent(eventId);
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
     }

@@ -33,4 +33,6 @@ public interface RequestJournal {
 	void reset();
 
     void requestReceived(ServeEvent serveEvent);
+
+    void removeEvent(UUID eventId);
 }
