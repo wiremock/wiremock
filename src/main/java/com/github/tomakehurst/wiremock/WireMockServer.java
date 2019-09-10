@@ -391,6 +391,11 @@ public class WireMockServer implements Container, Stubbing, Admin {
     }
 
     @Override
+    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        return wireMockApp.removeServeEventsForStubsMatchingMetadata(metadataPattern);
+    }
+
+    @Override
     public void updateGlobalSettings(GlobalSettings newSettings) {
         wireMockApp.updateGlobalSettings(newSettings);
     }

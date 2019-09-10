@@ -91,6 +91,7 @@ public class AdminRoutes {
         router.add(GET,  "/requests/{id}", GetServedStubTask.class);
         router.add(DELETE, "/requests/{id}", RemoveServeEventTask.class);
         router.add(POST, "/requests/remove", RemoveServeEventsByRequestPatternTask.class);
+        router.add(POST, "/requests/remove-by-metadata", RemoveServeEventsByStubMetadataTask.class);
 
         router.add(POST, "/recordings/snapshot", SnapshotTask.class);
         router.add(POST, "/recordings/start", StartRecordingTask.class);
