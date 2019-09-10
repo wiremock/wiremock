@@ -256,6 +256,14 @@ public class HttpAdminClient implements Admin {
     }
 
     @Override
+    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        String body = postJsonAssertOkAndReturnBody(
+                urlFor(RemoveServeEventsByStubMetadataTask.class),
+                Json.write(metadataPattern));
+        return Json.read(body, FindServeEventsResult.class);
+    }
+
+    @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         String body = getJsonAssertOkAndReturnBody(urlFor(FindNearMissesForUnmatchedTask.class));
         return Json.read(body, FindNearMissesResult.class);

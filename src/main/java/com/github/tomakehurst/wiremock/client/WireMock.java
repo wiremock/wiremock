@@ -597,6 +597,14 @@ public class WireMock {
 	    return defaultInstance.get().removeEvents(requestPatternBuilder);
     }
 
+    public static List<ServeEvent> removeEventsByStubMetadata(StringValuePattern pattern) {
+	    return defaultInstance.get().removeEventsByMetadata(pattern);
+    }
+
+    public List<ServeEvent> removeEventsByMetadata(StringValuePattern pattern) {
+	    return admin.removeServeEventsForStubsMatchingMetadata(pattern).getServeEvents();
+    }
+
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
 		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
 	}

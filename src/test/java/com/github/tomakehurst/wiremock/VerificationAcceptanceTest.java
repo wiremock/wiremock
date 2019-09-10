@@ -21,27 +21,28 @@ import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.HttpHeaders;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.matching.*;
+import com.github.tomakehurst.wiremock.matching.MatchResult;
+import com.github.tomakehurst.wiremock.matching.RequestMatcher;
+import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
+import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
-import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.RequestJournalDisabledException;
 import com.google.common.base.Optional;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.lessThan;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.common.Metadata.metadata;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.forCustomMatcher;
@@ -52,7 +53,6 @@ import static java.lang.System.lineSeparator;
 import static org.apache.http.entity.ContentType.TEXT_PLAIN;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(Enclosed.class)
@@ -727,6 +727,24 @@ public class VerificationAcceptanceTest {
 
             List<ServeEvent> serveEvents = getAllServeEvents();
             assertThat(serveEvents.size(), is(3));
+        }
+
+        @Test
+        public void removesEventsAssociatedWithStubsMatchingMetadata() {
+            stubFor(get("/with-metadata")
+                .withMetadata(metadata()
+                    .list("tags", "delete-me")
+                ));
+            stubFor(get("/without-metadata"));
+
+            testClient.get("/with-metadata");
+            testClient.get("/without-metadata");
+
+            removeEventsByStubMetadata(matchingJsonPath("$.tags[0]", equalTo("delete-me")));
+
+            List<ServeEvent> serveEvents = getAllServeEvents();
+            assertThat(serveEvents.size(), is(1));
+            assertThat(serveEvents.get(0).getRequest().getUrl(), is("/without-metadata"));
         }
 
     }
