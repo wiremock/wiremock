@@ -25,7 +25,6 @@ import com.github.tomakehurst.wiremock.common.Errors;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.AbstractTransformer;
 import com.github.tomakehurst.wiremock.extension.Parameters;
-import com.google.common.net.MediaType;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +46,7 @@ public class ResponseDefinition {
     private final DelayDistribution delayDistribution;
     private final ChunkedDribbleDelay chunkedDribbleDelay;
     private final String proxyBaseUrl;
+    private final boolean useModifiedRequest;
     private final Fault fault;
     private final List<String> transformers;
     private final Parameters transformerParameters;
@@ -68,11 +68,12 @@ public class ResponseDefinition {
                               @JsonProperty("delayDistribution") DelayDistribution delayDistribution,
                               @JsonProperty("chunkedDribbleDelay") ChunkedDribbleDelay chunkedDribbleDelay,
                               @JsonProperty("proxyBaseUrl") String proxyBaseUrl,
+                              @JsonProperty("useModifiedRequest") boolean useModifiedRequest,
                               @JsonProperty("fault") Fault fault,
                               @JsonProperty("transformers") List<String> transformers,
                               @JsonProperty("transformerParameters") Parameters transformerParameters,
                               @JsonProperty("fromConfiguredStub") Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(null, body, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, useModifiedRequest, fault, transformers, transformerParameters, wasConfigured);
     }
 
     public ResponseDefinition(int status,
@@ -87,11 +88,12 @@ public class ResponseDefinition {
                               DelayDistribution delayDistribution,
                               ChunkedDribbleDelay chunkedDribbleDelay,
                               String proxyBaseUrl,
+                              boolean useModifiedRequest,
                               Fault fault,
                               List<String> transformers,
                               Parameters transformerParameters,
                               Boolean wasConfigured) {
-        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, fault, transformers, transformerParameters, wasConfigured);
+        this(status, statusMessage, Body.fromOneOf(body, null, jsonBody, base64Body), bodyFileName, headers, additionalProxyRequestHeaders, fixedDelayMilliseconds, delayDistribution, chunkedDribbleDelay, proxyBaseUrl, useModifiedRequest, fault, transformers, transformerParameters, wasConfigured);
     }
 
     private ResponseDefinition(int status,
@@ -104,6 +106,7 @@ public class ResponseDefinition {
                                DelayDistribution delayDistribution,
                                ChunkedDribbleDelay chunkedDribbleDelay,
                                String proxyBaseUrl,
+                               boolean useModifiedRequest,
                                Fault fault,
                                List<String> transformers,
                                Parameters transformerParameters,
@@ -120,6 +123,7 @@ public class ResponseDefinition {
         this.delayDistribution = delayDistribution;
         this.chunkedDribbleDelay = chunkedDribbleDelay;
         this.proxyBaseUrl = proxyBaseUrl;
+        this.useModifiedRequest = useModifiedRequest;
         this.fault = fault;
         this.transformers = transformers;
         this.transformerParameters = transformerParameters;
@@ -127,15 +131,15 @@ public class ResponseDefinition {
     }
 
     public ResponseDefinition(final int statusCode, final String bodyContent) {
-        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromString(bodyContent), null, null, null, null, null, null, null, false, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition(final int statusCode, final byte[] bodyContent) {
-        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(statusCode, null, Body.fromBytes(bodyContent), null, null, null, null, null, null, null, false, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public ResponseDefinition() {
-        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, null, Collections.<String>emptyList(), Parameters.empty(), true);
+        this(HTTP_OK, null, Body.none(), null, null, null, null, null, null, null, false, null, Collections.<String>emptyList(), Parameters.empty(), true);
     }
 
     public static ResponseDefinition notFound() {
@@ -214,6 +218,7 @@ public class ResponseDefinition {
             original.delayDistribution,
             original.chunkedDribbleDelay,
             original.proxyBaseUrl,
+            original.useModifiedRequest,
             original.fault,
             original.transformers,
             original.transformerParameters,
@@ -301,6 +306,11 @@ public class ResponseDefinition {
 
     public String getProxyBaseUrl() {
         return proxyBaseUrl;
+    }
+
+    @JsonIgnore
+    public boolean isUseModifiedRequest() {
+        return useModifiedRequest;
     }
 
     @JsonIgnore

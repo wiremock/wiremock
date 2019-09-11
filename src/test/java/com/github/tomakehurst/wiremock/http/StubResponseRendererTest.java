@@ -128,6 +128,7 @@ public class StubResponseRendererTest {
                     null,
                     null,
                     null,
+                    false,
                     null,
                     null,
                     null,

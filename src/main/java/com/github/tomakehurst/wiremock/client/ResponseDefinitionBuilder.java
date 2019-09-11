@@ -44,6 +44,7 @@ public class ResponseDefinitionBuilder {
     protected DelayDistribution delayDistribution;
     protected ChunkedDribbleDelay chunkedDribbleDelay;
     protected String proxyBaseUrl;
+    protected boolean useModifiedRequest;
     protected Fault fault;
     protected List<String> responseTransformerNames;
     protected Map<String, Object> transformerParameters = newHashMap();
@@ -63,6 +64,7 @@ public class ResponseDefinitionBuilder {
         builder.delayDistribution = responseDefinition.getDelayDistribution();
         builder.chunkedDribbleDelay = responseDefinition.getChunkedDribbleDelay();
         builder.proxyBaseUrl = responseDefinition.getProxyBaseUrl();
+        builder.useModifiedRequest = responseDefinition.isUseModifiedRequest();
         builder.fault = responseDefinition.getFault();
         builder.responseTransformerNames = responseDefinition.getTransformers();
         builder.transformerParameters = responseDefinition.getTransformerParameters() != null ? Parameters.from(responseDefinition.getTransformerParameters()) : Parameters.empty();
@@ -127,6 +129,11 @@ public class ResponseDefinitionBuilder {
 
     public ResponseDefinitionBuilder withChunkedDribbleDelay(int numberOfChunks, int totalDuration) {
         this.chunkedDribbleDelay = new ChunkedDribbleDelay(numberOfChunks, totalDuration);
+        return this;
+    }
+
+    public ResponseDefinitionBuilder withModifiedRequests() {
+        this.useModifiedRequest = true;
         return this;
     }
 
@@ -196,6 +203,7 @@ public class ResponseDefinitionBuilder {
             this.delayDistribution = from.delayDistribution;
             this.chunkedDribbleDelay = from.chunkedDribbleDelay;
             this.proxyBaseUrl = from.proxyBaseUrl;
+            this.useModifiedRequest = from.useModifiedRequest;
             this.responseTransformerNames = from.responseTransformerNames;
             this.transformerParameters = from.transformerParameters;
         }
@@ -245,6 +253,7 @@ public class ResponseDefinitionBuilder {
                     delayDistribution,
                     chunkedDribbleDelay,
                     proxyBaseUrl,
+                    useModifiedRequest,
                     fault,
                     responseTransformerNames,
                     transformerParameters,
@@ -264,6 +273,7 @@ public class ResponseDefinitionBuilder {
                     delayDistribution,
                     chunkedDribbleDelay,
                     proxyBaseUrl,
+                    useModifiedRequest,
                     fault,
                     responseTransformerNames,
                     transformerParameters,
@@ -282,6 +292,7 @@ public class ResponseDefinitionBuilder {
                     delayDistribution,
                     chunkedDribbleDelay,
                     proxyBaseUrl,
+                    useModifiedRequest,
                     fault,
                     responseTransformerNames,
                     transformerParameters,

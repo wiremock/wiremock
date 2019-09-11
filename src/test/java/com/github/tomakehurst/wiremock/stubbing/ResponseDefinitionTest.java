@@ -50,6 +50,7 @@ public class ResponseDefinitionTest {
                 null,
                 null,
                 "http://base.com",
+                false,
                 Fault.EMPTY_RESPONSE,
                 ImmutableList.of("transformer-1"),
                 Parameters.one("name", "Jeff"),

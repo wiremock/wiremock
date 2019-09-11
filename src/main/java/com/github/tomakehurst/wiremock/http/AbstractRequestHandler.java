@@ -66,7 +66,11 @@ public abstract class AbstractRequestHandler implements RequestHandler, RequestE
 		}
 
 		ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
-		responseDefinition.setOriginalRequest(request);
+		if (responseDefinition.isUseModifiedRequest() && serveEvent.getRequest() != null) {
+			responseDefinition.setOriginalRequest(serveEvent.getRequest());
+		} else {
+			responseDefinition.setOriginalRequest(request);
+		}
 		Response response = responseRenderer.render(serveEvent);
 		ServeEvent completedServeEvent = serveEvent.complete(response, (int) stopwatch.elapsed(MILLISECONDS));
 
