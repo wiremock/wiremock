@@ -359,6 +359,11 @@ public class WireMockApp implements StubServer, Admin {
     }
 
     @Override
+    public FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+        return new FindServeEventsResult(requestJournal.removeServeEventsForStubsMatchingMetadata(metadataPattern));
+    }
+
+    @Override
     public FindNearMissesResult findNearMissesForUnmatchedRequests() {
         ImmutableList.Builder<NearMiss> listBuilder = ImmutableList.builder();
         Iterable<ServeEvent> unmatchedServeEvents =

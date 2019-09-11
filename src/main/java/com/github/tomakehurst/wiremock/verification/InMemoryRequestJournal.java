@@ -15,8 +15,11 @@
  */
 package com.github.tomakehurst.wiremock.verification;
 
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -63,22 +66,27 @@ public class InMemoryRequestJournal implements RequestJournal {
 
 	@Override
 	public void removeEvent(final UUID eventId) {
-		Iterable<ServeEvent> toDelete = filter(serveEvents, new Predicate<ServeEvent>() {
+		removeServeEvents(new Predicate<ServeEvent>() {
 			@Override
 			public boolean apply(ServeEvent input) {
 				return input.getId().equals(eventId);
 			}
 		});
-
-		for (ServeEvent event: toDelete) {
-			serveEvents.remove(event);
-		}
 	}
 
 	@Override
 	public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
+		return removeServeEvents(withRequstMatching(requestPattern));
+	}
+
+	@Override
+	public List<ServeEvent> removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+		return removeServeEvents(withStubMetadataMatching(metadataPattern));
+	}
+
+	private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
 		List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
-				.filter(withRequstMatching(requestPattern))
+				.filter(predicate)
 				.toList();
 
 		for (ServeEvent event: toDelete) {
@@ -122,6 +130,21 @@ public class InMemoryRequestJournal implements RequestJournal {
 				serveEvents.poll();
 			}
 		}
+	}
+
+	private static Predicate<ServeEvent> withStubMetadataMatching(final StringValuePattern metadataPattern) {
+		return new Predicate<ServeEvent>() {
+			@Override
+			public boolean apply(ServeEvent serveEvent) {
+				StubMapping stub = serveEvent.getStubMapping();
+				if (stub != null) {
+					String metadataJson = Json.write(stub.getMetadata());
+					return metadataPattern.match(metadataJson).isExactMatch();
+				}
+
+				return false;
+			}
+		};
 	}
 
 }

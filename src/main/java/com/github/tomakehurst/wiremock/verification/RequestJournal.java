@@ -16,6 +16,7 @@
 package com.github.tomakehurst.wiremock.verification;
 
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.google.common.base.Optional;
 
@@ -36,4 +37,5 @@ public interface RequestJournal {
 
     void removeEvent(UUID eventId);
     List<ServeEvent> removeEventsMatching(RequestPattern requestPattern);
+    List<ServeEvent> removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern);
 }
