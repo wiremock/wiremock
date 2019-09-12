@@ -33,7 +33,7 @@ public class ContentPatternDeserialiser extends JsonDeserializer<ContentPattern<
         JsonNode rootNode = parser.readValueAsTree();
 
         if (isAbsent(rootNode)) {
-            return StringValuePattern.ABSENT;
+            return AbsentPattern.ABSENT;
         }
 
         if (!rootNode.has("binaryEqualTo")) {
