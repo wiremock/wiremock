@@ -50,6 +50,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
             .put("matches", RegexPattern.class)
             .put("doesNotMatch", NegativeRegexPattern.class)
             .put("anything", AnythingPattern.class)
+            .put("absent", AbsentPattern.class)
             .build();
 
     @Override
@@ -57,7 +58,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         JsonNode rootNode = parser.readValueAsTree();
 
         if (isAbsent(rootNode)) {
-            return StringValuePattern.ABSENT;
+            return AbsentPattern.ABSENT;
         }
 
         return buildStringValuePattern(rootNode);

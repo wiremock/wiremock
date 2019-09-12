@@ -294,6 +294,25 @@ public class MatchesJsonPathPatternTest {
         assertThat(subMatcher.getExpected(), is("the value"));
     }
 
+    @Test
+    public void correctlyDeserialisesWithAbsentValuePattern() {
+        StringValuePattern stringValuePattern = Json.read(
+                "{                                      \n" +
+                "    \"matchesJsonPath\": {              \n" +
+                "        \"expression\": \"$..thing\",   \n" +
+                "        \"absent\": \"(absent)\"        \n" +
+                "    }                                   \n" +
+                "}",
+                StringValuePattern.class);
+
+        assertThat(stringValuePattern, instanceOf(MatchesJsonPathPattern.class));
+        assertThat(stringValuePattern.getExpected(), is("$..thing"));
+
+        StringValuePattern subMatcher = ((MatchesJsonPathPattern) stringValuePattern).getValuePattern();
+        assertThat(subMatcher, instanceOf(AbsentPattern.class));
+        assertThat(subMatcher.nullSafeIsAbsent(), is(true));
+    }
+
     @Test(expected = JsonException.class)
     public void throwsSensibleErrorOnDeserialisationWhenPatternIsBadlyFormedWithMissingExpression() {
         Json.read(

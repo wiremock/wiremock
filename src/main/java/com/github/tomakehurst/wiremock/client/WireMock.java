@@ -229,7 +229,7 @@ public class WireMock {
     }
 
     public static StringValuePattern absent() {
-        return StringValuePattern.ABSENT;
+        return AbsentPattern.ABSENT;
     }
 
     public void saveMappings() {
