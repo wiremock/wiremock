@@ -740,7 +740,10 @@ public class VerificationAcceptanceTest {
             testClient.get("/with-metadata");
             testClient.get("/without-metadata");
 
-            removeEventsByStubMetadata(matchingJsonPath("$.tags[0]", equalTo("delete-me")));
+            List<ServeEvent> removedServeEvents = removeEventsByStubMetadata(matchingJsonPath("$.tags[0]", equalTo("delete-me")));
+
+            assertThat(removedServeEvents.size(), is(1));
+            assertThat(removedServeEvents.get(0).getRequest().getUrl(), is("/with-metadata"));
 
             List<ServeEvent> serveEvents = getAllServeEvents();
             assertThat(serveEvents.size(), is(1));
