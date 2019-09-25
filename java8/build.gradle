@@ -3,3 +3,18 @@ shadowJar.baseName = 'wiremock-jre8-standalone'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+final jettyVersion = '9.4.20.v20190813'
+
+dependencies {
+    compile "org.eclipse.jetty.http2:http2-server:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-alpn-server:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$jettyVersion"
+    compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$jettyVersion"
+    testCompile "org.eclipse.jetty:jetty-client:$jettyVersion"
+    testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$jettyVersion"
+}
+
+def getAlpnJarPath() {
+    project.configurations.compile.find { it.name.startsWith("alpn-boot-") }
+}

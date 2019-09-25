@@ -81,6 +81,7 @@ public class JettyHttpServer implements HttpServer {
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
+                    jettyServer,
                     options.bindAddress(),
                     options.httpsSettings(),
                     options.jettySettings(),
@@ -243,6 +244,7 @@ public class JettyHttpServer implements HttpServer {
     }
 
     protected ServerConnector createHttpsConnector(
+            Server server,
             String bindAddress,
             HttpsSettings httpsSettings,
             JettySettings jettySettings,
@@ -265,17 +267,30 @@ public class JettyHttpServer implements HttpServer {
 
         final int port = httpsSettings.port();
 
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+        SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(
+                sslContextFactory,
+                "http/1.1"
+        );
+        ConnectionFactory[] connectionFactories = ArrayUtils.addAll(
+                new ConnectionFactory[] { sslConnectionFactory, httpConnectionFactory },
+                buildAdditionalConnectionFactories(httpsSettings, httpConnectionFactory, sslConnectionFactory)
+        );
+
         return createServerConnector(
                 bindAddress,
                 jettySettings,
                 port,
                 listener,
-                new SslConnectionFactory(
-                        sslContextFactory,
-                        "http/1.1"
-                ),
-                new HttpConnectionFactory(httpConfig)
+                connectionFactories
         );
+    }
+
+    protected ConnectionFactory[] buildAdditionalConnectionFactories(
+            HttpsSettings httpsSettings,
+            HttpConnectionFactory httpConnectionFactory,
+            SslConnectionFactory sslConnectionFactory) {
+        return new ConnectionFactory[] {};
     }
 
     // Override this for platform-specific impls
@@ -293,9 +308,11 @@ public class JettyHttpServer implements HttpServer {
     }
 
     protected ServerConnector createServerConnector(String bindAddress,
-                                                  JettySettings jettySettings,
-                                                  int port, NetworkTrafficListener listener,
-                                                  ConnectionFactory... connectionFactories) {
+                                                    JettySettings jettySettings,
+                                                    int port,
+                                                    NetworkTrafficListener listener,
+                                                    ConnectionFactory... connectionFactories) {
+
         int acceptors = jettySettings.getAcceptors().or(2);
         NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(
                 jettyServer,

@@ -43,11 +43,10 @@ allprojects {
             jackson        : '2.9.9',
             jacksonDatabind: '2.9.9.3',
             xmlUnit        : '2.6.2'
-
         ],
         java8: [
             handlebars     : '4.1.2',
-            jetty          : '9.4.19.v20190610',
+            jetty          : '9.4.20.v20190813',
             guava          : '27.0.1-jre',
             jackson        : '2.9.9',
             jacksonDatabind: '2.9.9.3',
@@ -55,7 +54,8 @@ allprojects {
         ]
     ]
 
-    def versions = project.name == 'wiremock' ?
+    def isJava7 = project.name == 'wiremock'
+    def versions =  isJava7 ?
         versionSets.java7 :
         versionSets[project.name]
 
@@ -107,12 +107,18 @@ allprojects {
         testCompile "com.googlecode.jarjar:jarjar:1.3"
         testCompile "commons-io:commons-io:2.4"
         testCompile 'org.scala-lang:scala-library:2.11.12'
-        testCompile 'org.littleshoot:littleproxy:1.1.2:littleproxy-shade'
+
         testCompile 'org.apache.httpcomponents:httpmime:4.5'
 
-        // This is coming in via the shaded littleproxy already. Adding it a 2nd time breaks it.
-//        testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
+        testRuntime 'org.slf4j:slf4j-log4j12:1.7.12'
         testRuntime files('src/test/resources/classpath file source/classpathfiles.zip', 'src/test/resources/classpath-filesource.jar')
+
+        def littleProxyDep = isJava7 ? 'org.littleshoot:littleproxy:1.1.2' : 'net.jockx:littleproxy:1.1.3'
+        testCompile (littleProxyDep) {
+            exclude group: 'com.google.guava', module: 'guava'
+            exclude group: 'org.apache.commons', module: 'commons-lang3'
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
     }
 
     compileTestJava {
