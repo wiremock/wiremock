@@ -54,7 +54,7 @@ allprojects {
         ]
     ]
 
-    def isJava7 = project.name == 'wiremock'
+    def isJava7 = project.name in ['wiremock', 'java7']
     def versions =  isJava7 ?
         versionSets.java7 :
         versionSets[project.name]
