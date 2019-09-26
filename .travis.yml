@@ -12,5 +12,5 @@ install:
   - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses -x generateApiDocs
 
 script:
-  - ./gradlew check --info --stacktrace --no-daemon
+  - ./gradlew check --stacktrace --no-daemon
 
