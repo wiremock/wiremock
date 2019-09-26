@@ -137,7 +137,7 @@ allprojects {
         maxParallelForks = 3
 
         testLogging {
-            events "failed"
+            events "FAILED", "SKIPPED"
             exceptionFormat "full"
         }
     }
