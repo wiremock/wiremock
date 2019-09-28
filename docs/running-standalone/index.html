@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-08-06T16:40:29+01:00">
+  <meta property="article:published_time" content="2019-09-28T13:31:22+01:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="August 06, 2019">
+    <meta itemprop="datePublished" content="September 28, 2019">
     
 
     <div class="page__inner-wrap">
@@ -369,9 +369,9 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.24.1/wiremock-standalone-2.24.1.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.24.2/wiremock-standalone-2.24.2.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.24.1.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.24.2.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -477,6 +477,8 @@ com.mycorp.HeaderTransformer,com.mycorp.BodyTransformer. See extending-wiremock.
 The last of these will cause chunked encoding to be used only when a stub defines its response body from a file.</p>
 
 <p><code class="highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
+
+<p><code class="highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="highlighter-rouge">wiremock.*</code>.</p>
 
 <p><code class="highlighter-rouge">--help</code>: Show command line help</p>
 

@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-08-06T16:40:29+01:00">
+  <meta property="article:published_time" content="2019-09-28T13:31:22+01:00">
   
   
     <link rel="prev" href="/docs/stubbing/" title="Stubbing">
@@ -347,7 +347,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Verifying">
     <meta itemprop="description" content="The WireMock server records all requests it receives in memory (atleast until it is reset). This makes it possible to verify thata request matching a specific pattern was received, and also to fetchthe requests’ details.">
-    <meta itemprop="datePublished" content="August 06, 2019">
+    <meta itemprop="datePublished" content="September 28, 2019">
     
 
     <div class="page__inner-wrap">
@@ -548,6 +548,70 @@ which will return a response like this:</p>
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
+
+<h2 id="removing-items-from-the-journal">Removing items from the journal</h2>
+
+<h3 id="by-id">By ID</h3>
+
+<p>An individual journal event can be removed via the Java API:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">removeServeEvent</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>Or via the HTTP API by issuing a <code class="highlighter-rouge">DELETE</code> to <code class="highlighter-rouge">http://&lt;host&gt;:&lt;port&gt;/__admin/requests/{id}</code>.</p>
+
+<h3 id="by-criteria">By criteria</h3>
+
+<p>Events can also be removed from the request journal by criteria (in the same manner as for finding them described in <a href="#criteria-queries">Criteria queries</a>).</p>
+
+<p>Using the Java DSL:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">removeServeEvents</span><span class="o">(</span><span class="n">putRequestedFor</span><span class="o">(</span><span class="n">urlMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"X-Trace-Id"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"123"</span><span class="o">))));</span>
+</code></pre></div></div>
+
+<p>Or via the HTTP API:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST http://&lt;host&gt;:&lt;port&gt;/__admin/requests/remove
+
+{
+    "method": "PUT",
+    "urlPattern": "/api/.*",
+    "headers": {
+        "X-Trace-Id": {
+            "equalTo": "123"
+        }
+    }
+}
+</code></pre></div></div>
+
+<h3 id="by-stub-metadata">By stub metadata</h3>
+
+<p>In situations where it isn’t possible to precisely identify log events for removal from request attributes alone, the metadata
+associated with stubs matching requests can be used for selection. For instance, your test code might create stubs tagged
+with test case identifiers, then use these to clean up events created by the test:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">stubFor</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">"/api/dosomething/123"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withMetadata</span><span class="o">(</span><span class="n">metadata</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="s">"tags"</span><span class="o">,</span> <span class="s">"test-57"</span><span class="o">)</span>
+    <span class="o">));</span>
+
+<span class="n">testClient</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/api/dosomething/123"</span><span class="o">);</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">ServeEvent</span><span class="o">&gt;</span> <span class="n">removedServeEvents</span> <span class="o">=</span> <span class="n">removeEventsByStubMetadata</span><span class="o">(</span><span class="n">matchingJsonPath</span><span class="o">(</span><span class="s">"$.tags[0]"</span><span class="o">,</span> <span class="n">equalTo</span><span class="o">(</span><span class="s">"test-57"</span><span class="o">)));</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /__admin/requests/remove-by-metadata
+
+{
+    "matchesJsonPath" : {
+      "expression" : "$.tags[0]",
+      "equalTo" : "test-57"
+    }
+}
+</code></pre></div></div>
+
+<p>For more info about stub metadata see <a href="/docs/stub-metadata/">Stub Metadata</a></p>
 
 <h2 id="resetting-the-request-journal">Resetting the request journal</h2>
 

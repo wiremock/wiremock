@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2019-08-06T16:40:29+01:00">
+  <meta property="article:published_time" content="2019-09-28T13:31:22+01:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="August 06, 2019">
+    <meta itemprop="datePublished" content="September 28, 2019">
     
 
     <div class="page__inner-wrap">
@@ -719,6 +719,39 @@ indicating that values should be URL decoded. The folowing example will parse th
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{size 'abcde'}}
 {{size request.query.things}}
 </code></pre></div></div>
+
+<h2 id="hostname-helper">Hostname helper</h2>
+
+<p>The local machine’s hostname can be printed:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{hostname}}
+</code></pre></div></div>
+
+<h2 id="system-property-helper">System property helper</h2>
+<p>Environment variables and system properties can be printed:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{systemValue type='ENVIRONMENT' key='PATH'}}
+{{systemValue type='PROPERTY' key='os.path'}}
+</code></pre></div></div>
+
+<p>To avoid disclosure of sensitive variables, only permitted variables can be read. Permitted variable names
+are defined via a set of regular expressions. These can be configured when constructing the response template extension:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">dynamicPort</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">withRootDirectory</span><span class="o">(</span><span class="n">defaultTestFilesRoot</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">global</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">permittedSystemKeys</span><span class="o">(</span><span class="s">"allowed.*"</span><span class="o">,</span><span class="s">"also_permitted.*"</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">)</span>
+<span class="o">);</span>
+</code></pre></div></div>
+
+<p>The regular expressions are matched in a case-insensitive manner.</p>
+
+<p>If no permitted system key patterns are set, a single default of <code class="highlighter-rouge">wiremock.*</code> will be used.</p>
 
 <h2 id="custom-helpers">Custom helpers</h2>
 <p>Custom Handlebars helpers can be registered with the transformer on construction:</p>
