@@ -76,7 +76,7 @@ public class InMemoryStubMappings implements StubMappings {
 		scenarios.onStubServed(matchingMapping);
 
         ResponseDefinition responseDefinition = applyTransformations(request,
-            matchingMapping.getResponse(),
+            matchingMapping.yieldResponse(),
             ImmutableList.copyOf(transformers.values()));
 
 		return ServeEvent.of(
