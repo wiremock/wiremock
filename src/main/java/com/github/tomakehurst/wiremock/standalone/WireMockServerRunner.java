@@ -46,21 +46,21 @@ public class WireMockServerRunner {
         System.setProperty("org.mortbay.log.class", "com.github.tomakehurst.wiremock.jetty.LoggerAdapter");
     }
 
-	private WireMockServer wireMockServer;
-	
-	public void run(String... args) {
-		CommandLineOptions options = new CommandLineOptions(args);
-		if (options.help()) {
-			out.println(options.helpText());
-			return;
-		}
+    private WireMockServer wireMockServer;
+    
+    public void run(String... args) {
+    	CommandLineOptions options = new CommandLineOptions(args);
+    	if (options.help()) {
+    		out.println(options.helpText());
+    		return;
+    	}
 
-		FileSource fileSource = options.filesRoot();
-		fileSource.createIfNecessary();
-		FileSource filesFileSource = fileSource.child(FILES_ROOT);
-		filesFileSource.createIfNecessary();
-		FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
-		mappingsFileSource.createIfNecessary();
+    	FileSource fileSource = options.filesRoot();
+    	fileSource.createIfNecessary();
+    	FileSource filesFileSource = fileSource.child(FILES_ROOT);
+    	filesFileSource.createIfNecessary();
+    	FileSource mappingsFileSource = fileSource.child(MAPPINGS_ROOT);
+    	mappingsFileSource.createIfNecessary();
 
         wireMockServer = new WireMockServer(options);
 
@@ -68,9 +68,9 @@ public class WireMockServerRunner {
             wireMockServer.enableRecordMappings(mappingsFileSource, filesFileSource);
         }
 
-		if (options.specifiesProxyUrl()) {
-			addProxyMapping(options.proxyUrl());
-		}
+    	if (options.specifiesProxyUrl()) {
+    		addProxyMapping(options.proxyUrl());
+    	}
 
         try {
             wireMockServer.start();
@@ -88,40 +88,40 @@ public class WireMockServerRunner {
             System.exit(1);
         }
     }
-	
-	private void addProxyMapping(final String baseUrl) {
-		wireMockServer.loadMappingsUsing(new MappingsLoader() {
-			@Override
-			public void loadMappingsInto(StubMappings stubMappings) {
+    
+    private void addProxyMapping(final String baseUrl) {
+    	wireMockServer.loadMappingsUsing(new MappingsLoader() {
+    		@Override
+    		public void loadMappingsInto(StubMappings stubMappings) {
                 RequestPattern requestPattern = newRequestPattern(ANY, anyUrl()).build();
-				ResponseDefinition responseDef = responseDefinition()
-						.proxiedFrom(baseUrl)
-						.build();
+    			ResponseDefinition responseDef = responseDefinition()
+    					.proxiedFrom(baseUrl)
+    					.build();
 
-				StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
-				proxyBasedMapping.setPriority(10); // Make it low priority so that existing stubs will take precedence
-				stubMappings.addMapping(proxyBasedMapping);
-			}
-		});
-	}
-	
-	public void stop() {
-		if (wireMockServer != null) {
-			wireMockServer.stop();
-		}
-	}
+    			StubMapping proxyBasedMapping = new StubMapping(requestPattern, responseDef);
+    			proxyBasedMapping.setPriority(10); // Make it low priority so that existing stubs will take precedence
+    			stubMappings.addMapping(proxyBasedMapping);
+    		}
+    	});
+    }
+    
+    public void stop() {
+    	if (wireMockServer != null) {
+    		wireMockServer.stop();
+    	}
+    }
 
     public boolean isRunning() {
-		if (wireMockServer == null) {
-			return false;
-		} else {
-			return wireMockServer.isRunning();
-		}
+    	if (wireMockServer == null) {
+    		return false;
+    	} else {
+    		return wireMockServer.isRunning();
+    	}
     }
 
     public int port() { return wireMockServer.port(); }
 
-	public static void main(String... args) {
-		new WireMockServerRunner().run(args);
-	}
+    public static void main(String... args) {
+    	new WireMockServerRunner().run(args);
+    }
 }

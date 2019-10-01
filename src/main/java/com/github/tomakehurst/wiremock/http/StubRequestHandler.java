@@ -29,34 +29,34 @@ import java.util.Map;
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 public class StubRequestHandler extends AbstractRequestHandler {
-	
-	private final StubServer stubServer;
+    
+    private final StubServer stubServer;
     private final Admin admin;
     private final Map<String, PostServeAction> postServeActions;
     private final RequestJournal requestJournal;
 
-	public StubRequestHandler(StubServer stubServer,
+    public StubRequestHandler(StubServer stubServer,
                               ResponseRenderer responseRenderer,
                               Admin admin,
                               Map<String, PostServeAction> postServeActions,
                               RequestJournal requestJournal,
                               List<RequestFilter> requestFilters) {
-		super(responseRenderer, requestFilters);
-		this.stubServer = stubServer;
+    	super(responseRenderer, requestFilters);
+    	this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
         this.requestJournal = requestJournal;
     }
 
-	@Override
-	public ServeEvent handleRequest(Request request) {
-		return stubServer.serveStubFor(request);
-	}
+    @Override
+    public ServeEvent handleRequest(Request request) {
+    	return stubServer.serveStubFor(request);
+    }
 
-	@Override
-	protected boolean logRequests() {
-		return true;
-	}
+    @Override
+    protected boolean logRequests() {
+    	return true;
+    }
 
     @Override
     protected void beforeResponseSent(ServeEvent serveEvent, Response response) {

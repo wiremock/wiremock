@@ -34,50 +34,50 @@ import static com.google.common.collect.Maps.newLinkedHashMap;
 class BasicMappingBuilder implements ScenarioMappingBuilder {
 
     private RequestPatternBuilder requestPatternBuilder;
-	private ResponseDefinitionBuilder responseDefBuilder;
-	private Integer priority;
-	private String scenarioName;
-	private String requiredScenarioState;
-	private String newScenarioState;
-	private UUID id = UUID.randomUUID();
-	private String name;
+    private ResponseDefinitionBuilder responseDefBuilder;
+    private Integer priority;
+    private String scenarioName;
+    private String requiredScenarioState;
+    private String newScenarioState;
+    private UUID id = UUID.randomUUID();
+    private String name;
     private boolean isPersistent = false;
     private Map<String, Parameters> postServeActions = newLinkedHashMap();
     private Metadata metadata;
 
     BasicMappingBuilder(RequestMethod method, UrlPattern urlPattern) {
         requestPatternBuilder = new RequestPatternBuilder(method, urlPattern);
-	}
+    }
 
-	BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
+    BasicMappingBuilder(ValueMatcher<Request> requestMatcher) {
         requestPatternBuilder = new RequestPatternBuilder(requestMatcher);
-	}
+    }
 
-	BasicMappingBuilder(String customRequestMatcherName, Parameters parameters) {
-		requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
-	}
+    BasicMappingBuilder(String customRequestMatcherName, Parameters parameters) {
+    	requestPatternBuilder = new RequestPatternBuilder(customRequestMatcherName, parameters);
+    }
 
-	@Override
-	public BasicMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
-		this.responseDefBuilder = responseDefBuilder;
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder willReturn(ResponseDefinitionBuilder responseDefBuilder) {
+    	this.responseDefBuilder = responseDefBuilder;
+    	return this;
+    }
 
-	@Override
-	public BasicMappingBuilder atPriority(Integer priority) {
-		this.priority = priority;
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder atPriority(Integer priority) {
+    	this.priority = priority;
+    	return this;
+    }
 
-	@Override
-	public BasicMappingBuilder withHeader(String key, StringValuePattern headerPattern) {
+    @Override
+    public BasicMappingBuilder withHeader(String key, StringValuePattern headerPattern) {
         requestPatternBuilder.withHeader(key, headerPattern);
-		return this;
-	}
+    	return this;
+    }
 
     @Override
     public BasicMappingBuilder withCookie(String name, StringValuePattern cookieValuePattern) {
-		requestPatternBuilder.withCookie(name, cookieValuePattern);
+    	requestPatternBuilder.withCookie(name, cookieValuePattern);
         return this;
     }
 
@@ -94,11 +94,11 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
-	@Override
-	public BasicMappingBuilder withRequestBody(ContentPattern<?> bodyPattern) {
+    @Override
+    public BasicMappingBuilder withRequestBody(ContentPattern<?> bodyPattern) {
         requestPatternBuilder.withRequestBody(bodyPattern);
-		return this;
-	}
+    	return this;
+    }
 
     @Override
     public BasicMappingBuilder withMultipartRequestBody(MultipartValuePatternBuilder multipartPatternBuilder) {
@@ -110,33 +110,33 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     public BasicMappingBuilder inScenario(String scenarioName) {
         checkArgument(scenarioName != null, "Scenario name must not be null");
 
-		this.scenarioName = scenarioName;
-		return this;
-	}
+    	this.scenarioName = scenarioName;
+    	return this;
+    }
 
     @Override
-	public BasicMappingBuilder whenScenarioStateIs(String stateName) {
-		this.requiredScenarioState = stateName;
-		return this;
-	}
+    public BasicMappingBuilder whenScenarioStateIs(String stateName) {
+    	this.requiredScenarioState = stateName;
+    	return this;
+    }
 
     @Override
-	public BasicMappingBuilder willSetStateTo(String stateName) {
-		this.newScenarioState = stateName;
-		return this;
-	}
+    public BasicMappingBuilder willSetStateTo(String stateName) {
+    	this.newScenarioState = stateName;
+    	return this;
+    }
 
-	@Override
-	public BasicMappingBuilder withId(UUID id) {
-		this.id = id;
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder withId(UUID id) {
+    	this.id = id;
+    	return this;
+    }
 
-	@Override
-	public BasicMappingBuilder withName(String name) {
-		this.name = name;
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder withName(String name) {
+    	this.name = name;
+    	return this;
+    }
 
     @Override
     public ScenarioMappingBuilder persistent() {
@@ -145,10 +145,10 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     }
 
     @Override
-	public BasicMappingBuilder withBasicAuth(String username, String password) {
-		requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
-		return this;
-	}
+    public BasicMappingBuilder withBasicAuth(String username, String password) {
+    	requestPatternBuilder.withBasicAuth(new BasicCredentials(username, password));
+    	return this;
+    }
 
     @Override
     public <P> BasicMappingBuilder withPostServeAction(String extensionName, P parameters) {
@@ -159,11 +159,11 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
-	@Override
-	public BasicMappingBuilder withMetadata(Map<String, ?> metadataMap) {
-    	this.metadata = new Metadata(metadataMap);
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder withMetadata(Map<String, ?> metadataMap) {
+        this.metadata = new Metadata(metadataMap);
+    	return this;
+    }
 
     @Override
     public BasicMappingBuilder withMetadata(Metadata metadata) {
@@ -177,11 +177,11 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
         return this;
     }
 
-	@Override
-	public BasicMappingBuilder andMatching(ValueMatcher<Request> customMatcher) {
-    	requestPatternBuilder.andMatching(customMatcher);
-		return this;
-	}
+    @Override
+    public BasicMappingBuilder andMatching(ValueMatcher<Request> customMatcher) {
+        requestPatternBuilder.andMatching(customMatcher);
+    	return this;
+    }
 
     @Override
     public BasicMappingBuilder andMatching(String customRequestMatcherName) {
@@ -196,26 +196,26 @@ class BasicMappingBuilder implements ScenarioMappingBuilder {
     }
 
     @Override
-	public StubMapping build() {
-		if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
-			throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
-		}
-		RequestPattern requestPattern = requestPatternBuilder.build();
-		ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
-		StubMapping mapping = new StubMapping(requestPattern, response);
-		mapping.setPriority(priority);
-		mapping.setScenarioName(scenarioName);
-		mapping.setRequiredScenarioState(requiredScenarioState);
-		mapping.setNewScenarioState(newScenarioState);
-		mapping.setUuid(id);
-		mapping.setName(name);
+    public StubMapping build() {
+    	if (scenarioName == null && (requiredScenarioState != null || newScenarioState != null)) {
+    		throw new IllegalStateException("Scenario name must be specified to require or set a new scenario state");
+    	}
+    	RequestPattern requestPattern = requestPatternBuilder.build();
+    	ResponseDefinition response = firstNonNull(responseDefBuilder, aResponse()).build();
+    	StubMapping mapping = new StubMapping(requestPattern, response);
+    	mapping.setPriority(priority);
+    	mapping.setScenarioName(scenarioName);
+    	mapping.setRequiredScenarioState(requiredScenarioState);
+    	mapping.setNewScenarioState(newScenarioState);
+    	mapping.setUuid(id);
+    	mapping.setName(name);
         mapping.setPersistent(isPersistent);
 
         mapping.setPostServeActions(postServeActions.isEmpty() ? null : postServeActions);
 
         mapping.setMetadata(metadata);
 
-		return mapping;
-	}
+    	return mapping;
+    }
 
 }

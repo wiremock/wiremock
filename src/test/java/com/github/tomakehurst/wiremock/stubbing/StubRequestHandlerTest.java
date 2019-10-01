@@ -49,93 +49,93 @@ import static org.junit.Assert.assertThat;
 @RunWith(JMock.class)
 public class StubRequestHandlerTest {
 
-	private Mockery context;
-	private StubServer stubServer;
-	private ResponseRenderer responseRenderer;
-	private MockHttpResponder httpResponder;
+    private Mockery context;
+    private StubServer stubServer;
+    private ResponseRenderer responseRenderer;
+    private MockHttpResponder httpResponder;
     private Admin admin;
-	private RequestJournal requestJournal;
+    private RequestJournal requestJournal;
 
-	private StubRequestHandler requestHandler;
+    private StubRequestHandler requestHandler;
 
-	@Before
-	public void init() {
-		context = new Mockery();
+    @Before
+    public void init() {
+    	context = new Mockery();
         stubServer = context.mock(StubServer.class);
-		responseRenderer = context.mock(ResponseRenderer.class);
-		httpResponder = new MockHttpResponder();
+    	responseRenderer = context.mock(ResponseRenderer.class);
+    	httpResponder = new MockHttpResponder();
         admin = context.mock(Admin.class);
-		requestJournal = context.mock(RequestJournal.class);
+    	requestJournal = context.mock(RequestJournal.class);
 
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList());
+    	requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList());
 
         context.checking(new Expectations() {{
             allowing(requestJournal);
         }});
-	}
+    }
 
-	@Test
-	public void returnsResponseIndicatedByMappings() {
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(
-				ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")))
+    @Test
+    public void returnsResponseIndicatedByMappings() {
+    	context.checking(new Expectations() {{
+    		allowing(stubServer).serveStubFor(with(any(Request.class))); will(returnValue(
+    			ServeEvent.of(mockRequest().asLoggedRequest(), new ResponseDefinition(200, "Body content")))
             );
 
             Response response = response().status(200).body("Body content").build();
-			allowing(responseRenderer).render(with(any(ServeEvent.class))); will(returnValue(response));
-		}});
+    		allowing(responseRenderer).render(with(any(ServeEvent.class))); will(returnValue(response));
+    	}});
 
-		Request request = aRequest(context)
-			.withUrl("/the/required/resource")
-			.withMethod(GET)
-			.build();
-		requestHandler.handle(request, httpResponder);
+    	Request request = aRequest(context)
+    		.withUrl("/the/required/resource")
+    		.withMethod(GET)
+    		.build();
+    	requestHandler.handle(request, httpResponder);
         Response response = httpResponder.response;
 
         assertThat(response.getStatus(), is(200));
-		assertThat(response.getBodyAsString(), is("Body content"));
-	}
+    	assertThat(response.getBodyAsString(), is("Body content"));
+    }
 
-	@Test
-	public void shouldNotifyListenersOnRequest() {
-		final Request request = aRequest(context).build();
-		final RequestListener listener = context.mock(RequestListener.class);
-		requestHandler.addRequestListener(listener);
+    @Test
+    public void shouldNotifyListenersOnRequest() {
+    	final Request request = aRequest(context).build();
+    	final RequestListener listener = context.mock(RequestListener.class);
+    	requestHandler.addRequestListener(listener);
 
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request); will(returnValue(
+    	context.checking(new Expectations() {{
+    		allowing(stubServer).serveStubFor(request); will(returnValue(
                 ServeEvent.of(LoggedRequest.createFrom(request), ResponseDefinition.notConfigured())));
-			one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
+    		one(listener).requestReceived(with(equal(request)), with(any(Response.class)));
             allowing(responseRenderer).render(with(any(ServeEvent.class)));
                 will(returnValue(new Response.Builder().build()));
-		}});
+    	}});
 
         requestHandler.handle(request, httpResponder);
-	}
+    }
 
-	@Test
-	public void shouldLogInfoOnRequest() {
-		final Request request = aRequest(context)
-				.withUrl("/")
-				.withMethod(GET)
-				.withClientIp("1.2.3.5")
-				.build();
+    @Test
+    public void shouldLogInfoOnRequest() {
+    	final Request request = aRequest(context)
+    			.withUrl("/")
+    			.withMethod(GET)
+    			.withClientIp("1.2.3.5")
+    			.build();
 
-		context.checking(new Expectations() {{
-			allowing(stubServer).serveStubFor(request);
-			    will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
-			allowing(responseRenderer).render(with(any(ServeEvent.class)));
+    	context.checking(new Expectations() {{
+    		allowing(stubServer).serveStubFor(request);
+    		    will(returnValue(ServeEvent.forUnmatchedRequest(LoggedRequest.createFrom(request))));
+    		allowing(responseRenderer).render(with(any(ServeEvent.class)));
                 will(returnValue(new Response.Builder().build()));
-		}});
+    	}});
 
-		TestNotifier notifier = TestNotifier.createAndSet();
+    	TestNotifier notifier = TestNotifier.createAndSet();
 
         requestHandler.handle(request, httpResponder);
-		notifier.revert();
+    	notifier.revert();
 
-		assertThat(notifier.getErrorMessages().isEmpty(), is(true));
-		assertThat(notifier.getInfoMessages().size(), is(1));
-		assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
-	}
+    	assertThat(notifier.getErrorMessages().isEmpty(), is(true));
+    	assertThat(notifier.getInfoMessages().size(), is(1));
+    	assertThat(notifier.getInfoMessages().get(0), containsString("1.2.3.5 - GET /"));
+    }
 
 }

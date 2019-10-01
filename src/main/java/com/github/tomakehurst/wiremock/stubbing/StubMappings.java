@@ -26,17 +26,17 @@ import java.util.UUID;
 
 public interface StubMappings {
 
-	ServeEvent serveFor(Request request);
-	void addMapping(StubMapping mapping);
-	void removeMapping(StubMapping mapping);
-	void editMapping(StubMapping stubMapping);
-	void reset();
-	void resetScenarios();
+    ServeEvent serveFor(Request request);
+    void addMapping(StubMapping mapping);
+    void removeMapping(StubMapping mapping);
+    void editMapping(StubMapping stubMapping);
+    void reset();
+    void resetScenarios();
 
     List<StubMapping> getAll();
-	Optional<StubMapping> get(UUID id);
+    Optional<StubMapping> get(UUID id);
 
-	List<Scenario> getAllScenarios();
+    List<Scenario> getAllScenarios();
 
     List<StubMapping> findByMetadata(StringValuePattern pattern);
 }

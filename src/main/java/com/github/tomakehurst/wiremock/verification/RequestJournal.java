@@ -25,13 +25,13 @@ import java.util.UUID;
 
 public interface RequestJournal {
 
-	int countRequestsMatching(RequestPattern requestPattern);
+    int countRequestsMatching(RequestPattern requestPattern);
     List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern);
 
     List<ServeEvent> getAllServeEvents();
     Optional<ServeEvent> getServeEvent(UUID id);
 
-	void reset();
+    void reset();
 
     void requestReceived(ServeEvent serveEvent);
 

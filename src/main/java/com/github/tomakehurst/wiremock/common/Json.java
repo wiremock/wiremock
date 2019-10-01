@@ -44,21 +44,21 @@ public final class Json {
             return objectMapper;
         }
     };
-	
-	private Json() {}
+    
+    private Json() {}
 
     public static <T> T read(String json, Class<T> clazz) {
-		try {
-			ObjectMapper mapper = getObjectMapper();
-			return mapper.readValue(json, clazz);
-		} catch (JsonProcessingException processingException) {
+    	try {
+    		ObjectMapper mapper = getObjectMapper();
+    		return mapper.readValue(json, clazz);
+    	} catch (JsonProcessingException processingException) {
             throw JsonException.fromJackson(processingException);
         } catch (IOException ioe) {
-			return throwUnchecked(ioe, clazz);
-		}
-	}
+    		return throwUnchecked(ioe, clazz);
+    	}
+    }
 
-	public static <T> T read(String json, TypeReference<T> typeRef) {
+    public static <T> T read(String json, TypeReference<T> typeRef) {
         try {
             ObjectMapper mapper = getObjectMapper();
             return mapper.readValue(json, typeRef);
@@ -70,7 +70,7 @@ public final class Json {
     }
 
     public static <T> String write(T object) {
-	    return write(object, PublicView.class);
+        return write(object, PublicView.class);
     }
 
     public static <T> String writePrivate(T object) {
@@ -78,17 +78,17 @@ public final class Json {
     }
 
     public static <T> String write(T object, Class<?> view) {
-		try {
-			ObjectMapper mapper = getObjectMapper();
+    	try {
+    		ObjectMapper mapper = getObjectMapper();
             ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
             if (view != null) {
                 objectWriter = objectWriter.withView(view);
             }
             return objectWriter.writeValueAsString(object);
-		} catch (IOException ioe) {
+    	} catch (IOException ioe) {
             return throwUnchecked(ioe, String.class);
-		}
-	}
+    	}
+    }
 
 
     public static ObjectMapper getObjectMapper() {
@@ -96,15 +96,15 @@ public final class Json {
     }
 
     public static byte[] toByteArray(Object object) {
-		try {
-			ObjectMapper mapper = getObjectMapper();
-			return mapper.writeValueAsBytes(object);
-		} catch (IOException ioe) {
+    	try {
+    		ObjectMapper mapper = getObjectMapper();
+    		return mapper.writeValueAsBytes(object);
+    	} catch (IOException ioe) {
             return throwUnchecked(ioe, byte[].class);
-		}
-	}
+    	}
+    }
 
-	public static JsonNode node(String json) {
+    public static JsonNode node(String json) {
         return read(json, JsonNode.class);
     }
 

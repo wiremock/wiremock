@@ -38,52 +38,52 @@ import static com.github.tomakehurst.wiremock.testsupport.TestFiles.filePath;
 
 public class AcceptanceTestBase {
 
-	protected static WireMockServer wireMockServer;
-	protected static WireMockTestClient testClient;
+    protected static WireMockServer wireMockServer;
+    protected static WireMockTestClient testClient;
 
-	protected static Stubbing wm;
+    protected static Stubbing wm;
 
-	@BeforeClass
-	public static void setupServer() {
-		setupServerWithEmptyFileRoot();
+    @BeforeClass
+    public static void setupServer() {
+    	setupServerWithEmptyFileRoot();
 
-		// We assert English XML parser error messages in some tests. So we set our default locale to English to make
-		// those tests succeed even for users with non-English default locales.
-		Locale.setDefault(Locale.ENGLISH);
-	}
+    	// We assert English XML parser error messages in some tests. So we set our default locale to English to make
+    	// those tests succeed even for users with non-English default locales.
+    	Locale.setDefault(Locale.ENGLISH);
+    }
 
-	@AfterClass
-	public static void serverShutdown() {
-		wireMockServer.stop();
-	}
+    @AfterClass
+    public static void serverShutdown() {
+    	wireMockServer.stop();
+    }
 
-	public static void setupServerWithEmptyFileRoot() {
-		setupServer(wireMockConfig().withRootDirectory(filePath("empty")));
-	}
+    public static void setupServerWithEmptyFileRoot() {
+    	setupServer(wireMockConfig().withRootDirectory(filePath("empty")));
+    }
 
-	public static void setupServerWithTempFileRoot() {
-		setupServer(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
-	}
+    public static void setupServerWithTempFileRoot() {
+    	setupServer(wireMockConfig().withRootDirectory(setupTempFileRoot().getAbsolutePath()));
+    }
 
     public static File setupTempFileRoot() {
-		try {
+    	try {
             File root = Files.createTempDirectory("wiremock").toFile();
             new File(root, MAPPINGS_ROOT).mkdirs();
             new File(root, FILES_ROOT).mkdirs();
             return root;
-		} catch (IOException e) {
-			return throwUnchecked(e, File.class);
-		}
-	}
+    	} catch (IOException e) {
+    		return throwUnchecked(e, File.class);
+    	}
+    }
 
-	public static void setupServerWithMappingsInFileRoot() {
-		setupServer(wireMockConfig().withRootDirectory(defaultTestFilesRoot()));
-	}
+    public static void setupServerWithMappingsInFileRoot() {
+    	setupServer(wireMockConfig().withRootDirectory(defaultTestFilesRoot()));
+    }
 
     public static void setupServer(WireMockConfiguration options) {
         System.out.println("Configuring WireMockServer with root directory: " + options.filesRoot().getPath());
         if(options.portNumber() == Options.DEFAULT_PORT) {
-			options.dynamicPort();
+    		options.dynamicPort();
         }
 
         wireMockServer = new WireMockServer(options);
@@ -93,9 +93,9 @@ public class AcceptanceTestBase {
         wm = wireMockServer;
     }
 
-	@Before
-	public void init() throws InterruptedException {
-		WireMock.resetToDefault();
-	}
+    @Before
+    public void init() throws InterruptedException {
+    	WireMock.resetToDefault();
+    }
 
 }

@@ -37,114 +37,114 @@ import static com.google.common.collect.Iterables.*;
 
 public class InMemoryRequestJournal implements RequestJournal {
 
-	private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
+    private final Queue<ServeEvent> serveEvents = new ConcurrentLinkedQueue<ServeEvent>();
 
-	private final Optional<Integer> maxEntries;
+    private final Optional<Integer> maxEntries;
 
-	public InMemoryRequestJournal(Optional<Integer> maxEntries) {
-		if (maxEntries.isPresent() && maxEntries.get() < 0) {
-			throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
-		}
-		this.maxEntries = maxEntries;
-	}
+    public InMemoryRequestJournal(Optional<Integer> maxEntries) {
+    	if (maxEntries.isPresent() && maxEntries.get() < 0) {
+    		throw new IllegalArgumentException("Maximum number of entries of journal must be greater than zero");
+    	}
+    	this.maxEntries = maxEntries;
+    }
 
-	@Override
-	public int countRequestsMatching(RequestPattern requestPattern) {
-		return size(filter(getRequests(), thatMatch(requestPattern)));
-	}
+    @Override
+    public int countRequestsMatching(RequestPattern requestPattern) {
+    	return size(filter(getRequests(), thatMatch(requestPattern)));
+    }
 
-	@Override
-	public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
-		return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
-	}
+    @Override
+    public List<LoggedRequest> getRequestsMatching(RequestPattern requestPattern) {
+    	return ImmutableList.copyOf(filter(getRequests(), thatMatch(requestPattern)));
+    }
 
-	@Override
-	public void requestReceived(ServeEvent serveEvent) {
-		serveEvents.add(serveEvent);
+    @Override
+    public void requestReceived(ServeEvent serveEvent) {
+    	serveEvents.add(serveEvent);
         removeOldEntries();
-	}
+    }
 
-	@Override
-	public void removeEvent(final UUID eventId) {
-		removeServeEvents(new Predicate<ServeEvent>() {
-			@Override
-			public boolean apply(ServeEvent input) {
-				return input.getId().equals(eventId);
-			}
-		});
-	}
+    @Override
+    public void removeEvent(final UUID eventId) {
+    	removeServeEvents(new Predicate<ServeEvent>() {
+    		@Override
+    		public boolean apply(ServeEvent input) {
+    			return input.getId().equals(eventId);
+    		}
+    	});
+    }
 
-	@Override
-	public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
-		return removeServeEvents(withRequstMatching(requestPattern));
-	}
+    @Override
+    public List<ServeEvent> removeEventsMatching(RequestPattern requestPattern) {
+    	return removeServeEvents(withRequstMatching(requestPattern));
+    }
 
-	@Override
-	public List<ServeEvent> removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
-		return removeServeEvents(withStubMetadataMatching(metadataPattern));
-	}
+    @Override
+    public List<ServeEvent> removeServeEventsForStubsMatchingMetadata(StringValuePattern metadataPattern) {
+    	return removeServeEvents(withStubMetadataMatching(metadataPattern));
+    }
 
-	private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
-		List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
-				.filter(predicate)
-				.toList();
+    private List<ServeEvent> removeServeEvents(Predicate<ServeEvent> predicate) {
+    	List<ServeEvent> toDelete = FluentIterable.from(serveEvents)
+    			.filter(predicate)
+    			.toList();
 
-		for (ServeEvent event: toDelete) {
-			serveEvents.remove(event);
-		}
+    	for (ServeEvent event: toDelete) {
+    		serveEvents.remove(event);
+    	}
 
-		return toDelete;
-	}
+    	return toDelete;
+    }
 
-	@Override
+    @Override
     public List<ServeEvent> getAllServeEvents() {
         return ImmutableList.copyOf(serveEvents).reverse();
     }
 
-	@Override
-	public Optional<ServeEvent> getServeEvent(final UUID id) {
-		return tryFind(serveEvents, new Predicate<ServeEvent>() {
-			@Override
-			public boolean apply(ServeEvent input) {
-				return input.getId().equals(id);
-			}
-		});
-	}
+    @Override
+    public Optional<ServeEvent> getServeEvent(final UUID id) {
+    	return tryFind(serveEvents, new Predicate<ServeEvent>() {
+    		@Override
+    		public boolean apply(ServeEvent input) {
+    			return input.getId().equals(id);
+    		}
+    	});
+    }
 
-	@Override
-	public void reset() {
-		serveEvents.clear();
-	}
+    @Override
+    public void reset() {
+    	serveEvents.clear();
+    }
 
-	private Iterable<LoggedRequest> getRequests() {
-		return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
-			public LoggedRequest apply(ServeEvent input) {
-				return input.getRequest();
-			}
-		});
-	}
+    private Iterable<LoggedRequest> getRequests() {
+    	return transform(serveEvents, new Function<ServeEvent, LoggedRequest>() {
+    		public LoggedRequest apply(ServeEvent input) {
+    			return input.getRequest();
+    		}
+    	});
+    }
 
-	private void removeOldEntries() {
-		if (maxEntries.isPresent()) {
-			while (serveEvents.size() > maxEntries.get()) {
-				serveEvents.poll();
-			}
-		}
-	}
+    private void removeOldEntries() {
+    	if (maxEntries.isPresent()) {
+    		while (serveEvents.size() > maxEntries.get()) {
+    			serveEvents.poll();
+    		}
+    	}
+    }
 
-	private static Predicate<ServeEvent> withStubMetadataMatching(final StringValuePattern metadataPattern) {
-		return new Predicate<ServeEvent>() {
-			@Override
-			public boolean apply(ServeEvent serveEvent) {
-				StubMapping stub = serveEvent.getStubMapping();
-				if (stub != null) {
-					String metadataJson = Json.write(stub.getMetadata());
-					return metadataPattern.match(metadataJson).isExactMatch();
-				}
+    private static Predicate<ServeEvent> withStubMetadataMatching(final StringValuePattern metadataPattern) {
+    	return new Predicate<ServeEvent>() {
+    		@Override
+    		public boolean apply(ServeEvent serveEvent) {
+    			StubMapping stub = serveEvent.getStubMapping();
+    			if (stub != null) {
+    				String metadataJson = Json.write(stub.getMetadata());
+    				return metadataPattern.match(metadataJson).isExactMatch();
+    			}
 
-				return false;
-			}
-		};
-	}
+    			return false;
+    		}
+    	};
+    }
 
 }

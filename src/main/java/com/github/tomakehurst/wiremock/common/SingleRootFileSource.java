@@ -19,15 +19,15 @@ import java.io.File;
 
 public class SingleRootFileSource extends AbstractFileSource {
 
-	public SingleRootFileSource(File rootDirectory) {
-		super(rootDirectory);
-	}
-	
-	public SingleRootFileSource(String rootPath) {
-	    super(new File(rootPath));
-	}
-	
-	@Override
+    public SingleRootFileSource(File rootDirectory) {
+    	super(rootDirectory);
+    }
+    
+    public SingleRootFileSource(String rootPath) {
+        super(new File(rootPath));
+    }
+    
+    @Override
     public FileSource child(String subDirectoryName) {
         return new SingleRootFileSource(new File(rootDirectory, subDirectoryName));
     }

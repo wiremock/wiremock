@@ -16,8 +16,8 @@
 package com.github.tomakehurst.wiremock.http;
 
 public interface RequestHandler {
-	
-	String HANDLER_CLASS_KEY = "RequestHandlerClass";
+    
+    String HANDLER_CLASS_KEY = "RequestHandlerClass";
 
-	void handle(Request request, HttpResponder httpResponder);
+    void handle(Request request, HttpResponder httpResponder);
 }

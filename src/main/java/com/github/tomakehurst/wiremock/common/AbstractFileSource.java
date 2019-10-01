@@ -64,7 +64,7 @@ public abstract class AbstractFileSource implements FileSource {
 
     @Override
     public String getPath() {
-    	return rootDirectory.getPath();
+        return rootDirectory.getPath();
     }
 
     @Override
@@ -74,34 +74,34 @@ public abstract class AbstractFileSource implements FileSource {
 
     @Override
     public List<TextFile> listFilesRecursively() {
-    	assertExistsAndIsDirectory();
-    	List<File> fileList = newArrayList();
-    	recursivelyAddFilesToList(rootDirectory, fileList);
-    	return toTextFileList(fileList);
+        assertExistsAndIsDirectory();
+        List<File> fileList = newArrayList();
+        recursivelyAddFilesToList(rootDirectory, fileList);
+        return toTextFileList(fileList);
     }
 
     private void recursivelyAddFilesToList(File root, List<File> fileList) {
-    	File[] files = root.listFiles();
-    	for (File file: files) {
-    		if (file.isDirectory()) {
-    			recursivelyAddFilesToList(file, fileList);
-    		} else {
-    			fileList.add(file);
-    		}
-    	}
+        File[] files = root.listFiles();
+        for (File file: files) {
+        	if (file.isDirectory()) {
+        		recursivelyAddFilesToList(file, fileList);
+        	} else {
+        		fileList.add(file);
+        	}
+        }
     }
 
     private List<TextFile> toTextFileList(List<File> fileList) {
-    	return newArrayList(transform(fileList, new Function<File, TextFile>() {
-    		public TextFile apply(File input) {
-    			return new TextFile(input.toURI());
-    		}
-    	}));
+        return newArrayList(transform(fileList, new Function<File, TextFile>() {
+        	public TextFile apply(File input) {
+        		return new TextFile(input.toURI());
+        	}
+        }));
     }
 
     @Override
     public void writeTextFile(String name, String contents) {
-    	writeTextFileAndTranslateExceptions(contents, writableFileFor(name));
+        writeTextFileAndTranslateExceptions(contents, writableFileFor(name));
     }
 
     @Override
@@ -182,11 +182,11 @@ public abstract class AbstractFileSource implements FileSource {
     }
 
     private FileFilter filesOnly() {
-    	return new FileFilter() {
-    		public boolean accept(File file) {
-    			return file.isFile();
-    		}
-    	};
+        return new FileFilter() {
+        	public boolean accept(File file) {
+        		return file.isFile();
+        	}
+        };
     }
 
     public static Predicate<BinaryFile> byFileExtension(final String extension) {

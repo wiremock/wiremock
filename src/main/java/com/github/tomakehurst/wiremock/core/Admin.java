@@ -33,14 +33,14 @@ import java.util.UUID;
 
 public interface Admin {
 
-	void addStubMapping(StubMapping stubMapping);
-	void editStubMapping(StubMapping stubMapping);
-	void removeStubMapping(StubMapping stubbMapping);
+    void addStubMapping(StubMapping stubMapping);
+    void editStubMapping(StubMapping stubMapping);
+    void removeStubMapping(StubMapping stubbMapping);
     ListStubMappingsResult listAllStubMappings();
     SingleStubMappingResult getStubMapping(UUID id);
     void saveMappings();
 
-	void resetRequests();
+    void resetRequests();
     void resetScenarios();
     void resetMappings();
     void resetAll();

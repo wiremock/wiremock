@@ -53,24 +53,24 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private final boolean preserveHostHeader;
     private final String hostHeaderValue;
     private final GlobalSettingsHolder globalSettingsHolder;
-	
-	public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue, GlobalSettingsHolder globalSettingsHolder) {
+    
+    public ProxyResponseRenderer(ProxySettings proxySettings, KeyStoreSettings trustStoreSettings, boolean preserveHostHeader, String hostHeaderValue, GlobalSettingsHolder globalSettingsHolder) {
         this.globalSettingsHolder = globalSettingsHolder;
         client = HttpClientFactory.createClient(1000, 5 * MINUTES, proxySettings, trustStoreSettings);
 
         this.preserveHostHeader = preserveHostHeader;
         this.hostHeaderValue = hostHeaderValue;
-	}
+    }
 
-	@Override
-	public Response render(ServeEvent serveEvent) {
+    @Override
+    public Response render(ServeEvent serveEvent) {
         ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
         HttpUriRequest httpRequest = getHttpRequestFor(responseDefinition);
         addRequestHeaders(httpRequest, responseDefinition);
 
-		try {
-			addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
-			HttpResponse httpResponse = client.execute(httpRequest);
+    	try {
+    		addBodyIfPostPutOrPatch(httpRequest, responseDefinition);
+    		HttpResponse httpResponse = client.execute(httpRequest);
 
             return response()
                     .status(httpResponse.getStatusLine().getStatusCode())
@@ -85,39 +85,39 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                     )
                     .chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay())
                     .build();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    	} catch (IOException e) {
+    		throw new RuntimeException(e);
+    	}
+    }
 
     private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
-	    List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
-	    for (Header header : httpResponse.getAllHeaders()) {
-		    httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
-	    }
+        List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
+        for (Header header : httpResponse.getAllHeaders()) {
+    	    httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
+        }
 
         if (responseDefinition.getHeaders() != null) {
             httpHeaders.addAll(responseDefinition.getHeaders().all());
         }
-	    
-	    return new HttpHeaders(httpHeaders);
+        
+        return new HttpHeaders(httpHeaders);
     }
 
     public static HttpUriRequest getHttpRequestFor(ResponseDefinition response) {
-		final RequestMethod method = response.getOriginalRequest().getMethod();
-		final String url = response.getProxyUrl();
-		return HttpClientFactory.getHttpRequestFor(method, url);
-	}
-	
-	private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
-		Request originalRequest = response.getOriginalRequest(); 
-		for (String key: originalRequest.getAllHeaderKeys()) {
-			if (headerShouldBeTransferred(key)) {
+    	final RequestMethod method = response.getOriginalRequest().getMethod();
+    	final String url = response.getProxyUrl();
+    	return HttpClientFactory.getHttpRequestFor(method, url);
+    }
+    
+    private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
+    	Request originalRequest = response.getOriginalRequest(); 
+    	for (String key: originalRequest.getAllHeaderKeys()) {
+    		if (headerShouldBeTransferred(key)) {
                 if (!HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
-					List<String> values = originalRequest.header(key).values();
-					for (String value: values) {
-						httpRequest.addHeader(key, value);
-					}
+    				List<String> values = originalRequest.header(key).values();
+    				for (String value: values) {
+    					httpRequest.addHeader(key, value);
+    				}
                 } else {
                     if (hostHeaderValue != null) {
                         httpRequest.addHeader(key, hostHeaderValue);
@@ -125,27 +125,27 @@ public class ProxyResponseRenderer implements ResponseRenderer {
                         httpRequest.addHeader(key, URI.create(response.getProxyBaseUrl()).getAuthority());
                     }
                 }
-			}
-		}
-				
-		if (response.getAdditionalProxyRequestHeaders() != null) {
-			for (String key: response.getAdditionalProxyRequestHeaders().keys()) {
-				httpRequest.setHeader(key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
-			}			
-		}
-	}
+    		}
+    	}
+    			
+    	if (response.getAdditionalProxyRequestHeaders() != null) {
+    		for (String key: response.getAdditionalProxyRequestHeaders().keys()) {
+    			httpRequest.setHeader(key, response.getAdditionalProxyRequestHeaders().getHeader(key).firstValue());
+    		}			
+    	}
+    }
 
     private static boolean headerShouldBeTransferred(String key) {
         return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection").contains(key.toLowerCase());
     }
 
     private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
-		Request originalRequest = response.getOriginalRequest();
-		if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
-			HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
+    	Request originalRequest = response.getOriginalRequest();
+    	if (originalRequest.getMethod().isOneOf(PUT, POST, PATCH)) {
+    		HttpEntityEnclosingRequest requestWithEntity = (HttpEntityEnclosingRequest) httpRequest;
             requestWithEntity.setEntity(buildEntityFrom(originalRequest));
-		}
-	}
+    	}
+    }
 
     private static HttpEntity buildEntityFrom(Request originalRequest) {
         ContentTypeHeader contentTypeHeader = originalRequest.contentTypeHeader().or("text/plain");

@@ -29,11 +29,11 @@ import static com.google.common.collect.FluentIterable.from;
 
 public class VerificationException extends AssertionError {
 
-	private static final long serialVersionUID = 5116216532516117538L;
+    private static final long serialVersionUID = 5116216532516117538L;
 
-	public VerificationException(String message) {
-		super(message);
-	}
+    public VerificationException(String message) {
+    	super(message);
+    }
 
     public static VerificationException forUnmatchedRequestPattern(Diff diff) {
         return new VerificationException("No requests exactly matched. Most similar request was:", diff);

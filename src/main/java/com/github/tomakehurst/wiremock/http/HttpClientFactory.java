@@ -89,7 +89,7 @@ public class HttpClientFactory {
         }
 
         return builder.build();
-	}
+    }
 
     private static SSLContext buildSSLContextWithTrustStore(KeyStoreSettings trustStoreSettings) {
         try {
@@ -121,9 +121,9 @@ public class HttpClientFactory {
         return createClient(maxConnections, timeoutMilliseconds, NO_PROXY, NO_STORE);
     }
 
-	public static CloseableHttpClient createClient(int timeoutMilliseconds) {
-		return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
-	}
+    public static CloseableHttpClient createClient(int timeoutMilliseconds) {
+    	return createClient(DEFAULT_MAX_CONNECTIONS, timeoutMilliseconds);
+    }
 
     public static CloseableHttpClient createClient(ProxySettings proxySettings) {
         return createClient(DEFAULT_MAX_CONNECTIONS, DEFAULT_TIMEOUT, proxySettings, NO_STORE);

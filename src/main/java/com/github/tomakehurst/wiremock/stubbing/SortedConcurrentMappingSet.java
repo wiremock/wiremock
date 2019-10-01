@@ -26,39 +26,39 @@ import static com.google.common.collect.Iterables.removeIf;
 
 public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
 
-	private AtomicLong insertionCount;
-	private ConcurrentSkipListSet<StubMapping> mappingSet;
-	
-	public SortedConcurrentMappingSet() {
-		insertionCount = new AtomicLong();
-		mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
-	}
-	
-	private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
-		return new Comparator<StubMapping>() {
-			public int compare(StubMapping one, StubMapping two) {
-				int priorityComparison = one.comparePriorityWith(two);
-				if (priorityComparison != 0) {
-					return priorityComparison;
-				}
+    private AtomicLong insertionCount;
+    private ConcurrentSkipListSet<StubMapping> mappingSet;
+    
+    public SortedConcurrentMappingSet() {
+    	insertionCount = new AtomicLong();
+    	mappingSet = new ConcurrentSkipListSet<StubMapping>(sortedByPriorityThenReverseInsertionOrder());
+    }
+    
+    private Comparator<StubMapping> sortedByPriorityThenReverseInsertionOrder() {
+    	return new Comparator<StubMapping>() {
+    		public int compare(StubMapping one, StubMapping two) {
+    			int priorityComparison = one.comparePriorityWith(two);
+    			if (priorityComparison != 0) {
+    				return priorityComparison;
+    			}
 
-				return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
-			}
-		};
-	}
+    			return Long.compare(two.getInsertionIndex(), one.getInsertionIndex());
+    		}
+    	};
+    }
 
-	@Override
-	public Iterator<StubMapping> iterator() {
-		return mappingSet.iterator();
-	}
-	
-	public void add(StubMapping mapping) {
-		mapping.setInsertionIndex(insertionCount.getAndIncrement());
-		mappingSet.add(mapping);
-	}
+    @Override
+    public Iterator<StubMapping> iterator() {
+    	return mappingSet.iterator();
+    }
+    
+    public void add(StubMapping mapping) {
+    	mapping.setInsertionIndex(insertionCount.getAndIncrement());
+    	mappingSet.add(mapping);
+    }
 
-	public boolean remove(final StubMapping mappingToRemove) {
-		boolean removedByUuid = removeIf(mappingSet, new Predicate<StubMapping>() {
+    public boolean remove(final StubMapping mappingToRemove) {
+    	boolean removedByUuid = removeIf(mappingSet, new Predicate<StubMapping>() {
             @Override
             public boolean apply(StubMapping mapping) {
                 return mappingToRemove.getUuid() != null &&
@@ -75,23 +75,23 @@ public class SortedConcurrentMappingSet implements Iterable<StubMapping> {
         });
 
         return removedByUuid || removedByRequestPattern;
-	}
+    }
 
-	public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
+    public boolean replace(StubMapping existingStubMapping, StubMapping newStubMapping) {
 
-		if ( mappingSet.remove(existingStubMapping) ) {
-			mappingSet.add(newStubMapping);
-			return true;
-		}
-		return false;
-	}
+    	if ( mappingSet.remove(existingStubMapping) ) {
+    		mappingSet.add(newStubMapping);
+    		return true;
+    	}
+    	return false;
+    }
 
-	public void clear() {
-		mappingSet.clear();
-	}
-	
-	@Override
-	public String toString() {
-		return mappingSet.toString();
-	}
+    public void clear() {
+    	mappingSet.clear();
+    }
+    
+    @Override
+    public String toString() {
+    	return mappingSet.toString();
+    }
 }

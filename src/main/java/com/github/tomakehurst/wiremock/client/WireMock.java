@@ -51,21 +51,21 @@ import static com.google.common.net.HttpHeaders.LOCATION;
 
 public class WireMock {
 
-	private static final int DEFAULT_PORT = 8080;
-	private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 8080;
+    private static final String DEFAULT_HOST = "localhost";
 
-	private final Admin admin;
-	private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
+    private final Admin admin;
+    private final GlobalSettingsHolder globalSettingsHolder = new GlobalSettingsHolder();
 
-	private static InheritableThreadLocal<WireMock> defaultInstance = new InheritableThreadLocal<WireMock>(){
+    private static InheritableThreadLocal<WireMock> defaultInstance = new InheritableThreadLocal<WireMock>(){
             @Override
             protected WireMock initialValue() {
-            	return WireMock.create().build();
+                return WireMock.create().build();
             }
-	};
+    };
 
-	public static WireMockBuilder create() {
-	    return new WireMockBuilder();
+    public static WireMockBuilder create() {
+        return new WireMockBuilder();
     }
 
     public WireMock(Admin admin) {
@@ -77,44 +77,44 @@ public class WireMock {
     }
 
     public WireMock(String host, int port) {
-		admin = new HttpAdminClient(host, port);
-	}
+    	admin = new HttpAdminClient(host, port);
+    }
 
-	public WireMock(String host, int port, String urlPathPrefix) {
-		admin = new HttpAdminClient(host, port, urlPathPrefix);
-	}
+    public WireMock(String host, int port, String urlPathPrefix) {
+    	admin = new HttpAdminClient(host, port, urlPathPrefix);
+    }
 
-	public WireMock(String scheme, String host, int port) {
-		admin = new HttpAdminClient(scheme, host, port);
-	}
+    public WireMock(String scheme, String host, int port) {
+    	admin = new HttpAdminClient(scheme, host, port);
+    }
 
-	public WireMock(String scheme, String host, int port, String urlPathPrefix) {
-		admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
-	}
+    public WireMock(String scheme, String host, int port, String urlPathPrefix) {
+    	admin = new HttpAdminClient(scheme, host, port, urlPathPrefix);
+    }
 
     public WireMock(String scheme, String host, int port, String urlPathPrefix, String hostHeader, String proxyHost, int proxyPort, ClientAuthenticator authenticator) {
         admin = new HttpAdminClient(scheme, host, port, urlPathPrefix, hostHeader, proxyHost, proxyPort, authenticator);
     }
 
-	public WireMock() {
-		admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
-	}
+    public WireMock() {
+    	admin = new HttpAdminClient(DEFAULT_HOST, DEFAULT_PORT);
+    }
 
-	public static StubMapping givenThat(MappingBuilder mappingBuilder) {
-		return defaultInstance.get().register(mappingBuilder);
-	}
+    public static StubMapping givenThat(MappingBuilder mappingBuilder) {
+    	return defaultInstance.get().register(mappingBuilder);
+    }
 
-	public static StubMapping stubFor(MappingBuilder mappingBuilder) {
-		return givenThat(mappingBuilder);
-	}
+    public static StubMapping stubFor(MappingBuilder mappingBuilder) {
+    	return givenThat(mappingBuilder);
+    }
 
-	public static void editStub(MappingBuilder mappingBuilder) {
-		defaultInstance.get().editStubMapping(mappingBuilder);
-	}
+    public static void editStub(MappingBuilder mappingBuilder) {
+    	defaultInstance.get().editStubMapping(mappingBuilder);
+    }
 
-	public static void removeStub(MappingBuilder mappingBuilder) {
-		defaultInstance.get().removeStubMapping(mappingBuilder);
-	}
+    public static void removeStub(MappingBuilder mappingBuilder) {
+    	defaultInstance.get().removeStubMapping(mappingBuilder);
+    }
 
     public static void removeStub(StubMapping stubMapping) {
         defaultInstance.get().removeStubMapping(stubMapping);
@@ -132,33 +132,33 @@ public class WireMock {
         defaultInstance.set(WireMock.create().port(port).build());
     }
 
-	public static void configureFor(String host, int port) {
-		defaultInstance.set(WireMock.create().host(host).port(port).build());
-	}
+    public static void configureFor(String host, int port) {
+    	defaultInstance.set(WireMock.create().host(host).port(port).build());
+    }
 
-	public static void configureFor(String host, int port, String urlPathPrefix) {
-		defaultInstance.set(WireMock.create().host(host).port(port).urlPathPrefix(urlPathPrefix).build());
-	}
+    public static void configureFor(String host, int port, String urlPathPrefix) {
+    	defaultInstance.set(WireMock.create().host(host).port(port).urlPathPrefix(urlPathPrefix).build());
+    }
 
-	public static void configureFor(String scheme, String host, int port, String urlPathPrefix) {
-		defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix(urlPathPrefix).build());
-	}
+    public static void configureFor(String scheme, String host, int port, String urlPathPrefix) {
+    	defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix(urlPathPrefix).build());
+    }
 
-	public static void configureFor(String scheme, String host, int port) {
-		defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).build());
-	}
+    public static void configureFor(String scheme, String host, int port) {
+    	defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).build());
+    }
 
     public static void configureFor(String scheme, String host, int port, String proxyHost, int proxyPort) {
         defaultInstance.set(WireMock.create().scheme(scheme).host(host).port(port).urlPathPrefix("").hostHeader(null).proxyHost(proxyHost).proxyPort(proxyPort).build());
     }
 
     public static void configureFor(WireMock client) {
-	    defaultInstance.set(client);
+        defaultInstance.set(client);
     }
 
-	public static void configure() {
-		defaultInstance.set(WireMock.create().build());
-	}
+    public static void configure() {
+    	defaultInstance.set(WireMock.create().build());
+    }
 
     public static StringValuePattern equalTo(String value) {
         return new EqualToPattern(value);
@@ -172,9 +172,9 @@ public class WireMock {
         return new BinaryEqualToPattern(content);
     }
 
-	public static StringValuePattern equalToIgnoreCase(String value) {
-		return new EqualToPattern(value, true);
-	}
+    public static StringValuePattern equalToIgnoreCase(String value) {
+    	return new EqualToPattern(value, true);
+    }
 
     public static StringValuePattern equalToJson(String value) {
         return new EqualToJsonPattern(value, null, null);
@@ -201,7 +201,7 @@ public class WireMock {
     }
 
     public static EqualToXmlPattern equalToXml(String value, boolean enablePlaceholders, String placeholderOpeningDelimiterRegex, String placeholderClosingDelimiterRegex) {
-	    return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
+        return new EqualToXmlPattern(value, enablePlaceholders, placeholderOpeningDelimiterRegex, placeholderClosingDelimiterRegex);
     }
 
     public static MatchesXPathPattern matchingXPath(String value) {
@@ -248,25 +248,25 @@ public class WireMock {
         defaultInstance.get().removeMappings();
     }
 
-	public void resetMappings() {
-		admin.resetAll();
-	}
+    public void resetMappings() {
+    	admin.resetAll();
+    }
 
-	public static void reset() {
-		defaultInstance.get().resetMappings();
-	}
+    public static void reset() {
+    	defaultInstance.get().resetMappings();
+    }
 
-	public static void resetAllRequests() {
-		defaultInstance.get().resetRequests();
-	}
+    public static void resetAllRequests() {
+    	defaultInstance.get().resetRequests();
+    }
 
-	public void resetRequests() {
-		admin.resetRequests();
-	}
+    public void resetRequests() {
+    	admin.resetRequests();
+    }
 
-	public void resetScenarios() {
-		admin.resetScenarios();
-	}
+    public void resetScenarios() {
+    	admin.resetScenarios();
+    }
 
     public static List<Scenario> getAllScenarios() {
         return defaultInstance.get().getScenarios();
@@ -277,8 +277,8 @@ public class WireMock {
     }
 
     public static void resetAllScenarios() {
-		defaultInstance.get().resetScenarios();
-	}
+    	defaultInstance.get().resetScenarios();
+    }
 
     public void resetToDefaultMappings() {
         admin.resetToDefaultMappings();
@@ -288,27 +288,27 @@ public class WireMock {
         defaultInstance.get().resetToDefaultMappings();
     }
 
-	public StubMapping register(MappingBuilder mappingBuilder) {
-		StubMapping mapping = mappingBuilder.build();
-		register(mapping);
-		return mapping;
-	}
+    public StubMapping register(MappingBuilder mappingBuilder) {
+    	StubMapping mapping = mappingBuilder.build();
+    	register(mapping);
+    	return mapping;
+    }
 
     public void register(StubMapping mapping) {
         admin.addStubMapping(mapping);
     }
 
-	public void editStubMapping(MappingBuilder mappingBuilder) {
-		admin.editStubMapping(mappingBuilder.build());
-	}
+    public void editStubMapping(MappingBuilder mappingBuilder) {
+    	admin.editStubMapping(mappingBuilder.build());
+    }
 
-	public void removeStubMapping(MappingBuilder mappingBuilder) {
-		admin.removeStubMapping(mappingBuilder.build());
-	}
+    public void removeStubMapping(MappingBuilder mappingBuilder) {
+    	admin.removeStubMapping(mappingBuilder.build());
+    }
 
-	public void removeStubMapping(StubMapping stubMapping) {
-		admin.removeStubMapping(stubMapping);
-	}
+    public void removeStubMapping(StubMapping stubMapping) {
+    	admin.removeStubMapping(stubMapping);
+    }
 
     public ListStubMappingsResult allStubMappings() {
         return admin.listAllStubMappings();
@@ -338,81 +338,81 @@ public class WireMock {
         return UrlPattern.ANY;
     }
 
-	public static CountMatchingStrategy lessThan(int expected) {
-		return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN, expected);
-	}
+    public static CountMatchingStrategy lessThan(int expected) {
+    	return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN, expected);
+    }
 
-	public static CountMatchingStrategy lessThanOrExactly(int expected) {
-		return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN_OR_EQUAL, expected);
-	}
+    public static CountMatchingStrategy lessThanOrExactly(int expected) {
+    	return new CountMatchingStrategy(CountMatchingStrategy.LESS_THAN_OR_EQUAL, expected);
+    }
 
-	public static CountMatchingStrategy exactly(int expected) {
-		return new CountMatchingStrategy(CountMatchingStrategy.EQUAL_TO, expected);
-	}
+    public static CountMatchingStrategy exactly(int expected) {
+    	return new CountMatchingStrategy(CountMatchingStrategy.EQUAL_TO, expected);
+    }
 
-	public static CountMatchingStrategy moreThanOrExactly(int expected) {
-		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN_OR_EQUAL, expected);
-	}
+    public static CountMatchingStrategy moreThanOrExactly(int expected) {
+    	return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN_OR_EQUAL, expected);
+    }
 
-	public static CountMatchingStrategy moreThan(int expected) {
-		return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, expected);
-	}
+    public static CountMatchingStrategy moreThan(int expected) {
+    	return new CountMatchingStrategy(CountMatchingStrategy.GREATER_THAN, expected);
+    }
 
-	public static MappingBuilder get(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
-	}
+    public static MappingBuilder get(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.GET, urlPattern);
+    }
 
-	public static MappingBuilder post(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
-	}
+    public static MappingBuilder post(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.POST, urlPattern);
+    }
 
-	public static MappingBuilder put(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
-	}
+    public static MappingBuilder put(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.PUT, urlPattern);
+    }
 
-	public static MappingBuilder delete(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
-	}
+    public static MappingBuilder delete(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.DELETE, urlPattern);
+    }
 
-	public static MappingBuilder patch(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
-	}
+    public static MappingBuilder patch(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.PATCH, urlPattern);
+    }
 
-	public static MappingBuilder head(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
-	}
+    public static MappingBuilder head(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.HEAD, urlPattern);
+    }
 
-	public static MappingBuilder options(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
-	}
+    public static MappingBuilder options(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.OPTIONS, urlPattern);
+    }
 
-	public static MappingBuilder trace(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
-	}
+    public static MappingBuilder trace(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.TRACE, urlPattern);
+    }
 
-	public static MappingBuilder any(UrlPattern urlPattern) {
-		return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
-	}
+    public static MappingBuilder any(UrlPattern urlPattern) {
+    	return new BasicMappingBuilder(RequestMethod.ANY, urlPattern);
+    }
 
     public static MappingBuilder request(String method, UrlPattern urlPattern) {
         return new BasicMappingBuilder(RequestMethod.fromString(method), urlPattern);
     }
 
-	public static MappingBuilder requestMatching(String customRequestMatcherName) {
-		return new BasicMappingBuilder(customRequestMatcherName, Parameters.empty());
-	}
+    public static MappingBuilder requestMatching(String customRequestMatcherName) {
+    	return new BasicMappingBuilder(customRequestMatcherName, Parameters.empty());
+    }
 
-	public static MappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
-		return new BasicMappingBuilder(customRequestMatcherName, parameters);
-	}
+    public static MappingBuilder requestMatching(String customRequestMatcherName, Parameters parameters) {
+    	return new BasicMappingBuilder(customRequestMatcherName, parameters);
+    }
 
-	public static MappingBuilder requestMatching(ValueMatcher<Request> requestMatcher) {
-		return new BasicMappingBuilder(requestMatcher);
-	}
+    public static MappingBuilder requestMatching(ValueMatcher<Request> requestMatcher) {
+    	return new BasicMappingBuilder(requestMatcher);
+    }
 
-	public static ResponseDefinitionBuilder aResponse() {
-		return new ResponseDefinitionBuilder();
-	}
+    public static ResponseDefinitionBuilder aResponse() {
+    	return new ResponseDefinitionBuilder();
+    }
 
     public static ResponseDefinitionBuilder ok() {
         return aResponse().withStatus(200);
@@ -513,19 +513,19 @@ public class WireMock {
         return aResponse().withStatus(status);
     }
 
-	public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
-		verifyThat(moreThanOrExactly(1), requestPatternBuilder);
-	}
+    public void verifyThat(RequestPatternBuilder requestPatternBuilder) {
+    	verifyThat(moreThanOrExactly(1), requestPatternBuilder);
+    }
 
-	public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		verifyThat(exactly(expectedCount), requestPatternBuilder);
-	}
+    public void verifyThat(int expectedCount, RequestPatternBuilder requestPatternBuilder) {
+    	verifyThat(exactly(expectedCount), requestPatternBuilder);
+    }
 
-	public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
-		final RequestPattern requestPattern = requestPatternBuilder.build();
+    public void verifyThat(CountMatchingStrategy expectedCount, RequestPatternBuilder requestPatternBuilder) {
+    	final RequestPattern requestPattern = requestPatternBuilder.build();
 
-		int actualCount;
-		if (requestPattern.hasInlineCustomMatcher()) {
+    	int actualCount;
+    	if (requestPattern.hasInlineCustomMatcher()) {
             List<LoggedRequest> requests = admin.findRequestsMatching(RequestPattern.everything()).getRequests();
             actualCount = from(requests).filter(thatMatch(requestPattern)).size();
         } else {
@@ -537,9 +537,9 @@ public class WireMock {
         if (!expectedCount.match(actualCount)) {
             throw actualCount == 0 ?
                 verificationExceptionForNearMisses(requestPatternBuilder, requestPattern) :
-			    new VerificationException(requestPattern, expectedCount, actualCount);
-		}
-	}
+    		    new VerificationException(requestPattern, expectedCount, actualCount);
+    	}
+    }
 
     private VerificationException verificationExceptionForNearMisses(RequestPatternBuilder requestPatternBuilder, RequestPattern requestPattern) {
         List<NearMiss> nearMisses = findAllNearMissesFor(requestPatternBuilder);
@@ -551,17 +551,17 @@ public class WireMock {
         return new VerificationException(requestPattern, find(allRequests()));
     }
 
-	public static void verify(RequestPatternBuilder requestPatternBuilder) {
-		defaultInstance.get().verifyThat(requestPatternBuilder);
-	}
+    public static void verify(RequestPatternBuilder requestPatternBuilder) {
+    	defaultInstance.get().verifyThat(requestPatternBuilder);
+    }
 
-	public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
-		defaultInstance.get().verifyThat(count, requestPatternBuilder);
-	}
+    public static void verify(int count, RequestPatternBuilder requestPatternBuilder) {
+    	defaultInstance.get().verifyThat(count, requestPatternBuilder);
+    }
 
-	public static void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
-		defaultInstance.get().verifyThat(countMatchingStrategy, requestPatternBuilder);
-	}
+    public static void verify(CountMatchingStrategy countMatchingStrategy, RequestPatternBuilder requestPatternBuilder) {
+    	defaultInstance.get().verifyThat(countMatchingStrategy, requestPatternBuilder);
+    }
 
     public List<LoggedRequest> find(RequestPatternBuilder requestPatternBuilder) {
         FindRequestsResult result = admin.findRequestsMatching(requestPatternBuilder.build());
@@ -573,7 +573,7 @@ public class WireMock {
         return defaultInstance.get().find(requestPatternBuilder);
     }
 
-	public static List<ServeEvent> getAllServeEvents() {
+    public static List<ServeEvent> getAllServeEvents() {
         return defaultInstance.get().getServeEvents();
     }
 
@@ -582,11 +582,11 @@ public class WireMock {
     }
 
     public static void removeServeEvent(UUID eventId) {
-	    defaultInstance.get().removeEvent(eventId);
+        defaultInstance.get().removeEvent(eventId);
     }
 
     public void removeEvent(UUID eventId) {
-	    admin.removeServeEvent(eventId);
+        admin.removeServeEvent(eventId);
     }
 
     public List<ServeEvent> removeEvents(RequestPatternBuilder requestPatternBuilder) {
@@ -594,93 +594,93 @@ public class WireMock {
     }
 
     public static List<ServeEvent> removeServeEvents(RequestPatternBuilder requestPatternBuilder) {
-	    return defaultInstance.get().removeEvents(requestPatternBuilder);
+        return defaultInstance.get().removeEvents(requestPatternBuilder);
     }
 
     public static List<ServeEvent> removeEventsByStubMetadata(StringValuePattern pattern) {
-	    return defaultInstance.get().removeEventsByMetadata(pattern);
+        return defaultInstance.get().removeEventsByMetadata(pattern);
     }
 
     public List<ServeEvent> removeEventsByMetadata(StringValuePattern pattern) {
-	    return admin.removeServeEventsForStubsMatchingMetadata(pattern).getServeEvents();
+        return admin.removeServeEventsForStubsMatchingMetadata(pattern).getServeEvents();
     }
 
     public static RequestPatternBuilder getRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
-	}
+    	return new RequestPatternBuilder(RequestMethod.GET, urlPattern);
+    }
 
-	public static RequestPatternBuilder postRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.POST, urlPattern);
-	}
+    public static RequestPatternBuilder postRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.POST, urlPattern);
+    }
 
-	public static RequestPatternBuilder putRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.PUT, urlPattern);
-	}
+    public static RequestPatternBuilder putRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.PUT, urlPattern);
+    }
 
-	public static RequestPatternBuilder deleteRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.DELETE, urlPattern);
-	}
+    public static RequestPatternBuilder deleteRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.DELETE, urlPattern);
+    }
 
-	public static RequestPatternBuilder patchRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.PATCH, urlPattern);
-	}
+    public static RequestPatternBuilder patchRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.PATCH, urlPattern);
+    }
 
-	public static RequestPatternBuilder headRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.HEAD, urlPattern);
-	}
+    public static RequestPatternBuilder headRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.HEAD, urlPattern);
+    }
 
-	public static RequestPatternBuilder optionsRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.OPTIONS, urlPattern);
-	}
+    public static RequestPatternBuilder optionsRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.OPTIONS, urlPattern);
+    }
 
-	public static RequestPatternBuilder traceRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.TRACE, urlPattern);
-	}
+    public static RequestPatternBuilder traceRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.TRACE, urlPattern);
+    }
 
-	public static RequestPatternBuilder anyRequestedFor(UrlPattern urlPattern) {
-		return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
-	}
+    public static RequestPatternBuilder anyRequestedFor(UrlPattern urlPattern) {
+    	return new RequestPatternBuilder(RequestMethod.ANY, urlPattern);
+    }
 
     public static RequestPatternBuilder requestMadeFor(String customMatcherName, Parameters parameters) {
         return RequestPatternBuilder.forCustomMatcher(customMatcherName, parameters);
     }
 
-	public static RequestPatternBuilder requestMadeFor(ValueMatcher<Request> requestMatcher) {
-		return RequestPatternBuilder.forCustomMatcher(requestMatcher);
-	}
+    public static RequestPatternBuilder requestMadeFor(ValueMatcher<Request> requestMatcher) {
+    	return RequestPatternBuilder.forCustomMatcher(requestMatcher);
+    }
 
-	public static void setGlobalFixedDelay(int milliseconds) {
-		defaultInstance.get().setGlobalFixedDelayVariable(milliseconds);
-	}
+    public static void setGlobalFixedDelay(int milliseconds) {
+    	defaultInstance.get().setGlobalFixedDelayVariable(milliseconds);
+    }
 
-	public void setGlobalFixedDelayVariable(int milliseconds) {
-		GlobalSettings settings = globalSettingsHolder.get()
+    public void setGlobalFixedDelayVariable(int milliseconds) {
+    	GlobalSettings settings = globalSettingsHolder.get()
                 .copy()
                 .fixedDelay(milliseconds)
                 .build();
-		updateGlobalSettings(settings);
-	}
+    	updateGlobalSettings(settings);
+    }
 
-	public static void setGlobalRandomDelay(DelayDistribution distribution) {
-		defaultInstance.get().setGlobalRandomDelayVariable(distribution);
-	}
+    public static void setGlobalRandomDelay(DelayDistribution distribution) {
+    	defaultInstance.get().setGlobalRandomDelayVariable(distribution);
+    }
 
-	public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
-		GlobalSettings settings = globalSettingsHolder.get()
+    public void setGlobalRandomDelayVariable(DelayDistribution distribution) {
+    	GlobalSettings settings = globalSettingsHolder.get()
                 .copy()
                 .delayDistribution(distribution)
                 .build();
-		updateGlobalSettings(settings);
-	}
-
-	public static void updateSettings(GlobalSettings settings) {
-	    defaultInstance.get().updateGlobalSettings(settings);
+    	updateGlobalSettings(settings);
     }
 
-	public void updateGlobalSettings(GlobalSettings settings) {
-		globalSettingsHolder.replaceWith(settings);
-		admin.updateGlobalSettings(settings);
-	}
+    public static void updateSettings(GlobalSettings settings) {
+        defaultInstance.get().updateGlobalSettings(settings);
+    }
+
+    public void updateGlobalSettings(GlobalSettings settings) {
+    	globalSettingsHolder.replaceWith(settings);
+    	admin.updateGlobalSettings(settings);
+    }
 
     public void shutdown() {
         admin.shutdownServer();
@@ -730,10 +730,10 @@ public class WireMock {
         loadMappingsFrom(new File(rootDir));
     }
 
-	public void loadMappingsFrom(File rootDir) {
-		FileSource mappingsSource = new SingleRootFileSource(rootDir);
-		new RemoteMappingsLoader(mappingsSource, this).load();
-	}
+    public void loadMappingsFrom(File rootDir) {
+    	FileSource mappingsSource = new SingleRootFileSource(rootDir);
+    	new RemoteMappingsLoader(mappingsSource, this).load();
+    }
 
     public static List<StubMapping> snapshotRecord() {
         return defaultInstance.get().takeSnapshotRecording();
@@ -796,19 +796,19 @@ public class WireMock {
     }
 
     public List<StubMapping> findAllStubsByMetadata(StringValuePattern pattern) {
-	    return admin.findAllStubsByMetadata(pattern).getMappings();
+        return admin.findAllStubsByMetadata(pattern).getMappings();
     }
 
     public static List<StubMapping> findStubsByMetadata(StringValuePattern pattern) {
-	    return defaultInstance.get().findAllStubsByMetadata(pattern);
+        return defaultInstance.get().findAllStubsByMetadata(pattern);
     }
 
     public void removeStubsByMetadataPattern(StringValuePattern pattern) {
-	    admin.removeStubsByMetadata(pattern);
+        admin.removeStubsByMetadata(pattern);
     }
 
     public static void removeStubsByMetadata(StringValuePattern pattern) {
-	    defaultInstance.get().removeStubsByMetadataPattern(pattern);
+        defaultInstance.get().removeStubsByMetadataPattern(pattern);
     }
 
     public void importStubMappings(StubImport stubImport) {
@@ -816,11 +816,11 @@ public class WireMock {
     }
 
     public void importStubMappings(StubImportBuilder stubImport) {
-	    importStubMappings(stubImport.build());
+        importStubMappings(stubImport.build());
     }
 
     public static void importStubs(StubImportBuilder stubImport) {
-	    importStubs(stubImport.build());
+        importStubs(stubImport.build());
     }
 
     public static void importStubs(StubImport stubImport) {
@@ -828,7 +828,7 @@ public class WireMock {
     }
 
     public GlobalSettings getGlobalSettings() {
-	    return admin.getGlobalSettings().getSettings();
+        return admin.getGlobalSettings().getSettings();
     }
 
     public static GlobalSettings getSettings() {

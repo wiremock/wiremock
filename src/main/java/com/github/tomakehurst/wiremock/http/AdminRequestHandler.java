@@ -42,23 +42,23 @@ public class AdminRequestHandler extends AbstractRequestHandler {
     private final Authenticator authenticator;
     private final boolean requireHttps;
 
-	public AdminRequestHandler(AdminRoutes adminRoutes,
+    public AdminRequestHandler(AdminRoutes adminRoutes,
                                Admin admin,
                                ResponseRenderer responseRenderer,
                                Authenticator authenticator,
                                boolean requireHttps,
                                List<RequestFilter> requestFilters
     ) {
-		super(responseRenderer, requestFilters);
+    	super(responseRenderer, requestFilters);
         this.adminRoutes = adminRoutes;
         this.admin = admin;
         this.authenticator = authenticator;
         this.requireHttps = requireHttps;
     }
 
-	@Override
-	public ServeEvent handleRequest(Request request) {
-	    if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
+    @Override
+    public ServeEvent handleRequest(Request request) {
+        if (requireHttps && !URI.create(request.getAbsoluteUrl()).getScheme().equals("https")) {
             notifier().info("HTTPS is required for admin requests, sending upgrade redirect");
             return ServeEvent.of(
                 LoggedRequest.createFrom(request),
@@ -66,7 +66,7 @@ public class AdminRequestHandler extends AbstractRequestHandler {
             );
         }
 
-	    if (!authenticator.authenticate(request)) {
+        if (!authenticator.authenticate(request)) {
             notifier().info("Authentication failed for " + request.getMethod() + " " + request.getUrl());
             return ServeEvent.of(
                 LoggedRequest.createFrom(request),
@@ -99,8 +99,8 @@ public class AdminRequestHandler extends AbstractRequestHandler {
         }
     }
 
-	private static String withoutAdminRoot(String url) {
-	    return url.replace(ADMIN_CONTEXT_ROOT, "");
-	}
-	
+    private static String withoutAdminRoot(String url) {
+        return url.replace(ADMIN_CONTEXT_ROOT, "");
+    }
+    
 }

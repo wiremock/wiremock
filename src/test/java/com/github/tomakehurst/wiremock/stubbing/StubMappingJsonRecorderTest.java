@@ -52,22 +52,22 @@ import static org.skyscreamer.jsonassert.JSONCompareMode.STRICT_ORDER;
 @RunWith(JMock.class)
 public class StubMappingJsonRecorderTest {
 
-	private StubMappingJsonRecorder listener;
-	private FileSource mappingsFileSource;
-	private FileSource filesFileSource;
+    private StubMappingJsonRecorder listener;
+    private FileSource mappingsFileSource;
+    private FileSource filesFileSource;
     private Admin admin;
 
-	private Mockery context;
+    private Mockery context;
 
-	@Before
-	public void init() {
-		context = new Mockery();
-		mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
-		filesFileSource = context.mock(FileSource.class, "filesFileSource");
+    @Before
+    public void init() {
+    	context = new Mockery();
+    	mappingsFileSource = context.mock(FileSource.class, "mappingsFileSource");
+    	filesFileSource = context.mock(FileSource.class, "filesFileSource");
         admin = context.mock(Admin.class);
 
         constructRecordingListener(Collections.<String>emptyList());
-	}
+    }
 
     private void constructRecordingListener(List<String> headersToRecord) {
         listener = new StubMappingJsonRecorder(mappingsFileSource, filesFileSource, admin, transform(headersToRecord, TO_CASE_INSENSITIVE_KEYS));
@@ -75,31 +75,31 @@ public class StubMappingJsonRecorderTest {
     }
 
     private static final String SAMPLE_REQUEST_MAPPING =
-		"{ 													             \n" +
-		"	\"request\": {									             \n" +
-		"		\"method\": \"GET\",						             \n" +
-		"		\"url\": \"/recorded/content\"				             \n" +
-		"	},												             \n" +
-		"	\"response\": {									             \n" +
-		"		\"status\": 200,							             \n" +
-		"		\"bodyFileName\": \"body-recorded-content-1$2!3.txt\"    \n" +
-		"	}												             \n" +
-		"}													               ";
+    	"{ 													             \n" +
+    	"	\"request\": {									             \n" +
+    	"		\"method\": \"GET\",						             \n" +
+    	"		\"url\": \"/recorded/content\"				             \n" +
+    	"	},												             \n" +
+    	"	\"response\": {									             \n" +
+    	"		\"status\": 200,							             \n" +
+    	"		\"bodyFileName\": \"body-recorded-content-1$2!3.txt\"    \n" +
+    	"	}												             \n" +
+    	"}													               ";
 
-	@Test
-	public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
-		context.checking(new Expectations() {{
-		    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
-			one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
-					with(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
-			one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.txt")),
+    @Test
+    public void writesMappingFileAndCorrespondingBodyFileOnRequest() {
+    	context.checking(new Expectations() {{
+    	    allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+    		one(mappingsFileSource).writeTextFile(with(equal("mapping-recorded-content-1$2!3.json")),
+    				with(equalToJson(SAMPLE_REQUEST_MAPPING, STRICT_ORDER)));
+    		one(filesFileSource).writeBinaryFile(with(equal("body-recorded-content-1$2!3.txt")),
                     with(equal("Recorded body content".getBytes(UTF_8))));
-		}});
+    	}});
 
-		Request request = new MockRequestBuilder(context)
-			.withMethod(RequestMethod.GET)
-			.withUrl("/recorded/content")
-			.build();
+    	Request request = new MockRequestBuilder(context)
+    		.withMethod(RequestMethod.GET)
+    		.withUrl("/recorded/content")
+    		.build();
 
         Response response = response()
                 .status(200)
@@ -107,10 +107,10 @@ public class StubMappingJsonRecorderTest {
                 .body("Recorded body content")
                 .build();
 
-		listener.requestReceived(request, response);
-	}
+    	listener.requestReceived(request, response);
+    }
 
-	private static final String SAMPLE_REQUEST_MAPPING_WITH_HEADERS =
+    private static final String SAMPLE_REQUEST_MAPPING_WITH_HEADERS =
         "{                                                                  \n" +
         "   \"request\": {                                                  \n" +
         "       \"method\": \"GET\",                                        \n" +
@@ -126,10 +126,10 @@ public class StubMappingJsonRecorderTest {
         "   }                                                               \n" +
         "}                                                                  ";
 
-	@Test
-	public void addsResponseHeaders() {
-	    context.checking(new Expectations() {{
-	        allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
+    @Test
+    public void addsResponseHeaders() {
+        context.checking(new Expectations() {{
+            allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             one(mappingsFileSource).writeTextFile(with(equal("mapping-headered-content-1$2!3.json")),
                     with(equalToJson(SAMPLE_REQUEST_MAPPING_WITH_HEADERS, STRICT_ORDER)));
             one(filesFileSource).writeBinaryFile("body-headered-content-1$2!3.txt", "Recorded body content".getBytes(UTF_8));
@@ -145,31 +145,31 @@ public class StubMappingJsonRecorderTest {
                 .fromProxy(true)
                 .body("Recorded body content")
                 .headers(new HttpHeaders(
-						httpHeader("Content-Type", "text/plain"),
-						httpHeader("Cache-Control", "no-cache")))
+    					httpHeader("Content-Type", "text/plain"),
+    					httpHeader("Cache-Control", "no-cache")))
                 .build();
 
         listener.requestReceived(request, response);
-	}
+    }
 
-	@Test
-	public void doesNotWriteFileIfRequestAlreadyReceived() {
-	    context.checking(new Expectations() {{
+    @Test
+    public void doesNotWriteFileIfRequestAlreadyReceived() {
+        context.checking(new Expectations() {{
             atLeast(1).of(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(1)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
         }});
 
-	    listener.requestReceived(new MockRequestBuilder(context)
+        listener.requestReceived(new MockRequestBuilder(context)
                 .withMethod(RequestMethod.GET)
                 .withUrl("/headered/content")
                 .build(),
             response().fromProxy(true).status(200).build());
-	}
+    }
 
-	@Test
-	public void doesNotWriteFileIfResponseNotFromProxy() {
-	    context.checking(new Expectations() {{
+    @Test
+    public void doesNotWriteFileIfResponseNotFromProxy() {
+        context.checking(new Expectations() {{
             allowing(admin).countRequestsMatching(with(any(RequestPattern.class))); will(returnValue(VerificationResult.withCount(0)));
             never(mappingsFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
             never(filesFileSource).writeTextFile(with(any(String.class)), with(any(String.class)));
@@ -185,22 +185,22 @@ public class StubMappingJsonRecorderTest {
                 .withUrl("/headered/content")
                 .build(),
             response);
-	}
+    }
 
     private static final String SAMPLE_REQUEST_MAPPING_WITH_BODY =
-            "{ 													             \n" +
-            "	\"request\": {									             \n" +
-            "		\"method\": \"POST\",						             \n" +
-            "		\"url\": \"/body/content\",                              \n" +
+            "{     												             \n" +
+            "    \"request\": {									             \n" +
+            "    	\"method\": \"POST\",						             \n" +
+            "    	\"url\": \"/body/content\",                              \n" +
             "       \"bodyPatterns\": [                                      \n" +
             "            { \"equalTo\": \"somebody\" }                       \n" +
-            "        ]				                                         \n" +
-            "	},												             \n" +
-            "	\"response\": {									             \n" +
-            "		\"status\": 200, 							             \n" +
-            "		\"bodyFileName\": \"body-body-content-1$2!3.txt\"        \n" +
-            "	}												             \n" +
-            "}													               ";
+            "        ]    			                                         \n" +
+            "    },												             \n" +
+            "    \"response\": {									             \n" +
+            "    	\"status\": 200, 							             \n" +
+            "    	\"bodyFileName\": \"body-body-content-1$2!3.txt\"        \n" +
+            "    }												             \n" +
+            "}    												               ";
 
     @Test
     public void includesBodyInRequestPatternIfInRequest() {
@@ -224,36 +224,36 @@ public class StubMappingJsonRecorderTest {
     }
 
     private static final String SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_1 =
-            "{ 													             \n" +
-            "	\"request\": {									             \n" +
-            "		\"method\": \"GET\",						             \n" +
-            "		\"url\": \"/same/url\",                             	 \n" +
-            "       \"headers\": {                                       	 \n" +
-            "			 \"Accept\":										 \n" +
-            "            	{ \"equalTo\": \"text/html\" }            		 \n" +
-            "        }				                                         \n" +
-            "	},												             \n" +
-            "	\"response\": {									             \n" +
-            "		\"status\": 200,							             \n" +
-            "		\"bodyFileName\": \"body-same-url-1$2!3.txt\"		 	 \n" +
-            "	}												             \n" +
-            "}													               ";
+            "{     												             \n" +
+            "    \"request\": {									             \n" +
+            "    	\"method\": \"GET\",						             \n" +
+            "    	\"url\": \"/same/url\",                             	 \n" +
+            "       \"headers\": {                                            \n" +
+            "    		 \"Accept\":										 \n" +
+            "                { \"equalTo\": \"text/html\" }            		 \n" +
+            "        }    			                                         \n" +
+            "    },												             \n" +
+            "    \"response\": {									             \n" +
+            "    	\"status\": 200,							             \n" +
+            "    	\"bodyFileName\": \"body-same-url-1$2!3.txt\"		 	 \n" +
+            "    }												             \n" +
+            "}    												               ";
 
     private static final String SAMPLE_REQUEST_MAPPING_WITH_REQUEST_HEADERS_2 =
-            "{ 													             \n" +
-            "	\"request\": {									             \n" +
-            "		\"method\": \"GET\",						             \n" +
-            "		\"url\": \"/same/url\",                             	 \n" +
-            "       \"headers\": {                                       	 \n" +
-            "			 \"Accept\":										 \n" +
-            "            	{ \"equalTo\": \"application/json\" }            \n" +
-            "        }				                                         \n" +
-            "	},												             \n" +
-            "	\"response\": {									             \n" +
-            "		\"status\": 200, 							             \n" +
-            "		\"bodyFileName\": \"body-same-url-1$2!3.txt\"		 	 \n" +
-            "	}												             \n" +
-            "}													               ";
+            "{     												             \n" +
+            "    \"request\": {									             \n" +
+            "    	\"method\": \"GET\",						             \n" +
+            "    	\"url\": \"/same/url\",                             	 \n" +
+            "       \"headers\": {                                            \n" +
+            "    		 \"Accept\":										 \n" +
+            "                { \"equalTo\": \"application/json\" }            \n" +
+            "        }    			                                         \n" +
+            "    },												             \n" +
+            "    \"response\": {									             \n" +
+            "    	\"status\": 200, 							             \n" +
+            "    	\"bodyFileName\": \"body-same-url-1$2!3.txt\"		 	 \n" +
+            "    }												             \n" +
+            "}    												               ";
 
     private static final List<String> MATCHING_REQUEST_HEADERS = new ArrayList<String>(Arrays.asList("Accept"));
 
@@ -279,10 +279,10 @@ public class StubMappingJsonRecorderTest {
                 .build();
 
         Request request2 = new MockRequestBuilder(context, "MockRequestAcceptJson")
-		        .withMethod(GET)
-		        .withUrl("/same/url")
-		        .withHeader("Accept", "application/json")
-		        .build();
+    	        .withMethod(GET)
+    	        .withUrl("/same/url")
+    	        .withHeader("Accept", "application/json")
+    	        .build();
 
         listener.requestReceived(request1,
                 response().status(200).fromProxy(true).build());
@@ -365,18 +365,18 @@ public class StubMappingJsonRecorderTest {
     }
 
     private static final String GZIP_REQUEST_MAPPING =
-                    "{ 													             \n" +
+                    "{     												             \n" +
                     "   \"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",            \n" +
                     "   \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",          \n" +
-                    "	\"request\": {									             \n" +
-                    "		\"method\": \"GET\",						             \n" +
-                    "		\"url\": \"/gzipped/content\"				             \n" +
-                    "	},												             \n" +
-                    "	\"response\": {									             \n" +
-                    "		\"status\": 200,							             \n" +
-                    "		\"bodyFileName\": \"body-gzipped-content-1$2!3.txt\"     \n" +
-                    "	}												             \n" +
-                    "}													               ";
+                    "    \"request\": {									             \n" +
+                    "    	\"method\": \"GET\",						             \n" +
+                    "    	\"url\": \"/gzipped/content\"				             \n" +
+                    "    },												             \n" +
+                    "    \"response\": {									             \n" +
+                    "    	\"status\": 200,							             \n" +
+                    "    	\"bodyFileName\": \"body-gzipped-content-1$2!3.txt\"     \n" +
+                    "    }												             \n" +
+                    "}    												               ";
 
     @Test
     public void decompressesGzippedResponseBodyAndRemovesContentEncodingHeader() {
@@ -409,52 +409,52 @@ public class StubMappingJsonRecorderTest {
     }
 
     private static final String MULTIPART_REQUEST_MAPPING =
-                    "{																	\n" +
-                    "	\"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
-                    "	\"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
-                    "	\"request\": {													\n" +
-                    "		\"method\": \"POST\",										\n" +
-                    "		\"url\": \"/multipart/content\",							\n" +
-                    "		\"multipartPatterns\" : [ {									\n" +
-                    "			\"name\" : \"binaryFile\",								\n" +
-                    "			\"matchingType\" : \"ALL\",								\n" +
-                    "			\"headers\" : {											\n" +
-                    "				\"Content-Disposition\" : {							\n" +
-                    "					\"contains\" : \"name=\\\"binaryFile\\\"\"		\n" +
-                    "			    }													\n" +
-                    "			},														\n" +
-                    "			\"bodyPatterns\" : [ {									\n" +
-                    "				\"binaryEqualTo\" : \"VGhpcyBhIGZpbGUgY29udGVudA==\"\n" +
-                    "			} ]														\n" +
-                    "		}, {														\n" +
-                    "			\"name\" : \"textFile\",								\n" +
-                    "			\"matchingType\" : \"ALL\",								\n" +
-                    "			\"headers\" : {											\n" +
-                    "				\"Content-Disposition\" : {							\n" +
-                    "					\"contains\" : \"name=\\\"textFile\\\"\"		\n" +
-                    "			    }													\n" +
-                    "			},														\n" +
-                    "			\"bodyPatterns\" : [ {									\n" +
-                    "				\"equalTo\" : \"This a file content\"				\n" +
-                    "			} ]														\n" +
-                    "		}, {														\n" +
-                    "			\"name\" : \"formInput\",								\n" +
-                    "			\"matchingType\" : \"ALL\",								\n" +
-                    "			\"headers\" : {											\n" +
-                    "				\"Content-Disposition\" : {							\n" +
-                    "					\"contains\" : \"name=\\\"formInput\\\"\"		\n" +
-                    "				},													\n" +
-                    "			},														\n" +
-                    "			\"bodyPatterns\" : [ {									\n" +
-                    "				\"equalTo\" : \"I am a field!\"						\n" +
-                    "			} ]														\n" +
-                    "		} ]															\n" +
-                    "	},												            	\n" +
-                    "	\"response\": {									            	\n" +
-                    "		\"status\": 200,							            	\n" +
-                    "		\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"  	\n" +
-                    "	}												            	\n" +
-                    "}																	";
+                    "{    																\n" +
+                    "    \"id\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
+                    "    \"uuid\": \"41544750-0c69-3fd7-93b1-f79499f987c3\",				\n" +
+                    "    \"request\": {													\n" +
+                    "    	\"method\": \"POST\",										\n" +
+                    "    	\"url\": \"/multipart/content\",							\n" +
+                    "    	\"multipartPatterns\" : [ {									\n" +
+                    "    		\"name\" : \"binaryFile\",								\n" +
+                    "    		\"matchingType\" : \"ALL\",								\n" +
+                    "    		\"headers\" : {											\n" +
+                    "    			\"Content-Disposition\" : {							\n" +
+                    "    				\"contains\" : \"name=\\\"binaryFile\\\"\"		\n" +
+                    "    		    }													\n" +
+                    "    		},														\n" +
+                    "    		\"bodyPatterns\" : [ {									\n" +
+                    "    			\"binaryEqualTo\" : \"VGhpcyBhIGZpbGUgY29udGVudA==\"\n" +
+                    "    		} ]														\n" +
+                    "    	}, {														\n" +
+                    "    		\"name\" : \"textFile\",								\n" +
+                    "    		\"matchingType\" : \"ALL\",								\n" +
+                    "    		\"headers\" : {											\n" +
+                    "    			\"Content-Disposition\" : {							\n" +
+                    "    				\"contains\" : \"name=\\\"textFile\\\"\"		\n" +
+                    "    		    }													\n" +
+                    "    		},														\n" +
+                    "    		\"bodyPatterns\" : [ {									\n" +
+                    "    			\"equalTo\" : \"This a file content\"				\n" +
+                    "    		} ]														\n" +
+                    "    	}, {														\n" +
+                    "    		\"name\" : \"formInput\",								\n" +
+                    "    		\"matchingType\" : \"ALL\",								\n" +
+                    "    		\"headers\" : {											\n" +
+                    "    			\"Content-Disposition\" : {							\n" +
+                    "    				\"contains\" : \"name=\\\"formInput\\\"\"		\n" +
+                    "    			},													\n" +
+                    "    		},														\n" +
+                    "    		\"bodyPatterns\" : [ {									\n" +
+                    "    			\"equalTo\" : \"I am a field!\"						\n" +
+                    "    		} ]														\n" +
+                    "    	} ]															\n" +
+                    "    },												            	\n" +
+                    "    \"response\": {									            	\n" +
+                    "    	\"status\": 200,							            	\n" +
+                    "    	\"bodyFileName\": \"body-multipart-content-1$2!3.txt\"  	\n" +
+                    "    }												            	\n" +
+                    "}    																";
     @Test
     public void multipartRequestProcessing() {
         context.checking(new Expectations() {{
@@ -582,15 +582,15 @@ public class StubMappingJsonRecorderTest {
         listener.requestReceived(request, response);
     }
 
-	private IdGenerator fixedIdGenerator(final String id) {
-	    return new IdGenerator() {
+    private IdGenerator fixedIdGenerator(final String id) {
+        return new IdGenerator() {
             public String generate() {
                 return id;
             }
         };
-	}
+    }
 
-	private static Request.Part createPart(final String name, final byte[] data, final String contentType, final String fileName, String... extraHeaderLines) {
+    private static Request.Part createPart(final String name, final byte[] data, final String contentType, final String fileName, String... extraHeaderLines) {
         MockMultipart part = new MockMultipart().name(name).body(data);
 
         for (String headerLine: extraHeaderLines) {

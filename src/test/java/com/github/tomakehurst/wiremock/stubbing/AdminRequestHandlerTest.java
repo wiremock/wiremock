@@ -45,22 +45,22 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JMock.class)
 public class AdminRequestHandlerTest {
-	private Mockery context;
-	private Admin admin;
+    private Mockery context;
+    private Admin admin;
     private MockHttpResponder httpResponder;
 
     private AdminRequestHandler handler;
 
-	@Before
-	public void init() {
-		context = new Mockery();
+    @Before
+    public void init() {
+    	context = new Mockery();
         admin = context.mock(Admin.class);
         httpResponder = new MockHttpResponder();
 
 
-		handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList());
-	}
-	
+    	handler = new AdminRequestHandler(AdminRoutes.defaults(), admin, new BasicResponseRenderer(), new NoAuthenticator(), false, Collections.<RequestFilter>emptyList());
+    }
+    
     @Test
     public void shouldSaveMappingsWhenSaveCalled() {
         Request request = aRequest(context)
@@ -77,84 +77,84 @@ public class AdminRequestHandlerTest {
 
         assertThat(response.getStatus(), is(HTTP_OK));
     }
-	
-	@Test
-	public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
-		Request request = aRequest(context)
-			.withUrl("/reset")
-			.withMethod(POST)
-			.build();
-		
-		context.checking(new Expectations() {{
-			one(admin).resetAll();
-		}});
+    
+    @Test
+    public void shouldClearMappingsJournalAndRequestDelayWhenResetCalled() {
+    	Request request = aRequest(context)
+    		.withUrl("/reset")
+    		.withMethod(POST)
+    		.build();
+    	
+    	context.checking(new Expectations() {{
+    		one(admin).resetAll();
+    	}});
 
         handler.handle(request, httpResponder);
         Response response = httpResponder.response;
-		
-		assertThat(response.getStatus(), is(HTTP_OK));
-	}
+    	
+    	assertThat(response.getStatus(), is(HTTP_OK));
+    }
 
-	@Test
-	public void shouldClearJournalWhenResetRequestsCalled() {
-		Request request = aRequest(context)
-				.withUrl("/requests/reset")
-				.withMethod(POST)
-				.build();
+    @Test
+    public void shouldClearJournalWhenResetRequestsCalled() {
+    	Request request = aRequest(context)
+    			.withUrl("/requests/reset")
+    			.withMethod(POST)
+    			.build();
 
-		context.checking(new Expectations() {{
-			one(admin).resetRequests();
-		}});
+    	context.checking(new Expectations() {{
+    		one(admin).resetRequests();
+    	}});
 
         handler.handle(request, httpResponder);
         Response response = httpResponder.response;
 
-		assertThat(response.getStatus(), is(HTTP_OK));
-	}
+    	assertThat(response.getStatus(), is(HTTP_OK));
+    }
 
-	private static final String REQUEST_PATTERN_SAMPLE = 
-		"{												\n" +
-		"	\"method\": \"DELETE\",						\n" +
-		"	\"url\": \"/some/resource\"					\n" +
-		"}												";
-	
-	@Test
-	public void shouldReturnCountOfMatchingRequests() {
-		context.checking(new Expectations() {{
-			RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
-			allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
-		}});
-		
-		handler.handle(aRequest(context)
-				.withUrl("/requests/count")
-				.withMethod(POST)
-				.withBody(REQUEST_PATTERN_SAMPLE)
-				.build(),
+    private static final String REQUEST_PATTERN_SAMPLE = 
+    	"{												\n" +
+    	"	\"method\": \"DELETE\",						\n" +
+    	"	\"url\": \"/some/resource\"					\n" +
+    	"}												";
+    
+    @Test
+    public void shouldReturnCountOfMatchingRequests() {
+    	context.checking(new Expectations() {{
+    		RequestPattern requestPattern = newRequestPattern(DELETE, urlEqualTo("/some/resource")).build();
+    		allowing(admin).countRequestsMatching(requestPattern); will(returnValue(VerificationResult.withCount(5)));
+    	}});
+    	
+    	handler.handle(aRequest(context)
+    			.withUrl("/requests/count")
+    			.withMethod(POST)
+    			.withBody(REQUEST_PATTERN_SAMPLE)
+    			.build(),
             httpResponder);
         Response response = httpResponder.response;
-		
-		assertThat(response.getStatus(), is(HTTP_OK));
-		assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
+    	
+    	assertThat(response.getStatus(), is(HTTP_OK));
+    	assertThat(response.getBodyAsString(), equalToJson("{ \"count\": 5, \"requestJournalDisabled\" : false}"));
     }
-	
-	private static final String GLOBAL_SETTINGS_JSON =
-		"{												\n" +
-		"	\"fixedDelay\": 2000						\n" +
-		"}												";
-	
-	@Test
-	public void shouldUpdateGlobalSettings() {
+    
+    private static final String GLOBAL_SETTINGS_JSON =
+    	"{												\n" +
+    	"	\"fixedDelay\": 2000						\n" +
+    	"}												";
+    
+    @Test
+    public void shouldUpdateGlobalSettings() {
         context.checking(new Expectations() {{
             GlobalSettings expectedSettings = GlobalSettings.builder().fixedDelay(2000).build();
             allowing(admin).updateGlobalSettings(expectedSettings);
         }});
 
-		handler.handle(aRequest(context)
-				.withUrl("/settings")
-				.withMethod(POST)
-				.withBody(GLOBAL_SETTINGS_JSON)
-				.build(),
+    	handler.handle(aRequest(context)
+    			.withUrl("/settings")
+    			.withMethod(POST)
+    			.withBody(GLOBAL_SETTINGS_JSON)
+    			.build(),
             httpResponder);
 
-	}
+    }
 }

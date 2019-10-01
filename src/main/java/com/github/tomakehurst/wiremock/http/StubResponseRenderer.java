@@ -31,59 +31,59 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class StubResponseRenderer implements ResponseRenderer {
 
-	private final FileSource fileSource;
-	private final GlobalSettingsHolder globalSettingsHolder;
-	private final ProxyResponseRenderer proxyResponseRenderer;
-	private final List<ResponseTransformer> responseTransformers;
+    private final FileSource fileSource;
+    private final GlobalSettingsHolder globalSettingsHolder;
+    private final ProxyResponseRenderer proxyResponseRenderer;
+    private final List<ResponseTransformer> responseTransformers;
 
     public StubResponseRenderer(FileSource fileSource,
-								GlobalSettingsHolder globalSettingsHolder,
-								ProxyResponseRenderer proxyResponseRenderer,
-								List<ResponseTransformer> responseTransformers) {
+    							GlobalSettingsHolder globalSettingsHolder,
+    							ProxyResponseRenderer proxyResponseRenderer,
+    							List<ResponseTransformer> responseTransformers) {
         this.fileSource = fileSource;
         this.globalSettingsHolder = globalSettingsHolder;
         this.proxyResponseRenderer = proxyResponseRenderer;
-		this.responseTransformers = responseTransformers;
-	}
+    	this.responseTransformers = responseTransformers;
+    }
 
-	@Override
-	public Response render(ServeEvent serveEvent) {
+    @Override
+    public Response render(ServeEvent serveEvent) {
         ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
         if (!responseDefinition.wasConfigured()) {
-			return Response.notConfigured();
-		}
+    		return Response.notConfigured();
+    	}
 
-		Response response = buildResponse(serveEvent);
-		return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
-	}
+    	Response response = buildResponse(serveEvent);
+    	return applyTransformations(responseDefinition.getOriginalRequest(), responseDefinition, response, responseTransformers);
+    }
 
-	private Response buildResponse(ServeEvent serveEvent) {
-		if (serveEvent.getResponseDefinition().isProxyResponse()) {
-			return proxyResponseRenderer.render(serveEvent);
-		} else {
-			Response.Builder responseBuilder = renderDirectly(serveEvent);
-			return responseBuilder.build();
-		}
-	}
+    private Response buildResponse(ServeEvent serveEvent) {
+    	if (serveEvent.getResponseDefinition().isProxyResponse()) {
+    		return proxyResponseRenderer.render(serveEvent);
+    	} else {
+    		Response.Builder responseBuilder = renderDirectly(serveEvent);
+    		return responseBuilder.build();
+    	}
+    }
 
-	private Response applyTransformations(Request request,
-										  ResponseDefinition responseDefinition,
-										  Response response,
-										  List<ResponseTransformer> transformers) {
-		if (transformers.isEmpty()) {
-			return response;
-		}
+    private Response applyTransformations(Request request,
+    									  ResponseDefinition responseDefinition,
+    									  Response response,
+    									  List<ResponseTransformer> transformers) {
+    	if (transformers.isEmpty()) {
+    		return response;
+    	}
 
-		ResponseTransformer transformer = transformers.get(0);
-		Response newResponse =
-				transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
-						transformer.transform(request, response, fileSource, responseDefinition.getTransformerParameters()) :
-						response;
+    	ResponseTransformer transformer = transformers.get(0);
+    	Response newResponse =
+    			transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
+    					transformer.transform(request, response, fileSource, responseDefinition.getTransformerParameters()) :
+    					response;
 
-		return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
-	}
+    	return applyTransformations(request, responseDefinition, newResponse, transformers.subList(1, transformers.size()));
+    }
 
-	private Response.Builder renderDirectly(ServeEvent serveEvent) {
+    private Response.Builder renderDirectly(ServeEvent serveEvent) {
         ResponseDefinition responseDefinition = serveEvent.getResponseDefinition();
 
         HttpHeaders headers = responseDefinition.getHeaders();
@@ -100,28 +100,28 @@ public class StubResponseRenderer implements ResponseRenderer {
 
         Response.Builder responseBuilder = response()
                 .status(responseDefinition.getStatus())
-				.statusMessage(responseDefinition.getStatusMessage())
+    			.statusMessage(responseDefinition.getStatusMessage())
                 .headers(headers)
                 .fault(responseDefinition.getFault())
-				.configureDelay(
-					globalSettingsHolder.get().getFixedDelay(),
-					globalSettingsHolder.get().getDelayDistribution(),
-					responseDefinition.getFixedDelayMilliseconds(),
-					responseDefinition.getDelayDistribution()
-				)
-				.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
+    			.configureDelay(
+    				globalSettingsHolder.get().getFixedDelay(),
+    				globalSettingsHolder.get().getDelayDistribution(),
+    				responseDefinition.getFixedDelayMilliseconds(),
+    				responseDefinition.getDelayDistribution()
+    			)
+    			.chunkedDribbleDelay(responseDefinition.getChunkedDribbleDelay());
 
-		if (responseDefinition.specifiesBodyFile()) {
-			BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
+    	if (responseDefinition.specifiesBodyFile()) {
+    		BinaryFile bodyFile = fileSource.getBinaryFileNamed(responseDefinition.getBodyFileName());
             responseBuilder.body(bodyFile);
-		} else if (responseDefinition.specifiesBodyContent()) {
+    	} else if (responseDefinition.specifiesBodyContent()) {
             if(responseDefinition.specifiesBinaryBodyContent()) {
                 responseBuilder.body(responseDefinition.getByteBody());
             } else {
                 responseBuilder.body(responseDefinition.getByteBody());
             }
-		}
+    	}
 
         return responseBuilder;
-	}
+    }
 }

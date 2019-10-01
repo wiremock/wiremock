@@ -38,17 +38,17 @@ public class SingleRootFileSourceTest {
     public static final String ROOT_PATH = filePath("filesource");
 
     @SuppressWarnings("unchecked")
-	@Test
-	public void listsTextFilesRecursively() {
-		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
-		
-		List<TextFile> files = fileSource.listFilesRecursively();
-		
-		assertThat(files, hasExactlyIgnoringOrder(
-				fileNamed("one"), fileNamed("two"), fileNamed("three"), 
-				fileNamed("four"), fileNamed("five"), fileNamed("six"), 
-				fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
-	}
+    @Test
+    public void listsTextFilesRecursively() {
+    	SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+    	
+    	List<TextFile> files = fileSource.listFilesRecursively();
+    	
+    	assertThat(files, hasExactlyIgnoringOrder(
+    			fileNamed("one"), fileNamed("two"), fileNamed("three"), 
+    			fileNamed("four"), fileNamed("five"), fileNamed("six"), 
+    			fileNamed("seven"), fileNamed("eight"), fileNamed("deepfile.json")));
+    }
 
     @Test
     public void writesTextFileEvenWhenRootIsARelativePath() throws IOException {
@@ -61,23 +61,23 @@ public class SingleRootFileSourceTest {
         assertThat(Files.exists(fileAbsolutePath), is(true));
     }
 
-	@Test(expected = RuntimeException.class)
-	public void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
-		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
-		fileSource.listFilesRecursively();
-	}
+    @Test(expected = RuntimeException.class)
+    public void listFilesRecursivelyThrowsExceptionWhenRootIsNotDir() {
+    	SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
+    	fileSource.listFilesRecursively();
+    }
 
-	@Test(expected = RuntimeException.class)
-	public void writeThrowsExceptionWhenRootIsNotDir() {
-		SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
-		fileSource.writeTextFile("thing", "stuff");
-	}
+    @Test(expected = RuntimeException.class)
+    public void writeThrowsExceptionWhenRootIsNotDir() {
+    	SingleRootFileSource fileSource = new SingleRootFileSource("src/test/resources/filesource/one");
+    	fileSource.writeTextFile("thing", "stuff");
+    }
 
-	@Test(expected = NotAuthorisedException.class)
-	public void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
-		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
-		fileSource.writeTextFile("..", "stuff");
-	}
+    @Test(expected = NotAuthorisedException.class)
+    public void writeTextFileThrowsExceptionWhenGivenRelativePathNotUnderRoot() {
+    	SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+    	fileSource.writeTextFile("..", "stuff");
+    }
 
     @Test(expected = NotAuthorisedException.class)
     public void writeTextFileThrowsExceptionWhenGivenAbsolutePathNotUnderRoot() {
@@ -99,15 +99,15 @@ public class SingleRootFileSourceTest {
         fileSource.writeBinaryFile(badPath, "stuff".getBytes());
     }
 
-	@Test(expected = NotAuthorisedException.class)
-	public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
-		SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
+    @Test(expected = NotAuthorisedException.class)
+    public void deleteThrowsExceptionWhenGivenPathNotUnderRoot() {
+    	SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
         String badPath = Paths.get("..", "not-under-root").toAbsolutePath().toString();
-		fileSource.deleteFile(badPath);
-	}
+    	fileSource.deleteFile(badPath);
+    }
 
-	@Test(expected = NotAuthorisedException.class)
-	public void readBinaryFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
+    @Test(expected = NotAuthorisedException.class)
+    public void readBinaryFileThrowsExceptionWhenRelativePathIsOutsideRoot() {
         SingleRootFileSource fileSource = new SingleRootFileSource(ROOT_PATH);
         fileSource.getBinaryFileNamed("../illegal.file");
     }

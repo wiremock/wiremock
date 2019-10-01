@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.http;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 
 public interface ResponseRenderer {
-	
-	Response render(ServeEvent serveEvent);
-	
+    
+    Response render(ServeEvent serveEvent);
+    
 }

@@ -31,77 +31,77 @@ import static org.junit.Assert.assertThat;
 
 public class MappingsAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
-	public static void setupServer() {
-		setupServerWithMappingsInFileRoot();
-	}
-	
-	@Test
-	public void basicMappingCheckNonUtf8() {
-		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "GB2312");
-		
-		WireMockResponse response = testClient.get("/test/nonutf8/");
-		
-		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("国家标准"));
-	}
+    @BeforeClass
+    public static void setupServer() {
+    	setupServerWithMappingsInFileRoot();
+    }
+    
+    @Test
+    public void basicMappingCheckNonUtf8() {
+    	testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "GB2312");
+    	
+    	WireMockResponse response = testClient.get("/test/nonutf8/");
+    	
+    	assertThat(response.statusCode(), is(200));
+    	assertThat(response.content(), is("国家标准"));
+    }
 
-	@Test
-	public void basicMappingCheckCharsetMismatch() {
-		testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "ISO-8859-8");
-		
-		WireMockResponse response = testClient.get("/test/nonutf8/");
-		
-		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("????")); // charset in request doesn't match body content
-	}
+    @Test
+    public void basicMappingCheckCharsetMismatch() {
+    	testClient.addResponse(MappingJsonSamples.MAPPING_REQUEST_FOR_NON_UTF8, "ISO-8859-8");
+    	
+    	WireMockResponse response = testClient.get("/test/nonutf8/");
+    	
+    	assertThat(response.statusCode(), is(200));
+    	assertThat(response.content(), is("????")); // charset in request doesn't match body content
+    }
 
-	@Test
-	public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
-		testClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
-		
-		WireMockResponse response = testClient.get("/a/registered/resource");
-		
-		assertThat(response.statusCode(), is(401));
-		assertThat(response.content(), is("Not allowed!"));
-		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
-	}
-	
-	@Test
-	public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
-		testClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
-		
-		WireMockResponse response = testClient.put("/status/only");
-		
-		assertThat(response.statusCode(), is(204));
-		assertNull(response.content());
-	}
-	
-	@Test
-	public void notFoundResponseIsReturnedForUnregisteredUrl() {
-		WireMockResponse response = testClient.get("/non-existent/resource");
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-	}
-	
-	@Test
-	public void multipleMappingsSupported() {
-		add200ResponseFor("/resource/1");
-		add200ResponseFor("/resource/2");
-		add200ResponseFor("/resource/3");
-		
-		getResponseAndAssert200Status("/resource/1");
-		getResponseAndAssert200Status("/resource/2");
-		getResponseAndAssert200Status("/resource/3");
-	}
+    @Test
+    public void basicMappingWithExactUrlAndMethodMatchIsCreatedAndReturned() {
+    	testClient.addResponse(MappingJsonSamples.BASIC_MAPPING_REQUEST_WITH_RESPONSE_HEADER);
+    	
+    	WireMockResponse response = testClient.get("/a/registered/resource");
+    	
+    	assertThat(response.statusCode(), is(401));
+    	assertThat(response.content(), is("Not allowed!"));
+    	assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    }
+    
+    @Test
+    public void mappingWithStatusOnlyResponseIsCreatedAndReturned() {
+    	testClient.addResponse(MappingJsonSamples.STATUS_ONLY_MAPPING_REQUEST);
+    	
+    	WireMockResponse response = testClient.put("/status/only");
+    	
+    	assertThat(response.statusCode(), is(204));
+    	assertNull(response.content());
+    }
+    
+    @Test
+    public void notFoundResponseIsReturnedForUnregisteredUrl() {
+    	WireMockResponse response = testClient.get("/non-existent/resource");
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    }
+    
+    @Test
+    public void multipleMappingsSupported() {
+    	add200ResponseFor("/resource/1");
+    	add200ResponseFor("/resource/2");
+    	add200ResponseFor("/resource/3");
+    	
+    	getResponseAndAssert200Status("/resource/1");
+    	getResponseAndAssert200Status("/resource/2");
+    	getResponseAndAssert200Status("/resource/3");
+    }
 
-	@Test
-	public void multipleInvocationsSupported() {
-		add200ResponseFor("/resource/100");
-		getResponseAndAssert200Status("/resource/100");
-		getResponseAndAssert200Status("/resource/100");
-		getResponseAndAssert200Status("/resource/100");
-	}
-	
+    @Test
+    public void multipleInvocationsSupported() {
+    	add200ResponseFor("/resource/100");
+    	getResponseAndAssert200Status("/resource/100");
+    	getResponseAndAssert200Status("/resource/100");
+    	getResponseAndAssert200Status("/resource/100");
+    }
+    
     @Test
     public void loadsDefaultMappingsOnStart() {
         getResponseAndAssert200Status("/testmapping");
@@ -141,26 +141,26 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/bytecompressed/resource/from/file").binaryContent(), is(BINARY_COMPRESSED_CONTENT));
     }
 
-	@Test
-	public void readsJsonMapping() {
-		WireMockResponse response = testClient.get("/testjsonmapping");
-		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
-	}
+    @Test
+    public void readsJsonMapping() {
+    	WireMockResponse response = testClient.get("/testjsonmapping");
+    	assertThat(response.statusCode(), is(200));
+    	assertThat(response.content(), is("{\"key\":\"value\",\"array\":[1,2,3]}"));
+    }
 
     @Test
     public void appendsTransferEncodingHeaderIfNoContentLengthHeaderIsPresentInMapping() throws Exception {
         testClient.addResponse(
-                "{ 													\n" +
-                        "	\"request\": {									\n" +
-                        "		\"method\": \"GET\",						\n" +
-                        "		\"url\": \"/with/body\"						\n" +
-                        "	},												\n" +
-                        "	\"response\": {									\n" +
-                        "		\"status\": 200,							\n" +
-                        "		\"body\": \"Some content\"					\n" +
-                        "	}												\n" +
-                        "}													");
+                "{     												\n" +
+                        "    \"request\": {									\n" +
+                        "    	\"method\": \"GET\",						\n" +
+                        "    	\"url\": \"/with/body\"						\n" +
+                        "    },												\n" +
+                        "    \"response\": {									\n" +
+                        "    	\"status\": 200,							\n" +
+                        "    	\"body\": \"Some content\"					\n" +
+                        "    }												\n" +
+                        "}    												");
 
         WireMockResponse response = testClient.get("/with/body");
 
@@ -170,36 +170,36 @@ public class MappingsAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void responseContainsContentLengthAndChunkedEncodingHeadersIfItIsDefinedInTheMapping() throws Exception {
         testClient.addResponse(
-                "{ 													\n" +
-                        "	\"request\": {									\n" +
-                        "		\"method\": \"GET\",						\n" +
-                        "		\"url\": \"/with/body\"						\n" +
-                        "	},												\n" +
-                        "	\"response\": {									\n" +
-                        "		\"status\": 200,							\n" +
-                        "		\"headers\": {								\n" +
-                        "			\"Content-Length\": \"12\"		        \n" +
-                        "		},											\n" +
-                        "		\"body\": \"Some content\"					\n" +
-                        "	}												\n" +
-                        "}													");
+                "{     												\n" +
+                        "    \"request\": {									\n" +
+                        "    	\"method\": \"GET\",						\n" +
+                        "    	\"url\": \"/with/body\"						\n" +
+                        "    },												\n" +
+                        "    \"response\": {									\n" +
+                        "    	\"status\": 200,							\n" +
+                        "    	\"headers\": {								\n" +
+                        "    		\"Content-Length\": \"12\"		        \n" +
+                        "    	},											\n" +
+                        "    	\"body\": \"Some content\"					\n" +
+                        "    }												\n" +
+                        "}    												");
         WireMockResponse response = testClient.get("/with/body");
 
         assertThat(response.firstHeader("Content-Length"), is("12"));
         assertFalse("expected Transfer-Encoding head to be absent", response.headers().containsKey("Transfer-Encoding"));
     }
 
-	private void getResponseAndAssert200Status(String url) {
-		WireMockResponse response = testClient.get(url);
-		assertThat(response.statusCode(), is(200));
-	}
-	
-	private void getResponseAndAssert404Status(String url) {
-		WireMockResponse response = testClient.get(url);
-		assertThat(response.statusCode(), is(404));
-	}
-	
-	private void add200ResponseFor(String url) {
-		testClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, url));
-	}
+    private void getResponseAndAssert200Status(String url) {
+    	WireMockResponse response = testClient.get(url);
+    	assertThat(response.statusCode(), is(200));
+    }
+    
+    private void getResponseAndAssert404Status(String url) {
+    	WireMockResponse response = testClient.get(url);
+    	assertThat(response.statusCode(), is(404));
+    }
+    
+    private void add200ResponseFor(String url) {
+    	testClient.addResponse(String.format(MappingJsonSamples.STATUS_ONLY_GET_MAPPING_TEMPLATE, url));
+    }
 }

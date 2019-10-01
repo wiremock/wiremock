@@ -45,30 +45,30 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
     }
 
     public WireMockRule(int port) {
-		this(wireMockConfig().port(port));
-	}
+    	this(wireMockConfig().port(port));
+    }
 
     public WireMockRule(int port, Integer httpsPort) {
         this(wireMockConfig().port(port).httpsPort(httpsPort));
     }
-	
-	public WireMockRule() {
-		this(wireMockConfig());
-	}
+    
+    public WireMockRule() {
+    	this(wireMockConfig());
+    }
 
     @Override
     public Statement apply(final Statement base, Description description) {
         return apply(base, null, null);
     }
 
-	@Override
-	public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-		return new Statement() {
-			@Override
-			public void evaluate() throws Throwable {
-				start();
-				WireMock.configureFor("localhost", port());
-				try {
+    @Override
+    public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+    	return new Statement() {
+    		@Override
+    		public void evaluate() throws Throwable {
+    			start();
+    			WireMock.configureFor("localhost", port());
+    			try {
                     before();
                     base.evaluate();
                     checkForUnmatchedRequests();
@@ -76,10 +76,10 @@ public class WireMockRule extends WireMockServer implements MethodRule, TestRule
                     after();
                     stop();
                 }
-			}
+    		}
 
-		};
-	}
+    	};
+    }
 
     private void checkForUnmatchedRequests() {
         if (failOnUnmatchedRequests) {

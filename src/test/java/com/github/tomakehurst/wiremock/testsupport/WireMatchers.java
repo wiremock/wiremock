@@ -54,50 +54,50 @@ import static java.util.Arrays.asList;
 
 public class WireMatchers {
 
-	public static Matcher<String> equalToJson(final String expectedJson) {
-		return new TypeSafeMatcher<String>() {
+    public static Matcher<String> equalToJson(final String expectedJson) {
+    	return new TypeSafeMatcher<String>() {
 
-			@Override
-			public void describeTo(Description desc) {
+    		@Override
+    		public void describeTo(Description desc) {
                 desc.appendText("Expected:\n" + expectedJson);
-			}
+    		}
 
-			@Override
-			public boolean matchesSafely(String actualJson) {
-				try {
-					JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.STRICT);
-					return true;
-				} catch (Throwable e) {
-					return false;
-				}
-			}
+    		@Override
+    		public boolean matchesSafely(String actualJson) {
+    			try {
+    				JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.STRICT);
+    				return true;
+    			} catch (Throwable e) {
+    				return false;
+    			}
+    		}
 
-		};
-	}
+    	};
+    }
 
-	public static Matcher<String> equalToJson(final String expectedJson, final JSONCompareMode jsonCompareMode) {
-		return new TypeSafeMatcher<String>() {
+    public static Matcher<String> equalToJson(final String expectedJson, final JSONCompareMode jsonCompareMode) {
+    	return new TypeSafeMatcher<String>() {
 
-			@Override
-			public void describeTo(Description desc) {
-				desc.appendText("Expected:\n" + expectedJson);
-			}
+    		@Override
+    		public void describeTo(Description desc) {
+    			desc.appendText("Expected:\n" + expectedJson);
+    		}
 
-			@Override
-			public boolean matchesSafely(String actualJson) {
-				try {
-					JSONAssert.assertEquals(expectedJson, actualJson, jsonCompareMode);
-					return true;
-				} catch (Throwable e) {
-					return false;
-				}
-			}
-			
-		};
-	}
+    		@Override
+    		public boolean matchesSafely(String actualJson) {
+    			try {
+    				JSONAssert.assertEquals(expectedJson, actualJson, jsonCompareMode);
+    				return true;
+    			} catch (Throwable e) {
+    				return false;
+    			}
+    		}
+    		
+    	};
+    }
 
-	public static Matcher<String> equalToXml(final String expected) {
-	    return new TypeSafeMatcher<String>() {
+    public static Matcher<String> equalToXml(final String expected) {
+        return new TypeSafeMatcher<String>() {
             @Override
             protected boolean matchesSafely(String value) {
                 Diff diff = DiffBuilder.compare(Input.from(expected))
@@ -135,59 +135,59 @@ public class WireMatchers {
     }
 
     public static <T> Matcher<Iterable<T>> hasExactly(final Matcher<T>... items) {
-    	return new TypeSafeMatcher<Iterable<T>>() {
+        return new TypeSafeMatcher<Iterable<T>>() {
 
-			@Override
-			public void describeTo(Description desc) {
-				desc.appendText("Collection must match exactly");
-			}
+    		@Override
+    		public void describeTo(Description desc) {
+    			desc.appendText("Collection must match exactly");
+    		}
 
-			@Override
-			public boolean matchesSafely(Iterable<T> actual) {
-				Iterator<T> actualIter = actual.iterator();
-				for (Matcher<T> matcher: items) {
-					if (!matcher.matches(actualIter.next())) {
-						return false;
-					}
-				}
-				
-				return !actualIter.hasNext();
-			}
-    		
-    	};
+    		@Override
+    		public boolean matchesSafely(Iterable<T> actual) {
+    			Iterator<T> actualIter = actual.iterator();
+    			for (Matcher<T> matcher: items) {
+    				if (!matcher.matches(actualIter.next())) {
+    					return false;
+    				}
+    			}
+    			
+    			return !actualIter.hasNext();
+    		}
+        	
+        };
     }
     
     public static <T> Matcher<Iterable<T>> hasExactlyIgnoringOrder(final Matcher<T>... items) {
-    	return new TypeSafeMatcher<Iterable<T>>() {
+        return new TypeSafeMatcher<Iterable<T>>() {
 
-			@Override
-			public void describeTo(Description desc) {
-				desc.appendText("Collection elements must match, but don't have to be in the same order.");
-			}
+    		@Override
+    		public void describeTo(Description desc) {
+    			desc.appendText("Collection elements must match, but don't have to be in the same order.");
+    		}
 
-			@Override
-			public boolean matchesSafely(Iterable<T> actual) {
-				if (size(actual) != items.length) {
-					return false;
-				}
-				
-				for (final Matcher<T> matcher: items) {
-					if (find(actual, isMatchFor(matcher), null) == null) {
-						return false;
-					}
-				}
-				
-				return true;
-			}
-    	};
+    		@Override
+    		public boolean matchesSafely(Iterable<T> actual) {
+    			if (size(actual) != items.length) {
+    				return false;
+    			}
+    			
+    			for (final Matcher<T> matcher: items) {
+    				if (find(actual, isMatchFor(matcher), null) == null) {
+    					return false;
+    				}
+    			}
+    			
+    			return true;
+    		}
+        };
     }
     
     private static <T> Predicate<T> isMatchFor(final Matcher<T> matcher) {
-    	return new Predicate<T>() {
-			public boolean apply(T input) {
-				return matcher.matches(input);
-			}
-		};
+        return new Predicate<T>() {
+    		public boolean apply(T input) {
+    			return matcher.matches(input);
+    		}
+    	};
     }
     
     public static Matcher<TextFile> fileNamed(final String name) {
@@ -312,7 +312,7 @@ public class WireMatchers {
     }
 
     private static String normaliseLineBreaks(String s) {
-	    return s.replace("\n", lineSeparator());
+        return s.replace("\n", lineSeparator());
     }
 
     private static String fileContents(File input) {

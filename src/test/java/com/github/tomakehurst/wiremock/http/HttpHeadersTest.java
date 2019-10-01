@@ -60,8 +60,8 @@ public class HttpHeadersTest {
     }
 
     private static final String SINGLE_VALUE_HEADER =
-            "{                	    	    		        \n" +
-            "	\"Header-1\": \"only-value\"                \n" +
+            "{                        	    		        \n" +
+            "    \"Header-1\": \"only-value\"                \n" +
             "}                                               ";
 
     @Test
@@ -85,13 +85,13 @@ public class HttpHeadersTest {
     }
 
     private static final String MULTI_VALUE_HEADER =
-            "{    	                         	    		        \n" +
-            "		    \"Header-1\": [                             \n" +
-            "		        \"value-1\",                            \n" +
+            "{                                 	    		        \n" +
+            "    	    \"Header-1\": [                             \n" +
+            "    	        \"value-1\",                            \n" +
             "               \"value-2\"                             \n" +
             "           ],                                          \n" +
-            "		    \"Header-2\": [                             \n" +
-            "		        \"value-3\",                            \n" +
+            "    	    \"Header-2\": [                             \n" +
+            "    	        \"value-3\",                            \n" +
             "               \"value-4\"                             \n" +
             "           ]                                           \n" +
             "}                                                        ";

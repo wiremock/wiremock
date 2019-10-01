@@ -43,63 +43,63 @@ public class WarDeploymentAcceptanceTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-	private Server jetty;
-	
-	private WireMockTestClient testClient;
-	
-	@Before
-	public void init() throws Exception {
+    private Server jetty;
+    
+    private WireMockTestClient testClient;
+    
+    @Before
+    public void init() throws Exception {
         String webAppRootPath = sampleWarRootDir() + "/src/main/webapp";
-		WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
+    	WebAppContext context = new WebAppContext(webAppRootPath, "/wiremock");
 
-		int port = attemptToStartOnRandomPort(context);
+    	int port = attemptToStartOnRandomPort(context);
 
-		WireMock.configureFor("localhost", port, "/wiremock");
-		testClient = new WireMockTestClient(port);
-	}
+    	WireMock.configureFor("localhost", port, "/wiremock");
+    	testClient = new WireMockTestClient(port);
+    }
 
-	private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
-		int port;
+    private int attemptToStartOnRandomPort(WebAppContext context) throws Exception {
+    	int port;
 
-		int attemptsRemaining = 3;
-		while (true) {
-			port = Network.findFreePort();
-			jetty = new Server(port);
-			jetty.setHandler(context);
-			try {
-				jetty.start();
-				break;
-			} catch (Exception e) {
-				attemptsRemaining--;
-				if (attemptsRemaining > 0) {
-					continue;
-				}
+    	int attemptsRemaining = 3;
+    	while (true) {
+    		port = Network.findFreePort();
+    		jetty = new Server(port);
+    		jetty.setHandler(context);
+    		try {
+    			jetty.start();
+    			break;
+    		} catch (Exception e) {
+    			attemptsRemaining--;
+    			if (attemptsRemaining > 0) {
+    				continue;
+    			}
 
-				throw e;
-			}
-		}
-		return port;
-	}
+    			throw e;
+    		}
+    	}
+    	return port;
+    }
 
-	@After
-	public void cleanup() throws Exception {
-		jetty.stop();
-		WireMock.configure();
-	}
-	
-	@Test
-	public void servesBakedInStubResponse() {
-		WireMockResponse response = testClient.get("/wiremock/api/mytest");
-		assertThat(response.content(), containsString("YES"));
-	}
-	
-	@Test
-	public void acceptsAndReturnsStubMapping() {
-		givenThat(get(urlEqualTo("/war/stub")).willReturn(
-				aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
-		
-		assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
-	}
+    @After
+    public void cleanup() throws Exception {
+    	jetty.stop();
+    	WireMock.configure();
+    }
+    
+    @Test
+    public void servesBakedInStubResponse() {
+    	WireMockResponse response = testClient.get("/wiremock/api/mytest");
+    	assertThat(response.content(), containsString("YES"));
+    }
+    
+    @Test
+    public void acceptsAndReturnsStubMapping() {
+    	givenThat(get(urlEqualTo("/war/stub")).willReturn(
+    			aResponse().withStatus(HTTP_OK).withBody("War stub OK")));
+    	
+    	assertThat(testClient.get("/wiremock/war/stub").content(), is("War stub OK"));
+    }
 
     @Test
     public void tryingToShutDownGives500() {

@@ -40,18 +40,18 @@ import static org.junit.Assert.assertThat;
 public class MappingsLoaderAcceptanceTest {
 
     private WireMockConfiguration configuration;
-	private WireMockServer wireMockServer;
-	private WireMockTestClient testClient;
+    private WireMockServer wireMockServer;
+    private WireMockTestClient testClient;
 
-	@Before
-	public void init() {
+    @Before
+    public void init() {
         configuration = wireMockConfig().dynamicPort();
-	}
+    }
 
-	@After
-	public void stopWireMock() {
-		wireMockServer.stop();
-	}
+    @After
+    public void stopWireMock() {
+    	wireMockServer.stop();
+    }
 
     private void buildWireMock(Options options) {
         wireMockServer = new WireMockServer(options);
@@ -60,16 +60,16 @@ public class MappingsLoaderAcceptanceTest {
     }
 
     @Test
-	public void mappingsLoadedFromJsonFiles() {
+    public void mappingsLoadedFromJsonFiles() {
         buildWireMock(configuration);
         wireMockServer.loadMappingsUsing(new JsonFileMappingsSource(new SingleRootFileSource(filePath("test-requests"))));
 
-		WireMockResponse response = testClient.get("/canned/resource/1");
-		assertThat(response.statusCode(), is(200));
+    	WireMockResponse response = testClient.get("/canned/resource/1");
+    	assertThat(response.statusCode(), is(200));
 
-		response = testClient.get("/canned/resource/2");
-		assertThat(response.statusCode(), is(401));
-	}
+    	response = testClient.get("/canned/resource/2");
+    	assertThat(response.statusCode(), is(401));
+    }
 
     @Test
     public void mappingsLoadedViaClasspath() {

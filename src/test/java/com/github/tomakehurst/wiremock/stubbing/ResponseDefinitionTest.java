@@ -69,10 +69,10 @@ public class ResponseDefinitionTest {
     }
 
     private static final String STRING_BODY =
-            "{	        								\n" +
-            "		\"status\": 200,    				\n" +
-            "		\"body\": \"String content\" 		\n" +
-            "}											";
+            "{            								\n" +
+            "    	\"status\": 200,    				\n" +
+            "    	\"body\": \"String content\" 		\n" +
+            "}    										";
 
     @Test
     public void correctlyUnmarshalsFromJsonWhenBodyIsAString() {
@@ -83,10 +83,10 @@ public class ResponseDefinitionTest {
     }
 
     private static final String JSON_BODY =
-            "{	        								\n" +
-                    "		\"status\": 200,    				\n" +
-                    "		\"jsonBody\": {\"name\":\"wirmock\",\"isCool\":true} \n" +
-                    "}											";
+            "{            								\n" +
+                    "    	\"status\": 200,    				\n" +
+                    "    	\"jsonBody\": {\"name\":\"wirmock\",\"isCool\":true} \n" +
+                    "}    										";
 
     @Test
     public void correctlyUnmarshalsFromJsonWhenBodyIsJson() {
@@ -112,10 +112,10 @@ public class ResponseDefinitionTest {
     private static final byte[] BODY = new byte[] {1, 2, 3};
     private static final String BASE64_BODY = "AQID";
     private static final String BINARY_BODY =
-            "{	        								        \n" +
-            "		\"status\": 200,    				        \n" +
-            "		\"base64Body\": \"" + BASE64_BODY + "\"     \n" +
-            "}											        ";
+            "{            								        \n" +
+            "    	\"status\": 200,    				        \n" +
+            "    	\"base64Body\": \"" + BASE64_BODY + "\"     \n" +
+            "}    										        ";
 
     @Test
     public void correctlyUnmarshalsFromJsonWhenBodyIsBinary() {

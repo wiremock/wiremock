@@ -30,40 +30,40 @@ import static org.junit.Assert.assertThat;
 
 
 public class WireMockClientWithProxyAcceptanceTest {
-	
-	private static WireMockServer wireMockServer;
-	private static WireMockTestClient testClient;
-	private static HttpProxyServer proxyServer;
+    
+    private static WireMockServer wireMockServer;
+    private static WireMockTestClient testClient;
+    private static HttpProxyServer proxyServer;
 
-	@BeforeClass
-	public static void init() {
-		wireMockServer = new WireMockServer(DYNAMIC_PORT);
-		wireMockServer.start();
-		proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
+    @BeforeClass
+    public static void init() {
+    	wireMockServer = new WireMockServer(DYNAMIC_PORT);
+    	wireMockServer.start();
+    	proxyServer = DefaultHttpProxyServer.bootstrap().withPort(0).start();
 
-		testClient = new WireMockTestClient(wireMockServer.port());
-	}
-	
-	@AfterClass
-	public static void stopServer() {
-		wireMockServer.stop();
-		proxyServer.stop();
-	}
+    	testClient = new WireMockTestClient(wireMockServer.port());
+    }
+    
+    @AfterClass
+    public static void stopServer() {
+    	wireMockServer.stop();
+    	proxyServer.stop();
+    }
 
-	@Test
-	public void supportsProxyingWithTheStaticClient() {
+    @Test
+    public void supportsProxyingWithTheStaticClient() {
         WireMock.configureFor("http", "localhost", wireMockServer.port(), proxyServer.getListenAddress().getHostString(), proxyServer.getListenAddress().getPort());
 
-		givenThat(get(urlEqualTo("/my/new/resource"))
-					.willReturn(aResponse()
-						.withStatus(304)));
+    	givenThat(get(urlEqualTo("/my/new/resource"))
+    				.willReturn(aResponse()
+    					.withStatus(304)));
 
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
+    	assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+    }
 
-	@Test
-	public void supportsProxyingWithTheInstanceClient() {
-		WireMock wireMock = WireMock.create()
+    @Test
+    public void supportsProxyingWithTheInstanceClient() {
+    	WireMock wireMock = WireMock.create()
                 .scheme("http")
                 .host("localhost")
                 .port(wireMockServer.port())
@@ -73,13 +73,13 @@ public class WireMockClientWithProxyAcceptanceTest {
                 .proxyPort(proxyServer.getListenAddress().getPort())
                 .build();
 
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
-						.withStatus(200)));
+    	wireMock.register(
+    			get(urlEqualTo("/my/new/resource"))
+    			.willReturn(
+    					aResponse()
+    					.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
+    					.withStatus(200)));
 
-		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
-	}
+    	assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+    }
 }

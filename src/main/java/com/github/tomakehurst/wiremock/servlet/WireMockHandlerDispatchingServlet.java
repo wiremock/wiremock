@@ -49,94 +49,94 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     public static final String ASYNCHRONOUS_RESPONSE_EXECUTOR = WireMockHandlerDispatchingServlet.class.getSimpleName() + ".asynchronousResponseExecutor";
     public static final String MAPPED_UNDER_KEY = "mappedUnder";
 
-	private static final long serialVersionUID = -6602042274260495538L;
+    private static final long serialVersionUID = -6602042274260495538L;
 
     private ScheduledExecutorService scheduledExecutorService;
 
     private RequestHandler requestHandler;
     private FaultInjectorFactory faultHandlerFactory;
-	private String mappedUnder;
-	private Notifier notifier;
-	private String wiremockFileSourceRoot = "/";
-	private boolean shouldForwardToFilesContext;
-	private MultipartRequestConfigurer multipartRequestConfigurer;
-	private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
+    private String mappedUnder;
+    private Notifier notifier;
+    private String wiremockFileSourceRoot = "/";
+    private boolean shouldForwardToFilesContext;
+    private MultipartRequestConfigurer multipartRequestConfigurer;
+    private Options.ChunkedEncodingPolicy chunkedEncodingPolicy;
 
-	@Override
-	public void init(ServletConfig config) {
-	    ServletContext context = config.getServletContext();
-	    shouldForwardToFilesContext = getFileContextForwardingFlagFrom(config);
+    @Override
+    public void init(ServletConfig config) {
+        ServletContext context = config.getServletContext();
+        shouldForwardToFilesContext = getFileContextForwardingFlagFrom(config);
 
-	    if (context.getInitParameter("WireMockFileSourceRoot") != null) {
-	        wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
-	    }
+        if (context.getInitParameter("WireMockFileSourceRoot") != null) {
+            wiremockFileSourceRoot = context.getInitParameter("WireMockFileSourceRoot");
+        }
 
         scheduledExecutorService = (ScheduledExecutorService) context.getAttribute(ASYNCHRONOUS_RESPONSE_EXECUTOR);
 
         String handlerClassName = config.getInitParameter(RequestHandler.HANDLER_CLASS_KEY);
-		String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
-		mappedUnder = getNormalizedMappedUnder(config);
-		context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
-			". Normalized mapped under returned '" + mappedUnder + "'");
+    	String faultInjectorFactoryClassName = config.getInitParameter(FaultInjectorFactory.INJECTOR_CLASS_KEY);
+    	mappedUnder = getNormalizedMappedUnder(config);
+    	context.log(RequestHandler.HANDLER_CLASS_KEY + " from context returned " + handlerClassName +
+    		". Normalized mapped under returned '" + mappedUnder + "'");
         requestHandler = (RequestHandler) context.getAttribute(handlerClassName);
 
         faultHandlerFactory = faultInjectorFactoryClassName != null ?
             (FaultInjectorFactory) context.getAttribute(faultInjectorFactoryClassName) :
             new NoFaultInjectorFactory();
 
-		notifier = (Notifier) context.getAttribute(Notifier.KEY);
+    	notifier = (Notifier) context.getAttribute(Notifier.KEY);
 
-		multipartRequestConfigurer = (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
+    	multipartRequestConfigurer = (MultipartRequestConfigurer) context.getAttribute(MultipartRequestConfigurer.KEY);
 
-		Object chunkedEncodingPolicyAttr = context.getAttribute(Options.ChunkedEncodingPolicy.class.getName());
-		chunkedEncodingPolicy = chunkedEncodingPolicyAttr != null ?
+    	Object chunkedEncodingPolicyAttr = context.getAttribute(Options.ChunkedEncodingPolicy.class.getName());
+    	chunkedEncodingPolicy = chunkedEncodingPolicyAttr != null ?
                 (Options.ChunkedEncodingPolicy) chunkedEncodingPolicyAttr :
                 Options.ChunkedEncodingPolicy.ALWAYS;
-	}
+    }
 
-	private String getNormalizedMappedUnder(ServletConfig config) {
-		String mappedUnder = config.getInitParameter(MAPPED_UNDER_KEY);
-		if(mappedUnder == null) {
-			return null;
-		}
-		if (mappedUnder.endsWith("/")) {
-			mappedUnder = mappedUnder.substring(0, mappedUnder.length() - 1);
-		}
-		return mappedUnder;
-	}
+    private String getNormalizedMappedUnder(ServletConfig config) {
+    	String mappedUnder = config.getInitParameter(MAPPED_UNDER_KEY);
+    	if(mappedUnder == null) {
+    		return null;
+    	}
+    	if (mappedUnder.endsWith("/")) {
+    		mappedUnder = mappedUnder.substring(0, mappedUnder.length() - 1);
+    	}
+    	return mappedUnder;
+    }
 
-	private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
-		String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
-		return Boolean.valueOf(flagValue);
-	}
+    private boolean getFileContextForwardingFlagFrom(ServletConfig config) {
+    	String flagValue = config.getInitParameter(SHOULD_FORWARD_TO_FILES_CONTEXT);
+    	return Boolean.valueOf(flagValue);
+    }
 
-	@Override
-	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-		LocalNotifier.set(notifier);
+    @Override
+    protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
+    	LocalNotifier.set(notifier);
 
-		Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder);
+    	Request request = new WireMockHttpServletRequestAdapter(httpServletRequest, multipartRequestConfigurer, mappedUnder);
 
-		ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
-		requestHandler.handle(request, responder);
-	}
+    	ServletHttpResponder responder = new ServletHttpResponder(httpServletRequest, httpServletResponse);
+    	requestHandler.handle(request, responder);
+    }
 
-	private class ServletHttpResponder implements HttpResponder {
+    private class ServletHttpResponder implements HttpResponder {
 
-		private final HttpServletRequest httpServletRequest;
-		private final HttpServletResponse httpServletResponse;
+    	private final HttpServletRequest httpServletRequest;
+    	private final HttpServletResponse httpServletResponse;
 
-		public ServletHttpResponder(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-			this.httpServletRequest = httpServletRequest;
-			this.httpServletResponse = httpServletResponse;
-		}
+    	public ServletHttpResponder(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    		this.httpServletRequest = httpServletRequest;
+    		this.httpServletResponse = httpServletResponse;
+    	}
 
-		@Override
-		public void respond(final Request request, final Response response) {
-			if (Thread.currentThread().isInterrupted()) {
-				return;
-			}
+    	@Override
+    	public void respond(final Request request, final Response response) {
+    		if (Thread.currentThread().isInterrupted()) {
+    			return;
+    		}
 
-			httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
+    		httpServletRequest.setAttribute(ORIGINAL_REQUEST_KEY, LoggedRequest.createFrom(request));
 
             if (isAsyncSupported(response, httpServletRequest)) {
                 respondAsync(request, response);
@@ -195,17 +195,17 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
     public void applyResponse(Response response, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         Fault fault = response.getFault();
         if (fault != null) {
-			FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
-			fault.apply(faultInjector);
+    		FaultInjector faultInjector = buildFaultInjector(httpServletRequest, httpServletResponse);
+    		fault.apply(faultInjector);
             httpServletResponse.addHeader(Fault.class.getName(), fault.name());
             return;
         }
 
-		if (response.getStatusMessage() == null) {
-			httpServletResponse.setStatus(response.getStatus());
-		} else {
-			httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
-		}
+    	if (response.getStatusMessage() == null) {
+    		httpServletResponse.setStatus(response.getStatus());
+    	} else {
+    		httpServletResponse.setStatus(response.getStatus(), response.getStatusMessage());
+    	}
 
         for (HttpHeader header: response.getHeaders().all()) {
             for (String value: header.values()) {
@@ -218,15 +218,15 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         }
 
         if (response.shouldAddChunkedDribbleDelay()) {
-			writeAndTranslateExceptionsWithChunkedDribbleDelay(httpServletResponse, response.getBodyStream(), response.getChunkedDribbleDelay());
-		} else {
-			writeAndTranslateExceptions(httpServletResponse, response.getBodyStream());
-		}
+    		writeAndTranslateExceptionsWithChunkedDribbleDelay(httpServletResponse, response.getBodyStream(), response.getChunkedDribbleDelay());
+    	} else {
+    		writeAndTranslateExceptions(httpServletResponse, response.getBodyStream());
+    	}
     }
 
-	private FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-	    return faultHandlerFactory.buildFaultInjector(httpServletRequest, httpServletResponse);
-	}
+    private FaultInjector buildFaultInjector(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        return faultHandlerFactory.buildFaultInjector(httpServletRequest, httpServletResponse);
+    }
 
     private static void writeAndTranslateExceptions(HttpServletResponse httpServletResponse, InputStream content) {
         try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
@@ -247,28 +247,28 @@ public class WireMockHandlerDispatchingServlet extends HttpServlet {
         try (ServletOutputStream out = httpServletResponse.getOutputStream()) {
             byte[] body = ByteStreams.toByteArray(bodyStream);
 
-			if (body.length < 1) {
-				notifier.error("Cannot chunk dribble delay when no body set");
-				out.flush();
-				return;
-			}
+    		if (body.length < 1) {
+    			notifier.error("Cannot chunk dribble delay when no body set");
+    			out.flush();
+    			return;
+    		}
 
-			byte[][] chunkedBody = BodyChunker.chunkBody(body, chunkedDribbleDelay.getNumberOfChunks());
+    		byte[][] chunkedBody = BodyChunker.chunkBody(body, chunkedDribbleDelay.getNumberOfChunks());
 
-			int chunkInterval = chunkedDribbleDelay.getTotalDuration() / chunkedBody.length;
+    		int chunkInterval = chunkedDribbleDelay.getTotalDuration() / chunkedBody.length;
 
-			for (byte[] bodyChunk : chunkedBody) {
-				Thread.sleep(chunkInterval);
-				out.write(bodyChunk);
-				out.flush();
-			}
+    		for (byte[] bodyChunk : chunkedBody) {
+    			Thread.sleep(chunkInterval);
+    			out.write(bodyChunk);
+    			out.flush();
+    		}
 
-		} catch (IOException e) {
-			throwUnchecked(e);
-		} catch (InterruptedException ignored) {
-		    // Ignore the interrupt quietly since it's probably the client timing out, which is a completely valid outcome
+    	} catch (IOException e) {
+    		throwUnchecked(e);
+    	} catch (InterruptedException ignored) {
+    	    // Ignore the interrupt quietly since it's probably the client timing out, which is a completely valid outcome
         }
-	}
+    }
 
     private void forwardToFilesContext(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse, Request request) throws ServletException, IOException {

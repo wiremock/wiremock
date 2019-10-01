@@ -24,47 +24,47 @@ import static org.junit.Assert.assertThat;
 
 public class JsonTest {
 
-	private static final String TEST_VALUE = "test-value";
-	private static final String JSON_WITH_NO_COMMENTS = 
-			"{                                          \n" +
+    private static final String TEST_VALUE = "test-value";
+    private static final String JSON_WITH_NO_COMMENTS = 
+    		"{                                          \n" +
                 "\"property\": \"" + TEST_VALUE + "\"   \n" +
             "}";
 
-	private static final String JSON_WITH_SINGLE_QUOTES =
-			"{                                            \n" +
-				"'property': '" + TEST_VALUE + "'         \n" +
-			"}";
+    private static final String JSON_WITH_SINGLE_QUOTES =
+    		"{                                            \n" +
+    			"'property': '" + TEST_VALUE + "'         \n" +
+    		"}";
 
-	private static final String JSON_WITH_COMMENTS =
-			"// this is the first comment                                                   \n" +
+    private static final String JSON_WITH_COMMENTS =
+    		"// this is the first comment                                                   \n" +
             "{                                                                              \n" +
                     "//this is a comment                                                    \n" +
                     "\"property\": \"" + TEST_VALUE + "\"// comment on same line as code    \n" +
             "}                                                                              \n" +
              "//this is the last comment";
 
-	@Test
-	public void testReadNoComments() {
-		TestPojo pojo = Json.read(JSON_WITH_NO_COMMENTS, TestPojo.class);
-		assertNotNull(pojo);
-		assertThat(TEST_VALUE, is(pojo.property));
-	}
-	
-	@Test
-	public void testReadWithComments() {
-		TestPojo pojo = Json.read(JSON_WITH_COMMENTS, TestPojo.class);
-		assertNotNull(pojo);
-		assertThat(TEST_VALUE, is(pojo.property));
-	}
+    @Test
+    public void testReadNoComments() {
+    	TestPojo pojo = Json.read(JSON_WITH_NO_COMMENTS, TestPojo.class);
+    	assertNotNull(pojo);
+    	assertThat(TEST_VALUE, is(pojo.property));
+    }
+    
+    @Test
+    public void testReadWithComments() {
+    	TestPojo pojo = Json.read(JSON_WITH_COMMENTS, TestPojo.class);
+    	assertNotNull(pojo);
+    	assertThat(TEST_VALUE, is(pojo.property));
+    }
 
-	@Test
-	public void testReadWithSingleQuotes() {
-		TestPojo pojo = Json.read(JSON_WITH_SINGLE_QUOTES, TestPojo.class);
-		assertNotNull(pojo);
-		assertThat(TEST_VALUE, is(pojo.property));
-	}
+    @Test
+    public void testReadWithSingleQuotes() {
+    	TestPojo pojo = Json.read(JSON_WITH_SINGLE_QUOTES, TestPojo.class);
+    	assertNotNull(pojo);
+    	assertThat(TEST_VALUE, is(pojo.property));
+    }
 
-	@Test
+    @Test
     public void countsAllNodesInADocument() {
         int count = Json.deepSize(Json.node(
             "{\n" +
@@ -106,8 +106,8 @@ public class JsonTest {
 
         assertThat(count, is(1));
     }
-	
-	private static class TestPojo {
-		public String property;
-	}
+    
+    private static class TestPojo {
+    	public String property;
+    }
 }

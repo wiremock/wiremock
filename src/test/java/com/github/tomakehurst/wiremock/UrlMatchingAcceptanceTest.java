@@ -23,23 +23,23 @@ import static org.junit.Assert.assertThat;
 
 public class UrlMatchingAcceptanceTest extends AcceptanceTestBase {
 
-	@Test
-	public void mappingMatchedWithRegexUrl() {
-		String REGEX_URL_MAPPING_REQUEST =
-			"{ 													\n" +
-			"	\"request\": {									\n" +
-			"		\"method\": \"GET\",						\n" +
-			"		\"urlPattern\": \"/one/(.*?)/three\"		\n" +
-			"	},												\n" +
-			"	\"response\": {									\n" +
-			"		\"body\": \"Matched!\"						\n" +
-			"	}												\n" +
-			"}													  ";
-		
-		testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
-		WireMockResponse response = testClient.get("/one/two/three");
-		
-		assertThat(response.statusCode(), is(200));
-		assertThat(response.content(), is("Matched!"));
-	}
+    @Test
+    public void mappingMatchedWithRegexUrl() {
+    	String REGEX_URL_MAPPING_REQUEST =
+    		"{ 													\n" +
+    		"	\"request\": {									\n" +
+    		"		\"method\": \"GET\",						\n" +
+    		"		\"urlPattern\": \"/one/(.*?)/three\"		\n" +
+    		"	},												\n" +
+    		"	\"response\": {									\n" +
+    		"		\"body\": \"Matched!\"						\n" +
+    		"	}												\n" +
+    		"}													  ";
+    	
+    	testClient.addResponse(REGEX_URL_MAPPING_REQUEST);
+    	WireMockResponse response = testClient.get("/one/two/three");
+    	
+    	assertThat(response.statusCode(), is(200));
+    	assertThat(response.content(), is("Matched!"));
+    }
 }

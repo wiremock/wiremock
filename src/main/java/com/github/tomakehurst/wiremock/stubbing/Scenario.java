@@ -31,15 +31,15 @@ import static com.google.common.collect.FluentIterable.from;
 
 public class Scenario {
 
-	public static final String STARTED = "Started";
+    public static final String STARTED = "Started";
 
-	private final UUID id;
-	private final String name;
-	private final String state;
-	private final Set<StubMapping> stubMappings;
+    private final UUID id;
+    private final String name;
+    private final String state;
+    private final Set<StubMapping> stubMappings;
 
-	@JsonCreator
-	public Scenario(@JsonProperty("id") UUID id,
+    @JsonCreator
+    public Scenario(@JsonProperty("id") UUID id,
                     @JsonProperty("name") String name,
                     @JsonProperty("state") String currentState,
                     @JsonProperty("possibleStates") Set<String> ignored,
@@ -49,10 +49,10 @@ public class Scenario {
         this.state = currentState;
         this.stubMappings = stubMappings;
     }
-	
-	public static Scenario inStartedState(String name) {
-		return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED), Collections.<StubMapping>emptySet());
-	}
+    
+    public static Scenario inStartedState(String name) {
+    	return new Scenario(UUID.randomUUID(), name, STARTED, ImmutableSet.of(STARTED), Collections.<StubMapping>emptySet());
+    }
 
     public UUID getId() {
         return id;
@@ -63,8 +63,8 @@ public class Scenario {
     }
 
     public String getState() {
-		return state;
-	}
+    	return state;
+    }
 
     public Set<String> getPossibleStates() {
         FluentIterable<String> requiredStates = from(stubMappings)
@@ -92,12 +92,12 @@ public class Scenario {
     }
 
     Scenario setState(String newState) {
-		return new Scenario(id, name, newState, null, stubMappings);
-	}
+    	return new Scenario(id, name, newState, null, stubMappings);
+    }
 
-	Scenario reset() {
+    Scenario reset() {
         return new Scenario(id, name, STARTED, null, stubMappings);
-	}
+    }
 
     Scenario withStubMapping(StubMapping stubMapping) {
         Set<StubMapping> newMappings = ImmutableSet.<StubMapping>builder()
@@ -113,10 +113,10 @@ public class Scenario {
         return new Scenario(id, name, state, null, newMappings);
     }
 
-	@Override
-	public String toString() {
-		return Json.write(this);
-	}
+    @Override
+    public String toString() {
+    	return Json.write(this);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -135,7 +135,7 @@ public class Scenario {
     }
 
     public static final Predicate<Scenario> withName(final String name) {
-	    return new Predicate<Scenario>() {
+        return new Predicate<Scenario>() {
             @Override
             public boolean apply(Scenario input) {
                 return input.getName().equals(name);

@@ -179,11 +179,11 @@ public class VerificationAcceptanceTest {
         }
 
         private static final String SAMPLE_JSON =
-            "{ 													\n" +
-            "	\"thing\": {									\n" +
-            "		\"importantKey\": \"Important value\"		\n" +
-            "	}												\n" +
-            "}													";
+            "{     												\n" +
+            "    \"thing\": {									\n" +
+            "    	\"importantKey\": \"Important value\"		\n" +
+            "    }												\n" +
+            "}    												";
 
 
         @Test

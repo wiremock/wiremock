@@ -260,8 +260,8 @@ public class WireMockConfiguration implements Options {
     }
 
     public WireMockConfiguration recordRequestHeadersForMatching(List<String> headers) {
-    	this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
-    	return this;
+        this.matchingHeaders = transform(headers, CaseInsensitiveKey.TO_CASE_INSENSITIVE_KEYS);
+        return this;
     }
 
     public WireMockConfiguration preserveHostHeader(boolean preserveHostHeader) {
@@ -424,7 +424,7 @@ public class WireMockConfiguration implements Options {
 
     @Override
     public List<CaseInsensitiveKey> matchingHeaders() {
-    	return matchingHeaders;
+        return matchingHeaders;
     }
 
     @Override

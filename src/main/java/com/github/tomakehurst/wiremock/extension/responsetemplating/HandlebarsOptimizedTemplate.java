@@ -23,41 +23,41 @@ import com.github.tomakehurst.wiremock.common.Exceptions;
 
 public class HandlebarsOptimizedTemplate {
 
-	private final Template template;
+    private final Template template;
 
-	private String startContent;
-	private String templateContent;
-	private String endContent;
+    private String startContent;
+    private String templateContent;
+    private String endContent;
 
-	public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
-		startContent = content;
-		templateContent = "";
-		endContent = "";
+    public HandlebarsOptimizedTemplate(final Handlebars handlebars, final String content) {
+    	startContent = content;
+    	templateContent = "";
+    	endContent = "";
 
-		int firstDelimStartPosition = content.indexOf(Handlebars.DELIM_START);
-		if (firstDelimStartPosition != -1) {
-			int lastDelimEndPosition = content.lastIndexOf(Handlebars.DELIM_END);
-			if (lastDelimEndPosition != -1) {
-				startContent = content.substring(0, firstDelimStartPosition);
-				templateContent = content.substring(firstDelimStartPosition,
-						lastDelimEndPosition + Handlebars.DELIM_END.length());
-				endContent = content.substring(lastDelimEndPosition + Handlebars.DELIM_END.length(), content.length());
-			}
-		}
+    	int firstDelimStartPosition = content.indexOf(Handlebars.DELIM_START);
+    	if (firstDelimStartPosition != -1) {
+    		int lastDelimEndPosition = content.lastIndexOf(Handlebars.DELIM_END);
+    		if (lastDelimEndPosition != -1) {
+    			startContent = content.substring(0, firstDelimStartPosition);
+    			templateContent = content.substring(firstDelimStartPosition,
+    					lastDelimEndPosition + Handlebars.DELIM_END.length());
+    			endContent = content.substring(lastDelimEndPosition + Handlebars.DELIM_END.length(), content.length());
+    		}
+    	}
 
-		this.template = uncheckedCompileTemplate(handlebars, templateContent);
-	}
+    	this.template = uncheckedCompileTemplate(handlebars, templateContent);
+    }
 
-	private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {
-		try {
-			return handlebars.compileInline(templateContent);
-		} catch (IOException e) {
-			return Exceptions.throwUnchecked(e, Template.class);
-		}
-	}
+    private static Template uncheckedCompileTemplate(Handlebars handlebars, String templateContent) {
+    	try {
+    		return handlebars.compileInline(templateContent);
+    	} catch (IOException e) {
+    		return Exceptions.throwUnchecked(e, Template.class);
+    	}
+    }
 
-	public String apply(Object context) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		return sb.append(startContent).append(template.apply(context)).append(endContent).toString();
-	}
+    public String apply(Object context) throws IOException {
+    	StringBuilder sb = new StringBuilder();
+    	return sb.append(startContent).append(template.apply(context)).append(endContent).toString();
+    }
 }

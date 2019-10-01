@@ -31,17 +31,17 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class Response {
 
-	private final int status;
+    private final int status;
     private final String statusMessage;
     private final InputStreamSource bodyStreamSource;
-	private final HttpHeaders headers;
-	private final boolean configured;
-	private final Fault fault;
-	private final boolean fromProxy;
-	private final long initialDelay;
+    private final HttpHeaders headers;
+    private final boolean configured;
+    private final Fault fault;
+    private final boolean fromProxy;
+    private final long initialDelay;
     private final ChunkedDribbleDelay chunkedDribbleDelay;
 
-	public static Response notConfigured() {
+    public static Response notConfigured() {
         return new Response(
                 HTTP_NOT_FOUND,
                 null,
@@ -97,9 +97,9 @@ public class Response {
         this.fromProxy = fromProxy;
     }
 
-	public int getStatus() {
-		return status;
-	}
+    public int getStatus() {
+    	return status;
+    }
 
     public String getStatusMessage() {
         return statusMessage;
@@ -113,29 +113,29 @@ public class Response {
         }
     }
 
-	public String getBodyAsString() {
+    public String getBodyAsString() {
         return Strings.stringFromBytes(getBody(), headers.getContentTypeHeader().charset());
-	}
+    }
 
     public InputStream getBodyStream() {
         return bodyStreamSource == null ? null : bodyStreamSource.getStream();
     }
 
     public boolean hasInlineBody() {
-	    return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
+        return !BinaryFile.class.isAssignableFrom(bodyStreamSource.getClass());
     }
 
-	public HttpHeaders getHeaders() {
-		return headers;
-	}
+    public HttpHeaders getHeaders() {
+    	return headers;
+    }
 
     public Fault getFault() {
         return fault;
     }
 
     public long getInitialDelay() {
-	    return initialDelay;
-	}
+        return initialDelay;
+    }
 
     public ChunkedDribbleDelay getChunkedDribbleDelay() {
         return chunkedDribbleDelay;
@@ -145,9 +145,9 @@ public class Response {
         return chunkedDribbleDelay != null;
     }
 
-	public boolean wasConfigured() {
-		return configured;
-	}
+    public boolean wasConfigured() {
+    	return configured;
+    }
 
     public boolean isFromProxy() {
         return fromProxy;

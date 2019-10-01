@@ -57,12 +57,12 @@ import static com.github.tomakehurst.wiremock.http.CaseInsensitiveKey.TO_CASE_IN
 public class CommandLineOptions implements Options {
 
     private static final String HELP = "help";
-	private static final String RECORD_MAPPINGS = "record-mappings";
-	private static final String MATCH_HEADERS = "match-headers";
-	private static final String PROXY_ALL = "proxy-all";
+    private static final String RECORD_MAPPINGS = "record-mappings";
+    private static final String MATCH_HEADERS = "match-headers";
+    private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
-	private static final String PORT = "port";
+    private static final String PORT = "port";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
@@ -104,8 +104,8 @@ public class CommandLineOptions implements Options {
     private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
-		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
+    	OptionParser optionParser = new OptionParser();
+    	optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -117,11 +117,11 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(PROXY_ALL, "Will create a proxy mapping for /* to the specified URL").withRequiredArg();
         optionParser.accepts(PRESERVE_HOST_HEADER, "Will transfer the original host header from the client to the proxied service");
         optionParser.accepts(PROXY_VIA, "Specifies a proxy server to use when routing proxy mapped requests").withRequiredArg();
-		optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
-		optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
-		optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
-		optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
-		optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
+    	optionParser.accepts(RECORD_MAPPINGS, "Enable recording of all (non-admin) requests as mapping files");
+    	optionParser.accepts(MATCH_HEADERS, "Enable request header matching when recording through a proxy").withRequiredArg();
+    	optionParser.accepts(ROOT_DIR, "Specifies path for storing recordings (parent for " + MAPPINGS_ROOT + " and " + WireMockApp.FILES_ROOT + " folders)").withRequiredArg().defaultsTo(".");
+    	optionParser.accepts(VERBOSE, "Enable verbose logging to stdout");
+    	optionParser.accepts(ENABLE_BROWSER_PROXYING, "Allow wiremock to be set as a browser's proxy server");
         optionParser.accepts(DISABLE_REQUEST_JOURNAL, "Disable the request journal (to avoid heap growth when running wiremock for long periods without reset)");
         optionParser.accepts(DISABLE_BANNER, "Disable print banner logo");
         optionParser.accepts(EXTENSIONS, "Matching and/or response transformer extension class names, comma separated.").withRequiredArg();
@@ -145,15 +145,15 @@ public class CommandLineOptions implements Options {
 
         optionParser.accepts(HELP, "Print this message");
 
-		optionSet = optionParser.parse(args);
+    	optionSet = optionParser.parse(args);
         validate();
-		captureHelpTextIfRequested(optionParser);
+    	captureHelpTextIfRequested(optionParser);
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 
         resultingPort = Optional.absent();
-	}
+    }
 
     private void validate() {
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
@@ -166,36 +166,36 @@ public class CommandLineOptions implements Options {
     }
 
     private void captureHelpTextIfRequested(OptionParser optionParser) {
-		if (optionSet.has(HELP)) {
-			StringWriter out = new StringWriter();
-			try {
-				optionParser.printHelpOn(out);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+    	if (optionSet.has(HELP)) {
+    		StringWriter out = new StringWriter();
+    		try {
+    			optionParser.printHelpOn(out);
+    		} catch (IOException e) {
+    			throw new RuntimeException(e);
+    		}
 
-			helpText = out.toString();
-		}
-	}
+    		helpText = out.toString();
+    	}
+    }
 
-	public boolean verboseLoggingEnabled() {
-		return optionSet.has(VERBOSE);
-	}
+    public boolean verboseLoggingEnabled() {
+    	return optionSet.has(VERBOSE);
+    }
 
-	public boolean recordMappingsEnabled() {
-		return optionSet.has(RECORD_MAPPINGS);
-	}
+    public boolean recordMappingsEnabled() {
+    	return optionSet.has(RECORD_MAPPINGS);
+    }
 
-	@Override
-	public List<CaseInsensitiveKey> matchingHeaders() {
-		if (optionSet.hasArgument(MATCH_HEADERS)) {
-			String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
+    @Override
+    public List<CaseInsensitiveKey> matchingHeaders() {
+    	if (optionSet.hasArgument(MATCH_HEADERS)) {
+    		String headerSpec = (String) optionSet.valueOf(MATCH_HEADERS);
             UnmodifiableIterator<String> headerKeys = Iterators.forArray(headerSpec.split(","));
             return ImmutableList.copyOf(Iterators.transform(headerKeys, TO_CASE_INSENSITIVE_KEYS));
-		}
+    	}
 
-		return Collections.emptyList();
-	}
+    	return Collections.emptyList();
+    }
 
     @Override
     public HttpServerFactory httpServerFactory() {
@@ -216,25 +216,25 @@ public class CommandLineOptions implements Options {
     }
 
     private boolean specifiesPortNumber() {
-		return optionSet.has(PORT);
-	}
+    	return optionSet.has(PORT);
+    }
 
-	@Override
+    @Override
     public int portNumber() {
         if (specifiesPortNumber()) {
             return Integer.parseInt((String) optionSet.valueOf(PORT));
         }
 
         return DEFAULT_PORT;
-	}
+    }
 
-	public void setResultingPort(int port) {
-		resultingPort = Optional.of(port);
-	}
+    public void setResultingPort(int port) {
+    	resultingPort = Optional.of(port);
+    }
 
     @Override
     public String bindAddress(){
-	if (optionSet.has(BIND_ADDRESS)) {
+    if (optionSet.has(BIND_ADDRESS)) {
             return (String) optionSet.valueOf(BIND_ADDRESS);
         }
 
@@ -283,20 +283,20 @@ public class CommandLineOptions implements Options {
     }
 
     public boolean help() {
-		return optionSet.has(HELP);
-	}
+    	return optionSet.has(HELP);
+    }
 
-	public String helpText() {
-		return helpText;
-	}
+    public String helpText() {
+    	return helpText;
+    }
 
-	public boolean specifiesProxyUrl() {
-		return optionSet.has(PROXY_ALL);
-	}
+    public boolean specifiesProxyUrl() {
+    	return optionSet.has(PROXY_ALL);
+    }
 
-	public String proxyUrl() {
-		return (String) optionSet.valueOf(PROXY_ALL);
-	}
+    public String proxyUrl() {
+    	return (String) optionSet.valueOf(PROXY_ALL);
+    }
 
     @Override
     public boolean shouldPreserveHostHeader() {
@@ -374,8 +374,8 @@ public class CommandLineOptions implements Options {
 
     @Override
     public boolean browserProxyingEnabled() {
-		return optionSet.has(ENABLE_BROWSER_PROXYING);
-	}
+    	return optionSet.has(ENABLE_BROWSER_PROXYING);
+    }
 
     @Override
     public ProxySettings proxyVia() {

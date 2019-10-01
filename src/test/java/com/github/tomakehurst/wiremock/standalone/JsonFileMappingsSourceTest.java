@@ -46,51 +46,51 @@ public class JsonFileMappingsSourceTest {
 
     InMemoryStubMappings stubMappings;
     JsonFileMappingsSource source;
-	File stubMappingFile;
+    File stubMappingFile;
 
     @Before
-	public void init() throws Exception {
-		stubMappings = new InMemoryStubMappings();
-	}
+    public void init() throws Exception {
+    	stubMappings = new InMemoryStubMappings();
+    }
 
-	private void configureWithMultipleMappingFile() throws Exception {
-		stubMappingFile = tempDir.newFile("multi.json");
-		Files.copy(new File(filePath("multi-stub/multi.json")), stubMappingFile);
-		load();
-	}
+    private void configureWithMultipleMappingFile() throws Exception {
+    	stubMappingFile = tempDir.newFile("multi.json");
+    	Files.copy(new File(filePath("multi-stub/multi.json")), stubMappingFile);
+    	load();
+    }
 
-	private void configureWithSingleMappingFile() throws Exception {
-    	stubMappingFile = tempDir.newFile("single.json");
-		Files.copy(new File(filePath("multi-stub/single.json")), stubMappingFile);
-		load();
-	}
+    private void configureWithSingleMappingFile() throws Exception {
+        stubMappingFile = tempDir.newFile("single.json");
+    	Files.copy(new File(filePath("multi-stub/single.json")), stubMappingFile);
+    	load();
+    }
 
-	private void load() {
-		source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
-		source.loadMappingsInto(stubMappings);
-	}
+    private void load() {
+    	source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
+    	source.loadMappingsInto(stubMappings);
+    }
 
-	@Test
-	public void loadsMappingsViaClasspathFileSource() {
-		ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
-		JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
-		InMemoryStubMappings stubMappings = new InMemoryStubMappings();
+    @Test
+    public void loadsMappingsViaClasspathFileSource() {
+    	ClasspathFileSource fileSource = new ClasspathFileSource("jar-filesource");
+    	JsonFileMappingsSource source = new JsonFileMappingsSource(fileSource);
+    	InMemoryStubMappings stubMappings = new InMemoryStubMappings();
 
-		source.loadMappingsInto(stubMappings);
+    	source.loadMappingsInto(stubMappings);
 
-		List<StubMapping> allMappings = stubMappings.getAll();
-		assertThat(allMappings, hasSize(2));
+    	List<StubMapping> allMappings = stubMappings.getAll();
+    	assertThat(allMappings, hasSize(2));
 
-		List<String> mappingRequestUrls = asList(
-			allMappings.get(0).getRequest().getUrl(),
-			allMappings.get(1).getRequest().getUrl()
-		);
-		assertThat(mappingRequestUrls, is(asList("/second_test", "/test")));
-	}
+    	List<String> mappingRequestUrls = asList(
+    		allMappings.get(0).getRequest().getUrl(),
+    		allMappings.get(1).getRequest().getUrl()
+    	);
+    	assertThat(mappingRequestUrls, is(asList("/second_test", "/test")));
+    }
 
-	@Test
-	public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
-	    JsonFileMappingsSource source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
+    @Test
+    public void stubMappingFilesAreWrittenWithInsertionIndex() throws Exception {
+        JsonFileMappingsSource source = new JsonFileMappingsSource(new SingleRootFileSource(tempDir.getRoot()));
 
         StubMapping stub = get("/saveable").willReturn(ok()).build();
         source.save(stub);
@@ -102,73 +102,73 @@ public class JsonFileMappingsSourceTest {
     }
 
     @Test
-	public void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
-		configureWithMultipleMappingFile();
-
-		StubMapping firstStub = stubMappings.getAll().get(0);
-
-		try {
-			source.remove(firstStub);
-			fail("Expected an exception to be thrown");
-		} catch (Exception e) {
-			assertThat(e, Matchers.instanceOf(NotWritableException.class));
-			assertThat(e.getMessage(), is("Stubs loaded from multi-mapping files are read-only, and therefore cannot be removed"));
-		}
-
-		assertThat(stubMappingFile.exists(), is(true));
-	}
-
-	@Test
-	public void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
-		configureWithMultipleMappingFile();
-
-		try {
-			source.removeAll();
-			fail("Expected an exception to be thrown");
-		} catch (Exception e) {
-			assertThat(e, Matchers.instanceOf(NotWritableException.class));
-			assertThat(e.getMessage(), is("Some stubs were loaded from multi-mapping files which are read-only, so remove all cannot be performed"));
-		}
-
-		assertThat(stubMappingFile.exists(), is(true));
-	}
-
-	@Test
-	public void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
+    public void refusesToRemoveStubMappingContainedInMultiFile() throws Exception {
     	configureWithMultipleMappingFile();
 
-		StubMapping firstStub = stubMappings.getAll().get(0);
+    	StubMapping firstStub = stubMappings.getAll().get(0);
 
-		try {
-			source.save(firstStub);
-			fail("Expected an exception to be thrown");
-		} catch (Exception e) {
-			assertThat(e, Matchers.instanceOf(NotWritableException.class));
-			assertThat(e.getMessage(), is("Stubs loaded from multi-mapping files are read-only, and therefore cannot be saved"));
-		}
+    	try {
+    		source.remove(firstStub);
+    		fail("Expected an exception to be thrown");
+    	} catch (Exception e) {
+    		assertThat(e, Matchers.instanceOf(NotWritableException.class));
+    		assertThat(e.getMessage(), is("Stubs loaded from multi-mapping files are read-only, and therefore cannot be removed"));
+    	}
 
-		assertThat(stubMappingFile.exists(), is(true));
-	}
+    	assertThat(stubMappingFile.exists(), is(true));
+    }
 
-	@Test
-	public void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
-		configureWithSingleMappingFile();
+    @Test
+    public void refusesToRemoveAllWhenMultiMappingFilesArePresent() throws Exception {
+    	configureWithMultipleMappingFile();
 
-		StubMapping firstStub = stubMappings.getAll().get(0);
-		firstStub.setName("New name");
-		source.save(firstStub);
+    	try {
+    		source.removeAll();
+    		fail("Expected an exception to be thrown");
+    	} catch (Exception e) {
+    		assertThat(e, Matchers.instanceOf(NotWritableException.class));
+    		assertThat(e.getMessage(), is("Some stubs were loaded from multi-mapping files which are read-only, so remove all cannot be performed"));
+    	}
 
-		assertThat(Files.toString(stubMappingFile, UTF_8), containsString("New name"));
-	}
+    	assertThat(stubMappingFile.exists(), is(true));
+    }
 
-	@Test
-	public void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
-		configureWithSingleMappingFile();
+    @Test
+    public void refusesToSaveStubMappingOriginallyLoadedFromMultiMappingFile() throws Exception {
+        configureWithMultipleMappingFile();
 
-		StubMapping firstStub = stubMappings.getAll().get(0);
-		source.remove(firstStub);
+    	StubMapping firstStub = stubMappings.getAll().get(0);
 
-		assertThat(stubMappingFile.exists(), is(false));
-	}
+    	try {
+    		source.save(firstStub);
+    		fail("Expected an exception to be thrown");
+    	} catch (Exception e) {
+    		assertThat(e, Matchers.instanceOf(NotWritableException.class));
+    		assertThat(e.getMessage(), is("Stubs loaded from multi-mapping files are read-only, and therefore cannot be saved"));
+    	}
+
+    	assertThat(stubMappingFile.exists(), is(true));
+    }
+
+    @Test
+    public void savesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+    	configureWithSingleMappingFile();
+
+    	StubMapping firstStub = stubMappings.getAll().get(0);
+    	firstStub.setName("New name");
+    	source.save(firstStub);
+
+    	assertThat(Files.toString(stubMappingFile, UTF_8), containsString("New name"));
+    }
+
+    @Test
+    public void removesStubMappingOriginallyLoadedFromSingleMappingFile() throws Exception {
+    	configureWithSingleMappingFile();
+
+    	StubMapping firstStub = stubMappings.getAll().get(0);
+    	source.remove(firstStub);
+
+    	assertThat(stubMappingFile.exists(), is(false));
+    }
 
 }

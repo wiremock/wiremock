@@ -33,127 +33,127 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SortedConcurrentMappingSetTest {
-	
-	private SortedConcurrentMappingSet mappingSet;
-	
-	@Before
-	public void init() {
-		mappingSet = new SortedConcurrentMappingSet();
-	}
+    
+    private SortedConcurrentMappingSet mappingSet;
+    
+    @Before
+    public void init() {
+    	mappingSet = new SortedConcurrentMappingSet();
+    }
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void returnsMappingsInPriorityThenInsertionOrder() {
-		mappingSet.add(aMapping(3, "/priority3/1"));
-		mappingSet.add(aMapping(3, "/priority3/2"));
-		mappingSet.add(aMapping(6, "/priority6/1"));
-		mappingSet.add(aMapping(1, "/priority1/1"));
-		mappingSet.add(aMapping(1, "/priority1/2"));
-		mappingSet.add(aMapping(1, "/priority1/3"));
-		
-		assertThat(mappingSet, hasExactly(
-				requestUrlIs("/priority1/3"),
-				requestUrlIs("/priority1/2"),
-				requestUrlIs("/priority1/1"),
-				requestUrlIs("/priority3/2"),
-				requestUrlIs("/priority3/1"),
-				requestUrlIs("/priority6/1")));
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void supportsNullPriority() {
-		mappingSet.add(aMapping(null, "/1"));
-		mappingSet.add(aMapping(null, "/2"));
-		mappingSet.add(aMapping(null, "/3"));
-		mappingSet.add(aMapping(null, "/4"));
-		
-		assertThat(mappingSet, hasExactly(
-				requestUrlIs("/4"),
-				requestUrlIs("/3"),
-				requestUrlIs("/2"),
-				requestUrlIs("/1")));
-	}
-	
-	@Test
-	public void clearsCorrectly() {
-		mappingSet.add(aMapping(3, "/priority3/1"));
-		mappingSet.add(aMapping(3, "/priority3/2"));
-		mappingSet.add(aMapping(6, "/priority6/1"));
-		mappingSet.add(aMapping(1, "/priority1/1"));
-		
-		mappingSet.clear();
-		
-		assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
-	}
+    @SuppressWarnings("unchecked")
+    @Test
+    public void returnsMappingsInPriorityThenInsertionOrder() {
+    	mappingSet.add(aMapping(3, "/priority3/1"));
+    	mappingSet.add(aMapping(3, "/priority3/2"));
+    	mappingSet.add(aMapping(6, "/priority6/1"));
+    	mappingSet.add(aMapping(1, "/priority1/1"));
+    	mappingSet.add(aMapping(1, "/priority1/2"));
+    	mappingSet.add(aMapping(1, "/priority1/3"));
+    	
+    	assertThat(mappingSet, hasExactly(
+    			requestUrlIs("/priority1/3"),
+    			requestUrlIs("/priority1/2"),
+    			requestUrlIs("/priority1/1"),
+    			requestUrlIs("/priority3/2"),
+    			requestUrlIs("/priority3/1"),
+    			requestUrlIs("/priority6/1")));
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void supportsNullPriority() {
+    	mappingSet.add(aMapping(null, "/1"));
+    	mappingSet.add(aMapping(null, "/2"));
+    	mappingSet.add(aMapping(null, "/3"));
+    	mappingSet.add(aMapping(null, "/4"));
+    	
+    	assertThat(mappingSet, hasExactly(
+    			requestUrlIs("/4"),
+    			requestUrlIs("/3"),
+    			requestUrlIs("/2"),
+    			requestUrlIs("/1")));
+    }
+    
+    @Test
+    public void clearsCorrectly() {
+    	mappingSet.add(aMapping(3, "/priority3/1"));
+    	mappingSet.add(aMapping(3, "/priority3/2"));
+    	mappingSet.add(aMapping(6, "/priority6/1"));
+    	mappingSet.add(aMapping(1, "/priority1/1"));
+    	
+    	mappingSet.clear();
+    	
+    	assertThat("Mapping set should be empty", mappingSet.iterator().hasNext(), is(false));
+    }
 
-	@Test
-	public void testRemove() throws Exception {
+    @Test
+    public void testRemove() throws Exception {
 
-		StubMapping stubMapping = aMapping(1, "/priority1/1");
+    	StubMapping stubMapping = aMapping(1, "/priority1/1");
 
-		mappingSet.add(stubMapping);
-		assertThat(mappingSet.iterator().hasNext(), is(true));
+    	mappingSet.add(stubMapping);
+    	assertThat(mappingSet.iterator().hasNext(), is(true));
 
-		mappingSet.remove(stubMapping);
-		assertThat(mappingSet.iterator().hasNext(), is(false));
-	}
+    	mappingSet.remove(stubMapping);
+    	assertThat(mappingSet.iterator().hasNext(), is(false));
+    }
 
-	@Test
-	public void testReplace() throws Exception {
+    @Test
+    public void testReplace() throws Exception {
 
-		StubMapping existingMapping = aMapping(1, "/priority1/1");
-		mappingSet.add(existingMapping);
+    	StubMapping existingMapping = aMapping(1, "/priority1/1");
+    	mappingSet.add(existingMapping);
 
-		existingMapping.setNewScenarioState("New Scenario State");
+    	existingMapping.setNewScenarioState("New Scenario State");
 
-		StubMapping newMapping = aMapping(2, "/priority2/1");
-		boolean result = mappingSet.replace(existingMapping, newMapping);
+    	StubMapping newMapping = aMapping(2, "/priority2/1");
+    	boolean result = mappingSet.replace(existingMapping, newMapping);
 
-		Iterator<StubMapping> it = mappingSet.iterator();
+    	Iterator<StubMapping> it = mappingSet.iterator();
 
-		assertThat(result, is(true));
-		assertThat(it.hasNext(), is(true));
-		assertThat(it.next(), is(newMapping));
-		assertThat(it.hasNext(), is(false));
-	}
+    	assertThat(result, is(true));
+    	assertThat(it.hasNext(), is(true));
+    	assertThat(it.next(), is(newMapping));
+    	assertThat(it.hasNext(), is(false));
+    }
 
-	@Test
-	public void testReplaceNotExists() throws Exception {
+    @Test
+    public void testReplaceNotExists() throws Exception {
 
-		StubMapping existingMapping = aMapping(1, "/priority1/1");
-		mappingSet.add(existingMapping);
+    	StubMapping existingMapping = aMapping(1, "/priority1/1");
+    	mappingSet.add(existingMapping);
 
-		StubMapping newMapping = aMapping(2, "/priority2/1");
-		boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
+    	StubMapping newMapping = aMapping(2, "/priority2/1");
+    	boolean result = mappingSet.replace(aMapping(2, "/priority2/2"), newMapping);
 
-		Iterator<StubMapping> it = mappingSet.iterator();
+    	Iterator<StubMapping> it = mappingSet.iterator();
 
-		assertThat(result, is(false));
-		assertThat(it.hasNext(), is(true));
-		assertThat(it.next(), is(existingMapping));
-		assertThat(it.hasNext(), is(false));
-	}
+    	assertThat(result, is(false));
+    	assertThat(it.hasNext(), is(true));
+    	assertThat(it.next(), is(existingMapping));
+    	assertThat(it.hasNext(), is(false));
+    }
 
-	private StubMapping aMapping(Integer priority, String url) {
-		RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
-		StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
-		mapping.setPriority(priority);
-		return mapping;
-	}
-	
-	private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
-		return new TypeSafeMatcher<StubMapping>() {
+    private StubMapping aMapping(Integer priority, String url) {
+    	RequestPattern requestPattern = newRequestPattern(ANY, urlEqualTo(url)).build();
+    	StubMapping mapping = new StubMapping(requestPattern, new ResponseDefinition());
+    	mapping.setPriority(priority);
+    	return mapping;
+    }
+    
+    private Matcher<StubMapping> requestUrlIs(final String expectedUrl) {
+    	return new TypeSafeMatcher<StubMapping>() {
 
-			@Override
-			public void describeTo(Description desc) {
-			}
+    		@Override
+    		public void describeTo(Description desc) {
+    		}
 
-			@Override
-			public boolean matchesSafely(StubMapping actualMapping) {
-				return actualMapping.getRequest().getUrl().equals(expectedUrl);
-			}
-			
-		};
-	}
+    		@Override
+    		public boolean matchesSafely(StubMapping actualMapping) {
+    			return actualMapping.getRequest().getUrl().equals(expectedUrl);
+    		}
+    		
+    	};
+    }
 }

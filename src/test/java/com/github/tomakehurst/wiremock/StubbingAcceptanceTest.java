@@ -56,69 +56,69 @@ import static org.junit.Assert.assertTrue;
 
 public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
-	@BeforeClass
-	public static void setupServer() {
-		setupServerWithMappingsInFileRoot();
-	}
+    @BeforeClass
+    public static void setupServer() {
+    	setupServerWithMappingsInFileRoot();
+    }
 
-	@Test
-	public void mappingWithExactUrlAndMethodMatch() {
-		stubFor(get(urlEqualTo("/a/registered/resource")).willReturn(
-				aResponse()
-				.withStatus(401)
-				.withHeader("Content-Type", "text/plain")
-				.withBody("Not allowed!")));
+    @Test
+    public void mappingWithExactUrlAndMethodMatch() {
+    	stubFor(get(urlEqualTo("/a/registered/resource")).willReturn(
+    			aResponse()
+    			.withStatus(401)
+    			.withHeader("Content-Type", "text/plain")
+    			.withBody("Not allowed!")));
 
-		WireMockResponse response = testClient.get("/a/registered/resource");
+    	WireMockResponse response = testClient.get("/a/registered/resource");
 
-		assertThat(response.statusCode(), is(401));
-		assertThat(response.content(), is("Not allowed!"));
-		assertThat(response.firstHeader("Content-Type"), is("text/plain"));
-	}
+    	assertThat(response.statusCode(), is(401));
+    	assertThat(response.content(), is("Not allowed!"));
+    	assertThat(response.firstHeader("Content-Type"), is("text/plain"));
+    }
 
-	@Test
-	public void mappingWithUrlContainingQueryParameters() {
-		stubFor(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
-				aResponse()
-						.withHeader("Location", "/nowhere")
-						.withStatus(302)));
+    @Test
+    public void mappingWithUrlContainingQueryParameters() {
+    	stubFor(get(urlEqualTo("/search?name=John&postcode=N44LL")).willReturn(
+    			aResponse()
+    					.withHeader("Location", "/nowhere")
+    					.withStatus(302)));
 
-		WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
+    	WireMockResponse response = testClient.get("/search?name=John&postcode=N44LL");
 
-		assertThat(response.statusCode(), is(302));
-	}
+    	assertThat(response.statusCode(), is(302));
+    }
 
-	@Test
-	public void mappingWithHeaderMatchers() {
-		stubFor(put(urlEqualTo("/some/url"))
-			.withHeader("One", equalTo("abcd1234"))
-			.withHeader("Two", matching("[a-z]{5}"))
-			.withHeader("Three", notMatching("[A-Z]+"))
-			.willReturn(aResponse().withStatus(204)));
+    @Test
+    public void mappingWithHeaderMatchers() {
+    	stubFor(put(urlEqualTo("/some/url"))
+    		.withHeader("One", equalTo("abcd1234"))
+    		.withHeader("Two", matching("[a-z]{5}"))
+    		.withHeader("Three", notMatching("[A-Z]+"))
+    		.willReturn(aResponse().withStatus(204)));
 
-		WireMockResponse response = testClient.put("/some/url",
-				withHeader("One", "abcd1234"),
-				withHeader("Two", "thing"),
-				withHeader("Three", "something"));
+    	WireMockResponse response = testClient.put("/some/url",
+    			withHeader("One", "abcd1234"),
+    			withHeader("Two", "thing"),
+    			withHeader("Three", "something"));
 
-		assertThat(response.statusCode(), is(204));
-	}
+    	assertThat(response.statusCode(), is(204));
+    }
 
-	@Test
-	public void mappingWithCaseInsensitiveHeaderMatchers() {
-		stubFor(put(urlEqualTo("/case/insensitive"))
-			.withHeader("ONE", equalTo("abcd1234"))
-			.withHeader("two", matching("[a-z]{5}"))
-			.withHeader("Three", notMatching("[A-Z]+"))
-			.willReturn(aResponse().withStatus(204)));
+    @Test
+    public void mappingWithCaseInsensitiveHeaderMatchers() {
+    	stubFor(put(urlEqualTo("/case/insensitive"))
+    		.withHeader("ONE", equalTo("abcd1234"))
+    		.withHeader("two", matching("[a-z]{5}"))
+    		.withHeader("Three", notMatching("[A-Z]+"))
+    		.willReturn(aResponse().withStatus(204)));
 
-		WireMockResponse response = testClient.put("/case/insensitive",
-			withHeader("one", "abcd1234"),
-			withHeader("TWO", "thing"),
-			withHeader("tHrEe", "something"));
+    	WireMockResponse response = testClient.put("/case/insensitive",
+    		withHeader("one", "abcd1234"),
+    		withHeader("TWO", "thing"),
+    		withHeader("tHrEe", "something"));
 
-		assertThat(response.statusCode(), is(204));
-	}
+    	assertThat(response.statusCode(), is(204));
+    }
 
     @Test
     public void doesNotMatchOnAbsentHeader() {
@@ -137,8 +137,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
                 .willReturn(aResponse().withStatus(200)));
 
         WireMockResponse response = testClient.get("/some/extra/header",
-			withHeader("ExpectedHeader", "expected-value"),
-			withHeader("UnexpectedHeader", "unexpected-value"));
+    		withHeader("ExpectedHeader", "expected-value"),
+    		withHeader("UnexpectedHeader", "unexpected-value"));
 
         assertThat(response.statusCode(), is(200));
     }
@@ -166,29 +166,29 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/path-and-query/match?since=2018-03-02&search=WireMock%20stubbing").statusCode(), is(200));
     }
 
-	@Test
-	public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
-		stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    @Test
+    public void doesNotMatchOnUrlPathWhenExtraPathElementsPresent() {
+    	stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
 
-		assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
-	}
+    	assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
+    }
 
-	@Test
-	public void doesNotMatchOnUrlPathWhenPathShorter() {
-	    stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
+    @Test
+    public void doesNotMatchOnUrlPathWhenPathShorter() {
+        stubFor(get(urlPathEqualTo("/matching-path")).willReturn(aResponse().withStatus(200)));
 
-	    assertThat(testClient.get("/matching").statusCode(), is(404));
-	}
+        assertThat(testClient.get("/matching").statusCode(), is(404));
+    }
 
-	@Test
-	public void matchesOnUrlPathPatternAndQueryParameters() {
-		stubFor(get(urlPathMatching("/path(.*)/match"))
-				.withQueryParam("search", containing("WireMock"))
-				.withQueryParam("since", equalTo("2014-10-14"))
-				.willReturn(aResponse().withStatus(200)));
+    @Test
+    public void matchesOnUrlPathPatternAndQueryParameters() {
+    	stubFor(get(urlPathMatching("/path(.*)/match"))
+    			.withQueryParam("search", containing("WireMock"))
+    			.withQueryParam("since", equalTo("2014-10-14"))
+    			.willReturn(aResponse().withStatus(200)));
 
-		assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
-	}
+    	assertThat(testClient.get("/path-and-query/match?since=2014-10-14&search=WireMock%20stubbing").statusCode(), is(200));
+    }
 
     @Test
     public void matchesOnUrlPathPatternAndMultipleQueryParameters() {
@@ -203,28 +203,28 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(testClient.get("/path-and-query/match?since=2018-03-02&search=WireMock%20stubbing").statusCode(), is(200));
     }
 
-	@Test
-	public void doesNotMatchOnUrlPathPatternWhenPathShorter() {
-	    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    @Test
+    public void doesNotMatchOnUrlPathPatternWhenPathShorter() {
+        stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
 
-	    assertThat(testClient.get("/matching").statusCode(), is(404));
-	}
+        assertThat(testClient.get("/matching").statusCode(), is(404));
+    }
 
-	@Test
-	public void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
-	    stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
+    @Test
+    public void doesNotMatchOnUrlPathPatternWhenExtraPathPresent() {
+        stubFor(get(urlPathMatching("/matching-path")).willReturn(aResponse().withStatus(200)));
 
-	    assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
-	}
+        assertThat(testClient.get("/matching-path/extra").statusCode(), is(404));
+    }
 
-	@Test
-	public void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
-		stubFor(get(urlPathEqualTo("/path-and-query/match"))
-				.withQueryParam("search", containing("WireMock"))
-				.willReturn(aResponse().withStatus(200)));
+    @Test
+    public void doesNotMatchIfSpecifiedQueryParameterNotInRequest() {
+    	stubFor(get(urlPathEqualTo("/path-and-query/match"))
+    			.withQueryParam("search", containing("WireMock"))
+    			.willReturn(aResponse().withStatus(200)));
 
-		assertThat(testClient.get("/path-and-query/match?wrongParam=wrongVal").statusCode(), is(404));
-	}
+    	assertThat(testClient.get("/path-and-query/match?wrongParam=wrongVal").statusCode(), is(404));
+    }
 
     @Test
     public void doesNotMatchIfSpecifiedAbsentQueryParameterIsPresentInRequest() {
@@ -245,23 +245,23 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-	public void responseBodyLoadedFromFile() {
-		stubFor(get(urlEqualTo("/my/file")).willReturn(
-			aResponse()
-				.withStatus(200)
-				.withBodyFile("plain-example.txt")));
+    public void responseBodyLoadedFromFile() {
+    	stubFor(get(urlEqualTo("/my/file")).willReturn(
+    		aResponse()
+    			.withStatus(200)
+    			.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.get("/my/file");
+    	WireMockResponse response = testClient.get("/my/file");
 
-		assertThat(response.content(), is("Some example test from a file"));
-	}
+    	assertThat(response.content(), is("Some example test from a file"));
+    }
 
-	@Test
-	public void matchingOnRequestBodyWithTwoRegexes() {
-		stubFor(put(urlEqualTo("/match/this/body"))
-	            .withRequestBody(matching(".*Blah.*"))
-	            .withRequestBody(matching(".*@[0-9]{5}@.*"))
-	            .willReturn(aResponse()
+    @Test
+    public void matchingOnRequestBodyWithTwoRegexes() {
+    	stubFor(put(urlEqualTo("/match/this/body"))
+                .withRequestBody(matching(".*Blah.*"))
+                .withRequestBody(matching(".*@[0-9]{5}@.*"))
+                .willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withBodyFile("plain-example.txt")));
 
@@ -272,11 +272,11 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 
         response = testClient.putWithBody("/match/this/body", "BlahBlah@56565@Blah", "text/plain");
         assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    }
 
-	@Test
+    @Test
     public void matchingOnRequestBodyWithAContainsAndANegativeRegex() {
-		stubFor(put(urlEqualTo("/match/this/body/too"))
+    	stubFor(put(urlEqualTo("/match/this/body/too"))
                 .withRequestBody(containing("Blah"))
                 .withRequestBody(notMatching(".*[0-9]+.*"))
                 .willReturn(aResponse()
@@ -290,7 +290,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(HTTP_OK));
     }
 
-	@Test
+    @Test
     public void matchingOnRequestBodyWithEqualTo() {
         stubFor(put(urlEqualTo("/match/this/body/too"))
                 .withRequestBody(equalTo("BlahBlahBlah"))
@@ -305,119 +305,119 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(HTTP_OK));
     }
 
-	@Test
-	public void matchingOnRequestBodyWithBinaryEqualTo() {
-		byte[] requestBody = new byte[] { 1, 2, 3 };
+    @Test
+    public void matchingOnRequestBodyWithBinaryEqualTo() {
+    	byte[] requestBody = new byte[] { 1, 2, 3 };
 
-		stubFor(post("/match/binary")
-			.withRequestBody(binaryEqualTo(requestBody))
-			.willReturn(ok("Matched binary"))
+    	stubFor(post("/match/binary")
+    		.withRequestBody(binaryEqualTo(requestBody))
+    		.willReturn(ok("Matched binary"))
         );
 
         WireMockResponse response = testClient.post("/match/binary", new ByteArrayEntity(new byte[] { 9 }, APPLICATION_OCTET_STREAM));
         assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.post("/match/binary", new ByteArrayEntity(requestBody, APPLICATION_OCTET_STREAM));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.post("/match/binary", new ByteArrayEntity(requestBody, APPLICATION_OCTET_STREAM));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnRequestBodyWithAdvancedJsonPath() {
-		stubFor(post("/jsonpath/advanced")
-			.withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
-			.withRequestBody(matchingJsonPath("$.wrong", absent()))
-			.willReturn(ok())
-		);
+    @Test
+    public void matchingOnRequestBodyWithAdvancedJsonPath() {
+    	stubFor(post("/jsonpath/advanced")
+    		.withRequestBody(matchingJsonPath("$.counter", equalTo("123")))
+    		.withRequestBody(matchingJsonPath("$.wrong", absent()))
+    		.willReturn(ok())
+    	);
 
-		WireMockResponse response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 234 }");
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 234 }");
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
         response = testClient.postJson("/jsonpath/advanced", "{ \"counter\": 123 }");
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnRequestBodyWithAdvancedXPath() {
-		stubFor(post("/xpath/advanced")
-			.withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
-			.willReturn(ok())
-		);
+    @Test
+    public void matchingOnRequestBodyWithAdvancedXPath() {
+    	stubFor(post("/xpath/advanced")
+    		.withRequestBody(matchingXPath("//counter/text()", equalTo("123")))
+    		.willReturn(ok())
+    	);
 
-		WireMockResponse response = testClient.postXml("/xpath/advanced", "<counter>6666</counter>");
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postXml("/xpath/advanced", "<counter>6666</counter>");
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postXml("/xpath/advanced", "<counter>123</counter>");
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postXml("/xpath/advanced", "<counter>123</counter>");
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void highPriorityMappingMatchedFirst() {
-		stubFor(get(urlMatching("/priority/.*")).atPriority(10)
-				.willReturn(aResponse()
-						.withStatus(500)));
-		stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
+    @Test
+    public void highPriorityMappingMatchedFirst() {
+    	stubFor(get(urlMatching("/priority/.*")).atPriority(10)
+    			.willReturn(aResponse()
+    					.withStatus(500)));
+    	stubFor(get(urlEqualTo("/priority/resource")).atPriority(2).willReturn(aResponse().withStatus(200)));
 
-		assertThat(testClient.get("/priority/resource").statusCode(), is(200));
-	}
+    	assertThat(testClient.get("/priority/resource").statusCode(), is(200));
+    }
 
-	@Rule
-	public final ExpectedException exception = ExpectedException.none();
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
-	@Test
-	public void connectionResetByPeerFault() {
-		stubFor(get(urlEqualTo("/connection/reset")).willReturn(
+    @Test
+    public void connectionResetByPeerFault() {
+    	stubFor(get(urlEqualTo("/connection/reset")).willReturn(
                 aResponse()
                 .withFault(Fault.CONNECTION_RESET_BY_PEER)));
 
-		exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
-		exception.expectMessage("java.net.SocketException: Connection reset");
-		testClient.get("/connection/reset");
-	}
+    	exception.expectCause(IsInstanceOf.<Throwable>instanceOf(SocketException.class));
+    	exception.expectMessage("java.net.SocketException: Connection reset");
+    	testClient.get("/connection/reset");
+    }
 
-	@Test
-	public void emptyResponseFault() {
-		stubFor(get(urlEqualTo("/empty/response")).willReturn(
+    @Test
+    public void emptyResponseFault() {
+    	stubFor(get(urlEqualTo("/empty/response")).willReturn(
                 aResponse()
                 .withFault(Fault.EMPTY_RESPONSE)));
 
-		getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
-	}
+    	getAndAssertUnderlyingExceptionInstanceClass("/empty/response", NoHttpResponseException.class);
+    }
 
-	@Test
-	public void malformedResponseChunkFault() {
-		stubFor(get(urlEqualTo("/malformed/response")).willReturn(
+    @Test
+    public void malformedResponseChunkFault() {
+    	stubFor(get(urlEqualTo("/malformed/response")).willReturn(
                 aResponse()
                 .withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
 
-		getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
-	}
+    	getAndAssertUnderlyingExceptionInstanceClass("/malformed/response", MalformedChunkCodingException.class);
+    }
 
-	@Test
-	public void randomDataOnSocketFault() {
-		stubFor(get(urlEqualTo("/random/data")).willReturn(
+    @Test
+    public void randomDataOnSocketFault() {
+    	stubFor(get(urlEqualTo("/random/data")).willReturn(
                 aResponse()
                 .withFault(Fault.RANDOM_DATA_THEN_CLOSE)));
 
-		getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
-	}
+    	getAndAssertUnderlyingExceptionInstanceClass("/random/data", ClientProtocolException.class);
+    }
 
-	@Test
-	public void matchingUrlsWithEscapeCharacters() {
-		stubFor(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
-		assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
-	}
+    @Test
+    public void matchingUrlsWithEscapeCharacters() {
+    	stubFor(get(urlEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+    	assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingUrlPathsWithEscapeCharacters() {
-	    stubFor(get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
-	    assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
-	}
+    @Test
+    public void matchingUrlPathsWithEscapeCharacters() {
+        stubFor(get(urlPathEqualTo("/%26%26The%20Lord%20of%20the%20Rings%26%26")).willReturn(aResponse().withStatus(HTTP_OK)));
+        assertThat(testClient.get("/%26%26The%20Lord%20of%20the%20Rings%26%26").statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void default200ResponseWhenStatusCodeNotSpecified() {
-		stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
-		assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
-	}
+    @Test
+    public void default200ResponseWhenStatusCodeNotSpecified() {
+    	stubFor(get(urlEqualTo("/default/two-hundred")).willReturn(aResponse()));
+    	assertThat(testClient.get("/default/two-hundred").statusCode(), is(HTTP_OK));
+    }
 
     @Test
     public void returningBinaryBody() {
@@ -448,35 +448,35 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void stubbingPatch() {
         stubFor(patch(urlEqualTo("/a/registered/resource")).withRequestBody(equalTo("some body"))
-				.willReturn(aResponse().withStatus(204)));
+    			.willReturn(aResponse().withStatus(204)));
 
         WireMockResponse response = testClient.patchWithBody("/a/registered/resource", "some body", "text/plain");
 
         assertThat(response.statusCode(), is(204));
     }
 
-	@Test
-	public void stubbingArbitraryMethod() {
-		stubFor(request("KILL", urlEqualTo("/some/url"))
-				.willReturn(aResponse().withStatus(204)));
+    @Test
+    public void stubbingArbitraryMethod() {
+    	stubFor(request("KILL", urlEqualTo("/some/url"))
+    			.willReturn(aResponse().withStatus(204)));
 
-		WireMockResponse response = testClient.request("KILL", "/some/url");
+    	WireMockResponse response = testClient.request("KILL", "/some/url");
 
-		assertThat(response.statusCode(), is(204));
-	}
+    	assertThat(response.statusCode(), is(204));
+    }
 
-	@Test
-	public void settingStatusMessage() {
-		stubFor(get(urlEqualTo("/status-message")).willReturn(
-			aResponse()
-				.withStatus(500)
-				.withStatusMessage("The bees! They're in my eyes!")));
+    @Test
+    public void settingStatusMessage() {
+    	stubFor(get(urlEqualTo("/status-message")).willReturn(
+    		aResponse()
+    			.withStatus(500)
+    			.withStatusMessage("The bees! They're in my eyes!")));
 
-		assertThat(testClient.get("/status-message").statusMessage(), is("The bees! They're in my eyes!"));
-	}
+    	assertThat(testClient.get("/status-message").statusMessage(), is("The bees! They're in my eyes!"));
+    }
 
-	@Test
-	public void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
+    @Test
+    public void doesNotAttemptToMatchXmlBodyWhenStubMappingDoesNotHaveOne() {
         stubFor(options(urlEqualTo("/no-body")).willReturn(aResponse().withStatus(200)));
         stubFor(post(urlEqualTo("/no-body"))
             .withRequestBody(equalToXml("<some-xml />"))
@@ -486,27 +486,27 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
     }
 
-	@Test
-	public void matchXmlBodyWhenTextNodeIsIgnored() {
-		String url = "/ignore/my/xml";
+    @Test
+    public void matchXmlBodyWhenTextNodeIsIgnored() {
+    	String url = "/ignore/my/xml";
 
-		stubFor(post(url)
-				.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", true, "#\\{", "}"))
-				.willReturn(ok()));
+    	stubFor(post(url)
+    			.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", true, "#\\{", "}"))
+    			.willReturn(ok()));
 
-		assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(200));
-	}
+    	assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(200));
+    }
 
-	@Test
-	public void doesNotIgnoreXmlWhenPlaceholderMatchingIsFalse() {
-		String url = "/do-not-ignore/my/xml";
+    @Test
+    public void doesNotIgnoreXmlWhenPlaceholderMatchingIsFalse() {
+    	String url = "/do-not-ignore/my/xml";
 
-		stubFor(post(url)
-				.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", false, "#\\{", "}"))
-				.willReturn(ok()));
+    	stubFor(post(url)
+    			.withRequestBody(equalToXml("<a>#{xmlunit.ignore}</a>", false, "#\\{", "}"))
+    			.willReturn(ok()));
 
-		assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(404));
-	}
+    	assertThat(testClient.postXml(url, "<a>123</a>").statusCode(), is(404));
+    }
 
     @Test
     public void matchesQueryParamsUnencoded() {
@@ -518,7 +518,7 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
     }
 
-	@Test
+    @Test
     public void copesWithEmptyRequestHeaderValueWhenMatchingOnEqualTo() {
         stubFor(get(urlPathEqualTo("/empty-header"))
             .withHeader("X-My-Header", equalTo(""))
@@ -529,8 +529,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(response.statusCode(), is(200));
     }
 
-	@Test
-	public void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
+    @Test
+    public void assignsAnIdAndReturnsNewlyCreatedStubMapping() {
         StubMapping stubMapping = stubFor(get(anyUrl()).willReturn(aResponse()));
         assertThat(stubMapping.getId(), notNullValue());
 
@@ -538,8 +538,8 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         assertThat(localStubMapping.getId(), notNullValue());
     }
 
-	@Test
-	public void getsASingleStubMappingById() {
+    @Test
+    public void getsASingleStubMappingById() {
         UUID id = UUID.randomUUID();
         stubFor(get(anyUrl())
             .withId(id)
@@ -558,135 +558,135 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
-	public void stubMappingsCanOptionallyBeNamed() {
-	    stubFor(any(urlPathEqualTo("/things"))
+    public void stubMappingsCanOptionallyBeNamed() {
+        stubFor(any(urlPathEqualTo("/things"))
             .withName("Get all the things")
             .willReturn(aResponse().withBody("Named stub")));
 
-	    assertThat(listAllStubMappings().getMappings(), hasItem(named("Get all the things")));
+        assertThat(listAllStubMappings().getMappings(), hasItem(named("Get all the things")));
     }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithTwoRegexes() {
-		stubFor(post(urlEqualTo("/match/this/part"))
-				.withMultipartRequestBody(
-						aMultipart().withBody(matching(".*Blah.*"))
-				)
-				.withMultipartRequestBody(
-						aMultipart().withBody(matching(".*@[0-9]{5}@.*"))
-				)
-				.willReturn(aResponse()
-						.withStatus(HTTP_OK)
-						.withBodyFile("plain-example.txt")));
+    @Test
+    public void matchingOnMultipartRequestBodyWithTwoRegexes() {
+    	stubFor(post(urlEqualTo("/match/this/part"))
+    			.withMultipartRequestBody(
+    					aMultipart().withBody(matching(".*Blah.*"))
+    			)
+    			.withMultipartRequestBody(
+    					aMultipart().withBody(matching(".*@[0-9]{5}@.*"))
+    			)
+    			.willReturn(aResponse()
+    					.withStatus(HTTP_OK)
+    					.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part", singletonList(part("part-1", "Blah...but not the rest", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
-		response = testClient.postWithMultiparts("/match/this/part", singletonList(part("part-1", "@12345@...but not the rest", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/match/this/part", singletonList(part("part-1", "Blah...but not the rest", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	response = testClient.postWithMultiparts("/match/this/part", singletonList(part("part-1", "@12345@...but not the rest", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part", singletonList(part("good-part", "BlahBlah@56565@Blah", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/match/this/part", singletonList(part("good-part", "BlahBlah@56565@Blah", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithAContainsAndANegativeRegex() {
-		stubFor(post(urlEqualTo("/match/this/part/too"))
-				.withMultipartRequestBody(
-						aMultipart()
-								.withName("part-name")
-								.withBody(containing("Blah"))
-								.withBody(notMatching(".*[0-9]+.*"))
-				)
-				.willReturn(aResponse()
-						.withStatus(HTTP_OK)
-						.withBodyFile("plain-example.txt")));
+    @Test
+    public void matchingOnMultipartRequestBodyWithAContainsAndANegativeRegex() {
+    	stubFor(post(urlEqualTo("/match/this/part/too"))
+    			.withMultipartRequestBody(
+    					aMultipart()
+    							.withName("part-name")
+    							.withBody(containing("Blah"))
+    							.withBody(notMatching(".*[0-9]+.*"))
+    			)
+    			.willReturn(aResponse()
+    					.withStatus(HTTP_OK)
+    					.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part-name", "Blah12345", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part-name", "Blah12345", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part-name", "BlahBlahBlah", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithEqualTo() {
-		stubFor(post(urlEqualTo("/match/this/part/too"))
-				.withMultipartRequestBody(
-						aMultipart()
-								.withHeader("Content-Type", containing("text/plain"))
-								.withBody(equalTo("BlahBlahBlah"))
-				)
-				.willReturn(aResponse()
-						.withStatus(HTTP_OK)
-						.withBodyFile("plain-example.txt")));
+    @Test
+    public void matchingOnMultipartRequestBodyWithEqualTo() {
+    	stubFor(post(urlEqualTo("/match/this/part/too"))
+    			.withMultipartRequestBody(
+    					aMultipart()
+    							.withHeader("Content-Type", containing("text/plain"))
+    							.withBody(equalTo("BlahBlahBlah"))
+    			)
+    			.willReturn(aResponse()
+    					.withStatus(HTTP_OK)
+    					.withBodyFile("plain-example.txt")));
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part", "Blah12345", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part", "Blah12345", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part", "BlahBlahBlah", TEXT_PLAIN)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/match/this/part/too", singletonList(part("part", "BlahBlahBlah", TEXT_PLAIN)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
-		byte[] requestBody = new byte[] { 1, 2, 3 };
+    @Test
+    public void matchingOnMultipartRequestBodyWithBinaryEqualTo() {
+    	byte[] requestBody = new byte[] { 1, 2, 3 };
 
-		stubFor(post("/match/part/binary")
-				.withMultipartRequestBody(
-						aMultipart()
-								.withBody(binaryEqualTo(requestBody))
-								.withName("file")
-				)
-				.willReturn(ok("Matched binary"))
-		);
+    	stubFor(post("/match/part/binary")
+    			.withMultipartRequestBody(
+    					aMultipart()
+    							.withBody(binaryEqualTo(requestBody))
+    							.withName("file")
+    			)
+    			.willReturn(ok("Matched binary"))
+    	);
 
-		WireMockResponse response = testClient.postWithMultiparts("/match/part/binary", singletonList(part("file", new byte[] { 9 })));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/match/part/binary", singletonList(part("file", new byte[] { 9 })));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/match/part/binary", singletonList(part("file", requestBody)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/match/part/binary", singletonList(part("file", requestBody)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithAdvancedJsonPath() {
-		stubFor(post("/jsonpath/advanced/part")
-				.withMultipartRequestBody(
-						aMultipart()
-								.withName("json")
-								.withHeader("Content-Type", containing("application/json"))
-								.withBody(matchingJsonPath("$.counter", equalTo("123")))
-				)
-				.willReturn(ok())
-		);
+    @Test
+    public void matchingOnMultipartRequestBodyWithAdvancedJsonPath() {
+    	stubFor(post("/jsonpath/advanced/part")
+    			.withMultipartRequestBody(
+    					aMultipart()
+    							.withName("json")
+    							.withHeader("Content-Type", containing("application/json"))
+    							.withBody(matchingJsonPath("$.counter", equalTo("123")))
+    			)
+    			.willReturn(ok())
+    	);
 
-		WireMockResponse response = testClient.postWithMultiparts("/jsonpath/advanced/part", singletonList(part("json", "{ \"counter\": 234 }", APPLICATION_JSON)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/jsonpath/advanced/part", singletonList(part("json", "{ \"counter\": 234 }", APPLICATION_JSON)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/jsonpath/advanced/part", singletonList(part("json", "{ \"counter\": 123 }", APPLICATION_JSON)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/jsonpath/advanced/part", singletonList(part("json", "{ \"counter\": 123 }", APPLICATION_JSON)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
-	@Test
-	public void matchingOnMultipartRequestBodyWithAdvancedXPath() {
-		stubFor(post("/xpath/advanced/part")
-				.withMultipartRequestBody(
-						aMultipart()
-								.withName("xml")
-								.withHeader("Content-Type", containing("application/xml"))
-								.withBody(matchingXPath("//counter/text()", equalTo("123")))
-				)
-				.willReturn(ok())
-		);
+    @Test
+    public void matchingOnMultipartRequestBodyWithAdvancedXPath() {
+    	stubFor(post("/xpath/advanced/part")
+    			.withMultipartRequestBody(
+    					aMultipart()
+    							.withName("xml")
+    							.withHeader("Content-Type", containing("application/xml"))
+    							.withBody(matchingXPath("//counter/text()", equalTo("123")))
+    			)
+    			.willReturn(ok())
+    	);
 
-		WireMockResponse response = testClient.postWithMultiparts("/xpath/advanced/part", singletonList(part("xml", "<counter>6666</counter>", APPLICATION_XML)));
-		assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
+    	WireMockResponse response = testClient.postWithMultiparts("/xpath/advanced/part", singletonList(part("xml", "<counter>6666</counter>", APPLICATION_XML)));
+    	assertThat(response.statusCode(), is(HTTP_NOT_FOUND));
 
-		response = testClient.postWithMultiparts("/xpath/advanced/part", singletonList(part("xml", "<counter>123</counter>", APPLICATION_XML)));
-		assertThat(response.statusCode(), is(HTTP_OK));
-	}
+    	response = testClient.postWithMultiparts("/xpath/advanced/part", singletonList(part("xml", "<counter>123</counter>", APPLICATION_XML)));
+    	assertThat(response.statusCode(), is(HTTP_OK));
+    }
 
     private Matcher<StubMapping> named(final String name) {
-	    return new TypeSafeMatcher<StubMapping>() {
+        return new TypeSafeMatcher<StubMapping>() {
             @Override
             public void describeTo(Description description) {
                 description.appendText("named " + name);
@@ -699,16 +699,16 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
         };
     }
 
-	private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
-		boolean thrown = false;
-		try {
-			WireMockResponse response = testClient.get(url);
-			response.content();
-		} catch (Exception e) {
-			assertThat(e.getCause(), instanceOf(expectedClass));
-			thrown = true;
-		}
+    private void getAndAssertUnderlyingExceptionInstanceClass(String url, Class<?> expectedClass) {
+    	boolean thrown = false;
+    	try {
+    		WireMockResponse response = testClient.get(url);
+    		response.content();
+    	} catch (Exception e) {
+    		assertThat(e.getCause(), instanceOf(expectedClass));
+    		thrown = true;
+    	}
 
-		assertTrue("No exception was thrown", thrown);
-	}
+    	assertTrue("No exception was thrown", thrown);
+    }
 }

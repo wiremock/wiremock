@@ -43,48 +43,48 @@ import static com.google.common.collect.Iterables.tryFind;
 
 
 public class InMemoryStubMappings implements StubMappings {
-	
-	private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
-	private final Scenarios scenarios = new Scenarios();
-	private final Map<String, RequestMatcherExtension> customMatchers;
+    
+    private final SortedConcurrentMappingSet mappings = new SortedConcurrentMappingSet();
+    private final Scenarios scenarios = new Scenarios();
+    private final Map<String, RequestMatcherExtension> customMatchers;
     private final Map<String, ResponseDefinitionTransformer> transformers;
     private final FileSource rootFileSource;
     private final List<StubLifecycleListener> stubLifecycleListeners;
 
-	public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
-		this.customMatchers = customMatchers;
+    public InMemoryStubMappings(Map<String, RequestMatcherExtension> customMatchers, Map<String, ResponseDefinitionTransformer> transformers, FileSource rootFileSource, List<StubLifecycleListener> stubLifecycleListeners) {
+    	this.customMatchers = customMatchers;
         this.transformers = transformers;
         this.rootFileSource = rootFileSource;
-		this.stubLifecycleListeners = stubLifecycleListeners;
-	}
+    	this.stubLifecycleListeners = stubLifecycleListeners;
+    }
 
-	public InMemoryStubMappings() {
-		this(Collections.<String, RequestMatcherExtension>emptyMap(),
+    public InMemoryStubMappings() {
+    	this(Collections.<String, RequestMatcherExtension>emptyMap(),
              Collections.<String, ResponseDefinitionTransformer>emptyMap(),
              new SingleRootFileSource("."),
-			 Collections.<StubLifecycleListener>emptyList()
-		);
-	}
+    		 Collections.<StubLifecycleListener>emptyList()
+    	);
+    }
 
-	@Override
-	public ServeEvent serveFor(Request request) {
-		StubMapping matchingMapping = find(
-				mappings,
-				mappingMatchingAndInCorrectScenarioState(request),
-				StubMapping.NOT_CONFIGURED);
-		
-		scenarios.onStubServed(matchingMapping);
+    @Override
+    public ServeEvent serveFor(Request request) {
+    	StubMapping matchingMapping = find(
+    			mappings,
+    			mappingMatchingAndInCorrectScenarioState(request),
+    			StubMapping.NOT_CONFIGURED);
+    	
+    	scenarios.onStubServed(matchingMapping);
 
         ResponseDefinition responseDefinition = applyTransformations(request,
             matchingMapping.getResponse(),
             ImmutableList.copyOf(transformers.values()));
 
-		return ServeEvent.of(
+    	return ServeEvent.of(
             LoggedRequest.createFrom(request),
             copyOf(responseDefinition),
             matchingMapping
         );
-	}
+    }
 
     private ResponseDefinition applyTransformations(Request request,
                                                     ResponseDefinition responseDefinition,
@@ -97,115 +97,115 @@ public class InMemoryStubMappings implements StubMappings {
         ResponseDefinition newResponseDef =
             transformer.applyGlobally() || responseDefinition.hasTransformer(transformer) ?
                 transformer.transform(
-                		request,
-						responseDefinition,
-						rootFileSource.child(FILES_ROOT),
-						firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty())
-				) :
+                    	request,
+    					responseDefinition,
+    					rootFileSource.child(FILES_ROOT),
+    					firstNonNull(responseDefinition.getTransformerParameters(), Parameters.empty())
+    			) :
                 responseDefinition;
 
         return applyTransformations(request, newResponseDef, transformers.subList(1, transformers.size()));
     }
 
-	@Override
-	public void addMapping(StubMapping mapping) {
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.beforeStubCreated(mapping);
-		}
+    @Override
+    public void addMapping(StubMapping mapping) {
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.beforeStubCreated(mapping);
+    	}
 
-		mappings.add(mapping);
-		scenarios.onStubMappingAdded(mapping);
+    	mappings.add(mapping);
+    	scenarios.onStubMappingAdded(mapping);
 
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.afterStubCreated(mapping);
-		}
-	}
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.afterStubCreated(mapping);
+    	}
+    }
 
-	@Override
-	public void removeMapping(StubMapping mapping) {
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.beforeStubRemoved(mapping);
-		}
+    @Override
+    public void removeMapping(StubMapping mapping) {
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.beforeStubRemoved(mapping);
+    	}
 
-		mappings.remove(mapping);
-		scenarios.onStubMappingRemoved(mapping);
+    	mappings.remove(mapping);
+    	scenarios.onStubMappingRemoved(mapping);
 
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.afterStubRemoved(mapping);
-		}
-	}
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.afterStubRemoved(mapping);
+    	}
+    }
 
-	@Override
-	public void editMapping(StubMapping stubMapping) {
-		final Optional<StubMapping> optionalExistingMapping = tryFind(
-				mappings,
-				mappingMatchingUuid(stubMapping.getUuid())
-		);
+    @Override
+    public void editMapping(StubMapping stubMapping) {
+    	final Optional<StubMapping> optionalExistingMapping = tryFind(
+    			mappings,
+    			mappingMatchingUuid(stubMapping.getUuid())
+    	);
 
-		if (!optionalExistingMapping.isPresent()) {
-			String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
-			notifier().error(msg);
-			throw new RuntimeException(msg);
-		}
+    	if (!optionalExistingMapping.isPresent()) {
+    		String msg = "StubMapping with UUID: " + stubMapping.getUuid() + " not found";
+    		notifier().error(msg);
+    		throw new RuntimeException(msg);
+    	}
 
-		final StubMapping existingMapping = optionalExistingMapping.get();
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.beforeStubEdited(existingMapping, stubMapping);
-		}
+    	final StubMapping existingMapping = optionalExistingMapping.get();
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.beforeStubEdited(existingMapping, stubMapping);
+    	}
 
-		stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
-		stubMapping.setDirty(true);
+    	stubMapping.setInsertionIndex(existingMapping.getInsertionIndex());
+    	stubMapping.setDirty(true);
 
-		mappings.replace(existingMapping, stubMapping);
-		scenarios.onStubMappingUpdated(existingMapping, stubMapping);
+    	mappings.replace(existingMapping, stubMapping);
+    	scenarios.onStubMappingUpdated(existingMapping, stubMapping);
 
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.afterStubEdited(existingMapping, stubMapping);
-		}
-	}
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.afterStubEdited(existingMapping, stubMapping);
+    	}
+    }
 
 
-	@Override
-	public void reset() {
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.beforeStubsReset();
-		}
+    @Override
+    public void reset() {
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.beforeStubsReset();
+    	}
 
-		mappings.clear();
+    	mappings.clear();
         scenarios.clear();
 
-		for (StubLifecycleListener listener: stubLifecycleListeners) {
-			listener.afterStubsReset();
-		}
-	}
-	
-	@Override
-	public void resetScenarios() {
-		scenarios.reset();
-	}
+    	for (StubLifecycleListener listener: stubLifecycleListeners) {
+    		listener.afterStubsReset();
+    	}
+    }
+    
+    @Override
+    public void resetScenarios() {
+    	scenarios.reset();
+    }
 
     @Override
     public List<StubMapping> getAll() {
         return ImmutableList.copyOf(mappings);
     }
 
-	@Override
-	public Optional<StubMapping> get(final UUID id) {
-		return tryFind(mappings, new Predicate<StubMapping>() {
-			@Override
-			public boolean apply(StubMapping input) {
-				return input.getUuid().equals(id);
-			}
-		});
-	}
+    @Override
+    public Optional<StubMapping> get(final UUID id) {
+    	return tryFind(mappings, new Predicate<StubMapping>() {
+    		@Override
+    		public boolean apply(StubMapping input) {
+    			return input.getUuid().equals(id);
+    		}
+    	});
+    }
 
-	@Override
-	public List<Scenario> getAllScenarios() {
-		return scenarios.getAll();
-	}
+    @Override
+    public List<Scenario> getAllScenarios() {
+    	return scenarios.getAll();
+    }
 
-	@Override
-	public List<StubMapping> findByMetadata(final StringValuePattern pattern) {
+    @Override
+    public List<StubMapping> findByMetadata(final StringValuePattern pattern) {
         return from(mappings).filter(new Predicate<StubMapping>() {
             @Override
             public boolean apply(StubMapping stub) {
@@ -213,27 +213,27 @@ public class InMemoryStubMappings implements StubMappings {
                 return pattern.match(metadataJson).isExactMatch();
             }
         }).toList();
-	}
+    }
 
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioState(final Request request) {
-		return mappingMatchingAndInCorrectScenarioStateNew(request);
+    	return mappingMatchingAndInCorrectScenarioStateNew(request);
     }
 
     private Predicate<StubMapping> mappingMatchingAndInCorrectScenarioStateNew(final Request request) {
-		return new Predicate<StubMapping>() {
-			public boolean apply(StubMapping mapping) {
-				return mapping.getRequest().match(request, customMatchers).isExactMatch() &&
-				(mapping.isIndependentOfScenarioState() || scenarios.mappingMatchesScenarioState(mapping));
-			}
-		};
-	}
+    	return new Predicate<StubMapping>() {
+    		public boolean apply(StubMapping mapping) {
+    			return mapping.getRequest().match(request, customMatchers).isExactMatch() &&
+    			(mapping.isIndependentOfScenarioState() || scenarios.mappingMatchesScenarioState(mapping));
+    		}
+    	};
+    }
 
-	private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
-		return new Predicate<StubMapping>() {
-			@Override
-			public boolean apply(StubMapping input) {
-				return input.getUuid().equals(uuid);
-			}
-		};
-	}
+    private Predicate<StubMapping> mappingMatchingUuid(final UUID uuid) {
+    	return new Predicate<StubMapping>() {
+    		@Override
+    		public boolean apply(StubMapping input) {
+    			return input.getUuid().equals(uuid);
+    		}
+    	};
+    }
 }

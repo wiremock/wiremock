@@ -28,54 +28,54 @@ import static org.junit.Assert.assertThat;
 
 
 public class WireMockClientAcceptanceTest {
-	
-	private WireMockServer wireMockServer;
-	private WireMockTestClient testClient;
+    
+    private WireMockServer wireMockServer;
+    private WireMockTestClient testClient;
 
-	@Before
-	public void init() {
-		wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
-		wireMockServer.start();
-		WireMock.configureFor(wireMockServer.port());
-		testClient = new WireMockTestClient(wireMockServer.port());
-	}
-	
-	@After
-	public void stopServer() {
-		wireMockServer.stop();
-	}
+    @Before
+    public void init() {
+    	wireMockServer = new WireMockServer(Options.DYNAMIC_PORT);
+    	wireMockServer.start();
+    	WireMock.configureFor(wireMockServer.port());
+    	testClient = new WireMockTestClient(wireMockServer.port());
+    }
+    
+    @After
+    public void stopServer() {
+    	wireMockServer.stop();
+    }
 
-	@Test
-	public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
-		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withStatus(304)));
-		
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
-	
-	@Test
-	public void buildsMappingFromStaticSyntax() {
-		givenThat(get(urlEqualTo("/my/new/resource"))
-					.willReturn(aResponse()
-						.withStatus(304)));
-		
-		assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
-	}
-	
-	@Test
-	public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
-		WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
-		wireMock.register(
-				get(urlEqualTo("/my/new/resource"))
-				.willReturn(
-						aResponse()
-						.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
-						.withStatus(200)));
+    @Test
+    public void buildsMappingWithUrlOnlyRequestAndStatusOnlyResponse() {
+    	WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
+    	wireMock.register(
+    			get(urlEqualTo("/my/new/resource"))
+    			.willReturn(
+    					aResponse()
+    					.withStatus(304)));
+    	
+    	assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+    }
+    
+    @Test
+    public void buildsMappingFromStaticSyntax() {
+    	givenThat(get(urlEqualTo("/my/new/resource"))
+    				.willReturn(aResponse()
+    					.withStatus(304)));
+    	
+    	assertThat(testClient.get("/my/new/resource").statusCode(), is(304));
+    }
+    
+    @Test
+    public void buildsMappingWithUrlOnyRequestAndResponseWithJsonBodyWithDiacriticSigns() {
+    	WireMock wireMock = WireMock.create().port(wireMockServer.port()).build();
+    	wireMock.register(
+    			get(urlEqualTo("/my/new/resource"))
+    			.willReturn(
+    					aResponse()
+    					.withBody("{\"address\":\"Puerto Banús, Málaga\"}")
+    					.withStatus(200)));
 
-		assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
-	}
+    	assertThat(testClient.get("/my/new/resource").content(), is("{\"address\":\"Puerto Banús, Málaga\"}"));
+    }
 }

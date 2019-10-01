@@ -131,10 +131,10 @@ public class RequestPatternTest {
         String actualJson = Json.write(requestPattern);
 
         JSONAssert.assertEquals(
-            "{									                \n" +
-                "		\"method\": \"GET\",						\n" +
-                "		\"url\": \"/my/url\"                		\n" +
-                "}												    ",
+            "{    								                \n" +
+                "    	\"method\": \"GET\",						\n" +
+                "    	\"url\": \"/my/url\"                		\n" +
+                "}    											    ",
             actualJson,
             true);
     }
@@ -148,10 +148,10 @@ public class RequestPatternTest {
         String actualJson = Json.write(requestPattern);
 
         JSONAssert.assertEquals(
-            "{									                \n" +
-            "		\"method\": \"GET\",						\n" +
-            "		\"urlPattern\": \"/my/url\"           		\n" +
-            "}												    ",
+            "{    								                \n" +
+            "    	\"method\": \"GET\",						\n" +
+            "    	\"urlPattern\": \"/my/url\"           		\n" +
+            "}    											    ",
             actualJson,
             true);
     }
@@ -165,10 +165,10 @@ public class RequestPatternTest {
         String actualJson = Json.write(requestPattern);
 
         JSONAssert.assertEquals(
-            "{									                \n" +
-            "		\"method\": \"GET\",						\n" +
-            "		\"urlPathPattern\": \"/my/url\"             \n" +
-            "}												    ",
+            "{    								                \n" +
+            "    	\"method\": \"GET\",						\n" +
+            "    	\"urlPathPattern\": \"/my/url\"             \n" +
+            "}    											    ",
             actualJson,
             true);
     }
@@ -190,18 +190,18 @@ public class RequestPatternTest {
     }
 
     static final String URL_PATH_AND_HEADERS_EXAMPLE =
-        "{									                \n" +
-        "		\"method\": \"GET\",						\n" +
-        "		\"urlPath\": \"/my/url\",             		\n" +
-        "		\"headers\": {								\n" +
-        "			\"Accept\": {							\n" +
-        "				\"matches\": \"(.*)xml(.*)\"		\n" +
-        "			},										\n" +
-        "			\"If-None-Match\": {					\n" +
-        "				\"matches\": \"([a-z0-9]*)\"		\n" +
-        "			}										\n" +
-        "		}											\n" +
-        "}												    ";
+        "{    								                \n" +
+        "    	\"method\": \"GET\",						\n" +
+        "    	\"urlPath\": \"/my/url\",             		\n" +
+        "    	\"headers\": {								\n" +
+        "    		\"Accept\": {							\n" +
+        "    			\"matches\": \"(.*)xml(.*)\"		\n" +
+        "    		},										\n" +
+        "    		\"If-None-Match\": {					\n" +
+        "    			\"matches\": \"([a-z0-9]*)\"		\n" +
+        "    		}										\n" +
+        "    	}											\n" +
+        "}    											    ";
 
     @Test
     public void matchesExactlyWith0DistanceWhenAllRequiredQueryParametersMatch() {

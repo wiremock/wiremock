@@ -19,33 +19,33 @@ import com.github.tomakehurst.wiremock.core.FaultInjector;
 
 public enum Fault {
 
-	CONNECTION_RESET_BY_PEER {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.connectionResetByPeer();
-		}
-	},
+    CONNECTION_RESET_BY_PEER {
+    	@Override
+    	public void apply(FaultInjector faultInjector) {
+    		faultInjector.connectionResetByPeer();
+    	}
+    },
 
-	EMPTY_RESPONSE {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.emptyResponseAndCloseConnection();
-		}
-	},
-	
-	MALFORMED_RESPONSE_CHUNK {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.malformedResponseChunk();
-		}
-	},
-	
-	RANDOM_DATA_THEN_CLOSE {
-		@Override
-		public void apply(FaultInjector faultInjector) {
-			faultInjector.randomDataAndCloseConnection();
-		}
-	};
-	
-	public abstract void apply(FaultInjector faultInjector);
+    EMPTY_RESPONSE {
+    	@Override
+    	public void apply(FaultInjector faultInjector) {
+    		faultInjector.emptyResponseAndCloseConnection();
+    	}
+    },
+    
+    MALFORMED_RESPONSE_CHUNK {
+    	@Override
+    	public void apply(FaultInjector faultInjector) {
+    		faultInjector.malformedResponseChunk();
+    	}
+    },
+    
+    RANDOM_DATA_THEN_CLOSE {
+    	@Override
+    	public void apply(FaultInjector faultInjector) {
+    		faultInjector.randomDataAndCloseConnection();
+    	}
+    };
+    
+    public abstract void apply(FaultInjector faultInjector);
 }

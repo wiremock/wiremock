@@ -19,6 +19,6 @@ import com.github.tomakehurst.wiremock.stubbing.StubMappings;
 
 public interface MappingsLoader {
 
-	void loadMappingsInto(StubMappings stubMappings);
+    void loadMappingsInto(StubMappings stubMappings);
 
 }

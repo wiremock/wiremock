@@ -23,14 +23,14 @@ public interface FileSource {
 
     BinaryFile getBinaryFileNamed(String name);
     TextFile getTextFileNamed(String name);
-	void createIfNecessary();
-	FileSource child(String subDirectoryName);
-	String getPath();
-	URI getUri();
-	List<TextFile> listFilesRecursively();
-	void writeTextFile(String name, String contents);
+    void createIfNecessary();
+    FileSource child(String subDirectoryName);
+    String getPath();
+    URI getUri();
+    List<TextFile> listFilesRecursively();
+    void writeTextFile(String name, String contents);
     void writeBinaryFile(String name, byte[] contents);
     boolean exists();
 
-	void deleteFile(String name);
+    void deleteFile(String name);
 }
