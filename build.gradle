@@ -210,7 +210,7 @@ subprojects {
         relocate "org.mortbay", 'wiremock.org.mortbay'
         relocate "org.eclipse", 'wiremock.org.eclipse'
         relocate "org.codehaus", 'wiremock.org.codehaus'
-        relocate "com.google.common", 'wiremock.com.google.common'
+        relocate "com.google", 'wiremock.com.google'
         relocate "com.google.thirdparty", 'wiremock.com.google.thirdparty'
         relocate "com.fasterxml.jackson", 'wiremock.com.fasterxml.jackson'
         relocate "org.apache", 'wiremock.org.apache'
@@ -227,6 +227,7 @@ subprojects {
         relocate "com.github.jknack", "wiremock.com.github.jknack"
         relocate "org.antlr", "wiremock.org.antlr"
         relocate "javax.servlet", "wiremock.javax.servlet"
+        relocate "org.checkerframework", "wiremock.org.checkerframework"
 
         dependencies {
             exclude(dependency('junit:junit'))
