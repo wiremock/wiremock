@@ -325,9 +325,6 @@ public class JettyHttpServer implements HttpServer {
         );
         connector.setPort(port);
 
-        connector.setStopTimeout(0);
-        connector.getSelectorManager().setStopTimeout(0);
-
         connector.addNetworkTrafficListener(listener);
 
         setJettySettings(jettySettings, connector);
