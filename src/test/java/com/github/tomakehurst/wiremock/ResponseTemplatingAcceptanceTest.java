@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
 import com.github.tomakehurst.wiremock.testsupport.WireMockResponse;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Before;
@@ -207,6 +208,32 @@ public class ResponseTemplatingAcceptanceTest {
             assertThat(
                     response.content(),
                     response.statusCode(), is(200));
+
+            assertThat(response.content(), WireMatchers.equalToJson("{ \"modified\": \"3\" }"));
+        }
+
+        @Test
+        public void jsonBodyTemplatesCanSpecifyRequestAttributes() {
+            String stubJson = "{\n" +
+                    "  \"request\": {\n" +
+                    "    \"method\": \"GET\",\n" +
+                    "    \"urlPath\": \"/jsonBody/template\"\n" +
+                    "  },\n" +
+                    "  \"response\": {\n" +
+                    "    \"jsonBody\": {\n" +
+                    "      \"Key\": \"Hello world {{request.query.qp}}!\"\n" +
+                    "    },\n" +
+                    "    \"status\": 200,\n" +
+                    "    \"transformers\": [\n" +
+                    "      \"response-template\"\n" +
+                    "    ]\n" +
+                    "  }\n" +
+                    "}";
+            client.postJson("/__admin/mappings", stubJson);
+
+            WireMockResponse response = client.get("/jsonBody/template?qp=2");
+
+            assertThat(response.content(), is("{\"Key\":\"Hello world 2!\"}"));
         }
 
     }
