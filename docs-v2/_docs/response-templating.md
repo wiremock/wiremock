@@ -116,7 +116,7 @@ The body file for a response can be selected dynamically by templating the file 
 ```java
 wm.stubFor(get(urlPathMatching("/static/.*"))
   .willReturn(ok()
-    .withBodyFile("files/{{request.pathSegments.[1]}}")));
+    .withBodyFile("files/{{request.requestLine.pathSegments.[1]}}")));
 
 ```
 {% endraw %}
@@ -132,7 +132,7 @@ wm.stubFor(get(urlPathMatching("/static/.*"))
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
+    "bodyFileName" : "files/{{request.requestLine.pathSegments.[1]}}"
   }
 }
 ```
@@ -145,7 +145,7 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.requestLine.path` - URL path
 
-`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
+`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.requestLine.pathSegments.[2]`
 
 `request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
