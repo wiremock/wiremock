@@ -15,6 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.extension.responsetemplating;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.helper.AssignHelper;
@@ -24,6 +25,7 @@ import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.common.Exceptions;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.common.TextFile;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
@@ -141,8 +143,9 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
                 .build();
 
         if (responseDefinition.specifiesTextBodyContent()) {
+            boolean isJsonBody = responseDefinition.getJsonBody() != null;
             HandlebarsOptimizedTemplate bodyTemplate = getTemplate(TemplateCacheKey.forInlineBody(responseDefinition), responseDefinition.getTextBody());
-            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
+            applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, isJsonBody);
         } else if (responseDefinition.specifiesBodyFile()) {
             HandlebarsOptimizedTemplate filePathTemplate = new HandlebarsOptimizedTemplate(handlebars, responseDefinition.getBodyFileName());
             String compiledFilePath = uncheckedApplyTemplate(filePathTemplate, model);
@@ -154,7 +157,7 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
                 TextFile file = files.getTextFileNamed(compiledFilePath);
                 HandlebarsOptimizedTemplate bodyTemplate = getTemplate(
                         TemplateCacheKey.forFileBody(responseDefinition, compiledFilePath), file.readContentsAsString());
-                applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate);
+                applyTemplatedResponseBody(newResponseDefBuilder, model, bodyTemplate, false);
             }
         }
 
@@ -191,9 +194,14 @@ public class ResponseTemplateTransformer extends ResponseDefinitionTransformer i
         return Collections.emptyMap();
     }
 
-    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate) {
+    private void applyTemplatedResponseBody(ResponseDefinitionBuilder newResponseDefBuilder, ImmutableMap<String, Object> model, HandlebarsOptimizedTemplate bodyTemplate, boolean isJsonBody) {
         String newBody = uncheckedApplyTemplate(bodyTemplate, model);
-        newResponseDefBuilder.withBody(newBody);
+        if (isJsonBody) {
+            newResponseDefBuilder.withJsonBody(Json.read(newBody, JsonNode.class));
+        } else {
+            newResponseDefBuilder.withBody(newBody);
+        }
+
     }
 
     private String uncheckedApplyTemplate(HandlebarsOptimizedTemplate template, Object context) {
