@@ -258,6 +258,7 @@ paths:
 
   /__admin/requests/reset:
     post:
+      deprecated: true
       summary: Empty the request journal
       tags:
          - Requests
@@ -284,6 +285,42 @@ paths:
                   count:
                     type: integer
                     example: 4
+
+  /__admin/requests/remove:
+    post:
+      summary: Remove requests by criteria
+      description: Removed requests logged in the journal matching the specified criteria
+      tags:
+         - Requests
+      requestBody:
+        $ref: "#/components/requestBodies/requestPattern"
+      responses:
+        '200':
+          description: Requests removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 4
+                    
+  /__admin/requests/remove-by-metadata:
+    post:
+      summary: Delete requests mappings matching metadata
+      tags:
+        - Requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'schemas/content-pattern.yaml'
+            example:
+              $ref: 'examples/by-metadata-request.yaml'
+      responses:
+        '200':
+          description: 'The stub mappings were successfully removed'
 
   /__admin/requests/find:
     post:
