@@ -28,6 +28,8 @@ The following can optionally be specified on the command line:
 
 `--port`: Set the HTTP port number e.g. `--port 9999`. Use `--port 0` to dynamically determine a port.
 
+`--disable-http`: Disable the HTTP listener, option available only if HTTPS is enabled.
+
 `--https-port`: If specified, enables HTTPS on the supplied port.
 Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the `--port` parameter in order to avoid conflicts.
 
