@@ -374,6 +374,9 @@ public class Examples extends AcceptanceTestBase {
             // Statically set the HTTP port number. Defaults to 8080.
             .port(8000)
 
+            // Disable HTTP listener.
+            .httpDisabled(true)
+
             // Statically set the HTTPS port number. Defaults to 8443.
             .httpsPort(8001)
 

@@ -45,6 +45,7 @@ public interface Options {
     String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();
+    boolean getHttpDisabled();
     HttpsSettings httpsSettings();
     JettySettings jettySettings();
     int containerThreads();
