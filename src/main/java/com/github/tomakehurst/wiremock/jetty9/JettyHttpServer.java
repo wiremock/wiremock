@@ -54,6 +54,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
+    private static final int DEFAULT_ACCEPTORS = 3;
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
@@ -313,7 +314,7 @@ public class JettyHttpServer implements HttpServer {
                                                     NetworkTrafficListener listener,
                                                     ConnectionFactory... connectionFactories) {
 
-        int acceptors = jettySettings.getAcceptors().or(2);
+        int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
         NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(
                 jettyServer,
                 null,
