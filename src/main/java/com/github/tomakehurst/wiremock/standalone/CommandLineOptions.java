@@ -159,7 +159,7 @@ public class CommandLineOptions implements Options {
 
     private void validate() {
         if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
-            throw new IllegalArgumentException("The HTTP listener can't have a port set and disable at the same time");
+            throw new IllegalArgumentException("The HTTP listener can't have a port set and be disabled at the same time");
         }
         if (!optionSet.has(HTTPS_PORT) && optionSet.has(DISABLE_HTTP)) {
             throw new IllegalArgumentException("HTTPS must be enabled if HTTP is not.");
