@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
@@ -59,11 +58,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 public class HttpsAcceptanceTest {
 
@@ -85,6 +81,19 @@ public class HttpsAcceptanceTest {
     @Test
     public void shouldReturnStubOnSpecifiedPort() throws Exception {
         startServerWithDefaultKeystore();
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Test
+    public void shouldReturnStubOnHttpsWhenHttpDisabled() throws Exception {
+        WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configureFor("https", "localhost", wireMockServer.port());
+        httpClient = HttpClientFactory.createClient();
+
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
