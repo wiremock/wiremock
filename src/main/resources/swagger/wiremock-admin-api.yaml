@@ -296,15 +296,11 @@ paths:
         $ref: "#/components/requestBodies/requestPattern"
       responses:
         '200':
-          description: Requests removed
+          description: Removed request details
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 4
+              example:
+                $ref: "examples/requests.yaml"
                     
   /__admin/requests/remove-by-metadata:
     post:
@@ -320,7 +316,11 @@ paths:
               $ref: 'examples/by-metadata-request.yaml'
       responses:
         '200':
-          description: 'The stub mappings were successfully removed'
+          description: Removed request details
+          content:
+            application/json:
+              example:
+                $ref: "examples/requests.yaml"
 
   /__admin/requests/find:
     post:
