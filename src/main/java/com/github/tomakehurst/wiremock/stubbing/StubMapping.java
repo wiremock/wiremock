@@ -34,28 +34,28 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 @JsonPropertyOrder({ "id", "name", "request", "newRequest", "response", "uuid" })
 @JsonIgnoreProperties({ "$schema" }) // Allows this to be added as a hint to IDEs like VS Code
 public class StubMapping {
-    
-    public static final int DEFAULT_PRIORITY = 5; 
+	
+	public static final int DEFAULT_PRIORITY = 5; 
 
-    private UUID uuid = UUID.randomUUID();
-    private String name;
+	private UUID uuid = UUID.randomUUID();
+	private String name;
 
-    private boolean persistent;
+	private boolean persistent;
 
-    private RequestPattern request;
-    private ResponseDefinition response;
-    private Integer priority;
-    private String scenarioName;
-    private String requiredScenarioState;
-    private String newScenarioState;
+	private RequestPattern request;
+	private ResponseDefinition response;
+	private Integer priority;
+	private String scenarioName;
+	private String requiredScenarioState;
+	private String newScenarioState;
     private ResponseSequence responseSequence;
 
     private Map<String, Parameters> postServeActions;
 
     private Metadata metadata;
 
-    private long insertionIndex;
-    private boolean isDirty = true;
+	private long insertionIndex;
+	private boolean isDirty = true;
 
     public StubMapping(RequestPattern requestPattern) {
         setRequest(requestPattern);
@@ -63,47 +63,47 @@ public class StubMapping {
 
     public StubMapping(RequestPattern requestPattern, ResponseDefinition response) {
         setRequest(requestPattern);
-        setResponse(response);
+        this.response = response;
     }
 
-    public StubMapping() {
-        //Concession to Jackson
-    }
+	public StubMapping() {
+		//Concession to Jackson
+	}
 
-    public static final StubMapping NOT_CONFIGURED =
-        new StubMapping(null, ResponseDefinition.notConfigured());
+	public static final StubMapping NOT_CONFIGURED =
+	    new StubMapping(null, ResponseDefinition.notConfigured());
 
     public static StubMapping buildFrom(String mappingSpecJson) {
         return Json.read(mappingSpecJson, StubMapping.class);
     }
 
     public static String buildJsonStringFor(StubMapping mapping) {
-        return Json.write(mapping);
-    }
+		return Json.write(mapping);
+	}
 
-    public UUID getUuid() {
-        return uuid;
-    }
+	public UUID getUuid() {
+		return uuid;
+	}
 
-    public void setId(UUID uuid) {
-        this.uuid = uuid;
-    }
+	public void setId(UUID uuid) {
+		this.uuid = uuid;
+	}
 
-    public UUID getId() {
-        return uuid;
-    }
+	public UUID getId() {
+		return uuid;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+    	return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+    	this.name = name;
+	}
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
 
     public boolean shouldBePersisted() {
         return persistent;
@@ -118,46 +118,56 @@ public class StubMapping {
     }
 
     public RequestPattern getRequest() {
-        return firstNonNull(request, RequestPattern.ANYTHING);
-    }
+		return firstNonNull(request, RequestPattern.ANYTHING);
+	}
 
-    public ResponseDefinition yieldResponse() {
-        return firstNonNull(yieldResponseFromSequence(), getResponse());
-    }
+	public void setRequest(RequestPattern request) {
+		this.request = request;
+	}
 
-    public ResponseDefinition getResponse() {
-        return firstNonNull(response, ResponseDefinition.ok());
-    }
+	public ResponseDefinition getResponse() {
+		return firstNonNull(response, ResponseDefinition.ok());
+	}
 
-    @JsonIgnore
-    private ResponseDefinition yieldResponseFromSequence() {
-        if (responseSequence == null) {
-            return null;
-        }
-        return responseSequence.yieldResponse();
-    }
+	public void setResponse(ResponseDefinition response) {
+		this.response = response;
+	}
 
-    public void setRequest(RequestPattern request) {
-        this.request = request;
-    }
+	public ResponseSequence getResponseSequence() {
+		return responseSequence;
+	}
 
-    public void setResponse(ResponseDefinition response) {
-        this.response = response;
-    }
+	public void setResponseSequence(ResponseSequence responseSequence) {
+		this.responseSequence = responseSequence;
+	}
+
+	@JsonIgnore
+	public ResponseDefinition yieldResponse() {
+		return firstNonNull(
+				yieldResponseFromSequence(),
+				getResponse());
+	}
+
+	private ResponseDefinition yieldResponseFromSequence() {
+		if (responseSequence == null) {
+			return null;
+		}
+		return responseSequence.yieldResponse();
+	}
 
     @Override
-    public String toString() {
-        return Json.write(this);
-    }
+	public String toString() {
+		return Json.write(this);
+	}
 
-    @JsonView(Json.PrivateView.class)
-    public long getInsertionIndex() {
-        return insertionIndex;
-    }
+	@JsonView(Json.PrivateView.class)
+	public long getInsertionIndex() {
+		return insertionIndex;
+	}
 
-    public void setInsertionIndex(long insertionIndex) {
-        this.insertionIndex = insertionIndex;
-    }
+	public void setInsertionIndex(long insertionIndex) {
+		this.insertionIndex = insertionIndex;
+	}
 
     @JsonIgnore
     public boolean isDirty() {
@@ -169,58 +179,58 @@ public class StubMapping {
         this.isDirty = isDirty;
     }
 
-    public Integer getPriority() {
-        return priority;
-    }
+	public Integer getPriority() {
+		return priority;
+	}
 
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
 
-    public String getScenarioName() {
-        return scenarioName;
-    }
+	public String getScenarioName() {
+		return scenarioName;
+	}
 
-    public void setScenarioName(String scenarioName) {
-        this.scenarioName = scenarioName;
-    }
+	public void setScenarioName(String scenarioName) {
+		this.scenarioName = scenarioName;
+	}
 
-    public String getRequiredScenarioState() {
-        return requiredScenarioState;
-    }
+	public String getRequiredScenarioState() {
+		return requiredScenarioState;
+	}
 
-    public void setRequiredScenarioState(String requiredScenarioState) {
-        this.requiredScenarioState = requiredScenarioState;
-    }
+	public void setRequiredScenarioState(String requiredScenarioState) {
+		this.requiredScenarioState = requiredScenarioState;
+	}
 
-    public String getNewScenarioState() {
-        return newScenarioState;
-    }
+	public String getNewScenarioState() {
+		return newScenarioState;
+	}
 
-    public void setNewScenarioState(String newScenarioState) {
-        this.newScenarioState = newScenarioState;
-    }
+	public void setNewScenarioState(String newScenarioState) {
+		this.newScenarioState = newScenarioState;
+	}
 
-    @JsonIgnore
-    public boolean isInScenario() {
-        return scenarioName != null;
-    }
+	@JsonIgnore
+	public boolean isInScenario() {
+		return scenarioName != null;
+	}
 
-    @JsonIgnore
-    public boolean modifiesScenarioState() {
-        return newScenarioState != null;
-    }
+	@JsonIgnore
+	public boolean modifiesScenarioState() {
+		return newScenarioState != null;
+	}
 
-    @JsonIgnore
-    public boolean isIndependentOfScenarioState() {
-        return !isInScenario() || requiredScenarioState == null;
-    }
+	@JsonIgnore
+	public boolean isIndependentOfScenarioState() {
+		return !isInScenario() || requiredScenarioState == null;
+	}
 
-    public int comparePriorityWith(StubMapping otherMapping) {
-        int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
-        int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
-        return thisPriority - otherPriority;
-    }
+	public int comparePriorityWith(StubMapping otherMapping) {
+		int thisPriority = priority != null ? priority : DEFAULT_PRIORITY;
+		int otherPriority = otherMapping.priority != null ? otherMapping.priority : DEFAULT_PRIORITY;
+		return thisPriority - otherPriority;
+	}
 
     public Map<String, Parameters> getPostServeActions() {
         return postServeActions;
@@ -239,33 +249,25 @@ public class StubMapping {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StubMapping that = (StubMapping) o;
-        return isDirty == that.isDirty &&
-            Objects.equals(uuid, that.uuid) &&
-            Objects.equals(request, that.request) &&
-            Objects.equals(response, that.response) &&
-            Objects.equals(priority, that.priority) &&
-            Objects.equals(scenarioName, that.scenarioName) &&
-            Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
-            Objects.equals(newScenarioState, that.newScenarioState) &&
-            Objects.equals(postServeActions, that.postServeActions) &&
-            Objects.equals(metadata, that.metadata) &&
-            Objects.equals(responseSequence, that.responseSequence);
-    }
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		StubMapping that = (StubMapping) o;
+		return isDirty == that.isDirty &&
+			Objects.equals(uuid, that.uuid) &&
+			Objects.equals(request, that.request) &&
+			Objects.equals(response, that.response) &&
+			Objects.equals(priority, that.priority) &&
+			Objects.equals(scenarioName, that.scenarioName) &&
+			Objects.equals(requiredScenarioState, that.requiredScenarioState) &&
+			Objects.equals(newScenarioState, that.newScenarioState) &&
+			Objects.equals(postServeActions, that.postServeActions) &&
+			Objects.equals(metadata, that.metadata) &&
+			Objects.equals(responseSequence, that.responseSequence);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, metadata, isDirty);
-    }
-
-    public ResponseSequence getResponseSequence() {
-        return responseSequence;
-    }
-
-    public void setResponseSequence(ResponseSequence responseSequence) {
-        this.responseSequence = responseSequence;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(uuid, request, response, priority, scenarioName, requiredScenarioState, newScenarioState, postServeActions, metadata, isDirty, responseSequence);
+	}
 }
