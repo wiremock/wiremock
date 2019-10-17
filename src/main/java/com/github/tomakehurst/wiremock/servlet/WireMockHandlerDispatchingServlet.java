@@ -40,7 +40,6 @@ import static com.github.tomakehurst.wiremock.servlet.WireMockHttpServletRequest
 import static com.google.common.base.Charsets.UTF_8;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.URLDecoder.decode;
-import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class WireMockHandlerDispatchingServlet extends HttpServlet {
