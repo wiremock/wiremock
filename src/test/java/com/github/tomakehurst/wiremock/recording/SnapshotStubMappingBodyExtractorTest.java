@@ -113,4 +113,24 @@ public class SnapshotStubMappingBodyExtractorTest {
         bodyExtractor.extractInPlace(stubMapping);
     }
 
+    @Test
+    public void determinesFileNamePropertyWithNameStubMappingForUnauthorizedWithJsonBody() {
+        StubMapping stubMapping = WireMock.get("/foo")
+                .willReturn(unauthorized().withJsonBody("{}"))
+                .build();
+        stubMapping.setName("TEST NAME!");
+        setFileExpectations("test-name-" + stubMapping.getId() + ".json", "{}");
+        bodyExtractor.extractInPlace(stubMapping);
+    }
+
+    @Test
+    public void determinesFileNamePropertyWithNameStubMappingForBadRequestWithJsonBody() {
+        StubMapping stubMapping = WireMock.get("/foo")
+                .willReturn(badRequest().withJsonBody("{}"))
+                .build();
+        stubMapping.setName("TEST NAME!");
+        setFileExpectations("test-name-" + stubMapping.getId() + ".json", "{}");
+        bodyExtractor.extractInPlace(stubMapping);
+    }
+
 }

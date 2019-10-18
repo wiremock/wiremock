@@ -494,7 +494,7 @@ public class WireMock {
     }
 
     public static ResponseDefinitionBuilder unauthorizedJson(String body) {
-	    return aResponse().withStatus(401).withHeader(CONTENT_TYPE, "application/json").withBody(body);
+	    return aResponse().withStatus(401).withJsonBody(body);
     }
 
     public static ResponseDefinitionBuilder forbidden() {
