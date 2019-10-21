@@ -107,6 +107,11 @@ public class ResponseDefinitionBuilder {
         return this;
     }
 
+    public ResponseDefinitionBuilder withJsonBody(JsonNode jsonBody) {
+        this.jsonBody = jsonBody;
+        return this;
+    }
+
     public ResponseDefinitionBuilder withFixedDelay(Integer milliseconds) {
         this.fixedDelayMilliseconds = milliseconds;
         return this;

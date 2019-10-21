@@ -63,6 +63,7 @@ import static java.util.concurrent.Executors.newScheduledThreadPool;
 public class JettyHttpServer implements HttpServer {
     private static final String FILES_URL_MATCH = String.format("/%s/*", WireMockApp.FILES_ROOT);
     private static final String[] GZIPPABLE_METHODS = new String[] { "POST", "PUT", "PATCH", "DELETE" };
+    private static final int DEFAULT_ACCEPTORS = 3;
 
     static {
         System.setProperty("org.eclipse.jetty.server.HttpChannelState.DEFAULT_TIMEOUT", "300000");
@@ -91,6 +92,7 @@ public class JettyHttpServer implements HttpServer {
 
         if (options.httpsSettings().enabled()) {
             this.httpsConnector = this.createHttpsConnector(
+                    jettyServer,
                     options.bindAddress(),
                     options.httpsSettings(),
                     options.jettySettings(),
@@ -254,10 +256,11 @@ public class JettyHttpServer implements HttpServer {
     }
 
     protected ServerConnector createHttpsConnector(
-            final String bindAddress,
-            final HttpsSettings httpsSettings,
-            final JettySettings jettySettings,
-            final NetworkTrafficListener listener) {
+            Server server,
+            String bindAddress,
+            HttpsSettings httpsSettings,
+            JettySettings jettySettings,
+            NetworkTrafficListener listener) {
 
         //Added to support Android https communication.
         SslContextFactory sslContextFactory = buildSslContextFactory();
@@ -276,17 +279,30 @@ public class JettyHttpServer implements HttpServer {
 
         final int port = httpsSettings.port();
 
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+        SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(
+                sslContextFactory,
+                "http/1.1"
+        );
+        ConnectionFactory[] connectionFactories = ArrayUtils.addAll(
+                new ConnectionFactory[] { sslConnectionFactory, httpConnectionFactory },
+                buildAdditionalConnectionFactories(httpsSettings, httpConnectionFactory, sslConnectionFactory)
+        );
+
         return this.createServerConnector(
                 bindAddress,
                 jettySettings,
                 port,
                 listener,
-                new SslConnectionFactory(
-                        sslContextFactory,
-                        "http/1.1"
-                ),
-                new HttpConnectionFactory(httpConfig)
+                connectionFactories
         );
+    }
+
+    protected ConnectionFactory[] buildAdditionalConnectionFactories(
+            HttpsSettings httpsSettings,
+            HttpConnectionFactory httpConnectionFactory,
+            SslConnectionFactory sslConnectionFactory) {
+        return new ConnectionFactory[] {};
     }
 
     // Override this for platform-specific impls
@@ -307,7 +323,7 @@ public class JettyHttpServer implements HttpServer {
                                                     final JettySettings jettySettings,
                                                     final int port, final NetworkTrafficListener listener,
                                                     final ConnectionFactory... connectionFactories) {
-        final int acceptors = jettySettings.getAcceptors().or(2);
+        final int acceptors = jettySettings.getAcceptors().or(DEFAULT_ACCEPTORS);
         final NetworkTrafficServerConnector connector = new NetworkTrafficServerConnector(
                 this.jettyServer,
                 null,
@@ -318,9 +334,6 @@ public class JettyHttpServer implements HttpServer {
                 connectionFactories
         );
         connector.setPort(port);
-
-        connector.setStopTimeout(0);
-        connector.getSelectorManager().setStopTimeout(0);
 
         connector.addNetworkTrafficListener(listener);
 

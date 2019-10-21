@@ -17,6 +17,9 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Helper;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.github.tomakehurst.wiremock.common.LocalNotifier.notifier;
 
 /**

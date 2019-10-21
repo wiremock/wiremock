@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.common.JettySettings;
 import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
 import com.github.tomakehurst.wiremock.extension.Extension;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.SystemKeyAuthoriser;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.HttpServerFactory;
 import com.github.tomakehurst.wiremock.http.ThreadPoolFactory;
@@ -40,7 +41,7 @@ public interface Options {
 
     int DEFAULT_PORT = 8080;
     int DYNAMIC_PORT = 0;
-    int DEFAULT_CONTAINER_THREADS = 10;
+    int DEFAULT_CONTAINER_THREADS = 14;
     String DEFAULT_BIND_ADDRESS = "0.0.0.0";
 
     int portNumber();

@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -232,9 +233,9 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void defaultsContainerThreadsTo10() {
+    public void defaultsContainerThreadsTo14() {
         CommandLineOptions options = new CommandLineOptions();
-        assertThat(options.containerThreads(), is(10));
+        assertThat(options.containerThreads(), is(14));
     }
 
     @Test
@@ -421,6 +422,18 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void configuresPermittedSystemKeysIfSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--permitted-system-keys", "java*,path*");
+        assertThat(options.getPermittedSystemKeys(), hasItems("java*", "path*"));
+    }
+
+    @Test
+    public void returnsEmptyPermittedKeysIfNotSpecified() {
+        CommandLineOptions options = new CommandLineOptions("--global-response-templating");
+        assertThat(options.getPermittedSystemKeys(), emptyCollectionOf(String.class));
+    }
+
+    @Test
     public void disablesGzip() {
         CommandLineOptions options = new CommandLineOptions("--disable-gzip");
         assertThat(options.getGzipDisabled(), is(true));
@@ -430,6 +443,7 @@ public class CommandLineOptionsTest {
     public void defaultsToGzipEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getGzipDisabled(), is(false));
+
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

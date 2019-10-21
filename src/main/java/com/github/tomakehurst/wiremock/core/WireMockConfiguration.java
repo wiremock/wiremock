@@ -93,6 +93,7 @@ public class WireMockConfiguration implements Options {
     private int asynchronousResponseThreads;
     private ChunkedEncodingPolicy chunkedEncodingPolicy;
     private boolean gzipDisabled = false;
+    private String permittedSystemKeys = null;
 
     private MappingsSource getMappingsSource() {
         if (mappingsSource == null) {

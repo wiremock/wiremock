@@ -208,6 +208,76 @@ which will return a response like this:
 }
 ```
 
+## Removing items from the journal
+
+### By ID
+
+An individual journal event can be removed via the Java API:
+
+```java
+removeServeEvent(id);
+```
+
+Or via the HTTP API by issuing a `DELETE` to `http://<host>:<port>/__admin/requests/{id}`.
+
+
+### By criteria
+
+Events can also be removed from the request journal by criteria (in the same manner as for finding them described in [Criteria queries](#criteria-queries)).
+
+Using the Java DSL:
+
+```java
+removeServeEvents(putRequestedFor(urlMatching("/api/.*")
+    .withHeader("X-Trace-Id", equalTo("123"))));
+```
+
+Or via the HTTP API:
+
+```
+POST http://<host>:<port>/__admin/requests/remove
+
+{
+    "method": "PUT",
+    "urlPattern": "/api/.*",
+    "headers": {
+        "X-Trace-Id": {
+            "equalTo": "123"
+        }
+    }
+}
+```
+
+### By stub metadata
+
+In situations where it isn't possible to precisely identify log events for removal from request attributes alone, the metadata
+associated with stubs matching requests can be used for selection. For instance, your test code might create stubs tagged
+with test case identifiers, then use these to clean up events created by the test:
+
+```java
+stubFor(get("/api/dosomething/123")
+    .withMetadata(metadata()
+        .list("tags", "test-57")
+    ));
+
+testClient.get("/api/dosomething/123");
+
+List<ServeEvent> removedServeEvents = removeEventsByStubMetadata(matchingJsonPath("$.tags[0]", equalTo("test-57")));
+```  
+
+```
+POST /__admin/requests/remove-by-metadata
+
+{
+    "matchesJsonPath" : {
+      "expression" : "$.tags[0]",
+      "equalTo" : "test-57"
+    }
+}
+```
+
+For more info about stub metadata see [Stub Metadata](/docs/stub-metadata/)
+
 ## Resetting the request journal
 
 The request log can be reset at any time. If you're using either of the

@@ -27,24 +27,22 @@ import java.lang.reflect.Constructor;
 @JsonDeserialize(using = StringValuePatternJsonDeserializer.class)
 public abstract class StringValuePattern extends ContentPattern<String> {
 
-    public static final AbsentPattern ABSENT = new AbsentPattern(null);
-
     public StringValuePattern(String expectedValue) {
         super(expectedValue);
     }
 
     @JsonIgnore
     public boolean isPresent() {
-        return this != ABSENT;
+        return !nullSafeIsAbsent();
     }
 
     public Boolean isAbsent() {
-        return this != ABSENT ? null : true;
+        return !nullSafeIsAbsent() ? null : true;
     }
 
     @JsonIgnore
-    public Boolean nullSafeIsAbsent() {
-        return this == ABSENT;
+    public boolean nullSafeIsAbsent() {
+        return false;
     }
 
     @Override

@@ -116,7 +116,7 @@ The body file for a response can be selected dynamically by templating the file 
 ```java
 wm.stubFor(get(urlPathMatching("/static/.*"))
   .willReturn(ok()
-    .withBodyFile("files/{{request.pathSegments.[1]}}")));
+    .withBodyFile("files/{{request.requestLine.pathSegments.[1]}}")));
 
 ```
 {% endraw %}
@@ -132,7 +132,7 @@ wm.stubFor(get(urlPathMatching("/static/.*"))
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "files/{{request.pathSegments.[1]}}"
+    "bodyFileName" : "files/{{request.requestLine.pathSegments.[1]}}"
   }
 }
 ```
@@ -145,7 +145,7 @@ The model of the request is supplied to the header and body templates. The follo
 
 `request.requestLine.path` - URL path
 
-`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.pathSegments.[2]`
+`request.requestLine.pathSegments.[<n>]`- URL path segment (zero indexed) e.g. `request.requestLine.pathSegments.[2]`
 
 `request.requestLine.query.<key>`- First value of a query parameter e.g. `request.query.search`
  
@@ -471,7 +471,46 @@ The `size` helper returns the size of a string, list or map:
 ```
 {% endraw %}
 
+## Hostname helper
 
+The local machine's hostname can be printed:
+
+{% raw %}
+```
+{{hostname}}
+```
+{% endraw %}
+
+
+## System property helper
+Environment variables and system properties can be printed: 
+ 
+{% raw %}
+```
+{{systemValue type='ENVIRONMENT' key='PATH'}}
+{{systemValue type='PROPERTY' key='os.path'}}
+```
+{% endraw %}
+
+To avoid disclosure of sensitive variables, only permitted variables can be read. Permitted variable names
+are defined via a set of regular expressions. These can be configured when constructing the response template extension:
+
+```java
+@Rule
+public WireMockRule wm = new WireMockRule(options()
+        .dynamicPort()
+        .withRootDirectory(defaultTestFilesRoot())
+        .extensions(new ResponseTemplateTransformer.Builder()
+                .global(true)
+                .permittedSystemKeys("allowed.*","also_permitted.*")
+                .build()
+        )
+);
+```
+
+The regular expressions are matched in a case-insensitive manner.
+
+If no permitted system key patterns are set, a single default of `wiremock.*` will be used. 
 
 ## Custom helpers
 Custom Handlebars helpers can be registered with the transformer on construction:

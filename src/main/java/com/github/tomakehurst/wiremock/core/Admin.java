@@ -23,13 +23,12 @@ import com.github.tomakehurst.wiremock.recording.RecordSpec;
 import com.github.tomakehurst.wiremock.recording.RecordSpecBuilder;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
 import com.github.tomakehurst.wiremock.recording.SnapshotRecordResult;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.stubbing.StubImport;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
-import com.github.tomakehurst.wiremock.verification.FindNearMissesResult;
-import com.github.tomakehurst.wiremock.verification.FindRequestsResult;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.VerificationResult;
+import com.github.tomakehurst.wiremock.verification.*;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface Admin {
@@ -65,6 +64,10 @@ public interface Admin {
     FindRequestsResult findRequestsMatching(RequestPattern requestPattern);
 
     FindRequestsResult findUnmatchedRequests();
+
+    void removeServeEvent(UUID eventId);
+    FindServeEventsResult removeServeEventsMatching(RequestPattern requestPattern);
+    FindServeEventsResult removeServeEventsForStubsMatchingMetadata(StringValuePattern pattern);
 
     FindNearMissesResult findTopNearMissesFor(LoggedRequest loggedRequest);
 
