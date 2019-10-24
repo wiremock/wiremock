@@ -524,8 +524,8 @@ Helper<String> stringLengthHelper = new Helper<String>() {
 };
 
 @Rule
-public WireMockRule wm = new WireMockRule(options()
-    .extensions(new ResponseTemplateTransformer(false), "string-length", stringLengthHelper)
+public WireMockRule wm = new WireMockRule(
+    options().extensions(new ResponseTemplateTransformer(false, "string-length", stringLengthHelper))
 );
 ```
 
