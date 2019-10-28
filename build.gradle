@@ -74,9 +74,11 @@ allprojects {
             exclude group: 'junit', module: 'junit'
         }
         compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-        compile "com.jayway.jsonpath:json-path:2.4.0"
+        compile "com.jayway.jsonpath:json-path:2.4.0", {
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
         compile "org.ow2.asm:asm:7.0"
-        compile "org.slf4j:slf4j-api:1.7.12"
+        compile "org.slf4j:slf4j-api:1.7.28"
         compile "net.sf.jopt-simple:jopt-simple:5.0.3"
         compileOnly("junit:junit:4.12") {
             exclude group: "org.hamcrest", module: "hamcrest-core"
@@ -85,6 +87,8 @@ allprojects {
         compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4'
         compile "com.github.jknack:handlebars:$versions.handlebars", {
             exclude group: 'org.mozilla', module: 'rhino'
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+            exclude group: 'org.apache.commons', module: 'commons-lang3'
         }
         compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
             exclude group: 'org.mozilla', module: 'rhino'
