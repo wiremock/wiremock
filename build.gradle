@@ -82,7 +82,10 @@ allprojects {
             exclude group: "org.hamcrest", module: "hamcrest-core"
         }
         compile 'org.apache.commons:commons-lang3:3.7'
-        compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4'
+        compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
+            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
+            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
+        }
         compile "com.github.jknack:handlebars:$versions.handlebars", {
             exclude group: 'org.mozilla', module: 'rhino'
         }
