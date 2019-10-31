@@ -92,9 +92,8 @@ public class CommandLineOptions implements Options {
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
-
     private static final String DISABLE_GZIP = "disable-gzip";
-
+    private static final String ENABLED_SLF4J_NOTIFIER = "enable-slf4j-notifier";
 
     private final OptionSet optionSet;
     private final FileSource fileSource;
@@ -141,7 +140,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
-
+        optionParser.accepts(ENABLED_SLF4J_NOTIFIER, "Enable SLF4JNotifier instead of default ConsoleNotifier");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -403,7 +402,13 @@ public class CommandLineOptions implements Options {
 
     @Override
     public Notifier notifier() {
-        return new ConsoleNotifier(verboseLoggingEnabled());
+        boolean verboseLoggingEnabled = verboseLoggingEnabled();
+
+        if (enableSlf4jNotifier()) {
+            return new Slf4jNotifier(verboseLoggingEnabled);
+        } else {
+            return new ConsoleNotifier(verboseLoggingEnabled);
+        }
     }
 
     @Override
@@ -434,6 +439,10 @@ public class CommandLineOptions implements Options {
         }
 
         return DEFAULT_CONTAINER_THREADS;
+    }
+
+    public boolean enableSlf4jNotifier() {
+        return optionSet.has(ENABLED_SLF4J_NOTIFIER);
     }
 
     @Override

@@ -16,13 +16,15 @@
 package com.github.tomakehurst.wiremock.standalone;
 
 import com.github.tomakehurst.wiremock.client.BasicCredentials;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.common.FileSource;
+import com.github.tomakehurst.wiremock.common.Notifier;
 import com.github.tomakehurst.wiremock.common.ProxySettings;
+import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -31,11 +33,11 @@ import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.security.Authenticator;
 import com.google.common.base.Optional;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -443,7 +445,20 @@ public class CommandLineOptionsTest {
     public void defaultsToGzipEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getGzipDisabled(), is(false));
+    }
 
+    @Test
+    public void enableSlf4jNotifier() {
+        CommandLineOptions options = new CommandLineOptions("--enable-slf4j-notifier");
+        assertThat(options.enableSlf4jNotifier(), is(true));
+        assertThat(options.notifier(), Matchers.instanceOf(Slf4jNotifier.class));
+    }
+
+    @Test
+    public void defaultsToConsoleNotifier() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.enableSlf4jNotifier(), is(false));
+        assertThat(options.notifier(), Matchers.instanceOf(ConsoleNotifier.class));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {
