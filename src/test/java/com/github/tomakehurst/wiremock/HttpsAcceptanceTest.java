@@ -58,7 +58,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static com.github.tomakehurst.wiremock.testsupport.TestFiles.*;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 
 public class HttpsAcceptanceTest {
@@ -66,6 +68,9 @@ public class HttpsAcceptanceTest {
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
     private HttpClient httpClient;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @After
     public void serverShutdown() {
@@ -87,15 +92,20 @@ public class HttpsAcceptanceTest {
     }
 
     @Test
-    public void shouldReturnStubOnHttpsWhenHttpDisabled() throws Exception {
+    public void connectionFailsOnHttpWhenHttpDisabled() throws Exception {
+        // HTTP
+        exceptionRule.expect(IllegalStateException.class);
+        exceptionRule.expectMessage("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
+        // HTTPS
         WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
         wireMockServer = new WireMockServer(config);
         wireMockServer.start();
-        WireMock.configureFor("https", "localhost", wireMockServer.port());
+        WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
         httpClient = HttpClientFactory.createClient();
 
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
+        wireMockServer.port();
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 
