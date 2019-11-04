@@ -92,7 +92,7 @@ public class HttpsAcceptanceTest {
     }
 
     @Test
-    public void connectionFailsOnHttpWhenHttpDisabled() throws Exception {
+    public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
         // HTTP
         exceptionRule.expect(IllegalStateException.class);
         exceptionRule.expectMessage("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
