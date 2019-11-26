@@ -401,6 +401,27 @@ public class StandaloneAcceptanceTest {
         fail("WireMock did not shut down");
     }
 
+	@Test
+	public void canBeShutDownRemotelyWhenAsyncResponsesEnabled() {
+		startRunner("--async-response-enabled");
+
+		stubFor(get("/delay-this").willReturn(ok().withFixedDelay(50)));
+		testClient.get("/delay-this");
+		testClient.get("/delay-this");
+		testClient.get("/delay-this");
+
+		WireMock.shutdownServer();
+
+		// Keep trying the server until it shuts down.
+		long startTime = System.currentTimeMillis();
+		while (System.currentTimeMillis() - startTime < 5000) {
+			if (!runner.isRunning()) {
+				return;
+			}
+		}
+		fail("WireMock did not shut down");
+	}
+
     @Test
     public void isRunningReturnsFalseBeforeRunMethodIsExecuted() {
         runner = new WireMockServerRunner();
