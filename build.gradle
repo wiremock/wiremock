@@ -74,7 +74,9 @@ allprojects {
             exclude group: 'junit', module: 'junit'
         }
         compile "org.xmlunit:xmlunit-placeholders:$versions.xmlUnit"
-        compile "com.jayway.jsonpath:json-path:2.4.0"
+        compile "com.jayway.jsonpath:json-path:2.4.0", {
+            exclude group: 'org.ow2.asm', module: 'asm'
+        }
         compile "org.ow2.asm:asm:7.0"
         compile "org.slf4j:slf4j-api:1.7.12"
         compile "net.sf.jopt-simple:jopt-simple:5.0.3"
