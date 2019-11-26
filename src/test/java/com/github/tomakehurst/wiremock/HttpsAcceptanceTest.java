@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.http.HttpClientFactory;
-import com.github.tomakehurst.wiremock.testsupport.TestFiles;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.HttpResponse;
@@ -63,13 +62,15 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 public class HttpsAcceptanceTest {
 
     private WireMockServer wireMockServer;
     private WireMockServer proxy;
     private HttpClient httpClient;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @After
     public void serverShutdown() {
@@ -87,6 +88,24 @@ public class HttpsAcceptanceTest {
         startServerWithDefaultKeystore();
         stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
 
+        assertThat(contentFor(url("/https-test")), is("HTTPS content"));
+    }
+
+    @Test
+    public void shouldReturnOnlyOnHttpsWhenHttpDisabled() throws Exception {
+        // HTTP
+        exceptionRule.expect(IllegalStateException.class);
+        exceptionRule.expectMessage("Not listening on HTTP port. Either HTTP is not enabled or the WireMock server is stopped.");
+        // HTTPS
+        WireMockConfiguration config = wireMockConfig().httpDisabled(true).dynamicHttpsPort();
+        wireMockServer = new WireMockServer(config);
+        wireMockServer.start();
+        WireMock.configureFor("https", "localhost", wireMockServer.httpsPort());
+        httpClient = HttpClientFactory.createClient();
+
+        stubFor(get(urlEqualTo("/https-test")).willReturn(aResponse().withStatus(200).withBody("HTTPS content")));
+
+        wireMockServer.port();
         assertThat(contentFor(url("/https-test")), is("HTTPS content"));
     }
 

@@ -50,6 +50,7 @@ import static java.util.Collections.emptyList;
 public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
+    private boolean httpDisabled = false;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
 
     private int containerThreads = DEFAULT_CONTAINER_THREADS;
@@ -118,6 +119,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration dynamicPort() {
         this.portNumber = DYNAMIC_PORT;
+        return this;
+    }
+
+    public WireMockConfiguration httpDisabled(boolean httpDisabled) {
+        this.httpDisabled = httpDisabled;
         return this;
     }
 
@@ -346,6 +352,11 @@ public class WireMockConfiguration implements Options {
     @Override
     public int portNumber() {
         return portNumber;
+    }
+
+    @Override
+    public boolean getHttpDisabled() {
+        return httpDisabled;
     }
 
     @Override

@@ -80,6 +80,13 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void disablesHttpWhenOptionPresentAndHttpsEnabled() {
+        CommandLineOptions options = new CommandLineOptions("--disable-http",
+                "--https-port", "8443");
+        assertThat(options.getHttpDisabled(), is(true));
+    }
+
+    @Test
     public void enablesHttpsAndSetsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
         assertThat(options.httpsSettings().enabled(), is(true));

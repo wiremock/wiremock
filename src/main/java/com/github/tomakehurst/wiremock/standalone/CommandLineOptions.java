@@ -62,7 +62,8 @@ public class CommandLineOptions implements Options {
 	private static final String PROXY_ALL = "proxy-all";
     private static final String PRESERVE_HOST_HEADER = "preserve-host-header";
     private static final String PROXY_VIA = "proxy-via";
-	private static final String PORT = "port";
+    private static final String PORT = "port";
+    private static final String DISABLE_HTTP = "disable-http";
     private static final String BIND_ADDRESS = "bind-address";
     private static final String HTTPS_PORT = "https-port";
     private static final String HTTPS_KEYSTORE = "https-keystore";
@@ -104,8 +105,9 @@ public class CommandLineOptions implements Options {
     private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
-		OptionParser optionParser = new OptionParser();
-		optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
+        OptionParser optionParser = new OptionParser();
+        optionParser.accepts(PORT, "The port number for the server to listen on (default: 8080). 0 for dynamic port selection.").withRequiredArg();
+        optionParser.accepts(DISABLE_HTTP, "Disable the default HTTP listener.");
         optionParser.accepts(HTTPS_PORT, "If this option is present WireMock will enable HTTPS on the specified port").withRequiredArg();
         optionParser.accepts(BIND_ADDRESS, "The IP to listen connections").withRequiredArg();
         optionParser.accepts(CONTAINER_THREADS, "The number of container threads").withRequiredArg();
@@ -156,6 +158,12 @@ public class CommandLineOptions implements Options {
 	}
 
     private void validate() {
+        if (optionSet.has(PORT) && optionSet.has(DISABLE_HTTP)) {
+            throw new IllegalArgumentException("The HTTP listener can't have a port set and be disabled at the same time");
+        }
+        if (!optionSet.has(HTTPS_PORT) && optionSet.has(DISABLE_HTTP)) {
+            throw new IllegalArgumentException("HTTPS must be enabled if HTTP is not.");
+        }
         if (optionSet.has(HTTPS_KEYSTORE) && !optionSet.has(HTTPS_PORT)) {
             throw new IllegalArgumentException("HTTPS port number must be specified if specifying the keystore path");
         }
@@ -227,6 +235,11 @@ public class CommandLineOptions implements Options {
 
         return DEFAULT_PORT;
 	}
+
+    @Override
+    public boolean getHttpDisabled() {
+        return optionSet.has(DISABLE_HTTP);
+    }
 
 	public void setResultingPort(int port) {
 		resultingPort = Optional.of(port);
@@ -410,7 +423,7 @@ public class CommandLineOptions implements Options {
     public boolean requestJournalDisabled() {
         return optionSet.has(DISABLE_REQUEST_JOURNAL);
     }
-    
+
     public boolean bannerDisabled() {
         return optionSet.has(DISABLE_BANNER);
     }
@@ -456,7 +469,7 @@ public class CommandLineOptions implements Options {
         }
 
         builder.put(ENABLE_BROWSER_PROXYING, browserProxyingEnabled());
-        
+
         builder.put(DISABLE_BANNER, bannerDisabled());
 
         if (recordMappingsEnabled()) {
