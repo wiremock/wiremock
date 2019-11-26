@@ -74,13 +74,18 @@ public class JettyHttpServer implements HttpServer {
         jettyServer = createServer(options);
 
         NetworkTrafficListenerAdapter networkTrafficListenerAdapter = new NetworkTrafficListenerAdapter(options.networkTrafficListener());
-        httpConnector = createHttpConnector(
-                options.bindAddress(),
-                options.portNumber(),
-                options.jettySettings(),
-                networkTrafficListenerAdapter
-        );
-        jettyServer.addConnector(httpConnector);
+
+        if (options.getHttpDisabled()) {
+            httpConnector = null;
+        } else {
+            httpConnector = createHttpConnector(
+                    options.bindAddress(),
+                    options.portNumber(),
+                    options.jettySettings(),
+                    networkTrafficListenerAdapter
+            );
+            jettyServer.addConnector(httpConnector);
+        }
 
         if (options.httpsSettings().enabled()) {
             httpsConnector = createHttpsConnector(
