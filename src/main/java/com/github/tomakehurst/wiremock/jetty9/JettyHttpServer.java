@@ -64,6 +64,8 @@ public class JettyHttpServer implements HttpServer {
     private final ServerConnector httpConnector;
     private final ServerConnector httpsConnector;
 
+    private ScheduledExecutorService scheduledExecutorService;
+
     public JettyHttpServer(
             Options options,
             AdminRequestHandler adminRequestHandler,
@@ -199,6 +201,10 @@ public class JettyHttpServer implements HttpServer {
     @Override
     public void stop() {
         try {
+            if (scheduledExecutorService != null) {
+                scheduledExecutorService.shutdown();
+            }
+
             jettyServer.stop();
             jettyServer.join();
         } catch (Exception e) {
@@ -367,7 +373,7 @@ public class JettyHttpServer implements HttpServer {
         servletHolder.setInitParameter(WireMockHandlerDispatchingServlet.SHOULD_FORWARD_TO_FILES_CONTEXT, "true");
 
         if (asynchronousResponseSettings.isEnabled()) {
-            ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
+            scheduledExecutorService = newScheduledThreadPool(asynchronousResponseSettings.getThreads());
             mockServiceContext.setAttribute(WireMockHandlerDispatchingServlet.ASYNCHRONOUS_RESPONSE_EXECUTOR, scheduledExecutorService);
         }
 
