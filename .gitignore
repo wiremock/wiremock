@@ -57,3 +57,5 @@ src/main/resources/swagger/wiremock-admin-api.json
 src/main/resources/assets/swagger-ui/swagger-ui-dist
 
 scripts/client-cert.*
+
+notes.txt
