@@ -269,7 +269,7 @@ public class EqualToJsonTest {
             "   \"one\":    1,          \n" +
             "   \"three\":  3,          \n" +
             "   \"two\":    2,          \n" +
-            "   \"four\":   [2, 1, 2],  \n" +
+            "   \"four\":   [2, 1, 3],  \n" +
             "   \"five\":   5,          \n" +
             "   \"six\":    6           \n" +
             "}                          \n"
