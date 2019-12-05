@@ -58,7 +58,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
         Request request = mockRequest()
             .header("Content-Type", "application/json")
             .body(JSON_TEST_STRING);
-        EqualToJsonPattern pattern = (EqualToJsonPattern) patternForRequest(request);
+        OldEqualToJsonPattern pattern = (OldEqualToJsonPattern) patternForRequest(request);
 
         assertThat(pattern.getEqualToJson(), is(JSON_TEST_STRING));
         assertThat(pattern.isIgnoreExtraElements(), is(true));
@@ -71,7 +71,7 @@ public class RequestBodyAutomaticPatternFactoryTest {
         Request request = mockRequest()
             .header("Content-Type", "application/json")
             .body(JSON_TEST_STRING);
-        EqualToJsonPattern pattern = (EqualToJsonPattern) patternFactory.forRequest(request);
+        OldEqualToJsonPattern pattern = (OldEqualToJsonPattern) patternFactory.forRequest(request);
 
         assertThat(pattern.getEqualToJson(), is(JSON_TEST_STRING));
         assertThat(pattern.isIgnoreExtraElements(), is(false));

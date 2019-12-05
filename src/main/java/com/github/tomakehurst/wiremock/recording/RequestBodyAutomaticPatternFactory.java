@@ -65,7 +65,7 @@ public class RequestBodyAutomaticPatternFactory implements RequestBodyPatternFac
         final String mimeType = request.getHeaders().getContentTypeHeader().mimeTypePart();
         if (mimeType != null) {
             if (mimeType.contains("json")) {
-                return new EqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+                return new OldEqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
             } else if (mimeType.contains("xml")) {
                 return new EqualToXmlPattern(request.getBodyAsString());
             } else if (mimeType.equals("multipart/form-data")) {

@@ -18,7 +18,7 @@ package com.github.tomakehurst.wiremock.recording;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.OldEqualToJsonPattern;
 
 public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternFactory {
 
@@ -42,7 +42,7 @@ public class RequestBodyEqualToJsonPatternFactory implements RequestBodyPatternF
     }
 
     @Override
-    public EqualToJsonPattern forRequest(Request request) {
-        return new EqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
+    public OldEqualToJsonPattern forRequest(Request request) {
+        return new OldEqualToJsonPattern(request.getBodyAsString(), ignoreArrayOrder, ignoreExtraElements);
     }
 }

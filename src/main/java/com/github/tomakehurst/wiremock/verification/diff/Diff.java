@@ -223,7 +223,7 @@ public class Diff {
         }
 
         try {
-            return pattern.getClass().equals(EqualToJsonPattern.class) ?
+            return pattern.getClass().equals(OldEqualToJsonPattern.class) ?
                 Json.prettyPrint(Json.write(body.asJson())) :
                 pattern.getClass().equals(EqualToXmlPattern.class) ?
                     Xml.prettyPrint(body.asString()) :
@@ -237,7 +237,7 @@ public class Diff {
 
     private static boolean isAnEqualToPattern(ContentPattern<?> pattern) {
         return pattern instanceof EqualToPattern ||
-            pattern instanceof EqualToJsonPattern ||
+            pattern instanceof OldEqualToJsonPattern ||
             pattern instanceof EqualToXmlPattern ||
             pattern instanceof BinaryEqualToPattern;
     }

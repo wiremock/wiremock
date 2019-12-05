@@ -15,7 +15,7 @@
  */
 package com.github.tomakehurst.wiremock.recording;
 
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.OldEqualToJsonPattern;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
@@ -27,7 +27,7 @@ public class RequestBodyEqualToJsonPatternFactoryTest {
     @Test
     public void withIgnoreArrayOrder() {
         RequestBodyEqualToJsonPatternFactory patternFactory = new RequestBodyEqualToJsonPatternFactory(true, false);
-        EqualToJsonPattern pattern = (EqualToJsonPattern) patternFactory.forRequest(mockRequest().body("{}"));
+        OldEqualToJsonPattern pattern = (OldEqualToJsonPattern) patternFactory.forRequest(mockRequest().body("{}"));
 
         assertThat(pattern.getEqualToJson(), is("{}"));
         assertThat(pattern.isIgnoreExtraElements(), is(false));
@@ -37,7 +37,7 @@ public class RequestBodyEqualToJsonPatternFactoryTest {
     @Test
     public void withIgnoreExtraElements() {
         RequestBodyEqualToJsonPatternFactory patternFactory = new RequestBodyEqualToJsonPatternFactory(false, true);
-        EqualToJsonPattern pattern = (EqualToJsonPattern) patternFactory.forRequest(mockRequest().body("{}"));
+        OldEqualToJsonPattern pattern = (OldEqualToJsonPattern) patternFactory.forRequest(mockRequest().body("{}"));
 
         assertThat(pattern.getEqualToJson(), is("{}"));
         assertThat(pattern.isIgnoreExtraElements(), is(true));

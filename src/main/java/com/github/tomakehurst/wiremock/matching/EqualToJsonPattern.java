@@ -1,45 +1,31 @@
-/*
- * Copyright (C) 2011 Thomas Akehurst
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.github.tomakehurst.wiremock.matching;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.flipkart.zjsonpatch.DiffFlags;
-import com.flipkart.zjsonpatch.JsonDiff;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import net.javacrumbs.jsonunit.core.Configuration;
+import net.javacrumbs.jsonunit.core.Option;
+import net.javacrumbs.jsonunit.core.internal.Diff;
+import net.javacrumbs.jsonunit.core.internal.Node;
+import net.javacrumbs.jsonunit.core.listener.Difference;
+import net.javacrumbs.jsonunit.core.listener.DifferenceContext;
+import net.javacrumbs.jsonunit.core.listener.DifferenceListener;
 
-import java.util.EnumSet;
+import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
-import static com.flipkart.zjsonpatch.DiffFlags.OMIT_COPY_OPERATION;
-import static com.flipkart.zjsonpatch.DiffFlags.OMIT_MOVE_OPERATION;
-import static com.github.tomakehurst.wiremock.common.Json.deepSize;
-import static com.github.tomakehurst.wiremock.common.Json.maxDeepSize;
-import static com.google.common.collect.Iterables.getLast;
-import static org.apache.commons.lang3.math.NumberUtils.isNumber;
+import static com.github.tomakehurst.wiremock.common.Exceptions.throwUnchecked;
+import static net.javacrumbs.jsonunit.core.internal.Node.NodeType.ARRAY;
+import static net.javacrumbs.jsonunit.core.internal.Node.NodeType.OBJECT;
 
 public class EqualToJsonPattern extends StringValuePattern {
 
-    private final JsonNode expected;
+    static {
+        System.setProperty("json-unit.libraries", "jackson2");
+    }
+
     private final Boolean ignoreArrayOrder;
     private final Boolean ignoreExtraElements;
     private final Boolean serializeAsString;
@@ -48,7 +34,6 @@ public class EqualToJsonPattern extends StringValuePattern {
                               @JsonProperty("ignoreArrayOrder") Boolean ignoreArrayOrder,
                               @JsonProperty("ignoreExtraElements") Boolean ignoreExtraElements) {
         super(json);
-        expected = Json.read(json, JsonNode.class);
         this.ignoreArrayOrder = ignoreArrayOrder;
         this.ignoreExtraElements = ignoreExtraElements;
         this.serializeAsString = true;
@@ -58,19 +43,63 @@ public class EqualToJsonPattern extends StringValuePattern {
                               Boolean ignoreArrayOrder,
                               Boolean ignoreExtraElements) {
         super(Json.write(jsonNode));
-        expected = jsonNode;
         this.ignoreArrayOrder = ignoreArrayOrder;
         this.ignoreExtraElements = ignoreExtraElements;
         this.serializeAsString = false;
     }
 
-    @JsonProperty("equalToJson")
-    public Object getSerializedEqualToJson() {
-        return serializeAsString ? getValue() : expected;
+    EqualToJsonPattern(String json) {
+        this(json, false, false);
     }
 
-    public String getEqualToJson() {
-        return expectedValue;
+    @Override
+    public MatchResult match(String value) {
+        final CountingDiffListener diffListener = new CountingDiffListener();
+        Configuration diffConfig = Configuration.empty()
+                .withDifferenceListener(diffListener);
+
+        if (shouldIgnoreArrayOrder()) {
+            diffConfig = diffConfig.withOptions(Option.IGNORING_ARRAY_ORDER);
+        }
+
+        if (shouldIgnoreExtraElements()) {
+            diffConfig = diffConfig.withOptions(Option.IGNORING_EXTRA_ARRAY_ITEMS, Option.IGNORING_EXTRA_FIELDS);
+        }
+
+        final Diff diff;
+        try {
+
+            diff = Diff.create(
+                    expectedValue,
+                    value,
+                    "",
+                    "",
+                    diffConfig
+            );
+        } catch (Exception e) {
+            return MatchResult.noMatch();
+        }
+
+        return new MatchResult() {
+            @Override
+            public boolean isExactMatch() {
+                return diff.similar();
+            }
+
+            @Override
+            public double getDistance() {
+                diff.similar();
+                Node expected = getNodeFromDiff("expectedRoot", diff);
+                Node actual = getNodeFromDiff("actualRoot", diff);
+                double maxNodes = maxDeepSize(expected, actual);
+                return diffListener.count / maxNodes;
+            }
+        };
+    }
+
+    @JsonProperty("equalToJson")
+    public Object getSerializedEqualToJson() {
+        return serializeAsString ? getValue() : Json.read(getValue(), JsonNode.class);
     }
 
     private boolean shouldIgnoreArrayOrder() {
@@ -94,49 +123,49 @@ public class EqualToJsonPattern extends StringValuePattern {
         return Json.prettyPrint(getValue());
     }
 
-    @Override
-    public MatchResult match(String value) {
-        try {
-            final JsonNode actual = Json.read(value, JsonNode.class);
+    private static class CountingDiffListener implements DifferenceListener {
 
-            return new MatchResult() {
-                @Override
-                public boolean isExactMatch() {
-                    // Try to do it the fast way first, then fall back to doing the full diff
-                    if (!shouldIgnoreArrayOrder() && !shouldIgnoreExtraElements()) {
-                        return Objects.equals(actual, expected);
-                    }
+        public int count = 0;
 
-                    return getDistance() == 0.0;
-                }
+        @Override
+        public void diff(Difference difference, DifferenceContext context) {
+            final int expectedSize = difference.getExpected() != null ?
+                    deepSize(difference.getExpected()) :
+                    0;
+            final int actualSize = difference.getActual() != null ?
+                    deepSize(difference.getActual()) :
+                    0;
 
-                @Override
-                public double getDistance() {
-                    EnumSet<DiffFlags> flags = EnumSet.of(OMIT_COPY_OPERATION);
-                    ArrayNode diff = (ArrayNode) JsonDiff.asJson(expected, actual, flags);
-
-                    double maxNodes = maxDeepSize(expected, actual);
-                    return diffSize(diff) / maxNodes;
-                }
-            };
-        } catch (Exception e) {
-            return MatchResult.noMatch();
+            final int delta = expectedSize - actualSize;
+            count += delta == 0 ? 1 : Math.abs(delta);
         }
     }
 
-    private int diffSize(ArrayNode diff) {
-        int acc = 0;
-        for (JsonNode child: diff) {
-            String operation = child.findValue("op").textValue();
-            JsonNode pathString = getFromPathString(operation, child);
-            List<String> path = getPath(pathString.textValue());
-            if (!arrayOrderIgnoredAndIsArrayMove(operation, path) && !extraElementsIgnoredAndIsAddition(operation)) {
-                JsonNode valueNode = operation.equals("remove") ? null : child.findValue("value");
-                JsonNode referencedExpectedNode = getNodeAtPath(expected, pathString);
-                if (valueNode == null) {
-                    acc += deepSize(referencedExpectedNode);
-                } else {
-                    acc += maxDeepSize(referencedExpectedNode, valueNode);
+    public static int maxDeepSize(Object one, Object two) {
+        return Math.max(deepSize(one), deepSize(two));
+    }
+
+    private static int deepSize(Object nodeObj) {
+        if (nodeObj == null) {
+            return 0;
+        }
+
+        if (nodeObj instanceof String && ((String) nodeObj).isEmpty()) {
+            return 0;
+        }
+
+        if (!(nodeObj instanceof Node)) {
+            return 1;
+        }
+
+        Node node = (Node) nodeObj;
+
+        int acc = 1;
+        if (isContainerNode(nodeObj)) {
+            for (Object child: allValues(node)) {
+                acc++;
+                if (isContainerNode(child)) {
+                    acc += deepSize(child);
                 }
             }
         }
@@ -144,61 +173,60 @@ public class EqualToJsonPattern extends StringValuePattern {
         return acc;
     }
 
-    private static JsonNode getFromPathString(String operation, JsonNode node) {
-        if (operation.equals("move")) {
-            return node.findValue("from");
+    private static int shallowNodeSize(Object nodeObj) {
+        if (!(nodeObj instanceof Node)) {
+            return 1;
         }
 
-        return node.findValue("path");
-    }
-
-    private boolean extraElementsIgnoredAndIsAddition(String operation) {
-        return operation.equals("add") && shouldIgnoreExtraElements();
-    }
-
-    private boolean arrayOrderIgnoredAndIsArrayMove(String operation, List<String> path) {
-        return operation.equals("move") && isNumber(getLast(path)) && shouldIgnoreArrayOrder();
-    }
-
-    public static JsonNode getNodeAtPath(JsonNode rootNode, JsonNode path) {
-        String pathString = path.toString().equals("\"/\"") ? "\"\"" : path.toString();
-        return getNode(rootNode, getPath(pathString), 1);
-    }
-
-    private static JsonNode getNode(JsonNode ret, List<String> path, int pos) {
-        if (pos >= path.size()) {
-            return ret;
-        }
-
-        if (ret == null) {
-            return null;
-        }
-
-        String key = path.get(pos);
-        if (ret.isArray()) {
-            int keyInt = Integer.parseInt(key.replaceAll("\"", ""));
-            return getNode(ret.get(keyInt), path, ++pos);
-        } else if (ret.isObject()) {
-            if (ret.has(key)) {
-                return getNode(ret.get(key), path, ++pos);
-            }
-            return null;
+        Node node = (Node) nodeObj;
+        final Node.NodeType nodeType = node.getNodeType();
+        if (nodeType == ARRAY) {
+            return toNodeList(node).size();
+        } else if (nodeType == OBJECT) {
+            return toNodeMap(node).size();
         } else {
-            return ret;
+            return 1;
         }
     }
 
-    private static List<String> getPath(String path) {
-        List<String> paths = Splitter.on('/').splitToList(path.replaceAll("\"", ""));
-        return Lists.newArrayList(Iterables.transform(paths, new DecodePathFunction()));
+    private static boolean isContainerNode(Object nodeObj) {
+        if (!(nodeObj instanceof Node)) {
+            return false;
+        }
+
+        Node node = (Node) nodeObj;
+        final Node.NodeType nodeType = node.getNodeType();
+        return nodeType == ARRAY || nodeType == OBJECT;
     }
 
-    private final static class DecodePathFunction implements Function<String, String> {
+    private static Iterable<Object> allValues(Node containerNode) {
+        final Node.NodeType nodeType = containerNode.getNodeType();
+        if (nodeType == ARRAY) {
+            return toNodeList(containerNode);
+        } else if (nodeType == OBJECT) {
+            return toNodeMap(containerNode).values();
+        }
 
-        @Override
-        public String apply(String path) {
-            return path.replaceAll("~1", "/").replaceAll("~0", "~"); // see http://tools.ietf.org/html/rfc6901#section-4
+        return Collections.<Object>singletonList(containerNode);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Object> toNodeList(Node node) {
+        return ((List<Object>) ARRAY.getValue(node));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> toNodeMap(Node node) {
+        return ((Map<String, Object>) OBJECT.getValue(node));
+    }
+
+    private static Node getNodeFromDiff(String fieldName, Diff diff) {
+        try {
+            final Field field = Diff.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return (Node) field.get(diff);
+        } catch (Exception e) {
+            return throwUnchecked(e, Node.class);
         }
     }
-
 }

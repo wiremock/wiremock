@@ -287,9 +287,9 @@ public class EqualToJsonTest {
             StringValuePattern.class
         );
 
-        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
+        assertThat(pattern, instanceOf(OldEqualToJsonPattern.class));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
         assertThat(pattern.getExpected(), is("2"));
     }
 
@@ -304,16 +304,16 @@ public class EqualToJsonTest {
             "}                                             ";
         StringValuePattern pattern = Json.read(serializedJson, StringValuePattern.class);
 
-        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
+        assertThat(pattern, instanceOf(OldEqualToJsonPattern.class));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(true));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreExtraElements(), is(true));
         JSONAssert.assertEquals(pattern.getExpected(), expectedJson, false);
     }
 
     @Test
     public void correctlySerialisesToJsonValueWhenAdditionalParamsPresentAndConstructedWithJsonValue() throws JSONException {
         String expectedJson = "{ \"someKey\": \"someValue\" }";
-        EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), true, true);
+        OldEqualToJsonPattern pattern = new OldEqualToJsonPattern(Json.node(expectedJson), true, true);
 
         String serialised = Json.write(pattern);
         String expected =
@@ -327,7 +327,7 @@ public class EqualToJsonTest {
 
     @Test
     public void correctlySerialisesToJsonWhenAdditionalParamsPresentAndConstructedWithString() throws JSONException {
-        EqualToJsonPattern pattern = new EqualToJsonPattern("4444", true, true);
+        OldEqualToJsonPattern pattern = new OldEqualToJsonPattern("4444", true, true);
 
         String serialised = Json.write(pattern);
         JSONAssert.assertEquals(
@@ -349,9 +349,9 @@ public class EqualToJsonTest {
             StringValuePattern.class
         );
 
-        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
+        assertThat(pattern, instanceOf(OldEqualToJsonPattern.class));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
         assertThat(pattern.getExpected(), is("2"));
     }
 
@@ -360,16 +360,16 @@ public class EqualToJsonTest {
         String expectedJson = "[ 1, 2, \"value\" ]";
         StringValuePattern pattern = Json.read("{ \"equalToJson\": " + expectedJson + " }", StringValuePattern.class);
 
-        assertThat(pattern, instanceOf(EqualToJsonPattern.class));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
-        assertThat(((EqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
+        assertThat(pattern, instanceOf(OldEqualToJsonPattern.class));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreArrayOrder(), is(nullValue()));
+        assertThat(((OldEqualToJsonPattern) pattern).isIgnoreExtraElements(), is(nullValue()));
         JSONAssert.assertEquals(pattern.getExpected(), expectedJson, false);
     }
 
     @Test
     public void correctlySerialisesToJsonWhenAdditionalParamsAbsentAndConstructedWithJsonValue() throws JSONException {
         String expectedJson = "[ 1, 2, \"value\" ]";
-        EqualToJsonPattern pattern = new EqualToJsonPattern(Json.node(expectedJson), null, null);
+        OldEqualToJsonPattern pattern = new OldEqualToJsonPattern(Json.node(expectedJson), null, null);
 
         String serialised = Json.write(pattern);
         JSONAssert.assertEquals("{ \"equalToJson\": " + expectedJson + " }", serialised, false);
@@ -377,7 +377,7 @@ public class EqualToJsonTest {
 
     @Test
     public void correctlySerialisesToJsonWhenAdditionalParamsAbsent() throws JSONException {
-        EqualToJsonPattern pattern = new EqualToJsonPattern("4444", null, null);
+        OldEqualToJsonPattern pattern = new OldEqualToJsonPattern("4444", null, null);
 
         String serialised = Json.write(pattern);
         JSONAssert.assertEquals(
@@ -391,7 +391,7 @@ public class EqualToJsonTest {
     @Test
     public void returnsNoExactMatchForVerySimilarNestedDocs() {
         assertFalse(
-            new EqualToJsonPattern(
+            new OldEqualToJsonPattern(
                 "{\n" +
                     "    \"outer\": {\n" +
                     "        \"inner:\": {\n" +
@@ -413,7 +413,7 @@ public class EqualToJsonTest {
 
     @Test
     public void doesNotMatchWhenValueIsNull() {
-        MatchResult match = new EqualToJsonPattern(
+        MatchResult match = new OldEqualToJsonPattern(
             "{\n" +
                 "    \"outer\": {\n" +
                 "        \"inner:\": {\n" +
@@ -429,7 +429,7 @@ public class EqualToJsonTest {
 
     @Test
     public void doesNotMatchWhenValueIsEmptyString() {
-        MatchResult match = new EqualToJsonPattern(
+        MatchResult match = new OldEqualToJsonPattern(
             "{\n" +
                 "    \"outer\": {\n" +
                 "        \"inner:\": {\n" +
@@ -445,7 +445,7 @@ public class EqualToJsonTest {
 
     @Test
     public void doesNotMatchWhenValueIsNotJson() {
-        MatchResult match = new EqualToJsonPattern(
+        MatchResult match = new OldEqualToJsonPattern(
             "{\n" +
                 "    \"outer\": {\n" +
                 "        \"inner:\": {\n" +
@@ -464,7 +464,7 @@ public class EqualToJsonTest {
         String expected = "{\"columns\": [{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"utilizerstatus\",\"b\": 2}]}";
         String actual = "{\"columns\": [{\"name\": \"x\",\"y\": 3},{\"name\": \"agreementnumber\",\"a\": 1},{\"name\": \"agreementstatus\",\"b\": 2}]}";
 
-        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+        MatchResult match = new OldEqualToJsonPattern(expected, false, false).match(actual);
 
         assertFalse(match.isExactMatch());
     }
@@ -483,7 +483,7 @@ public class EqualToJsonTest {
             "  { \"four\": 4 }  \n" +
             "]";
 
-        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+        MatchResult match = new OldEqualToJsonPattern(expected, false, false).match(actual);
 
         assertFalse(match.isExactMatch());
     }
@@ -509,7 +509,7 @@ public class EqualToJsonTest {
         String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
         String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": [ ]}";
 
-        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+        MatchResult match = new OldEqualToJsonPattern(expected, false, false).match(actual);
 
         assertFalse(match.isExactMatch());
     }
@@ -519,7 +519,7 @@ public class EqualToJsonTest {
         String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
         String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": [ ]}";
 
-        MatchResult match = new EqualToJsonPattern(expected, true, false).match(actual);
+        MatchResult match = new OldEqualToJsonPattern(expected, true, false).match(actual);
 
         assertFalse(match.isExactMatch());
     }
@@ -529,7 +529,7 @@ public class EqualToJsonTest {
         String expected = "{\"client\":\"AAA\",\"name\":\"BBB\"}";
         String actual = "{\"client\":\"AAA\", \"name\":\"BBB\", \"addresses\": { }}";
 
-        MatchResult match = new EqualToJsonPattern(expected, true, false).match(actual);
+        MatchResult match = new OldEqualToJsonPattern(expected, true, false).match(actual);
 
         assertFalse(match.isExactMatch());
     }

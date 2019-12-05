@@ -16,7 +16,7 @@
 package com.github.tomakehurst.wiremock.recording;
 
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.OldEqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import org.junit.Test;
 
@@ -59,7 +59,7 @@ public class RequestBodyPatternFactoryJsonDeserializerTest {
             "    \"ignoreExtraElements\": true    \n" +
             "}                                      "
         );
-        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) bodyPatternFactory.forRequest(mockRequest().body("1"));
+        OldEqualToJsonPattern bodyPattern = (OldEqualToJsonPattern) bodyPatternFactory.forRequest(mockRequest().body("1"));
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(false));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
 

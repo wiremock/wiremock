@@ -17,7 +17,6 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.client.WireMockBuilder;
 import com.github.tomakehurst.wiremock.common.FileSource;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.StubMappingTransformer;
@@ -102,10 +101,10 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
         assertThat(returnedMappings.get(2).getRequest().getUrl(), is("/three"));
 
         ContentPattern bodyPattern = returnedMappings.get(2).getRequest().getBodyPatterns().get(0);
-        assertThat(bodyPattern, instanceOf(EqualToJsonPattern.class));
+        assertThat(bodyPattern, instanceOf(OldEqualToJsonPattern.class));
         JSONAssert.assertEquals("{ \"counter\": 55 }", bodyPattern.getExpected(), true);
 
-        EqualToJsonPattern equalToJsonPattern = (EqualToJsonPattern) bodyPattern;
+        OldEqualToJsonPattern equalToJsonPattern = (OldEqualToJsonPattern) bodyPattern;
         assertThat(equalToJsonPattern.isIgnoreArrayOrder(), is(true));
         assertThat(equalToJsonPattern.isIgnoreExtraElements(), is(true));
     }
@@ -275,7 +274,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> mappings = snapshotRecord(recordSpec().chooseBodyMatchTypeAutomatically(false, false, true));
 
-        EqualToJsonPattern jsonBodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        OldEqualToJsonPattern jsonBodyPattern = (OldEqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(jsonBodyPattern.getEqualToJson(), is("{}"));
         assertThat(jsonBodyPattern.isIgnoreArrayOrder(), is(false));
         assertThat(jsonBodyPattern.isIgnoreExtraElements(), is(false));
@@ -294,7 +293,7 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> mappings = snapshotRecord(recordSpec().matchRequestBodyWithEqualToJson(false, true));
 
-        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        OldEqualToJsonPattern bodyPattern = (OldEqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(false));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
     }
@@ -324,8 +323,8 @@ public class SnapshotDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> mappings = snapshotRecord(recordSpec());
 
-        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
-        assertThat(bodyPattern, is(new EqualToJsonPattern("{}", true, true)));
+        OldEqualToJsonPattern bodyPattern = (OldEqualToJsonPattern) mappings.get(0).getRequest().getBodyPatterns().get(0);
+        assertThat(bodyPattern, is(new OldEqualToJsonPattern("{}", true, true)));
     }
 
     @Test

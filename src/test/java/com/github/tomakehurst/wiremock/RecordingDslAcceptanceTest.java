@@ -17,7 +17,7 @@ package com.github.tomakehurst.wiremock;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.InvalidInputException;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
+import com.github.tomakehurst.wiremock.matching.OldEqualToJsonPattern;
 import com.github.tomakehurst.wiremock.recording.NotRecordingException;
 import com.github.tomakehurst.wiremock.recording.RecordingStatus;
 import com.github.tomakehurst.wiremock.recording.RecordingStatusResult;
@@ -205,7 +205,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> returnedMappings = adminClient.stopStubRecording().getStubMappings();
 
-        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+        OldEqualToJsonPattern bodyPattern = (OldEqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
     }
@@ -224,7 +224,7 @@ public class RecordingDslAcceptanceTest extends AcceptanceTestBase {
 
         List<StubMapping> returnedMappings = proxyingService.stopRecording().getStubMappings();
 
-        EqualToJsonPattern bodyPattern = (EqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
+        OldEqualToJsonPattern bodyPattern = (OldEqualToJsonPattern) returnedMappings.get(0).getRequest().getBodyPatterns().get(0);
         assertThat(bodyPattern.isIgnoreArrayOrder(), is(true));
         assertThat(bodyPattern.isIgnoreExtraElements(), is(true));
     }

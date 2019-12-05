@@ -26,7 +26,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.*;
-import static com.github.tomakehurst.wiremock.matching.MockMultipart.mockPart;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
 import static org.hamcrest.Matchers.*;
@@ -474,7 +473,7 @@ public class RequestPatternTest {
         RequestPattern pattern = Json.read(ALL_BODY_PATTERNS_EXAMPLE, RequestPattern.class);
         assertThat(pattern.getBodyPatterns(), hasItems(
             valuePattern(EqualToPattern.class, "thing"),
-            valuePattern(EqualToJsonPattern.class, "{ \"thing\": 1 }"),
+            valuePattern(OldEqualToJsonPattern.class, "{ \"thing\": 1 }"),
             valuePattern(MatchesJsonPathPattern.class, "@.*"),
             valuePattern(EqualToXmlPattern.class, "<thing />"),
             valuePattern(MatchesXPathPattern.class, "//thing"),
