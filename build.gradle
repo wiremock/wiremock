@@ -84,16 +84,13 @@ allprojects {
             exclude group: "org.hamcrest", module: "hamcrest-core"
         }
         compile 'org.apache.commons:commons-lang3:3.7'
-        compile 'com.flipkart.zjsonpatch:zjsonpatch:0.4.4', {
-            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-            exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-        }
         compile "com.github.jknack:handlebars:$versions.handlebars", {
             exclude group: 'org.mozilla', module: 'rhino'
         }
         compile("com.github.jknack:handlebars-helpers:$versions.handlebars") {
             exclude group: 'org.mozilla', module: 'rhino'
         }
+        compile 'net.javacrumbs.json-unit:json-unit-core:2.12.0'
 
         compile 'commons-fileupload:commons-fileupload:1.4'
 
@@ -227,7 +224,7 @@ subprojects {
         relocate "com.jayway", 'wiremock.com.jayway'
         relocate "org.objectweb", 'wiremock.org.objectweb'
         relocate "org.custommonkey", "wiremock.org.custommonkey"
-        relocate "com.flipkart", "wiremock.com.flipkart"
+        relocate "net.javacrumbs", "wiremock.net.javacrumbs"
         relocate "net.sf", "wiremock.net.sf"
         relocate "com.github.jknack", "wiremock.com.github.jknack"
         relocate "org.antlr", "wiremock.org.antlr"
