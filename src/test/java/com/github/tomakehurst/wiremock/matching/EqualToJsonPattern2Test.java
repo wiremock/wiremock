@@ -87,7 +87,7 @@ public class EqualToJsonPattern2Test {
                         "}                  \n"
         ).match(
                 "[]"
-        ).getDistance(), is(0.8));
+        ).getDistance(), is(1.0));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class EqualToJsonPattern2Test {
                         "   \"three\":  3,  \n" +
                         "   \"four\":   4   \n" +
                         "}                  \n"
-        ).getDistance(), is(0.8));
+        ).getDistance(), is(1.0));
     }
 
     @Test

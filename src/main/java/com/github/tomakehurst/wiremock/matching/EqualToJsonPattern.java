@@ -136,13 +136,17 @@ public class EqualToJsonPattern extends StringValuePattern {
                     deepSize(difference.getActual()) :
                     0;
 
-            final int delta = expectedSize - actualSize;
+//            final int delta = expectedSize - actualSize;
+            final int delta = maxDeepSize(difference.getExpected(), difference.getActual());
             count += delta == 0 ? 1 : Math.abs(delta);
         }
     }
 
     public static int maxDeepSize(Object one, Object two) {
-        return Math.max(deepSize(one), deepSize(two));
+        return Math.max(
+                one != null ? deepSize(one) : 0,
+                two != null ? deepSize(two) : 0
+        );
     }
 
     private static int deepSize(Object nodeObj) {
@@ -171,22 +175,6 @@ public class EqualToJsonPattern extends StringValuePattern {
         }
 
         return acc;
-    }
-
-    private static int shallowNodeSize(Object nodeObj) {
-        if (!(nodeObj instanceof Node)) {
-            return 1;
-        }
-
-        Node node = (Node) nodeObj;
-        final Node.NodeType nodeType = node.getNodeType();
-        if (nodeType == ARRAY) {
-            return toNodeList(node).size();
-        } else if (nodeType == OBJECT) {
-            return toNodeMap(node).size();
-        } else {
-            return 1;
-        }
     }
 
     private static boolean isContainerNode(Object nodeObj) {
