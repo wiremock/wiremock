@@ -129,14 +129,6 @@ public class EqualToJsonPattern extends StringValuePattern {
 
         @Override
         public void diff(Difference difference, DifferenceContext context) {
-            final int expectedSize = difference.getExpected() != null ?
-                    deepSize(difference.getExpected()) :
-                    0;
-            final int actualSize = difference.getActual() != null ?
-                    deepSize(difference.getActual()) :
-                    0;
-
-//            final int delta = expectedSize - actualSize;
             final int delta = maxDeepSize(difference.getExpected(), difference.getActual());
             count += delta == 0 ? 1 : Math.abs(delta);
         }
