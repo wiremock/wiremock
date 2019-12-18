@@ -48,6 +48,7 @@ Custom Handlebars helpers
 |               | claims        | a json string which describes the claims to use. Must not be null in case no payload is defined |
 |               | payload       | a json string which contains the content of the jwt. Must not be null in case no claims are defined |
 |               | header        | a json string which contains the header to use |
+
 Configuration
 ------------
 Wiremock parameters can be passed via the environment variable WIREMOCK_OPTIONS. The values need to be of the following form:
