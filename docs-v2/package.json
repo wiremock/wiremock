@@ -11,7 +11,7 @@
     "npm-run-all": "^1.7.0",
     "onchange": "^2.2.0",
     "postcss-cli": "^2.5.1",
-    "swagger-ui-dist": "3.20.1",
+    "swagger-ui-dist": "3.24.3",
     "swagger-cli": "2.2.0",
     "uglify-js": "^2.6.1",
     "redoc": "2.0.0-rc.2",
