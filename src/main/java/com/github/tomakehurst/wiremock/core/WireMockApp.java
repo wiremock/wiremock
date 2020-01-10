@@ -240,10 +240,15 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void removeStubMapping(StubMapping stubMapping) {
-        stubMappings.removeMapping(stubMapping);
-        if (stubMapping.shouldBePersisted()) {
-            mappingsSaver.remove(stubMapping);
+        final Optional<StubMapping> maybeStub = stubMappings.get(stubMapping.getId());
+        if (maybeStub.isPresent()) {
+            StubMapping stubToDelete = maybeStub.get();
+            if (stubToDelete.shouldBePersisted()) {
+                mappingsSaver.remove(stubToDelete);
+            }
         }
+
+        stubMappings.removeMapping(stubMapping);
     }
 
     @Override
@@ -266,6 +271,9 @@ public class WireMockApp implements StubServer, Admin {
 
     @Override
     public void saveMappings() {
+        for (StubMapping stubMapping: stubMappings.getAll()) {
+            stubMapping.setPersistent(true);
+        }
         mappingsSaver.save(stubMappings.getAll());
     }
 
