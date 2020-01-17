@@ -2570,10 +2570,34 @@
             "description": "Request not found"
           }
         }
+      },
+      "delete": {
+        "summary": "Delete request by ID",
+        "tags": [
+          "Requests"
+        ],
+        "parameters": [
+          {
+            "description": "The UUID of the logged request",
+            "in": "path",
+            "name": "requestId",
+            "required": true,
+            "example": "12fb14bb-600e-4bfa-bd8d-be7f12562c99",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted"
+          }
+        }
       }
     },
     "/__admin/requests/reset": {
       "post": {
+        "deprecated": true,
         "summary": "Empty the request journal",
         "tags": [
           "Requests"
@@ -2695,6 +2719,320 @@
                       "example": 4
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/requests/remove": {
+      "post": {
+        "summary": "Remove requests by criteria",
+        "description": "Removed requests logged in the journal matching the specified criteria",
+        "tags": [
+          "Requests"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "bodyPatterns": [
+                    {
+                      "equalToJson": "{ \"numbers\": [1, 2, 3] }"
+                    }
+                  ],
+                  "headers": {
+                    "Content-Type": {
+                      "equalTo": "application/json"
+                    }
+                  },
+                  "method": "POST",
+                  "url": "/some/thing"
+                },
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "description": "The HTTP request method e.g. GET"
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "The path and query to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
+                  },
+                  "urlPath": {
+                    "type": "string",
+                    "description": "The path to match exactly against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
+                  },
+                  "urlPathPattern": {
+                    "type": "string",
+                    "description": "The path regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
+                  },
+                  "urlPattern": {
+                    "type": "string",
+                    "description": "The path and query regex to match against. Only one of url, urlPattern, urlPath or urlPathPattern may be specified."
+                  },
+                  "queryParameters": {
+                    "type": "object",
+                    "description": "Query parameter patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form"
+                  },
+                  "headers": {
+                    "type": "object",
+                    "description": "Header patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form"
+                  },
+                  "basicAuthCredentials": {
+                    "type": "object",
+                    "description": "Pre-emptive basic auth credentials to match against",
+                    "properties": {
+                      "password": {
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "password"
+                    ]
+                  },
+                  "cookies": {
+                    "type": "object",
+                    "description": "Cookie patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form"
+                  },
+                  "bodyPatterns": {
+                    "type": "array",
+                    "description": "Request body patterns to match against in the <key>: { \"<predicate>\": \"<value>\" } form",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "method": "POST",
+                "url": "/resource",
+                "headers": {
+                  "Content-Type": {
+                    "matches": ".*/xml"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Removed request details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "requests": [
+                    {
+                      "url": "/my/url",
+                      "absoluteUrl": "http://mydomain.com/my/url",
+                      "method": "GET",
+                      "headers": {
+                        "Accept-Language": "en-us,en;q=0.5",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0) Gecko/20100101 Firefox/9.0",
+                        "Accept": "image/png,image/*;q=0.8,*/*;q=0.5"
+                      },
+                      "body": "",
+                      "browserProxyRequest": true,
+                      "loggedDate": 1339083581823,
+                      "loggedDateString": "2012-06-07 16:39:41"
+                    },
+                    {
+                      "url": "/my/other/url",
+                      "absoluteUrl": "http://my.other.domain.com/my/other/url",
+                      "method": "POST",
+                      "headers": {
+                        "Accept": "text/plain",
+                        "Content-Type": "text/plain"
+                      },
+                      "body": "My text",
+                      "browserProxyRequest": false,
+                      "loggedDate": 1339083581823,
+                      "loggedDateString": "2012-06-07 16:39:41"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/__admin/requests/remove-by-metadata": {
+      "post": {
+        "summary": "Delete requests mappings matching metadata",
+        "tags": [
+          "Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "String equals",
+                    "type": "object",
+                    "properties": {
+                      "equalTo": {
+                        "type": "boolean"
+                      },
+                      "caseInsensitive": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "equalTo"
+                    ]
+                  },
+                  {
+                    "title": "String contains",
+                    "type": "object",
+                    "properties": {
+                      "contains": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "contains"
+                    ]
+                  },
+                  {
+                    "title": "Regular expression match",
+                    "type": "object",
+                    "properties": {
+                      "matches": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "matches"
+                    ]
+                  },
+                  {
+                    "title": "Negative regular expression match",
+                    "type": "object",
+                    "properties": {
+                      "doesNotMatch": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "doesNotMatch"
+                    ]
+                  },
+                  {
+                    "title": "JSON equals",
+                    "type": "object",
+                    "properties": {
+                      "equalToJson": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "equalToJson"
+                    ]
+                  },
+                  {
+                    "title": "JSONPath match",
+                    "type": "object",
+                    "properties": {
+                      "matchesJsonPath": {
+                        "type": "string"
+                      },
+                      "ignoreArrayOrder": {
+                        "type": "boolean"
+                      },
+                      "ignoreExtraElements": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "matchesJsonPath"
+                    ]
+                  },
+                  {
+                    "title": "XML equality",
+                    "type": "object",
+                    "properties": {
+                      "equalToXml": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "equalToXml"
+                    ]
+                  },
+                  {
+                    "title": "XPath match",
+                    "type": "object",
+                    "properties": {
+                      "matchesXpath": {
+                        "type": "string"
+                      },
+                      "namespaces": {
+                        "type": "object"
+                      },
+                      "valuePattern": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "matchesXpath"
+                    ]
+                  }
+                ]
+              },
+              "example": {
+                "matchesJsonPath": {
+                  "expression": "$.outer",
+                  "equalToJson": "{ \"inner\": 42 }"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Removed request details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "requests": [
+                    {
+                      "url": "/my/url",
+                      "absoluteUrl": "http://mydomain.com/my/url",
+                      "method": "GET",
+                      "headers": {
+                        "Accept-Language": "en-us,en;q=0.5",
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:9.0) Gecko/20100101 Firefox/9.0",
+                        "Accept": "image/png,image/*;q=0.8,*/*;q=0.5"
+                      },
+                      "body": "",
+                      "browserProxyRequest": true,
+                      "loggedDate": 1339083581823,
+                      "loggedDateString": "2012-06-07 16:39:41"
+                    },
+                    {
+                      "url": "/my/other/url",
+                      "absoluteUrl": "http://my.other.domain.com/my/other/url",
+                      "method": "POST",
+                      "headers": {
+                        "Accept": "text/plain",
+                        "Content-Type": "text/plain"
+                      },
+                      "body": "My text",
+                      "browserProxyRequest": false,
+                      "loggedDate": 1339083581823,
+                      "loggedDateString": "2012-06-07 16:39:41"
+                    }
+                  ]
                 }
               }
             }
