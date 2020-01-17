@@ -16,7 +16,7 @@ description: Running WireMock as a standalone mock server.
 The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.
 
-Once you have [downloaded the standalone JAR](http://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
+Once you have [downloaded the standalone JAR](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/{{ site.wiremock_version }}/wiremock-standalone-{{ site.wiremock_version }}.jar) you can run it simply by doing this:
 
 ```bash
 $ java -jar wiremock-standalone-{{ site.wiremock_version }}.jar
