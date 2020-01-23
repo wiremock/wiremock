@@ -24,6 +24,8 @@ import com.github.tomakehurst.wiremock.http.Response;
 import com.github.tomakehurst.wiremock.testsupport.WireMockTestClient;
 import org.junit.Test;
 
+import java.io.File;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.github.tomakehurst.wiremock.http.HttpHeader.httpHeader;
@@ -74,7 +76,7 @@ public class ResponseTransformerAcceptanceTest {
 
         wm.stubFor(get(urlEqualTo("/response-transform-with-files")).willReturn(ok()));
 
-        assertThat(client.get("/response-transform-with-files").content(), endsWith("src/test/resources/__files/plain-example.txt"));
+        assertThat(client.get("/response-transform-with-files").content(), endsWith("src" + File.separator + "test" + File.separator + "resources" + File.separator + "__files"  + File.separator + "plain-example.txt"));
     }
 
     @SuppressWarnings("unchecked")
