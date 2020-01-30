@@ -554,7 +554,7 @@ public class AdminApiTest extends AcceptanceTestBase {
 
     @Test
     public void returnsBadEntityStatusWhenInvalidEqualToXmlSpecified() {
-        WireMockResponse response = testClient.postXml("/__admin/mappings",
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
             "{\n" +
                 "    \"request\": {\n" +
                 "        \"bodyPatterns\": [\n" +
@@ -571,6 +571,90 @@ public class AdminApiTest extends AcceptanceTestBase {
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
         assertThat(errors.first().getDetail(), is("Content is not allowed in prolog.; line 1; column 1"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenContainsOperandIsNull() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": null\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("'contains' expected value cannot be null"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenEqualToOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"equalTo\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("equalTo operand must be a string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenContainsOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"contains\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a string"));
+    }
+
+    @Test
+    public void returnsBadEntityStatusWhenMatchesOperandIsWrongType() {
+        WireMockResponse response = testClient.postJson("/__admin/mappings",
+                "{\n" +
+                        "    \"request\": {\n" +
+                        "        \"bodyPatterns\": [\n" +
+                        "            {\n" +
+                        "                \"matches\": 12\n" +
+                        "            }\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}");
+
+        assertThat(response.statusCode(), is(422));
+
+        Errors errors = Json.read(response.content(), Errors.class);
+        assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
+        assertThat(errors.first().getTitle(), is("Error parsing JSON"));
+        assertThat(errors.first().getDetail(), is("matches operand must be a string"));
     }
 
     @Test
