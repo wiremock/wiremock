@@ -88,7 +88,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
         });
 
         if (!entry.getValue().isTextual()) {
-            throw new JsonMappingException(entry.getKey() + " operand must be a string");
+            throw new JsonMappingException(entry.getKey() + " operand must be a non-null string");
         }
         String operand = entry.getValue().textValue();
         try {
@@ -105,7 +105,7 @@ public class StringValuePatternJsonDeserializer extends JsonDeserializer<StringV
 
         JsonNode equalToNode = rootNode.findValue("equalTo");
         if (!equalToNode.isTextual()) {
-            throw new JsonMappingException("equalTo operand must be a string");
+            throw new JsonMappingException("equalTo operand must be a non-null string");
         }
 
         String operand = equalToNode.textValue();

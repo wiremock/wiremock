@@ -39,4 +39,9 @@ public class AbsentPattern extends StringValuePattern {
     public String getExpected() {
         return "(absent)";
     }
+
+    @Override
+    protected boolean isNullValuePermitted() {
+        return true;
+    }
 }
