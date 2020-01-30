@@ -425,7 +425,7 @@ indicating that values should be URL decoded. The folowing example will parse th
 
 {% raw %}
 ```
-{{formData request.body 'form' urlDecode=true}}}{{{form.formField3}}
+{{formData request.body 'form' urlDecode=true}}{{form.formField3}}
 ```
 {% endraw %}
 
@@ -433,8 +433,8 @@ If the form submitted has multiple values for a given field, these can be access
 
 {% raw %}
 ```
-{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.1}}, {{{form.multiValueField.2}}
-{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.first}}, {{{form.multiValueField.last}}
+{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.1}}, {{form.multiValueField.2}}
+{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.first}}, {{form.multiValueField.last}}
 ```
 {% endraw %}
 
