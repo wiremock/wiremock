@@ -46,8 +46,9 @@ public class RequestBodyPatternFactoryJsonDeserializerTest {
             "    \"caseInsensitive\": true        \n" +
             "}                                      "
         );
-        EqualToPattern bodyPattern = (EqualToPattern) bodyPatternFactory.forRequest(mockRequest());
+        EqualToPattern bodyPattern = (EqualToPattern) bodyPatternFactory.forRequest(mockRequest().body("this body text"));
         assertThat(bodyPattern.getCaseInsensitive(), is(true));
+        assertThat(bodyPattern.getExpected(), is("this body text"));
     }
 
     @Test

@@ -591,7 +591,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-        assertThat(errors.first().getDetail(), is("'contains' expected value cannot be null"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
     }
 
     @Test
@@ -612,7 +612,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-        assertThat(errors.first().getDetail(), is("equalTo operand must be a string"));
+        assertThat(errors.first().getDetail(), is("equalTo operand must be a non-null string"));
     }
 
     @Test
@@ -633,7 +633,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-        assertThat(errors.first().getDetail(), is("contains operand must be a string"));
+        assertThat(errors.first().getDetail(), is("contains operand must be a non-null string"));
     }
 
     @Test
@@ -654,7 +654,7 @@ public class AdminApiTest extends AcceptanceTestBase {
         Errors errors = Json.read(response.content(), Errors.class);
         assertThat(errors.first().getSource().getPointer(), is("/request/bodyPatterns/0"));
         assertThat(errors.first().getTitle(), is("Error parsing JSON"));
-        assertThat(errors.first().getDetail(), is("matches operand must be a string"));
+        assertThat(errors.first().getDetail(), is("matches operand must be a non-null string"));
     }
 
     @Test

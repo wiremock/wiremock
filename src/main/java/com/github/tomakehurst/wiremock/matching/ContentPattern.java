@@ -25,12 +25,18 @@ public abstract class ContentPattern<T> implements NamedValueMatcher<T> {
     protected final T expectedValue;
 
     public ContentPattern(T expectedValue) {
-        Preconditions.checkNotNull(expectedValue, "'" + getName() + "' expected value cannot be null");
+        if (!isNullValuePermitted()) {
+            Preconditions.checkNotNull(expectedValue, "'" + getName() + "' expected value cannot be null");
+        }
         this.expectedValue = expectedValue;
     }
 
     @JsonIgnore
     public T getValue() {
         return expectedValue;
+    }
+
+    protected boolean isNullValuePermitted() {
+        return false;
     }
 }
