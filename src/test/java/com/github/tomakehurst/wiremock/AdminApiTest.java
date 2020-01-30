@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -628,7 +629,11 @@ public class AdminApiTest extends AcceptanceTestBase {
         WireMockResponse response = testClient.get("/__admin/files");
 
         assertEquals(200, response.statusCode());
-        assertThat(new String(response.binaryContent()), matches("\\[ \".*/bar.txt\", \".*zoo.*txt\" ]"));
+        String pathSeparatorRegex = File.separator;
+        if( File.separator.equals("\\") ) {
+            pathSeparatorRegex="\\\\";
+        }
+        assertThat(new String(response.binaryContent()), matches("\\[ \".*"+ pathSeparatorRegex + "bar.txt\", \".*zoo.*txt\" ]"));
     }
 
     @Test
