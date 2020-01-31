@@ -450,7 +450,18 @@ public class CommandLineOptionsTest {
     public void defaultsToGzipEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getGzipDisabled(), is(false));
+    }
 
+    @Test
+    public void disablesRequestLogging() {
+	    CommandLineOptions options = new CommandLineOptions("--disable-request-logging");
+	    assertThat(options.getStubRequestLoggingDisabled(), is(true));
+    }
+
+    @Test
+    public void defaultsToRequestLoggingEnabled() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getStubRequestLoggingDisabled(), is(false));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

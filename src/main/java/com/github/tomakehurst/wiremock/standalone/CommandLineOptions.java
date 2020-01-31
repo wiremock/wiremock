@@ -93,8 +93,8 @@ public class CommandLineOptions implements Options {
     private static final String USE_CHUNKED_ENCODING = "use-chunked-encoding";
     private static final String MAX_TEMPLATE_CACHE_ENTRIES = "max-template-cache-entries";
     private static final String PERMITTED_SYSTEM_KEYS = "permitted-system-keys";
-
     private static final String DISABLE_GZIP = "disable-gzip";
+    private static final String DISABLE_REQUEST_LOGGING = "disable-request-logging";
 
 
     private final OptionSet optionSet;
@@ -143,7 +143,7 @@ public class CommandLineOptions implements Options {
         optionParser.accepts(MAX_TEMPLATE_CACHE_ENTRIES, "The maximum number of response template fragments that can be cached. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg();
         optionParser.accepts(PERMITTED_SYSTEM_KEYS, "A list of case-insensitive regular expressions for names of permitted system properties and environment vars. Only has any effect when templating is enabled. Defaults to no limit.").withOptionalArg().ofType(String.class).withValuesSeparatedBy(",");
         optionParser.accepts(DISABLE_GZIP, "Disable gzipping of request and response bodies");
-
+        optionParser.accepts(DISABLE_REQUEST_LOGGING, "Disable logging of stub requests and responses to the notifier. Useful when performance testing.");
 
         optionParser.accepts(HELP, "Print this message");
 
@@ -536,6 +536,11 @@ public class CommandLineOptions implements Options {
     @Override
     public boolean getGzipDisabled() {
         return optionSet.has(DISABLE_GZIP);
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return optionSet.has(DISABLE_REQUEST_LOGGING);
     }
 
     private Long getMaxTemplateCacheEntries() {

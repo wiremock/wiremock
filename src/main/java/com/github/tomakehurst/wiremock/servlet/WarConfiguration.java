@@ -186,4 +186,9 @@ public class WarConfiguration implements Options {
     public boolean getGzipDisabled() {
         return false;
     }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return false;
+    }
 }

@@ -94,6 +94,7 @@ public class WireMockConfiguration implements Options {
     private int asynchronousResponseThreads;
     private ChunkedEncodingPolicy chunkedEncodingPolicy;
     private boolean gzipDisabled = false;
+    private boolean stubLoggingDisabled = false;
     private String permittedSystemKeys = null;
 
     private MappingsSource getMappingsSource() {
@@ -349,6 +350,11 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration stubRequestLoggingDisabled(boolean disabled) {
+        this.stubLoggingDisabled = disabled;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
@@ -497,5 +503,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getGzipDisabled() {
         return gzipDisabled;
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return stubLoggingDisabled;
     }
 }

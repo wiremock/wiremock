@@ -128,6 +128,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 
 `--disable-gzip`: Prevent response bodies from being gzipped. 
 
+`--disable-request-logging`: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled. 
+
 `--permitted-system-keys`: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to `wiremock.*`.
 
 `--help`: Show command line help

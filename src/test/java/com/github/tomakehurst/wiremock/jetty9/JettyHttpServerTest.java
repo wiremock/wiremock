@@ -60,7 +60,8 @@ public class JettyHttpServerTest {
                 admin,
                 Collections.<String, PostServeAction>emptyMap(),
                 context.mock(RequestJournal.class),
-                Collections.<RequestFilter>emptyList()
+                Collections.<RequestFilter>emptyList(),
+                false
         );
     }
 

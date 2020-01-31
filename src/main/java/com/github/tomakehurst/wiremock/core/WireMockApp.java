@@ -161,7 +161,8 @@ public class WireMockApp implements StubServer, Admin {
             this,
             postServeActions,
             requestJournal,
-            getStubRequestFilters()
+            getStubRequestFilters(),
+            options.getStubRequestLoggingDisabled()
         );
     }
 

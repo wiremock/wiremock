@@ -71,4 +71,5 @@ public interface Options {
     AsynchronousResponseSettings getAsynchronousResponseSettings();
     ChunkedEncodingPolicy getChunkedEncodingPolicy();
     boolean getGzipDisabled();
+    boolean getStubRequestLoggingDisabled();
 }
