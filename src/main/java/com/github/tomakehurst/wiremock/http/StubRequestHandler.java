@@ -34,18 +34,21 @@ public class StubRequestHandler extends AbstractRequestHandler {
     private final Admin admin;
     private final Map<String, PostServeAction> postServeActions;
     private final RequestJournal requestJournal;
+    private final boolean loggingDisabled;
 
 	public StubRequestHandler(StubServer stubServer,
                               ResponseRenderer responseRenderer,
                               Admin admin,
                               Map<String, PostServeAction> postServeActions,
                               RequestJournal requestJournal,
-                              List<RequestFilter> requestFilters) {
+                              List<RequestFilter> requestFilters,
+                              boolean loggingDisabled) {
 		super(responseRenderer, requestFilters);
 		this.stubServer = stubServer;
         this.admin = admin;
         this.postServeActions = postServeActions;
         this.requestJournal = requestJournal;
+        this.loggingDisabled = loggingDisabled;
     }
 
 	@Override
@@ -55,7 +58,7 @@ public class StubRequestHandler extends AbstractRequestHandler {
 
 	@Override
 	protected boolean logRequests() {
-		return true;
+		return !loggingDisabled;
 	}
 
     @Override
