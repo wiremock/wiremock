@@ -534,4 +534,15 @@ public class EqualToJsonTest {
         assertFalse(match.isExactMatch());
     }
 
+    @Test
+    public void treatsTwoTopLevelsArraysWithDifferingOrderAsSameWhenIgnoringOrder() {
+        String expected = "[\"a\",\"b\", \"c\",\"d\",\"e\",\"f\",\"g\",\"h\"]";
+        String actual   = "[\"b\",\"a\", \"d\",\"c\",\"e\",\"f\",\"g\",\"h\"]";
+
+        EqualToJsonPattern pattern = new EqualToJsonPattern(expected, true, true);
+        final MatchResult result = pattern.match(actual);
+
+        assertTrue(result.isExactMatch());
+    }
+
 }
