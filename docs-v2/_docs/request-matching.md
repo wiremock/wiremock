@@ -436,7 +436,11 @@ would match a request with a JSON body of:
 ```
 
 It's also possible to use placeholders that constrain the expected value by type or regular expression.
-See [the JsonUnit placeholders documentation](https://github.com/lukas-krecan/JsonUnit#typeplc) for the full syntax. 
+See [the JsonUnit placeholders documentation](https://github.com/lukas-krecan/JsonUnit#typeplc) for the full syntax.
+
+> **note**
+>
+> Placeholders are only available in the `jre8` WireMock JARs, as the JsonUnit library requires at least Java 8. 
 
 ### JSON Path
 

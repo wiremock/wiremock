@@ -17,10 +17,14 @@ package com.github.tomakehurst.wiremock.matching;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.common.Json;
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static org.apache.commons.lang3.JavaVersion.JAVA_1_8;
+import static org.apache.commons.lang3.SystemUtils.isJavaVersionAtLeast;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -28,6 +32,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
 
 public class EqualToJsonTest {
 
@@ -536,6 +541,8 @@ public class EqualToJsonTest {
 
     @Test
     public void treatsTwoTopLevelsArraysWithDifferingOrderAsSameWhenIgnoringOrder() {
+        assumeJava8OrHigher();
+
         String expected = "[\"a\",\"b\", \"c\",\"d\",\"e\",\"f\",\"g\",\"h\"]";
         String actual   = "[\"b\",\"a\", \"d\",\"c\",\"e\",\"f\",\"g\",\"h\"]";
 
@@ -547,6 +554,8 @@ public class EqualToJsonTest {
 
     @Test
     public void supportsPlaceholders() {
+        assumeJava8OrHigher();
+
         String expected = "{\n" +
                 "  \"id\": \"${json-unit.any-string}\",\n" +
                 "  \"name\": \"Tom\"\n" +
@@ -563,6 +572,8 @@ public class EqualToJsonTest {
 
     @Test
     public void supportsRegexPlaceholders() {
+        assumeJava8OrHigher();
+
         String expected = "{\n" +
                 "  \"id\": \"${json-unit.regex}[a-z]+\",\n" +
                 "  \"name\": \"Tom\"\n" +
@@ -584,4 +595,7 @@ public class EqualToJsonTest {
         assertThat(nonMatch.isExactMatch(), is(false));
     }
 
+    private static void assumeJava8OrHigher() {
+        assumeThat(isJavaVersionAtLeast(JAVA_1_8), is(true));
+    }
 }

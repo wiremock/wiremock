@@ -11,10 +11,8 @@ dependencies {
     compile "org.eclipse.jetty:jetty-alpn-server:$jettyVersion"
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-server:$jettyVersion"
     compile "org.eclipse.jetty:jetty-alpn-conscrypt-client:$jettyVersion"
+    compile 'net.javacrumbs.json-unit:json-unit-core:2.12.0'
+
     testCompile "org.eclipse.jetty:jetty-client:$jettyVersion"
     testCompile "org.eclipse.jetty.http2:http2-http-client-transport:$jettyVersion"
-}
-
-def getAlpnJarPath() {
-    project.configurations.compile.find { it.name.startsWith("alpn-boot-") }
 }
