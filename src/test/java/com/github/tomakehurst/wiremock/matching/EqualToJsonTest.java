@@ -540,9 +540,48 @@ public class EqualToJsonTest {
         String actual   = "[\"b\",\"a\", \"d\",\"c\",\"e\",\"f\",\"g\",\"h\"]";
 
         EqualToJsonPattern pattern = new EqualToJsonPattern(expected, true, true);
-        final MatchResult result = pattern.match(actual);
+        MatchResult result = pattern.match(actual);
 
         assertTrue(result.isExactMatch());
+    }
+
+    @Test
+    public void supportsPlaceholders() {
+        String expected = "{\n" +
+                "  \"id\": \"${json-unit.any-string}\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        String actual = "{\n" +
+                "  \"id\": \"abc123\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actual);
+        assertThat(match.isExactMatch(), is(true));
+    }
+
+    @Test
+    public void supportsRegexPlaceholders() {
+        String expected = "{\n" +
+                "  \"id\": \"${json-unit.regex}[a-z]+\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+
+        String actualMatching = "{\n" +
+                "  \"id\": \"abc\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+        MatchResult match = new EqualToJsonPattern(expected, false, false).match(actualMatching);
+        assertThat(match.isExactMatch(), is(true));
+
+
+        String actualNonMatching = "{\n" +
+                "  \"id\": \"123\",\n" +
+                "  \"name\": \"Tom\"\n" +
+                "}";
+        MatchResult nonMatch = new EqualToJsonPattern(expected, false, false).match(actualNonMatching);
+        assertThat(nonMatch.isExactMatch(), is(false));
     }
 
 }
