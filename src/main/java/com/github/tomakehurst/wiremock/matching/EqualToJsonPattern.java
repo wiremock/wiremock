@@ -37,10 +37,6 @@ public class EqualToJsonPattern extends StringValuePattern {
         this.serializeAsString = false;
     }
 
-    EqualToJsonPattern(String json) {
-        this(json, false, false);
-    }
-
     @Override
     public MatchResult match(String value) {
         final CountingDiffListener diffListener = new CountingDiffListener();
