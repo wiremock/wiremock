@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-01-20T11:52:48+00:00">
+  <meta property="article:published_time" content="2020-01-31T18:42:59+00:00">
   
     <link rel="next" href="/docs/running-standalone/" title="Running as a Standalone Process">
   
@@ -281,16 +281,16 @@
       </a>
       
       <li>
+        <a href="/docs/record-playback-legacy/">
+
+        Record and Playback (Legacy)
+      </a>
+      
+      <li>
         <a href="/docs/response-templating/" class="nav__list-item--selected">
         
 
         Response Templating
-      </a>
-      
-      <li>
-        <a href="/docs/record-playback-legacy/">
-
-        Record and Playback (Legacy)
       </a>
       
       <li>
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Response Templating">
     <meta itemprop="description" content="Response headers and bodies, as well as proxy URLs, can optionally be rendered using Handlebars templates. This enables attributes of the requestto be used in generating the response e.g. to pass the value of a request ID header as a response header orrender an identifier from part of the URL in the response body.Enabling response templatingWhen starting WireMock programmatically, response templating can be enabled by adding ResponseTemplateTransformer as an extension e.g.">
-    <meta itemprop="datePublished" content="January 20, 2020">
+    <meta itemprop="datePublished" content="January 31, 2020">
     
 
     <div class="page__inner-wrap">
@@ -367,8 +367,8 @@ render an identifier from part of the URL in the response body.</p>
 <p>When starting WireMock programmatically, response templating can be enabled by adding <code class="highlighter-rouge">ResponseTemplateTransformer</code> as an extension e.g.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="nc">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span>
 <span class="o">);</span>
 </code></pre></div></div>
 
@@ -387,12 +387,12 @@ to being served.</p>
 
 <h3 id="json">JSON</h3>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+    </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
+    </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.path.[0]}}"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -407,8 +407,8 @@ since compilation can be expensive for larger templates.</p>
 <p>The size of the cache is not limited by default, but can be a construction time:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="n">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="nc">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
                                 <span class="o">.</span><span class="na">global</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
                                 <span class="o">.</span><span class="na">maxCacheEntries</span><span class="o">(</span><span class="mi">3L</span><span class="o">)</span>
                                 <span class="o">.</span><span class="na">build</span><span class="o">())</span>
@@ -431,12 +431,12 @@ since compilation can be expensive for larger templates.</p>
 
 <h3 id="json-1">JSON</h3>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
+    </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"urlPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/templated"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"proxyBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.headers.X-WM-Proxy-Url}}"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
+    </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"proxyBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{request.headers.X-WM-Proxy-Url}}"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"response-template"</span><span class="p">]</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -455,13 +455,13 @@ since compilation can be expensive for larger templates.</p>
 
 <h3 id="json-2">JSON</h3>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/static/.*"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+  </span><span class="nl">"request"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/static/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.requestLine.pathSegments.[1]}}"</span><span class="w">
+  </span><span class="nl">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"bodyFileName"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"files/{{request.requestLine.pathSegments.[1]}}"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -587,8 +587,8 @@ are available e.g.</p>
 <p>It is similarly possible to extract JSON values or sub documents via JSONPath using the <code class="highlighter-rouge">jsonPath</code> helper. Given the JSON</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w">
+  </span><span class="nl">"outer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"inner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stuff"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -689,13 +689,13 @@ Content%20to%20decode
 The helper takes the input string and variable name as its required parameters, with an optional <code class="highlighter-rouge">urlDecode</code> parameter
 indicating that values should be URL decoded. The folowing example will parse the request body as a form, then output a single field <code class="highlighter-rouge">formField3</code>:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}}{{{form.formField3}}
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.formField3}}
 </code></pre></div></div>
 
 <p>If the form submitted has multiple values for a given field, these can be accessed by index:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.1}}, {{{form.multiValueField.2}}
-{{formData request.body 'form' urlDecode=true}}}{{{form.multiValueField.first}}, {{{form.multiValueField.last}}
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.1}}, {{form.multiValueField.2}}
+{{formData request.body 'form' urlDecode=true}}{{form.multiValueField.first}}, {{form.multiValueField.last}}
 </code></pre></div></div>
 
 <h2 id="regular-expression-extract-helper">Regular expression extract helper</h2>
@@ -738,10 +738,10 @@ indicating that values should be URL decoded. The folowing example will parse th
 are defined via a set of regular expressions. These can be configured when constructing the response template extension:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">options</span><span class="o">()</span>
         <span class="o">.</span><span class="na">dynamicPort</span><span class="o">()</span>
         <span class="o">.</span><span class="na">withRootDirectory</span><span class="o">(</span><span class="n">defaultTestFilesRoot</span><span class="o">())</span>
-        <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="nc">ResponseTemplateTransformer</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
                 <span class="o">.</span><span class="na">global</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">permittedSystemKeys</span><span class="o">(</span><span class="s">"allowed.*"</span><span class="o">,</span><span class="s">"also_permitted.*"</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">build</span><span class="o">()</span>
@@ -756,16 +756,16 @@ are defined via a set of regular expressions. These can be configured when const
 <h2 id="custom-helpers">Custom helpers</h2>
 <p>Custom Handlebars helpers can be registered with the transformer on construction:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringLengthHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Helper</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Helper</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">stringLengthHelper</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Helper</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;()</span> <span class="o">{</span>
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="n">String</span> <span class="n">context</span><span class="o">,</span> <span class="n">Options</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="nc">String</span> <span class="n">context</span><span class="o">,</span> <span class="nc">Options</span> <span class="n">options</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="na">length</span><span class="o">();</span>
     <span class="o">}</span>
 <span class="o">};</span>
 
 <span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span>
-    <span class="n">options</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="n">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="s">"string-length"</span><span class="o">,</span> <span class="n">stringLengthHelper</span><span class="o">))</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wm</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span>
+    <span class="n">options</span><span class="o">().</span><span class="na">extensions</span><span class="o">(</span><span class="k">new</span> <span class="nc">ResponseTemplateTransformer</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="s">"string-length"</span><span class="o">,</span> <span class="n">stringLengthHelper</span><span class="o">))</span>
 <span class="o">);</span>
 </code></pre></div></div>
 

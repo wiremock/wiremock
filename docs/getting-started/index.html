@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-01-20T11:52:48+00:00">
+  <meta property="article:published_time" content="2020-01-31T18:42:59+00:00">
   
     <link rel="next" href="/docs/https/" title="HTTPS">
   
@@ -282,15 +282,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Getting Started">
     <meta itemprop="description" content="Installation">
-    <meta itemprop="datePublished" content="January 20, 2020">
+    <meta itemprop="datePublished" content="January 31, 2020">
     
 
     <div class="page__inner-wrap">
@@ -370,14 +370,14 @@
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>com.github.tomakehurst<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>wiremock-jre8<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;version&gt;</span>2.25.1<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.26.0<span class="nt">&lt;/version&gt;</span>
     <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
 <h3 id="gradle">Gradle</h3>
 
-<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.25.1"</span>
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">testCompile</span> <span class="s2">"com.github.tomakehurst:wiremock-jre8:2.26.0"</span>
 </code></pre></div></div>
 
 <p>WireMock is also shipped in Java 7 and standalone versions, both of which work better in certain contexts.
@@ -395,7 +395,7 @@ and setup/tear-down tasks. To start and stop WireMock per-test case, add
 the following to your test class (or a superclass of it):</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span> <span class="c1">// No-args constructor defaults to port 8080</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="mi">8089</span><span class="o">);</span> <span class="c1">// No-args constructor defaults to port 8080</span>
 </code></pre></div></div>
 
 <p>Now you’re ready to write a test case like this:</p>
@@ -409,7 +409,7 @@ the following to your test class (or a superclass of it):</p>
                 <span class="o">.</span><span class="na">withHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="s">"text/xml"</span><span class="o">)</span>
                 <span class="o">.</span><span class="na">withBody</span><span class="o">(</span><span class="s">"&lt;response&gt;Some content&lt;/response&gt;"</span><span class="o">)));</span>
 
-    <span class="n">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">myHttpServiceCallingObject</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
+    <span class="nc">Result</span> <span class="n">result</span> <span class="o">=</span> <span class="n">myHttpServiceCallingObject</span><span class="o">.</span><span class="na">doSomething</span><span class="o">();</span>
 
     <span class="n">assertTrue</span><span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">wasSuccessful</span><span class="o">());</span>
 
@@ -437,7 +437,7 @@ by the rule you can pass a fluently built Options object to either
 <span class="o">...</span>
 
 <span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">).</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">).</span><span class="na">httpsPort</span><span class="o">(</span><span class="mi">8443</span><span class="o">));</span>
 </code></pre></div></div>
 
 <h3 id="random-port-numbers">Random port numbers</h3>
@@ -447,7 +447,7 @@ HTTP and HTTPS ports (which is a great idea if you want to run your
 tests concurrently):</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Rule</span>
-<span class="kd">public</span> <span class="n">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">dynamicPort</span><span class="o">().</span><span class="na">dynamicHttpsPort</span><span class="o">());</span>
+<span class="kd">public</span> <span class="nc">WireMockRule</span> <span class="n">wireMockRule</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockRule</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">dynamicPort</span><span class="o">().</span><span class="na">dynamicHttpsPort</span><span class="o">());</span>
 </code></pre></div></div>
 
 <p>Then find out which ports to use from your tests as follows:</p>
@@ -462,12 +462,12 @@ tests concurrently):</p>
 lifecycle in a suitable way you can construct and start the server
 directly:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">));</span> <span class="c1">//No-args constructor will start on port 8080, no HTTPS</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">(</span><span class="n">wireMockConfig</span><span class="o">().</span><span class="na">port</span><span class="o">(</span><span class="mi">8089</span><span class="o">));</span> <span class="c1">//No-args constructor will start on port 8080, no HTTPS</span>
 <span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 
 <span class="c1">// Do some stuff</span>
 
-<span class="n">WireMock</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
+<span class="nc">WireMock</span><span class="o">.</span><span class="na">reset</span><span class="o">();</span>
 
 <span class="c1">// Finish doing stuff</span>
 
@@ -477,13 +477,13 @@ directly:</p>
 <p>If you’ve changed the port number and/or you’re running the server on
 another host, you’ll need to tell the client:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"wiremock.host"</span><span class="o">,</span> <span class="mi">8089</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"wiremock.host"</span><span class="o">,</span> <span class="mi">8089</span><span class="o">);</span>
 </code></pre></div></div>
 
 <p>And if you’ve deployed it into a servlet container under a path other
 than root you’ll need to set that too:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"tomcat.host"</span><span class="o">,</span> <span class="mi">8080</span><span class="o">,</span> <span class="s">"/wiremock"</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"tomcat.host"</span><span class="o">,</span> <span class="mi">8080</span><span class="o">,</span> <span class="s">"/wiremock"</span><span class="o">);</span>
 </code></pre></div></div>
 
 <h2 id="running-standalone">Running standalone</h2>
@@ -493,7 +493,7 @@ the Java API, JSON over HTTP or JSON files.</p>
 
 <p>This will start the server on port 8080:</p>
 
-<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.25.1/wiremock-standalone-2.25.1.jar">download the standalone JAR from
+<p>You can <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.26.0/wiremock-standalone-2.26.0.jar">download the standalone JAR from
 here</a>.</p>
 
 <p>See <a href="/docs/running-standalone/">Running as a Standalone Process</a> running-standalone for more details and commandline options.</p>

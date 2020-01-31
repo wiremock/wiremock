@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-01-20T11:52:48+00:00">
+  <meta property="article:published_time" content="2020-01-31T18:42:59+00:00">
   
     <link rel="next" href="/docs/request-matching/" title="Request Matching">
   
@@ -282,15 +282,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Record and Playback (New)">
     <meta itemprop="description" content="       If you want to record stubs and host them in the cloud with minimum hassle, try MockLab. It provides a hosted, 100% WireMock compatible mocking service with a friendly web UI.        Learn more">
-    <meta itemprop="datePublished" content="January 20, 2020">
+    <meta itemprop="datePublished" content="January 31, 2020">
     
 
     <div class="page__inner-wrap">
@@ -424,26 +424,26 @@ under the <code class="highlighter-rouge">mappings</code> directory created when
 <p>Java:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Static DSL</span>
-<span class="n">WireMock</span><span class="o">.</span><span class="na">startRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">WireMock</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
+<span class="nc">WireMock</span><span class="o">.</span><span class="na">startRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="nc">WireMock</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
 
 <span class="c1">// Client instance</span>
-<span class="n">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
+<span class="nc">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
 <span class="n">wireMockClient</span><span class="o">.</span><span class="na">startStubRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">stopStubRecording</span><span class="o">();</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">stopStubRecording</span><span class="o">();</span>
 
 <span class="c1">// Directly</span>
-<span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<span class="nc">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">();</span>
 <span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
 <span class="n">wireMockServer</span><span class="o">.</span><span class="na">startRecording</span><span class="o">(</span><span class="s">"http://example.mocklab.io"</span><span class="o">);</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">stopRecording</span><span class="o">();</span>
 </code></pre></div></div>
 
 <p>API:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/start</span><span class="w">
 </span><span class="p">{</span><span class="w">
-  </span><span class="s2">"targetBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
+  </span><span class="nl">"targetBaseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
@@ -467,12 +467,12 @@ See <a href="/docs/proxying">Proxying</a> for details on proxy configuration, bu
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/mappings</span><span class="w">
 </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
+    </span><span class="nl">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ANY"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"proxyBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
+    </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"proxyBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -489,16 +489,16 @@ You might want to do this e.g. if you want to capture requests made by your appl
 <p>Java:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Static DSL</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">WireMock</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="nc">WireMock</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
 
 <span class="c1">// Client instance</span>
-<span class="n">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">takeSnapshotRecording</span><span class="o">();</span>
+<span class="nc">WireMock</span> <span class="n">wireMockClient</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMock</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockClient</span><span class="o">.</span><span class="na">takeSnapshotRecording</span><span class="o">();</span>
 
 <span class="c1">// Directly</span>
-<span class="n">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMockServer</span><span class="o">();</span>
+<span class="nc">WireMockServer</span> <span class="n">wireMockServer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMockServer</span><span class="o">();</span>
 <span class="n">wireMockServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StubMapping</span><span class="o">&gt;</span> <span class="n">recordedMappings</span> <span class="o">=</span> <span class="n">wireMockServer</span><span class="o">.</span><span class="na">snapshotRecord</span><span class="o">();</span>
 </code></pre></div></div>
 
 <p>API:</p>
@@ -524,7 +524,7 @@ You might want to do this e.g. if you want to capture requests made by your appl
           <span class="o">.</span><span class="na">makeStubsPersistent</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
           <span class="o">.</span><span class="na">ignoreRepeatRequests</span><span class="o">()</span>
           <span class="o">.</span><span class="na">transformers</span><span class="o">(</span><span class="s">"modify-response-header"</span><span class="o">)</span>
-          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="n">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
+          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="nc">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
           <span class="o">.</span><span class="na">matchRequestBodyWithEqualToJson</span><span class="o">(</span><span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
   <span class="o">);</span>
 </code></pre></div></div>
@@ -533,32 +533,32 @@ You might want to do this e.g. if you want to capture requests made by your appl
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/start</span><span class="w">
 </span><span class="p">{</span><span class="w">
-  </span><span class="s2">"targetBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"allowNonProxied"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="nl">"targetBaseUrl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.mocklab.io"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"allowNonProxied"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="nl">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2048"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"10240"</span><span class="w">
+  </span><span class="nl">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2048"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"10240"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
-  </span><span class="s2">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+  </span><span class="nl">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -570,7 +570,7 @@ You might want to do this e.g. if you want to capture requests made by your appl
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">snapshotRecord</span><span class="o">(</span>
       <span class="n">recordSpec</span><span class="o">()</span>
           <span class="o">.</span><span class="na">onlyRequestsMatching</span><span class="o">(</span><span class="n">getRequestedFor</span><span class="o">(</span><span class="n">urlPathMatching</span><span class="o">(</span><span class="s">"/api/.*"</span><span class="o">)))</span>
-          <span class="o">.</span><span class="na">onlyRequestIds</span><span class="o">(</span><span class="n">singletonList</span><span class="o">(</span><span class="n">UUID</span><span class="o">.</span><span class="na">fromString</span><span class="o">(</span><span class="s">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="o">)))</span>
+          <span class="o">.</span><span class="na">onlyRequestIds</span><span class="o">(</span><span class="n">singletonList</span><span class="o">(</span><span class="no">UUID</span><span class="o">.</span><span class="na">fromString</span><span class="o">(</span><span class="s">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="o">)))</span>
           <span class="o">.</span><span class="na">allowNonProxied</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
           <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Accept"</span><span class="o">)</span>
           <span class="o">.</span><span class="na">captureHeader</span><span class="o">(</span><span class="s">"Content-Type"</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
@@ -579,7 +579,7 @@ You might want to do this e.g. if you want to capture requests made by your appl
           <span class="o">.</span><span class="na">makeStubsPersistent</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
           <span class="o">.</span><span class="na">ignoreRepeatRequests</span><span class="o">()</span>
           <span class="o">.</span><span class="na">transformers</span><span class="o">(</span><span class="s">"modify-response-header"</span><span class="o">)</span>
-          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="n">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
+          <span class="o">.</span><span class="na">transformerParameters</span><span class="o">(</span><span class="nc">Parameters</span><span class="o">.</span><span class="na">one</span><span class="o">(</span><span class="s">"headerValue"</span><span class="o">,</span> <span class="s">"123"</span><span class="o">))</span>
           <span class="o">.</span><span class="na">chooseBodyMatchTypeAutomatically</span><span class="o">()</span>
   <span class="o">);</span>
 </code></pre></div></div>
@@ -588,32 +588,32 @@ You might want to do this e.g. if you want to capture requests made by your appl
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">POST</span><span class="w"> </span><span class="err">/__admin/recordings/snapshot</span><span class="w">
 </span><span class="p">{</span><span class="w">
-  </span><span class="s2">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ids"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="nl">"filters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"urlPathPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/.*"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ids"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"40a93c4a-d378-4e07-8321-6158d5dbcb29"</span><span class="w"> </span><span class="p">]</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="nl">"captureHeaders"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"Accept"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"Content-Type"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"caseInsensitive"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"matcher"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"equalToJson"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ignoreExtraElements"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2 kb"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1 Mb"</span><span class="w">
+  </span><span class="nl">"extractBodyCriteria"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"textSizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"2 kb"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"binarySizeThreshold"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1 Mb"</span><span class="w">
   </span><span class="p">},</span><span class="w">
-  </span><span class="s2">"outputFormat"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"FULL"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
-  </span><span class="s2">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+  </span><span class="nl">"outputFormat"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"FULL"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"persist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"repeatsAsScenarios"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"transformers"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"modify-response-header"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"transformerParameters"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"headerValue"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -662,7 +662,7 @@ The size values are of type string, and support friendly syntax for specifying t
 If you only require the IDs of captured stubs you can specify:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"outputFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IDS"</span><span class="w">
+  </span><span class="nl">"outputFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IDS"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
@@ -691,14 +691,14 @@ is reached, the last response will continue to be returned.</p>
 
 <p>Transformer implementations supply a name, and this is used to identify them in the <code class="highlighter-rouge">transformers</code> parameter e.g.</p>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"transformer-one"</span><span class="p">,</span><span class="w"> </span><span class="s2">"transformer-two"</span><span class="p">]</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"transformers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"transformer-one"</span><span class="p">,</span><span class="w"> </span><span class="s2">"transformer-two"</span><span class="p">]</span><span class="w">
 </span></code></pre></div></div>
 
 <p>As with other types of WireMock extension, parameters can be supplied. The exact parameters required depend on the specifics of the transformer (or it may not require any).</p>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"transformerParameters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"simpleParam1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"arrayParam2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"transformerParameters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"simpleParam1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"One"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"arrayParam2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w">
     </span><span class="err">...</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -709,16 +709,16 @@ is reached, the last response will continue to be returned.</p>
 
 <p>This behavior can be customized via the <code class="highlighter-rouge">requestBodyPattern</code> parameter, which accepts a <code class="highlighter-rouge">matcher</code> (either <code class="highlighter-rouge">equalTo</code>, <code class="highlighter-rouge">equalToJson</code>, <code class="highlighter-rouge">equalToXml</code>, or <code class="highlighter-rouge">auto</code>) and any relevant matcher options (<code class="highlighter-rouge">ignoreArrayOrder</code>, <code class="highlighter-rouge">ignoreExtraElements</code>, or <code class="highlighter-rouge">caseInsensitive</code>). For example, here’s how to preserve the default behavior, but set <code class="highlighter-rouge">ignoreArrayOrder</code> to <code class="highlighter-rouge">false</code> when <code class="highlighter-rouge">equalToJson</code> is used:</p>
 
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"auto"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ignoreArrayOrder"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 
 <p>If you want to always match request bodies with <code class="highlighter-rouge">equalTo</code> case-insensitively, regardless of the MIME type, use:</p>
-<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"equalTo"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"caseInsenstivie"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"requestBodyPattern"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"matcher"</span><span class="p">:</span><span class="w"> </span><span class="s2">"equalTo"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"caseInsenstivie"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
 

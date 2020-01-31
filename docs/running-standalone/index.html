@@ -51,7 +51,7 @@
 
 
   <meta property="og:type" content="article">
-  <meta property="article:published_time" content="2020-01-20T11:52:48+00:00">
+  <meta property="article:published_time" content="2020-01-31T18:42:59+00:00">
   
     <link rel="next" href="/docs/simulating-faults/" title="Simulating Faults">
   
@@ -282,15 +282,15 @@
       </a>
       
       <li>
-        <a href="/docs/response-templating/">
-
-        Response Templating
-      </a>
-      
-      <li>
         <a href="/docs/record-playback-legacy/">
 
         Record and Playback (Legacy)
+      </a>
+      
+      <li>
+        <a href="/docs/response-templating/">
+
+        Response Templating
       </a>
       
       <li>
@@ -349,7 +349,7 @@
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Running as a Standalone Process">
     <meta itemprop="description" content="       Configuring servers can be a major distraction from building great software. MockLab provides a hosted, 100% WireMock compatible mocking service, freeing you from the hassles of SSL, DNS and server configuration.        Learn more">
-    <meta itemprop="datePublished" content="January 20, 2020">
+    <meta itemprop="datePublished" content="January 31, 2020">
     
 
     <div class="page__inner-wrap">
@@ -369,9 +369,9 @@
 <p>The WireMock server can be run in its own process, and configured via
 the Java API, JSON over HTTP or JSON files.</p>
 
-<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.25.1/wiremock-standalone-2.25.1.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
+<p>Once you have <a href="https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock-standalone/2.26.0/wiremock-standalone-2.26.0.jar">downloaded the standalone JAR</a> you can run it simply by doing this:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.25.1.jar
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>java <span class="nt">-jar</span> wiremock-standalone-2.26.0.jar
 </code></pre></div></div>
 
 <h2 id="command-line-options">Command line options</h2>
@@ -379,6 +379,8 @@ the Java API, JSON over HTTP or JSON files.</p>
 <p>The following can optionally be specified on the command line:</p>
 
 <p><code class="highlighter-rouge">--port</code>: Set the HTTP port number e.g. <code class="highlighter-rouge">--port 9999</code>. Use <code class="highlighter-rouge">--port 0</code> to dynamically determine a port.</p>
+
+<p><code class="highlighter-rouge">--disable-http</code>: Disable the HTTP listener, option available only if HTTPS is enabled.</p>
 
 <p><code class="highlighter-rouge">--https-port</code>: If specified, enables HTTPS on the supplied port.
 Note: When you specify this parameter, WireMock will still, additionally, bind to an HTTP port (8080 by default). So when running multiple WireMock servers you will also need to specify the <code class="highlighter-rouge">--port</code> parameter in order to avoid conflicts.</p>
@@ -478,6 +480,8 @@ The last of these will cause chunked encoding to be used only when a stub define
 
 <p><code class="highlighter-rouge">--disable-gzip</code>: Prevent response bodies from being gzipped.</p>
 
+<p><code class="highlighter-rouge">--disable-request-logging</code>: Prevent requests and responses from being sent to the notifier. Use this when performance testing as it will save memory and CPU even when info/verbose logging is not enabled.</p>
+
 <p><code class="highlighter-rouge">--permitted-system-keys</code>: Comma-separated list of regular expressions for names of permitted environment variables and system properties accessible from response templates. Only has any effect when templating is enabled. Defaults to <code class="highlighter-rouge">wiremock.*</code>.</p>
 
 <p><code class="highlighter-rouge">--help</code>: Show command line help</p>
@@ -486,16 +490,16 @@ The last of these will cause chunked encoding to be used only when a stub define
 
 <p>The WireMock Java API can be used against a running server on a different host if required. If you’re only planning to configure a single remote instance from within your program you can configure the static DSL to point to it:</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
 
 <span class="c1">// or for HTTPS</span>
-<span class="n">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8443</span><span class="o">);</span>
+<span class="nc">WireMock</span><span class="o">.</span><span class="na">configureFor</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"my.remote.host"</span><span class="o">,</span> <span class="mi">8443</span><span class="o">);</span>
 </code></pre></div></div>
 
 <p>Alternatively you can create an instance of the client (or as many as there are servers to configure):</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
-<span class="n">WireMock</span> <span class="n">wireMock2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WireMock</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"2nd.remote.host"</span><span class="o">,</span> <span class="mi">8001</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">WireMock</span> <span class="n">wireMock1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMock</span><span class="o">(</span><span class="s">"1st.remote.host"</span><span class="o">,</span> <span class="mi">8000</span><span class="o">);</span>
+<span class="nc">WireMock</span> <span class="n">wireMock2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WireMock</span><span class="o">(</span><span class="s">"https"</span><span class="o">,</span> <span class="s">"2nd.remote.host"</span><span class="o">,</span> <span class="mi">8001</span><span class="o">);</span>
 </code></pre></div></div>
 
 <h2 id="configuring-via-json-over-http">Configuring via JSON over HTTP</h2>
@@ -525,13 +529,13 @@ it creates two directories under the current one: <code class="highlighter-rouge
 <code class="highlighter-rouge">.json</code> extension under <code class="highlighter-rouge">mappings</code> with the following content:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/mytest"</span><span class="w">
+    </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/mytest"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"More content</span><span class="se">\n</span><span class="s2">"</span><span class="w">
+    </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"More content</span><span class="se">\n</span><span class="s2">"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div></div>
@@ -549,23 +553,23 @@ More content
 <p>JSON files containing multiple stub mappings can also be used. These are of the form:</p>
 
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"mappings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+  </span><span class="nl">"mappings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/one"</span><span class="w">
+      </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/one"</span><span class="w">
       </span><span class="p">},</span><span class="w">
-      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
+      </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="p">{</span><span class="w">
-      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/two"</span><span class="w">
+      </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8c5db8b0-2db4-4ad7-a99f-38c9b00da3f7"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/two"</span><span class="w">
       </span><span class="p">},</span><span class="w">
-      </span><span class="s2">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Updated"</span><span class="w">
+      </span><span class="nl">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"body"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Updated"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">]</span><span class="w">
