@@ -80,6 +80,13 @@ public class CommandLineOptionsTest {
     }
 
     @Test
+    public void disablesHttpWhenOptionPresentAndHttpsEnabled() {
+        CommandLineOptions options = new CommandLineOptions("--disable-http",
+                "--https-port", "8443");
+        assertThat(options.getHttpDisabled(), is(true));
+    }
+
+    @Test
     public void enablesHttpsAndSetsPortNumberWhenOptionPresent() {
         CommandLineOptions options = new CommandLineOptions("--https-port", "8443");
         assertThat(options.httpsSettings().enabled(), is(true));
@@ -443,7 +450,18 @@ public class CommandLineOptionsTest {
     public void defaultsToGzipEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getGzipDisabled(), is(false));
+    }
 
+    @Test
+    public void disablesRequestLogging() {
+	    CommandLineOptions options = new CommandLineOptions("--disable-request-logging");
+	    assertThat(options.getStubRequestLoggingDisabled(), is(true));
+    }
+
+    @Test
+    public void defaultsToRequestLoggingEnabled() {
+        CommandLineOptions options = new CommandLineOptions();
+        assertThat(options.getStubRequestLoggingDisabled(), is(false));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

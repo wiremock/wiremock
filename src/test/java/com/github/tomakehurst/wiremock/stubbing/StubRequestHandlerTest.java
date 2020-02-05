@@ -67,7 +67,7 @@ public class StubRequestHandlerTest {
         admin = context.mock(Admin.class);
 		requestJournal = context.mock(RequestJournal.class);
 
-		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList());
+		requestHandler = new StubRequestHandler(stubServer, responseRenderer, admin, Collections.<String, PostServeAction>emptyMap(), requestJournal, Collections.<RequestFilter>emptyList(), false);
 
         context.checking(new Expectations() {{
             allowing(requestJournal);

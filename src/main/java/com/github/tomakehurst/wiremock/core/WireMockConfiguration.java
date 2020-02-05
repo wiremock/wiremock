@@ -50,6 +50,7 @@ import static java.util.Collections.emptyList;
 public class WireMockConfiguration implements Options {
 
     private int portNumber = DEFAULT_PORT;
+    private boolean httpDisabled = false;
     private String bindAddress = DEFAULT_BIND_ADDRESS;
 
     private int containerThreads = DEFAULT_CONTAINER_THREADS;
@@ -93,6 +94,7 @@ public class WireMockConfiguration implements Options {
     private int asynchronousResponseThreads;
     private ChunkedEncodingPolicy chunkedEncodingPolicy;
     private boolean gzipDisabled = false;
+    private boolean stubLoggingDisabled = false;
     private String permittedSystemKeys = null;
 
     private MappingsSource getMappingsSource() {
@@ -118,6 +120,11 @@ public class WireMockConfiguration implements Options {
 
     public WireMockConfiguration dynamicPort() {
         this.portNumber = DYNAMIC_PORT;
+        return this;
+    }
+
+    public WireMockConfiguration httpDisabled(boolean httpDisabled) {
+        this.httpDisabled = httpDisabled;
         return this;
     }
 
@@ -343,9 +350,19 @@ public class WireMockConfiguration implements Options {
         return this;
     }
 
+    public WireMockConfiguration stubRequestLoggingDisabled(boolean disabled) {
+        this.stubLoggingDisabled = disabled;
+        return this;
+    }
+
     @Override
     public int portNumber() {
         return portNumber;
+    }
+
+    @Override
+    public boolean getHttpDisabled() {
+        return httpDisabled;
     }
 
     @Override
@@ -486,5 +503,10 @@ public class WireMockConfiguration implements Options {
     @Override
     public boolean getGzipDisabled() {
         return gzipDisabled;
+    }
+
+    @Override
+    public boolean getStubRequestLoggingDisabled() {
+        return stubLoggingDisabled;
     }
 }

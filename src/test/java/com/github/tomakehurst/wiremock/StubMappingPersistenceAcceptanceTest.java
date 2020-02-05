@@ -162,9 +162,13 @@ public class StubMappingPersistenceAcceptanceTest {
     }
 
     @Test
-    public void doesNotDeletePersistentStubMappingIfNotFlaggedPersistent() {
-        StubMapping stubMapping = stubFor(get(urlEqualTo("/to-not-delete")));
-        saveAllMappings();
+    public void doesNotDeleteStubMappingFromDiskIfNotFlaggedPersistent() throws Exception {
+        UUID id = UUID.randomUUID();
+        StubMapping stubMapping = get(urlEqualTo("/do-not-delete")).withId(id).build();
+        Files.write(mappingsDir.resolve("do-not-delete.json"), Json.write(stubMapping).getBytes());
+        resetToDefault();
+
+        assertThat(getSingleStubMapping(id).getRequest().getUrl(), is("/do-not-delete"));
         assertMappingsDirContainsOneFile();
 
         removeStub(stubMapping);
