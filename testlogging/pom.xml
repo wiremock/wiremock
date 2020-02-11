@@ -15,7 +15,7 @@
   <repositories>
     <repository>
       <id>version99</id>
-      <url>http://version99.qos.ch/</url>
+      <url>https://version99.qos.ch/</url>
     </repository>
   </repositories>
 
