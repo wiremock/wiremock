@@ -12,5 +12,5 @@ install:
   - JAVA_HOME=$(jdk_switcher home openjdk8) ./gradlew classes testClasses -x generateApiDocs
 
 script:
-  - ./gradlew check --stacktrace --no-daemon
+  - if [[ $TRAVIS_JDK_VERSION == *"8"* ]]; then ./gradlew -c release-settings.gradle :java8:check --stacktrace --no-daemon; else ./gradlew -c release-settings.gradle :java7:check --stacktrace --no-daemon; fi
 
