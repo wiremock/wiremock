@@ -146,4 +146,17 @@ public class HttpHeadersTest {
         HttpHeaders httpHeaders = new HttpHeaders();
         assertThat(httpHeaders.toString().equals("(no headers)\n"), is(true));
     }
+    
+    @Test
+    public void shouldEqualWhenIdentical() throws Exception {
+        HttpHeaders httpHeaders = new HttpHeaders(
+                httpHeader("Header-1", "h1v1", "h1v2"),
+                httpHeader("Header-2", "h2v1", "h2v2"));
+
+        HttpHeaders copyOfHeaders = HttpHeaders.copyOf(httpHeaders);
+
+        assertThat(httpHeaders.equals(copyOfHeaders), is(true));
+        assertThat(httpHeaders.hashCode(), equalTo(copyOfHeaders.hashCode()));
+    }
+
 }
