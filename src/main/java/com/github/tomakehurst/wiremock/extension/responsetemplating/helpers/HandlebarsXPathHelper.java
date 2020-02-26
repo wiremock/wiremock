@@ -122,10 +122,6 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         return document;
     }
 
-    private RenderCache getRenderCache(Options options) {
-        return options.get("renderCache", null);
-    }
-
     /**
      * No prefix by default. It allows to extend this class with a specified prefix. Just overwrite this method to do
      * so.

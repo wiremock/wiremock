@@ -228,4 +228,42 @@ public class HandlebarsJsonPathHelperTest extends HandlebarsHelperTestBase {
 
         assertThat(responseDefinition.getBody(), is("abc"));
     }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
+        String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+        String two = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+
+        assertThat(one, is("one"));
+        assertThat(two, is("one"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
+        String one = renderHelperValue(helper, "{\"test\": \"one\"}", "$.test");
+        String two = renderHelperValue(helper, "{\"test\": \"two\"}", "$.test");
+
+        assertThat(one, is("one"));
+        assertThat(two, is("two"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+        int one = renderHelperValue(helper, "{\n" +
+                "  \"test\": {\n" +
+                "    \"one\": 1,\n" +
+                "    \"two\": 2\n" +
+                "  }\n" +
+                "}", "$.test.one");
+        int two = renderHelperValue(helper, "{\n" +
+                "  \"test\": {\n" +
+                "    \"one\": 1,\n" +
+                "    \"two\": 2\n" +
+                "  }\n" +
+                "}", "$.test.two");
+
+        assertThat(one, is(1));
+        assertThat(two, is(2));
+    }
+
 }
