@@ -16,11 +16,16 @@
 package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.testsupport.WireMatchers;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
@@ -30,6 +35,7 @@ import static com.github.tomakehurst.wiremock.testsupport.NoFileSource.noFileSou
 import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.equalToXml;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
+import static org.jmock.Expectations.anything;
 import static org.junit.Assert.assertThat;
 
 public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
@@ -108,6 +114,31 @@ public class HandlebarsXPathHelperTest extends HandlebarsHelperTestBase {
         testHelperError(helper, null, "/test", is(""));
     }
 
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnIdenticalDocuments() throws Exception {
+        String one = renderHelperValue(helper, "<test>one</test>", "/test/text()");
+        String two = renderHelperValue(helper, "<test>one</test>", "/test/text()");
 
+        assertThat(one, is("one"));
+        assertThat(two, is("one"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenSameExpressionUsedTwiceOnDifferentDocuments() throws Exception {
+        String one = renderHelperValue(helper, "<test>one</test>", "/test/text()");
+        String two = renderHelperValue(helper, "<test>two</test>", "/test/text()");
+
+        assertThat(one, is("one"));
+        assertThat(two, is("two"));
+    }
+
+    @Test
+    public void returnsCorrectResultWhenDifferentExpressionsUsedOnSameDocument() throws Exception {
+        String one = renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/one/text()");
+        String two = renderHelperValue(helper, "<test><one>1</one><two>2</two></test>", "/test/two/text()");
+
+        assertThat(one, is("1"));
+        assertThat(two, is("2"));
+    }
 
 }
