@@ -40,6 +40,26 @@ import static javax.xml.xpath.XPathConstants.NODE;
  */
 public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
 
+    private static final InheritableThreadLocal<XPath> localXPath = new InheritableThreadLocal<XPath>() {
+        @Override
+        protected XPath initialValue() {
+            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            return xPathfactory.newXPath();
+        }
+    };
+
+    private static final InheritableThreadLocal<DocumentBuilder> localDocBuilder = new InheritableThreadLocal<DocumentBuilder>() {
+        @Override
+        protected DocumentBuilder initialValue() {
+            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
+            try {
+                return factory.newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                return throwUnchecked(e, DocumentBuilder.class);
+            }
+        }
+    };
+
     @Override
     public Object apply(final String inputXml, final Options options) throws IOException {
         if (inputXml == null ) {
@@ -55,20 +75,14 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         Document doc;
         try (final StringReader reader = new StringReader(inputXml)) {
             InputSource source = new InputSource(reader);
-            final DocumentBuilderFactory factory = Xml.newDocumentBuilderFactory();
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            doc = builder.parse(source);
+            doc = localDocBuilder.get().parse(source);
         } catch (SAXException se) {
             return handleError(inputXml + " is not valid XML");
-        } catch (ParserConfigurationException e) {
-            return throwUnchecked(e, Object.class);
         }
 
         try {
-            final XPathFactory xPathfactory = XPathFactory.newInstance();
-            final XPath xpath = xPathfactory.newXPath();
-
-            Node node = (Node) xpath.evaluate(getXPathPrefix() + xPathInput, doc, NODE);
+            XPath xPath = localXPath.get();
+            Node node = (Node) xPath.evaluate(getXPathPrefix() + xPathInput, doc, NODE);
 
             if (node == null) {
                 return "";
