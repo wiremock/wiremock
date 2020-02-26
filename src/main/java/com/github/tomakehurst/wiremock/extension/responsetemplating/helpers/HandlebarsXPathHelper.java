@@ -17,6 +17,7 @@ package com.github.tomakehurst.wiremock.extension.responsetemplating.helpers;
 
 import com.github.jknack.handlebars.Options;
 import com.github.tomakehurst.wiremock.common.Xml;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.RenderCache;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -73,16 +74,14 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         final String xPathInput = options.param(0);
 
         Document doc;
-        try (final StringReader reader = new StringReader(inputXml)) {
-            InputSource source = new InputSource(reader);
-            doc = localDocBuilder.get().parse(source);
+        try {
+            doc = getDocument(inputXml, options);
         } catch (SAXException se) {
             return handleError(inputXml + " is not valid XML");
         }
 
         try {
-            XPath xPath = localXPath.get();
-            Node node = (Node) xPath.evaluate(getXPathPrefix() + xPathInput, doc, NODE);
+            Node node = getNode(getXPathPrefix() + xPathInput, doc, options);
 
             if (node == null) {
                 return "";
@@ -94,6 +93,38 @@ public class HandlebarsXPathHelper extends HandlebarsHelper<String> {
         }
     }
 
+    private Node getNode(String xPathExpression, Document doc, Options options) throws XPathExpressionException {
+        RenderCache renderCache = getRenderCache(options);
+        RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xPathExpression, doc);
+        Node node = renderCache.get(cacheKey);
+
+        if (node == null) {
+            XPath xPath = localXPath.get();
+            node = (Node) xPath.evaluate(xPathExpression, doc, NODE);
+            renderCache.put(cacheKey, node);
+        }
+
+        return node;
+    }
+
+    private Document getDocument(String xml, Options options) throws SAXException, IOException {
+        RenderCache renderCache = getRenderCache(options);
+        RenderCache.Key cacheKey = RenderCache.Key.keyFor(Document.class, xml);
+        Document document = renderCache.get(cacheKey);
+        if (document == null) {
+            try (final StringReader reader = new StringReader(xml)) {
+                InputSource source = new InputSource(reader);
+                document = localDocBuilder.get().parse(source);
+                renderCache.put(cacheKey, document);
+            }
+        }
+
+        return document;
+    }
+
+    private RenderCache getRenderCache(Options options) {
+        return options.get("renderCache", null);
+    }
 
     /**
      * No prefix by default. It allows to extend this class with a specified prefix. Just overwrite this method to do
