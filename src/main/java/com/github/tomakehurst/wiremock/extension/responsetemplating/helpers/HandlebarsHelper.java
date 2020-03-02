@@ -77,6 +77,6 @@ public abstract class HandlebarsHelper<T> implements Helper<T> {
     }
 
     protected static RenderCache getRenderCache(Options options) {
-        return options.get("renderCache", null);
+        return options.get("renderCache", new RenderCache());
     }
 }
