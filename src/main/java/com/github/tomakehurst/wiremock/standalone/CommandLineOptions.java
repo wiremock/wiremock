@@ -102,7 +102,6 @@ public class CommandLineOptions implements Options {
     private final MappingsSource mappingsSource;
 
     private String helpText;
-    private Optional<Integer> resultingPort;
 
     public CommandLineOptions(String... args) {
         OptionParser optionParser = new OptionParser();
@@ -153,8 +152,6 @@ public class CommandLineOptions implements Options {
 
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
-
-        resultingPort = Optional.absent();
 	}
 
     private void validate() {
@@ -241,15 +238,11 @@ public class CommandLineOptions implements Options {
         return optionSet.has(DISABLE_HTTP);
     }
 
-	public void setResultingPort(int port) {
-		resultingPort = Optional.of(port);
-	}
-
     @Override
     public String bindAddress(){
-	if (optionSet.has(BIND_ADDRESS)) {
-            return (String) optionSet.valueOf(BIND_ADDRESS);
-        }
+      if (optionSet.has(BIND_ADDRESS)) {
+        return (String) optionSet.valueOf(BIND_ADDRESS);
+      }
 
         return DEFAULT_BIND_ADDRESS;
     }
@@ -452,8 +445,9 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
-        builder.put(PORT, port);
+        if (!getHttpDisabled()) {
+          builder.put(PORT, portNumber());
+        }
 
         if (httpsSettings().enabled()) {
             builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))

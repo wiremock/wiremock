@@ -402,15 +402,6 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void usesPortInToString() {
-        CommandLineOptions options = new CommandLineOptions("--port", "1337");
-        assertThat(options.toString(), allOf(containsString("1337")));
-
-        options.setResultingPort(1338);
-        assertThat(options.toString(), allOf(containsString("1338")));
-    }
-
-    @Test
     public void configuresMaxTemplateCacheEntriesIfSpecified() {
         CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
         Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
