@@ -33,7 +33,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -685,7 +689,37 @@ public class StubbingAcceptanceTest extends AcceptanceTestBase {
 		assertThat(response.statusCode(), is(HTTP_OK));
 	}
 
-    private Matcher<StubMapping> named(final String name) {
+	@Test
+	public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnWholeUrlRegex() throws Exception {
+		stubFor(get(urlMatching("/dodgy-chars.*")).willReturn(ok()));
+
+		String url = "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+		int code = getStatusCodeUsingJavaUrlConnection(url);
+
+		assertThat(code, is(200));
+	}
+
+	@Test
+	public void copesWithRequestCharactersThatReallyShouldBeEscapedWhenMatchingOnExactUrlPath() throws Exception {
+		stubFor(get(urlPathEqualTo("/dodgy-chars")).willReturn(ok()));
+
+		String url = "http://localhost:" + wireMockServer.port() + "/dodgy-chars?filter={\"accountid\":\"1\"}";
+		int code = getStatusCodeUsingJavaUrlConnection(url);
+
+		assertThat(code, is(200));
+	}
+
+	private int getStatusCodeUsingJavaUrlConnection(String url) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		int code = connection.getResponseCode();
+		connection.disconnect();
+		return code;
+	}
+
+
+	private Matcher<StubMapping> named(final String name) {
 	    return new TypeSafeMatcher<StubMapping>() {
             @Override
             public void describeTo(Description description) {
