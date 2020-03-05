@@ -397,6 +397,8 @@ public class JettyHttpServer implements HttpServer {
         mockServiceContext.addFilter(ContentTypeSettingFilter.class, FILES_URL_MATCH, EnumSet.of(DispatcherType.FORWARD));
         mockServiceContext.addFilter(TrailingSlashFilter.class, FILES_URL_MATCH, EnumSet.allOf(DispatcherType.class));
 
+        addCorsFilter(mockServiceContext);
+
         return mockServiceContext;
     }
 
@@ -432,16 +434,23 @@ public class JettyHttpServer implements HttpServer {
 
         adminContext.setAttribute(MultipartRequestConfigurer.KEY, buildMultipartRequestConfigurer());
 
-        FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
-        filterHolder.setInitParameters(ImmutableMap.of(
-            "chainPreflight", "false",
-            "allowedOrigins", "*",
-            "allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,Authorization",
-            "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
-
-        adminContext.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+        addCorsFilter(adminContext);
 
         return adminContext;
+    }
+
+    private void addCorsFilter(ServletContextHandler context) {
+        context.addFilter(buildCorsFilter(), "/*", EnumSet.of(DispatcherType.REQUEST));
+    }
+
+    private FilterHolder buildCorsFilter() {
+        FilterHolder filterHolder = new FilterHolder(CrossOriginFilter.class);
+        filterHolder.setInitParameters(ImmutableMap.of(
+                "chainPreflight", "false",
+                "allowedOrigins", "*",
+                "allowedHeaders", "*",
+                "allowedMethods", "OPTIONS,GET,POST,PUT,PATCH,DELETE"));
+        return filterHolder;
     }
 
     // Override this for platform-specific impls

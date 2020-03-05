@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -149,7 +150,7 @@ public class ProxyAcceptanceTest {
 				.withAdditionalRequestHeader("a", "b")));
 		
 		WireMockResponse response = testClient.get("/proxied/resource?param=value", 
-				TestHttpHeader.withHeader("a", "doh"));
+				withHeader("a", "doh"));
 		
 		assertThat(response.content(), is("Proxied content"));
 	}
@@ -477,6 +478,21 @@ public class ProxyAcceptanceTest {
 
         assertThat(response.statusCode(), is(200));
         assertThat(stopwatch.elapsed(MILLISECONDS), greaterThanOrEqualTo(300L));
+    }
+
+    @Test
+    public void stripsCorsHeadersFromTheTarget() {
+        initWithDefaultConfig();
+
+        proxyingServiceAdmin.register(any(anyUrl())
+                .willReturn(aResponse().proxiedFrom(targetServiceBaseUrl)));
+
+        targetServiceAdmin.register(any(urlPathEqualTo("/cors")).willReturn(ok()));
+
+        WireMockResponse response = testClient.get("/cors", withHeader("Origin", "http://somewhere.com"));
+
+        Collection<String> allowOriginHeaderValues = response.headers().get("Access-Control-Allow-Origin");
+        assertThat(allowOriginHeaderValues.size(), is(1));
     }
 
     private void register200StubOnProxyAndTarget(String url) {
