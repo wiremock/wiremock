@@ -48,6 +48,11 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private static final String CONTENT_ENCODING = "content-encoding";
     private static final String CONTENT_LENGTH = "content-length";
     private static final String HOST_HEADER = "host";
+    public static final ImmutableList<String> FORBIDDEN_HEADERS = ImmutableList.of(
+            CONTENT_LENGTH,
+            TRANSFER_ENCODING,
+            "connection"
+    );
 
     private final HttpClient client;
     private final boolean preserveHostHeader;
@@ -93,7 +98,9 @@ public class ProxyResponseRenderer implements ResponseRenderer {
     private HttpHeaders headersFrom(HttpResponse httpResponse, ResponseDefinition responseDefinition) {
 	    List<HttpHeader> httpHeaders = new LinkedList<HttpHeader>();
 	    for (Header header : httpResponse.getAllHeaders()) {
-		    httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
+	        if (responseHeaderShouldBeTransferred(header.getName())) {
+                httpHeaders.add(new HttpHeader(header.getName(), header.getValue()));
+            }
 	    }
 
         if (responseDefinition.getHeaders() != null) {
@@ -112,7 +119,7 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 	private void addRequestHeaders(HttpRequest httpRequest, ResponseDefinition response) {
 		Request originalRequest = response.getOriginalRequest(); 
 		for (String key: originalRequest.getAllHeaderKeys()) {
-			if (headerShouldBeTransferred(key)) {
+			if (requestHeaderShouldBeTransferred(key)) {
                 if (!HOST_HEADER.equalsIgnoreCase(key) || preserveHostHeader) {
 					List<String> values = originalRequest.header(key).values();
 					for (String value: values) {
@@ -135,8 +142,13 @@ public class ProxyResponseRenderer implements ResponseRenderer {
 		}
 	}
 
-    private static boolean headerShouldBeTransferred(String key) {
-        return !ImmutableList.of(CONTENT_LENGTH, TRANSFER_ENCODING, "connection").contains(key.toLowerCase());
+    private static boolean requestHeaderShouldBeTransferred(String key) {
+        return !FORBIDDEN_HEADERS.contains(key.toLowerCase());
+    }
+
+    private static boolean responseHeaderShouldBeTransferred(String key) {
+        final String lowerCaseKey = key.toLowerCase();
+        return !FORBIDDEN_HEADERS.contains(lowerCaseKey) && !lowerCaseKey.startsWith("access-control");
     }
 
     private static void addBodyIfPostPutOrPatch(HttpRequest httpRequest, ResponseDefinition response) throws UnsupportedEncodingException {
