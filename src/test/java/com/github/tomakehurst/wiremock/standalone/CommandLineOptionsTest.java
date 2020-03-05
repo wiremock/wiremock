@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.helpers.HandlebarsHelper;
 import com.github.tomakehurst.wiremock.http.CaseInsensitiveKey;
 import com.github.tomakehurst.wiremock.http.Request;
 import com.github.tomakehurst.wiremock.http.ResponseDefinition;
@@ -34,9 +33,12 @@ import com.google.common.base.Optional;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
-import static com.github.tomakehurst.wiremock.common.ProxySettings.NO_PROXY;
 import static com.github.tomakehurst.wiremock.matching.MockRequest.mockRequest;
+import static com.github.tomakehurst.wiremock.testsupport.WireMatchers.matchesMultiLine;
+import static java.util.regex.Pattern.DOTALL;
+import static java.util.regex.Pattern.MULTILINE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -402,15 +404,6 @@ public class CommandLineOptionsTest {
     }
 
     @Test
-    public void usesPortInToString() {
-        CommandLineOptions options = new CommandLineOptions("--port", "1337");
-        assertThat(options.toString(), allOf(containsString("1337")));
-
-        options.setResultingPort(1338);
-        assertThat(options.toString(), allOf(containsString("1338")));
-    }
-
-    @Test
     public void configuresMaxTemplateCacheEntriesIfSpecified() {
         CommandLineOptions options = new CommandLineOptions("--global-response-templating", "--max-template-cache-entries", "5");
         Map<String, ResponseTemplateTransformer> extensions = options.extensionsOfType(ResponseTemplateTransformer.class);
@@ -462,6 +455,29 @@ public class CommandLineOptionsTest {
     public void defaultsToRequestLoggingEnabled() {
         CommandLineOptions options = new CommandLineOptions();
         assertThat(options.getStubRequestLoggingDisabled(), is(false));
+    }
+
+    @Test
+    public void printsTheActualPortOnlyWhenHttpsDisabled() {
+	    CommandLineOptions options = new CommandLineOptions();
+	    options.setActualHttpPort(5432);
+
+	    String dump = options.toString();
+
+	    assertThat(dump, matchesMultiLine(".*port:.*5432.*"));
+	    assertThat(dump, not(containsString("https-port")));
+    }
+
+    @Test
+    public void printsBothActualPortsOnlyWhenHttpsEnabled() {
+	    CommandLineOptions options = new CommandLineOptions();
+	    options.setActualHttpPort(5432);
+	    options.setActualHttpsPort(2345);
+
+	    String dump = options.toString();
+
+	    assertThat(dump, matchesMultiLine(".*port:.*5432.*"));
+	    assertThat(dump, matchesMultiLine(".*https-port:.*2345.*"));
     }
 
     public static class ResponseDefinitionTransformerExt1 extends ResponseDefinitionTransformer {

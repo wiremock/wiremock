@@ -102,7 +102,8 @@ public class CommandLineOptions implements Options {
     private final MappingsSource mappingsSource;
 
     private String helpText;
-    private Optional<Integer> resultingPort;
+    private Integer actualHttpPort;
+    private Integer actualHttpsPort;
 
     public CommandLineOptions(String... args) {
         OptionParser optionParser = new OptionParser();
@@ -154,7 +155,7 @@ public class CommandLineOptions implements Options {
         fileSource = new SingleRootFileSource((String) optionSet.valueOf(ROOT_DIR));
         mappingsSource = new JsonFileMappingsSource(fileSource.child(MAPPINGS_ROOT));
 
-        resultingPort = Optional.absent();
+        actualHttpPort = null;
 	}
 
     private void validate() {
@@ -241,9 +242,13 @@ public class CommandLineOptions implements Options {
         return optionSet.has(DISABLE_HTTP);
     }
 
-	public void setResultingPort(int port) {
-		resultingPort = Optional.of(port);
+	public void setActualHttpPort(int port) {
+		actualHttpPort = port;
 	}
+
+	public void setActualHttpsPort(int port) {
+        actualHttpsPort = port;
+    }
 
     @Override
     public String bindAddress(){
@@ -452,12 +457,17 @@ public class CommandLineOptions implements Options {
     @Override
     public String toString() {
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        int port = resultingPort.isPresent() ? resultingPort.get() : portNumber();
-        builder.put(PORT, port);
+
+        if (actualHttpPort != null) {
+            builder.put(PORT, actualHttpPort);
+        }
+
+        if (actualHttpsPort != null) {
+            builder.put(HTTPS_PORT, actualHttpsPort);
+        }
 
         if (httpsSettings().enabled()) {
-            builder.put(HTTPS_PORT, nullToString(httpsSettings().port()))
-                   .put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
+            builder.put(HTTPS_KEYSTORE, nullToString(httpsSettings().keyStorePath()));
         }
 
         if (!(proxyVia() == NO_PROXY)) {
