@@ -75,7 +75,15 @@ public class WireMockServerRunner {
         try {
             wireMockServer.start();
             boolean https = options.httpsSettings().enabled();
-            options.setResultingPort(https ? wireMockServer.httpsPort() : wireMockServer.port());
+
+            if (!options.getHttpDisabled()) {
+            	options.setActualHttpPort(wireMockServer.port());
+			}
+
+            if (https) {
+            	options.setActualHttpsPort(wireMockServer.httpsPort());
+			}
+
             if (!options.bannerDisabled()){
                 out.println(BANNER);
                 out.println();
